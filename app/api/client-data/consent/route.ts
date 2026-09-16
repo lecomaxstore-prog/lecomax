@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -25,7 +26,7 @@ function approximateCoordinate(value: string | null) {
 // POST — register a new consent
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
@@ -81,7 +82,7 @@ export async function POST(req: NextRequest) {
 // DELETE — revoke consent (soft delete with revoked_at timestamp)
 export async function DELETE(req: NextRequest) {
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 

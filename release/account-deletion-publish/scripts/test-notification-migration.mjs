@@ -1,0 +1,66 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+// Pass an isolated PGlite module path; this test never connects to Supabase.
+const { PGlite } = await import(pathToFileURL(path.resolve(process.argv[2])).href);
+const db = new PGlite();
+await db.exec(`create role anon; create role authenticated; create role service_role;
+  create schema auth; create table auth.users(id uuid primary key);
+  create table products(id uuid primary key default gen_random_uuid(), name text not null, slug text not null, active boolean not null default false, price numeric default 100, original_price numeric);
+  create table promotions(id uuid primary key default gen_random_uuid(), label text not null, active boolean default false, expires_at timestamptz);`);
+for (const file of ['20260727190000_mobile_control_center.sql', '20260727200000_mobile_campaign_segmentation.sql', '20260906120000_product_notifications.sql']) {
+  await db.exec(await readFile(path.join('supabase/migrations', file), 'utf8'));
+}
+const count = async () => Number((await db.query('select count(*) as count from mobile_notification_campaigns')).rows[0].count);
+await db.exec("insert into products(name,slug,active) values ('Draft','draft',false)");
+assert.equal(await count(), 0, 'Drafts do not notify');
+await db.exec("update products set active=true where slug='draft'");
+assert.equal(await count(), 1, 'First publication queues one campaign');
+await db.exec("update products set name='Edited', active=true where slug='draft'");
+await db.exec("update products set active=false where slug='draft'; update products set active=true where slug='draft'");
+assert.equal(await count(), 1, 'Edits and repeat publications do not duplicate campaigns');
+await db.exec("insert into products(name,slug,active) values ('Brand new','new-product',true)");
+assert.equal(await count(), 2, 'Active inserts notify');
+const campaign = (await db.query("select * from mobile_notification_campaigns where deep_link='/product/new-product'")).rows[0];
+assert.equal(campaign.category, 'new_products');
+assert.equal(campaign.status, 'scheduled');
+assert.equal(campaign.audience, 'all');
+await db.exec("begin; insert into products(name,slug,active) values ('Rolled back','rollback',true); rollback;");
+assert.equal(await count(), 2, 'Rolled-back products cannot leave phantom campaigns');
+await db.exec(await readFile('supabase/migrations/20260906120000_product_notifications.sql', 'utf8'));
+assert.equal(await count(), 2, 'Migration can be rerun without duplicate notifications');
+for (const table of ['mobile_web_push_subscriptions', 'mobile_push_receipts', 'mobile_campaign_dispatches']) {
+  const result = await db.query(`select relrowsecurity from pg_class where relname=$1`, [table]);
+  assert.equal(result.rows[0].relrowsecurity, true, `${table} has RLS enabled`);
+  const grants = await db.query(`select has_table_privilege('anon',$1,'SELECT') as anon, has_table_privilege('authenticated',$1,'SELECT') as authenticated`, [table]);
+  assert.deepEqual(grants.rows[0], { anon: false, authenticated: false });
+}
+await db.exec(await readFile('supabase/migrations/20260909120000_offer_notifications.sql', 'utf8'));
+await db.exec("insert into promotions(label,active) values ('Draft offer',false); insert into promotions(label,active,expires_at) values ('Expired',true,now()-interval '1 day');");
+assert.equal(await count(), 2, 'Draft and expired offers do not notify');
+await db.exec("update promotions set active=true where label='Draft offer'");
+assert.equal(await count(), 3, 'Publishing an offer queues a notification');
+await db.exec("update promotions set label='Edited offer' where label='Draft offer'; update promotions set active=false where label='Edited offer'; update promotions set active=true where label='Edited offer'");
+assert.equal(await count(), 3, 'Offer edits and repeat publication do not duplicate');
+await db.exec("insert into promotions(label,active) values ('New offer',true)");
+assert.equal(await count(), 4, 'Active offer inserts notify');
+await db.exec("update products set original_price=150 where slug='new-product'");
+assert.equal(await count(), 5, 'Adding a product discount notifies');
+await db.exec("update products set name='Sale edit',price=100 where slug='new-product'");
+assert.equal(await count(), 5, 'Ordinary sale edits do not notify');
+await db.exec("update products set price=90 where slug='new-product'");
+assert.equal(await count(), 6, 'A further price reduction notifies');
+await db.exec("update products set price=100 where slug='new-product'; update products set price=90 where slug='new-product'");
+assert.equal(await count(), 6, 'Price increases and repeated identical discounts do not duplicate');
+await db.exec("update products set active=false where slug='draft'; update products set original_price=150,price=80 where slug='draft'");
+assert.equal(await count(), 6, 'Draft product discounts do not notify');
+await db.exec("begin; insert into promotions(label,active) values ('Rollback',true); rollback;");
+assert.equal(await count(), 6, 'Rolled-back offers do not notify');
+const offers = (await db.query("select * from mobile_notification_campaigns where category='promotions'")).rows;
+assert.equal(offers.length, 4);
+assert.ok(offers.every(row => row.status === 'scheduled' && row.audience === 'all' && row.attempt_count === 0));
+await db.exec(await readFile('supabase/migrations/20260909120000_offer_notifications.sql', 'utf8'));
+assert.equal(await count(), 6, 'Offer migration is rerunnable without backfill');
+await db.close();
+console.log('PASS: product and offer notifications, discounts, drafts, expiry, deduplication, rollback, reruns, and private table access.');

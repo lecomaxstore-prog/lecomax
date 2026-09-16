@@ -1,0 +1,110 @@
+/*!*****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/ProductCard.module.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************/
+.ProductCard_card__syd1X {
+  border: 1px solid #e6e8e1;
+  border-radius: 14px;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+.ProductCard_card__syd1X:hover { border-color: #cdd7c9; box-shadow: 0 8px 24px #243c2d0a; }
+.ProductCard_media__ihkEx { background: #fff; border-bottom: 1px solid #f0f1ed; }
+.ProductCard_productImage__yDroK { padding: 8px; -o-object-position: center; object-position: center; }
+.ProductCard_info__79VzT { padding: 14px 12px 12px; }
+.ProductCard_title__Z23ro {
+  min-height: 2.9em;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  letter-spacing: -.015em;
+  color: #303a31;
+}
+.ProductCard_prices__XmCFi { padding: 12px 0; }
+.ProductCard_price__Z10KW { color: #203d2b; font-size: 18px; line-height: 1.2; font-weight: 600; letter-spacing: -.035em; }
+.ProductCard_badges__2D7eQ { max-width: calc(100% - 64px); pointer-events: none; }
+.ProductCard_badges__2D7eQ > span {
+  max-width: 100%;
+  padding: 5px 7px;
+  border-radius: 4px;
+  background: #fffffff0;
+  color: #344637;
+  border: 1px solid #e7ebe2;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .07em;
+  line-height: 1;
+  overflow-wrap: anywhere;
+  box-shadow: none;
+}
+.ProductCard_badges__2D7eQ > .ProductCard_discount__Xtj31 { background: #edf2e7; color: #35512f; border-color: #e0e8d7; }
+.ProductCard_action__J1own { border-radius: 7px; }
+@media (min-width: 640px) {
+  .ProductCard_productImage__yDroK { padding: 12px; }
+  .ProductCard_info__79VzT { padding: 16px; }
+  .ProductCard_title__Z23ro { font-size: 14px; }
+  .ProductCard_price__Z10KW { font-size: 20px; }
+  .ProductCard_badges__2D7eQ > span { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) { .ProductCard_card__syd1X { transition: none; } }
+
+/*!*****************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/next/dist/build/webpack/loaders/css-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[2]!./node_modules/next/dist/build/webpack/loaders/postcss-loader/src/index.js??ruleSet[1].rules[14].oneOf[5].use[3]!./components/ProductRail.module.css ***!
+  \*****************************************************************************************************************************************************************************************************************************************************************************/
+.ProductRail_refined__o3oO4 .rail-header {
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e6eae2;
+}
+
+.ProductRail_refined__o3oO4 .rail-header p {
+  color: #70816f;
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  margin-bottom: 7px;
+}
+
+.ProductRail_refined__o3oO4 .rail-header h2 {
+  font-family: var(--font-sans), Arial, sans-serif;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -.04em;
+  text-transform: none;
+  color: #183c30;
+}
+
+.ProductRail_refined__o3oO4 .rail-header button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border-color: #dce3d8;
+  color: #183c30;
+  background: #fff;
+  flex-shrink: 0;
+}
+
+.ProductRail_refined__o3oO4 .rail-header button:disabled { opacity: .3; }
+.ProductRail_refined__o3oO4 .rail-header button:hover:not(:disabled) { background: #eef3ec; }
+.ProductRail_refined__o3oO4 .rail-header button:focus-visible { outline: 2px solid #183c30; outline-offset: 3px; }
+
+.ProductRail_refined__o3oO4 .rail-header a {
+  border-color: #dce3d8;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: #183c30;
+  min-height: 44px;
+}
+.ProductRail_refined__o3oO4 .rail-header a:hover { background: #eef3ec; }
+.ProductRail_refined__o3oO4 .product-card { border-color: #e5e9e1; box-shadow: 0 2px 5px #183c3004; }
+.ProductRail_refined__o3oO4 .product-card h3 { font-weight: 500; line-height: 1.5; }
+
+@media (min-width: 640px) {
+  .ProductRail_refined__o3oO4 .rail-header { margin-bottom: 24px; padding-bottom: 22px; }
+  .ProductRail_refined__o3oO4 .rail-header h2 { font-size: 36px; }
+  .ProductRail_refined__o3oO4 .rail-header p { font-size: 9px; }
+}
+

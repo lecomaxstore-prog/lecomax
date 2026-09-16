@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supportDatabase, supportFailure } from '@/lib/support-server';
 import { decodeSupportBody, detectSupportFile, supportPreview, SUPPORT_ATTACHMENT_PREFIX, SUPPORT_FILE_LIMIT } from '@/lib/support-attachments';
 import { validSupportId } from '@/lib/support-validation';
+import { readFormDataLimited } from '@/lib/request-body';
+import { validMediaBytes } from '@/lib/upload-validation';
 
 const BUCKET = 'support-private';
 
@@ -29,7 +31,7 @@ export async function sendSupportFile(req: NextRequest, id: string, sender: 'cus
   const { data: conversation, error: ownershipError } = await ownership.maybeSingle();
   if (ownershipError) return supportFailure(ownershipError, 'Conversation indisponible.');
   if (!conversation) return NextResponse.json({ error: 'Conversation introuvable.' }, { status: 404 });
-  const form = await req.formData().catch(() => null);
+  const form = await readFormDataLimited(req, SUPPORT_FILE_LIMIT + 100_000).catch(() => null);
   const file = form?.get('file');
   const clientId = form?.get('client_message_id');
   if (!(file instanceof File) || !validSupportId(clientId)) return NextResponse.json({ error: 'Fichier ou identifiant invalide.' }, { status: 400 });
@@ -44,6 +46,9 @@ export async function sendSupportFile(req: NextRequest, id: string, sender: 'cus
   const bytes = new Uint8Array(await file.arrayBuffer());
   const type = detectSupportFile(bytes);
   if (!type) return NextResponse.json({ error: 'Formats acceptés : JPG, PNG, WebP et PDF.' }, { status: 415 });
+  if (type.startsWith('image/') && !(await validMediaBytes(Buffer.from(bytes), type))) {
+    return NextResponse.json({ error: 'Image invalide ou dimensions excessives.' }, { status: 415 });
+  }
   const name = file.name.replace(/[\x00-\x1f/\\]/g, '_').slice(0, 120) || 'Document';
   const extension = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'application/pdf': 'pdf' }[type];
   const path = `${id}/${clientId}/${randomUUID()}.${extension}`;

@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { communityAvatar, communityDisplayName, getEcomediaUser } from "@/lib/ecomedia-auth";
@@ -12,9 +14,14 @@ const sb = createClient(
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type");
-  const limit = Math.min(parseInt(searchParams.get("limit") ?? "12"), 50);
-  const offset = parseInt(searchParams.get("offset") ?? "0");
-  const search = searchParams.get("search");
+  const boundedInteger = (value: string | null, fallback: number, min: number, max: number) => {
+    const number = value === null ? fallback : Number(value);
+    return Number.isSafeInteger(number) ? Math.max(min, Math.min(number, max)) : fallback;
+  };
+  const limit = boundedInteger(searchParams.get("limit"), 12, 1, 50);
+  const offset = boundedInteger(searchParams.get("offset"), 0, 0, 10_000);
+  // PostgREST .or() parses a filter expression; user text must not add clauses.
+  const search = (searchParams.get("search") ?? "").slice(0, 120).replace(/[\\%_,()."\u0000-\u001f]/g, "").trim();
 
   let query = sb
     .from("ecomedia_posts")
@@ -41,7 +48,7 @@ export async function GET(req: NextRequest) {
   }
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   return NextResponse.json((data ?? []).map(post => hydrateCommunityPost(post)), {
     headers: { "Cache-Control": "s-maxage=30, stale-while-revalidate=60" },
@@ -53,7 +60,7 @@ export async function POST(req: NextRequest) {
   const user = await getEcomediaUser(req);
   if (!user) return NextResponse.json({ error: "Connectez-vous pour publier." }, { status: 401 });
   let body: { content?: string; mediaUrl?: string | null };
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
   const content = body.content?.trim() ?? "";
   const mediaUrl = body.mediaUrl?.trim() || null;
   if (content.length < 2 && !mediaUrl) return NextResponse.json({ error: "Ajoutez un message ou une photo." }, { status: 400 });

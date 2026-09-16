@@ -1,0 +1,81 @@
+{
+  "id": "/",
+  "name": "L'ecomax",
+  "short_name": "L'ecomax",
+  "description": "Votre marketplace lifestyle au Maroc — tous les univers du quotidien",
+  "lang": "fr-MA",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#09090b",
+  "theme_color": "#3ecf4c",
+  "categories": [
+    "shopping",
+    "fashion",
+    "lifestyle"
+  ],
+  "icons": [
+    {
+      "src": "/icons/premium-v12-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/premium-v12-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/premium-v12-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/premium-v12-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/hero secrtion/hero section web version.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "L'ecomax — Boutique en ligne Maroc"
+    },
+    {
+      "src": "/images/hero secrtion/hero section mobile version.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "L'ecomax — Votre marketplace lifestyle"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nouveautés",
+      "short_name": "Nouveautés",
+      "url": "/nouveautes?source=pwa",
+      "description": "Dernières arrivées"
+    },
+    {
+      "name": "Promotions",
+      "short_name": "Promotions",
+      "url": "/promotions?source=pwa",
+      "description": "Meilleures offres"
+    },
+    {
+      "name": "Mon panier",
+      "short_name": "Panier",
+      "url": "/panier?source=pwa",
+      "description": "Voir mon panier"
+    }
+  ]
+}

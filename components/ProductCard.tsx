@@ -132,7 +132,7 @@ export default function ProductCard({ product, recommendation = false }: { produ
         {/* Price */}
         <div className={styles.prices}>
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1.5">
-            <span className={styles.price}>
+            <span className={`${styles.price}${onSale ? ` ${styles.salePrice}` : ""}`}>
               {formatMAD(product.price)}
             </span>
             {onSale && (
@@ -148,10 +148,10 @@ export default function ProductCard({ product, recommendation = false }: { produ
         <Link
           href={`/produit/${product.slug}`}
           aria-label={`Voir le produit : ${product.name}`}
-          className={`${styles.action} mt-2 flex min-h-11 items-center justify-between gap-1.5 px-3 text-[11px] font-semibold transition-colors after:absolute after:inset-0 after:z-10 after:content-[''] focus-visible:outline-none ${outOfStock ? "bg-neutral-100 text-neutral-600" : "bg-[#183c30] text-white group-hover:bg-[#235340]"}`}
+          className={`${styles.action} after:absolute after:inset-0 after:z-10 after:content-[''] focus-visible:outline-none ${outOfStock ? styles.actionUnavailable : ""}`}
         >
           <span>{outOfStock ? "Voir les détails" : "Voir le produit"}</span>
-          <span className="flex h-5 w-5 shrink-0 items-center justify-center">
+          <span className={`${styles.actionArrow} flex h-5 w-5 shrink-0 items-center justify-center`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </span>
         </Link>

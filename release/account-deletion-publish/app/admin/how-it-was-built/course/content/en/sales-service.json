@@ -1,0 +1,984 @@
+{
+  "id": "sales-service",
+  "order": 37,
+  "icon": "message",
+  "color": "#a855f7",
+  "title": "Sales, conversation, and customer service",
+  "summary": "Help the right customer decide and resolve problems professionally.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/37-sales-service/ethical-sales-funnel.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/37-sales-service/objections-chat.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/37-sales-service/crm-pipeline.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/37-sales-service/support-returns-recovery.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "ethical-sales-funnel",
+      "order": 0,
+      "title": "Ethical sales process and qualification",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Ethical sales process and qualification into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a discovery script and qualification rubric into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Discover need, context, budget, timing, and criteria; recommend only a suitable solution and accept that no purchase may be the right outcome. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Discover need, context, budget, timing, and criteria; recommend only a suitable solution and accept that no purchase may be the right outcome. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Ethical sales process and qualification is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Discover need, context, budget, timing, and criteria; recommend only a suitable solution and accept that no purchase may be the right outcome. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Ethical sales process and qualification, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a discovery script and qualification rubric. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Qualification",
+                  "definition": "A central Ethical sales process and qualification concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Objection",
+                  "definition": "A measure or structure that makes the Ethical sales process and qualification decision comparable and reproducible."
+                },
+                {
+                  "term": "SLA",
+                  "definition": "A control boundary used to verify that Ethical sales process and qualification improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Ethical sales process and qualification to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/ethical-sales-funnel.md",
+                "source": "# Ethical sales process and qualification\n- [ ] Customer problem: Discover need, context, budget, timing, and criteria; recommend only a suitable solution and accept that no purchase may be the right outcome.\n- [ ] Deliverable: a discovery script and qualification rubric\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.ftc.gov/business-guidance/advertising-marketing\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Ethical sales process and qualification before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/ethical-sales-funnel.md",
+                "source": "# Ethical sales process and qualification\n- [x] Customer problem: Discover need, context, budget, timing, and criteria; recommend only a suitable solution and accept that no purchase may be the right outcome.\n- [ ] Deliverable: a discovery script and qualification rubric\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.ftc.gov/business-guidance/advertising-marketing\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Ethical sales process and qualification",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Ethical sales process and qualification completes every section of a discovery script and qualification rubric, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a discovery script and qualification rubric exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a discovery script and qualification rubric, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a discovery script and qualification rubric exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Ethical sales process and qualification looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Ethical sales process and qualification rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a discovery script and qualification rubric from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Ethical sales process and qualification completes every section of a discovery script and qualification rubric, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Ethical sales process and qualification\n- [x] Customer problem: Discover need, context, budget, timing, and criteria; recommend only a suitable solution and accept that no purchase may be the right outcome.\n- [ ] Deliverable: a discovery script and qualification rubric\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.ftc.gov/business-guidance/advertising-marketing\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Ethical sales process and qualification",
+          "filename": "exercises/37-sales-service/ethical-sales-funnel.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "ethical-sales-funnel-q1",
+          "question": "Which approach correctly applies Ethical sales process and qualification?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Ethical sales process and qualification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Ethical sales process and qualification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Ethical sales process and qualification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Ethical sales process and qualification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Ethical sales process and qualification, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "ethical-sales-funnel-q2",
+          "question": "Which definition matches the term “Qualification”?",
+          "options": [
+            "A measure or structure that makes the Ethical sales process and qualification decision comparable and reproducible.",
+            "A central Ethical sales process and qualification concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Ethical sales process and qualification improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Qualification” means: A central Ethical sales process and qualification concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Ethical sales process and qualification decision comparable and reproducible. ». The reference answer is « A central Ethical sales process and qualification concept defined by an observable rule rather than preference. ». “Qualification” means: A central Ethical sales process and qualification concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Ethical sales process and qualification concept defined by an observable rule rather than preference. ». “Qualification” means: A central Ethical sales process and qualification concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Ethical sales process and qualification improves the system without moving the problem elsewhere. ». The reference answer is « A central Ethical sales process and qualification concept defined by an observable rule rather than preference. ». “Qualification” means: A central Ethical sales process and qualification concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Ethical sales process and qualification concept defined by an observable rule rather than preference. ». “Qualification” means: A central Ethical sales process and qualification concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "ethical-sales-funnel-q3",
+          "question": "What is the best first fix when you observe: “Ethical sales process and qualification looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Ethical sales process and qualification problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Ethical sales process and qualification starts from an observable customer problem, never an isolated trend.",
+        "The a discovery script and qualification rubric deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Ethical sales process and qualification, continue with Objections, live chat, and pressure-free closing to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "objections-chat",
+      "order": 1,
+      "title": "Objections, live chat, and pressure-free closing",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Objections, live chat, and pressure-free closing into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a chat playbook for ten real objections into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Listen, restate, verify the real objection, offer evidence, propose a next step, and keep useful history without manipulative tactics. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Listen, restate, verify the real objection, offer evidence, propose a next step, and keep useful history without manipulative tactics. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Objections, live chat, and pressure-free closing is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Listen, restate, verify the real objection, offer evidence, propose a next step, and keep useful history without manipulative tactics. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Objections, live chat, and pressure-free closing, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a chat playbook for ten real objections. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Qualification",
+                  "definition": "A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Objection",
+                  "definition": "A measure or structure that makes the Objections, live chat, and pressure-free closing decision comparable and reproducible."
+                },
+                {
+                  "term": "SLA",
+                  "definition": "A control boundary used to verify that Objections, live chat, and pressure-free closing improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Objections, live chat, and pressure-free closing to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/objections-chat.md",
+                "source": "# Objections, live chat, and pressure-free closing\n- [ ] Customer problem: Listen, restate, verify the real objection, offer evidence, propose a next step, and keep useful history without manipulative tactics.\n- [ ] Deliverable: a chat playbook for ten real objections\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.gov.uk/guidance/contact-centre-standards\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Objections, live chat, and pressure-free closing before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/objections-chat.md",
+                "source": "# Objections, live chat, and pressure-free closing\n- [x] Customer problem: Listen, restate, verify the real objection, offer evidence, propose a next step, and keep useful history without manipulative tactics.\n- [ ] Deliverable: a chat playbook for ten real objections\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.gov.uk/guidance/contact-centre-standards\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Objections, live chat, and pressure-free closing",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Objections, live chat, and pressure-free closing completes every section of a chat playbook for ten real objections, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a chat playbook for ten real objections exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a chat playbook for ten real objections, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a chat playbook for ten real objections exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Objections, live chat, and pressure-free closing looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Objections, live chat, and pressure-free closing rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a chat playbook for ten real objections from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Objections, live chat, and pressure-free closing completes every section of a chat playbook for ten real objections, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Objections, live chat, and pressure-free closing\n- [x] Customer problem: Listen, restate, verify the real objection, offer evidence, propose a next step, and keep useful history without manipulative tactics.\n- [ ] Deliverable: a chat playbook for ten real objections\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.gov.uk/guidance/contact-centre-standards\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Objections, live chat, and pressure-free closing",
+          "filename": "exercises/37-sales-service/objections-chat.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "objections-chat-q1",
+          "question": "Which approach correctly applies Objections, live chat, and pressure-free closing?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Objections, live chat, and pressure-free closing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Objections, live chat, and pressure-free closing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Objections, live chat, and pressure-free closing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Objections, live chat, and pressure-free closing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Objections, live chat, and pressure-free closing, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "objections-chat-q2",
+          "question": "Which definition matches the term “Qualification”?",
+          "options": [
+            "A measure or structure that makes the Objections, live chat, and pressure-free closing decision comparable and reproducible.",
+            "A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Objections, live chat, and pressure-free closing improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Qualification” means: A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Objections, live chat, and pressure-free closing decision comparable and reproducible. ». The reference answer is « A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference. ». “Qualification” means: A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference. ». “Qualification” means: A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Objections, live chat, and pressure-free closing improves the system without moving the problem elsewhere. ». The reference answer is « A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference. ». “Qualification” means: A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference. ». “Qualification” means: A central Objections, live chat, and pressure-free closing concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "objections-chat-q3",
+          "question": "What is the best first fix when you observe: “Objections, live chat, and pressure-free closing looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Objections, live chat, and pressure-free closing problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Objections, live chat, and pressure-free closing starts from an observable customer problem, never an isolated trend.",
+        "The a chat playbook for ten real objections deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Objections, live chat, and pressure-free closing, continue with CRM, pipeline, and sales follow-up to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "crm-pipeline",
+      "order": 2,
+      "title": "CRM, pipeline, and sales follow-up",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn CRM, pipeline, and sales follow-up into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a minimal CRM pipeline and follow-up rules into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Define stages, owner, next action, loss reason, consent, and data hygiene so follow-up does not become harassment. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Define stages, owner, next action, loss reason, consent, and data hygiene so follow-up does not become harassment. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "CRM, pipeline, and sales follow-up is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Define stages, owner, next action, loss reason, consent, and data hygiene so follow-up does not become harassment. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master CRM, pipeline, and sales follow-up, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a minimal CRM pipeline and follow-up rules. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Qualification",
+                  "definition": "A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Objection",
+                  "definition": "A measure or structure that makes the CRM, pipeline, and sales follow-up decision comparable and reproducible."
+                },
+                {
+                  "term": "SLA",
+                  "definition": "A control boundary used to verify that CRM, pipeline, and sales follow-up improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply CRM, pipeline, and sales follow-up to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/crm-pipeline.md",
+                "source": "# CRM, pipeline, and sales follow-up\n- [ ] Customer problem: Define stages, owner, next action, loss reason, consent, and data hygiene so follow-up does not become harassment.\n- [ ] Deliverable: a minimal CRM pipeline and follow-up rules\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for CRM, pipeline, and sales follow-up before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/crm-pipeline.md",
+                "source": "# CRM, pipeline, and sales follow-up\n- [x] Customer problem: Define stages, owner, next action, loss reason, consent, and data hygiene so follow-up does not become harassment.\n- [ ] Deliverable: a minimal CRM pipeline and follow-up rules\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: CRM, pipeline, and sales follow-up",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for CRM, pipeline, and sales follow-up completes every section of a minimal CRM pipeline and follow-up rules, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a minimal CRM pipeline and follow-up rules exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a minimal CRM pipeline and follow-up rules, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a minimal CRM pipeline and follow-up rules exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "CRM, pipeline, and sales follow-up looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with CRM, pipeline, and sales follow-up rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a minimal CRM pipeline and follow-up rules from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for CRM, pipeline, and sales follow-up completes every section of a minimal CRM pipeline and follow-up rules, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# CRM, pipeline, and sales follow-up\n- [x] Customer problem: Define stages, owner, next action, loss reason, consent, and data hygiene so follow-up does not become harassment.\n- [ ] Deliverable: a minimal CRM pipeline and follow-up rules\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: CRM, pipeline, and sales follow-up",
+          "filename": "exercises/37-sales-service/crm-pipeline.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "crm-pipeline-q1",
+          "question": "Which approach correctly applies CRM, pipeline, and sales follow-up?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For CRM, pipeline, and sales follow-up, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For CRM, pipeline, and sales follow-up, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For CRM, pipeline, and sales follow-up, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For CRM, pipeline, and sales follow-up, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For CRM, pipeline, and sales follow-up, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "crm-pipeline-q2",
+          "question": "Which definition matches the term “Qualification”?",
+          "options": [
+            "A measure or structure that makes the CRM, pipeline, and sales follow-up decision comparable and reproducible.",
+            "A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that CRM, pipeline, and sales follow-up improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Qualification” means: A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the CRM, pipeline, and sales follow-up decision comparable and reproducible. ». The reference answer is « A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference. ». “Qualification” means: A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference. ». “Qualification” means: A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that CRM, pipeline, and sales follow-up improves the system without moving the problem elsewhere. ». The reference answer is « A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference. ». “Qualification” means: A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference. ». “Qualification” means: A central CRM, pipeline, and sales follow-up concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "crm-pipeline-q3",
+          "question": "What is the best first fix when you observe: “CRM, pipeline, and sales follow-up looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the CRM, pipeline, and sales follow-up problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "CRM, pipeline, and sales follow-up starts from an observable customer problem, never an isolated trend.",
+        "The a minimal CRM pipeline and follow-up rules deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After CRM, pipeline, and sales follow-up, continue with Support, returns, disputes, and service recovery to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "support-returns-recovery",
+      "order": 3,
+      "title": "Support, returns, disputes, and service recovery",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Support, returns, disputes, and service recovery into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a support matrix with SLA, escalation, and resolution into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Classify urgency and impact, respond with a clear time, preserve evidence, apply a fair policy, and turn recurring causes into product fixes. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Classify urgency and impact, respond with a clear time, preserve evidence, apply a fair policy, and turn recurring causes into product fixes. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Support, returns, disputes, and service recovery is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Classify urgency and impact, respond with a clear time, preserve evidence, apply a fair policy, and turn recurring causes into product fixes. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Support, returns, disputes, and service recovery, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a support matrix with SLA, escalation, and resolution. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Qualification",
+                  "definition": "A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Objection",
+                  "definition": "A measure or structure that makes the Support, returns, disputes, and service recovery decision comparable and reproducible."
+                },
+                {
+                  "term": "SLA",
+                  "definition": "A control boundary used to verify that Support, returns, disputes, and service recovery improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Support, returns, disputes, and service recovery to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/support-returns-recovery.md",
+                "source": "# Support, returns, disputes, and service recovery\n- [ ] Customer problem: Classify urgency and impact, respond with a clear time, preserve evidence, apply a fair policy, and turn recurring causes into product fixes.\n- [ ] Deliverable: a support matrix with SLA, escalation, and resolution\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://commission.europa.eu/consumers/consumer-rights-and-complaints_en\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Support, returns, disputes, and service recovery before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/37-sales-service/support-returns-recovery.md",
+                "source": "# Support, returns, disputes, and service recovery\n- [x] Customer problem: Classify urgency and impact, respond with a clear time, preserve evidence, apply a fair policy, and turn recurring causes into product fixes.\n- [ ] Deliverable: a support matrix with SLA, escalation, and resolution\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://commission.europa.eu/consumers/consumer-rights-and-complaints_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Support, returns, disputes, and service recovery",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Support, returns, disputes, and service recovery completes every section of a support matrix with SLA, escalation, and resolution, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a support matrix with SLA, escalation, and resolution exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a support matrix with SLA, escalation, and resolution, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a support matrix with SLA, escalation, and resolution exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Support, returns, disputes, and service recovery looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Support, returns, disputes, and service recovery rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a support matrix with SLA, escalation, and resolution from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Support, returns, disputes, and service recovery completes every section of a support matrix with SLA, escalation, and resolution, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Support, returns, disputes, and service recovery\n- [x] Customer problem: Classify urgency and impact, respond with a clear time, preserve evidence, apply a fair policy, and turn recurring causes into product fixes.\n- [ ] Deliverable: a support matrix with SLA, escalation, and resolution\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://commission.europa.eu/consumers/consumer-rights-and-complaints_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Support, returns, disputes, and service recovery",
+          "filename": "exercises/37-sales-service/support-returns-recovery.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "support-returns-recovery-q1",
+          "question": "Which approach correctly applies Support, returns, disputes, and service recovery?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Support, returns, disputes, and service recovery, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Support, returns, disputes, and service recovery, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Support, returns, disputes, and service recovery, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Support, returns, disputes, and service recovery, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Support, returns, disputes, and service recovery, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "support-returns-recovery-q2",
+          "question": "Which definition matches the term “Qualification”?",
+          "options": [
+            "A measure or structure that makes the Support, returns, disputes, and service recovery decision comparable and reproducible.",
+            "A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Support, returns, disputes, and service recovery improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Qualification” means: A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Support, returns, disputes, and service recovery decision comparable and reproducible. ». The reference answer is « A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference. ». “Qualification” means: A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference. ». “Qualification” means: A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Support, returns, disputes, and service recovery improves the system without moving the problem elsewhere. ». The reference answer is « A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference. ». “Qualification” means: A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference. ». “Qualification” means: A central Support, returns, disputes, and service recovery concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "support-returns-recovery-q3",
+          "question": "What is the best first fix when you observe: “Support, returns, disputes, and service recovery looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Support, returns, disputes, and service recovery problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Support, returns, disputes, and service recovery starts from an observable customer problem, never an isolated trend.",
+        "The a support matrix with SLA, escalation, and resolution deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Support, returns, disputes, and service recovery, continue with Lifecycle email and deliverability to connect the new skill to the next part of the selling system."
+    }
+  ]
+}

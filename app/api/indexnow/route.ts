@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { protectAdminMutation } from "@/lib/api-security";
 import { submitIndexNow } from "@/lib/product-discovery";
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
 
   try {
-    const { urls } = await req.json();
+    const { urls } = await readJsonLimited(req);
     if (!Array.isArray(urls) || urls.length === 0) {
       return NextResponse.json({ error: "urls required" }, { status: 400 });
     }

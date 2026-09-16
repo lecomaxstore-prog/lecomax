@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -11,7 +13,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
   let body: Record<string, unknown>;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Requête JSON invalide." }, { status: 400 });
   }
   const update: { status?: string; notes?: string | null } = {};
@@ -29,7 +31,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .eq("id", id)
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 400 });
   return NextResponse.json(data);
 }
 
@@ -37,6 +39,6 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
   const { error } = await supabase.from("returns").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 400 });
   return NextResponse.json({ ok: true });
 }

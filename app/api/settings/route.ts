@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
@@ -112,7 +114,7 @@ export async function GET(req: NextRequest) {
   const query = supabase.from("settings").select("key, value").in("key", PUBLIC_SETTING_KEYS);
   const { data, error } = await query;
   if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   const current = Object.fromEntries((data ?? []).map(row => [row.key, row.value]));
   const normalized = { ...storeSettings(current), ...current };
   return NextResponse.json(Object.entries(normalized).map(([key, value]) => ({ key, value })), {
@@ -133,7 +135,7 @@ export async function POST(req: NextRequest) {
   }
   let body: unknown;
   try {
-    body = await req.json();
+    body = await readJsonLimited(req);
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
@@ -411,7 +413,7 @@ export async function POST(req: NextRequest) {
     .from("settings")
     .upsert(rows, { onConflict: "key" });
   if (error)
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   const changedKeys = auditedKeys.filter(
     (key) => previousAuditValues[key] !== String(values[key] ?? ""),
   );

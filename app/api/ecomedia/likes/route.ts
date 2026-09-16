@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getEcomediaUser } from "@/lib/ecomedia-auth";
@@ -8,7 +9,7 @@ export async function POST(req: NextRequest) {
   const user = await getEcomediaUser(req);
   if (!user) return NextResponse.json({ error: "Connexion requise" }, { status: 401 });
   let body: { postId?: string; action?: "like" | "unlike" };
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
   if (!body.postId || !["like", "unlike"].includes(body.action ?? "")) return NextResponse.json({ error: "Champs invalides" }, { status: 400 });
 
   const { data: post } = await sb.from("ecomedia_posts").select("id").eq("id", body.postId).eq("is_published", true).maybeSingle();

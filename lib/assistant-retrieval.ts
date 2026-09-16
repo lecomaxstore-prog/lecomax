@@ -1,5 +1,5 @@
-import { selectedInventory } from "../mobile/src/lib/purchasability.ts";
-import { normalizeSearchText, rankProducts, type SearchableProduct } from "./product-search.ts";
+import { selectedInventory } from "../mobile/src/lib/purchasability";
+import { normalizeSearchText, rankProducts, type SearchableProduct } from "./product-search";
 import type { SearchIntent, RecommendationResult } from "./assistant-types";
 
 // Extended product type with sizing and full attributes

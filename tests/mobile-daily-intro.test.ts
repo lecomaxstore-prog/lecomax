@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -30,7 +31,7 @@ function launch(storage: Map<string, string>, clock: { day: number }, web = fals
   };
   const exports: any = {};
   vm.runInNewContext(source, {
-    exports, require: (name: string) => dependencies[name],
+    exports, require: (name: string) => securityIo(name) ?? dependencies[name],
     Date: class extends Date { constructor() { super(2026, 8, clock.day, 23, 59); } },
     document: { visibilityState: "visible", addEventListener: (_: string, callback: () => void) => { visibility = callback; }, removeEventListener() {} },
   });

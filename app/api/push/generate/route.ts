@@ -1,11 +1,15 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
+import { protectAdminMutation } from "@/lib/api-security";
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // POST /api/push/generate — AI-generate notification content
 export async function POST(req: NextRequest) {
+  const denied = await protectAdminMutation(req, { key: "push:generate", limit: 15 });
+  if (denied) return denied;
   let body: { prompt?: string; type?: string; lang?: string };
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 

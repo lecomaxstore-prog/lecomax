@@ -51,7 +51,8 @@ export async function getDbProducts(options?: {
     if (options?.limit && !options.promotionOnly) q = q.limit(options.limit);
     const [{ data, error }, promotions] = await Promise.all([
       q,
-      options?.promotionOnly ? sb.from("promotions").select("active,expires_at,product_ids") : Promise.resolve(null),
+      // Keep this schema tolerant: older deployments do not expose product_ids.
+      options?.promotionOnly ? sb.from("promotions").select("*") : Promise.resolve(null),
     ]);
     if (error || promotions?.error) return [];
     const products = (data as ApiProduct[]) ?? [];

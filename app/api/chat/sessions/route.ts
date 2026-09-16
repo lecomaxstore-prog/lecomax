@@ -1,3 +1,6 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import type { NextRequest } from "next/server";
+import { protectAdminRead, protectAdminMutation } from "@/lib/api-security";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { CHAT_IDLE_MS } from "@/lib/chat-lifecycle";
@@ -9,13 +12,15 @@ const supabase = createClient(
 );
 
 /** GET /api/chat/sessions — admin: all chat sessions */
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const securityDenied = await protectAdminRead(req, { key: "chat/sessions/route.ts:GET" });
+  if (securityDenied) return securityDenied;
   const { data, error } = await supabase
     .from("chat_sessions")
     .select("*")
     .order("last_at", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   const sessionIds = (data || []).map((session) => session.id);
   const joinedSessionIds = new Set<string>();

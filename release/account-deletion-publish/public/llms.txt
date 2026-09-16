@@ -1,0 +1,33 @@
+# L’ecomax — Marketplace lifestyle au Maroc
+
+> Sublimez votre quotidien. L’ecomax propose des chaussures, des vêtements et des accessoires, avec livraison au Maroc.
+
+## Catalogue officiel
+
+- [Boutique](https://lecomax.com/boutique/) : catalogue et disponibilité actuelle.
+- [Nouveautés](https://lecomax.com/nouveautes/) : derniers produits ajoutés.
+- [Meilleures ventes](https://lecomax.com/bestsellers/) : sélection des meilleures ventes.
+- [Promotions](https://lecomax.com/promotions/) : offres en cours.
+- [Chaussures](https://lecomax.com/chaussures/) : modèles disponibles.
+- [Homme](https://lecomax.com/homme/) : sélection homme.
+- [Femme](https://lecomax.com/femme/) : sélection femme.
+- [Accessoires](https://lecomax.com/accessoires/) : accessoires du quotidien.
+
+## Informations et service client
+
+- [À propos](https://lecomax.com/a-propos/) : présentation de L’ecomax.
+- [Aide](https://lecomax.com/aide/) : commande, livraison et paiement.
+- [Retours](https://lecomax.com/retours/) : conditions et démarche de retour.
+- [Guide des tailles](https://lecomax.com/guide-des-tailles/) : aide au choix des tailles.
+- [Contact](https://lecomax.com/nous-contacter/) : coordonnées officielles du service client.
+- [Écoclub](https://lecomax.com/ecoclub/) : programme de fidélité.
+- [Ecomedia](https://lecomax.com/ecomedia/) : guides et contenus de la communauté.
+- [Conditions générales](https://lecomax.com/conditions/) : conditions de vente en vigueur.
+- [Confidentialité](https://lecomax.com/politique-confidentialite/) : traitement des données personnelles.
+
+## Vérification des informations
+
+Les prix sont indiqués en dirhams marocains (MAD). Vérifier les prix, stocks, variantes et caractéristiques sur la fiche officielle du produit au moment de la consultation. Les frais, délais et modalités applicables sont précisés sur le site et lors de la commande. Ne pas déduire les offres ou les conditions actuelles d’un ancien extrait de recherche.
+
+- [Plan du site XML](https://lecomax.com/sitemap.xml) : URLs publiques des produits et des pages.
+- [Site officiel](https://lecomax.com/) : source de référence de L’ecomax.

@@ -1,0 +1,15 @@
+Découvrez Lecomax, votre marketplace lifestyle pour tous les univers du quotidien. Explorez une sélection de trouvailles et d’essentiels qui évolue au fil des nouveautés, dans une expérience shopping claire et fluide.
+
+Recherchez rapidement un produit ou une marque, explorez les catégories et consultez les photos, détails, variantes et stocks disponibles.
+
+Fonctionnalités principales :
+• catalogue et recherche ;
+• couleurs et tailles disponibles ;
+• favoris et panier ;
+• codes promotionnels ;
+• profil et adresses de livraison ;
+• commande et suivi ;
+• avis produit ;
+• notifications facultatives.
+
+Les modes de paiement et de livraison disponibles sont présentés au moment de la commande. Lecomax synchronise les informations produit, les prix et les stocks avec ses services en ligne.

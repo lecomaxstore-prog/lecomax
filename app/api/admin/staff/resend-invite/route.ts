@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { randomBytes } from "crypto";
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "admin:staff:invite", limit: 10, windowMs: 600_000 });
   if (blocked) return blocked;
 
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   if (!body?.id) return NextResponse.json({ error: "id required" }, { status: 400 });
 
   // Fetch the staff member

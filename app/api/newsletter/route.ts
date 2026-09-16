@@ -1,3 +1,5 @@
+import { protectAdminRead, protectAdminMutation } from "@/lib/api-security";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -81,7 +83,9 @@ async function ensureWelcomeCoupon(subscriberId: string) {
   return welcomeCouponResponse(racedCoupon as WelcomeCouponRow);
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const securityDenied = await protectAdminRead(req, { key: "newsletter/route.ts:GET" });
+  if (securityDenied) return securityDenied;
   const { data, error } = await supabase
     .from("newsletter_subscribers")
     .select("*")
@@ -94,7 +98,7 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   const email = typeof body?.email === "string"
     ? body.email.normalize("NFKC").trim().toLowerCase()
     : "";

@@ -1,0 +1,1152 @@
+{
+  "id": "notifications",
+  "order": 23,
+  "icon": "🔔",
+  "color": "#EA580C",
+  "title": "Web Push, WhatsApp, and notifications",
+  "summary": "Manage permissions, Service Workers, webhooks, and preferences to send the right message through the right channel without spam.",
+  "files": [
+    {
+      "path": "public/sw.js",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/23-notifications/orchestrator.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/23-notifications/push-subscription.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/23-notifications/service-worker.js",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/23-notifications/whatsapp-webhook.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "web-push-subscription",
+      "order": 0,
+      "title": "Web Push subscription with consent",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand browser permissions, Service Workers, signed webhooks, and the difference between consent and channel preference.",
+        "Be able to restate “VAPID” before coding: A key pair identifying the application server to the Push service without authenticating the user.",
+        "Know how to create exercises/23-notifications/push-subscription.ts, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Request permission after user intent, create the subscription with the public VAPID key, and make unsubscribe as easy as subscribe.",
+        "Build a subscription flow that respects denial and does not confuse permission with server registration, then prove the result with this exact signal: a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A notification is a decision before it is a message: eligible event, authorized recipient, available channel, acceptable frequency, then observable delivery. In “Web Push subscription with consent”, the concrete input is an explicit button lets the user request Push, then sends the subscription to the server only after granted. VAPID means: A key pair identifying the application server to the Push service without authenticating the user. The model is complete only when you explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe and can observe that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A notification orchestrator is a switchboard: it chooses an authorized line and avoids calling three times with the same information. Here the part you will actually inspect is a subscription flow that respects denial and does not confuse permission with server registration; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: an explicit button lets the user request Push, then sends the subscription to the server only after granted. Request permission after user intent, create the subscription with the public VAPID key, and make unsubscribe as easy as subscribe. The term VAPID is not a decorative label: A key pair identifying the application server to the Push service without authenticating the user. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/23-notifications/push-subscription.ts, the example deliberately reduces the system to a subscription flow that respects denial and does not confuse permission with server registration. Read each line as one responsibility, then run npm run build. The main failure to trigger is: requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal. It shows why the professional correction is to explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. Apply the same evidence to order alerts, product availability, and WhatsApp support conversations, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "VAPID",
+                  "definition": "A key pair identifying the application server to the Push service without authenticating the user."
+                },
+                {
+                  "term": "Channel preference",
+                  "definition": "A revocable choice stating how a user accepts particular messages."
+                },
+                {
+                  "term": "Deduplication",
+                  "definition": "Rejecting an already processed delivery by using a stable external identifier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with an explicit button lets the user request Push, then sends the subscription to the server only after granted, first write the observation “a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date”, and then implement a subscription flow that respects denial and does not confuse permission with server registration. Simulate requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal and finish only when measurement confirms this safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/23-notifications/push-subscription.ts",
+                "source": "export async function subscribeToPush(registration: ServiceWorkerRegistration, publicKey: string) {\n  const permission = await Notification.requestPermission();\n  if (permission !== \"granted\") return { subscribed: false };\n  const subscription = await registration.pushManager.subscribe({\n    userVisibleOnly: true,\n    applicationServerKey: publicKey,\n  });\n  return { subscribed: true, subscription: subscription.toJSON() };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — export async function subscribeToPush(registration: ServiceWorkerRegistration, public…."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "waits for the asynchronous operation before continuing — const permission = await Notification.requestPermission();."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "explicitly rejects or branches when this condition is true — if (permission !== \"granted\") return { subscribed: false };."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "waits for the asynchronous operation before continuing — const subscription = await registration.pushManager.subscribe({."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "configures this workflow or service key — userVisibleOnly: true,."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "configures this workflow or service key — applicationServerKey: publicKey,."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "closes the structure opened by preceding lines — });."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "returns the produced value to calling code — return { subscribed: true, subscription: subscription.toJSON() };."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/push-subscription.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/23-notifications/push-subscription.ts and identify the input “an explicit button lets the user request Push, then sends the subscription to the server only after granted” in the annotations. — code exercises/23-notifications/push-subscription.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. The deliberately failing case demonstrates “requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal” without exposing a secret; after the safeguard—explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order alerts, product availability, and WhatsApp support conversations. a subscription flow that respects denial and does not confuse permission with server registration must remain on the correct side of the trust boundary; use VAPID to justify validation and retain this as evidence: a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/push-subscription.ts",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. The deliberately failing case demonstrates “requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal” without exposing a secret; after the safeguard—explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply VAPID: A key pair identifying the application server to the Push service without authenticating the user.",
+          "fix": "Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date."
+        },
+        {
+          "symptom": "a subscription flow that respects denial and does not confuse permission with server registration appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Web Push subscription with consent, npm run build, input data, and outcome were not connected in a deterministic reproduction; requesting permission without clear intent, ignoring refusal, or multiplying channels for the same event.",
+          "fix": "Freeze an explicit button lets the user request Push, then sends the subscription to the server only after granted, run npm run build, record only the useful signal, and explicitly compare the outcome with “a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a subscription flow that respects denial and does not confuse permission with server registration in exercises/23-notifications/push-subscription.ts, demonstrate that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date, then trigger and repair requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal.",
+        "steps": [
+          "Create exercises/23-notifications/push-subscription.ts and identify the input “an explicit button lets the user request Push, then sends the subscription to the server only after granted” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal.",
+          "Implement “explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe”, rerun the command, and explain the role of VAPID."
+        ],
+        "hints": [
+          "Read the definition again: A key pair identifying the application server to the Push service without authenticating the user. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date”."
+        ],
+        "solution": {
+          "explanation": "For Web Push subscription with consent, the solution keeps one authority and specifically applies “explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe”. It makes requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal reproducible and then controlled, and is accepted only when a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date.",
+          "code": "export async function subscribeToPush(registration: ServiceWorkerRegistration, publicKey: string) {\n  const permission = await Notification.requestPermission();\n  if (permission !== \"granted\") return { subscribed: false };\n  const subscription = await registration.pushManager.subscribe({\n    userVisibleOnly: true,\n    applicationServerKey: publicKey,\n  });\n  return { subscribed: true, subscription: subscription.toJSON() };\n}",
+          "filename": "exercises/23-notifications/push-subscription.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "web-push-subscription-q1",
+          "question": "Which decision actually demonstrates mastery of “Web Push subscription with consent” in this scenario?",
+          "options": [
+            "explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe, then verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date.",
+            "Ignore “requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal” because the normal path displays a subscription flow that respects denial and does not confuse permission with server registration.",
+            "Move validation into the UI and treat VAPID as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A key pair identifying the application server to the Push service without authenticating the user.",
+          "answerExplanations": [
+            "This option is correct. It says « explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe, then verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A key pair identifying the application server to the Push service without authenticating the user.",
+            "This option is incorrect. It says « Ignore “requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal” because the normal path displays a subscription flow that respects denial and does not confuse permission with server registration. ». The reference answer is « explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe, then verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A key pair identifying the application server to the Push service without authenticating the user.",
+            "This option is incorrect. It says « Move validation into the UI and treat VAPID as a server detail. ». The reference answer is « explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe, then verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A key pair identifying the application server to the Push service without authenticating the user.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe, then verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A key pair identifying the application server to the Push service without authenticating the user."
+          ]
+        },
+        {
+          "id": "web-push-subscription-q2",
+          "question": "Which definition matches the term “VAPID”?",
+          "options": [
+            "A revocable choice stating how a user accepts particular messages.",
+            "A key pair identifying the application server to the Push service without authenticating the user.",
+            "Rejecting an already processed delivery by using a stable external identifier.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“VAPID” means: A key pair identifying the application server to the Push service without authenticating the user.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A revocable choice stating how a user accepts particular messages. ». The reference answer is « A key pair identifying the application server to the Push service without authenticating the user. ». “VAPID” means: A key pair identifying the application server to the Push service without authenticating the user.",
+            "This option is correct. It says « A key pair identifying the application server to the Push service without authenticating the user. ». “VAPID” means: A key pair identifying the application server to the Push service without authenticating the user.",
+            "This option is incorrect. It says « Rejecting an already processed delivery by using a stable external identifier. ». The reference answer is « A key pair identifying the application server to the Push service without authenticating the user. ». “VAPID” means: A key pair identifying the application server to the Push service without authenticating the user.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A key pair identifying the application server to the Push service without authenticating the user. ». “VAPID” means: A key pair identifying the application server to the Push service without authenticating the user."
+          ]
+        },
+        {
+          "id": "web-push-subscription-q3",
+          "question": "What is the best first fix when you observe: “requestPermission runs on page load without gesture or explanation, pushing the user toward a lasting refusal”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze an explicit button lets the user request Push, then sends the subscription to the server only after granted, run npm run build, record only the useful signal, and explicitly compare the outcome with “a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date”.",
+            "Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply VAPID: A key pair identifying the application server to the Push service without authenticating the user. The appropriate fix is: Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply VAPID: A key pair identifying the application server to the Push service without authenticating the user. The appropriate fix is: Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date.",
+            "This option is incorrect. It says « Freeze an explicit button lets the user request Push, then sends the subscription to the server only after granted, run npm run build, record only the useful signal, and explicitly compare the outcome with “a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date”. ». The reference answer is « Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply VAPID: A key pair identifying the application server to the Push service without authenticating the user. The appropriate fix is: Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date.",
+            "This option is correct. It says « Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply VAPID: A key pair identifying the application server to the Push service without authenticating the user. The appropriate fix is: Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply VAPID: A key pair identifying the application server to the Push service without authenticating the user. The appropriate fix is: Apply this specific safeguard: explain value and frequency, wait for a gesture, treat default and denied as choices, and provide server-side unsubscribe. Replay the case and verify that a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date."
+          ]
+        }
+      ],
+      "recap": [
+        "Request permission after user intent, create the subscription with the public VAPID key, and make unsubscribe as easy as subscribe.",
+        "VAPID: A key pair identifying the application server to the Push service without authenticating the user.",
+        "Completion evidence: a refusal leaves the UI functional without prompting again; consent creates a subscription tied to user, browser, and revocation date."
+      ],
+      "next": "The next lesson receives the message in the Service Worker and makes click, fallback, and URL safe."
+    },
+    {
+      "id": "service-worker-notification",
+      "order": 1,
+      "title": "Display a notification in the Service Worker",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand browser permissions, Service Workers, signed webhooks, and the difference between consent and channel preference.",
+        "Be able to restate “Service Worker” before coding: A document-independent script able to receive background events under browser rules.",
+        "Know how to create exercises/23-notifications/service-worker.js, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Decode a minimal payload, provide a safe fallback, extend lifetime with waitUntil, and open only a validated URL on click.",
+        "Build a Push handler that displays and links the notification to an L’ecomax page, then prove the result with this exact signal: event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A notification is a decision before it is a message: eligible event, authorized recipient, available channel, acceptable frequency, then observable delivery. In “Display a notification in the Service Worker”, the concrete input is a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL. Service Worker means: A document-independent script able to receive background events under browser rules. The model is complete only when you validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work and can observe that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A notification orchestrator is a switchboard: it chooses an authorized line and avoids calling three times with the same information. Here the part you will actually inspect is a Push handler that displays and links the notification to an L’ecomax page; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL. Decode a minimal payload, provide a safe fallback, extend lifetime with waitUntil, and open only a validated URL on click. The term Service Worker is not a decorative label: A document-independent script able to receive background events under browser rules. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/23-notifications/service-worker.js, the example deliberately reduces the system to a Push handler that displays and links the notification to an L’ecomax page. Read each line as one responsibility, then run npm run build. The main failure to trigger is: data.url accepts an external origin and turns a trusted notification into a phishing redirect. It shows why the professional correction is to validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. Apply the same evidence to order alerts, product availability, and WhatsApp support conversations, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Service Worker",
+                  "definition": "A document-independent script able to receive background events under browser rules."
+                },
+                {
+                  "term": "Channel preference",
+                  "definition": "A revocable choice stating how a user accepts particular messages."
+                },
+                {
+                  "term": "Deduplication",
+                  "definition": "Rejecting an already processed delivery by using a stable external identifier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL, first write the observation “event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window”, and then implement a Push handler that displays and links the notification to an L’ecomax page. Simulate data.url accepts an external origin and turns a trusted notification into a phishing redirect and finish only when measurement confirms this safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "javascript",
+                "filename": "exercises/23-notifications/service-worker.js",
+                "source": "const safePath = (value) => {\n  try { const url = new URL(typeof value === \"string\" ? value : \"/\", self.location.origin);\n    return url.origin === self.location.origin ? `${url.pathname}${url.search}${url.hash}` : \"/\";\n  } catch { return \"/\"; }\n};\nself.addEventListener(\"push\", (event) => {\n  let data = { title: \"L’ecomax\", body: \"Nouvelle information\", url: \"/\" };\n  try { data = { ...data, ...(event.data?.json() ?? {}) }; } catch { /* keep safe fallback */ }\n  event.waitUntil(self.registration.showNotification(data.title, {\n    body: String(data.body).slice(0, 240), icon: \"/favicon.png\", data: { url: safePath(data.url) },\n  }));\n});\nself.addEventListener(\"notificationclick\", (event) => {\n  event.notification.close(); event.waitUntil(clients.openWindow(event.notification.data.url));\n});",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "opens the function that owns the stated responsibility — const safePath = (value) => {."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "declares or transforms this datum for the next step — try { const url = new URL(typeof value === \"string\" ? value : \"/\", self.location.orig…."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "returns the produced value to calling code — return url.origin === self.location.origin ? `${url.pathname}${url.search}${url.hash}…."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "returns the produced value to calling code — } catch { return \"/\"; }."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "closes the structure opened by preceding lines — };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "opens the function that owns the stated responsibility — self.addEventListener(\"push\", (event) => {."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "declares or transforms this datum for the next step — let data = { title: \"L’ecomax\", body: \"Nouvelle information\", url: \"/\" };."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "declares or transforms this datum for the next step — try { data = { ...data, ...(event.data?.json() ?? {}) }; } catch { /* keep safe fallb…."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "declares or transforms this datum for the next step — event.waitUntil(self.registration.showNotification(data.title, {."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "configures this workflow or service key — body: String(data.body).slice(0, 240), icon: \"/favicon.png\", data: { url: safePath(da…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "closes the structure opened by preceding lines — }));."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "closes the structure opened by preceding lines — });."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "opens the function that owns the stated responsibility — self.addEventListener(\"notificationclick\", (event) => {."
+                  },
+                  {
+                    "lines": "14",
+                    "label": "declares or transforms this datum for the next step — event.notification.close(); event.waitUntil(clients.openWindow(event.notification.dat…."
+                  },
+                  {
+                    "lines": "15",
+                    "label": "closes the structure opened by preceding lines — });."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/service-worker.js\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/23-notifications/service-worker.js and identify the input “a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL” in the annotations. — code exercises/23-notifications/service-worker.js"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. The deliberately failing case demonstrates “data.url accepts an external origin and turns a trusted notification into a phishing redirect” without exposing a secret; after the safeguard—validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order alerts, product availability, and WhatsApp support conversations. a Push handler that displays and links the notification to an L’ecomax page must remain on the correct side of the trust boundary; use Service Worker to justify validation and retain this as evidence: event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/service-worker.js",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. The deliberately failing case demonstrates “data.url accepts an external origin and turns a trusted notification into a phishing redirect” without exposing a secret; after the safeguard—validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "data.url accepts an external origin and turns a trusted notification into a phishing redirect",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply Service Worker: A document-independent script able to receive background events under browser rules.",
+          "fix": "Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window."
+        },
+        {
+          "symptom": "a Push handler that displays and links the notification to an L’ecomax page appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Display a notification in the Service Worker, npm run build, input data, and outcome were not connected in a deterministic reproduction; requesting permission without clear intent, ignoring refusal, or multiplying channels for the same event.",
+          "fix": "Freeze a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL, run npm run build, record only the useful signal, and explicitly compare the outcome with “event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a Push handler that displays and links the notification to an L’ecomax page in exercises/23-notifications/service-worker.js, demonstrate that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window, then trigger and repair data.url accepts an external origin and turns a trusted notification into a phishing redirect.",
+        "steps": [
+          "Create exercises/23-notifications/service-worker.js and identify the input “a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: data.url accepts an external origin and turns a trusted notification into a phishing redirect.",
+          "Implement “validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work”, rerun the command, and explain the role of Service Worker."
+        ],
+        "hints": [
+          "Read the definition again: A document-independent script able to receive background events under browser rules. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window”."
+        ],
+        "solution": {
+          "explanation": "For Display a notification in the Service Worker, the solution keeps one authority and specifically applies “validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work”. It makes data.url accepts an external origin and turns a trusted notification into a phishing redirect reproducible and then controlled, and is accepted only when event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window.",
+          "code": "const safePath = (value) => {\n  try { const url = new URL(typeof value === \"string\" ? value : \"/\", self.location.origin);\n    return url.origin === self.location.origin ? `${url.pathname}${url.search}${url.hash}` : \"/\";\n  } catch { return \"/\"; }\n};\nself.addEventListener(\"push\", (event) => {\n  let data = { title: \"L’ecomax\", body: \"Nouvelle information\", url: \"/\" };\n  try { data = { ...data, ...(event.data?.json() ?? {}) }; } catch { /* keep safe fallback */ }\n  event.waitUntil(self.registration.showNotification(data.title, {\n    body: String(data.body).slice(0, 240), icon: \"/favicon.png\", data: { url: safePath(data.url) },\n  }));\n});\nself.addEventListener(\"notificationclick\", (event) => {\n  event.notification.close(); event.waitUntil(clients.openWindow(event.notification.data.url));\n});",
+          "filename": "exercises/23-notifications/service-worker.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "service-worker-notification-q1",
+          "question": "Which decision actually demonstrates mastery of “Display a notification in the Service Worker” in this scenario?",
+          "options": [
+            "validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work, then verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window.",
+            "Ignore “data.url accepts an external origin and turns a trusted notification into a phishing redirect” because the normal path displays a Push handler that displays and links the notification to an L’ecomax page.",
+            "Move validation into the UI and treat Service Worker as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A document-independent script able to receive background events under browser rules.",
+          "answerExplanations": [
+            "This option is correct. It says « validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work, then verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A document-independent script able to receive background events under browser rules.",
+            "This option is incorrect. It says « Ignore “data.url accepts an external origin and turns a trusted notification into a phishing redirect” because the normal path displays a Push handler that displays and links the notification to an L’ecomax page. ». The reference answer is « validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work, then verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A document-independent script able to receive background events under browser rules.",
+            "This option is incorrect. It says « Move validation into the UI and treat Service Worker as a server detail. ». The reference answer is « validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work, then verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A document-independent script able to receive background events under browser rules.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work, then verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A document-independent script able to receive background events under browser rules."
+          ]
+        },
+        {
+          "id": "service-worker-notification-q2",
+          "question": "Which definition matches the term “Service Worker”?",
+          "options": [
+            "A revocable choice stating how a user accepts particular messages.",
+            "A document-independent script able to receive background events under browser rules.",
+            "Rejecting an already processed delivery by using a stable external identifier.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Service Worker” means: A document-independent script able to receive background events under browser rules.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A revocable choice stating how a user accepts particular messages. ». The reference answer is « A document-independent script able to receive background events under browser rules. ». “Service Worker” means: A document-independent script able to receive background events under browser rules.",
+            "This option is correct. It says « A document-independent script able to receive background events under browser rules. ». “Service Worker” means: A document-independent script able to receive background events under browser rules.",
+            "This option is incorrect. It says « Rejecting an already processed delivery by using a stable external identifier. ». The reference answer is « A document-independent script able to receive background events under browser rules. ». “Service Worker” means: A document-independent script able to receive background events under browser rules.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A document-independent script able to receive background events under browser rules. ». “Service Worker” means: A document-independent script able to receive background events under browser rules."
+          ]
+        },
+        {
+          "id": "service-worker-notification-q3",
+          "question": "What is the best first fix when you observe: “data.url accepts an external origin and turns a trusted notification into a phishing redirect”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL, run npm run build, record only the useful signal, and explicitly compare the outcome with “event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window”.",
+            "Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Service Worker: A document-independent script able to receive background events under browser rules. The appropriate fix is: Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Service Worker: A document-independent script able to receive background events under browser rules. The appropriate fix is: Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window.",
+            "This option is incorrect. It says « Freeze a push event received while the tab is closed, displayed with fallback, then opened at an allowed internal URL, run npm run build, record only the useful signal, and explicitly compare the outcome with “event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window”. ». The reference answer is « Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Service Worker: A document-independent script able to receive background events under browser rules. The appropriate fix is: Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window.",
+            "This option is correct. It says « Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Service Worker: A document-independent script able to receive background events under browser rules. The appropriate fix is: Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Service Worker: A document-independent script able to receive background events under browser rules. The appropriate fix is: Apply this specific safeguard: validate a relative path against allowed internal routes, bound text and icon, and use waitUntil for all asynchronous work. Replay the case and verify that event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window."
+          ]
+        }
+      ],
+      "recap": [
+        "Decode a minimal payload, provide a safe fallback, extend lifetime with waitUntil, and open only a validated URL on click.",
+        "Service Worker: A document-independent script able to receive background events under browser rules.",
+        "Completion evidence: event.waitUntil covers the display promise, a missing payload uses fallback, and click reuses or opens a same-origin window."
+      ],
+      "next": "The next lesson applies verification, normalization, and deduplication to incoming WhatsApp messages."
+    },
+    {
+      "id": "whatsapp-webhook",
+      "order": 2,
+      "title": "WhatsApp webhook and normalization",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand browser permissions, Service Workers, signed webhooks, and the difference between consent and channel preference.",
+        "Be able to restate “normalization” before coding: Transforming varied external formats into a stable, validated internal shape.",
+        "Know how to create exercises/23-notifications/whatsapp-webhook.ts, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Verify the webhook, distinguish message types, bound text, and retain the external identifier to deduplicate deliveries.",
+        "Build a boundary that turns a WhatsApp text message into safe internal data, then prove the result with this exact signal: the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A notification is a decision before it is a message: eligible event, authorized recipient, available channel, acceptable frequency, then observable delivery. In “WhatsApp webhook and normalization”, the concrete input is a signed Meta webhook containing several message types, only bounded text of which becomes a support request. normalization means: Transforming varied external formats into a stable, validated internal shape. The model is complete only when you verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data and can observe that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A notification orchestrator is a switchboard: it chooses an authorized line and avoids calling three times with the same information. Here the part you will actually inspect is a boundary that turns a WhatsApp text message into safe internal data; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a signed Meta webhook containing several message types, only bounded text of which becomes a support request. Verify the webhook, distinguish message types, bound text, and retain the external identifier to deduplicate deliveries. The term normalization is not a decorative label: Transforming varied external formats into a stable, validated internal shape. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/23-notifications/whatsapp-webhook.ts, the example deliberately reduces the system to a boundary that turns a WhatsApp text message into safe internal data. Read each line as one responsibility, then run npm run build. The main failure to trigger is: normalizing JSON without verifying its signature lets anyone forge a sender and message. It shows why the professional correction is to verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. Apply the same evidence to order alerts, product availability, and WhatsApp support conversations, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "normalization",
+                  "definition": "Transforming varied external formats into a stable, validated internal shape."
+                },
+                {
+                  "term": "Channel preference",
+                  "definition": "A revocable choice stating how a user accepts particular messages."
+                },
+                {
+                  "term": "Deduplication",
+                  "definition": "Rejecting an already processed delivery by using a stable external identifier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a signed Meta webhook containing several message types, only bounded text of which becomes a support request, first write the observation “the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing”, and then implement a boundary that turns a WhatsApp text message into safe internal data. Simulate normalizing JSON without verifying its signature lets anyone forge a sender and message and finish only when measurement confirms this safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/23-notifications/whatsapp-webhook.ts",
+                "source": "import { createHmac, timingSafeEqual } from \"node:crypto\";\ntype WhatsAppMessage = { id: string; from: string; text?: { body: string } };\ntype WhatsAppEnvelope = { entry?: Array<{ changes?: Array<{ value?: { messages?: WhatsAppMessage[] } }> }> };\nfunction verifyMetaSignature(rawBody: string, signature: string, appSecret: string) {\n  const expected = `sha256=${createHmac(\"sha256\", appSecret).update(rawBody).digest(\"hex\")}`;\n  const actualBytes = Buffer.from(signature); const expectedBytes = Buffer.from(expected);\n  if (actualBytes.length !== expectedBytes.length || !timingSafeEqual(actualBytes, expectedBytes)) throw new Error(\"invalid signature\");\n}\nexport function verifyAndNormalizeWhatsApp(rawBody: string, signature: string, appSecret: string) {\n  verifyMetaSignature(rawBody, signature, appSecret);\n  const envelope = JSON.parse(rawBody) as WhatsAppEnvelope;\n  const message = envelope.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\n  if (!message) return { ignored: true, reason: \"no message\" };\n  if (!message.id || !message.from) throw new Error(\"invalid message envelope\");\n  const body = message.text?.body?.trim();\n  if (!body) return { ignored: true, reason: \"unsupported message\" };\n  return {\n    externalId: message.id, sender: message.from, body: body.slice(0, 2000),\n  };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "imports the named dependency without implicitly instantiating it — import { createHmac, timingSafeEqual } from \"node:crypto\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — type WhatsAppMessage = { id: string; from: string; text?: { body: string } };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "defines the shape of data accepted at this boundary — type WhatsAppEnvelope = { entry?: Array<{ changes?: Array<{ value?: { messages?: What…."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "defines the shape of data accepted at this boundary — function verifyMetaSignature(rawBody: string, signature: string, appSecret: string) {."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "declares or transforms this datum for the next step — const expected = `sha256=${createHmac(\"sha256\", appSecret).update(rawBody).digest(\"he…."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "declares or transforms this datum for the next step — const actualBytes = Buffer.from(signature); const expectedBytes = Buffer.from(expected);."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "explicitly rejects or branches when this condition is true — if (actualBytes.length !== expectedBytes.length || !timingSafeEqual(actualBytes, expe…."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "defines the shape of data accepted at this boundary — export function verifyAndNormalizeWhatsApp(rawBody: string, signature: string, appSec…."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "declares or transforms this datum for the next step — verifyMetaSignature(rawBody, signature, appSecret);."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "declares or transforms this datum for the next step — const envelope = JSON.parse(rawBody) as WhatsAppEnvelope;."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "declares or transforms this datum for the next step — const message = envelope.entry?.[0]?.changes?.[0]?.value?.messages?.[0];."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "explicitly rejects or branches when this condition is true — if (!message) return { ignored: true, reason: \"no message\" };."
+                  },
+                  {
+                    "lines": "14",
+                    "label": "explicitly rejects or branches when this condition is true — if (!message.id || !message.from) throw new Error(\"invalid message envelope\");."
+                  },
+                  {
+                    "lines": "15",
+                    "label": "declares or transforms this datum for the next step — const body = message.text?.body?.trim();."
+                  },
+                  {
+                    "lines": "16",
+                    "label": "explicitly rejects or branches when this condition is true — if (!body) return { ignored: true, reason: \"unsupported message\" };."
+                  },
+                  {
+                    "lines": "17",
+                    "label": "returns the produced value to calling code — return {."
+                  },
+                  {
+                    "lines": "18",
+                    "label": "configures this workflow or service key — externalId: message.id, sender: message.from, body: body.slice(0, 2000),."
+                  },
+                  {
+                    "lines": "19",
+                    "label": "closes the structure opened by preceding lines — };."
+                  },
+                  {
+                    "lines": "20",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/whatsapp-webhook.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/23-notifications/whatsapp-webhook.ts and identify the input “a signed Meta webhook containing several message types, only bounded text of which becomes a support request” in the annotations. — code exercises/23-notifications/whatsapp-webhook.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. The deliberately failing case demonstrates “normalizing JSON without verifying its signature lets anyone forge a sender and message” without exposing a secret; after the safeguard—verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order alerts, product availability, and WhatsApp support conversations. a boundary that turns a WhatsApp text message into safe internal data must remain on the correct side of the trust boundary; use normalization to justify validation and retain this as evidence: the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/whatsapp-webhook.ts",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. The deliberately failing case demonstrates “normalizing JSON without verifying its signature lets anyone forge a sender and message” without exposing a secret; after the safeguard—verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "normalizing JSON without verifying its signature lets anyone forge a sender and message",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply normalization: Transforming varied external formats into a stable, validated internal shape.",
+          "fix": "Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing."
+        },
+        {
+          "symptom": "a boundary that turns a WhatsApp text message into safe internal data appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For WhatsApp webhook and normalization, npm run build, input data, and outcome were not connected in a deterministic reproduction; requesting permission without clear intent, ignoring refusal, or multiplying channels for the same event.",
+          "fix": "Freeze a signed Meta webhook containing several message types, only bounded text of which becomes a support request, run npm run build, record only the useful signal, and explicitly compare the outcome with “the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a boundary that turns a WhatsApp text message into safe internal data in exercises/23-notifications/whatsapp-webhook.ts, demonstrate that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing, then trigger and repair normalizing JSON without verifying its signature lets anyone forge a sender and message.",
+        "steps": [
+          "Create exercises/23-notifications/whatsapp-webhook.ts and identify the input “a signed Meta webhook containing several message types, only bounded text of which becomes a support request” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: normalizing JSON without verifying its signature lets anyone forge a sender and message.",
+          "Implement “verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data”, rerun the command, and explain the role of normalization."
+        ],
+        "hints": [
+          "Read the definition again: Transforming varied external formats into a stable, validated internal shape. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing”."
+        ],
+        "solution": {
+          "explanation": "For WhatsApp webhook and normalization, the solution keeps one authority and specifically applies “verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data”. It makes normalizing JSON without verifying its signature lets anyone forge a sender and message reproducible and then controlled, and is accepted only when the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing.",
+          "code": "import { createHmac, timingSafeEqual } from \"node:crypto\";\ntype WhatsAppMessage = { id: string; from: string; text?: { body: string } };\ntype WhatsAppEnvelope = { entry?: Array<{ changes?: Array<{ value?: { messages?: WhatsAppMessage[] } }> }> };\nfunction verifyMetaSignature(rawBody: string, signature: string, appSecret: string) {\n  const expected = `sha256=${createHmac(\"sha256\", appSecret).update(rawBody).digest(\"hex\")}`;\n  const actualBytes = Buffer.from(signature); const expectedBytes = Buffer.from(expected);\n  if (actualBytes.length !== expectedBytes.length || !timingSafeEqual(actualBytes, expectedBytes)) throw new Error(\"invalid signature\");\n}\nexport function verifyAndNormalizeWhatsApp(rawBody: string, signature: string, appSecret: string) {\n  verifyMetaSignature(rawBody, signature, appSecret);\n  const envelope = JSON.parse(rawBody) as WhatsAppEnvelope;\n  const message = envelope.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\n  if (!message) return { ignored: true, reason: \"no message\" };\n  if (!message.id || !message.from) throw new Error(\"invalid message envelope\");\n  const body = message.text?.body?.trim();\n  if (!body) return { ignored: true, reason: \"unsupported message\" };\n  return {\n    externalId: message.id, sender: message.from, body: body.slice(0, 2000),\n  };\n}",
+          "filename": "exercises/23-notifications/whatsapp-webhook.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "whatsapp-webhook-q1",
+          "question": "Which decision actually demonstrates mastery of “WhatsApp webhook and normalization” in this scenario?",
+          "options": [
+            "verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data, then verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing.",
+            "Ignore “normalizing JSON without verifying its signature lets anyone forge a sender and message” because the normal path displays a boundary that turns a WhatsApp text message into safe internal data.",
+            "Move validation into the UI and treat normalization as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Transforming varied external formats into a stable, validated internal shape.",
+          "answerExplanations": [
+            "This option is correct. It says « verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data, then verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Transforming varied external formats into a stable, validated internal shape.",
+            "This option is incorrect. It says « Ignore “normalizing JSON without verifying its signature lets anyone forge a sender and message” because the normal path displays a boundary that turns a WhatsApp text message into safe internal data. ». The reference answer is « verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data, then verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Transforming varied external formats into a stable, validated internal shape.",
+            "This option is incorrect. It says « Move validation into the UI and treat normalization as a server detail. ». The reference answer is « verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data, then verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Transforming varied external formats into a stable, validated internal shape.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data, then verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Transforming varied external formats into a stable, validated internal shape."
+          ]
+        },
+        {
+          "id": "whatsapp-webhook-q2",
+          "question": "Which definition matches the term “normalization”?",
+          "options": [
+            "A revocable choice stating how a user accepts particular messages.",
+            "Transforming varied external formats into a stable, validated internal shape.",
+            "Rejecting an already processed delivery by using a stable external identifier.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“normalization” means: Transforming varied external formats into a stable, validated internal shape.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A revocable choice stating how a user accepts particular messages. ». The reference answer is « Transforming varied external formats into a stable, validated internal shape. ». “normalization” means: Transforming varied external formats into a stable, validated internal shape.",
+            "This option is correct. It says « Transforming varied external formats into a stable, validated internal shape. ». “normalization” means: Transforming varied external formats into a stable, validated internal shape.",
+            "This option is incorrect. It says « Rejecting an already processed delivery by using a stable external identifier. ». The reference answer is « Transforming varied external formats into a stable, validated internal shape. ». “normalization” means: Transforming varied external formats into a stable, validated internal shape.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Transforming varied external formats into a stable, validated internal shape. ». “normalization” means: Transforming varied external formats into a stable, validated internal shape."
+          ]
+        },
+        {
+          "id": "whatsapp-webhook-q3",
+          "question": "What is the best first fix when you observe: “normalizing JSON without verifying its signature lets anyone forge a sender and message”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a signed Meta webhook containing several message types, only bounded text of which becomes a support request, run npm run build, record only the useful signal, and explicitly compare the outcome with “the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing”.",
+            "Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply normalization: Transforming varied external formats into a stable, validated internal shape. The appropriate fix is: Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply normalization: Transforming varied external formats into a stable, validated internal shape. The appropriate fix is: Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing.",
+            "This option is incorrect. It says « Freeze a signed Meta webhook containing several message types, only bounded text of which becomes a support request, run npm run build, record only the useful signal, and explicitly compare the outcome with “the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing”. ». The reference answer is « Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply normalization: Transforming varied external formats into a stable, validated internal shape. The appropriate fix is: Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing.",
+            "This option is correct. It says « Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply normalization: Transforming varied external formats into a stable, validated internal shape. The appropriate fix is: Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply normalization: Transforming varied external formats into a stable, validated internal shape. The appropriate fix is: Apply this specific safeguard: verify HMAC over received bytes with constant-time comparison, validate structure, deduplicate the identifier, and minimize stored phone data. Replay the case and verify that the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing."
+          ]
+        }
+      ],
+      "recap": [
+        "Verify the webhook, distinguish message types, bound text, and retain the external identifier to deduplicate deliveries.",
+        "normalization: Transforming varied external formats into a stable, validated internal shape.",
+        "Completion evidence: the raw-body signature is verified before parsing, unknown types are ignored, and message.id prevents second processing."
+      ],
+      "next": "The next lesson chooses one channel or an explicit escalation based on urgency, consent, and delivery state."
+    },
+    {
+      "id": "notification-orchestration",
+      "order": 3,
+      "title": "Orchestrate channels without spam",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand browser permissions, Service Workers, signed webhooks, and the difference between consent and channel preference.",
+        "Be able to restate “orchestration” before coding: A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+        "Know how to create exercises/23-notifications/orchestrator.ts, run npx tsc --noEmit, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Centralize preferences, urgency, frequency, and unsubscribe rules so a business event never contacts every provider directly.",
+        "Build a deterministic channel selector that respects customer choice and limits duplicates, then prove the result with this exact signal: the decision records event, reason, chosen channel, and deduplication key; replay creates no new send."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A notification is a decision before it is a message: eligible event, authorized recipient, available channel, acceptable frequency, then observable delivery. In “Orchestrate channels without spam”, the concrete input is an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences. orchestration means: A layer applying cross-cutting rules before delegating delivery to a particular channel. The model is complete only when you define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract and can observe that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A notification orchestrator is a switchboard: it chooses an authorized line and avoids calling three times with the same information. Here the part you will actually inspect is a deterministic channel selector that respects customer choice and limits duplicates; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences. Centralize preferences, urgency, frequency, and unsubscribe rules so a business event never contacts every provider directly. The term orchestration is not a decorative label: A layer applying cross-cutting rules before delegating delivery to a particular channel. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/23-notifications/orchestrator.ts, the example deliberately reduces the system to a deterministic channel selector that respects customer choice and limits duplicates. Read each line as one responsibility, then run npx tsc --noEmit. The main failure to trigger is: urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost. It shows why the professional correction is to define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. Apply the same evidence to order alerts, product availability, and WhatsApp support conversations, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "orchestration",
+                  "definition": "A layer applying cross-cutting rules before delegating delivery to a particular channel."
+                },
+                {
+                  "term": "Channel preference",
+                  "definition": "A revocable choice stating how a user accepts particular messages."
+                },
+                {
+                  "term": "Deduplication",
+                  "definition": "Rejecting an already processed delivery by using a stable external identifier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences, first write the observation “the decision records event, reason, chosen channel, and deduplication key; replay creates no new send”, and then implement a deterministic channel selector that respects customer choice and limits duplicates. Simulate urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost and finish only when measurement confirms this safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/23-notifications/orchestrator.ts",
+                "source": "type Preference = { email: boolean; push: boolean; whatsapp: boolean };\ntype Channel = keyof Preference;\nexport function chooseChannels(preference: Preference, urgent: boolean): Channel[] {\n  const allowed = (Object.keys(preference) as Channel[]).filter((key) => preference[key]);\n  if (!urgent) return allowed.slice(0, 1);\n  return allowed;\n}\nconsole.log(chooseChannels({ email: true, push: true, whatsapp: false }, false));",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "defines the shape of data accepted at this boundary — type Preference = { email: boolean; push: boolean; whatsapp: boolean };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "defines the shape of data accepted at this boundary — type Channel = keyof Preference;."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "defines the shape of data accepted at this boundary — export function chooseChannels(preference: Preference, urgent: boolean): Channel[] {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "opens the function that owns the stated responsibility — const allowed = (Object.keys(preference) as Channel[]).filter((key) => preference[key]);."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "explicitly rejects or branches when this condition is true — if (!urgent) return allowed.slice(0, 1);."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "returns the produced value to calling code — return allowed;."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "closes the structure opened by preceding lines — }."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "makes the result visible in the terminal but is not business validation — console.log(chooseChannels({ email: true, push: true, whatsapp: false }, false));."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/orchestrator.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/23-notifications/orchestrator.ts and identify the input “an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences” in the annotations. — code exercises/23-notifications/orchestrator.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npx tsc --noEmit once and retain secret-free output as the baseline. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npx tsc --noEmit, the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. The deliberately failing case demonstrates “urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost” without exposing a secret; after the safeguard—define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects order alerts, product availability, and WhatsApp support conversations. a deterministic channel selector that respects customer choice and limits duplicates must remain on the correct side of the trust boundary; use orchestration to justify validation and retain this as evidence: the decision records event, reason, chosen channel, and deduplication key; replay creates no new send."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/orchestrator.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "After npx tsc --noEmit, the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. The deliberately failing case demonstrates “urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost” without exposing a secret; after the safeguard—define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply orchestration: A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+          "fix": "Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send."
+        },
+        {
+          "symptom": "a deterministic channel selector that respects customer choice and limits duplicates appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Orchestrate channels without spam, npx tsc --noEmit, input data, and outcome were not connected in a deterministic reproduction; requesting permission without clear intent, ignoring refusal, or multiplying channels for the same event.",
+          "fix": "Freeze an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the decision records event, reason, chosen channel, and deduplication key; replay creates no new send”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a deterministic channel selector that respects customer choice and limits duplicates in exercises/23-notifications/orchestrator.ts, demonstrate that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send, then trigger and repair urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost.",
+        "steps": [
+          "Create exercises/23-notifications/orchestrator.ts and identify the input “an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences” in the annotations.",
+          "Run npx tsc --noEmit once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost.",
+          "Implement “define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract”, rerun the command, and explain the role of orchestration."
+        ],
+        "hints": [
+          "Read the definition again: A layer applying cross-cutting rules before delegating delivery to a particular channel. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the decision records event, reason, chosen channel, and deduplication key; replay creates no new send”."
+        ],
+        "solution": {
+          "explanation": "For Orchestrate channels without spam, the solution keeps one authority and specifically applies “define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract”. It makes urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost reproducible and then controlled, and is accepted only when the decision records event, reason, chosen channel, and deduplication key; replay creates no new send.",
+          "code": "type Preference = { email: boolean; push: boolean; whatsapp: boolean };\ntype Channel = keyof Preference;\nexport function chooseChannels(preference: Preference, urgent: boolean): Channel[] {\n  const allowed = (Object.keys(preference) as Channel[]).filter((key) => preference[key]);\n  if (!urgent) return allowed.slice(0, 1);\n  return allowed;\n}\nconsole.log(chooseChannels({ email: true, push: true, whatsapp: false }, false));",
+          "filename": "exercises/23-notifications/orchestrator.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "notification-orchestration-q1",
+          "question": "Which decision actually demonstrates mastery of “Orchestrate channels without spam” in this scenario?",
+          "options": [
+            "define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract, then verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send.",
+            "Ignore “urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost” because the normal path displays a deterministic channel selector that respects customer choice and limits duplicates.",
+            "Move validation into the UI and treat orchestration as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+          "answerExplanations": [
+            "This option is correct. It says « define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract, then verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+            "This option is incorrect. It says « Ignore “urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost” because the normal path displays a deterministic channel selector that respects customer choice and limits duplicates. ». The reference answer is « define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract, then verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+            "This option is incorrect. It says « Move validation into the UI and treat orchestration as a server detail. ». The reference answer is « define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract, then verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract, then verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A layer applying cross-cutting rules before delegating delivery to a particular channel."
+          ]
+        },
+        {
+          "id": "notification-orchestration-q2",
+          "question": "Which definition matches the term “orchestration”?",
+          "options": [
+            "A revocable choice stating how a user accepts particular messages.",
+            "A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+            "Rejecting an already processed delivery by using a stable external identifier.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“orchestration” means: A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A revocable choice stating how a user accepts particular messages. ». The reference answer is « A layer applying cross-cutting rules before delegating delivery to a particular channel. ». “orchestration” means: A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+            "This option is correct. It says « A layer applying cross-cutting rules before delegating delivery to a particular channel. ». “orchestration” means: A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+            "This option is incorrect. It says « Rejecting an already processed delivery by using a stable external identifier. ». The reference answer is « A layer applying cross-cutting rules before delegating delivery to a particular channel. ». “orchestration” means: A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A layer applying cross-cutting rules before delegating delivery to a particular channel. ». “orchestration” means: A layer applying cross-cutting rules before delegating delivery to a particular channel."
+          ]
+        },
+        {
+          "id": "notification-orchestration-q3",
+          "question": "What is the best first fix when you observe: “urgent sends through every allowed channel even after one succeeds, creating spam and unnecessary cost”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the decision records event, reason, chosen channel, and deduplication key; replay creates no new send”.",
+            "Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply orchestration: A layer applying cross-cutting rules before delegating delivery to a particular channel. The appropriate fix is: Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply orchestration: A layer applying cross-cutting rules before delegating delivery to a particular channel. The appropriate fix is: Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send.",
+            "This option is incorrect. It says « Freeze an order change must choose email, push, or WhatsApp without tripling the message or ignoring preferences, run npx tsc --noEmit, record only the useful signal, and explicitly compare the outcome with “the decision records event, reason, chosen channel, and deduplication key; replay creates no new send”. ». The reference answer is « Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply orchestration: A layer applying cross-cutting rules before delegating delivery to a particular channel. The appropriate fix is: Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send.",
+            "This option is correct. It says « Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply orchestration: A layer applying cross-cutting rules before delegating delivery to a particular channel. The appropriate fix is: Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply orchestration: A layer applying cross-cutting rules before delegating delivery to a particular channel. The appropriate fix is: Apply this specific safeguard: define priority, frequency window, and escalation condition, then stop once a confirmed channel satisfies the contract. Replay the case and verify that the decision records event, reason, chosen channel, and deduplication key; replay creates no new send."
+          ]
+        }
+      ],
+      "recap": [
+        "Centralize preferences, urgency, frequency, and unsubscribe rules so a business event never contacts every provider directly.",
+        "orchestration: A layer applying cross-cutting rules before delegating delivery to a particular channel.",
+        "Completion evidence: the decision records event, reason, chosen channel, and deduplication key; replay creates no new send."
+      ],
+      "next": "The next module treats the AI model as another untrusted provider, bounded before and after the call."
+    }
+  ]
+}

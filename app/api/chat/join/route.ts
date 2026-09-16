@@ -1,3 +1,6 @@
+import type { NextRequest } from "next/server";
+import { protectAdminRead, protectAdminMutation } from "@/lib/api-security";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkChatSession } from "@/lib/chat-session-server";
@@ -8,8 +11,10 @@ const supabase = createClient(
 );
 
 /** POST /api/chat/join — take ownership and notify the visitor. */
-export async function POST(req: Request) {
-  const { session_id } = await req.json();
+export async function POST(req: NextRequest) {
+  const securityDenied = await protectAdminMutation(req, { key: "chat/join/route.ts:POST" });
+  if (securityDenied) return securityDenied;
+  const { session_id } = await readJsonLimited(req);
   if (!session_id) {
     return NextResponse.json({ error: "session_id required" }, { status: 400 });
   }

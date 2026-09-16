@@ -1,0 +1,468 @@
+[
+  {
+    "url": "https://lecomax.com/a-propos/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/a-propos/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/a-propos/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "À Propos de L&#x27;ecomax | Boutique Marocaine — Sidi Bennour",
+    "h1": [
+      "L&#x27;ecomaxc&#x27;est quoi ?"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/aide/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/aide/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/aide/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Aide &amp; FAQ | L&#x27;ecomax — Questions Fréquentes",
+    "h1": [
+      "Trouvez l&#x27;aide dontvous avez besoin."
+    ]
+  },
+  {
+    "url": "https://lecomax.com/bestsellers/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/bestsellers/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/bestsellers/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Bestsellers | L&#x27;ecomax — Les Plus Vendus au Maroc",
+    "h1": [
+      "Bestsellers"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/boutiques/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/boutiques/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/boutiques/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Notre Boutique — Sidi Bennour | L&#x27;ecomax",
+    "h1": [
+      "Venez nousrendre visite"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/conditions-utilisation/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/conditions-utilisation/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/conditions-utilisation/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Conditions d&#x27;utilisation | L&#x27;ecomax",
+    "h1": [
+      "Conditionsd&#x27;utilisation"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/conditions/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/conditions/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/conditions/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Conditions Générales de Vente | L&#x27;ecomax",
+    "h1": [
+      "Conditions Générales de Vente"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/cookies/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/cookies/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/cookies/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Politique de Cookies | L&#x27;ecomax",
+    "h1": [
+      "Politique decookies"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/ecoclub/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/ecoclub/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/ecoclub/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "ecoClub — Programme de Fidélité | L&#x27;ecomax",
+    "h1": [
+      "L&#x27;ecoClub"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/ecomedia/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/ecomedia/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/ecomedia/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Ecomedia | L&#x27;ecomax",
+    "h1": [
+      "Ecomedia — Actualités et communauté L&#x27;ecomax"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/ecomedia/comparatif-ecouteurs-bluetooth-lenovo/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/ecomedia/comparatif-ecouteurs-bluetooth-lenovo/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/ecomedia/comparatif-ecouteurs-bluetooth-lenovo/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Comparatif des écouteurs Bluetooth Lenovo : GM2 Pro ou LP40 Pro ? | Ecomedia L&#x27;ecomax",
+    "h1": [
+      "Comparatif des écouteurs Bluetooth Lenovo : GM2 Pro ou LP40 Pro ?"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/ecomedia/ecoutez-sans-limites-mrfbvkoe/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/ecomedia/ecoutez-sans-limites-mrfbvkoe/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/ecomedia/ecoutez-sans-limites-mrfbvkoe/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Écoutez sans limites | Ecomedia L&#x27;ecomax",
+    "h1": []
+  },
+  {
+    "url": "https://lecomax.com/ecomedia/guide-tailles-chaussures-femme/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/ecomedia/guide-tailles-chaussures-femme/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/ecomedia/guide-tailles-chaussures-femme/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Guide des tailles pour chaussures femme | Ecomedia L&#x27;ecomax",
+    "h1": [
+      "Guide des tailles pour chaussures femme"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/nous-contacter/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/nous-contacter/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/nous-contacter/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Nous Contacter | L&#x27;ecomax — Service Client Maroc",
+    "h1": [
+      "Contacter L&#x27;ecomax"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/nouveautes/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/nouveautes/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/nouveautes/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Nouveautés | L&#x27;ecomax — Dernières Arrivées au Maroc",
+    "h1": [
+      "Nouveautés"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/politique-confidentialite/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/politique-confidentialite/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/politique-confidentialite/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Politique de confidentialité | L&#x27;ecomax",
+    "h1": [
+      "Politique deconfidentialité"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-gm2-pro-ecouteurs/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/a-lenovo-gm2-pro-ecouteurs/",
+    "inSitemap": false,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Produit | L&#x27;ecomax",
+    "h1": [
+      "Écouteurs Lenovo GM2 Pro — Bluetooth gaming"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-k3-pro-enceinte/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/a-lenovo-k3-pro-enceinte/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/a-lenovo-k3-pro-enceinte/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Enceinte Bluetooth Lenovo K3 Pro — Son stéréo Hi-Fi — 99 MAD | L&#x27;ecomax",
+    "h1": [
+      "Enceinte Bluetooth Lenovo K3 Pro — Son stéréo Hi-Fi"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-lp40-pro-ecouteurs/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/a-lenovo-lp40-pro-ecouteurs/",
+    "inSitemap": false,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Produit | L&#x27;ecomax",
+    "h1": [
+      "Écouteurs Lenovo LP40 Pro — Sport et gaming"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-manette-sans-fil-rgb-v2/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/a-manette-sans-fil-rgb-v2/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/a-manette-sans-fil-rgb-v2/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Manette sans fil RGB anti-drift — iOS, Switch, PC et Android — 499 MAD | L&#x27;ecomax",
+    "h1": [
+      "Manette sans fil RGB anti-drift — iOS, Switch, PC et Android"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-sac-dos-voyage-compression-sous-vide-43cm/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/a-sac-dos-voyage-compression-sous-vide-43cm/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/a-sac-dos-voyage-compression-sous-vide-43cm/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Sac à dos de voyage 43 cm avec compression sous vide — 749 MAD | L&#x27;ecomax",
+    "h1": [
+      "Sac à dos de voyage 43 cm avec compression sous vide"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/c-chaussons-exterieur-poils-femme/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/c-chaussons-exterieur-poils-femme/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/c-chaussons-exterieur-poils-femme/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Chaussons fourrés pour femme à cœur brodé — Automne/Hiver — 89 MAD | L&#x27;ecomax",
+    "h1": [
+      "Chaussons fourrés pour femme à cœur brodé — Automne/Hiver"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/c-chaussons-fleurs-rose-femme/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/c-chaussons-fleurs-rose-femme/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/c-chaussons-fleurs-rose-femme/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Chaussons fleuris pour femme — Confort intérieur — 69 MAD | L&#x27;ecomax",
+    "h1": [
+      "Chaussons fleuris pour femme — Confort intérieur"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/c-chaussons-interieur-femme/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/c-chaussons-interieur-femme/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/c-chaussons-interieur-femme/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Chaussons d’intérieur pour femme — Semelles épaisses — 69 MAD | L&#x27;ecomax",
+    "h1": [
+      "Chaussons d’intérieur pour femme — Semelles épaisses"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/c-chaussons-mode-femme-peluche/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/produit/c-chaussons-mode-femme-peluche/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/c-chaussons-mode-femme-peluche/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Chaussons en peluche pour femme — Lanières croisées — 69 MAD | L&#x27;ecomax",
+    "h1": [
+      "Chaussons en peluche pour femme — Lanières croisées"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/promotions/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/promotions/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/promotions/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Promotions &amp; Soldes | L&#x27;ecomax — Maroc",
+    "h1": [
+      "Promotions"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/retours/",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/retours/",
+    "inSitemap": true,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/retours/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Retours &amp; Échanges | L&#x27;ecomax",
+    "h1": [
+      "Retours &amp;Échanges"
+    ]
+  }
+]

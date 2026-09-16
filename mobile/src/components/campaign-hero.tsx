@@ -1,3 +1,4 @@
+import { BRAND_COPY, marketplaceHeadline } from "@/lib/brand-copy";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
@@ -20,8 +21,8 @@ const colors = {
 const fallbackBanner: Banner = {
   id: "lecomax-local-campaign",
   get eyebrow() { return msg("campaignHero.newCollectionUppercase"); },
-  get title() { return msg("campaignHero.moveMoreLiveBetterUppercase"); },
-  get description() { return msg("campaignHero.performanceStyleAndInnovationForEveryDay"); },
+  title: "",
+  description: "",
   image: require("../../assets/images/home-campaign-lecomax.webp"),
   href: "/catalog?sort=new",
   get ctaLabel() { return msg("campaignHero.discoverUppercase"); },
@@ -33,13 +34,13 @@ export const CampaignHero = memo(function CampaignHero({
 }: {
   banner?: Banner;
 }) {
-  useLocale();
+  const language = useLocale();
+  const brand = BRAND_COPY[language];
   const { contentWidth } = useAppViewport();
   const [imageFailed, setImageFailed] = useState(false);
   const compact = contentWidth < 360;
-  const campaign = banner ?? fallbackBanner;
-  const title = campaign.title || fallbackBanner.title;
-  const displayTitle = title === fallbackBanner.title ? msg("campaignHero.moveMoreLiveBetter") : title;
+  const campaign = banner ?? { ...fallbackBanner, title: brand.tagline, eyebrow: brand.eyebrow, description: brand.description };
+  const displayTitle = marketplaceHeadline(campaign.title, language);
   const reducedMotion = useReducedMotion();
   const imageScale = useSharedValue(1.08);
   const arrowOffset = useSharedValue(0);
@@ -136,7 +137,7 @@ export const CampaignHero = memo(function CampaignHero({
           style={styles.description}
         >
           {campaign.description ||
-            msg("campaignHero.performanceStyleAndInnovationForEveryDay")}
+            brand.description}
         </Animated.Text>
         <Animated.View entering={entrance(540)}>
         <AnimatedPressable

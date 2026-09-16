@@ -1,6 +1,7 @@
 # Informations de l’application
 
 - **Nom :** Lecomax
+- **Positionnement :** marketplace lifestyle généraliste, ouverte à tous les univers du quotidien et à de futures catégories de produits.
 - **Version préparée :** 1.0.3
 - **Catégorie recommandée :** Shopping
 - **Langue principale proposée :** français

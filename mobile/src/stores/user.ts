@@ -9,6 +9,8 @@ export type SavedAddress = {
   phone: string;
   city: string;
   address: string;
+  /** Keep website address details when editing through the app's single input. */
+  websiteAddress?: { label: string; line1: string; line2: string; zip: string; country: string };
 };
 
 type UserState = {
@@ -52,7 +54,7 @@ export const useUserStore = create<UserState>()(
           const exists = addresses.some((item) => item.id === id);
           return {
             addresses: exists
-              ? addresses.map((item) => item.id === id ? saved : item)
+              ? addresses.map((item) => item.id === id ? { ...item, ...saved } : item)
               : [...addresses, saved],
             selectedAddressId: id,
             name: saved.name,

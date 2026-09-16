@@ -1,0 +1,50 @@
+[
+  {
+    "url": "https://www.lecomax.com/images/products/lenovo gm2 pro/4.avif",
+    "requestedUrl": "https://www.lecomax.com/images/products/lenovo%20gm2%20pro/4.avif",
+    "status": 200,
+    "contentType": "image/avif",
+    "location": null,
+    "robots": null
+  },
+  {
+    "url": "https://lecomax.com/images/products/Sac bandoulière/4.avif",
+    "requestedUrl": "https://lecomax.com/images/products/Sac%20bandouli%C3%A8re/4.avif",
+    "status": 200,
+    "contentType": "image/avif",
+    "location": null,
+    "robots": null
+  },
+  {
+    "url": "https://lecomax.com/authentication.html",
+    "requestedUrl": "https://lecomax.com/authentication.html",
+    "status": 308,
+    "contentType": "text/plain",
+    "location": "/connexion/",
+    "robots": null
+  },
+  {
+    "url": "https://lecomax.com/images/products/BAASPLOA Men's Lightweight Running \nSneakers/Yellow.avif",
+    "requestedUrl": "https://lecomax.com/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Yellow.avif",
+    "status": 200,
+    "contentType": "image/avif",
+    "location": null,
+    "robots": null
+  },
+  {
+    "url": "https://lecomax.com/produit/h-doudoune-hiver",
+    "requestedUrl": "https://lecomax.com/produit/h-doudoune-hiver",
+    "status": 308,
+    "contentType": "text/plain",
+    "location": "/homme/",
+    "robots": null
+  },
+  {
+    "url": "https://lecomax.com/produit/c-running-daily",
+    "requestedUrl": "https://lecomax.com/produit/c-running-daily",
+    "status": 308,
+    "contentType": "text/plain",
+    "location": "/chaussures/",
+    "robots": null
+  }
+]

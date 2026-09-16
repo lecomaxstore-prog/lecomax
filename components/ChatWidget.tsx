@@ -1,5 +1,6 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { isSizeMenuOpen, sizeMenuServerSnapshot, subscribeSizeMenu } from "@/lib/size-menu-state";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
@@ -47,8 +48,9 @@ function Icon({ kind }: { kind: "chat" | "arrow" | "close" | "minimize" }) {
 }
 
 export default function ChatWidget() {
+  const sizeMenuOpen = useSyncExternalStore(subscribeSizeMenu, isSizeMenuOpen, sizeMenuServerSnapshot);
   const pathname = usePathname();
-  const hidden = ["/nous-contacter", "/checkout", "/compte"].some(path => pathname?.startsWith(path));
+  const hidden = ["/nous-contacter", "/checkout", "/compte", "/connexion"].some(path => pathname?.startsWith(path));
   const [open, setOpen] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
 
@@ -309,8 +311,8 @@ export default function ChatWidget() {
   const disabled = busy || starting || !sessionId || resolved;
 
   return <>
-    {hasScrolled && !open && !hidden && <button ref={launcherRef} type="button" onClick={show} aria-label="Ouvrir l’assistance L’ecomax" aria-haspopup="dialog" className={control + " eco-chat-launcher fixed bottom-20 right-4 z-50 flex h-14 items-center gap-2.5 rounded-full bg-[#183c30] px-5 text-sm font-semibold text-white shadow-lg hover:bg-[#224e3e] sm:bottom-6 sm:right-6"}>
-      <span className="eco-chat-launcher-icon" aria-hidden="true"><Icon kind="chat" /></span><span>Besoin d’aide ?</span>{unread > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] text-emerald-900">{unread}</span>}
+    {hasScrolled && !open && !hidden && !sizeMenuOpen && <button ref={launcherRef} type="button" onClick={show} aria-label="Ouvrir l’assistance L’ecomax" aria-haspopup="dialog" className="eco-chat-launcher fixed bottom-20 right-4 z-50 flex h-12 items-center gap-2.5 rounded-full border border-[#e0e7dd] bg-white py-1.5 pl-1.5 pr-4 text-[13px] font-medium text-[#203d2b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 sm:bottom-6 sm:right-6">
+      <span className="eco-chat-launcher-icon" aria-hidden="true"><Icon kind="chat" /></span><span>Besoin d’aide ?</span>{unread > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#183c30] px-1 text-[11px] font-semibold text-white">{unread}</span>}
     </button>}
     {open && <section ref={panelRef} role="dialog" aria-label="Assistance L’ecomax" tabIndex={-1}
       onKeyDown={event => { if (event.key === "Escape") { if (confirmEnd) setConfirmEnd(false); else minimize(); } }}

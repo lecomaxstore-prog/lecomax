@@ -1,0 +1,47 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
+import { requireSettingsPermission } from "@/lib/admin-settings-access";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+import { isAdminRequest } from "@/lib/request-auth";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { cleanShippingZonePayload } from "@/lib/shipping-zones";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+// GET /api/shipping
+export async function GET(req: NextRequest) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
+  const { data, error } = await supabase
+    .from("shipping_zones")
+    .select("*")
+    .order("sort_order");
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  return NextResponse.json(data);
+}
+
+// POST /api/shipping
+export async function POST(req: NextRequest) {
+  const denied = await requireSettingsPermission(req, "shipping.edit");
+  if (denied) return denied;
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
+  let body: unknown;
+  try { body = await readJsonLimited(req); } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const cleaned = cleanShippingZonePayload(body);
+  if (!cleaned.payload) return NextResponse.json({ error: cleaned.error }, { status: 400 });
+  const payload = cleaned.payload;
+  const { data, error } = await supabase
+    .from("shipping_zones")
+    .insert(payload)
+    .select()
+    .single();
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidatePath("/checkout");
+  revalidateTag("store-settings");
+  return NextResponse.json(data, { status: 201 });
+}

@@ -1,0 +1,984 @@
+{
+  "id": "china-sourcing",
+  "order": 44,
+  "icon": "package",
+  "color": "#dc2626",
+  "title": "Acheter en Chine : produit, fournisseur et commande sûre",
+  "summary": "Sourcer avec spécifications, vérifications, échantillons et protections écrites.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/44-china-sourcing/sourcing-product-spec.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/44-china-sourcing/find-verify-suppliers.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sourcing-product-spec",
+      "order": 0,
+      "title": "Choisir le produit et écrire une spécification",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Choisir le produit et écrire une spécification en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une fiche produit d’approvisionnement sans ambiguïté en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Définir dimensions, matériaux, tolérances, couleurs, emballage, marquage, tests, quantité, destination et défauts inacceptables avant de demander un prix. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Définir dimensions, matériaux, tolérances, couleurs, emballage, marquage, tests, quantité, destination et défauts inacceptables avant de demander un prix. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Choisir le produit et écrire une spécification ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Définir dimensions, matériaux, tolérances, couleurs, emballage, marquage, tests, quantité, destination et défauts inacceptables avant de demander un prix. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Choisir le produit et écrire une spécification, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une fiche produit d’approvisionnement sans ambiguïté. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "Mesure ou structure qui rend la décision concernant Choisir le produit et écrire une spécification comparable et reproductible."
+                },
+                {
+                  "term": "Échantillon",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Choisir le produit et écrire une spécification améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Choisir le produit et écrire une spécification à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/sourcing-product-spec.md",
+                "source": "# Choose the product and write a specification\n- [ ] Customer problem: Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price.\n- [ ] Deliverable: an unambiguous sourcing product specification\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Choisir le produit et écrire une spécification avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/sourcing-product-spec.md",
+                "source": "# Choose the product and write a specification\n- [x] Customer problem: Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price.\n- [ ] Deliverable: an unambiguous sourcing product specification\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Choisir le produit et écrire une spécification",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Choisir le produit et écrire une spécification complète chaque section de une fiche produit d’approvisionnement sans ambiguïté, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une fiche produit d’approvisionnement sans ambiguïté existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une fiche produit d’approvisionnement sans ambiguïté, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une fiche produit d’approvisionnement sans ambiguïté existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Choisir le produit et écrire une spécification paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Choisir le produit et écrire une spécification progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une fiche produit d’approvisionnement sans ambiguïté à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Choisir le produit et écrire une spécification complète chaque section de une fiche produit d’approvisionnement sans ambiguïté, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Choose the product and write a specification\n- [x] Customer problem: Define dimensions, materials, tolerances, colors, packaging, marking, tests, quantity, destination, and unacceptable defects before requesting price.\n- [ ] Deliverable: an unambiguous sourcing product specification\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Choisir le produit et écrire une spécification",
+          "filename": "exercises/44-china-sourcing/sourcing-product-spec.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "sourcing-product-spec-q1",
+          "question": "Quelle démarche applique correctement Choisir le produit et écrire une spécification ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Choisir le produit et écrire une spécification, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Choisir le produit et écrire une spécification, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Choisir le produit et écrire une spécification, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Choisir le produit et écrire une spécification, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Choisir le produit et écrire une spécification, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "sourcing-product-spec-q2",
+          "question": "Quelle définition correspond au terme « MOQ » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Choisir le produit et écrire une spécification comparable et reproductible.",
+            "Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Choisir le produit et écrire une spécification améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« MOQ » signifie : Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Choisir le produit et écrire une spécification comparable et reproductible. ». La réponse de référence est « Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Choisir le produit et écrire une spécification améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Choisir le produit et écrire une spécification, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "sourcing-product-spec-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Choisir le produit et écrire une spécification paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Choisir le produit et écrire une spécification, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Choisir le produit et écrire une spécification est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une fiche produit d’approvisionnement sans ambiguïté rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Choisir le produit et écrire une spécification, poursuivez avec Trouver et vérifier fabricants et sociétés de négoce afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "find-verify-suppliers",
+      "order": 1,
+      "title": "Trouver et vérifier fabricants et sociétés de négoce",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Trouver et vérifier fabricants et sociétés de négoce en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une grille de vérification pour au moins cinq fournisseurs en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Comparer identité légale, expérience produit, capacité, rapports, références, communication, audit vidéo ou tiers et cohérence des certificats avec le modèle exact. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Comparer identité légale, expérience produit, capacité, rapports, références, communication, audit vidéo ou tiers et cohérence des certificats avec le modèle exact. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Trouver et vérifier fabricants et sociétés de négoce ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Comparer identité légale, expérience produit, capacité, rapports, références, communication, audit vidéo ou tiers et cohérence des certificats avec le modèle exact. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Trouver et vérifier fabricants et sociétés de négoce, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une grille de vérification pour au moins cinq fournisseurs. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "Mesure ou structure qui rend la décision concernant Trouver et vérifier fabricants et sociétés de négoce comparable et reproductible."
+                },
+                {
+                  "term": "Échantillon",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Trouver et vérifier fabricants et sociétés de négoce améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Trouver et vérifier fabricants et sociétés de négoce à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/find-verify-suppliers.md",
+                "source": "# Find and verify manufacturers and trading companies\n- [ ] Customer problem: Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model.\n- [ ] Deliverable: a verification scorecard for at least five suppliers\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://seller.alibaba.com/verified-supplier?language=en_US\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Trouver et vérifier fabricants et sociétés de négoce avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/find-verify-suppliers.md",
+                "source": "# Find and verify manufacturers and trading companies\n- [x] Customer problem: Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model.\n- [ ] Deliverable: a verification scorecard for at least five suppliers\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://seller.alibaba.com/verified-supplier?language=en_US\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Trouver et vérifier fabricants et sociétés de négoce",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Trouver et vérifier fabricants et sociétés de négoce complète chaque section de une grille de vérification pour au moins cinq fournisseurs, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une grille de vérification pour au moins cinq fournisseurs existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une grille de vérification pour au moins cinq fournisseurs, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une grille de vérification pour au moins cinq fournisseurs existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Trouver et vérifier fabricants et sociétés de négoce paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Trouver et vérifier fabricants et sociétés de négoce progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une grille de vérification pour au moins cinq fournisseurs à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Trouver et vérifier fabricants et sociétés de négoce complète chaque section de une grille de vérification pour au moins cinq fournisseurs, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Find and verify manufacturers and trading companies\n- [x] Customer problem: Compare legal identity, product experience, capacity, reports, references, communication, video or third-party audit, and certificate match to the exact model.\n- [ ] Deliverable: a verification scorecard for at least five suppliers\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://seller.alibaba.com/verified-supplier?language=en_US\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Trouver et vérifier fabricants et sociétés de négoce",
+          "filename": "exercises/44-china-sourcing/find-verify-suppliers.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "find-verify-suppliers-q1",
+          "question": "Quelle démarche applique correctement Trouver et vérifier fabricants et sociétés de négoce ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Trouver et vérifier fabricants et sociétés de négoce, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Trouver et vérifier fabricants et sociétés de négoce, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Trouver et vérifier fabricants et sociétés de négoce, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Trouver et vérifier fabricants et sociétés de négoce, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Trouver et vérifier fabricants et sociétés de négoce, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "find-verify-suppliers-q2",
+          "question": "Quelle définition correspond au terme « MOQ » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Trouver et vérifier fabricants et sociétés de négoce comparable et reproductible.",
+            "Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Trouver et vérifier fabricants et sociétés de négoce améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« MOQ » signifie : Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Trouver et vérifier fabricants et sociétés de négoce comparable et reproductible. ». La réponse de référence est « Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Trouver et vérifier fabricants et sociétés de négoce améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Trouver et vérifier fabricants et sociétés de négoce, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "find-verify-suppliers-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Trouver et vérifier fabricants et sociétés de négoce paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Trouver et vérifier fabricants et sociétés de négoce, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Trouver et vérifier fabricants et sociétés de négoce est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une grille de vérification pour au moins cinq fournisseurs rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Trouver et vérifier fabricants et sociétés de négoce, poursuivez avec RFQ comparable, échantillons et négociation afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "rfq-samples-negotiation",
+      "order": 2,
+      "title": "RFQ comparable, échantillons et négociation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer RFQ comparable, échantillons et négociation en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un RFQ, une matrice d’offres et un rapport d’échantillon en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Envoyer la même demande complète, comparer prix rendu et délai, tester plusieurs échantillons, confirmer golden sample et négocier quantité, paiement et corrections par écrit. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Envoyer la même demande complète, comparer prix rendu et délai, tester plusieurs échantillons, confirmer golden sample et négocier quantité, paiement et corrections par écrit. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "RFQ comparable, échantillons et négociation ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Envoyer la même demande complète, comparer prix rendu et délai, tester plusieurs échantillons, confirmer golden sample et négocier quantité, paiement et corrections par écrit. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser RFQ comparable, échantillons et négociation, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un RFQ, une matrice d’offres et un rapport d’échantillon. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "Mesure ou structure qui rend la décision concernant RFQ comparable, échantillons et négociation comparable et reproductible."
+                },
+                {
+                  "term": "Échantillon",
+                  "definition": "Limite de contrôle utilisée pour vérifier que RFQ comparable, échantillons et négociation améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez RFQ comparable, échantillons et négociation à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+                "source": "# Comparable RFQ, samples, and negotiation\n- [ ] Customer problem: Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing.\n- [ ] Deliverable: an RFQ, quote matrix, and sample report\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de RFQ comparable, échantillons et négociation avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+                "source": "# Comparable RFQ, samples, and negotiation\n- [x] Customer problem: Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing.\n- [ ] Deliverable: an RFQ, quote matrix, and sample report\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: RFQ comparable, échantillons et négociation",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour RFQ comparable, échantillons et négociation complète chaque section de un RFQ, une matrice d’offres et un rapport d’échantillon, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un RFQ, une matrice d’offres et un rapport d’échantillon existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un RFQ, une matrice d’offres et un rapport d’échantillon, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un RFQ, une matrice d’offres et un rapport d’échantillon existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "RFQ comparable, échantillons et négociation paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à RFQ comparable, échantillons et négociation progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un RFQ, une matrice d’offres et un rapport d’échantillon à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour RFQ comparable, échantillons et négociation complète chaque section de un RFQ, une matrice d’offres et un rapport d’échantillon, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Comparable RFQ, samples, and negotiation\n- [x] Customer problem: Send the same complete request, compare landed price and lead time, test several samples, confirm a golden sample, and negotiate quantity, payment, and corrections in writing.\n- [ ] Deliverable: an RFQ, quote matrix, and sample report\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: RFQ comparable, échantillons et négociation",
+          "filename": "exercises/44-china-sourcing/rfq-samples-negotiation.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "rfq-samples-negotiation-q1",
+          "question": "Quelle démarche applique correctement RFQ comparable, échantillons et négociation ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour RFQ comparable, échantillons et négociation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour RFQ comparable, échantillons et négociation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour RFQ comparable, échantillons et négociation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour RFQ comparable, échantillons et négociation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour RFQ comparable, échantillons et négociation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "rfq-samples-negotiation-q2",
+          "question": "Quelle définition correspond au terme « MOQ » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant RFQ comparable, échantillons et négociation comparable et reproductible.",
+            "Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que RFQ comparable, échantillons et négociation améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« MOQ » signifie : Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant RFQ comparable, échantillons et négociation comparable et reproductible. ». La réponse de référence est « Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que RFQ comparable, échantillons et négociation améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de RFQ comparable, échantillons et négociation, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "rfq-samples-negotiation-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « RFQ comparable, échantillons et négociation paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de RFQ comparable, échantillons et négociation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de RFQ comparable, échantillons et négociation est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un RFQ, une matrice d’offres et un rapport d’échantillon rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après RFQ comparable, échantillons et négociation, poursuivez avec Contrat, Trade Assurance, paiement et prévention fraude afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "safe-order-contract-payment",
+      "order": 3,
+      "title": "Contrat, Trade Assurance, paiement et prévention fraude",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Contrat, Trade Assurance, paiement et prévention fraude en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une checklist de commande et paiement avec portes d’arrêt en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Faire correspondre entité, bénéficiaire et facture, inscrire spécifications, tolérances, inspection, date, remède et Incoterm dans la commande protégée, puis refuser tout changement bancaire non vérifié. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Faire correspondre entité, bénéficiaire et facture, inscrire spécifications, tolérances, inspection, date, remède et Incoterm dans la commande protégée, puis refuser tout changement bancaire non vérifié. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Contrat, Trade Assurance, paiement et prévention fraude ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Faire correspondre entité, bénéficiaire et facture, inscrire spécifications, tolérances, inspection, date, remède et Incoterm dans la commande protégée, puis refuser tout changement bancaire non vérifié. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Contrat, Trade Assurance, paiement et prévention fraude, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une checklist de commande et paiement avec portes d’arrêt. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "MOQ",
+                  "definition": "Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "RFQ",
+                  "definition": "Mesure ou structure qui rend la décision concernant Contrat, Trade Assurance, paiement et prévention fraude comparable et reproductible."
+                },
+                {
+                  "term": "Échantillon",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Contrat, Trade Assurance, paiement et prévention fraude améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Contrat, Trade Assurance, paiement et prévention fraude à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+                "source": "# Contract, Trade Assurance, payment, and fraud prevention\n- [ ] Customer problem: Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes.\n- [ ] Deliverable: an order and payment checklist with stop gates\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://buyer.alibaba.com/page/trade_Assurance.html\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Contrat, Trade Assurance, paiement et prévention fraude avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+                "source": "# Contract, Trade Assurance, payment, and fraud prevention\n- [x] Customer problem: Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes.\n- [ ] Deliverable: an order and payment checklist with stop gates\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://buyer.alibaba.com/page/trade_Assurance.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Contrat, Trade Assurance, paiement et prévention fraude",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Contrat, Trade Assurance, paiement et prévention fraude complète chaque section de une checklist de commande et paiement avec portes d’arrêt, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une checklist de commande et paiement avec portes d’arrêt existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une checklist de commande et paiement avec portes d’arrêt, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une checklist de commande et paiement avec portes d’arrêt existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Contrat, Trade Assurance, paiement et prévention fraude paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Contrat, Trade Assurance, paiement et prévention fraude progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une checklist de commande et paiement avec portes d’arrêt à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Contrat, Trade Assurance, paiement et prévention fraude complète chaque section de une checklist de commande et paiement avec portes d’arrêt, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Contract, Trade Assurance, payment, and fraud prevention\n- [x] Customer problem: Match entity, beneficiary, and invoice; put specifications, tolerances, inspection, date, remedy, and Incoterm in the protected order; reject unverified bank changes.\n- [ ] Deliverable: an order and payment checklist with stop gates\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://buyer.alibaba.com/page/trade_Assurance.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Contrat, Trade Assurance, paiement et prévention fraude",
+          "filename": "exercises/44-china-sourcing/safe-order-contract-payment.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "safe-order-contract-payment-q1",
+          "question": "Quelle démarche applique correctement Contrat, Trade Assurance, paiement et prévention fraude ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Contrat, Trade Assurance, paiement et prévention fraude, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrat, Trade Assurance, paiement et prévention fraude, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrat, Trade Assurance, paiement et prévention fraude, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrat, Trade Assurance, paiement et prévention fraude, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Contrat, Trade Assurance, paiement et prévention fraude, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "safe-order-contract-payment-q2",
+          "question": "Quelle définition correspond au terme « MOQ » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Contrat, Trade Assurance, paiement et prévention fraude comparable et reproductible.",
+            "Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Contrat, Trade Assurance, paiement et prévention fraude améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« MOQ » signifie : Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Contrat, Trade Assurance, paiement et prévention fraude comparable et reproductible. ». La réponse de référence est « Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Contrat, Trade Assurance, paiement et prévention fraude améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence. ». « MOQ » signifie : Concept central de Contrat, Trade Assurance, paiement et prévention fraude, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "safe-order-contract-payment-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Contrat, Trade Assurance, paiement et prévention fraude paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Contrat, Trade Assurance, paiement et prévention fraude, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Contrat, Trade Assurance, paiement et prévention fraude est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une checklist de commande et paiement avec portes d’arrêt rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Contrat, Trade Assurance, paiement et prévention fraude, poursuivez avec Conformité produit et marché avant commande afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

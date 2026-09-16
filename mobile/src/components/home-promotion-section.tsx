@@ -34,13 +34,15 @@ export const HomePromotionSection = memo(function HomePromotionSection({
     <View style={styles.section}>
       <View style={styles.heading}>
         <View style={styles.headingCopy}>
-          <Text style={styles.eyebrow}>{msg("homePromotionSection.lEcomaxPricesUppercase")}</Text>
+          <View style={styles.eyebrowBadge}>
+            <View style={styles.eyebrowDot} />
+            <Text style={styles.eyebrow}>{msg("homePromotionSection.lEcomaxPricesUppercase")}</Text>
+          </View>
           <Text accessibilityRole="header" style={styles.title}>
             {msg("homePromotionSection.promotions")}</Text>
-          <Text style={styles.subtitle}>
-            {msg("homePromotionSection.selectedOffersAvailableForALimitedTime")}</Text>
         </View>
         <AnimatedPressable
+          accessibilityRole="button"
           accessibilityLabel={msg("homePromotionSection.viewAllPromotions")}
           onPress={() =>
             router.push({
@@ -54,6 +56,9 @@ export const HomePromotionSection = memo(function HomePromotionSection({
           <Ionicons name="arrow-forward" size={15} color={colors.primaryDark} />
         </AnimatedPressable>
       </View>
+      <Text style={styles.subtitle}>
+        {msg("homePromotionSection.selectedOffersAvailableForALimitedTime")}
+      </Text>
 
       <HorizontalRail
         decelerationRate="fast"
@@ -172,38 +177,59 @@ const styles = StyleSheet.create({
   heading: {
     paddingHorizontal: 16,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-end",
     justifyContent: "space-between",
     gap: 12,
+    flexWrap: "wrap",
   },
-  headingCopy: { flex: 1, minWidth: 0 },
+  headingCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 190, minWidth: 0 },
+  eyebrowBadge: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: "#EEF6EB",
+    maxWidth: "100%",
+  },
+  eyebrowDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#168526" },
   eyebrow: {
-    color: palette.greenDark,
+    color: "#276334",
     fontFamily: typography.semibold,
-    fontSize: 9,
-    letterSpacing: 1.4,
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 1.2,
+    flexShrink: 1,
   },
   title: {
-    marginTop: 6,
+    marginTop: 10,
     color: palette.ink,
     fontFamily: typography.bold,
-    fontSize: 26,
-    lineHeight: 32,
-    letterSpacing: -0.7,
+    fontSize: 30,
+    lineHeight: 37,
+    letterSpacing: -1,
   },
   subtitle: {
-    marginTop: 5,
-    color: palette.muted,
+    marginTop: 8,
+    paddingHorizontal: 16,
+    color: "#626B60",
     fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 17,
+    fontSize: 13,
+    lineHeight: 20,
   },
   viewAll: {
     minWidth: 72,
     minHeight: 44,
+    paddingHorizontal: 12,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#DEE8DA",
+    backgroundColor: "#FFFFFF",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     gap: 6,
   },
   viewAllText: {

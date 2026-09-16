@@ -1,0 +1,984 @@
+{
+  "id": "import-quality-logistics",
+  "order": 45,
+  "icon": "ship",
+  "color": "#0f766e",
+  "title": "Import, quality control, shipping, and landed cost",
+  "summary": "Plan compliance, inspection, customs, time, and money before production.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/compliance-before-order.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/incoterms-freight.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "compliance-before-order",
+      "order": 0,
+      "title": "Product and market compliance before ordering",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Product and market compliance before ordering into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a compliance dossier tied to the exact product and country into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Product and market compliance before ordering is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Product and market compliance before ordering, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a compliance dossier tied to the exact product and country. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "A central Product and market compliance before ordering concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "HS code",
+                  "definition": "A measure or structure that makes the Product and market compliance before ordering decision comparable and reproducible."
+                },
+                {
+                  "term": "Landed cost",
+                  "definition": "A control boundary used to verify that Product and market compliance before ordering improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Product and market compliance before ordering to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/compliance-before-order.md",
+                "source": "# Product and market compliance before ordering\n- [ ] Customer problem: Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling.\n- [ ] Deliverable: a compliance dossier tied to the exact product and country\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://policy.trade.ec.europa.eu/help-exporters-and-importers/importing-eu_en\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Product and market compliance before ordering before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/compliance-before-order.md",
+                "source": "# Product and market compliance before ordering\n- [x] Customer problem: Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling.\n- [ ] Deliverable: a compliance dossier tied to the exact product and country\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://policy.trade.ec.europa.eu/help-exporters-and-importers/importing-eu_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Product and market compliance before ordering",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Product and market compliance before ordering completes every section of a compliance dossier tied to the exact product and country, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a compliance dossier tied to the exact product and country exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a compliance dossier tied to the exact product and country, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a compliance dossier tied to the exact product and country exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Product and market compliance before ordering looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Product and market compliance before ordering rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a compliance dossier tied to the exact product and country from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Product and market compliance before ordering completes every section of a compliance dossier tied to the exact product and country, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Product and market compliance before ordering\n- [x] Customer problem: Identify customs code, restrictions, standards, labeling, safety, importer responsibility, and evidence for the destination market before paying for tooling.\n- [ ] Deliverable: a compliance dossier tied to the exact product and country\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://policy.trade.ec.europa.eu/help-exporters-and-importers/importing-eu_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Product and market compliance before ordering",
+          "filename": "exercises/45-import-quality-logistics/compliance-before-order.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "compliance-before-order-q1",
+          "question": "Which approach correctly applies Product and market compliance before ordering?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Product and market compliance before ordering, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Product and market compliance before ordering, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Product and market compliance before ordering, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Product and market compliance before ordering, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Product and market compliance before ordering, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "compliance-before-order-q2",
+          "question": "Which definition matches the term “Incoterm”?",
+          "options": [
+            "A measure or structure that makes the Product and market compliance before ordering decision comparable and reproducible.",
+            "A central Product and market compliance before ordering concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Product and market compliance before ordering improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Incoterm” means: A central Product and market compliance before ordering concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Product and market compliance before ordering decision comparable and reproducible. ». The reference answer is « A central Product and market compliance before ordering concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Product and market compliance before ordering concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Product and market compliance before ordering concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Product and market compliance before ordering concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Product and market compliance before ordering improves the system without moving the problem elsewhere. ». The reference answer is « A central Product and market compliance before ordering concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Product and market compliance before ordering concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Product and market compliance before ordering concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Product and market compliance before ordering concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "compliance-before-order-q3",
+          "question": "What is the best first fix when you observe: “Product and market compliance before ordering looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Product and market compliance before ordering problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Product and market compliance before ordering starts from an observable customer problem, never an isolated trend.",
+        "The a compliance dossier tied to the exact product and country deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Product and market compliance before ordering, continue with EXW, FOB, CIF, DDP, and freight choice to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "incoterms-freight",
+      "order": 1,
+      "title": "EXW, FOB, CIF, DDP, and freight choice",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn EXW, FOB, CIF, DDP, and freight choice into concrete, measurable decisions that can be applied to a real store.",
+        "Turn an Incoterm and air, sea, rail, or express matrix into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "EXW, FOB, CIF, DDP, and freight choice is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master EXW, FOB, CIF, DDP, and freight choice, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers an Incoterm and air, sea, rail, or express matrix. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "HS code",
+                  "definition": "A measure or structure that makes the EXW, FOB, CIF, DDP, and freight choice decision comparable and reproducible."
+                },
+                {
+                  "term": "Landed cost",
+                  "definition": "A control boundary used to verify that EXW, FOB, CIF, DDP, and freight choice improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply EXW, FOB, CIF, DDP, and freight choice to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/incoterms-freight.md",
+                "source": "# EXW, FOB, CIF, DDP, and freight choice\n- [ ] Customer problem: Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder.\n- [ ] Deliverable: an Incoterm and air, sea, rail, or express matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://iccwbo.org/business-solutions/incoterms-rules/\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for EXW, FOB, CIF, DDP, and freight choice before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/incoterms-freight.md",
+                "source": "# EXW, FOB, CIF, DDP, and freight choice\n- [x] Customer problem: Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder.\n- [ ] Deliverable: an Incoterm and air, sea, rail, or express matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://iccwbo.org/business-solutions/incoterms-rules/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: EXW, FOB, CIF, DDP, and freight choice",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for EXW, FOB, CIF, DDP, and freight choice completes every section of an Incoterm and air, sea, rail, or express matrix, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: an Incoterm and air, sea, rail, or express matrix exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce an Incoterm and air, sea, rail, or express matrix, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: an Incoterm and air, sea, rail, or express matrix exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "EXW, FOB, CIF, DDP, and freight choice looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with EXW, FOB, CIF, DDP, and freight choice rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build an Incoterm and air, sea, rail, or express matrix from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for EXW, FOB, CIF, DDP, and freight choice completes every section of an Incoterm and air, sea, rail, or express matrix, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# EXW, FOB, CIF, DDP, and freight choice\n- [x] Customer problem: Understand where cost, risk, insurance, export, import, and delivery change responsibility, then obtain comparable quotes from an independent forwarder.\n- [ ] Deliverable: an Incoterm and air, sea, rail, or express matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://iccwbo.org/business-solutions/incoterms-rules/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: EXW, FOB, CIF, DDP, and freight choice",
+          "filename": "exercises/45-import-quality-logistics/incoterms-freight.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "incoterms-freight-q1",
+          "question": "Which approach correctly applies EXW, FOB, CIF, DDP, and freight choice?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For EXW, FOB, CIF, DDP, and freight choice, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For EXW, FOB, CIF, DDP, and freight choice, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For EXW, FOB, CIF, DDP, and freight choice, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For EXW, FOB, CIF, DDP, and freight choice, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For EXW, FOB, CIF, DDP, and freight choice, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "incoterms-freight-q2",
+          "question": "Which definition matches the term “Incoterm”?",
+          "options": [
+            "A measure or structure that makes the EXW, FOB, CIF, DDP, and freight choice decision comparable and reproducible.",
+            "A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that EXW, FOB, CIF, DDP, and freight choice improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Incoterm” means: A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the EXW, FOB, CIF, DDP, and freight choice decision comparable and reproducible. ». The reference answer is « A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference. ». “Incoterm” means: A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference. ». “Incoterm” means: A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that EXW, FOB, CIF, DDP, and freight choice improves the system without moving the problem elsewhere. ». The reference answer is « A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference. ». “Incoterm” means: A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference. ». “Incoterm” means: A central EXW, FOB, CIF, DDP, and freight choice concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "incoterms-freight-q3",
+          "question": "What is the best first fix when you observe: “EXW, FOB, CIF, DDP, and freight choice looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the EXW, FOB, CIF, DDP, and freight choice problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "EXW, FOB, CIF, DDP, and freight choice starts from an observable customer problem, never an isolated trend.",
+        "The an Incoterm and air, sea, rail, or express matrix deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After EXW, FOB, CIF, DDP, and freight choice, continue with Quality control, defects, and pre-shipment inspection to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "quality-inspection-aql",
+      "order": 2,
+      "title": "Quality control, defects, and pre-shipment inspection",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Quality control, defects, and pre-shipment inspection into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a QC checklist and independent inspection plan into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Quality control, defects, and pre-shipment inspection is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Quality control, defects, and pre-shipment inspection, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a QC checklist and independent inspection plan. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "HS code",
+                  "definition": "A measure or structure that makes the Quality control, defects, and pre-shipment inspection decision comparable and reproducible."
+                },
+                {
+                  "term": "Landed cost",
+                  "definition": "A control boundary used to verify that Quality control, defects, and pre-shipment inspection improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Quality control, defects, and pre-shipment inspection to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+                "source": "# Quality control, defects, and pre-shipment inspection\n- [ ] Customer problem: Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance.\n- [ ] Deliverable: a QC checklist and independent inspection plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.iso.org/standard/1141.html\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Quality control, defects, and pre-shipment inspection before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+                "source": "# Quality control, defects, and pre-shipment inspection\n- [x] Customer problem: Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance.\n- [ ] Deliverable: a QC checklist and independent inspection plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.iso.org/standard/1141.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Quality control, defects, and pre-shipment inspection",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Quality control, defects, and pre-shipment inspection completes every section of a QC checklist and independent inspection plan, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a QC checklist and independent inspection plan exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a QC checklist and independent inspection plan, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a QC checklist and independent inspection plan exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Quality control, defects, and pre-shipment inspection looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Quality control, defects, and pre-shipment inspection rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a QC checklist and independent inspection plan from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Quality control, defects, and pre-shipment inspection completes every section of a QC checklist and independent inspection plan, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Quality control, defects, and pre-shipment inspection\n- [x] Customer problem: Approve a sample; define critical, major, and minor defects; inspect production, sampling, quantity, packaging, and function before releasing balance.\n- [ ] Deliverable: a QC checklist and independent inspection plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.iso.org/standard/1141.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Quality control, defects, and pre-shipment inspection",
+          "filename": "exercises/45-import-quality-logistics/quality-inspection-aql.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "quality-inspection-aql-q1",
+          "question": "Which approach correctly applies Quality control, defects, and pre-shipment inspection?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Quality control, defects, and pre-shipment inspection, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Quality control, defects, and pre-shipment inspection, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Quality control, defects, and pre-shipment inspection, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Quality control, defects, and pre-shipment inspection, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Quality control, defects, and pre-shipment inspection, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "quality-inspection-aql-q2",
+          "question": "Which definition matches the term “Incoterm”?",
+          "options": [
+            "A measure or structure that makes the Quality control, defects, and pre-shipment inspection decision comparable and reproducible.",
+            "A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Quality control, defects, and pre-shipment inspection improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Incoterm” means: A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Quality control, defects, and pre-shipment inspection decision comparable and reproducible. ». The reference answer is « A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Quality control, defects, and pre-shipment inspection improves the system without moving the problem elsewhere. ». The reference answer is « A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Quality control, defects, and pre-shipment inspection concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "quality-inspection-aql-q3",
+          "question": "What is the best first fix when you observe: “Quality control, defects, and pre-shipment inspection looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Quality control, defects, and pre-shipment inspection problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Quality control, defects, and pre-shipment inspection starts from an observable customer problem, never an isolated trend.",
+        "The a QC checklist and independent inspection plan deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Quality control, defects, and pre-shipment inspection, continue with Customs, landed cost, inventory, and risk plan to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "customs-landed-cost-risk",
+      "order": 3,
+      "title": "Customs, landed cost, inventory, and risk plan",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Customs, landed cost, inventory, and risk plan into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a landed-cost calculation and supply-chain risk register into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Customs, landed cost, inventory, and risk plan is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Customs, landed cost, inventory, and risk plan, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a landed-cost calculation and supply-chain risk register. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Incoterm",
+                  "definition": "A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "HS code",
+                  "definition": "A measure or structure that makes the Customs, landed cost, inventory, and risk plan decision comparable and reproducible."
+                },
+                {
+                  "term": "Landed cost",
+                  "definition": "A control boundary used to verify that Customs, landed cost, inventory, and risk plan improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Customs, landed cost, inventory, and risk plan to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+                "source": "# Customs, landed cost, inventory, and risk plan\n- [ ] Customer problem: Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback.\n- [ ] Deliverable: a landed-cost calculation and supply-chain risk register\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade.ec.europa.eu/access-to-markets/en/home\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Customs, landed cost, inventory, and risk plan before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+                "source": "# Customs, landed cost, inventory, and risk plan\n- [x] Customer problem: Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback.\n- [ ] Deliverable: a landed-cost calculation and supply-chain risk register\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade.ec.europa.eu/access-to-markets/en/home\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Customs, landed cost, inventory, and risk plan",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Customs, landed cost, inventory, and risk plan completes every section of a landed-cost calculation and supply-chain risk register, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a landed-cost calculation and supply-chain risk register exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a landed-cost calculation and supply-chain risk register, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a landed-cost calculation and supply-chain risk register exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Customs, landed cost, inventory, and risk plan looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Customs, landed cost, inventory, and risk plan rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a landed-cost calculation and supply-chain risk register from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Customs, landed cost, inventory, and risk plan completes every section of a landed-cost calculation and supply-chain risk register, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Customs, landed cost, inventory, and risk plan\n- [x] Customer problem: Add product, packaging, inspection, freight, insurance, duties, tax, brokerage, delivery, finance, damage, and returns; include time buffer and fallback.\n- [ ] Deliverable: a landed-cost calculation and supply-chain risk register\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade.ec.europa.eu/access-to-markets/en/home\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Customs, landed cost, inventory, and risk plan",
+          "filename": "exercises/45-import-quality-logistics/customs-landed-cost-risk.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "customs-landed-cost-risk-q1",
+          "question": "Which approach correctly applies Customs, landed cost, inventory, and risk plan?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Customs, landed cost, inventory, and risk plan, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customs, landed cost, inventory, and risk plan, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customs, landed cost, inventory, and risk plan, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customs, landed cost, inventory, and risk plan, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customs, landed cost, inventory, and risk plan, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "customs-landed-cost-risk-q2",
+          "question": "Which definition matches the term “Incoterm”?",
+          "options": [
+            "A measure or structure that makes the Customs, landed cost, inventory, and risk plan decision comparable and reproducible.",
+            "A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Customs, landed cost, inventory, and risk plan improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Incoterm” means: A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Customs, landed cost, inventory, and risk plan decision comparable and reproducible. ». The reference answer is « A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Customs, landed cost, inventory, and risk plan improves the system without moving the problem elsewhere. ». The reference answer is « A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference. ». “Incoterm” means: A central Customs, landed cost, inventory, and risk plan concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "customs-landed-cost-risk-q3",
+          "question": "What is the best first fix when you observe: “Customs, landed cost, inventory, and risk plan looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customs, landed cost, inventory, and risk plan problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Customs, landed cost, inventory, and risk plan starts from an observable customer problem, never an isolated trend.",
+        "The a landed-cost calculation and supply-chain risk register deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Customs, landed cost, inventory, and risk plan, continue with Search Console, indexing, and baseline to connect the new skill to the next part of the selling system."
+    }
+  ]
+}

@@ -1,6 +1,7 @@
+import { publicDatabaseError } from "@/lib/public-error";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
 
 const sb = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -8,8 +9,7 @@ const sb = createClient(
 );
 
 async function auth(req: NextRequest) {
-  const token = req.cookies.get("admin_session")?.value;
-  return !!(token && (await verifySessionToken(token)));
+  return isAdminRequest(req);
 }
 
 // GET /api/admin/ecomedia/comments?postId=xxx
@@ -22,6 +22,6 @@ export async function GET(req: NextRequest) {
   if (postId) query = query.eq("post_id", postId);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data ?? []);
 }

@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -41,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const { id } = await params;
   let body: unknown;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const payload = cleanUpdate(body);
@@ -53,7 +55,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const { data, error } = Object.keys(legacyPayload).length
     ? await supabase.from("categories").update(legacyPayload).eq("id", id).select().single()
     : await supabase.from("categories").select("*").eq("id", id).single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   const oldMediaKey = `category_media:${current.slug}`;
   const newSlug = String(data.slug);
   const newMediaKey = `category_media:${newSlug}`;
@@ -82,7 +84,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params;
   const { data: category } = await supabase.from("categories").select("slug").eq("id", id).maybeSingle();
   const { error } = await supabase.from("categories").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   if (category?.slug) await supabase.from("settings").delete().eq("key", `category_media:${category.slug}`);
   revalidatePath("/", "layout");
   return NextResponse.json({ success: true });

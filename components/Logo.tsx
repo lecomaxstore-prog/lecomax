@@ -14,7 +14,9 @@ export default function Logo({
   showWordmark = false,
 }: Props) {
   const siteSettings = useSettings();
-  const textColor = variant === "light" ? "#ffffff" : "#000000";
+  // Keep the wordmark theme-aware so it remains readable when the storefront
+  // switches to its dark palette. The header controls the currentColor value.
+  const textColor = variant === "light" ? "#ffffff" : "currentColor";
   const configuredLogo = siteSettings.logo_image?.trim();
 
   if (configuredLogo && variant === "dark" && !showWordmark) {
@@ -29,9 +31,9 @@ export default function Logo({
   return (
     <span className={`inline-flex items-center select-none ${className}`}>
       <svg
-        viewBox="0 0 186 48"
+        viewBox="0 0 180 48"
         height="40"
-        width="135"
+        width="131"
         aria-label="L'ecomax"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -50,7 +52,7 @@ export default function Logo({
         </text>
         {/* max in brand green */}
         <text
-          x="99"
+          x="97"
           y="36"
           fontFamily="Inter, Helvetica Neue, Arial, sans-serif"
           fontWeight="900"
@@ -80,7 +82,7 @@ export default function Logo({
         {/* smile arc: starts bottom-left of "max", curves down in centre, ends bottom-right */}
         <path
           className="logo-smile"
-          d="M 99 41 Q 141 50 183 41"
+          d="M 97 41 Q 137 50 177 41"
           stroke="#3ecf4c"
           strokeWidth="3"
           strokeLinecap="round"

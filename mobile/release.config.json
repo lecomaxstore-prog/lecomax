@@ -1,10 +1,11 @@
 {
-  "versionName": "1.0.6",
-  "versionCode": 24,
+  "versionName": "1.0.7",
+  "versionCode": 26,
   "minimumAndroidVersion": "8.0",
-  "apkFileName": "lecomax-v1.0.6.apk",
+  "apkFileName": "lecomax-v1.0.7.apk",
   "required": false,
   "releaseNotes": [
+    "Improved input visibility when the keyboard is open.",
     "Correction du blocage après la vidéo d’introduction sur Android.",
     "Correction du chargement de l’accueil et des compteurs en français et en anglais sur Android.",
     "Nouvelle interface de la boutique, adaptée aux téléphones et tablettes.",

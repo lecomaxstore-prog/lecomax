@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { enforceRateLimit } from "@/lib/api-security";
@@ -26,7 +27,7 @@ export async function PUT(req: NextRequest) {
   if (blocked) return blocked;
   const user = await getCustomerUser(req);
   if (!user) return NextResponse.json({ error: "Connexion requise." }, { status: 401 });
-  const body = await req.json().catch(() => null) as Record<string, unknown> | null;
+  const body = await readJsonLimited(req).catch(() => null) as Record<string, unknown> | null;
   if (!body) return NextResponse.json({ error: "Préférences invalides." }, { status: 400 });
   const preferences = Object.fromEntries(KEYS.map((key) => [key, typeof body[key] === "boolean" ? body[key] : DEFAULT_MOBILE_NOTIFICATION_PREFERENCES[key]]));
   const { error } = await supabase.from("mobile_notification_preferences").upsert({ user_id: user.id, ...preferences, updated_at: new Date().toISOString() }, { onConflict: "user_id" });

@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
@@ -40,7 +41,8 @@ function setup(options: { missingTable?: boolean; missingRpc?: boolean; pending?
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText, {
     exports, console, process: { env: { NEXT_PUBLIC_SUPABASE_URL: "https://example.invalid", SUPABASE_SERVICE_ROLE_KEY: "test", GROQ_API_KEY: "test" } },
-    require: (name: string) => { if (!(name in mocks)) throw new Error(name); return mocks[name]; },
+    require: (name: string) => {
+      const securityModule = securityIo(name); if (securityModule) return securityModule; if (!(name in mocks)) throw new Error(name); return mocks[name]; },
   });
   return {
     generated, claims, product,

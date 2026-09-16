@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -10,6 +11,7 @@ function loadRoute(file: string, rows: Record<string, unknown>[] = []) {
     then: (resolve: (result: unknown) => unknown) => Promise.resolve({ data: rows, error: null }).then(resolve),
   };
   const require = (name: string) => {
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
     if (name === "next/server") return { NextResponse: response };
     if (name === "@supabase/supabase-js") return { createClient: () => ({ from: () => query }) };
     return {};

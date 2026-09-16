@@ -2,6 +2,7 @@ import "server-only";
 
 import { createClient } from "@supabase/supabase-js";
 import webpush from "web-push";
+import { validPushEndpoint } from "./push-endpoint";
 
 export type PushPayload = {
   title: string;
@@ -36,6 +37,7 @@ function configureWebPush() {
 }
 
 async function sendAdminAlert(subscription: { endpoint: string; p256dh: string; auth: string }, message: string) {
+  if (!validPushEndpoint(subscription.endpoint)) throw new Error("INVALID_PUSH_ENDPOINT");
   for (let attempt = 0; attempt < 2; attempt += 1) {
     try {
       await webpush.sendNotification(
@@ -58,7 +60,7 @@ export async function broadcastPushNotification(payload: PushPayload): Promise<P
   const supabase = getSupabase();
   const { data, error } = await supabase.from("push_subscriptions").select("endpoint, p256dh, auth");
   if (error) throw new Error(error.message);
-  const subscriptions = data ?? [];
+  const subscriptions = (data ?? []).filter(subscription => validPushEndpoint(subscription.endpoint));
   if (subscriptions.length === 0) return { sent: 0, failed: 0, total: 0 };
 
   const message = JSON.stringify({
@@ -117,7 +119,7 @@ export async function broadcastAdminPushNotification(payload: PushPayload, endpo
   const { data, error } = await query;
   if (error) throw new Error(error.message);
 
-  const subscriptions = data ?? [];
+  const subscriptions = (data ?? []).filter(subscription => validPushEndpoint(subscription.endpoint));
   if (subscriptions.length === 0) return { sent: 0, failed: 0, total: 0 };
 
   const message = JSON.stringify({

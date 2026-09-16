@@ -1,6 +1,7 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
 import { broadcastPushNotification } from "@/lib/push-notifications";
 
 const supabase = createClient(
@@ -9,8 +10,7 @@ const supabase = createClient(
 );
 
 async function isAdmin(req: NextRequest) {
-  const token = req.cookies.get("admin_session")?.value;
-  return token ? Boolean(await verifySessionToken(token)) : false;
+  return isAdminRequest(req);
 }
 
 export async function POST(req: NextRequest) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     tag?: string;
     requireInteraction?: boolean;
   };
-  try { body = await req.json(); }
+  try { body = await readJsonLimited(req); }
   catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
   if (!body.title?.trim()) return NextResponse.json({ error: "title is required" }, { status: 400 });
 

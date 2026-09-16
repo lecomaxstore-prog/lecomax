@@ -6,6 +6,7 @@ import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { verifySessionToken } from "@/lib/admin-session";
 import {
   APP_RELEASE_BUCKET,
+  MAX_APK_SIZE,
   isApkHeader,
   type AndroidReleaseRow,
 } from "@/lib/app-releases";
@@ -51,6 +52,10 @@ export async function hashStoredApk(storagePath: string) {
     if (done) break;
     const bytes = Buffer.from(value);
     total += bytes.length;
+    if (total > MAX_APK_SIZE) {
+      await reader.cancel();
+      throw new Error("APK_TOO_LARGE");
+    }
     if (header.length < 4) header.push(...bytes.subarray(0, 4 - header.length));
     hash.update(bytes);
   }

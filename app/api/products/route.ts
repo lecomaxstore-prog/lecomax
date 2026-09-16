@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { recordAdminActivity } from "@/lib/admin-activity";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -112,7 +113,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   let body: unknown;
   try {
-    body = await req.json();
+    body = await readJsonLimited(req);
   } catch {
     return NextResponse.json({ error: "JSON invalide." }, { status: 400 });
   }

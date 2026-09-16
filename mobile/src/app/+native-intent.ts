@@ -5,7 +5,7 @@ function internalPath(value: string) {
       : new URL(value, "https://lecomax.com");
     const path = url.pathname.replace(/\/+$/, "") || "/";
     if (path.startsWith("/produit/")) {
-      return `/product/${encodeURIComponent(decodeURIComponent(path.slice(9)))}`;
+      return `/product/${encodeURIComponent(decodeURIComponent(path.slice(9)))}${url.search}`;
     }
     if (path === "/suivre-commande" || path.startsWith("/commande/")) {
       return "/orders";

@@ -1,0 +1,16 @@
+{
+  "versionName": "1.0.6",
+  "versionCode": 24,
+  "minimumAndroidVersion": "8.0",
+  "apkFileName": "lecomax-v1.0.6.apk",
+  "required": false,
+  "releaseNotes": [
+    "Correction du blocage après la vidéo d’introduction sur Android.",
+    "Correction du chargement de l’accueil et des compteurs en français et en anglais sur Android.",
+    "Nouvelle interface de la boutique, adaptée aux téléphones et tablettes.",
+    "Fiches produits, recherche, panier et parcours de commande améliorés.",
+    "Comptes clients, notifications et assistance avec pièces jointes améliorés.",
+    "Synchronisation des prix et des paramètres avec la boutique en ligne.",
+    "Corrections de navigation et de fiabilité du chargement."
+  ]
+}

@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
@@ -50,7 +52,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   let body: { email?: string; amount?: number; request_id?: string };
-  try { body = await req.json(); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
+  try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Invalid JSON" }, { status: 400 }); }
 
   const { email, amount = 50 } = body;
   if (!email) return NextResponse.json({ error: "email required" }, { status: 400 });
@@ -63,7 +65,7 @@ export async function POST(req: NextRequest) {
     p_amount: amount,
     p_reference: `admin:${requestId}`,
   });
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   const result = data as { balance?: number; awarded?: number } | null;
   const tier = loyaltyTierForPoints(Number(result?.balance ?? 0));
   return NextResponse.json({

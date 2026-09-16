@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
@@ -31,7 +33,7 @@ export async function GET(req: NextRequest) {
   query = query.limit(100);
 
   const { data, error } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   return NextResponse.json(data ?? []);
 }
@@ -41,7 +43,7 @@ export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "admin:approvals:create", limit: 30 });
   if (blocked) return blocked;
 
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   const access = await getAdminAccess(req);
   if (!access) return NextResponse.json({error:"Unauthorized"},{status:401});
   if (body?.api_endpoint && (!validApprovalTarget(body.entity_type, body.action, body.api_endpoint, body.api_method) || !hasAdminPermission(access, adminApiPermission(body.api_endpoint, body.api_method)))) return NextResponse.json({error:"Action non autorisée"},{status:403});
@@ -75,7 +77,7 @@ export async function POST(req: NextRequest) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   return NextResponse.json(data, { status: 201 });
 }

@@ -1,0 +1,973 @@
+{
+  "id": "module-08-dom-forms-storage",
+  "order": 8,
+  "icon": "🖱️",
+  "color": "#EC4899",
+  "title": "DOM, événements, formulaires et localStorage",
+  "summary": "Relier la logique à l’interface, déléguer les événements, valider une soumission, sérialiser un état local et construire un composant accessible complet.",
+  "files": [
+    {
+      "path": "components/SearchOverlay.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/08-browser/catalog.html",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/08-browser/dom-events.html",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/08-browser/form.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/08-browser/storage.js",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-08-01-dom-events",
+      "order": 0,
+      "title": "DOM, sélection et propagation des événements",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de DOM, sélection et propagation des événements",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le DOM est l’arbre d’objets vivant construit depuis HTML; JavaScript lit ou modifie ses nœuds. Un événement part d’une cible et remonte par les ancêtres, ce qui permet à un écouteur stable de gérer des descendants dynamiques. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un message part d’un magasin précis puis remonte centre commercial et ville; chaque niveau peut choisir de le traiter."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Le DOM est l’arbre d’objets vivant construit depuis HTML; JavaScript lit ou modifie ses nœuds. Un événement part d’une cible et remonte par les ancêtres, ce qui permet à un écouteur stable de gérer des descendants dynamiques. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Sélectionnez par attribut data lié au comportement, vérifiez les nulls, gardez les actions sur éléments natifs et retirez les écouteurs persistants lors du nettoyage. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "DOM",
+                  "definition": "Interface objet du document courant."
+                },
+                {
+                  "term": "event target",
+                  "definition": "Nœud où l’événement a commencé."
+                },
+                {
+                  "term": "bubbling",
+                  "definition": "Propagation de la cible vers les ancêtres."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Déléguer l’ajout au panier d’une liste dynamique en validant cible et identifiant."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "html",
+                "filename": "academy-labs/08-browser/dom-events.html",
+                "source": "<!doctype html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><title>Délégation DOM</title></head>\n<body><main><h1>Produits</h1>\n  <ul data-product-list><li>Casque <button type=\"button\" data-product-id=\"p1\"><span aria-hidden=\"true\">+</span> Ajouter</button></li></ul>\n  <p id=\"cart-status\" role=\"status\"></p>\n</main><script>\nconst list = document.querySelector(\"[data-product-list]\");\nconst status = document.querySelector(\"#cart-status\");\nlist.addEventListener(\"click\", (event) => {\n  const target = event.target instanceof Element ? event.target : null;\n  const button = target ? target.closest(\"button[data-product-id]\") : null;\n  if (!button || !list.contains(button)) return;\n  status.textContent = \"Produit \" + button.dataset.productId + \" ajouté.\";\n});\n</script></body></html>",
+                "annotations": [
+                  {
+                    "lines": "1-5",
+                    "label": "Entrées et préparation de « DOM, sélection et propagation des événements »."
+                  },
+                  {
+                    "lines": "6-10",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "11-15",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "Start-Process .\\academy-labs\\08-browser\\dom-events.html",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/08-browser/dom-events.html et prédisez la sortie de l’exemple. — Start-Process .\\academy-labs\\08-browser\\dom-events.html"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Preuve de réussite: un clic sur le texte ou l’icône du bouton annonce « Produit p1 ajouté »; un clic ailleurs ne déclenche rien."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "La grille L’ecomax peut gérer ses boutons ajoutés après recherche sans réattacher un écouteur par carte."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "Start-Process .\\academy-labs\\08-browser\\dom-events.html"
+      ],
+      "expectedResult": "Preuve de réussite: un clic sur le texte ou l’icône du bouton annonce « Produit p1 ajouté »; un clic ailleurs ne déclenche rien.",
+      "commonErrors": [
+        {
+          "symptom": "event.target.dataset est vide.",
+          "cause": "Le symptôme contredit le mécanisme attendu : querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur.",
+          "fix": "Utilisez closest car la cible peut être une icône interne."
+        },
+        {
+          "symptom": "Le code plante sur addEventListener.",
+          "cause": "Le symptôme contredit le mécanisme attendu : querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur.",
+          "fix": "Vérifiez la sélection ou exécutez après création du DOM."
+        }
+      ],
+      "exercise": {
+        "task": "Déléguer l’ajout au panier d’une liste dynamique en validant cible et identifiant.",
+        "steps": [
+          "Ouvrez academy-labs/08-browser/dom-events.html et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Sélectionnez par attribut data lié au comportement, vérifiez les nulls, gardez les actions sur éléments natifs et retirez les écouteurs persistants lors du nettoyage.",
+          "code": "<!doctype html>\n<html lang=\"fr\"><head><meta charset=\"utf-8\"><title>Délégation DOM</title></head>\n<body><main><h1>Produits</h1>\n  <ul data-product-list><li>Casque <button type=\"button\" data-product-id=\"p1\"><span aria-hidden=\"true\">+</span> Ajouter</button></li></ul>\n  <p id=\"cart-status\" role=\"status\"></p>\n</main><script>\nconst list = document.querySelector(\"[data-product-list]\");\nconst status = document.querySelector(\"#cart-status\");\nlist.addEventListener(\"click\", (event) => {\n  const target = event.target instanceof Element ? event.target : null;\n  const button = target ? target.closest(\"button[data-product-id]\") : null;\n  if (!button || !list.contains(button)) return;\n  status.textContent = \"Produit \" + button.dataset.productId + \" ajouté.\";\n});\n</script></body></html>",
+          "filename": "academy-labs/08-browser/dom-events.html",
+          "language": "html"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-08-01-dom-events-q1",
+          "question": "Pourquoi la délégation gère-t-elle des éléments ajoutés ?",
+          "options": [
+            "L’écouteur reste sur un ancêtre stable",
+            "Elle désactive DOM",
+            "Elle copie Git",
+            "Elle change DNS"
+          ],
+          "correctIndex": 0,
+          "explanation": "Les événements des nouveaux descendants remontent au même ancêtre.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « L’écouteur reste sur un ancêtre stable ». Les événements des nouveaux descendants remontent au même ancêtre.",
+            "Cette option est incorrecte. Elle affirme « Elle désactive DOM ». La réponse de référence est « L’écouteur reste sur un ancêtre stable ». Les événements des nouveaux descendants remontent au même ancêtre.",
+            "Cette option est incorrecte. Elle affirme « Elle copie Git ». La réponse de référence est « L’écouteur reste sur un ancêtre stable ». Les événements des nouveaux descendants remontent au même ancêtre.",
+            "Cette option est incorrecte. Elle affirme « Elle change DNS ». La réponse de référence est « L’écouteur reste sur un ancêtre stable ». Les événements des nouveaux descendants remontent au même ancêtre."
+          ]
+        },
+        {
+          "id": "lesson-08-01-dom-events-q2",
+          "question": "Quelle définition correspond au terme « DOM » ?",
+          "options": [
+            "Nœud où l’événement a commencé.",
+            "Interface objet du document courant.",
+            "Propagation de la cible vers les ancêtres.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« DOM » signifie : Interface objet du document courant.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Nœud où l’événement a commencé. ». La réponse de référence est « Interface objet du document courant. ». « DOM » signifie : Interface objet du document courant.",
+            "Cette option est correcte. Elle affirme « Interface objet du document courant. ». « DOM » signifie : Interface objet du document courant.",
+            "Cette option est incorrecte. Elle affirme « Propagation de la cible vers les ancêtres. ». La réponse de référence est « Interface objet du document courant. ». « DOM » signifie : Interface objet du document courant.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Interface objet du document courant. ». « DOM » signifie : Interface objet du document courant."
+          ]
+        },
+        {
+          "id": "lesson-08-01-dom-events-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « event.target.dataset est vide. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Vérifiez la sélection ou exécutez après création du DOM.",
+            "Utilisez closest car la cible peut être une icône interne.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur. Le correctif adapté est : Utilisez closest car la cible peut être une icône interne.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Utilisez closest car la cible peut être une icône interne. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur. Le correctif adapté est : Utilisez closest car la cible peut être une icône interne.",
+            "Cette option est incorrecte. Elle affirme « Vérifiez la sélection ou exécutez après création du DOM. ». La réponse de référence est « Utilisez closest car la cible peut être une icône interne. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur. Le correctif adapté est : Utilisez closest car la cible peut être une icône interne.",
+            "Cette option est correcte. Elle affirme « Utilisez closest car la cible peut être une icône interne. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur. Le correctif adapté est : Utilisez closest car la cible peut être une icône interne.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Utilisez closest car la cible peut être une icône interne. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : querySelector peut retourner null; closest cherche l’ancêtre correspondant depuis la cible. La délégation réduit les écouteurs et fonctionne après ajout de cartes, mais doit confirmer que le contrôle appartient au conteneur. Le correctif adapté est : Utilisez closest car la cible peut être une icône interne."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Le DOM est l’arbre d’objets vivant construit depuis HTML; JavaScript lit ou modifie ses nœuds. Un événement part d’une cible et remonte par les ancêtres, ce qui permet à un écouteur stable de gérer des descendants dynamiques.",
+        "DOM: Interface objet du document courant.",
+        "event target: Nœud où l’événement a commencé.",
+        "bubbling: Propagation de la cible vers les ancêtres."
+      ],
+      "next": "La prochaine leçon intercepte, valide et annonce une soumission de formulaire."
+    },
+    {
+      "id": "lesson-08-02-form-submit",
+      "order": 1,
+      "title": "Soumission, FormData et erreurs accessibles",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Soumission, FormData et erreurs accessibles",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le formulaire possède un événement submit unique déclenché par bouton ou Entrée. FormData lit les contrôles nommés; la logique normalise et valide avant effet, puis rend succès ou erreur de façon perceptible. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le guichet reçoit le dossier complet, vérifie les champs une fois puis délivre résultat ou instruction de correction."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Le formulaire possède un événement submit unique déclenché par bouton ou Entrée. FormData lit les contrôles nommés; la logique normalise et valide avant effet, puis rend succès ou erreur de façon perceptible. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Écoutez submit plutôt que click, normalisez une fois, conservez la validation serveur pour les écritures et placez le focus sur le premier champ invalide. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "submit event",
+                  "definition": "Événement sémantique d’envoi du formulaire."
+                },
+                {
+                  "term": "FormData",
+                  "definition": "Collection des paires name/valeur réussies."
+                },
+                {
+                  "term": "client validation",
+                  "definition": "Retour rapide dans le navigateur, non fiable pour la sécurité."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Valider une recherche au submit et relier textuellement toute erreur au champ."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/08-browser/form.js",
+                "source": "form.addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const data = new FormData(form);\n  const query = String(data.get(\"query\") ?? \"\").trim();\n  error.textContent = query.length < 2 ? \"Saisissez au moins 2 caractères.\" : \"\";\n  input.setAttribute(\"aria-invalid\", String(query.length < 2));\n  if (query.length >= 2) renderResults(searchProducts(products, query));\n});",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Soumission, FormData et erreurs accessibles »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/08-browser/form.js et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Preuve de réussite: Entrée et bouton suivent le même chemin; une lettre affiche l’erreur, deux lettres lancent la recherche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "SearchOverlay respecte Entrée, annonce une requête trop courte et affiche résultats ou état vide sans rechargement."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Preuve de réussite: Entrée et bouton suivent le même chemin; une lettre affiche l’erreur, deux lettres lancent la recherche.",
+      "commonErrors": [
+        {
+          "symptom": "Entrée recharge la page.",
+          "cause": "Le symptôme contredit le mécanisme attendu : preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés.",
+          "fix": "Écoutez submit et appelez preventDefault dans le flux client."
+        },
+        {
+          "symptom": "FormData retourne null.",
+          "cause": "Le symptôme contredit le mécanisme attendu : preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés.",
+          "fix": "Ajoutez le name exact au contrôle et gérez l’absence explicitement."
+        }
+      ],
+      "exercise": {
+        "task": "Valider une recherche au submit et relier textuellement toute erreur au champ.",
+        "steps": [
+          "Ouvrez academy-labs/08-browser/form.js et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Écoutez submit plutôt que click, normalisez une fois, conservez la validation serveur pour les écritures et placez le focus sur le premier champ invalide.",
+          "code": "form.addEventListener(\"submit\", (event) => {\n  event.preventDefault();\n  const data = new FormData(form);\n  const query = String(data.get(\"query\") ?? \"\").trim();\n  error.textContent = query.length < 2 ? \"Saisissez au moins 2 caractères.\" : \"\";\n  input.setAttribute(\"aria-invalid\", String(query.length < 2));\n  if (query.length >= 2) renderResults(searchProducts(products, query));\n});",
+          "filename": "academy-labs/08-browser/form.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-08-02-form-submit-q1",
+          "question": "Pourquoi écouter submit ?",
+          "options": [
+            "Il couvre bouton et clavier",
+            "Il remplace HTML",
+            "Il chiffre les données",
+            "Il crée un commit"
+          ],
+          "correctIndex": 0,
+          "explanation": "submit représente l’intention du formulaire indépendamment du déclencheur.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Il couvre bouton et clavier ». submit représente l’intention du formulaire indépendamment du déclencheur.",
+            "Cette option est incorrecte. Elle affirme « Il remplace HTML ». La réponse de référence est « Il couvre bouton et clavier ». submit représente l’intention du formulaire indépendamment du déclencheur.",
+            "Cette option est incorrecte. Elle affirme « Il chiffre les données ». La réponse de référence est « Il couvre bouton et clavier ». submit représente l’intention du formulaire indépendamment du déclencheur.",
+            "Cette option est incorrecte. Elle affirme « Il crée un commit ». La réponse de référence est « Il couvre bouton et clavier ». submit représente l’intention du formulaire indépendamment du déclencheur."
+          ]
+        },
+        {
+          "id": "lesson-08-02-form-submit-q2",
+          "question": "Quelle définition correspond au terme « submit event » ?",
+          "options": [
+            "Collection des paires name/valeur réussies.",
+            "Événement sémantique d’envoi du formulaire.",
+            "Retour rapide dans le navigateur, non fiable pour la sécurité.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« submit event » signifie : Événement sémantique d’envoi du formulaire.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Collection des paires name/valeur réussies. ». La réponse de référence est « Événement sémantique d’envoi du formulaire. ». « submit event » signifie : Événement sémantique d’envoi du formulaire.",
+            "Cette option est correcte. Elle affirme « Événement sémantique d’envoi du formulaire. ». « submit event » signifie : Événement sémantique d’envoi du formulaire.",
+            "Cette option est incorrecte. Elle affirme « Retour rapide dans le navigateur, non fiable pour la sécurité. ». La réponse de référence est « Événement sémantique d’envoi du formulaire. ». « submit event » signifie : Événement sémantique d’envoi du formulaire.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Événement sémantique d’envoi du formulaire. ». « submit event » signifie : Événement sémantique d’envoi du formulaire."
+          ]
+        },
+        {
+          "id": "lesson-08-02-form-submit-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Entrée recharge la page. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajoutez le name exact au contrôle et gérez l’absence explicitement.",
+            "Écoutez submit et appelez preventDefault dans le flux client.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés. Le correctif adapté est : Écoutez submit et appelez preventDefault dans le flux client.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Écoutez submit et appelez preventDefault dans le flux client. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés. Le correctif adapté est : Écoutez submit et appelez preventDefault dans le flux client.",
+            "Cette option est incorrecte. Elle affirme « Ajoutez le name exact au contrôle et gérez l’absence explicitement. ». La réponse de référence est « Écoutez submit et appelez preventDefault dans le flux client. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés. Le correctif adapté est : Écoutez submit et appelez preventDefault dans le flux client.",
+            "Cette option est correcte. Elle affirme « Écoutez submit et appelez preventDefault dans le flux client. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés. Le correctif adapté est : Écoutez submit et appelez preventDefault dans le flux client.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Écoutez submit et appelez preventDefault dans le flux client. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : preventDefault remplace la navigation native seulement quand JavaScript fournit le flux complet. name détermine les clés FormData; aria-invalid et aria-describedby rendent l’état et le message associés. Le correctif adapté est : Écoutez submit et appelez preventDefault dans le flux client."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Le formulaire possède un événement submit unique déclenché par bouton ou Entrée. FormData lit les contrôles nommés; la logique normalise et valide avant effet, puis rend succès ou erreur de façon perceptible.",
+        "submit event: Événement sémantique d’envoi du formulaire.",
+        "FormData: Collection des paires name/valeur réussies.",
+        "client validation: Retour rapide dans le navigateur, non fiable pour la sécurité."
+      ],
+      "next": "La prochaine leçon persiste un petit état local avec version et validation."
+    },
+    {
+      "id": "lesson-08-03-localstorage",
+      "order": 2,
+      "title": "localStorage, JSON, versions et validation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de localStorage, JSON, versions et validation",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "localStorage est un dictionnaire synchrone de chaînes propre à une origine et persistant entre sessions. Toute structure doit être sérialisée en JSON puis validée au chargement, car ancien code, utilisateur ou extension peut l’avoir modifiée. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un petit tiroir étiqueté garde des fiches entre visites, mais chaque fiche récupérée doit être relue avant usage."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "localStorage est un dictionnaire synchrone de chaînes propre à une origine et persistant entre sessions. Toute structure doit être sérialisée en JSON puis validée au chargement, car ancien code, utilisateur ou extension peut l’avoir modifiée. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Ne stockez ni secret ni vérité serveur; enveloppez lecture/écriture, limitez la taille, validez chaque champ et fournissez un défaut sûr en cas de corruption. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "origin",
+                  "definition": "Combinaison protocole, hôte et port isolant le stockage."
+                },
+                {
+                  "term": "serialization",
+                  "definition": "Conversion d’une structure en chaîne transportable."
+                },
+                {
+                  "term": "schema version",
+                  "definition": "Marque indiquant la forme attendue des données."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Persister cinq recherches récentes, survivre à un JSON corrompu et ne jamais bloquer la page."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/08-browser/storage.js",
+                "source": "const KEY = \"lecomax:recent-searches:v1\";\nexport function loadRecent() {\n  try { const value = JSON.parse(localStorage.getItem(KEY) ?? \"[]\"); return Array.isArray(value) ? value.filter((x) => typeof x === \"string\").slice(0, 5) : []; }\n  catch { return []; }\n}\nexport function saveRecent(items) { localStorage.setItem(KEY, JSON.stringify(items.slice(0, 5))); }",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Entrées et préparation de « localStorage, JSON, versions et validation »."
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "5-6",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/08-browser/storage.js et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Preuve de réussite: cinq chaînes maximum reviennent après rechargement; une valeur JSON cassée produit simplement une liste vide."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "L’ecomax peut garder recherches récentes locales, mais panier, prix et commande restent validés côté serveur."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Preuve de réussite: cinq chaînes maximum reviennent après rechargement; une valeur JSON cassée produit simplement une liste vide.",
+      "commonErrors": [
+        {
+          "symptom": "[object Object] est stocké.",
+          "cause": "Le symptôme contredit le mécanisme attendu : setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format.",
+          "fix": "Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture."
+        },
+        {
+          "symptom": "La page plante après modification manuelle.",
+          "cause": "Le symptôme contredit le mécanisme attendu : setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format.",
+          "fix": "Entourez parse de try/catch et validez la forme."
+        }
+      ],
+      "exercise": {
+        "task": "Persister cinq recherches récentes, survivre à un JSON corrompu et ne jamais bloquer la page.",
+        "steps": [
+          "Ouvrez academy-labs/08-browser/storage.js et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Ne stockez ni secret ni vérité serveur; enveloppez lecture/écriture, limitez la taille, validez chaque champ et fournissez un défaut sûr en cas de corruption.",
+          "code": "const KEY = \"lecomax:recent-searches:v1\";\nexport function loadRecent() {\n  try { const value = JSON.parse(localStorage.getItem(KEY) ?? \"[]\"); return Array.isArray(value) ? value.filter((x) => typeof x === \"string\").slice(0, 5) : []; }\n  catch { return []; }\n}\nexport function saveRecent(items) { localStorage.setItem(KEY, JSON.stringify(items.slice(0, 5))); }",
+          "filename": "academy-labs/08-browser/storage.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-08-03-localstorage-q1",
+          "question": "Peut-on stocker une clé secrète dans localStorage ?",
+          "options": [
+            "Non, le JavaScript et l’utilisateur peuvent la lire",
+            "Oui si elle est longue",
+            "Oui avec JSON",
+            "Oui sur mobile"
+          ],
+          "correctIndex": 0,
+          "explanation": "Le stockage navigateur n’est pas une frontière secrète.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Non, le JavaScript et l’utilisateur peuvent la lire ». Le stockage navigateur n’est pas une frontière secrète.",
+            "Cette option est incorrecte. Elle affirme « Oui si elle est longue ». La réponse de référence est « Non, le JavaScript et l’utilisateur peuvent la lire ». Le stockage navigateur n’est pas une frontière secrète.",
+            "Cette option est incorrecte. Elle affirme « Oui avec JSON ». La réponse de référence est « Non, le JavaScript et l’utilisateur peuvent la lire ». Le stockage navigateur n’est pas une frontière secrète.",
+            "Cette option est incorrecte. Elle affirme « Oui sur mobile ». La réponse de référence est « Non, le JavaScript et l’utilisateur peuvent la lire ». Le stockage navigateur n’est pas une frontière secrète."
+          ]
+        },
+        {
+          "id": "lesson-08-03-localstorage-q2",
+          "question": "Quelle définition correspond au terme « origin » ?",
+          "options": [
+            "Conversion d’une structure en chaîne transportable.",
+            "Combinaison protocole, hôte et port isolant le stockage.",
+            "Marque indiquant la forme attendue des données.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« origin » signifie : Combinaison protocole, hôte et port isolant le stockage.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Conversion d’une structure en chaîne transportable. ». La réponse de référence est « Combinaison protocole, hôte et port isolant le stockage. ». « origin » signifie : Combinaison protocole, hôte et port isolant le stockage.",
+            "Cette option est correcte. Elle affirme « Combinaison protocole, hôte et port isolant le stockage. ». « origin » signifie : Combinaison protocole, hôte et port isolant le stockage.",
+            "Cette option est incorrecte. Elle affirme « Marque indiquant la forme attendue des données. ». La réponse de référence est « Combinaison protocole, hôte et port isolant le stockage. ». « origin » signifie : Combinaison protocole, hôte et port isolant le stockage.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Combinaison protocole, hôte et port isolant le stockage. ». « origin » signifie : Combinaison protocole, hôte et port isolant le stockage."
+          ]
+        },
+        {
+          "id": "lesson-08-03-localstorage-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « [object Object] est stocké. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Entourez parse de try/catch et validez la forme.",
+            "Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format. Le correctif adapté est : Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format. Le correctif adapté est : Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture.",
+            "Cette option est incorrecte. Elle affirme « Entourez parse de try/catch et validez la forme. ». La réponse de référence est « Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format. Le correctif adapté est : Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture.",
+            "Cette option est correcte. Elle affirme « Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format. Le correctif adapté est : Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : setItem convertit seulement une chaîne et peut échouer quota/sécurité; JSON.parse peut lever SyntaxError. Une clé nommée et versionnée permet migration ou abandon sûr d’un ancien format. Le correctif adapté est : Utilisez JSON.stringify à l’écriture et JSON.parse à la lecture."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: localStorage est un dictionnaire synchrone de chaînes propre à une origine et persistant entre sessions. Toute structure doit être sérialisée en JSON puis validée au chargement, car ancien code, utilisateur ou extension peut l’avoir modifiée.",
+        "origin: Combinaison protocole, hôte et port isolant le stockage.",
+        "serialization: Conversion d’une structure en chaîne transportable.",
+        "schema version: Marque indiquant la forme attendue des données."
+      ],
+      "next": "La dernière leçon assemble recherche, clavier, rendu et persistance dans un composant accessible."
+    },
+    {
+      "id": "lesson-08-04-accessible-widget",
+      "order": 3,
+      "title": "Projet : recherche interactive accessible",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Projet : recherche interactive accessible",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un widget complet maintient un état source, dérive son affichage et expose chaque transition par sémantique, focus et message. Souris, clavier et technologie d’assistance doivent déclencher la même logique sans duplication. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un tableau d’affichage fiable possède une source officielle, un filtre, un compteur annoncé et des commandes utilisables par tous."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Un widget complet maintient un état source, dérive son affichage et expose chaque transition par sémantique, focus et message. Souris, clavier et technologie d’assistance doivent déclencher la même logique sans duplication. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Testez requête vide, aucun résultat, accents, Entrée, Tab, ajout dynamique, rechargement et stockage corrompu; gardez le statut poli pour ne pas interrompre la saisie. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "derived state",
+                  "definition": "Valeur recalculable depuis une source."
+                },
+                {
+                  "term": "live region",
+                  "definition": "Zone dont les mises à jour sont annoncées."
+                },
+                {
+                  "term": "progressive enhancement",
+                  "definition": "Fonction native enrichie sans perdre sa base."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Assembler un moteur pur, un formulaire unique, une liste sémantique, un statut live et une persistance défensive."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "html",
+                "filename": "academy-labs/08-browser/catalog.html",
+                "source": "<section aria-labelledby=\"search-title\">\n  <h2 id=\"search-title\">Rechercher les produits</h2>\n  <form role=\"search\"><label for=\"query\">Produit</label><input id=\"query\" name=\"query\" type=\"search\" aria-describedby=\"status\"><button>Rechercher</button></form>\n  <p id=\"status\" role=\"status\" aria-live=\"polite\">3 résultats</p>\n  <ul data-product-list aria-label=\"Résultats\">…</ul>\n</section>",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Entrées et préparation de « Projet : recherche interactive accessible »."
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "5-6",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/08-browser/catalog.html et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: la recherche fonctionne au clavier, annonce le compte, rend une liste valide, persiste cinq requêtes et le build réussit."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "SearchOverlay L’ecomax applique ces couches et garde navigation, résultats et ajout utilisables en FR, EN et AR/RTL."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: la recherche fonctionne au clavier, annonce le compte, rend une liste valide, persiste cinq requêtes et le build réussit.",
+      "commonErrors": [
+        {
+          "symptom": "Le lecteur d’écran n’annonce pas les résultats.",
+          "cause": "Le symptôme contredit le mécanisme attendu : Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés.",
+          "fix": "Mettez à jour un role=status persistant avec un texte concis."
+        },
+        {
+          "symptom": "Le focus saute à chaque frappe.",
+          "cause": "Le symptôme contredit le mécanisme attendu : Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés.",
+          "fix": "Ne recréez pas le champ et ne déplacez le focus qu’après une action qui l’exige."
+        }
+      ],
+      "exercise": {
+        "task": "Assembler un moteur pur, un formulaire unique, une liste sémantique, un statut live et une persistance défensive.",
+        "steps": [
+          "Ouvrez academy-labs/08-browser/catalog.html et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Testez requête vide, aucun résultat, accents, Entrée, Tab, ajout dynamique, rechargement et stockage corrompu; gardez le statut poli pour ne pas interrompre la saisie.",
+          "code": "<section aria-labelledby=\"search-title\">\n  <h2 id=\"search-title\">Rechercher les produits</h2>\n  <form role=\"search\"><label for=\"query\">Produit</label><input id=\"query\" name=\"query\" type=\"search\" aria-describedby=\"status\"><button>Rechercher</button></form>\n  <p id=\"status\" role=\"status\" aria-live=\"polite\">3 résultats</p>\n  <ul data-product-list aria-label=\"Résultats\">…</ul>\n</section>",
+          "filename": "academy-labs/08-browser/catalog.html",
+          "language": "html"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-08-04-accessible-widget-q1",
+          "question": "Pourquoi utiliser role=status ?",
+          "options": [
+            "Pour annoncer une mise à jour sans déplacer le focus",
+            "Pour stocker un secret",
+            "Pour créer CSS",
+            "Pour fusionner Git"
+          ],
+          "correctIndex": 0,
+          "explanation": "Une région live polie communique le nouveau compte tout en laissant l’utilisateur dans le champ.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Pour annoncer une mise à jour sans déplacer le focus ». Une région live polie communique le nouveau compte tout en laissant l’utilisateur dans le champ.",
+            "Cette option est incorrecte. Elle affirme « Pour stocker un secret ». La réponse de référence est « Pour annoncer une mise à jour sans déplacer le focus ». Une région live polie communique le nouveau compte tout en laissant l’utilisateur dans le champ.",
+            "Cette option est incorrecte. Elle affirme « Pour créer CSS ». La réponse de référence est « Pour annoncer une mise à jour sans déplacer le focus ». Une région live polie communique le nouveau compte tout en laissant l’utilisateur dans le champ.",
+            "Cette option est incorrecte. Elle affirme « Pour fusionner Git ». La réponse de référence est « Pour annoncer une mise à jour sans déplacer le focus ». Une région live polie communique le nouveau compte tout en laissant l’utilisateur dans le champ."
+          ]
+        },
+        {
+          "id": "lesson-08-04-accessible-widget-q2",
+          "question": "Quelle définition correspond au terme « derived state » ?",
+          "options": [
+            "Zone dont les mises à jour sont annoncées.",
+            "Valeur recalculable depuis une source.",
+            "Fonction native enrichie sans perdre sa base.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« derived state » signifie : Valeur recalculable depuis une source.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Zone dont les mises à jour sont annoncées. ». La réponse de référence est « Valeur recalculable depuis une source. ». « derived state » signifie : Valeur recalculable depuis une source.",
+            "Cette option est correcte. Elle affirme « Valeur recalculable depuis une source. ». « derived state » signifie : Valeur recalculable depuis une source.",
+            "Cette option est incorrecte. Elle affirme « Fonction native enrichie sans perdre sa base. ». La réponse de référence est « Valeur recalculable depuis une source. ». « derived state » signifie : Valeur recalculable depuis une source.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Valeur recalculable depuis une source. ». « derived state » signifie : Valeur recalculable depuis une source."
+          ]
+        },
+        {
+          "id": "lesson-08-04-accessible-widget-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Le lecteur d’écran n’annonce pas les résultats. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ne recréez pas le champ et ne déplacez le focus qu’après une action qui l’exige.",
+            "Mettez à jour un role=status persistant avec un texte concis.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés. Le correctif adapté est : Mettez à jour un role=status persistant avec un texte concis.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Mettez à jour un role=status persistant avec un texte concis. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés. Le correctif adapté est : Mettez à jour un role=status persistant avec un texte concis.",
+            "Cette option est incorrecte. Elle affirme « Ne recréez pas le champ et ne déplacez le focus qu’après une action qui l’exige. ». La réponse de référence est « Mettez à jour un role=status persistant avec un texte concis. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés. Le correctif adapté est : Mettez à jour un role=status persistant avec un texte concis.",
+            "Cette option est correcte. Elle affirme « Mettez à jour un role=status persistant avec un texte concis. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés. Le correctif adapté est : Mettez à jour un role=status persistant avec un texte concis.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Mettez à jour un role=status persistant avec un texte concis. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Le submit normalise la requête, une fonction pure dérive les résultats, le DOM rend une liste sémantique et role=status annonce le compte sans déplacer le focus. La délégation traite les boutons de résultats recréés. Le correctif adapté est : Mettez à jour un role=status persistant avec un texte concis."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Un widget complet maintient un état source, dérive son affichage et expose chaque transition par sémantique, focus et message. Souris, clavier et technologie d’assistance doivent déclencher la même logique sans duplication.",
+        "derived state: Valeur recalculable depuis une source.",
+        "live region: Zone dont les mises à jour sont annoncées.",
+        "progressive enhancement: Fonction native enrichie sans perdre sa base."
+      ],
+      "next": "Vous êtes prêt pour TypeScript, React et Next.js : la suite transforme ces principes en architecture d’application."
+    }
+  ]
+}

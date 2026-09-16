@@ -1,8 +1,8 @@
 import { formatNumber } from "@/lib/format";
 import { currentLocale, msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
-import { memo, useEffect, useMemo, useState } from "react";
+import { useLocalSearchParams } from "expo-router";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -22,6 +22,8 @@ import {
   getReviewEligibility,
   submitVerifiedReview,
   type ReviewEligibility,
+  verifyReviewOrder,
+  type ReviewOrderProof,
 } from "@/services/catalog";
 import type { Review } from "@/types/commerce";
 
@@ -39,15 +41,29 @@ type Props = {
 };
 
 const reasonMessages: Record<ReviewEligibility["reason"], string> = {
-  get verified_purchase() { return msg("productReviews.yourPurchaseIsVerifiedShareYourExperience"); },
-  get signed_out() { return msg("productReviews.signInWithTheEmailAddressUsedForYourOrder"); },
-  get not_ordered() { return msg("productReviews.reviewsAreReservedForCustomersWhoPurchasedThisProduct"); },
-  get not_delivered() { return msg("productReviews.youCanPostAReviewOnceYourOrderIsDelivered"); },
-  get already_reviewed() { return msg("productReviews.youHaveAlreadyReviewedThisProduct"); },
+  get verified_purchase() {
+    return msg("productReviews.yourPurchaseIsVerifiedShareYourExperience");
+  },
+  get signed_out() {
+    return msg("productReviews.signInWithTheEmailAddressUsedForYourOrder");
+  },
+  get not_ordered() {
+    return msg(
+      "productReviews.reviewsAreReservedForCustomersWhoPurchasedThisProduct",
+    );
+  },
+  get not_delivered() {
+    return msg("productReviews.youCanPostAReviewOnceYourOrderIsDelivered");
+  },
+  get already_reviewed() {
+    return msg("productReviews.youHaveAlreadyReviewedThisProduct");
+  },
 };
 
 function containsArabic(value: string | null | undefined) {
-  return Boolean(value && /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(value));
+  return Boolean(
+    value && /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(value),
+  );
 }
 
 function relativeTime(dateString: string): string | null {
@@ -82,14 +98,28 @@ function ReviewImages({ urls }: { urls: string[] }) {
             <Image
               source={{ uri: url }}
               style={styles.reviewImage}
-              accessibilityLabel={msg("productReviews.reviewPhoto", { index: i + 1 })}
+              accessibilityLabel={msg("productReviews.reviewPhoto", {
+                index: i + 1,
+              })}
             />
           </AnimatedPressable>
         ))}
       </ScrollView>
-      <Modal visible={!!lightbox} transparent animationType="fade" onRequestClose={() => setLightbox(null)}>
-        <Pressable style={styles.lightboxOverlay} onPress={() => setLightbox(null)}>
-          <Image source={{ uri: lightbox ?? "" }} style={styles.lightboxImage} resizeMode="contain" />
+      <Modal
+        visible={!!lightbox}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setLightbox(null)}
+      >
+        <Pressable
+          style={styles.lightboxOverlay}
+          onPress={() => setLightbox(null)}
+        >
+          <Image
+            source={{ uri: lightbox ?? "" }}
+            style={styles.lightboxImage}
+            resizeMode="contain"
+          />
           <View style={styles.lightboxClose}>
             <Ionicons name="close" size={22} color={palette.white} />
           </View>
@@ -157,15 +187,97 @@ export const ProductReviews = memo(function ProductReviews({
   );
   const [checking, setChecking] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [contactType, setContactType] = useState<"phone" | "email">("phone");
+  const [contact, setContact] = useState("");
+  const [orderNumber, setOrderNumber] = useState("");
+  const [authorName, setAuthorName] = useState("");
+  const [proof, setProof] = useState<ReviewOrderProof>();
+  const [verifying, setVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(
+    null,
+  );
+  const verificationVersion = useRef(0);
+  const invitation = useLocalSearchParams<{ order?: string }>();
+  useEffect(() => {
+    // Synchronize the editable order field when a review invitation changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (typeof invitation.order === "string") setOrderNumber(invitation.order);
+  }, [invitation.order]);
+  const invalidateProof = () => {
+    verificationVersion.current += 1;
+    setProof(undefined);
+    setShowForm(false);
+    setVerifying(false);
+    setVerificationError(null);
+  };
+  const verifyPurchase = useCallback(async () => {
+    const version = ++verificationVersion.current;
+    const candidate = {
+      order_number: orderNumber,
+      contact_type: contactType,
+      contact,
+    };
+    setVerifying(true);
+    setVerificationError(null);
+    try {
+      const result = await verifyReviewOrder(slug, candidate);
+      if (version !== verificationVersion.current) return;
+      if (result.canReview) {
+        setProof(candidate);
+        setShowForm(true);
+      } else {
+        setProof(undefined);
+        setVerificationError(
+          result.reason === "not_ordered" || result.reason === "signed_out"
+            ? msg("reviewOrder.noMatch")
+            : reasonMessages[result.reason],
+        );
+      }
+    } catch {
+      if (version === verificationVersion.current)
+        setVerificationError(msg("reviewOrder.unavailable"));
+    } finally {
+      if (version === verificationVersion.current) setVerifying(false);
+    }
+  }, [orderNumber, contactType, contact, slug]);
+
+  const contactReady = contactType === "email"
+    ? /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.trim())
+    : /^[+\d\s().-]+$/.test(contact) && (
+      /^0[5-7]\d{8}$/.test(contact.replace(/\D/g, "")) ||
+      /^(?:\+|00)[1-9]\d{9,14}$/.test(contact.replace(/[\s().-]/g, "")) ||
+      /^212[5-7]\d{8}$/.test(contact.replace(/\D/g, ""))
+    );
+
+  useEffect(() => {
+    if (!reviewOpen || eligibility?.canReview || !contactReady || success) return;
+    const timer = setTimeout(() => void verifyPurchase(), 900);
+    return () => {
+      clearTimeout(timer);
+      verificationVersion.current += 1;
+    };
+  }, [reviewOpen, eligibility?.canReview, contactReady, verifyPurchase, success]);
 
   useEffect(() => {
     let active = true;
+    // A different product invalidates purchase proof and the previous review draft.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    invalidateProof();
+    setReviewOpen(false);
+    setSuccess(false);
+    setEligibility(null);
+    setChecking(true);
+    setRating(0);
+    setBody("");
+    setTitle("");
+    setError(null);
     void getReviewEligibility(slug)
       .then((result) => {
         if (active) setEligibility(result);
@@ -213,11 +325,14 @@ export const ProductReviews = memo(function ProductReviews({
         title: title.trim() || undefined,
         body: body.trim(),
         color: selectedColor,
+        proof,
+        authorName: authorName.trim() || undefined,
       });
       setSuccess(true);
+      setProof(undefined);
       setShowForm(false);
       setEligibility({ canReview: false, reason: "already_reviewed" });
-      await onSubmitted();
+      await onSubmitted().catch(() => {});
     } catch (submitError) {
       setError(
         submitError instanceof Error
@@ -233,22 +348,34 @@ export const ProductReviews = memo(function ProductReviews({
     <View style={styles.section}>
       <View style={styles.headingRow}>
         <View>
-          <Text style={styles.eyebrow}>{msg("productReviews.lecomaxCommunityUppercase")}</Text>
-          <Text accessibilityRole="header" style={styles.heading}>{msg("productReviews.customerReviews")}</Text>
+          <Text style={styles.eyebrow}>
+            {msg("productReviews.lecomaxCommunityUppercase")}
+          </Text>
+          <Text accessibilityRole="header" style={styles.heading}>
+            {msg("productReviews.customerReviews")}
+          </Text>
         </View>
         <View style={styles.verifiedHeader}>
           <Ionicons name="shield-checkmark" size={15} color={palette.green} />
-          <Text style={styles.verifiedHeaderText}>{msg("productReviews.verifiedPurchasesUppercase")}</Text>
+          <Text style={styles.verifiedHeaderText}>
+            {msg("productReviews.verifiedPurchasesUppercase")}
+          </Text>
         </View>
       </View>
 
       {total > 0 ? (
         <View style={styles.summary}>
           <View style={styles.score}>
-            <Text style={styles.scoreValue}>{formatNumber(average, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}</Text>
+            <Text style={styles.scoreValue}>
+              {formatNumber(average, {
+                minimumFractionDigits: 1,
+                maximumFractionDigits: 1,
+              })}
+            </Text>
             <Stars value={average} size={15} />
             <Text style={styles.scoreCount}>
-              {total} {msg("productReviews.verifiedReview")}{total === 1 ? "" : "s"}
+              {total} {msg("productReviews.verifiedReview")}
+              {total === 1 ? "" : "s"}
             </Text>
           </View>
           <View style={styles.distribution}>
@@ -267,68 +394,179 @@ export const ProductReviews = memo(function ProductReviews({
       ) : (
         <View style={styles.emptySummary}>
           <View style={styles.emptySummaryIcon}>
-            <Ionicons name="chatbubble-ellipses-outline" size={24} color={palette.greenDark} />
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={21}
+              color="#7B8278"
+            />
           </View>
           <View style={styles.emptySummaryCopy}>
-            <Text style={styles.emptySummaryTitle}>{msg("productReviews.noReviewsYet")}</Text>
+            <Text style={styles.emptySummaryTitle}>
+              {msg("productReviews.noReviewsYet")}
+            </Text>
             <Text style={styles.emptySummaryText}>
-              {msg("productReviews.beTheFirstToShareYourExperience")}</Text>
+              {msg("productReviews.beTheFirstToShareYourExperience")}
+            </Text>
           </View>
         </View>
       )}
 
-      <View style={styles.eligibilityCard}>
-        <View style={styles.eligibilityIcon}>
-          <Ionicons
-            name={eligibility?.canReview ? "checkmark" : "receipt-outline"}
-            size={20}
-            color={palette.green}
-          />
-        </View>
-        <View style={styles.eligibilityCopy}>
-          <Text style={styles.eligibilityTitle}>
-            {eligibility?.canReview
-              ? msg("productReviews.yourPurchaseIsConfirmed")
-              : msg("productReviews.authenticReviewsOnly")}
+      {!success && (
+        <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel={msg(reviewOpen ? "productReviews.closeReviewForm" : "productReviews.writeAReview")}
+          accessibilityState={{ expanded: reviewOpen }}
+          onPress={() => {
+            invalidateProof();
+            setError(null);
+            setReviewOpen(!reviewOpen);
+            setShowForm(!reviewOpen);
+          }}
+          style={styles.writeReviewButton}
+        >
+          <Ionicons name={reviewOpen ? "close-outline" : "create-outline"} size={18} color="#294331" />
+          <Text style={styles.writeReviewText}>
+            {msg(reviewOpen ? "productReviews.closeReviewForm" : "productReviews.writeAReview")}
           </Text>
-          <Text style={styles.eligibilityMessage}>
-            {checking
-              ? msg("productReviews.checkingYourAccount")
-              : reasonMessages[eligibility?.reason ?? "signed_out"]}
+        </AnimatedPressable>
+      )}
+      {reviewOpen && checking ? <ActivityIndicator style={{ marginTop: 20 }} color={palette.greenDark} /> : null}
+      {reviewOpen && !checking && !eligibility?.canReview && !success && (
+        <View style={styles.purchaseForm}>
+          <Text style={styles.purchaseEyebrow}>{msg("reviewOrder.eyebrow")}</Text>
+          <Text accessibilityRole="header" style={styles.purchaseTitle}>
+            {msg("reviewOrder.title")}
           </Text>
-        </View>
-        {checking ? (
-          <ActivityIndicator color={palette.green} />
-        ) : eligibility?.reason === "signed_out" ? (
-          <AnimatedPressable
-            accessibilityLabel={msg("productReviews.signInToLeaveAReview")}
-            accessibilityRole="button"
-            onPress={() => router.push("/auth")}
-            style={styles.smallAction}
-          >
-            <Text style={styles.smallActionText}>{msg("support.signInUppercase")}</Text>
-          </AnimatedPressable>
-        ) : eligibility?.canReview ? (
-          <AnimatedPressable
-            accessibilityRole="button"
-            accessibilityLabel={
-              showForm ? msg("productReviews.closeReviewForm") : msg("productReviews.writeAReview")
+          <Text style={styles.purchaseIntro}>{msg("reviewOrder.intro")}</Text>
+          <View style={styles.contactTabs}>
+            {(["phone", "email"] as const).map((type) => (
+              <AnimatedPressable
+                key={type}
+                accessibilityRole="button"
+                accessibilityState={{ selected: contactType === type }}
+                accessibilityLabel={msg(
+                  type === "phone"
+                    ? "reviewOrder.phoneTab"
+                    : "reviewOrder.emailTab",
+                )}
+                onPress={() => {
+                  setContactType(type);
+                  setContact("");
+                  invalidateProof();
+                }}
+                style={[
+                  styles.contactTab,
+                  contactType === type && styles.contactTabSelected,
+                ]}
+              >
+                <Ionicons
+                  name={type === "phone" ? "call-outline" : "mail-outline"}
+                  size={16}
+                  color={contactType === type ? "#233B2B" : "#858980"}
+                />
+                <Text
+                  style={[
+                    styles.contactTabText,
+                    contactType === type && styles.contactTabTextSelected,
+                  ]}
+                >
+                  {msg(
+                    type === "phone"
+                      ? "reviewOrder.phoneTab"
+                      : "reviewOrder.emailTab",
+                  )}
+                </Text>
+              </AnimatedPressable>
+            ))}
+          </View>
+          <Text style={styles.purchaseLabel}>
+            {msg(
+              contactType === "phone"
+                ? "reviewOrder.phone"
+                : "reviewOrder.email",
+            )}
+          </Text>
+          <TextInput
+            accessibilityLabel={msg(
+              contactType === "phone"
+                ? "reviewOrder.phone"
+                : "reviewOrder.email",
+            )}
+            value={contact}
+            onChangeText={(value) => {
+              setContact(value);
+              invalidateProof();
+            }}
+            keyboardType={
+              contactType === "phone" ? "phone-pad" : "email-address"
             }
-            onPress={() => setShowForm((value) => !value)}
-            style={styles.smallAction}
+            autoCapitalize="none"
+            autoCorrect={false}
+            maxLength={254}
+            placeholder={
+              contactType === "phone"
+                ? "06 12 34 56 78 / +212…"
+                : "client@example.com"
+            }
+            placeholderTextColor="#777"
+            style={[styles.titleInput, styles.purchaseInput]}
+          />
+          <View style={styles.purchasePrivacy}>
+            <Ionicons name="lock-closed-outline" size={14} color="#73806F" />
+            <Text style={styles.purchasePrivacyText}>{msg("reviewOrder.privacy")}</Text>
+          </View>
+          <AnimatedPressable
+            accessibilityRole="button"
+            accessibilityLabel={msg("reviewOrder.verify")}
+            accessibilityState={{
+              disabled: verifying || !contactReady || Boolean(proof),
+              busy: verifying,
+            }}
+            disabled={verifying || !contactReady || Boolean(proof)}
+            onPress={() => void verifyPurchase()}
+            style={[
+              styles.purchaseSubmit,
+              (verifying || !contactReady) && styles.purchaseSubmitDisabled,
+            ]}
           >
-            <Text style={styles.smallActionText}>
-              {showForm ? msg("productReviews.closeUppercase") : msg("productReviews.writeUppercase")}
+            {verifying ? <ActivityIndicator size="small" color="#FFFFFF" /> : null}
+            <Text style={styles.purchaseSubmitText}>
+              {msg(
+                verifying
+                  ? "reviewOrder.checking"
+                  : proof
+                    ? "reviewOrder.confirmed"
+                    : "reviewOrder.verify",
+              )}
             </Text>
           </AnimatedPressable>
-        ) : null}
-      </View>
+          {verificationError && (
+            <Text accessibilityRole="alert" style={styles.error}>
+              {verificationError}
+            </Text>
+          )}
+        </View>
+      )}
 
-      {showForm && eligibility?.canReview ? (
+      {reviewOpen && showForm && (eligibility?.canReview || proof) ? (
         <Animated.View entering={FadeInUp.duration(320)} style={styles.form}>
-          <Text style={styles.formTitle}>{msg("productReviews.yourExperience")}</Text>
+          <Text style={styles.formTitle}>
+            {msg("productReviews.yourExperience")}
+          </Text>
+          {proof && (
+            <TextInput
+              accessibilityLabel={msg("reviewOrder.publicName")}
+              value={authorName}
+              onChangeText={setAuthorName}
+              placeholder={msg("reviewOrder.publicName")}
+              placeholderTextColor="#777"
+              maxLength={60}
+              style={styles.titleInput}
+            />
+          )}
           <Text style={styles.formHint}>
-            {msg("productReviews.tapAStarToRateTheProduct")}</Text>
+            {msg("productReviews.tapAStarToRateTheProduct")}
+          </Text>
           <View style={styles.ratingPicker}>
             <Stars value={rating} size={30} interactive onChange={setRating} />
             <Text style={styles.ratingValue}>
@@ -348,7 +586,9 @@ export const ProductReviews = memo(function ProductReviews({
             accessibilityLabel={msg("productReviews.reviewContent")}
             value={body}
             onChangeText={setBody}
-            placeholder={msg("productReviews.comfortQualitySizeWhatDidYouThinkOfTheProduct")}
+            placeholder={msg(
+              "productReviews.comfortQualitySizeWhatDidYouThinkOfTheProduct",
+            )}
             placeholderTextColor="#9A9A9A"
             multiline
             maxLength={1200}
@@ -367,7 +607,9 @@ export const ProductReviews = memo(function ProductReviews({
                 <ActivityIndicator size="small" color={palette.white} />
               ) : (
                 <>
-                  <Text style={styles.submitText}>{msg("productReviews.publishReviewUppercase")}</Text>
+                  <Text style={styles.submitText}>
+                    {msg("productReviews.publishReviewUppercase")}
+                  </Text>
                   <Ionicons
                     name="arrow-forward"
                     size={17}
@@ -385,7 +627,8 @@ export const ProductReviews = memo(function ProductReviews({
         <Animated.View entering={FadeIn.duration(300)} style={styles.success}>
           <Ionicons name="checkmark-circle" size={20} color={palette.green} />
           <Text style={styles.successText}>
-            {msg("productReviews.thankYouYourVerifiedReviewHasBeenPublished")}</Text>
+            {msg("productReviews.thankYouYourVerifiedReviewHasBeenPublished")}
+          </Text>
         </Animated.View>
       ) : null}
 
@@ -420,27 +663,48 @@ export const ProductReviews = memo(function ProductReviews({
                 {/* ── Top Header Row: Stars + Verified Badge ── */}
                 <View style={styles.reviewHeaderRow}>
                   <View style={styles.ratingBadge}>
-                    <Stars value={review.rating} size={13} color={palette.gold} />
+                    <Stars
+                      value={review.rating}
+                      size={13}
+                      color={palette.gold}
+                    />
                     <Text style={styles.reviewRatingValue}>
-                      {formatNumber(review.rating, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                      {formatNumber(review.rating, {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                      })}
                     </Text>
                   </View>
 
                   {review.verified_purchase !== false ? (
                     <View style={styles.verifiedBadgePill}>
-                      <Ionicons name="checkmark-circle" size={12} color="#15803D" />
-                      <Text style={styles.verifiedBadgeText}>Achat Vérifié</Text>
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={12}
+                        color="#15803D"
+                      />
+                      <Text style={styles.verifiedBadgeText}>
+                        Achat Vérifié
+                      </Text>
                     </View>
                   ) : null}
                 </View>
 
                 {/* ── Body (main content area with smart RTL) ── */}
                 {review.title ? (
-                  <Text style={[styles.reviewTitle, titleIsRtl && styles.rtlText]} numberOfLines={2}>{review.title}</Text>
+                  <Text
+                    style={[styles.reviewTitle, titleIsRtl && styles.rtlText]}
+                    numberOfLines={2}
+                  >
+                    {review.title}
+                  </Text>
                 ) : null}
-                
+
                 <View style={bodyIsRtl ? styles.arabicBodyBox : null}>
-                  <Text style={[styles.reviewBody, bodyIsRtl && styles.rtlText]} numberOfLines={4}>
+                  <Text
+                    style={[styles.reviewBody, bodyIsRtl && styles.rtlText]}
+                    numberOfLines={4}
+                  >
                     {bodyIsRtl ? `"${review.body}"` : review.body}
                   </Text>
                 </View>
@@ -459,7 +723,9 @@ export const ProductReviews = memo(function ProductReviews({
                     </Text>
                   </View>
                   <View style={styles.footerCopy}>
-                    <Text style={styles.authorName} numberOfLines={1}>{review.author_name}</Text>
+                    <Text style={styles.authorName} numberOfLines={1}>
+                      {review.author_name}
+                    </Text>
                     <Text style={styles.reviewDate}>
                       {new Intl.DateTimeFormat(currentLocale(), {
                         day: "numeric",
@@ -476,10 +742,24 @@ export const ProductReviews = memo(function ProductReviews({
                 {review.admin_reply ? (
                   <View style={styles.reply}>
                     <View style={styles.replyHeader}>
-                      <Ionicons name="storefront-outline" size={11} color={palette.greenDark} />
-                      <Text style={styles.replyLabel}>{msg("productReviews.lecomaxReplyUppercase")}</Text>
+                      <Ionicons
+                        name="storefront-outline"
+                        size={11}
+                        color={palette.greenDark}
+                      />
+                      <Text style={styles.replyLabel}>
+                        {msg("productReviews.lecomaxReplyUppercase")}
+                      </Text>
                     </View>
-                    <Text style={[styles.replyText, containsArabic(review.admin_reply) && styles.rtlText]} numberOfLines={3}>{review.admin_reply}</Text>
+                    <Text
+                      style={[
+                        styles.replyText,
+                        containsArabic(review.admin_reply) && styles.rtlText,
+                      ]}
+                      numberOfLines={3}
+                    >
+                      {review.admin_reply}
+                    </Text>
                   </View>
                 ) : null}
               </Animated.View>
@@ -493,10 +773,8 @@ export const ProductReviews = memo(function ProductReviews({
 
 const styles = StyleSheet.create({
   section: {
-    paddingHorizontal: 20,
-    paddingVertical: 34,
-    borderTopWidth: 1,
-    borderTopColor: palette.border,
+    paddingTop: 12,
+    paddingBottom: 4,
     backgroundColor: palette.white,
   },
   headingRow: {
@@ -544,26 +822,26 @@ const styles = StyleSheet.create({
   },
   emptySummary: {
     marginTop: 20,
-    minHeight: 104,
-    padding: 18,
-    borderRadius: 18,
+    minHeight: 76,
+    paddingVertical: 18,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#DFE2DA",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F7F8F6",
+    backgroundColor: "transparent",
   },
   emptySummaryIcon: {
-    width: 44,
-    height: 44,
+    width: 32,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 22,
-    backgroundColor: "#EAF6ED",
+    backgroundColor: "transparent",
   },
   emptySummaryCopy: { minWidth: 0, flex: 1, marginLeft: 12 },
   emptySummaryTitle: {
-    color: palette.ink,
-    fontFamily: typography.bold,
-    fontSize: 16,
+    color: "#29392D",
+    fontFamily: typography.semibold,
+    fontSize: 14,
     lineHeight: 22,
   },
   emptySummaryText: {
@@ -675,6 +953,65 @@ const styles = StyleSheet.create({
     borderColor: palette.border,
     backgroundColor: palette.white,
   },
+  purchaseForm: {
+    marginTop: 30,
+    paddingBottom: 10,
+  },
+  writeReviewButton: {
+    marginTop: 20, minHeight: 48, paddingHorizontal: 16, paddingVertical: 12,
+    borderWidth: 1, borderColor: "#DDE3D6", borderRadius: 8,
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 9, backgroundColor: "#F8FAF5",
+  },
+  writeReviewText: { color: "#294331", fontFamily: typography.semibold, fontSize: 12 },
+  purchaseEyebrow: {
+    color: "#79816F", fontFamily: typography.medium,
+    fontSize: 8, lineHeight: 14, letterSpacing: 2,
+  },
+  purchaseTitle: {
+    marginTop: 10, color: "#202D24", fontFamily: typography.medium,
+    fontSize: 28, lineHeight: 36, letterSpacing: -1,
+  },
+  purchaseIntro: {
+    marginTop: 12, color: "#767A72", fontFamily: typography.regular,
+    fontSize: 12, lineHeight: 21, maxWidth: 360,
+  },
+  contactTabs: {
+    marginTop: 24, gap: 24, flexDirection: "row",
+    borderBottomWidth: 1, borderBottomColor: "#E6E8E1",
+  },
+  contactTab: {
+    flex: 1, minWidth: 0, minHeight: 44, paddingHorizontal: 8,
+    paddingVertical: 10, alignItems: "center", justifyContent: "center",
+    flexDirection: "row", gap: 8,
+    borderBottomWidth: 2, borderBottomColor: "transparent", marginBottom: -1,
+  },
+  contactTabSelected: {
+    borderBottomColor: "#294331",
+  },
+  contactTabText: { color: "#76806F", fontFamily: typography.medium, fontSize: 12 },
+  contactTabTextSelected: { color: "#28432F", fontFamily: typography.semibold },
+  purchaseLabel: {
+    marginTop: 22, color: "#3E4B3E", fontFamily: typography.medium,
+    fontSize: 11, lineHeight: 17,
+  },
+  purchaseInput: {
+    height: 52, marginTop: 9, borderRadius: 6,
+    borderColor: "#E0E3DB", backgroundColor: "#FAFBF8",
+    fontFamily: typography.regular, fontSize: 13,
+  },
+  purchasePrivacy: { marginTop: 18, flexDirection: "row", alignItems: "flex-start", gap: 8 },
+  purchasePrivacyText: {
+    flex: 1, color: "#77806F", fontFamily: typography.regular,
+    fontSize: 10, lineHeight: 16,
+  },
+  purchaseSubmit: {
+    minHeight: 52, marginTop: 24, paddingHorizontal: 18, paddingVertical: 14,
+    borderRadius: 6, flexDirection: "row", alignItems: "center",
+    justifyContent: "center", gap: 9, backgroundColor: "#213B2B",
+  },
+  purchaseSubmitDisabled: { opacity: 0.55 },
+  purchaseSubmitText: { color: "#FFFFFF", fontFamily: typography.semibold, fontSize: 12 },
   formTitle: { color: palette.ink, fontFamily: typography.black, fontSize: 19 },
   formHint: {
     marginTop: 4,
@@ -865,13 +1202,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#F1F5F9",
   },
-  rtlText: { 
-    textAlign: "right", 
-    writingDirection: "rtl", 
+  rtlText: {
+    textAlign: "right",
+    writingDirection: "rtl",
     color: "#0F172A",
-    fontFamily: typography.bold, 
-    fontSize: 14.5, 
-    lineHeight: 24 
+    fontFamily: typography.bold,
+    fontSize: 14.5,
+    lineHeight: 24,
   },
 
   // ── Divider ──

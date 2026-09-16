@@ -1,3 +1,4 @@
+import { LIVE_QUERY_OPTIONS } from "@/lib/store-sync";
 import { PreorderNotice } from "@/components/preorder-notice";
 import { orderStatusLabel } from "@/i18n/content";
 import { localizedError } from "@/i18n/errors";
@@ -53,6 +54,7 @@ export default function OrderTrackingScreen() {
   );
 
   const query = useQuery({
+    ...LIVE_QUERY_OPTIONS,
     queryKey: ["order-tracking", lookup?.orderNumber, lookup?.email],
     queryFn: () => getOrderTracking(lookup!.orderNumber, lookup!.email),
     enabled: Boolean(lookup),

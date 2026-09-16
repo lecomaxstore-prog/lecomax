@@ -1,3 +1,4 @@
+import { LIVE_QUERY_OPTIONS } from "@/lib/store-sync";
 import { PreorderNotice } from "@/components/preorder-notice";
 import { localizedContent, paymentStatusLabel } from "@/i18n/content";
 import { currentLocale, msg, useLocale } from "@/i18n";
@@ -338,6 +339,7 @@ export default function OrdersScreen() {
   useLocale();
   const insets = useSafeAreaInsets();
   const query = useQuery({
+    ...LIVE_QUERY_OPTIONS,
     queryKey: ["customer-orders"],
     queryFn: getCustomerOrders,
   });

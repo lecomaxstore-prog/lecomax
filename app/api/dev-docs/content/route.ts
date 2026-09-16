@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { verifySessionToken } from "@/lib/admin-session";
+import { protectSourceBrowser, allowedSourcePath } from "@/lib/dev-docs-access";
 
 const BLOCKED_PATTERNS = [
   /^\.env/i,
@@ -26,13 +26,13 @@ const BINARY_EXTENSIONS = new Set([
 const MAX_SIZE = 300 * 1024; // 300 KB
 
 export async function GET(req: NextRequest) {
-  const session = req.cookies.get("admin_session")?.value;
-  if (!session || !(await verifySessionToken(session))) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const denied = await protectSourceBrowser(req);
+  if (denied) return denied;
 
   const { searchParams } = new URL(req.url);
   const filePath = (searchParams.get("path") ?? "").replace(/\\/g, "/").replace(/^\//, "");
+
+  if (!allowedSourcePath(filePath)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   // Block path traversal
   if (filePath.includes("..") || filePath.includes("//")) {
@@ -50,7 +50,7 @@ export async function GET(req: NextRequest) {
   const fullPath = path.resolve(root, ...filePath.split("/"));
 
   // Prevent escaping project root
-  if (!fullPath.startsWith(root)) {
+  if (!fullPath.startsWith(root + path.sep)) {
     return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
@@ -60,7 +60,10 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const stat = fs.statSync(fullPath);
+    const realRoot = fs.realpathSync(root);
+    const realPath = fs.realpathSync(fullPath);
+    if (!realPath.startsWith(realRoot + path.sep)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const stat = fs.statSync(realPath);
     if (!stat.isFile()) return NextResponse.json({ error: "Not a file" }, { status: 400 });
     if (stat.size > MAX_SIZE) {
       return NextResponse.json({

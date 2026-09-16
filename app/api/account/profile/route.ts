@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser } from "@/lib/request-auth";
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Votre session a expiré. Reconnectez-vous." }, { status: 401 });
 
   let body: { prenom?: unknown; nom?: unknown; phone?: unknown };
-  try { body = await req.json(); }
+  try { body = await readJsonLimited(req); }
   catch { return NextResponse.json({ error: "Informations invalides." }, { status: 400 }); }
 
   const prenom = cleanName(body.prenom);

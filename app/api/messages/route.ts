@@ -1,7 +1,12 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { protectAdminRead, protectAdminMutation } from "@/lib/api-security";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
+import { sensitiveRateLimit } from "@/lib/sensitive-rate-limit";
+import { escapeHtml } from "@/lib/html-escape";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,6 +16,8 @@ const supabase = createClient(
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function GET(req: NextRequest) {
+  const securityDenied = await protectAdminRead(req, { key: "messages/route.ts:GET" });
+  if (securityDenied) return securityDenied;
   const { searchParams } = new URL(req.url);
   const unread = searchParams.get("unread");
   let query = supabase.from("contact_messages").select("*").order("created_at", { ascending: false });
@@ -21,8 +28,14 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
+  const body = await readJsonLimited(req, 32 * 1024).catch(() => null);
+  if (!body || typeof body !== "object") return NextResponse.json({ error: "Données invalides." }, { status: 400 });
   const { name, email, subject, message } = body;
+  if (![name, email, subject, message].every(value => typeof value === "string" && value.trim()) ||
+      name.length > 100 || email.length > 254 || subject.length > 200 || message.length > 5000 ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return NextResponse.json({ error: "Champs invalides." }, { status: 400 });
+  const limited = await sensitiveRateLimit(req, "contact", email);
+  if (limited) return limited;
 
   // Try DB insert — if table doesn't exist yet, continue anyway (email still sent)
   const { error: dbError } = await supabase
@@ -68,8 +81,8 @@ export async function POST(req: NextRequest) {
               <tr>
                 <td style="padding:16px 20px;">
                   <p style="margin:0;font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em;">De</p>
-                  <p style="margin:4px 0 0;font-size:15px;font-weight:700;color:#111;">${name}</p>
-                  <p style="margin:2px 0 0;font-size:13px;color:#6b7280;">${email}</p>
+                  <p style="margin:4px 0 0;font-size:15px;font-weight:700;color:#111;">${escapeHtml(name)}</p>
+                  <p style="margin:2px 0 0;font-size:13px;color:#6b7280;">${escapeHtml(email)}</p>
                 </td>
               </tr>
             </table>
@@ -77,15 +90,15 @@ export async function POST(req: NextRequest) {
               <tr>
                 <td style="padding:16px 20px;">
                   <p style="margin:0;font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em;">Sujet</p>
-                  <p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#111;">${subject}</p>
+                  <p style="margin:4px 0 0;font-size:14px;font-weight:700;color:#111;">${escapeHtml(subject)}</p>
                 </td>
               </tr>
             </table>
             <p style="margin:0 0 8px;font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:0.1em;">Message</p>
             <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:24px;">
-              <p style="margin:0;font-size:14px;color:#374151;line-height:1.7;white-space:pre-wrap;">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
+              <p style="margin:0;font-size:14px;color:#374151;line-height:1.7;white-space:pre-wrap;">${escapeHtml(message).replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
             </div>
-            <a href="mailto:${email}?subject=Re: ${encodeURIComponent(subject)}"
+            <a href="mailto:${escapeHtml(email)}?subject=Re: ${encodeURIComponent(subject)}"
               style="display:inline-block;background:#3ecf4c;color:#000;font-weight:900;font-size:11px;text-transform:uppercase;letter-spacing:0.12em;padding:12px 24px;border-radius:50px;text-decoration:none;">
               Répondre par e-mail →
             </a>
@@ -110,7 +123,7 @@ export async function POST(req: NextRequest) {
 
   // If DB failed AND email also not configured, return error
   if (dbError && !resend) {
-    return NextResponse.json({ error: dbError.message }, { status: 400 });
+    return NextResponse.json({ error: publicDatabaseError(dbError) }, { status: 400 });
   }
 
   return NextResponse.json({ ok: true }, { status: 201 });

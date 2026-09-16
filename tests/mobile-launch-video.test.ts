@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -48,7 +49,8 @@ test("intro unmount never pauses the native player after Expo releases it", () =
   vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../mobile/src/components/launch-video.tsx", import.meta.url), "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2022 },
   }).outputText, {
-    exports, require: (name: string) => { assert.ok(name in dependencies, name); return dependencies[name]; },
+    exports, require: (name: string) => {
+      const securityModule = securityIo(name); if (securityModule) return securityModule; assert.ok(name in dependencies, name); return dependencies[name]; },
     setTimeout: () => 1, clearTimeout: () => {},
   });
   exports.LaunchVideo!().type();

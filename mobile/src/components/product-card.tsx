@@ -1,4 +1,6 @@
 import { localizedContent } from "@/i18n/content";
+import { useQueryClient } from "@tanstack/react-query";
+import { productTranslationOptions } from "@/lib/product-translation-query";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image } from "expo-image";
@@ -38,7 +40,8 @@ export const ProductCard = memo(function ProductCard({
   columns = 2,
   width,
 }: Props) {
-  useLocale();
+  const language = useLocale();
+  const queryClient = useQueryClient();
   const pathname = usePathname();
   const origin =
     pathname === "/search"
@@ -89,8 +92,12 @@ export const ProductCard = memo(function ProductCard({
     [],
   );
 
-  const openProduct = () =>
+  const openProduct = () => {
+    if (product.description?.trim()) {
+      void queryClient.prefetchQuery(productTranslationOptions({ ...product, description: product.description }, language));
+    }
     router.push({ pathname: "/product/[slug]", params: routeParams });
+  };
 
   return (
     <View
@@ -129,7 +136,7 @@ export const ProductCard = memo(function ProductCard({
             cachePolicy="memory-disk"
             recyclingKey={product.id}
             onError={onImageError}
-            style={[StyleSheet.absoluteFill, !related && styles.productImage]}
+            style={[StyleSheet.absoluteFill, styles.productImage]}
           />
         )}
         {saving ? (
@@ -160,12 +167,12 @@ export const ProductCard = memo(function ProductCard({
               event.stopPropagation();
               toggleWishlist(product.id);
             }}
-            style={[styles.wishlist, related && styles.relatedWishlist]}
+            style={[styles.wishlist, related && styles.relatedWishlist, favorite && styles.wishlistSelected]}
           >
             <Ionicons
               name={favorite ? "heart" : "heart-outline"}
-              size={16}
-              color={favorite ? palette.red : palette.ink}
+              size={18}
+              color={favorite ? "#234735" : "#354C3D"}
             />
           </AnimatedPressable>
         ) : null}
@@ -291,7 +298,7 @@ export const ProductCard = memo(function ProductCard({
                 <Ionicons name="checkmark" size={16} color={palette.white} />
               </Animated.View>
             ) : (
-              <Ionicons name={requiresOptions ? "arrow-forward" : "add"} size={16} color={palette.white} />
+              <Ionicons name={requiresOptions ? "arrow-forward" : "add"} size={20} color={palette.white} />
             )}
           </AnimatedPressable>
         </View>
@@ -301,14 +308,14 @@ export const ProductCard = memo(function ProductCard({
 });
 
 const styles = StyleSheet.create({
-  relatedCard: { width: 240, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "#E6EAE1", backgroundColor: "#FFFFFF", overflow: "hidden", shadowOpacity: 0, elevation: 0 },
-  relatedImage: { height: 224, borderRadius: 14, backgroundColor: "#F7F8F4" },
+  relatedCard: { width: 240, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "#EBEDE7", backgroundColor: "#FFFFFF", overflow: "hidden", shadowOpacity: 0, elevation: 0 },
+  relatedImage: { height: 224, borderRadius: 14, backgroundColor: "#FFFFFF" },
   relatedBody: { paddingHorizontal: 6, paddingTop: 14, paddingBottom: 5 },
   relatedBrand: { color: "#77816F", fontSize: 9, letterSpacing: 1 },
   relatedName: { minHeight: 40, marginTop: 7, fontFamily: typography.semibold, fontSize: 14, lineHeight: 20, letterSpacing: -0.3 },
   relatedDiscount: { minHeight: 25, paddingHorizontal: 8, borderRadius: 7, backgroundColor: "#EAF2E2" },
   relatedDiscountText: { color: "#3B603D", fontFamily: typography.semibold, fontSize: 10 },
-  relatedWishlist: { width: 32, height: 32, shadowOpacity: 0, elevation: 0, borderColor: "#E7EBE3" },
+  relatedWishlist: { shadowOpacity: 0, elevation: 0 },
   relatedFooter: { marginTop: 12, paddingTop: 10, borderTopColor: "#EDF0E8", gap: 8 },
   relatedPrices: { flex: 1, flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 5 },
   relatedPrice: { color: "#183D29", fontFamily: typography.bold, fontSize: 16 },
@@ -321,7 +328,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: palette.white,
     borderWidth: 1,
-    borderColor: "#E7E9E3",
+    borderColor: "#EBEDE7",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.035,
@@ -337,7 +344,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     padding: 7,
     borderWidth: 1,
-    borderColor: "#E7E9E3",
+    borderColor: "#EBEDE7",
     borderRadius: 20,
     backgroundColor: palette.white,
     shadowColor: palette.ink,
@@ -352,7 +359,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: "#FFFFFF",
   },
-  productImage: { top: 8, right: 4, bottom: 8, left: 4 },
+  productImage: { top: 12, right: 6, bottom: 12, left: 6 },
   wideImage: {
     aspectRatio: 1,
     borderRadius: 16,
@@ -397,22 +404,24 @@ const styles = StyleSheet.create({
   },
   newBadge: {
     position: "absolute",
-    left: 9,
-    top: 9,
-    maxWidth: "58%",
-    minHeight: 22,
-    paddingHorizontal: 8,
+    left: 8,
+    top: 8,
+    maxWidth: "54%",
+    minHeight: 24,
+    paddingHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 7,
-    backgroundColor: "#EAF0E5",
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "#E6EBE0",
+    backgroundColor: "#F3F6EF",
   },
   newBadgeText: {
-    color: "#36553D",
+    color: "#234735",
     fontFamily: typography.semibold,
     fontSize: 8,
     lineHeight: 13,
-    letterSpacing: 0.8,
+    letterSpacing: 1.1,
   },
   outOfStock: {
     position: "absolute",
@@ -434,22 +443,23 @@ const styles = StyleSheet.create({
   },
   wishlist: {
     position: "absolute",
-    right: 9,
-    top: 9,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    right: 4,
+    top: 4,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#E7EBE3",
-    backgroundColor: "#F7F9F5",
+    borderColor: "#E9EDE5",
+    backgroundColor: "rgba(255,255,255,0.96)",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0,
     shadowRadius: 0,
     elevation: 0,
   },
+  wishlistSelected: { backgroundColor: "#EFF4EA", borderColor: "#D8E4D0" },
   body: { flexGrow: 1, paddingHorizontal: 5, paddingBottom: 5, paddingTop: 12 },
   details: { flexGrow: 1 },
   gridBody: {
@@ -526,32 +536,34 @@ const styles = StyleSheet.create({
   },
   ratingRow: { marginTop: 7 },
   footer: {
-    minHeight: 48,
+    minHeight: 64,
     marginTop: 10,
     padding: 8,
     paddingLeft: 10,
     borderRadius: 16,
-    backgroundColor: "#F3F5F0",
+    backgroundColor: "#F2F5EF",
+    borderWidth: 1,
+    borderColor: "#E5EBE1",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 8,
   },
   add: {
-    width: 32,
-    height: 32,
+    width: 40,
+    height: 40,
     flexShrink: 0,
-    borderRadius: 16,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#203D2C",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
   },
-  tightFooter: { padding: 4, paddingLeft: 6, gap: 4, borderRadius: 14 },
+  tightFooter: { padding: 6, paddingLeft: 8, gap: 4, borderRadius: 14 },
   addConfirmed: {
     borderColor: palette.greenDark,
     backgroundColor: palette.greenDark,

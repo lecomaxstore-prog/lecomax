@@ -1,4 +1,4 @@
-import { STORE_REFRESH_INTERVAL_MS } from "@/lib/store-sync";
+import { LIVE_QUERY_OPTIONS } from "@/lib/store-sync";
 import { useQuery } from "@tanstack/react-query";
 import {
   getBanners,
@@ -11,13 +11,7 @@ import {
   getSettings,
 } from "@/services/catalog";
 
-const liveQueryOptions = {
-  staleTime: 0,
-  refetchOnMount: "always",
-  refetchOnWindowFocus: "always",
-  refetchInterval: STORE_REFRESH_INTERVAL_MS,
-  refetchOnReconnect: true,
-} as const;
+const liveQueryOptions = LIVE_QUERY_OPTIONS;
 
 export const useProducts = () =>
   useQuery({

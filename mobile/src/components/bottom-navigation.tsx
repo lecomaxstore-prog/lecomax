@@ -129,7 +129,7 @@ const TabItem = memo(function TabItem({
 
 export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
   const { t } = useT();
-  const { isTablet } = useAppViewport();
+  const { isTablet, keyboardVisible } = useAppViewport();
   const insets = useSafeAreaInsets();
   const cartCount = useCommerceStore((store) =>
     store.cart.reduce((sum, line) => sum + line.quantity, 0),
@@ -151,7 +151,7 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
     account: t.account,
   };
 
-  if (activeRoute === "cart" && !isTablet) return null;
+  if (keyboardVisible || (activeRoute === "cart" && !isTablet)) return null;
 
   return (
     <View

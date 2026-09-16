@@ -1,61 +1,62 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
+import { resolveReviewPurchase } from "@/lib/review-purchase";
+import { enforceRateLimit } from "@/lib/api-security";
 import { getCustomerUser, isAdminRequest } from "@/lib/request-auth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   { auth: { autoRefreshToken: false, persistSession: false } },
 );
 
-const DELIVERED_STATUSES = new Set([
-  "delivered",
-  "livré",
-  "livree",
-  "livrée",
-  "completed",
-  "complete",
-]);
-
 function cleanText(value: unknown, maxLength: number) {
   return typeof value === "string"
-    ? value.replace(/[<>\u0000-\u001F\u007F]/g, "").trim().slice(0, maxLength)
+    ? value
+        .replace(/[<>\u0000-\u001F\u007F]/g, "")
+        .trim()
+        .slice(0, maxLength)
     : "";
 }
 
-function isMissingReviewColumn(error: { message?: string; code?: string } | null) {
-  return Boolean(error && (
-    error.code === "42703" ||
-    error.code === "PGRST204" ||
-    /verified_purchase|user_id|order_id|image_urls|image_url/i.test(error.message ?? "")
-  ));
-}
-
-function orderContainsProduct(items: unknown, slug: string) {
-  return Array.isArray(items) && items.some((item) => (
-    item &&
-    typeof item === "object" &&
-    "slug" in item &&
-    String(item.slug) === slug
-  ));
+function isMissingReviewColumn(
+  error: { message?: string; code?: string } | null,
+) {
+  return Boolean(
+    error &&
+    (error.code === "42703" ||
+      error.code === "PGRST204" ||
+      /verified_purchase|user_id|order_id|image_urls|image_url/i.test(
+        error.message ?? "",
+      )),
+  );
 }
 
 export async function GET(req: NextRequest) {
   const slug = req.nextUrl.searchParams.get("slug");
 
   if (!slug) {
-    if (!await isAdminRequest(req)) {
+    if (!(await isAdminRequest(req))) {
       return NextResponse.json({ error: "Non autorisé." }, { status: 401 });
     }
-    const { data, error } = await supabase.from("reviews").select("*").order("created_at", { ascending: false });
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error)
+      return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
     return NextResponse.json(data);
   }
 
   const primaryResult = await supabase
     .from("reviews")
-    .select("id, author_name, city, rating, title, body, color, created_at, image_url, image_urls, verified_purchase, admin_reply")
+    .select(
+      "id, author_name, city, rating, title, body, color, created_at, image_url, image_urls, verified_purchase, admin_reply",
+    )
     .eq("product_slug", slug)
     .order("created_at", { ascending: false });
   let data = primaryResult.data as Record<string, unknown>[] | null;
@@ -64,7 +65,9 @@ export async function GET(req: NextRequest) {
   if (error && isMissingReviewColumn(error)) {
     const fallbackResult = await supabase
       .from("reviews")
-      .select("id, author_name, city, rating, title, body, color, created_at, image_url")
+      .select(
+        "id, author_name, city, rating, title, body, color, created_at, image_url",
+      )
       .eq("product_slug", slug)
       .order("created_at", { ascending: false });
     data = fallbackResult.data as Record<string, unknown>[] | null;
@@ -81,23 +84,22 @@ export async function GET(req: NextRequest) {
     error = legacyResult.error;
   }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error)
+    return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json({
-    reviews: (data ?? []).filter((review) => review.verified_purchase === true).map((review) => ({
-      ...review,
-      verified_purchase: review.verified_purchase === true,
-    })),
+    reviews: (data ?? [])
+      .filter((review) => review.verified_purchase === true)
+      .map((review) => ({
+        ...review,
+        verified_purchase: review.verified_purchase === true,
+      })),
   });
 }
 
 export async function POST(req: NextRequest) {
+  const limited = enforceRateLimit(req, "review-submit", 10, 15 * 60_000);
+  if (limited) return limited;
   const user = await getCustomerUser(req);
-  if (!user?.email) {
-    return NextResponse.json(
-      { error: "Connectez-vous avec l’adresse utilisée pour votre commande." },
-      { status: 401 },
-    );
-  }
 
   const { data: featureSetting } = await supabase
     .from("settings")
@@ -105,14 +107,22 @@ export async function POST(req: NextRequest) {
     .eq("key", "enable_reviews")
     .maybeSingle();
   if (featureSetting?.value === "false") {
-    return NextResponse.json({ error: "Les avis sont temporairement désactivés." }, { status: 403 });
+    return NextResponse.json(
+      { error: "Les avis sont temporairement désactivés." },
+      { status: 403 },
+    );
   }
 
   let input: Record<string, unknown>;
   try {
-    input = await req.json() as Record<string, unknown>;
+    input = (await readJsonLimited(req)) as Record<string, unknown>;
+    if (!input || typeof input !== "object" || Array.isArray(input))
+      throw new Error("Invalid body");
   } catch {
-    return NextResponse.json({ error: "Corps JSON invalide." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Corps JSON invalide." },
+      { status: 400 },
+    );
   }
 
   const productSlug = cleanText(input.product_slug, 160);
@@ -121,69 +131,66 @@ export async function POST(req: NextRequest) {
   const title = cleanText(input.title, 100);
   const city = cleanText(input.city, 80);
   const color = cleanText(input.color, 50);
-  const normalizedEmail = user.email.trim().toLowerCase();
-  const metadataName = cleanText(user.user_metadata?.full_name ?? user.user_metadata?.name, 60);
-  const authorName = metadataName || normalizedEmail.split("@")[0].slice(0, 40);
-
-  if (!productSlug || !Number.isInteger(rating) || rating < 1 || rating > 5 || reviewBody.length < 20) {
+  if (
+    !productSlug ||
+    !Number.isInteger(rating) ||
+    rating < 1 ||
+    rating > 5 ||
+    reviewBody.length < 20
+  ) {
     return NextResponse.json(
-      { error: "Choisissez une note et rédigez un avis d’au moins 20 caractères." },
+      {
+        error:
+          "Choisissez une note et rédigez un avis d’au moins 20 caractères.",
+      },
       { status: 400 },
     );
   }
 
-  const { data: orders, error: ordersError } = await supabase
-    .from("orders")
-    .select("id, items, status")
-    .eq("customer->>email", normalizedEmail)
-    .order("created_at", { ascending: false });
-
-  if (ordersError) {
-    return NextResponse.json({ error: "Impossible de vérifier votre achat." }, { status: 503 });
-  }
-
-  const matchingOrders = (orders ?? []).filter((order) => orderContainsProduct(order.items, productSlug));
-  if (!matchingOrders.length) {
+  let purchase;
+  try {
+    purchase = await resolveReviewPurchase(supabase, productSlug, user, input);
+  } catch {
     return NextResponse.json(
-      { error: "Seuls les clients ayant acheté ce produit peuvent laisser un avis." },
-      { status: 403 },
+      { error: "Impossible de vérifier votre achat." },
+      { status: 503 },
     );
   }
-
-  const deliveredOrder = matchingOrders.find((order) =>
-    DELIVERED_STATUSES.has(String(order.status ?? "").trim().toLowerCase()),
-  );
-  if (!deliveredOrder) {
+  if (!purchase.order) {
+    const messages = {
+      signed_out:
+        "Connectez-vous ou vérifiez votre commande avec votre téléphone ou e-mail.",
+      not_ordered:
+        "Vérifiez le numéro de commande et le téléphone ou l’e-mail utilisé pour cet achat.",
+      not_delivered:
+        "Vous pourrez laisser un avis lorsque votre commande aura été livrée.",
+      already_reviewed: "Vous avez déjà évalué ce produit pour cette commande.",
+      verified_purchase: "Impossible de vérifier votre achat.",
+    };
     return NextResponse.json(
-      { error: "Vous pourrez laisser un avis lorsque votre commande aura été livrée." },
-      { status: 403 },
+      { error: messages[purchase.reason], reason: purchase.reason },
+      { status: purchase.reason === "already_reviewed" ? 409 : 403 },
     );
   }
-
-  let { data: existing, error: existingError } = await supabase
-    .from("reviews")
-    .select("id")
-    .eq("product_slug", productSlug)
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (existingError && isMissingReviewColumn(existingError)) {
-    ({ data: existing, error: existingError } = await supabase
-      .from("reviews")
-      .select("id")
-      .eq("product_slug", productSlug)
-      .ilike("email", normalizedEmail)
-      .maybeSingle());
-  }
-  if (existingError) return NextResponse.json({ error: "Impossible de vérifier vos avis." }, { status: 503 });
-  if (existing) {
-    return NextResponse.json({ error: "Vous avez déjà évalué ce produit." }, { status: 409 });
-  }
+  const deliveredOrder = purchase.order;
+  const normalizedEmail = String(deliveredOrder.customer.email ?? "")
+    .trim()
+    .toLowerCase();
+  const authorName =
+    cleanText(input.author_name, 60) ||
+    cleanText(
+      String(deliveredOrder.customer.name ?? "Client").split(" ")[0],
+      60,
+    ) ||
+    "Client";
 
   const imageUrls = Array.isArray(input.image_urls)
     ? input.image_urls
-      .filter((url): url is string => typeof url === "string" && /^https:\/\//.test(url))
-      .slice(0, 5)
+        .filter(
+          (url): url is string =>
+            typeof url === "string" && /^https:\/\//.test(url),
+        )
+        .slice(0, 5)
     : [];
 
   const baseInsert = {
@@ -199,31 +206,37 @@ export async function POST(req: NextRequest) {
     image_urls: imageUrls,
   };
 
-  let { error: insertError } = await supabase.from("reviews").insert({
+  const { error: insertError } = await supabase.from("reviews").insert({
     ...baseInsert,
-    user_id: user.id,
+    user_id: purchase.guest ? null : user?.id,
     order_id: deliveredOrder.id,
     verified_purchase: true,
   });
 
-  if (insertError && isMissingReviewColumn(insertError)) {
-    ({ error: insertError } = await supabase.from("reviews").insert(baseInsert));
-  }
-  if (insertError && /image_url/i.test(insertError.message ?? "")) {
-    const { image_url: _imageUrl, image_urls: _imageUrls, ...legacyInsert } = baseInsert;
-    void _imageUrl;
-    void _imageUrls;
-    ({ error: insertError } = await supabase.from("reviews").insert(legacyInsert));
-  }
-  if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 });
+  if (insertError?.code === "23505")
+    return NextResponse.json(
+      {
+        error: "Vous avez déjà évalué ce produit.",
+        reason: "already_reviewed",
+      },
+      { status: 409 },
+    );
+  if (insertError)
+    return NextResponse.json(
+      { error: "Votre avis n’a pas pu être enregistré. Réessayez." },
+      { status: 503 },
+    );
 
   await broadcastAdminPushNotification({
-    eventKey: `review:${productSlug}:${user.id}`,
+    eventKey: `review:${productSlug}:${deliveredOrder.id}`,
     title: `Nouvel avis vérifié · ${rating}/5`,
     body: `${authorName} — ${reviewBody.replace(/\s+/g, " ").slice(0, 120)}`,
     url: "/admin/reviews/",
     tag: `admin-review-${productSlug}`,
   }).catch((error) => console.error("Admin review push failed:", error));
 
-  return NextResponse.json({ success: true, verified_purchase: true }, { status: 201 });
+  return NextResponse.json(
+    { success: true, verified_purchase: true },
+    { status: 201 },
+  );
 }

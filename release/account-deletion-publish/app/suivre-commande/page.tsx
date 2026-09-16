@@ -1,0 +1,473 @@
+﻿"use client";
+import PreorderNotice from "@/components/PreorderNotice";
+
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
+
+const STEPS = [
+  { key: "pending",   label: "Commande reçue",  sub: "Votre commande a bien été enregistrée." },
+  { key: "confirmed", label: "En préparation",   sub: "Notre équipe prépare votre colis."       },
+  { key: "shipped",   label: "En livraison",     sub: "Votre colis est en route."               },
+  { key: "delivered", label: "Livrée",           sub: "Votre commande a été livrée."            },
+];
+
+type OrderResult = {
+  order_number: string;
+  status: string;
+  status_label: string;
+  step: number;
+  tracking_number: string | null;
+  total: number;
+  shipping: number;
+  payment_method: string;
+  created_at: string;
+  customer: { name: string; city: string; address: string };
+  items: { fulfillment_type?: "STANDARD" | "PREORDER"; preorder_estimated_at?: string | null; preorder_message?: string | null; name: string; price: number; qty: number; image?: string; size?: string; color?: string }[];
+};
+
+export default function SuivreCommandePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin w-6 h-6 border-2 border-black border-t-transparent" />
+      </div>
+    }>
+      <SuivreCommandeInner />
+    </Suspense>
+  );
+}
+
+function SuivreCommandeInner() {
+  const siteSettings = useSettings();
+  const searchParams = useSearchParams();
+  const [orderNum, setOrderNum] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [order, setOrder] = useState<OrderResult | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const o = searchParams.get("order");
+    if (o) setOrderNum(o.toUpperCase());
+  }, [searchParams]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+    setApiError(null);
+    setOrder(null);
+    try {
+      const res = await fetch(
+        `/api/tracking?order=${encodeURIComponent(orderNum.trim())}&email=${encodeURIComponent(email.trim())}`
+      );
+      const json = await res.json();
+      if (!res.ok) { setApiError(json.error ?? "Commande introuvable."); }
+      else { setOrder(json.order); }
+    } catch {
+      setApiError("Erreur réseau. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const activeIdx = order ? order.step : -1;
+  const progressPercent = order ? Math.round((Math.max(0, Math.min(activeIdx, 3)) / 3) * 100) : 0;
+
+  return (
+    <div className="min-h-screen overflow-x-clip bg-[#f5f6f4]">
+
+      {/* Hero */}
+      <div className="relative overflow-hidden bg-[#080a09] text-white">
+        <div className="absolute -right-28 -top-56 h-[540px] w-[540px] rounded-full border border-[#3ecf4c]/10" />
+        <div className="absolute -right-10 -top-36 h-[360px] w-[360px] rounded-full border border-[#3ecf4c]/10" />
+        <div className="absolute inset-y-0 right-[12%] hidden w-px bg-gradient-to-b from-transparent via-white/10 to-transparent lg:block" />
+
+        {/* Desktop-only photographic backdrop. Mobile keeps the inline image below. */}
+        <div className="tracking-delivery-backdrop pointer-events-none absolute inset-y-0 right-0 hidden w-[72%] lg:block" aria-hidden="true">
+          <Image
+            src="/images/pages/suivre commande.png"
+            alt=""
+            fill
+            sizes="72vw"
+            className="object-cover object-center opacity-[0.92] brightness-[1.1] saturate-[0.98] contrast-100"
+          />
+          <Image
+            src="/images/pages/suivre commande.png"
+            alt=""
+            fill
+            sizes="72vw"
+            className="tracking-delivery-backdrop-right object-cover object-center opacity-[0.58] brightness-[1.28] saturate-[0.96] contrast-100"
+          />
+          <Image
+            src="/images/pages/suivre commande.png"
+            alt=""
+            fill
+            sizes="72vw"
+            className="tracking-delivery-backdrop-courier object-cover object-center opacity-[0.9] brightness-[1.3] saturate-[1] contrast-100"
+          />
+        </div>
+
+        <div className="relative mx-auto max-w-6xl px-5 pb-24 pt-10 sm:px-8 md:pb-32 md:pt-12">
+          <div className="mb-10 flex items-center gap-2.5">
+            <Link href="/" className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/40 transition-colors hover:text-white">Accueil</Link>
+            <span className="text-[#3ecf4c]">/</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-white/70">Suivi de commande</span>
+          </div>
+
+          <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+            <div className="min-w-0">
+              <div className="mb-5 flex items-center gap-3">
+                <span className="h-px w-9 bg-[#3ecf4c]" />
+                <p className="text-[10px] font-black uppercase tracking-[0.38em] text-[#3ecf4c]">Livraison en temps réel</p>
+              </div>
+              <h1 className="h-display max-w-3xl text-[2.75rem] leading-[0.9] min-[380px]:text-[2.95rem] sm:text-[4.5rem] lg:text-[5.4rem]">
+                Votre commande,<br />
+                <span className="text-[#3ecf4c]">à chaque <span className="block sm:inline">étape.</span></span>
+              </h1>
+              <p className="mt-6 max-w-xl text-[14px] leading-7 text-white/55 sm:text-[15px]">
+                Consultez instantanément l&apos;avancement de votre colis, de sa préparation jusqu&apos;à sa livraison chez vous.
+              </p>
+              <div className="tracking-delivery-image relative mt-8 aspect-[16/9] max-w-xl overflow-hidden border border-white/10 lg:hidden">
+                <Image
+                  src="/images/pages/suivre commande.png"
+                  alt="Livraison d'une commande L'ecomax au Maroc"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 576px"
+                  className="object-cover object-center transition-transform duration-700 hover:scale-[1.025]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-4 p-4 sm:p-5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-px w-7 bg-[#3ecf4c]" />
+                    <p className="text-[9px] font-black uppercase tracking-[0.25em] text-white">Livraison partout au Maroc</p>
+                  </div>
+                  <svg className="hidden text-[#3ecf4c] sm:block" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className={`relative mx-auto px-5 pb-16 sm:px-8 ${order ? "max-w-5xl pt-10" : "max-w-6xl -mt-14 md:-mt-20"}`}>
+
+        {!order ? (
+          <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
+          <form onSubmit={handleSubmit} className="min-w-0 border border-black/[0.07] bg-white p-6 shadow-[0_24px_70px_rgba(0,0,0,0.09)] sm:p-9 md:p-11">
+            <div className="mb-8 flex items-start justify-between gap-5 border-b border-neutral-100 pb-7">
+              <div>
+                <p className="mb-2 text-[10px] font-black uppercase tracking-[0.32em] text-[#28b83a]">Espace de suivi sécurisé</p>
+                <h2 className="text-2xl font-black tracking-[-0.035em] text-neutral-950 sm:text-3xl">Où est mon colis ?</h2>
+                <p className="mt-2 text-[13px] leading-6 text-neutral-500">Renseignez les informations utilisées lors de votre achat.</p>
+              </div>
+              <div className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-700 sm:flex">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+              </div>
+            </div>
+            <div className="space-y-5">
+            <div>
+              <label htmlFor="tracking-order-number" className="mb-2.5 block text-[10px] font-black uppercase tracking-[0.22em] text-neutral-600">
+                Numéro de commande
+              </label>
+              <div className="relative">
+                <svg className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <input
+                  type="text"
+                  id="tracking-order-number"
+                  name="order-number"
+                  autoComplete="off"
+                  placeholder="ECO-XXXXXX"
+                  value={orderNum}
+                  onChange={(e) => setOrderNum(e.target.value.toUpperCase())}
+                  required
+                  className="h-14 w-full border border-neutral-200 bg-[#fafafa] pl-11 pr-4 font-mono text-[14px] font-semibold text-neutral-900 outline-none transition-all duration-200 placeholder:font-normal placeholder:text-neutral-400 hover:border-neutral-300 focus:border-black focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="tracking-email" className="mb-2.5 block text-[10px] font-black uppercase tracking-[0.22em] text-neutral-600">
+                Adresse e-mail
+              </label>
+              <div className="relative">
+                <svg className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                  <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 7L2 7"/>
+                </svg>
+                <input
+                  type="email"
+                  id="tracking-email"
+                  name="email"
+                  autoComplete="email"
+                  placeholder="votre@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="h-14 w-full border border-neutral-200 bg-[#fafafa] pl-11 pr-4 text-[14px] text-neutral-900 outline-none transition-all duration-200 placeholder:text-neutral-400 hover:border-neutral-300 focus:border-black focus:bg-white focus:ring-4 focus:ring-[#3ecf4c]/10"
+                />
+              </div>
+            </div>
+
+            {apiError && (
+              <div className="flex items-center gap-2.5 px-4 py-3 bg-red-50 border border-red-200 text-red-700 text-[13px]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                {apiError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="group mt-2 flex h-14 w-full items-center justify-center gap-3 bg-neutral-950 px-5 text-[11px] font-black uppercase tracking-[0.18em] text-white transition-all duration-200 hover:bg-[#29c63b] hover:text-black active:scale-[0.99] disabled:cursor-wait disabled:opacity-50"
+            >
+              {loading ? (
+                <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              )}
+              {loading ? "Recherche en cours…" : "Rechercher ma commande"}
+              {!loading && <span className="text-[#3ecf4c] transition-transform group-hover:translate-x-1 group-hover:text-black">→</span>}
+            </button>
+            <div className="flex items-center justify-center gap-2 pt-1 text-[11px] text-neutral-400">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+              Vos informations restent confidentielles et sécurisées.
+            </div>
+            </div>
+          </form>
+
+          <aside className="flex min-w-0 flex-col justify-between overflow-hidden bg-[#dfffdf] p-7 sm:p-9">
+            <div>
+              <div className="mb-10 flex h-12 w-12 items-center justify-center bg-black text-[#3ecf4c]">
+                <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-black/45">Simple et rapide</p>
+              <h3 className="mt-3 text-[2rem] font-black leading-[1.02] tracking-[-0.045em] text-black">Tout savoir,<br />sans attendre.</h3>
+              <p className="mt-4 max-w-sm text-[13px] leading-6 text-black/55">Votre statut est mis à jour dès que votre commande franchit une nouvelle étape.</p>
+            </div>
+            <div className="mt-10 space-y-4 border-t border-black/10 pt-6">
+              {[['01', 'Numéro dans votre e-mail de confirmation'], ['02', 'Suivi disponible 24h/24 et 7j/7'], ['03', 'Assistance humaine en cas de besoin']].map(([number, text]) => (
+                <div key={number} className="flex items-center gap-3">
+                  <span className="font-mono text-[10px] font-bold text-black/35">{number}</span>
+                  <span className="text-[12px] font-bold text-black/75">{text}</span>
+                </div>
+              ))}
+            </div>
+          </aside>
+          </div>
+
+        ) : (
+          <div className="tracking-result-enter space-y-5">
+            <section className="relative overflow-hidden bg-neutral-950 px-6 py-6 text-white shadow-[0_20px_60px_rgba(0,0,0,0.14)] sm:px-8 sm:py-7">
+              <div className="absolute inset-y-0 left-0 w-1 bg-[#3ecf4c]" />
+              <div className="absolute -right-16 -top-24 h-48 w-48 rounded-full border border-[#3ecf4c]/10" />
+              <div className="relative flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${order.status === "delivered" ? "bg-[#3ecf4c] text-black" : order.status === "cancelled" ? "bg-red-500 text-white" : "bg-white/10 text-[#3ecf4c]"}`}>
+                    {order.status === "delivered" ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    ) : (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#3ecf4c]">Commande retrouvée</p>
+                    <h2 className="mt-1 font-mono text-xl font-black tracking-[0.08em] sm:text-2xl">{order.order_number}</h2>
+                    <p className="mt-1 text-[11px] text-white/40">
+                      Passée le {new Date(order.created_at).toLocaleDateString("fr-MA", { day: "numeric", month: "long", year: "numeric" })}
+                    </p>
+                  </div>
+                </div>
+                <div className="sm:text-right">
+                  <span className={`inline-flex items-center gap-2 border px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.16em] ${order.status === "delivered" ? "border-[#3ecf4c]/40 bg-[#3ecf4c]/10 text-[#3ecf4c]" : order.status === "cancelled" ? "border-red-400/40 bg-red-400/10 text-red-300" : "border-amber-400/40 bg-amber-400/10 text-amber-300"}`}>
+                    <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                    {order.status_label}
+                  </span>
+                  <p className="mt-2 text-[10px] text-white/35">Mise à jour en temps réel</p>
+                </div>
+              </div>
+            </section>
+
+            {order.status !== "cancelled" ? (
+              <section className="tracking-timeline relative overflow-hidden border border-neutral-200 bg-white px-6 py-7 shadow-[0_16px_50px_rgba(0,0,0,0.055)] sm:px-8 sm:py-9">
+                <div className="pointer-events-none absolute -right-20 -top-28 h-64 w-64 rounded-full bg-[#3ecf4c]/[0.055] blur-3xl" />
+                <div className="relative mb-9 flex items-end justify-between gap-4">
+                  <div>
+                    <div className="mb-2 flex items-center gap-2.5">
+                      <span className="h-px w-7 bg-[#3ecf4c]" />
+                      <p className="text-[9px] font-black uppercase tracking-[0.3em] text-[#28b83a]">Suivi de livraison</p>
+                    </div>
+                    <h3 className="text-xl font-black tracking-[-0.035em] text-neutral-950">Parcours de votre colis</h3>
+                  </div>
+                  <div className="hidden items-center gap-3 sm:flex">
+                    <div className="h-1.5 w-24 overflow-hidden rounded-full bg-neutral-100"><span className="tracking-timeline-mini-progress block h-full rounded-full bg-[#3ecf4c]" style={{ width: `${progressPercent}%` }} /></div>
+                    <span className="font-mono text-[11px] font-black text-neutral-700">{progressPercent}%</span>
+                    <span className="text-[10px] font-semibold text-neutral-400">· 4 étapes</span>
+                  </div>
+                </div>
+                <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-4 sm:gap-3">
+                  <div className="absolute left-[12.5%] right-[12.5%] top-5 hidden h-[2px] bg-neutral-100 sm:block">
+                    <span className="tracking-timeline-progress relative block h-full origin-left bg-[#3ecf4c]" style={{ width: `${progressPercent}%` }}>
+                      <span className="tracking-timeline-spark absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-[#3ecf4c] shadow-[0_0_0_5px_rgba(62,207,76,0.15),0_0_14px_rgba(62,207,76,0.65)]" />
+                    </span>
+                  </div>
+                  {STEPS.map((step, i) => {
+                    const isDelivered = order.status === "delivered";
+                    const isDone = i < activeIdx || (isDelivered && i === activeIdx);
+                    const isActive = i === activeIdx && !isDelivered;
+                    return (
+                      <div key={step.key} className="tracking-timeline-step relative z-10 flex items-center gap-3 sm:flex-col sm:text-center" style={{ animationDelay: `${250 + i * 150}ms` }}>
+                        <div className={`tracking-timeline-dot flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-black transition-all ${isDone ? `tracking-timeline-dot--done border-[#3ecf4c] bg-[#3ecf4c] text-black shadow-[0_0_0_6px_rgba(62,207,76,0.1)] ${i === activeIdx ? "tracking-timeline-dot--latest" : ""}` : isActive ? "tracking-timeline-dot--active border-black bg-black text-white shadow-[0_0_0_6px_rgba(0,0,0,0.06)]" : "border-neutral-200 bg-white text-neutral-300"}`}>
+                          {isDone ? <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><polyline className="tracking-timeline-check" points="20 6 9 17 4 12"/></svg> : i + 1}
+                        </div>
+                        <div>
+                          <p className={`text-[11px] font-black tracking-[-0.01em] ${isDone || isActive ? "text-neutral-900" : "text-neutral-300"}`}>{step.label}</p>
+                          <p className={`mt-1.5 text-[10px] leading-4 ${isDone ? "text-neutral-400" : isActive ? "text-[#28b83a]" : "text-neutral-300"}`}>{step.sub}</p>
+                          {isActive && <span className="mt-2 inline-block bg-black px-2 py-1 text-[8px] font-black uppercase tracking-[0.14em] text-[#3ecf4c]">En cours</span>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {order.status === "delivered" && (
+                  <div className="tracking-delivered-note relative mt-8 flex items-center gap-3 border border-[#3ecf4c]/20 bg-[#effcf0] px-4 py-3">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#3ecf4c] text-black"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                    <div><p className="text-[11px] font-black text-neutral-900">Livraison terminée avec succès</p><p className="mt-0.5 text-[10px] text-neutral-500">Votre commande a bien été remise à destination.</p></div>
+                  </div>
+                )}
+              </section>
+            ) : (
+              <div className="border border-red-200 bg-red-50 px-5 py-4 text-[13px] font-semibold text-red-700">Cette commande a été annulée.</div>
+            )}
+
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(260px,0.65fr)]">
+              <section className="tracking-order-card relative overflow-hidden border border-neutral-200 bg-white shadow-[0_16px_50px_rgba(0,0,0,0.055)]">
+                <div className="absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r from-[#3ecf4c] via-[#75e681] to-transparent" />
+                <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-5 sm:px-7">
+                  <div className="flex items-center gap-3.5">
+                    <div className="flex h-10 w-10 items-center justify-center bg-[#eafbea] text-[#23b735]">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                    </div>
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.28em] text-neutral-400">Détails de la commande</p>
+                      <h3 className="mt-1 text-[15px] font-black tracking-[-0.02em] text-neutral-950">Vos articles</h3>
+                    </div>
+                  </div>
+                  <span className="border border-neutral-200 bg-neutral-50 px-3 py-1.5 text-[10px] font-black text-neutral-600">{order.items.length} article{order.items.length > 1 ? "s" : ""}</span>
+                </div>
+                <div className="divide-y divide-neutral-100">
+                  {order.items.map((item, i) => (
+                    <div key={i} className="tracking-product-row group flex items-center gap-4 px-6 py-6 transition-colors hover:bg-neutral-50/70 sm:px-7" style={{ animationDelay: `${180 + i * 100}ms` }}>
+                      <div className="relative flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden border border-neutral-100 bg-neutral-50 sm:h-24 sm:w-24">
+                        {item.image ? <Image src={item.image} alt={item.name} fill sizes="96px" className="object-cover transition-transform duration-500 group-hover:scale-105" /> : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-black leading-5 text-neutral-950 sm:text-[14px]">{item.name}</p><PreorderNotice item={item} />
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          {[item.size, item.color].filter(Boolean).map((value) => <span key={value} className="border border-neutral-200 bg-white px-2.5 py-1 text-[9px] font-bold text-neutral-500">{value}</span>)}
+                          <span className="bg-neutral-950 px-2.5 py-1 text-[9px] font-black text-white">Qté {item.qty}</span>
+                        </div>
+                        <p className="mt-3 text-[10px] text-neutral-400 sm:hidden">Prix unitaire · {item.price.toFixed(2)} MAD</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="hidden text-[9px] font-bold uppercase tracking-[0.16em] text-neutral-300 sm:block">Sous-total</p>
+                        <p className="mt-1 text-[14px] font-black tracking-[-0.025em] text-neutral-950 sm:text-[16px]">{(item.price * item.qty).toFixed(2)} <span className="text-[10px] tracking-normal text-neutral-500">MAD</span></p>
+                        <p className="mt-1 hidden text-[9px] text-neutral-400 sm:block">{item.price.toFixed(2)} MAD / unité</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-t border-neutral-100 bg-[#fafafa] px-6 py-5 sm:px-7">
+                  <div className="space-y-3 text-[12px]">
+                    <div className="flex items-center justify-between text-neutral-500"><span>Sous-total</span><span className="font-bold text-neutral-800">{Math.max(0, order.total - order.shipping).toFixed(2)} MAD</span></div>
+                    <div className="flex items-center justify-between text-neutral-500"><span>Livraison</span><span className={`font-bold ${order.shipping === 0 ? "text-[#23b735]" : "text-neutral-800"}`}>{order.shipping === 0 ? "Gratuite" : `${order.shipping.toFixed(2)} MAD`}</span></div>
+                  </div>
+                </div>
+                <div className="tracking-order-total relative flex items-center justify-between overflow-hidden bg-neutral-950 px-6 py-5 text-white sm:px-7">
+                  <div><p className="text-[9px] font-black uppercase tracking-[0.24em] text-white/40">Total de la commande</p><p className="mt-1 text-[10px] text-white/30">Toutes taxes comprises</p></div>
+                  <p className="text-2xl font-black tracking-[-0.04em] text-[#3ecf4c]">{order.total.toFixed(2)} <span className="text-[11px] tracking-normal text-white/50">MAD</span></p>
+                </div>
+              </section>
+
+              <div className="space-y-5">
+                <section className="tracking-info-card overflow-hidden border border-neutral-200 bg-white shadow-[0_16px_50px_rgba(0,0,0,0.055)]">
+                  <div className="flex items-center justify-between border-b border-neutral-100 px-6 py-5">
+                    <div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.27em] text-[#28b83a]">Informations client</p>
+                      <h3 className="mt-1 text-[15px] font-black tracking-[-0.025em] text-neutral-950">Livraison & paiement</h3>
+                    </div>
+                    <div className="flex h-10 w-10 items-center justify-center bg-[#e8fbea] text-[#23b735]"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+                  </div>
+
+                  <div className="tracking-info-row flex gap-4 px-6 py-6">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#3ecf4c]/20 bg-[#effcf0] text-[#23b735]"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1116 0z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-[9px] font-black uppercase tracking-[0.22em] text-neutral-400">Adresse de livraison</p>
+                        <span className="flex items-center gap-1.5 bg-[#effcf0] px-2 py-1 text-[8px] font-black uppercase tracking-[0.1em] text-[#23a934]"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c]" /> Confirmée</span>
+                      </div>
+                      <p className="mt-3 text-[13px] font-black text-neutral-950">{order.customer.name}</p>
+                      <p className="mt-1.5 text-[12px] leading-5 text-neutral-500">{order.customer.address}<br /><span className="font-semibold text-neutral-700">{order.customer.city}, Maroc</span></p>
+                    </div>
+                  </div>
+
+                  <div className="tracking-info-row flex gap-4 border-t border-neutral-100 px-6 py-5">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-neutral-50 text-neutral-700"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M16 15h2"/></svg></div>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[9px] font-black uppercase tracking-[0.22em] text-neutral-400">Mode de paiement</p>
+                      <p className="mt-2 text-[12px] font-black text-neutral-900">{order.payment_method}</p>
+                      <p className="mt-1 text-[10px] leading-4 text-neutral-400">Réglez votre commande uniquement au moment de la réception.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 border-t border-neutral-100 bg-[#fafafa] px-6 py-3 text-[9px] font-semibold text-neutral-400">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                    Vos informations sont protégées et confidentielles.
+                  </div>
+                </section>
+                {order.tracking_number && (
+                  <section className="border border-blue-100 bg-blue-50 p-5">
+                    <p className="text-[9px] font-black uppercase tracking-[0.22em] text-blue-500">N° de suivi transporteur</p>
+                    <p className="mt-2 font-mono text-sm font-black text-blue-950">{order.tracking_number}</p>
+                  </section>
+                )}
+                <button onClick={() => { setOrder(null); setApiError(null); setOrderNum(""); setEmail(""); }} className="group flex w-full items-center justify-between border border-neutral-900 bg-white px-5 py-4 text-[10px] font-black uppercase tracking-[0.13em] text-neutral-900 transition-all hover:bg-neutral-950 hover:text-white">
+                  <span className="flex items-center gap-2"><span className="transition-transform group-hover:-translate-x-1">←</span> Nouvelle recherche</span>
+                  <span className="text-[9px] font-semibold normal-case tracking-normal text-neutral-400 group-hover:text-white/45">Suivre une autre commande</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* WhatsApp help */}
+        <a
+          href={getWhatsAppHref(siteSettings)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 flex items-center gap-4 px-5 py-4 border border-[#3ecf4c]/30 bg-[#3ecf4c]/5 hover:bg-[#3ecf4c]/10 transition-colors group"
+        >
+          <div className="w-10 h-10 bg-[#25D366] flex items-center justify-center shrink-0">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-black text-[13px] text-neutral-900 leading-tight">Un problème avec votre commande ?</p>
+            <p className="text-[#3ecf4c] text-[12px] mt-0.5 font-medium">Contactez notre service client.</p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2.5" strokeLinecap="round" className="shrink-0 group-hover:translate-x-0.5 transition-transform">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
+        </a>
+
+      </div>
+    </div>
+  );
+}

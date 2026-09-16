@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
@@ -12,6 +13,7 @@ async function sitemap(result: { data: unknown[] | null; error: unknown }) {
   }).outputText, {
     exports, URL,
     require(name: string) {
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
       if (name === "next/server") return { NextResponse: Response };
       if (name === "@/lib/seo") return { SITE_URL: "https://lecomax.com" };
       if (name === "@/lib/products") return { products: [{ slug: "old-product" }] };

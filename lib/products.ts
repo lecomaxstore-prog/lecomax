@@ -518,6 +518,7 @@ export type CardProduct = {
   badge?: string;
   rating?: number;
   reviewCount?: number;
+  createdAt?: string;
   /** Live database inventory. Undefined is reserved for static fallback products. */
   stock?: number;
 };
@@ -536,6 +537,7 @@ export function apiToCard(p: {
   colors?: string[] | null;
   sizes?: string[] | null;
   featured?: boolean;
+  created_at?: string;
   brand?: string | null;
   stock?: number | null;
 }): CardProduct {
@@ -551,6 +553,7 @@ export function apiToCard(p: {
     colors: (p.colors as string[]) ?? [],
     sizes: (p.sizes as string[]) ?? [],
     badge: p.featured ? "Nouveau" : undefined,
+    createdAt: p.created_at,
     preorder_enabled: p.preorder_enabled === true,
     preorder_estimated_at: p.preorder_estimated_at ?? null,
     preorder_message: p.preorder_message ?? null,

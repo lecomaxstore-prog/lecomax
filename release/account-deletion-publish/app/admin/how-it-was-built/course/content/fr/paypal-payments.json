@@ -1,0 +1,1172 @@
+{
+  "id": "paypal-payments",
+  "order": 22,
+  "icon": "💳",
+  "color": "#003087",
+  "title": "PayPal, webhooks, remboursements et idempotence",
+  "summary": "Construire un paiement dont le serveur contrôle le montant, vérifie les événements et résiste aux répétitions comme aux remboursements partiels.",
+  "files": [
+    {
+      "path": "app/checkout/page.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/22-payments/paypal-order.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/22-payments/paypal-webhook.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/22-payments/refund.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/22-payments/idempotency.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "paypal-order-lifecycle",
+      "order": 0,
+      "title": "Cycle de vie d’une commande PayPal",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les centimes, les transactions de base de données, les appels serveur authentifiés et le fait qu’un webhook peut être livré plusieurs fois.",
+        "Pouvoir reformuler « capture » avant de coder : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+        "Savoir créer exercises/22-payments/paypal-order.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Calculer le montant sur le serveur, créer une commande fournisseur, faire approuver par le client puis capturer et rapprocher la référence interne.",
+        "Construire une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax, puis prouver le résultat avec ce signal précis : la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le fournisseur de paiement confirme un mouvement d’argent ; la boutique reste responsable du prix, de la commande interne et de la transition autorisée. Dans « Cycle de vie d’une commande PayPal », l’entrée concrète est un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé. Le concept capture signifie : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Le modèle n’est donc complet que si conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable et si l’on peut observer la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le paiement ressemble au contrôle d’un billet : l’écran du voyageur n’est pas une preuve, seule une validation signée et rapprochée du dossier autorise le passage. Ici, la pièce que vous allez réellement contrôler est une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé. Calculer le montant sur le serveur, créer une commande fournisseur, faire approuver par le client puis capturer et rapprocher la référence interne. Le terme capture n’est pas une étiquette décorative : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/22-payments/paypal-order.ts, l’exemple réduit volontairement le système à une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise. Elle révèle pourquoi la correction professionnelle consiste à conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. Appliquez ensuite la même preuve à création de commande, capture PayPal, remboursement et mise à jour de stock, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "capture",
+                  "definition": "Étape qui transforme une autorisation approuvée en transfert de fonds confirmé."
+                },
+                {
+                  "term": "Rapprochement",
+                  "definition": "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur."
+                },
+                {
+                  "term": "Idempotence",
+                  "definition": "Propriété garantissant que répéter le même événement ne répète pas son effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé, écrivez d’abord l’observation attendue « la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur », puis implémentez une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax. Simulez un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise et ne terminez que lorsque la mesure confirme la protection : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/paypal-order.ts",
+                "source": "type UsdMoney = { currency: \"USD\"; minor: number };\ntype PricedCart = { id: string; serverTotal: UsdMoney };\nconst formatUsd = (minor: number) => (minor / 100).toFixed(2);\nexport function createPayPalPayload(cart: PricedCart) {\n  if (!Number.isSafeInteger(cart.serverTotal.minor) || cart.serverTotal.minor <= 0) {\n    throw new Error(\"invalid server total\");\n  }\n  return { intent: \"CAPTURE\", purchase_units: [{\n    reference_id: cart.id,\n    amount: { currency_code: cart.serverTotal.currency, value: formatUsd(cart.serverTotal.minor) },\n  }] };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type UsdMoney = { currency: \"USD\"; minor: number };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "définit la forme des données acceptées à cette frontière — type PricedCart = { id: string; serverTotal: UsdMoney };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "définit la forme des données acceptées à cette frontière — const formatUsd = (minor: number) => (minor / 100).toFixed(2);."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export function createPayPalPayload(cart: PricedCart) {."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!Number.isSafeInteger(cart.serverTotal.minor) || cart.serverTotal.minor <= 0) {."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — throw new Error(\"invalid server total\");."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "renvoie la valeur produite au code appelant — return { intent: \"CAPTURE\", purchase_units: [{."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "configure cette clé du workflow ou du service — reference_id: cart.id,."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "configure cette clé du workflow ou du service — amount: { currency_code: cart.serverTotal.currency, value: formatUsd(cart.serverTotal…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — }] };."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/paypal-order.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/22-payments/paypal-order.ts et identifier dans les annotations l’entrée « un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé ». — code exercises/22-payments/paypal-order.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. Le cas volontairement défaillant montre « un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise » sans exposer de secret ; après application du garde-fou — conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège création de commande, capture PayPal, remboursement et mise à jour de stock. Le livrable une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax doit rester côté de la bonne frontière de confiance ; réutilisez capture pour justifier les validations et conservez comme preuve la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/paypal-order.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. Le cas volontairement défaillant montre « un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise » sans exposer de secret ; après application du garde-fou — conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement capture : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+          "fix": "Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur."
+        },
+        {
+          "symptom": "une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Cycle de vie d’une commande PayPal, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; faire confiance au montant du navigateur, ignorer la devise ou appliquer deux fois un événement rejoué.",
+          "fix": "Figer un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax dans exercises/22-payments/paypal-order.ts, démontrer la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur, puis déclencher et corriger un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise.",
+        "steps": [
+          "Créer exercises/22-payments/paypal-order.ts et identifier dans les annotations l’entrée « un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise.",
+          "Implémenter « conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable », relancer la commande et expliquer le rôle de capture."
+        ],
+        "hints": [
+          "Relisez la définition : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur »."
+        ],
+        "solution": {
+          "explanation": "Pour Cycle de vie d’une commande PayPal, la solution maintient une seule autorité et applique précisément « conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable ». Elle rend un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise reproductible puis contrôlé, et elle n’est acceptée que lorsque la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur.",
+          "code": "type UsdMoney = { currency: \"USD\"; minor: number };\ntype PricedCart = { id: string; serverTotal: UsdMoney };\nconst formatUsd = (minor: number) => (minor / 100).toFixed(2);\nexport function createPayPalPayload(cart: PricedCart) {\n  if (!Number.isSafeInteger(cart.serverTotal.minor) || cart.serverTotal.minor <= 0) {\n    throw new Error(\"invalid server total\");\n  }\n  return { intent: \"CAPTURE\", purchase_units: [{\n    reference_id: cart.id,\n    amount: { currency_code: cart.serverTotal.currency, value: formatUsd(cart.serverTotal.minor) },\n  }] };\n}",
+          "filename": "exercises/22-payments/paypal-order.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "paypal-order-lifecycle-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Cycle de vie d’une commande PayPal » dans ce scénario ?",
+          "options": [
+            "conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable, puis vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur.",
+            "Ignorer « un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise » parce que le chemin normal affiche une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax.",
+            "Déplacer la validation vers l’interface et considérer capture comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable, puis vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise » parce que le chemin normal affiche une charge PayPal déterministe dont la référence relie le paiement au panier L’ecomax. ». La réponse de référence est « conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable, puis vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer capture comme un détail serveur. ». La réponse de référence est « conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable, puis vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable, puis vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Étape qui transforme une autorisation approuvée en transfert de fonds confirmé."
+          ]
+        },
+        {
+          "id": "paypal-order-lifecycle-q2",
+          "question": "Quelle définition correspond au terme « capture » ?",
+          "options": [
+            "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur.",
+            "Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+            "Propriété garantissant que répéter le même événement ne répète pas son effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« capture » signifie : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur. ». La réponse de référence est « Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. ». « capture » signifie : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+            "Cette option est correcte. Elle affirme « Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. ». « capture » signifie : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+            "Cette option est incorrecte. Elle affirme « Propriété garantissant que répéter le même événement ne répète pas son effet métier. ». La réponse de référence est « Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. ». « capture » signifie : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. ». « capture » signifie : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé."
+          ]
+        },
+        {
+          "id": "paypal-order-lifecycle-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « un champ totalMAD est copié dans currency_code USD sans conversion ni accord commercial, facturant un montant dans la mauvaise devise » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur ».",
+            "Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement capture : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Le correctif adapté est : Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement capture : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Le correctif adapté est : Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur.",
+            "Cette option est incorrecte. Elle affirme « Figer un panier dont le serveur relit produits et prix, crée une commande interne puis envoie à PayPal un montant USD explicitement nommé, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement capture : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Le correctif adapté est : Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement capture : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Le correctif adapté est : Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement capture : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé. Le correctif adapté est : Appliquer ce garde-fou spécifique : conserver montant et devise comme une seule valeur métier, utiliser une devise PayPal réellement configurée et ne jamais convertir en renommant une variable. Rejouer ensuite le cas et vérifier que la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur."
+          ]
+        }
+      ],
+      "recap": [
+        "Calculer le montant sur le serveur, créer une commande fournisseur, faire approuver par le client puis capturer et rapprocher la référence interne.",
+        "capture : Étape qui transforme une autorisation approuvée en transfert de fonds confirmé.",
+        "La preuve de fin est : la charge utile contient la référence interne, USD et la valeur serveur à deux décimales ; changer le total dans le navigateur ne change pas cette valeur."
+      ],
+      "next": "La leçon suivante vérifie cryptographiquement l’origine du webhook avant toute transition de commande."
+    },
+    {
+      "id": "paypal-webhook",
+      "order": 1,
+      "title": "Vérifier et traiter les webhooks",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les centimes, les transactions de base de données, les appels serveur authentifiés et le fait qu’un webhook peut être livré plusieurs fois.",
+        "Pouvoir reformuler « signature de webhook » avant de coder : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+        "Savoir créer exercises/22-payments/paypal-webhook.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Vérifier signature et certificat sur le corps brut, filtrer les types acceptés et accuser réception rapidement avant le travail différé.",
+        "Construire un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande, puis prouver le résultat avec ce signal précis : seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le fournisseur de paiement confirme un mouvement d’argent ; la boutique reste responsable du prix, de la commande interne et de la transition autorisée. Dans « Vérifier et traiter les webhooks », l’entrée concrète est un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement. Le concept signature de webhook signifie : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Le modèle n’est donc complet que si préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret et si l’on peut observer seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le paiement ressemble au contrôle d’un billet : l’écran du voyageur n’est pas une preuve, seule une validation signée et rapprochée du dossier autorise le passage. Ici, la pièce que vous allez réellement contrôler est un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement. Vérifier signature et certificat sur le corps brut, filtrer les types acceptés et accuser réception rapidement avant le travail différé. Le terme signature de webhook n’est pas une étiquette décorative : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/22-payments/paypal-webhook.ts, l’exemple réduit volontairement le système à un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature. Elle révèle pourquoi la correction professionnelle consiste à préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. Appliquez ensuite la même preuve à création de commande, capture PayPal, remboursement et mise à jour de stock, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "signature de webhook",
+                  "definition": "Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur."
+                },
+                {
+                  "term": "Rapprochement",
+                  "definition": "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur."
+                },
+                {
+                  "term": "Idempotence",
+                  "definition": "Propriété garantissant que répéter le même événement ne répète pas son effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement, écrivez d’abord l’observation attendue « seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés », puis implémentez un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande. Simulez une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature et ne terminez que lorsque la mesure confirme la protection : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/paypal-webhook.ts",
+                "source": "type PayPalHeaders = { transmissionId: string; transmissionTime: string;\n  transmissionSignature: string; certificateUrl: string; authenticationAlgorithm: string };\ntype PayPalEvent = { id: string; event_type: string; resource: { id: string } };\ntype VerifyConfig = { apiBase: \"https://api-m.paypal.com\" | \"https://api-m.sandbox.paypal.com\";\n  webhookId: string; accessToken: string };\nexport async function verifyPayPalWebhook(rawBody: string, h: PayPalHeaders, c: VerifyConfig) {\n  const webhookEvent: unknown = JSON.parse(rawBody);\n  const response = await fetch(`${c.apiBase}/v1/notifications/verify-webhook-signature`, {\n    method: \"POST\", headers: { \"content-type\": \"application/json\", authorization: `Bearer ${c.accessToken}` },\n    body: JSON.stringify({ transmission_id: h.transmissionId, transmission_time: h.transmissionTime,\n      cert_url: h.certificateUrl, auth_algo: h.authenticationAlgorithm, transmission_sig: h.transmissionSignature,\n      webhook_id: c.webhookId, webhook_event: webhookEvent }),\n  });\n  if (!response.ok) throw new Error(\"PayPal verification request failed\");\n  const result: unknown = await response.json();\n  if (!result || typeof result !== \"object\" ||\n      (result as { verification_status?: string }).verification_status !== \"SUCCESS\") {\n    throw new Error(\"PayPal webhook signature rejected\");\n  }\n  const event = webhookEvent as Partial<PayPalEvent>;\n  if (!event.id || !event.event_type || !event.resource?.id) throw new Error(\"invalid PayPal event\");\n  const accepted = new Set([\"PAYMENT.CAPTURE.COMPLETED\", \"PAYMENT.CAPTURE.DENIED\"]);\n  return accepted.has(event.event_type) ? { verified: true, event: event as PayPalEvent } : { verified: true, ignored: true };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type PayPalHeaders = { transmissionId: string; transmissionTime: string;."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "définit la forme des données acceptées à cette frontière — transmissionSignature: string; certificateUrl: string; authenticationAlgorithm: strin…."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "définit la forme des données acceptées à cette frontière — type PayPalEvent = { id: string; event_type: string; resource: { id: string } };."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "définit la forme des données acceptées à cette frontière — type VerifyConfig = { apiBase: \"https://api-m.paypal.com\" | \"https://api-m.sandbox.pa…."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "définit la forme des données acceptées à cette frontière — webhookId: string; accessToken: string };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "définit la forme des données acceptées à cette frontière — export async function verifyPayPalWebhook(rawBody: string, h: PayPalHeaders, c: Verif…."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const webhookEvent: unknown = JSON.parse(rawBody);."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — const response = await fetch(`${c.apiBase}/v1/notifications/verify-webhook-signature`, {."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "configure cette clé du workflow ou du service — method: \"POST\", headers: { \"content-type\": \"application/json\", authorization: `Bearer…."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "configure cette clé du workflow ou du service — body: JSON.stringify({ transmission_id: h.transmissionId, transmission_time: h.transm…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "configure cette clé du workflow ou du service — cert_url: h.certificateUrl, auth_algo: h.authenticationAlgorithm, transmission_sig: h…."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "configure cette clé du workflow ou du service — webhook_id: c.webhookId, webhook_event: webhookEvent }),."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  },
+                  {
+                    "lines": "14",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!response.ok) throw new Error(\"PayPal verification request failed\");."
+                  },
+                  {
+                    "lines": "15",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — const result: unknown = await response.json();."
+                  },
+                  {
+                    "lines": "16",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!result || typeof result !== \"object\" ||."
+                  },
+                  {
+                    "lines": "17",
+                    "label": "définit la forme des données acceptées à cette frontière — (result as { verification_status?: string }).verification_status !== \"SUCCESS\") {."
+                  },
+                  {
+                    "lines": "18",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — throw new Error(\"PayPal webhook signature rejected\");."
+                  },
+                  {
+                    "lines": "19",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  },
+                  {
+                    "lines": "20",
+                    "label": "déclare l’élément d’interface et sa sémantique — const event = webhookEvent as Partial<PayPalEvent>;."
+                  },
+                  {
+                    "lines": "21",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!event.id || !event.event_type || !event.resource?.id) throw new Error(\"invalid P…."
+                  },
+                  {
+                    "lines": "22",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const accepted = new Set([\"PAYMENT.CAPTURE.COMPLETED\", \"PAYMENT.CAPTURE.DENIED\"]);."
+                  },
+                  {
+                    "lines": "23",
+                    "label": "renvoie la valeur produite au code appelant — return accepted.has(event.event_type) ? { verified: true, event: event as PayPalEvent…."
+                  },
+                  {
+                    "lines": "24",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/paypal-webhook.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/22-payments/paypal-webhook.ts et identifier dans les annotations l’entrée « un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement ». — code exercises/22-payments/paypal-webhook.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. Le cas volontairement défaillant montre « une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature » sans exposer de secret ; après application du garde-fou — préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège création de commande, capture PayPal, remboursement et mise à jour de stock. Le livrable un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande doit rester côté de la bonne frontière de confiance ; réutilisez signature de webhook pour justifier les validations et conservez comme preuve seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/paypal-webhook.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. Le cas volontairement défaillant montre « une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature » sans exposer de secret ; après application du garde-fou — préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement signature de webhook : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+          "fix": "Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés."
+        },
+        {
+          "symptom": "un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Vérifier et traiter les webhooks, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; faire confiance au montant du navigateur, ignorer la devise ou appliquer deux fois un événement rejoué.",
+          "fix": "Figer un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande dans exercises/22-payments/paypal-webhook.ts, démontrer seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés, puis déclencher et corriger une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature.",
+        "steps": [
+          "Créer exercises/22-payments/paypal-webhook.ts et identifier dans les annotations l’entrée « un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature.",
+          "Implémenter « préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret », relancer la commande et expliquer le rôle de signature de webhook."
+        ],
+        "hints": [
+          "Relisez la définition : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés »."
+        ],
+        "solution": {
+          "explanation": "Pour Vérifier et traiter les webhooks, la solution maintient une seule autorité et applique précisément « préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret ». Elle rend une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature reproductible puis contrôlé, et elle n’est acceptée que lorsque seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés.",
+          "code": "type PayPalHeaders = { transmissionId: string; transmissionTime: string;\n  transmissionSignature: string; certificateUrl: string; authenticationAlgorithm: string };\ntype PayPalEvent = { id: string; event_type: string; resource: { id: string } };\ntype VerifyConfig = { apiBase: \"https://api-m.paypal.com\" | \"https://api-m.sandbox.paypal.com\";\n  webhookId: string; accessToken: string };\nexport async function verifyPayPalWebhook(rawBody: string, h: PayPalHeaders, c: VerifyConfig) {\n  const webhookEvent: unknown = JSON.parse(rawBody);\n  const response = await fetch(`${c.apiBase}/v1/notifications/verify-webhook-signature`, {\n    method: \"POST\", headers: { \"content-type\": \"application/json\", authorization: `Bearer ${c.accessToken}` },\n    body: JSON.stringify({ transmission_id: h.transmissionId, transmission_time: h.transmissionTime,\n      cert_url: h.certificateUrl, auth_algo: h.authenticationAlgorithm, transmission_sig: h.transmissionSignature,\n      webhook_id: c.webhookId, webhook_event: webhookEvent }),\n  });\n  if (!response.ok) throw new Error(\"PayPal verification request failed\");\n  const result: unknown = await response.json();\n  if (!result || typeof result !== \"object\" ||\n      (result as { verification_status?: string }).verification_status !== \"SUCCESS\") {\n    throw new Error(\"PayPal webhook signature rejected\");\n  }\n  const event = webhookEvent as Partial<PayPalEvent>;\n  if (!event.id || !event.event_type || !event.resource?.id) throw new Error(\"invalid PayPal event\");\n  const accepted = new Set([\"PAYMENT.CAPTURE.COMPLETED\", \"PAYMENT.CAPTURE.DENIED\"]);\n  return accepted.has(event.event_type) ? { verified: true, event: event as PayPalEvent } : { verified: true, ignored: true };\n}",
+          "filename": "exercises/22-payments/paypal-webhook.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "paypal-webhook-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Vérifier et traiter les webhooks » dans ce scénario ?",
+          "options": [
+            "préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret, puis vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés.",
+            "Ignorer « une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature » parce que le chemin normal affiche un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande.",
+            "Déplacer la validation vers l’interface et considérer signature de webhook comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret, puis vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature » parce que le chemin normal affiche un gestionnaire qui n’accepte que les événements PayPal vérifiés et utiles au statut de commande. ». La réponse de référence est « préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret, puis vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer signature de webhook comme un détail serveur. ». La réponse de référence est « préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret, puis vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret, puis vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur."
+          ]
+        },
+        {
+          "id": "paypal-webhook-q2",
+          "question": "Quelle définition correspond au terme « signature de webhook » ?",
+          "options": [
+            "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur.",
+            "Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+            "Propriété garantissant que répéter le même événement ne répète pas son effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« signature de webhook » signifie : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur. ». La réponse de référence est « Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. ». « signature de webhook » signifie : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+            "Cette option est correcte. Elle affirme « Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. ». « signature de webhook » signifie : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+            "Cette option est incorrecte. Elle affirme « Propriété garantissant que répéter le même événement ne répète pas son effet métier. ». La réponse de référence est « Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. ». « signature de webhook » signifie : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. ». « signature de webhook » signifie : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur."
+          ]
+        },
+        {
+          "id": "paypal-webhook-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « une fonction nommée handleVerifiedWebhook reçoit directement un JSON arbitraire et le nom est pris à tort pour une preuve de signature » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés ».",
+            "Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement signature de webhook : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Le correctif adapté est : Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement signature de webhook : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Le correctif adapté est : Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés.",
+            "Cette option est incorrecte. Elle affirme « Figer un corps HTTP brut et les en-têtes PayPal transmis à l’API officielle verify-webhook-signature avant lecture métier de l’événement, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement signature de webhook : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Le correctif adapté est : Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement signature de webhook : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Le correctif adapté est : Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement signature de webhook : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur. Le correctif adapté est : Appliquer ce garde-fou spécifique : préserver le corps et les en-têtes exacts, appeler la vérification PayPal avec le webhook_id serveur, refuser tout statut autre que SUCCESS et journaliser sans secret. Rejouer ensuite le cas et vérifier que seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés."
+          ]
+        }
+      ],
+      "recap": [
+        "Vérifier signature et certificat sur le corps brut, filtrer les types acceptés et accuser réception rapidement avant le travail différé.",
+        "signature de webhook : Preuve cryptographique permettant d’établir que l’événement reçu provient réellement du fournisseur.",
+        "La preuve de fin est : seul verification_status SUCCESS produit un événement typé, puis identifiant, type, ressource, commande, montant et devise sont rapprochés."
+      ],
+      "next": "La leçon suivante applique la même autorité serveur à un remboursement borné par le reste réellement remboursable."
+    },
+    {
+      "id": "refund-workflow",
+      "order": 2,
+      "title": "Remboursements et rapprochement",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les centimes, les transactions de base de données, les appels serveur authentifiés et le fait qu’un webhook peut être livré plusieurs fois.",
+        "Pouvoir reformuler « rapprochement » avant de coder : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+        "Savoir créer exercises/22-payments/refund.ts, exécuter npx tsc --noEmit et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Valider montant et motif, lier le remboursement à la capture d’origine et conserver les identifiants de chaque transition pour le support et la comptabilité.",
+        "Construire une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau, puis prouver le résultat avec ce signal précis : le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le fournisseur de paiement confirme un mouvement d’argent ; la boutique reste responsable du prix, de la commande interne et de la transition autorisée. Dans « Remboursements et rapprochement », l’entrée concrète est une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés. Le concept rapprochement signifie : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Le modèle n’est donc complet que si calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable et si l’on peut observer le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le paiement ressemble au contrôle d’un billet : l’écran du voyageur n’est pas une preuve, seule une validation signée et rapprochée du dossier autorise le passage. Ici, la pièce que vous allez réellement contrôler est une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés. Valider montant et motif, lier le remboursement à la capture d’origine et conserver les identifiants de chaque transition pour le support et la comptabilité. Le terme rapprochement n’est pas une étiquette décorative : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/22-payments/refund.ts, l’exemple réduit volontairement le système à une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau. Lisez chaque ligne comme une responsabilité, puis exécutez npx tsc --noEmit. La principale défaillance à provoquer est la suivante : deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence. Elle révèle pourquoi la correction professionnelle consiste à calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. Appliquez ensuite la même preuve à création de commande, capture PayPal, remboursement et mise à jour de stock, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "rapprochement",
+                  "definition": "Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers."
+                },
+                {
+                  "term": "Rapprochement",
+                  "definition": "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur."
+                },
+                {
+                  "term": "Idempotence",
+                  "definition": "Propriété garantissant que répéter le même événement ne répète pas son effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés, écrivez d’abord l’observation attendue « le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé », puis implémentez une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau. Simulez deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence et ne terminez que lorsque la mesure confirme la protection : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/refund.ts",
+                "source": "type RefundRequest = { captureId: string; minor: number; currency: \"USD\"; reason: string };\ntype CaptureBalance = { capturedMinor: number; refundedMinor: number; currency: \"USD\" };\nexport function validateRefund(input: RefundRequest, balance: CaptureBalance) {\n  if (!input.captureId) throw new Error(\"capture required\");\n  if (![balance.capturedMinor, balance.refundedMinor].every(Number.isSafeInteger) || balance.refundedMinor < 0) throw new Error(\"invalid capture balance\");\n  const refundableMinor = balance.capturedMinor - balance.refundedMinor;\n  if (input.currency !== balance.currency || !Number.isSafeInteger(input.minor)) throw new Error(\"invalid money\");\n  if (input.minor <= 0 || input.minor > refundableMinor) throw new Error(\"amount exceeds refundable balance\");\n  if (input.reason.trim().length < 8) throw new Error(\"reason required\");\n  return { captureId: input.captureId, amount: (input.minor / 100).toFixed(2), currency: input.currency, reason: input.reason.trim() };\n}\nconsole.log(validateRefund({ captureId: \"CAP-1\", minor: 2000, currency: \"USD\", reason: \"item returned\" },\n  { capturedMinor: 5000, refundedMinor: 1000, currency: \"USD\" }));",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type RefundRequest = { captureId: string; minor: number; currency: \"USD\"; reason: str…."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "définit la forme des données acceptées à cette frontière — type CaptureBalance = { capturedMinor: number; refundedMinor: number; currency: \"USD\" };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export function validateRefund(input: RefundRequest, balance: CaptureBalance) {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!input.captureId) throw new Error(\"capture required\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (![balance.capturedMinor, balance.refundedMinor].every(Number.isSafeInteger) || ba…."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const refundableMinor = balance.capturedMinor - balance.refundedMinor;."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (input.currency !== balance.currency || !Number.isSafeInteger(input.minor)) throw …."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (input.minor <= 0 || input.minor > refundableMinor) throw new Error(\"amount exceed…."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (input.reason.trim().length < 8) throw new Error(\"reason required\");."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "renvoie la valeur produite au code appelant — return { captureId: input.captureId, amount: (input.minor / 100).toFixed(2), currency…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "rend le résultat observable dans le terminal sans constituer une validation métier — console.log(validateRefund({ captureId: \"CAP-1\", minor: 2000, currency: \"USD\", reason…."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — { capturedMinor: 5000, refundedMinor: 1000, currency: \"USD\" }));."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/refund.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/22-payments/refund.ts et identifier dans les annotations l’entrée « une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés ». — code exercises/22-payments/refund.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npx tsc --noEmit, le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. Le cas volontairement défaillant montre « deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence » sans exposer de secret ; après application du garde-fou — calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège création de commande, capture PayPal, remboursement et mise à jour de stock. Le livrable une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau doit rester côté de la bonne frontière de confiance ; réutilisez rapprochement pour justifier les validations et conservez comme preuve le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/refund.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "Après npx tsc --noEmit, le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. Le cas volontairement défaillant montre « deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence » sans exposer de secret ; après application du garde-fou — calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement rapprochement : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+          "fix": "Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé."
+        },
+        {
+          "symptom": "une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Remboursements et rapprochement, la commande npx tsc --noEmit, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; faire confiance au montant du navigateur, ignorer la devise ou appliquer deux fois un événement rejoué.",
+          "fix": "Figer une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau dans exercises/22-payments/refund.ts, démontrer le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé, puis déclencher et corriger deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence.",
+        "steps": [
+          "Créer exercises/22-payments/refund.ts et identifier dans les annotations l’entrée « une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés ».",
+          "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence.",
+          "Implémenter « calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable », relancer la commande et expliquer le rôle de rapprochement."
+        ],
+        "hints": [
+          "Relisez la définition : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé »."
+        ],
+        "solution": {
+          "explanation": "Pour Remboursements et rapprochement, la solution maintient une seule autorité et applique précisément « calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable ». Elle rend deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence reproductible puis contrôlé, et elle n’est acceptée que lorsque le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé.",
+          "code": "type RefundRequest = { captureId: string; minor: number; currency: \"USD\"; reason: string };\ntype CaptureBalance = { capturedMinor: number; refundedMinor: number; currency: \"USD\" };\nexport function validateRefund(input: RefundRequest, balance: CaptureBalance) {\n  if (!input.captureId) throw new Error(\"capture required\");\n  if (![balance.capturedMinor, balance.refundedMinor].every(Number.isSafeInteger) || balance.refundedMinor < 0) throw new Error(\"invalid capture balance\");\n  const refundableMinor = balance.capturedMinor - balance.refundedMinor;\n  if (input.currency !== balance.currency || !Number.isSafeInteger(input.minor)) throw new Error(\"invalid money\");\n  if (input.minor <= 0 || input.minor > refundableMinor) throw new Error(\"amount exceeds refundable balance\");\n  if (input.reason.trim().length < 8) throw new Error(\"reason required\");\n  return { captureId: input.captureId, amount: (input.minor / 100).toFixed(2), currency: input.currency, reason: input.reason.trim() };\n}\nconsole.log(validateRefund({ captureId: \"CAP-1\", minor: 2000, currency: \"USD\", reason: \"item returned\" },\n  { capturedMinor: 5000, refundedMinor: 1000, currency: \"USD\" }));",
+          "filename": "exercises/22-payments/refund.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "refund-workflow-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Remboursements et rapprochement » dans ce scénario ?",
+          "options": [
+            "calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable, puis vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé.",
+            "Ignorer « deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence » parce que le chemin normal affiche une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau.",
+            "Déplacer la validation vers l’interface et considérer rapprochement comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable, puis vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence » parce que le chemin normal affiche une demande de remboursement bornée qui refuse les montants impossibles avant tout appel réseau. ». La réponse de référence est « calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable, puis vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer rapprochement comme un détail serveur. ». La réponse de référence est « calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable, puis vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable, puis vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers."
+          ]
+        },
+        {
+          "id": "refund-workflow-q2",
+          "question": "Quelle définition correspond au terme « rapprochement » ?",
+          "options": [
+            "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur.",
+            "Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+            "Propriété garantissant que répéter le même événement ne répète pas son effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« rapprochement » signifie : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur. ». La réponse de référence est « Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. ». « rapprochement » signifie : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+            "Cette option est correcte. Elle affirme « Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. ». « rapprochement » signifie : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+            "Cette option est incorrecte. Elle affirme « Propriété garantissant que répéter le même événement ne répète pas son effet métier. ». La réponse de référence est « Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. ». « rapprochement » signifie : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. ». « rapprochement » signifie : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers."
+          ]
+        },
+        {
+          "id": "refund-workflow-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « deux agents remboursent chacun le montant capturé parce que la validation ignore les remboursements précédents et la concurrence » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé ».",
+            "Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement rapprochement : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Le correctif adapté est : Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement rapprochement : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Le correctif adapté est : Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé.",
+            "Cette option est incorrecte. Elle affirme « Figer une demande de remboursement partiel reliée à une capture USD existante et au cumul des remboursements déjà confirmés, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement rapprochement : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Le correctif adapté est : Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement rapprochement : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Le correctif adapté est : Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement rapprochement : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers. Le correctif adapté est : Appliquer ce garde-fou spécifique : calculer le solde remboursable dans une transaction, conserver la devise de la capture, utiliser une clé de requête et enregistrer un audit immuable. Rejouer ensuite le cas et vérifier que le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé."
+          ]
+        }
+      ],
+      "recap": [
+        "Valider montant et motif, lier le remboursement à la capture d’origine et conserver les identifiants de chaque transition pour le support et la comptabilité.",
+        "rapprochement : Comparaison des données internes avec celles du prestataire pour détecter les écarts financiers.",
+        "La preuve de fin est : le serveur refuse zéro, négatif et dépassement, enregistre motif et acteur, puis rapproche l’identifiant de remboursement confirmé."
+      ],
+      "next": "La leçon suivante généralise cette protection aux livraisons répétées et aux reprises après panne."
+    },
+    {
+      "id": "payment-idempotency",
+      "order": 3,
+      "title": "Idempotence et doubles paiements",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les centimes, les transactions de base de données, les appels serveur authentifiés et le fait qu’un webhook peut être livré plusieurs fois.",
+        "Pouvoir reformuler « idempotence » avant de coder : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+        "Savoir créer exercises/22-payments/idempotency.ts, exécuter npx tsc --noEmit et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Attribuer une clé stable à l’opération, enregistrer son résultat dans la même transaction métier et retourner ce résultat lors de toute répétition.",
+        "Construire une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois, puis prouver le résultat avec ce signal précis : une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le fournisseur de paiement confirme un mouvement d’argent ; la boutique reste responsable du prix, de la commande interne et de la transition autorisée. Dans « Idempotence et doubles paiements », l’entrée concrète est le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur. Le concept idempotence signifie : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Le modèle n’est donc complet que si insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable et si l’on peut observer une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le paiement ressemble au contrôle d’un billet : l’écran du voyageur n’est pas une preuve, seule une validation signée et rapprochée du dossier autorise le passage. Ici, la pièce que vous allez réellement contrôler est une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur. Attribuer une clé stable à l’opération, enregistrer son résultat dans la même transaction métier et retourner ce résultat lors de toute répétition. Le terme idempotence n’est pas une étiquette décorative : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/22-payments/idempotency.ts, l’exemple réduit volontairement le système à une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois. Lisez chaque ligne comme une responsabilité, puis exécutez npx tsc --noEmit. La principale défaillance à provoquer est la suivante : une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance. Elle révèle pourquoi la correction professionnelle consiste à insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. Appliquez ensuite la même preuve à création de commande, capture PayPal, remboursement et mise à jour de stock, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "idempotence",
+                  "definition": "Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet."
+                },
+                {
+                  "term": "Rapprochement",
+                  "definition": "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur."
+                },
+                {
+                  "term": "Idempotence",
+                  "definition": "Propriété garantissant que répéter le même événement ne répète pas son effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur, écrivez d’abord l’observation attendue « une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification », puis implémentez une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois. Simulez une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance et ne terminez que lorsque la mesure confirme la protection : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/22-payments/idempotency.ts",
+                "source": "type StoredEvent = { eventId: string; orderId: string; status: \"paid\" };\ntype EventStore = { insertOnce(event: StoredEvent): Promise<\"inserted\" | \"duplicate\"> };\nexport async function applyPayment(store: EventStore, eventId: string, orderId: string) {\n  if (!eventId || !orderId) throw new Error(\"missing payment identity\");\n  const event: StoredEvent = { eventId, orderId, status: \"paid\" };\n  const result = await store.insertOnce(event); // backed by a UNIQUE(event_id) transaction\n  return { ...event, duplicate: result === \"duplicate\" };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type StoredEvent = { eventId: string; orderId: string; status: \"paid\" };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "définit la forme des données acceptées à cette frontière — type EventStore = { insertOnce(event: StoredEvent): Promise<\"inserted\" | \"duplicate\"> };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "définit la forme des données acceptées à cette frontière — export async function applyPayment(store: EventStore, eventId: string, orderId: strin…."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!eventId || !orderId) throw new Error(\"missing payment identity\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const event: StoredEvent = { eventId, orderId, status: \"paid\" };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — const result = await store.insertOnce(event); // backed by a UNIQUE(event_id) transac…."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "renvoie la valeur produite au code appelant — return { ...event, duplicate: result === \"duplicate\" };."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/22-payments/idempotency.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/22-payments/idempotency.ts et identifier dans les annotations l’entrée « le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur ». — code exercises/22-payments/idempotency.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npx tsc --noEmit, une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. Le cas volontairement défaillant montre « une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance » sans exposer de secret ; après application du garde-fou — insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège création de commande, capture PayPal, remboursement et mise à jour de stock. Le livrable une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois doit rester côté de la bonne frontière de confiance ; réutilisez idempotence pour justifier les validations et conservez comme preuve une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/22-payments/idempotency.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "Après npx tsc --noEmit, une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. Le cas volontairement défaillant montre « une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance » sans exposer de secret ; après application du garde-fou — insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement idempotence : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+          "fix": "Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification."
+        },
+        {
+          "symptom": "une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Idempotence et doubles paiements, la commande npx tsc --noEmit, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; faire confiance au montant du navigateur, ignorer la devise ou appliquer deux fois un événement rejoué.",
+          "fix": "Figer le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois dans exercises/22-payments/idempotency.ts, démontrer une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification, puis déclencher et corriger une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance.",
+        "steps": [
+          "Créer exercises/22-payments/idempotency.ts et identifier dans les annotations l’entrée « le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur ».",
+          "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance.",
+          "Implémenter « insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable », relancer la commande et expliquer le rôle de idempotence."
+        ],
+        "hints": [
+          "Relisez la définition : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification »."
+        ],
+        "solution": {
+          "explanation": "Pour Idempotence et doubles paiements, la solution maintient une seule autorité et applique précisément « insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable ». Elle rend une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance reproductible puis contrôlé, et elle n’est acceptée que lorsque une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification.",
+          "code": "type StoredEvent = { eventId: string; orderId: string; status: \"paid\" };\ntype EventStore = { insertOnce(event: StoredEvent): Promise<\"inserted\" | \"duplicate\"> };\nexport async function applyPayment(store: EventStore, eventId: string, orderId: string) {\n  if (!eventId || !orderId) throw new Error(\"missing payment identity\");\n  const event: StoredEvent = { eventId, orderId, status: \"paid\" };\n  const result = await store.insertOnce(event); // backed by a UNIQUE(event_id) transaction\n  return { ...event, duplicate: result === \"duplicate\" };\n}",
+          "filename": "exercises/22-payments/idempotency.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "payment-idempotency-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Idempotence et doubles paiements » dans ce scénario ?",
+          "options": [
+            "insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable, puis vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification.",
+            "Ignorer « une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance » parce que le chemin normal affiche une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois.",
+            "Déplacer la validation vers l’interface et considérer idempotence comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable, puis vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance » parce que le chemin normal affiche une simulation qui applique un événement une seule fois même lorsqu’il est livré deux fois. ». La réponse de référence est « insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable, puis vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer idempotence comme un détail serveur. ». La réponse de référence est « insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable, puis vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable, puis vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet."
+          ]
+        },
+        {
+          "id": "payment-idempotency-q2",
+          "question": "Quelle définition correspond au terme « idempotence » ?",
+          "options": [
+            "Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur.",
+            "Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+            "Propriété garantissant que répéter le même événement ne répète pas son effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« idempotence » signifie : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Comparaison du paiement fournisseur avec la commande, la devise et le montant attendus côté serveur. ». La réponse de référence est « Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. ». « idempotence » signifie : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+            "Cette option est correcte. Elle affirme « Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. ». « idempotence » signifie : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+            "Cette option est incorrecte. Elle affirme « Propriété garantissant que répéter le même événement ne répète pas son effet métier. ». La réponse de référence est « Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. ». « idempotence » signifie : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. ». « idempotence » signifie : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet."
+          ]
+        },
+        {
+          "id": "payment-idempotency-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « une Map mémoire déduplique pendant un processus mais oublie tout au redéploiement ou sur une autre instance » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification ».",
+            "Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement idempotence : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Le correctif adapté est : Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement idempotence : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Le correctif adapté est : Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification.",
+            "Cette option est incorrecte. Elle affirme « Figer le même event_id PayPal livré deux fois, y compris après redémarrage de l’instance serveur, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement idempotence : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Le correctif adapté est : Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement idempotence : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Le correctif adapté est : Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement idempotence : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet. Le correctif adapté est : Appliquer ce garde-fou spécifique : insérer event_id dans la base sous contrainte unique et effectuer événement, commande et effets locaux dans une transaction rejouable. Rejouer ensuite le cas et vérifier que une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification."
+          ]
+        }
+      ],
+      "recap": [
+        "Attribuer une clé stable à l’opération, enregistrer son résultat dans la même transaction métier et retourner ce résultat lors de toute répétition.",
+        "idempotence : Propriété selon laquelle répéter la même requête produit le même état final sans nouvel effet.",
+        "La preuve de fin est : une contrainte unique persistante autorise une seule transition paid, une seule décrémentation de stock et une seule notification."
+      ],
+      "next": "Le module suivant distribue les changements confirmés par des canaux respectant permission, préférence et fréquence."
+    }
+  ]
+}

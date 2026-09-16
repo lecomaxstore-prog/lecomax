@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "./CartContext";
 import { useProductColor } from "./ProductColorContext";
 import SizeGuideModal from "./SizeGuideModal";
+import SizeSelect from "./SizeSelect";
 import { productSizeGuideFromTags } from "@/mobile/src/lib/product-size-guide";
 import type { Product } from "@/lib/products";
 import { trackAddToCart } from "@/lib/analytics";
@@ -504,19 +505,21 @@ export default function ProductActions({
       {hasColors && (
         <div className="mb-5">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[12px] font-black uppercase tracking-wide">
-              Couleur <span className="text-neutral-500 font-normal">· {color}</span>
+            <p className="text-[12px] uppercase leading-5">
+              <span className="font-extrabold text-black">Couleur</span>
+              <span className="font-normal text-neutral-500"> · {color}</span>
             </p>
             <button
+              type="button"
               data-color-modal-trigger
               onClick={() => setColorModalOpen(true)}
-              className="flex items-center gap-1.5 text-[12px] text-neutral-600 hover:text-black transition-colors font-medium"
+              className="flex items-center gap-1.5 text-[12px] text-[#5f6368] hover:text-black transition-colors font-medium"
             >
               <span>Voir tout</span>
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div role="group" aria-label="Couleur" className="flex flex-wrap items-start gap-x-3 gap-y-4 p-0.5">
             {product.colors.map((c) => {
               const isSelected = color === c;
               const isOOS = !product.preorder_enabled && outOfStockColors.includes(c);
@@ -530,11 +533,11 @@ export default function ProductActions({
                   onClick={(event) => selectColor(c, false, event)}
                   aria-label={`Sélectionner la couleur ${c}`}
                   aria-pressed={isSelected}
-                  className="flex flex-col items-center gap-1.5 group flex-shrink-0 cursor-pointer"
+                  className="group flex w-16 flex-shrink-0 cursor-pointer flex-col items-center gap-1.5 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#234735] focus-visible:ring-offset-4"
                 >
                   <div className={`relative w-16 h-16 rounded-2xl overflow-hidden border-2 bg-white transition-all shadow-sm ${
-                    isOOS ? "opacity-40 border-neutral-200" :
                     isSelected ? "border-[#234735] ring-2 ring-[#234735]/20 shadow-md scale-[1.03]" :
+                    isOOS ? "opacity-40 border-neutral-200" :
                     "border-neutral-200 hover:border-neutral-400"
                   }`}>
                     {variantImg ? (
@@ -556,7 +559,7 @@ export default function ProductActions({
                       </div>
                     )}
                   </div>
-                  <span className={`text-[12px] ${isSelected ? "font-extrabold text-black" : "font-semibold text-neutral-600 group-hover:text-black"}`}>
+                  <span className={`w-full break-words text-center text-[12px] leading-4 ${isSelected ? "font-extrabold text-black" : "font-semibold text-neutral-600 group-hover:text-black"}`}>
                     {c}
                   </span>
                 </button>
@@ -569,8 +572,8 @@ export default function ProductActions({
       {/* Size picker */}
       {product.sizes.length > 0 && (
         <>
-          <div className="flex items-center justify-between mb-3 mt-5">
-            <span className="font-bold text-[11px] uppercase tracking-[0.16em] text-neutral-500">
+          <div className="flex items-center justify-between gap-3 mb-3 mt-6">
+            <span className="font-extrabold text-[12px] uppercase tracking-[0.12em] text-neutral-900">
               {sizeLabel || "Taille"}
             </span>
             {(product.category === "homme" || product.category === "femme" || product.category === "chaussures") && (
@@ -579,43 +582,21 @@ export default function ProductActions({
                 onPointerDown={() => { sizeGuideIntentRef.current = true; }}
                 onPointerCancel={() => { sizeGuideIntentRef.current = false; }}
                 onClick={openSizeGuide}
-                className="text-[12px] text-neutral-500 underline underline-offset-4 hover:text-black transition-colors"
+                className="inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-md text-[12px] font-medium text-neutral-600 underline decoration-neutral-300 underline-offset-4 transition-colors hover:text-[#234735] hover:decoration-[#234735] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#234735] focus-visible:ring-offset-2"
               >
+                <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 7v4m5-4v6m5-6v4"/></svg>
                 Guide des tailles
               </button>
             )}
           </div>
-          <div
-            role="group"
-            aria-label={sizeLabel || "Taille"}
-            className={product.sizes.length === 1 ? "flex flex-wrap gap-2" : "grid grid-cols-4 gap-2 sm:grid-cols-5"}
-          >
-            {orderedSizes.map((s) => {
-              const soldOut = !availableSizes.includes(s);
-              return (
-                <button
-                  type="button"
-                  key={s}
-                  disabled={soldOut}
-                  aria-pressed={size === s && !soldOut}
-                  aria-label={soldOut ? `${s} — indisponible` : s}
-                  onClick={() => { if (!soldOut) { setSize(s); setError(null); } }}
-                  className={`relative inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border px-3 py-3 text-[13px] font-semibold transition-[background-color,border-color,color,box-shadow,transform] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black focus-visible:ring-offset-2 motion-reduce:transition-none ${product.sizes.length === 1 ? "min-w-[164px] px-5" : "min-w-0"} ${
-                    soldOut
-                      ? "border-dashed border-neutral-200 bg-neutral-50 text-neutral-400 cursor-not-allowed"
-                      : size === s
-                      ? "border-black bg-black text-white shadow-sm"
-                      : "border-neutral-200 bg-white text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 active:scale-[0.97] motion-reduce:transform-none"
-                  }`}
-                >
-                  <span className={soldOut ? "line-through decoration-neutral-300" : ""}>{s}</span>
-                  {size === s && !soldOut && (
-                    <svg aria-hidden="true" className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6" /></svg>
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          <SizeSelect
+            key={`${product.slug}-${color}`}
+            sizes={orderedSizes}
+            availableSizes={availableSizes}
+            value={size}
+            label={sizeLabel || "Taille"}
+            onChange={(nextSize) => { setSize(nextSize); setError(null); }}
+          />
           {error && (
             <p className="text-red-600 text-[12px] mt-2 flex items-center gap-1.5">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>

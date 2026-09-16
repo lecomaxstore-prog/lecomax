@@ -1,0 +1,984 @@
+{
+  "id": "zero-to-hero-capstone",
+  "order": 47,
+  "icon": "rocket",
+  "color": "#111827",
+  "title": "Projet ultime : reconstruire, sourcer, lancer et développer",
+  "summary": "Assembler code, design, Supabase, produit, import, vente et SEO en preuves successives.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/47-zero-to-hero-capstone/capstone-week-1-foundation.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/47-zero-to-hero-capstone/capstone-week-4-product.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/47-zero-to-hero-capstone/capstone-week-7-launch.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/47-zero-to-hero-capstone/capstone-week-10-grow.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "capstone-week-1-foundation",
+      "order": 0,
+      "title": "Semaines 1–3 : code, pages, design et données",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Semaines 1–3 : code, pages, design et données en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un site navigable avec catalogue sécurisé et build propre en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Créer routes et composants, appliquer design system responsive, modéliser Supabase et prouver sécurité, états et build avant d’ajouter le commerce. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Créer routes et composants, appliquer design system responsive, modéliser Supabase et prouver sécurité, états et build avant d’ajouter le commerce. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Semaines 1–3 : code, pages, design et données ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Créer routes et composants, appliquer design system responsive, modéliser Supabase et prouver sécurité, états et build avant d’ajouter le commerce. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Semaines 1–3 : code, pages, design et données, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un site navigable avec catalogue sécurisé et build propre. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Jalon",
+                  "definition": "Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Critère d’acceptation",
+                  "definition": "Mesure ou structure qui rend la décision concernant Semaines 1–3 : code, pages, design et données comparable et reproductible."
+                },
+                {
+                  "term": "Rétrospective",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Semaines 1–3 : code, pages, design et données améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Semaines 1–3 : code, pages, design et données à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-1-foundation.md",
+                "source": "# Weeks 1–3: code, pages, design, and data\n- [ ] Customer problem: Create routes and components, apply a responsive design system, model Supabase, and prove security, states, and build before adding commerce.\n- [ ] Deliverable: a navigable site with a secure catalog and clean build\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/project-structure\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Semaines 1–3 : code, pages, design et données avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-1-foundation.md",
+                "source": "# Weeks 1–3: code, pages, design, and data\n- [x] Customer problem: Create routes and components, apply a responsive design system, model Supabase, and prove security, states, and build before adding commerce.\n- [ ] Deliverable: a navigable site with a secure catalog and clean build\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/project-structure\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 1–3 : code, pages, design et données",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Semaines 1–3 : code, pages, design et données complète chaque section de un site navigable avec catalogue sécurisé et build propre, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un site navigable avec catalogue sécurisé et build propre existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un site navigable avec catalogue sécurisé et build propre, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un site navigable avec catalogue sécurisé et build propre existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Semaines 1–3 : code, pages, design et données paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Semaines 1–3 : code, pages, design et données progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un site navigable avec catalogue sécurisé et build propre à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Semaines 1–3 : code, pages, design et données complète chaque section de un site navigable avec catalogue sécurisé et build propre, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Weeks 1–3: code, pages, design, and data\n- [x] Customer problem: Create routes and components, apply a responsive design system, model Supabase, and prove security, states, and build before adding commerce.\n- [ ] Deliverable: a navigable site with a secure catalog and clean build\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://nextjs.org/docs/app/getting-started/project-structure\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 1–3 : code, pages, design et données",
+          "filename": "exercises/47-zero-to-hero-capstone/capstone-week-1-foundation.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "capstone-week-1-foundation-q1",
+          "question": "Quelle démarche applique correctement Semaines 1–3 : code, pages, design et données ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Semaines 1–3 : code, pages, design et données, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 1–3 : code, pages, design et données, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 1–3 : code, pages, design et données, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 1–3 : code, pages, design et données, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 1–3 : code, pages, design et données, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "capstone-week-1-foundation-q2",
+          "question": "Quelle définition correspond au terme « Jalon » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Semaines 1–3 : code, pages, design et données comparable et reproductible.",
+            "Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Semaines 1–3 : code, pages, design et données améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Jalon » signifie : Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Semaines 1–3 : code, pages, design et données comparable et reproductible. ». La réponse de référence est « Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Semaines 1–3 : code, pages, design et données améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 1–3 : code, pages, design et données, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "capstone-week-1-foundation-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Semaines 1–3 : code, pages, design et données paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 1–3 : code, pages, design et données, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Semaines 1–3 : code, pages, design et données est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un site navigable avec catalogue sécurisé et build propre rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Semaines 1–3 : code, pages, design et données, poursuivez avec Semaines 4–6 : produit, sourcing et offre rentable afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "capstone-week-4-product",
+      "order": 1,
+      "title": "Semaines 4–6 : produit, sourcing et offre rentable",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Semaines 4–6 : produit, sourcing et offre rentable en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un dossier produit avec preuves et décision go/no-go en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Valider demande, écrire spécification, comparer fournisseurs, échantillonner, calculer coût rendu et concevoir prix, contenu et offre sans commander trop tôt. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Valider demande, écrire spécification, comparer fournisseurs, échantillonner, calculer coût rendu et concevoir prix, contenu et offre sans commander trop tôt. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Semaines 4–6 : produit, sourcing et offre rentable ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Valider demande, écrire spécification, comparer fournisseurs, échantillonner, calculer coût rendu et concevoir prix, contenu et offre sans commander trop tôt. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Semaines 4–6 : produit, sourcing et offre rentable, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un dossier produit avec preuves et décision go/no-go. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Jalon",
+                  "definition": "Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Critère d’acceptation",
+                  "definition": "Mesure ou structure qui rend la décision concernant Semaines 4–6 : produit, sourcing et offre rentable comparable et reproductible."
+                },
+                {
+                  "term": "Rétrospective",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Semaines 4–6 : produit, sourcing et offre rentable améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Semaines 4–6 : produit, sourcing et offre rentable à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-4-product.md",
+                "source": "# Weeks 4–6: product, sourcing, and profitable offer\n- [ ] Customer problem: Validate demand, write specifications, compare suppliers, sample, calculate landed cost, and design price, content, and offer without ordering too early.\n- [ ] Deliverable: a product dossier with evidence and a go/no-go decision\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Semaines 4–6 : produit, sourcing et offre rentable avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-4-product.md",
+                "source": "# Weeks 4–6: product, sourcing, and profitable offer\n- [x] Customer problem: Validate demand, write specifications, compare suppliers, sample, calculate landed cost, and design price, content, and offer without ordering too early.\n- [ ] Deliverable: a product dossier with evidence and a go/no-go decision\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 4–6 : produit, sourcing et offre rentable",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Semaines 4–6 : produit, sourcing et offre rentable complète chaque section de un dossier produit avec preuves et décision go/no-go, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un dossier produit avec preuves et décision go/no-go existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un dossier produit avec preuves et décision go/no-go, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un dossier produit avec preuves et décision go/no-go existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Semaines 4–6 : produit, sourcing et offre rentable paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Semaines 4–6 : produit, sourcing et offre rentable progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un dossier produit avec preuves et décision go/no-go à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Semaines 4–6 : produit, sourcing et offre rentable complète chaque section de un dossier produit avec preuves et décision go/no-go, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Weeks 4–6: product, sourcing, and profitable offer\n- [x] Customer problem: Validate demand, write specifications, compare suppliers, sample, calculate landed cost, and design price, content, and offer without ordering too early.\n- [ ] Deliverable: a product dossier with evidence and a go/no-go decision\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://trade-tools.alibaba.com/help\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 4–6 : produit, sourcing et offre rentable",
+          "filename": "exercises/47-zero-to-hero-capstone/capstone-week-4-product.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "capstone-week-4-product-q1",
+          "question": "Quelle démarche applique correctement Semaines 4–6 : produit, sourcing et offre rentable ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Semaines 4–6 : produit, sourcing et offre rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 4–6 : produit, sourcing et offre rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 4–6 : produit, sourcing et offre rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 4–6 : produit, sourcing et offre rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 4–6 : produit, sourcing et offre rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "capstone-week-4-product-q2",
+          "question": "Quelle définition correspond au terme « Jalon » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Semaines 4–6 : produit, sourcing et offre rentable comparable et reproductible.",
+            "Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Semaines 4–6 : produit, sourcing et offre rentable améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Jalon » signifie : Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Semaines 4–6 : produit, sourcing et offre rentable comparable et reproductible. ». La réponse de référence est « Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Semaines 4–6 : produit, sourcing et offre rentable améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 4–6 : produit, sourcing et offre rentable, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "capstone-week-4-product-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Semaines 4–6 : produit, sourcing et offre rentable paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 4–6 : produit, sourcing et offre rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Semaines 4–6 : produit, sourcing et offre rentable est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un dossier produit avec preuves et décision go/no-go rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Semaines 4–6 : produit, sourcing et offre rentable, poursuivez avec Semaines 7–9 : achat, qualité, lancement et ventes afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "capstone-week-7-launch",
+      "order": 2,
+      "title": "Semaines 7–9 : achat, qualité, lancement et ventes",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Semaines 7–9 : achat, qualité, lancement et ventes en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une checklist lancement avec responsables, preuves et rollback en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Protéger commande, inspecter, préparer import, publier pages, tester checkout, former support et lancer à une audience limitée avec seuils clairs. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Protéger commande, inspecter, préparer import, publier pages, tester checkout, former support et lancer à une audience limitée avec seuils clairs. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Semaines 7–9 : achat, qualité, lancement et ventes ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Protéger commande, inspecter, préparer import, publier pages, tester checkout, former support et lancer à une audience limitée avec seuils clairs. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Semaines 7–9 : achat, qualité, lancement et ventes, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une checklist lancement avec responsables, preuves et rollback. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Jalon",
+                  "definition": "Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Critère d’acceptation",
+                  "definition": "Mesure ou structure qui rend la décision concernant Semaines 7–9 : achat, qualité, lancement et ventes comparable et reproductible."
+                },
+                {
+                  "term": "Rétrospective",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Semaines 7–9 : achat, qualité, lancement et ventes améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Semaines 7–9 : achat, qualité, lancement et ventes à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-7-launch.md",
+                "source": "# Weeks 7–9: purchasing, quality, launch, and sales\n- [ ] Customer problem: Protect the order, inspect, prepare import, publish pages, test checkout, train support, and launch to a limited audience with clear thresholds.\n- [ ] Deliverable: a launch checklist with owners, evidence, and rollback\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/specialty/ecommerce/launching-a-new-ecommerce-website\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Semaines 7–9 : achat, qualité, lancement et ventes avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-7-launch.md",
+                "source": "# Weeks 7–9: purchasing, quality, launch, and sales\n- [x] Customer problem: Protect the order, inspect, prepare import, publish pages, test checkout, train support, and launch to a limited audience with clear thresholds.\n- [ ] Deliverable: a launch checklist with owners, evidence, and rollback\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/specialty/ecommerce/launching-a-new-ecommerce-website\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 7–9 : achat, qualité, lancement et ventes",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Semaines 7–9 : achat, qualité, lancement et ventes complète chaque section de une checklist lancement avec responsables, preuves et rollback, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une checklist lancement avec responsables, preuves et rollback existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une checklist lancement avec responsables, preuves et rollback, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une checklist lancement avec responsables, preuves et rollback existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Semaines 7–9 : achat, qualité, lancement et ventes paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Semaines 7–9 : achat, qualité, lancement et ventes progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une checklist lancement avec responsables, preuves et rollback à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Semaines 7–9 : achat, qualité, lancement et ventes complète chaque section de une checklist lancement avec responsables, preuves et rollback, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Weeks 7–9: purchasing, quality, launch, and sales\n- [x] Customer problem: Protect the order, inspect, prepare import, publish pages, test checkout, train support, and launch to a limited audience with clear thresholds.\n- [ ] Deliverable: a launch checklist with owners, evidence, and rollback\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/specialty/ecommerce/launching-a-new-ecommerce-website\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 7–9 : achat, qualité, lancement et ventes",
+          "filename": "exercises/47-zero-to-hero-capstone/capstone-week-7-launch.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "capstone-week-7-launch-q1",
+          "question": "Quelle démarche applique correctement Semaines 7–9 : achat, qualité, lancement et ventes ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Semaines 7–9 : achat, qualité, lancement et ventes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 7–9 : achat, qualité, lancement et ventes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 7–9 : achat, qualité, lancement et ventes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 7–9 : achat, qualité, lancement et ventes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 7–9 : achat, qualité, lancement et ventes, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "capstone-week-7-launch-q2",
+          "question": "Quelle définition correspond au terme « Jalon » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Semaines 7–9 : achat, qualité, lancement et ventes comparable et reproductible.",
+            "Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Semaines 7–9 : achat, qualité, lancement et ventes améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Jalon » signifie : Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Semaines 7–9 : achat, qualité, lancement et ventes comparable et reproductible. ». La réponse de référence est « Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Semaines 7–9 : achat, qualité, lancement et ventes améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 7–9 : achat, qualité, lancement et ventes, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "capstone-week-7-launch-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Semaines 7–9 : achat, qualité, lancement et ventes paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 7–9 : achat, qualité, lancement et ventes, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Semaines 7–9 : achat, qualité, lancement et ventes est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une checklist lancement avec responsables, preuves et rollback rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Semaines 7–9 : achat, qualité, lancement et ventes, poursuivez avec Semaines 10–12 : SEO, clients, rétention et amélioration afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "capstone-week-10-grow",
+      "order": 3,
+      "title": "Semaines 10–12 : SEO, clients, rétention et amélioration",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Semaines 10–12 : SEO, clients, rétention et amélioration en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une rétrospective complète et un plan de croissance 100 jours en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Mesurer découverte à réachat, corriger la contrainte principale, exécuter sprints SEO et acquisition, automatiser ce qui est stable et rédiger la prochaine feuille de route. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Mesurer découverte à réachat, corriger la contrainte principale, exécuter sprints SEO et acquisition, automatiser ce qui est stable et rédiger la prochaine feuille de route. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Semaines 10–12 : SEO, clients, rétention et amélioration ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Mesurer découverte à réachat, corriger la contrainte principale, exécuter sprints SEO et acquisition, automatiser ce qui est stable et rédiger la prochaine feuille de route. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Semaines 10–12 : SEO, clients, rétention et amélioration, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une rétrospective complète et un plan de croissance 100 jours. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Jalon",
+                  "definition": "Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Critère d’acceptation",
+                  "definition": "Mesure ou structure qui rend la décision concernant Semaines 10–12 : SEO, clients, rétention et amélioration comparable et reproductible."
+                },
+                {
+                  "term": "Rétrospective",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Semaines 10–12 : SEO, clients, rétention et amélioration améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Semaines 10–12 : SEO, clients, rétention et amélioration à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-10-grow.md",
+                "source": "# Weeks 10–12: SEO, customers, retention, and improvement\n- [ ] Customer problem: Measure discovery through repeat purchase, fix the primary constraint, run SEO and acquisition sprints, automate stable work, and write the next roadmap.\n- [ ] Deliverable: a complete retrospective and one-hundred-day growth plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/monitor-debug/search-console-start\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Semaines 10–12 : SEO, clients, rétention et amélioration avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/47-zero-to-hero-capstone/capstone-week-10-grow.md",
+                "source": "# Weeks 10–12: SEO, customers, retention, and improvement\n- [x] Customer problem: Measure discovery through repeat purchase, fix the primary constraint, run SEO and acquisition sprints, automate stable work, and write the next roadmap.\n- [ ] Deliverable: a complete retrospective and one-hundred-day growth plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/monitor-debug/search-console-start\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 10–12 : SEO, clients, rétention et amélioration",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Semaines 10–12 : SEO, clients, rétention et amélioration complète chaque section de une rétrospective complète et un plan de croissance 100 jours, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une rétrospective complète et un plan de croissance 100 jours existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une rétrospective complète et un plan de croissance 100 jours, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une rétrospective complète et un plan de croissance 100 jours existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Semaines 10–12 : SEO, clients, rétention et amélioration paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Semaines 10–12 : SEO, clients, rétention et amélioration progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une rétrospective complète et un plan de croissance 100 jours à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Semaines 10–12 : SEO, clients, rétention et amélioration complète chaque section de une rétrospective complète et un plan de croissance 100 jours, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Weeks 10–12: SEO, customers, retention, and improvement\n- [x] Customer problem: Measure discovery through repeat purchase, fix the primary constraint, run SEO and acquisition sprints, automate stable work, and write the next roadmap.\n- [ ] Deliverable: a complete retrospective and one-hundred-day growth plan\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/monitor-debug/search-console-start\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Semaines 10–12 : SEO, clients, rétention et amélioration",
+          "filename": "exercises/47-zero-to-hero-capstone/capstone-week-10-grow.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "capstone-week-10-grow-q1",
+          "question": "Quelle démarche applique correctement Semaines 10–12 : SEO, clients, rétention et amélioration ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Semaines 10–12 : SEO, clients, rétention et amélioration, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 10–12 : SEO, clients, rétention et amélioration, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 10–12 : SEO, clients, rétention et amélioration, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 10–12 : SEO, clients, rétention et amélioration, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Semaines 10–12 : SEO, clients, rétention et amélioration, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "capstone-week-10-grow-q2",
+          "question": "Quelle définition correspond au terme « Jalon » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Semaines 10–12 : SEO, clients, rétention et amélioration comparable et reproductible.",
+            "Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Semaines 10–12 : SEO, clients, rétention et amélioration améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Jalon » signifie : Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Semaines 10–12 : SEO, clients, rétention et amélioration comparable et reproductible. ». La réponse de référence est « Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Semaines 10–12 : SEO, clients, rétention et amélioration améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence. ». « Jalon » signifie : Concept central de Semaines 10–12 : SEO, clients, rétention et amélioration, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "capstone-week-10-grow-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Semaines 10–12 : SEO, clients, rétention et amélioration paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Semaines 10–12 : SEO, clients, rétention et amélioration, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Semaines 10–12 : SEO, clients, rétention et amélioration est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une rétrospective complète et un plan de croissance 100 jours rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Semaines 10–12 : SEO, clients, rétention et amélioration, poursuivez avec Théorie des couleurs et personnalité de marque afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

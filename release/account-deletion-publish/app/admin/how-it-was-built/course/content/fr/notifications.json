@@ -1,0 +1,1152 @@
+{
+  "id": "notifications",
+  "order": 23,
+  "icon": "🔔",
+  "color": "#EA580C",
+  "title": "Web Push, WhatsApp et notifications",
+  "summary": "Gérer permissions, Service Worker, webhooks et préférences afin d’envoyer le bon message par le bon canal sans spam.",
+  "files": [
+    {
+      "path": "public/sw.js",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/23-notifications/orchestrator.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/23-notifications/push-subscription.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/23-notifications/service-worker.js",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/23-notifications/whatsapp-webhook.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "web-push-subscription",
+      "order": 0,
+      "title": "Abonnement Web Push avec consentement",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les permissions navigateur, les Service Workers, les webhooks signés et la différence entre consentement et préférence de canal.",
+        "Pouvoir reformuler « VAPID » avant de coder : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+        "Savoir créer exercises/23-notifications/push-subscription.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Demander la permission après une intention utilisateur, créer l’abonnement avec la clé VAPID publique et offrir une désinscription aussi simple que l’inscription.",
+        "Construire un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur, puis prouver le résultat avec ce signal précis : un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une notification est une décision avant d’être un message : événement admissible, destinataire autorisé, canal disponible, fréquence acceptable, puis livraison observable. Dans « Abonnement Web Push avec consentement », l’entrée concrète est un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted. Le concept VAPID signifie : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Le modèle n’est donc complet que si expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur et si l’on peut observer un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un orchestrateur de notifications est un standard téléphonique : il choisit une ligne autorisée et évite d’appeler trois fois pour la même information. Ici, la pièce que vous allez réellement contrôler est un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted. Demander la permission après une intention utilisateur, créer l’abonnement avec la clé VAPID publique et offrir une désinscription aussi simple que l’inscription. Le terme VAPID n’est pas une étiquette décorative : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/23-notifications/push-subscription.ts, l’exemple réduit volontairement le système à un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable. Elle révèle pourquoi la correction professionnelle consiste à expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. Appliquez ensuite la même preuve à alertes de commande, disponibilité produit et conversations WhatsApp du support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "VAPID",
+                  "definition": "Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur."
+                },
+                {
+                  "term": "Préférence de canal",
+                  "definition": "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages."
+                },
+                {
+                  "term": "Déduplication",
+                  "definition": "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted, écrivez d’abord l’observation attendue « un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation », puis implémentez un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur. Simulez requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable et ne terminez que lorsque la mesure confirme la protection : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/23-notifications/push-subscription.ts",
+                "source": "export async function subscribeToPush(registration: ServiceWorkerRegistration, publicKey: string) {\n  const permission = await Notification.requestPermission();\n  if (permission !== \"granted\") return { subscribed: false };\n  const subscription = await registration.pushManager.subscribe({\n    userVisibleOnly: true,\n    applicationServerKey: publicKey,\n  });\n  return { subscribed: true, subscription: subscription.toJSON() };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — export async function subscribeToPush(registration: ServiceWorkerRegistration, public…."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — const permission = await Notification.requestPermission();."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (permission !== \"granted\") return { subscribed: false };."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — const subscription = await registration.pushManager.subscribe({."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "configure cette clé du workflow ou du service — userVisibleOnly: true,."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "configure cette clé du workflow ou du service — applicationServerKey: publicKey,."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "renvoie la valeur produite au code appelant — return { subscribed: true, subscription: subscription.toJSON() };."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/push-subscription.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/23-notifications/push-subscription.ts et identifier dans les annotations l’entrée « un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted ». — code exercises/23-notifications/push-subscription.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. Le cas volontairement défaillant montre « requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable » sans exposer de secret ; après application du garde-fou — expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège alertes de commande, disponibilité produit et conversations WhatsApp du support. Le livrable un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur doit rester côté de la bonne frontière de confiance ; réutilisez VAPID pour justifier les validations et conservez comme preuve un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/push-subscription.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. Le cas volontairement défaillant montre « requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable » sans exposer de secret ; après application du garde-fou — expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement VAPID : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+          "fix": "Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation."
+        },
+        {
+          "symptom": "un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Abonnement Web Push avec consentement, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; solliciter une permission sans intention claire, ignorer un refus ou multiplier les canaux pour le même événement.",
+          "fix": "Figer un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur dans exercises/23-notifications/push-subscription.ts, démontrer un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation, puis déclencher et corriger requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable.",
+        "steps": [
+          "Créer exercises/23-notifications/push-subscription.ts et identifier dans les annotations l’entrée « un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable.",
+          "Implémenter « expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur », relancer la commande et expliquer le rôle de VAPID."
+        ],
+        "hints": [
+          "Relisez la définition : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation »."
+        ],
+        "solution": {
+          "explanation": "Pour Abonnement Web Push avec consentement, la solution maintient une seule autorité et applique précisément « expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur ». Elle rend requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable reproductible puis contrôlé, et elle n’est acceptée que lorsque un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation.",
+          "code": "export async function subscribeToPush(registration: ServiceWorkerRegistration, publicKey: string) {\n  const permission = await Notification.requestPermission();\n  if (permission !== \"granted\") return { subscribed: false };\n  const subscription = await registration.pushManager.subscribe({\n    userVisibleOnly: true,\n    applicationServerKey: publicKey,\n  });\n  return { subscribed: true, subscription: subscription.toJSON() };\n}",
+          "filename": "exercises/23-notifications/push-subscription.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "web-push-subscription-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Abonnement Web Push avec consentement » dans ce scénario ?",
+          "options": [
+            "expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur, puis vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation.",
+            "Ignorer « requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable » parce que le chemin normal affiche un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur.",
+            "Déplacer la validation vers l’interface et considérer VAPID comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur, puis vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable » parce que le chemin normal affiche un flux d’abonnement qui respecte le refus et ne confond pas permission avec abonnement serveur. ». La réponse de référence est « expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur, puis vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer VAPID comme un détail serveur. ». La réponse de référence est « expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur, puis vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur, puis vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur."
+          ]
+        },
+        {
+          "id": "web-push-subscription-q2",
+          "question": "Quelle définition correspond au terme « VAPID » ?",
+          "options": [
+            "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages.",
+            "Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+            "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« VAPID » signifie : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Choix révocable indiquant par quel moyen un utilisateur accepte certains messages. ». La réponse de référence est « Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. ». « VAPID » signifie : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+            "Cette option est correcte. Elle affirme « Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. ». « VAPID » signifie : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+            "Cette option est incorrecte. Elle affirme « Rejet d’une livraison déjà traitée grâce à un identifiant externe stable. ». La réponse de référence est « Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. ». « VAPID » signifie : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. ». « VAPID » signifie : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur."
+          ]
+        },
+        {
+          "id": "web-push-subscription-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « requestPermission s’exécute au chargement, sans geste ni explication, et pousse l’utilisateur vers un refus durable » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation ».",
+            "Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement VAPID : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement VAPID : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation.",
+            "Cette option est incorrecte. Elle affirme « Figer un bouton explicite permet à l’utilisateur de demander le Push, puis transmet l’abonnement au serveur seulement après granted, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement VAPID : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement VAPID : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement VAPID : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : expliquer valeur et fréquence, attendre un geste, traiter default et denied comme des choix et prévoir désabonnement côté serveur. Rejouer ensuite le cas et vérifier que un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation."
+          ]
+        }
+      ],
+      "recap": [
+        "Demander la permission après une intention utilisateur, créer l’abonnement avec la clé VAPID publique et offrir une désinscription aussi simple que l’inscription.",
+        "VAPID : Paire de clés qui identifie le serveur d’application auprès du service Push sans authentifier l’utilisateur.",
+        "La preuve de fin est : un refus laisse l’interface fonctionnelle sans relance ; un accord crée un abonnement lié à l’utilisateur, au navigateur et à une date de révocation."
+      ],
+      "next": "La leçon suivante reçoit le message dans le Service Worker et rend clic, repli et URL sûrs."
+    },
+    {
+      "id": "service-worker-notification",
+      "order": 1,
+      "title": "Afficher une notification dans le Service Worker",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les permissions navigateur, les Service Workers, les webhooks signés et la différence entre consentement et préférence de canal.",
+        "Pouvoir reformuler « Service Worker » avant de coder : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+        "Savoir créer exercises/23-notifications/service-worker.js, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Décoder une charge minimale, fournir un repli sûr, prolonger la durée de vie avec waitUntil et ouvrir uniquement une URL validée lors du clic.",
+        "Construire un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax, puis prouver le résultat avec ce signal précis : event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une notification est une décision avant d’être un message : événement admissible, destinataire autorisé, canal disponible, fréquence acceptable, puis livraison observable. Dans « Afficher une notification dans le Service Worker », l’entrée concrète est un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée. Le concept Service Worker signifie : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Le modèle n’est donc complet que si valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone et si l’on peut observer event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un orchestrateur de notifications est un standard téléphonique : il choisit une ligne autorisée et évite d’appeler trois fois pour la même information. Ici, la pièce que vous allez réellement contrôler est un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée. Décoder une charge minimale, fournir un repli sûr, prolonger la durée de vie avec waitUntil et ouvrir uniquement une URL validée lors du clic. Le terme Service Worker n’est pas une étiquette décorative : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/23-notifications/service-worker.js, l’exemple réduit volontairement le système à un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing. Elle révèle pourquoi la correction professionnelle consiste à valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. Appliquez ensuite la même preuve à alertes de commande, disponibilité produit et conversations WhatsApp du support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Service Worker",
+                  "definition": "Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur."
+                },
+                {
+                  "term": "Préférence de canal",
+                  "definition": "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages."
+                },
+                {
+                  "term": "Déduplication",
+                  "definition": "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée, écrivez d’abord l’observation attendue « event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine », puis implémentez un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax. Simulez data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing et ne terminez que lorsque la mesure confirme la protection : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "exercises/23-notifications/service-worker.js",
+                "source": "const safePath = (value) => {\n  try { const url = new URL(typeof value === \"string\" ? value : \"/\", self.location.origin);\n    return url.origin === self.location.origin ? `${url.pathname}${url.search}${url.hash}` : \"/\";\n  } catch { return \"/\"; }\n};\nself.addEventListener(\"push\", (event) => {\n  let data = { title: \"L’ecomax\", body: \"Nouvelle information\", url: \"/\" };\n  try { data = { ...data, ...(event.data?.json() ?? {}) }; } catch { /* keep safe fallback */ }\n  event.waitUntil(self.registration.showNotification(data.title, {\n    body: String(data.body).slice(0, 240), icon: \"/favicon.png\", data: { url: safePath(data.url) },\n  }));\n});\nself.addEventListener(\"notificationclick\", (event) => {\n  event.notification.close(); event.waitUntil(clients.openWindow(event.notification.data.url));\n});",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — const safePath = (value) => {."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — try { const url = new URL(typeof value === \"string\" ? value : \"/\", self.location.orig…."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "renvoie la valeur produite au code appelant — return url.origin === self.location.origin ? `${url.pathname}${url.search}${url.hash}…."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "renvoie la valeur produite au code appelant — } catch { return \"/\"; }."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "ferme la structure ouverte par les lignes précédentes — };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — self.addEventListener(\"push\", (event) => {."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — let data = { title: \"L’ecomax\", body: \"Nouvelle information\", url: \"/\" };."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — try { data = { ...data, ...(event.data?.json() ?? {}) }; } catch { /* keep safe fallb…."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — event.waitUntil(self.registration.showNotification(data.title, {."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "configure cette clé du workflow ou du service — body: String(data.body).slice(0, 240), icon: \"/favicon.png\", data: { url: safePath(da…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }));."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — self.addEventListener(\"notificationclick\", (event) => {."
+                  },
+                  {
+                    "lines": "14",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — event.notification.close(); event.waitUntil(clients.openWindow(event.notification.dat…."
+                  },
+                  {
+                    "lines": "15",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/service-worker.js\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/23-notifications/service-worker.js et identifier dans les annotations l’entrée « un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée ». — code exercises/23-notifications/service-worker.js"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. Le cas volontairement défaillant montre « data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing » sans exposer de secret ; après application du garde-fou — valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège alertes de commande, disponibilité produit et conversations WhatsApp du support. Le livrable un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax doit rester côté de la bonne frontière de confiance ; réutilisez Service Worker pour justifier les validations et conservez comme preuve event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/service-worker.js",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. Le cas volontairement défaillant montre « data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing » sans exposer de secret ; après application du garde-fou — valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement Service Worker : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+          "fix": "Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine."
+        },
+        {
+          "symptom": "un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Afficher une notification dans le Service Worker, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; solliciter une permission sans intention claire, ignorer un refus ou multiplier les canaux pour le même événement.",
+          "fix": "Figer un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax dans exercises/23-notifications/service-worker.js, démontrer event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine, puis déclencher et corriger data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing.",
+        "steps": [
+          "Créer exercises/23-notifications/service-worker.js et identifier dans les annotations l’entrée « un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing.",
+          "Implémenter « valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone », relancer la commande et expliquer le rôle de Service Worker."
+        ],
+        "hints": [
+          "Relisez la définition : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine »."
+        ],
+        "solution": {
+          "explanation": "Pour Afficher une notification dans le Service Worker, la solution maintient une seule autorité et applique précisément « valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone ». Elle rend data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing reproductible puis contrôlé, et elle n’est acceptée que lorsque event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine.",
+          "code": "const safePath = (value) => {\n  try { const url = new URL(typeof value === \"string\" ? value : \"/\", self.location.origin);\n    return url.origin === self.location.origin ? `${url.pathname}${url.search}${url.hash}` : \"/\";\n  } catch { return \"/\"; }\n};\nself.addEventListener(\"push\", (event) => {\n  let data = { title: \"L’ecomax\", body: \"Nouvelle information\", url: \"/\" };\n  try { data = { ...data, ...(event.data?.json() ?? {}) }; } catch { /* keep safe fallback */ }\n  event.waitUntil(self.registration.showNotification(data.title, {\n    body: String(data.body).slice(0, 240), icon: \"/favicon.png\", data: { url: safePath(data.url) },\n  }));\n});\nself.addEventListener(\"notificationclick\", (event) => {\n  event.notification.close(); event.waitUntil(clients.openWindow(event.notification.data.url));\n});",
+          "filename": "exercises/23-notifications/service-worker.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "service-worker-notification-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Afficher une notification dans le Service Worker » dans ce scénario ?",
+          "options": [
+            "valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone, puis vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine.",
+            "Ignorer « data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing » parce que le chemin normal affiche un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax.",
+            "Déplacer la validation vers l’interface et considérer Service Worker comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone, puis vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing » parce que le chemin normal affiche un gestionnaire Push qui affiche puis relie la notification à une page L’ecomax. ». La réponse de référence est « valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone, puis vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer Service Worker comme un détail serveur. ». La réponse de référence est « valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone, puis vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone, puis vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur."
+          ]
+        },
+        {
+          "id": "service-worker-notification-q2",
+          "question": "Quelle définition correspond au terme « Service Worker » ?",
+          "options": [
+            "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages.",
+            "Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+            "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Service Worker » signifie : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Choix révocable indiquant par quel moyen un utilisateur accepte certains messages. ». La réponse de référence est « Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. ». « Service Worker » signifie : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+            "Cette option est correcte. Elle affirme « Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. ». « Service Worker » signifie : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+            "Cette option est incorrecte. Elle affirme « Rejet d’une livraison déjà traitée grâce à un identifiant externe stable. ». La réponse de référence est « Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. ». « Service Worker » signifie : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. ». « Service Worker » signifie : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur."
+          ]
+        },
+        {
+          "id": "service-worker-notification-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « data.url accepte une origine externe et transforme une notification de confiance en redirection de phishing » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine ».",
+            "Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement Service Worker : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement Service Worker : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine.",
+            "Cette option est incorrecte. Elle affirme « Figer un événement push reçu lorsque l’onglet est fermé, affiché avec repli puis ouvert sur une URL interne autorisée, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement Service Worker : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement Service Worker : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement Service Worker : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur. Le correctif adapté est : Appliquer ce garde-fou spécifique : valider un chemin relatif contre une liste de routes internes, borner texte et icône, puis utiliser waitUntil pour tout travail asynchrone. Rejouer ensuite le cas et vérifier que event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine."
+          ]
+        }
+      ],
+      "recap": [
+        "Décoder une charge minimale, fournir un repli sûr, prolonger la durée de vie avec waitUntil et ouvrir uniquement une URL validée lors du clic.",
+        "Service Worker : Script isolé du document capable de recevoir des événements en arrière-plan selon les règles du navigateur.",
+        "La preuve de fin est : event.waitUntil couvre la promesse d’affichage, un payload absent utilise le repli et le clic réutilise ou ouvre une fenêtre du même origine."
+      ],
+      "next": "La leçon suivante applique vérification, normalisation et déduplication aux messages entrants WhatsApp."
+    },
+    {
+      "id": "whatsapp-webhook",
+      "order": 2,
+      "title": "Webhook WhatsApp et normalisation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les permissions navigateur, les Service Workers, les webhooks signés et la différence entre consentement et préférence de canal.",
+        "Pouvoir reformuler « normalisation » avant de coder : Transformation de formats externes variés vers une forme interne stable et validée.",
+        "Savoir créer exercises/23-notifications/whatsapp-webhook.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Vérifier le webhook, distinguer les types de message, borner le texte et conserver l’identifiant externe pour dédupliquer les livraisons.",
+        "Construire une frontière qui transforme un message texte WhatsApp en donnée interne sûre, puis prouver le résultat avec ce signal précis : la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une notification est une décision avant d’être un message : événement admissible, destinataire autorisé, canal disponible, fréquence acceptable, puis livraison observable. Dans « Webhook WhatsApp et normalisation », l’entrée concrète est un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support. Le concept normalisation signifie : Transformation de formats externes variés vers une forme interne stable et validée. Le modèle n’est donc complet que si vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké et si l’on peut observer la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un orchestrateur de notifications est un standard téléphonique : il choisit une ligne autorisée et évite d’appeler trois fois pour la même information. Ici, la pièce que vous allez réellement contrôler est une frontière qui transforme un message texte WhatsApp en donnée interne sûre ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support. Vérifier le webhook, distinguer les types de message, borner le texte et conserver l’identifiant externe pour dédupliquer les livraisons. Le terme normalisation n’est pas une étiquette décorative : Transformation de formats externes variés vers une forme interne stable et validée. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/23-notifications/whatsapp-webhook.ts, l’exemple réduit volontairement le système à une frontière qui transforme un message texte WhatsApp en donnée interne sûre. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message. Elle révèle pourquoi la correction professionnelle consiste à vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. Appliquez ensuite la même preuve à alertes de commande, disponibilité produit et conversations WhatsApp du support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "normalisation",
+                  "definition": "Transformation de formats externes variés vers une forme interne stable et validée."
+                },
+                {
+                  "term": "Préférence de canal",
+                  "definition": "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages."
+                },
+                {
+                  "term": "Déduplication",
+                  "definition": "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support, écrivez d’abord l’observation attendue « la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement », puis implémentez une frontière qui transforme un message texte WhatsApp en donnée interne sûre. Simulez normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message et ne terminez que lorsque la mesure confirme la protection : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/23-notifications/whatsapp-webhook.ts",
+                "source": "import { createHmac, timingSafeEqual } from \"node:crypto\";\ntype WhatsAppMessage = { id: string; from: string; text?: { body: string } };\ntype WhatsAppEnvelope = { entry?: Array<{ changes?: Array<{ value?: { messages?: WhatsAppMessage[] } }> }> };\nfunction verifyMetaSignature(rawBody: string, signature: string, appSecret: string) {\n  const expected = `sha256=${createHmac(\"sha256\", appSecret).update(rawBody).digest(\"hex\")}`;\n  const actualBytes = Buffer.from(signature); const expectedBytes = Buffer.from(expected);\n  if (actualBytes.length !== expectedBytes.length || !timingSafeEqual(actualBytes, expectedBytes)) throw new Error(\"invalid signature\");\n}\nexport function verifyAndNormalizeWhatsApp(rawBody: string, signature: string, appSecret: string) {\n  verifyMetaSignature(rawBody, signature, appSecret);\n  const envelope = JSON.parse(rawBody) as WhatsAppEnvelope;\n  const message = envelope.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\n  if (!message) return { ignored: true, reason: \"no message\" };\n  if (!message.id || !message.from) throw new Error(\"invalid message envelope\");\n  const body = message.text?.body?.trim();\n  if (!body) return { ignored: true, reason: \"unsupported message\" };\n  return {\n    externalId: message.id, sender: message.from, body: body.slice(0, 2000),\n  };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "importe la dépendance nommée, sans l’instancier implicitement — import { createHmac, timingSafeEqual } from \"node:crypto\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "définit la forme des données acceptées à cette frontière — type WhatsAppMessage = { id: string; from: string; text?: { body: string } };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "définit la forme des données acceptées à cette frontière — type WhatsAppEnvelope = { entry?: Array<{ changes?: Array<{ value?: { messages?: What…."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "définit la forme des données acceptées à cette frontière — function verifyMetaSignature(rawBody: string, signature: string, appSecret: string) {."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const expected = `sha256=${createHmac(\"sha256\", appSecret).update(rawBody).digest(\"he…."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const actualBytes = Buffer.from(signature); const expectedBytes = Buffer.from(expected);."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (actualBytes.length !== expectedBytes.length || !timingSafeEqual(actualBytes, expe…."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "définit la forme des données acceptées à cette frontière — export function verifyAndNormalizeWhatsApp(rawBody: string, signature: string, appSec…."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — verifyMetaSignature(rawBody, signature, appSecret);."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const envelope = JSON.parse(rawBody) as WhatsAppEnvelope;."
+                  },
+                  {
+                    "lines": "12",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const message = envelope.entry?.[0]?.changes?.[0]?.value?.messages?.[0];."
+                  },
+                  {
+                    "lines": "13",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!message) return { ignored: true, reason: \"no message\" };."
+                  },
+                  {
+                    "lines": "14",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!message.id || !message.from) throw new Error(\"invalid message envelope\");."
+                  },
+                  {
+                    "lines": "15",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const body = message.text?.body?.trim();."
+                  },
+                  {
+                    "lines": "16",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!body) return { ignored: true, reason: \"unsupported message\" };."
+                  },
+                  {
+                    "lines": "17",
+                    "label": "renvoie la valeur produite au code appelant — return {."
+                  },
+                  {
+                    "lines": "18",
+                    "label": "configure cette clé du workflow ou du service — externalId: message.id, sender: message.from, body: body.slice(0, 2000),."
+                  },
+                  {
+                    "lines": "19",
+                    "label": "ferme la structure ouverte par les lignes précédentes — };."
+                  },
+                  {
+                    "lines": "20",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/whatsapp-webhook.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/23-notifications/whatsapp-webhook.ts et identifier dans les annotations l’entrée « un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support ». — code exercises/23-notifications/whatsapp-webhook.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. Le cas volontairement défaillant montre « normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message » sans exposer de secret ; après application du garde-fou — vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège alertes de commande, disponibilité produit et conversations WhatsApp du support. Le livrable une frontière qui transforme un message texte WhatsApp en donnée interne sûre doit rester côté de la bonne frontière de confiance ; réutilisez normalisation pour justifier les validations et conservez comme preuve la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/whatsapp-webhook.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. Le cas volontairement défaillant montre « normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message » sans exposer de secret ; après application du garde-fou — vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement normalisation : Transformation de formats externes variés vers une forme interne stable et validée.",
+          "fix": "Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement."
+        },
+        {
+          "symptom": "une frontière qui transforme un message texte WhatsApp en donnée interne sûre semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Webhook WhatsApp et normalisation, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; solliciter une permission sans intention claire, ignorer un refus ou multiplier les canaux pour le même événement.",
+          "fix": "Figer un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une frontière qui transforme un message texte WhatsApp en donnée interne sûre dans exercises/23-notifications/whatsapp-webhook.ts, démontrer la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement, puis déclencher et corriger normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message.",
+        "steps": [
+          "Créer exercises/23-notifications/whatsapp-webhook.ts et identifier dans les annotations l’entrée « un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message.",
+          "Implémenter « vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké », relancer la commande et expliquer le rôle de normalisation."
+        ],
+        "hints": [
+          "Relisez la définition : Transformation de formats externes variés vers une forme interne stable et validée. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement »."
+        ],
+        "solution": {
+          "explanation": "Pour Webhook WhatsApp et normalisation, la solution maintient une seule autorité et applique précisément « vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké ». Elle rend normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message reproductible puis contrôlé, et elle n’est acceptée que lorsque la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement.",
+          "code": "import { createHmac, timingSafeEqual } from \"node:crypto\";\ntype WhatsAppMessage = { id: string; from: string; text?: { body: string } };\ntype WhatsAppEnvelope = { entry?: Array<{ changes?: Array<{ value?: { messages?: WhatsAppMessage[] } }> }> };\nfunction verifyMetaSignature(rawBody: string, signature: string, appSecret: string) {\n  const expected = `sha256=${createHmac(\"sha256\", appSecret).update(rawBody).digest(\"hex\")}`;\n  const actualBytes = Buffer.from(signature); const expectedBytes = Buffer.from(expected);\n  if (actualBytes.length !== expectedBytes.length || !timingSafeEqual(actualBytes, expectedBytes)) throw new Error(\"invalid signature\");\n}\nexport function verifyAndNormalizeWhatsApp(rawBody: string, signature: string, appSecret: string) {\n  verifyMetaSignature(rawBody, signature, appSecret);\n  const envelope = JSON.parse(rawBody) as WhatsAppEnvelope;\n  const message = envelope.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\n  if (!message) return { ignored: true, reason: \"no message\" };\n  if (!message.id || !message.from) throw new Error(\"invalid message envelope\");\n  const body = message.text?.body?.trim();\n  if (!body) return { ignored: true, reason: \"unsupported message\" };\n  return {\n    externalId: message.id, sender: message.from, body: body.slice(0, 2000),\n  };\n}",
+          "filename": "exercises/23-notifications/whatsapp-webhook.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "whatsapp-webhook-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Webhook WhatsApp et normalisation » dans ce scénario ?",
+          "options": [
+            "vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké, puis vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement.",
+            "Ignorer « normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message » parce que le chemin normal affiche une frontière qui transforme un message texte WhatsApp en donnée interne sûre.",
+            "Déplacer la validation vers l’interface et considérer normalisation comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Transformation de formats externes variés vers une forme interne stable et validée.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké, puis vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Transformation de formats externes variés vers une forme interne stable et validée.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message » parce que le chemin normal affiche une frontière qui transforme un message texte WhatsApp en donnée interne sûre. ». La réponse de référence est « vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké, puis vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Transformation de formats externes variés vers une forme interne stable et validée.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer normalisation comme un détail serveur. ». La réponse de référence est « vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké, puis vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Transformation de formats externes variés vers une forme interne stable et validée.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké, puis vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Transformation de formats externes variés vers une forme interne stable et validée."
+          ]
+        },
+        {
+          "id": "whatsapp-webhook-q2",
+          "question": "Quelle définition correspond au terme « normalisation » ?",
+          "options": [
+            "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages.",
+            "Transformation de formats externes variés vers une forme interne stable et validée.",
+            "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« normalisation » signifie : Transformation de formats externes variés vers une forme interne stable et validée.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Choix révocable indiquant par quel moyen un utilisateur accepte certains messages. ». La réponse de référence est « Transformation de formats externes variés vers une forme interne stable et validée. ». « normalisation » signifie : Transformation de formats externes variés vers une forme interne stable et validée.",
+            "Cette option est correcte. Elle affirme « Transformation de formats externes variés vers une forme interne stable et validée. ». « normalisation » signifie : Transformation de formats externes variés vers une forme interne stable et validée.",
+            "Cette option est incorrecte. Elle affirme « Rejet d’une livraison déjà traitée grâce à un identifiant externe stable. ». La réponse de référence est « Transformation de formats externes variés vers une forme interne stable et validée. ». « normalisation » signifie : Transformation de formats externes variés vers une forme interne stable et validée.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Transformation de formats externes variés vers une forme interne stable et validée. ». « normalisation » signifie : Transformation de formats externes variés vers une forme interne stable et validée."
+          ]
+        },
+        {
+          "id": "whatsapp-webhook-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « normaliser un objet JSON sans vérifier la signature permet à n’importe qui de fabriquer un expéditeur et un message » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement ».",
+            "Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement normalisation : Transformation de formats externes variés vers une forme interne stable et validée. Le correctif adapté est : Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement normalisation : Transformation de formats externes variés vers une forme interne stable et validée. Le correctif adapté est : Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement.",
+            "Cette option est incorrecte. Elle affirme « Figer un webhook Meta signé contenant plusieurs types de messages dont seul le texte borné devient une demande support, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement normalisation : Transformation de formats externes variés vers une forme interne stable et validée. Le correctif adapté est : Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement normalisation : Transformation de formats externes variés vers une forme interne stable et validée. Le correctif adapté est : Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement normalisation : Transformation de formats externes variés vers une forme interne stable et validée. Le correctif adapté est : Appliquer ce garde-fou spécifique : vérifier HMAC sur les octets reçus avec comparaison constante, valider la structure, dédupliquer l’identifiant et minimiser le numéro stocké. Rejouer ensuite le cas et vérifier que la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement."
+          ]
+        }
+      ],
+      "recap": [
+        "Vérifier le webhook, distinguer les types de message, borner le texte et conserver l’identifiant externe pour dédupliquer les livraisons.",
+        "normalisation : Transformation de formats externes variés vers une forme interne stable et validée.",
+        "La preuve de fin est : la signature du corps brut est vérifiée avant parsing, les types inconnus sont ignorés et message.id empêche un second traitement."
+      ],
+      "next": "La leçon suivante choisit un canal unique ou une escalade explicite selon urgence, consentement et état de livraison."
+    },
+    {
+      "id": "notification-orchestration",
+      "order": 3,
+      "title": "Orchestrer les canaux sans spam",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les permissions navigateur, les Service Workers, les webhooks signés et la différence entre consentement et préférence de canal.",
+        "Pouvoir reformuler « orchestration » avant de coder : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+        "Savoir créer exercises/23-notifications/orchestrator.ts, exécuter npx tsc --noEmit et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Centraliser préférences, urgence, fréquence et désinscription afin qu’un événement métier ne contacte jamais directement tous les fournisseurs.",
+        "Construire un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons, puis prouver le résultat avec ce signal précis : la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une notification est une décision avant d’être un message : événement admissible, destinataire autorisé, canal disponible, fréquence acceptable, puis livraison observable. Dans « Orchestrer les canaux sans spam », l’entrée concrète est un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences. Le concept orchestration signifie : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Le modèle n’est donc complet que si définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat et si l’on peut observer la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un orchestrateur de notifications est un standard téléphonique : il choisit une ligne autorisée et évite d’appeler trois fois pour la même information. Ici, la pièce que vous allez réellement contrôler est un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences. Centraliser préférences, urgence, fréquence et désinscription afin qu’un événement métier ne contacte jamais directement tous les fournisseurs. Le terme orchestration n’est pas une étiquette décorative : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/23-notifications/orchestrator.ts, l’exemple réduit volontairement le système à un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons. Lisez chaque ligne comme une responsabilité, puis exécutez npx tsc --noEmit. La principale défaillance à provoquer est la suivante : urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles. Elle révèle pourquoi la correction professionnelle consiste à définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. Appliquez ensuite la même preuve à alertes de commande, disponibilité produit et conversations WhatsApp du support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "orchestration",
+                  "definition": "Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier."
+                },
+                {
+                  "term": "Préférence de canal",
+                  "definition": "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages."
+                },
+                {
+                  "term": "Déduplication",
+                  "definition": "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences, écrivez d’abord l’observation attendue « la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi », puis implémentez un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons. Simulez urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles et ne terminez que lorsque la mesure confirme la protection : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/23-notifications/orchestrator.ts",
+                "source": "type Preference = { email: boolean; push: boolean; whatsapp: boolean };\ntype Channel = keyof Preference;\nexport function chooseChannels(preference: Preference, urgent: boolean): Channel[] {\n  const allowed = (Object.keys(preference) as Channel[]).filter((key) => preference[key]);\n  if (!urgent) return allowed.slice(0, 1);\n  return allowed;\n}\nconsole.log(chooseChannels({ email: true, push: true, whatsapp: false }, false));",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type Preference = { email: boolean; push: boolean; whatsapp: boolean };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "définit la forme des données acceptées à cette frontière — type Channel = keyof Preference;."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "définit la forme des données acceptées à cette frontière — export function chooseChannels(preference: Preference, urgent: boolean): Channel[] {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — const allowed = (Object.keys(preference) as Channel[]).filter((key) => preference[key]);."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!urgent) return allowed.slice(0, 1);."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "renvoie la valeur produite au code appelant — return allowed;."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "rend le résultat observable dans le terminal sans constituer une validation métier — console.log(chooseChannels({ email: true, push: true, whatsapp: false }, false));."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/23-notifications/orchestrator.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/23-notifications/orchestrator.ts et identifier dans les annotations l’entrée « un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences ». — code exercises/23-notifications/orchestrator.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npx tsc --noEmit, la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. Le cas volontairement défaillant montre « urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles » sans exposer de secret ; après application du garde-fou — définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège alertes de commande, disponibilité produit et conversations WhatsApp du support. Le livrable un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons doit rester côté de la bonne frontière de confiance ; réutilisez orchestration pour justifier les validations et conservez comme preuve la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/23-notifications/orchestrator.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "Après npx tsc --noEmit, la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. Le cas volontairement défaillant montre « urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles » sans exposer de secret ; après application du garde-fou — définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement orchestration : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+          "fix": "Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi."
+        },
+        {
+          "symptom": "un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Orchestrer les canaux sans spam, la commande npx tsc --noEmit, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; solliciter une permission sans intention claire, ignorer un refus ou multiplier les canaux pour le même événement.",
+          "fix": "Figer un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons dans exercises/23-notifications/orchestrator.ts, démontrer la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi, puis déclencher et corriger urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles.",
+        "steps": [
+          "Créer exercises/23-notifications/orchestrator.ts et identifier dans les annotations l’entrée « un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences ».",
+          "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles.",
+          "Implémenter « définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat », relancer la commande et expliquer le rôle de orchestration."
+        ],
+        "hints": [
+          "Relisez la définition : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi »."
+        ],
+        "solution": {
+          "explanation": "Pour Orchestrer les canaux sans spam, la solution maintient une seule autorité et applique précisément « définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat ». Elle rend urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles reproductible puis contrôlé, et elle n’est acceptée que lorsque la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi.",
+          "code": "type Preference = { email: boolean; push: boolean; whatsapp: boolean };\ntype Channel = keyof Preference;\nexport function chooseChannels(preference: Preference, urgent: boolean): Channel[] {\n  const allowed = (Object.keys(preference) as Channel[]).filter((key) => preference[key]);\n  if (!urgent) return allowed.slice(0, 1);\n  return allowed;\n}\nconsole.log(chooseChannels({ email: true, push: true, whatsapp: false }, false));",
+          "filename": "exercises/23-notifications/orchestrator.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "notification-orchestration-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Orchestrer les canaux sans spam » dans ce scénario ?",
+          "options": [
+            "définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat, puis vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi.",
+            "Ignorer « urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles » parce que le chemin normal affiche un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons.",
+            "Déplacer la validation vers l’interface et considérer orchestration comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat, puis vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles » parce que le chemin normal affiche un sélecteur de canaux déterministe qui respecte le choix du client et limite les doublons. ». La réponse de référence est « définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat, puis vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer orchestration comme un détail serveur. ». La réponse de référence est « définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat, puis vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat, puis vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier."
+          ]
+        },
+        {
+          "id": "notification-orchestration-q2",
+          "question": "Quelle définition correspond au terme « orchestration » ?",
+          "options": [
+            "Choix révocable indiquant par quel moyen un utilisateur accepte certains messages.",
+            "Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+            "Rejet d’une livraison déjà traitée grâce à un identifiant externe stable.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« orchestration » signifie : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Choix révocable indiquant par quel moyen un utilisateur accepte certains messages. ». La réponse de référence est « Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. ». « orchestration » signifie : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+            "Cette option est correcte. Elle affirme « Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. ». « orchestration » signifie : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+            "Cette option est incorrecte. Elle affirme « Rejet d’une livraison déjà traitée grâce à un identifiant externe stable. ». La réponse de référence est « Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. ». « orchestration » signifie : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. ». « orchestration » signifie : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier."
+          ]
+        },
+        {
+          "id": "notification-orchestration-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « urgent envoie sur tous les canaux autorisés même si l’un a déjà réussi, créant spam et coûts inutiles » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi ».",
+            "Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement orchestration : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Le correctif adapté est : Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement orchestration : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Le correctif adapté est : Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi.",
+            "Cette option est incorrecte. Elle affirme « Figer un changement de commande doit choisir email, push ou WhatsApp sans tripler le message ni ignorer les préférences, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement orchestration : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Le correctif adapté est : Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement orchestration : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Le correctif adapté est : Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement orchestration : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier. Le correctif adapté est : Appliquer ce garde-fou spécifique : définir priorité, fenêtre de fréquence et condition d’escalade, puis arrêter dès qu’un canal confirmé satisfait le contrat. Rejouer ensuite le cas et vérifier que la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi."
+          ]
+        }
+      ],
+      "recap": [
+        "Centraliser préférences, urgence, fréquence et désinscription afin qu’un événement métier ne contacte jamais directement tous les fournisseurs.",
+        "orchestration : Couche qui applique les règles transversales avant de déléguer l’envoi à un canal particulier.",
+        "La preuve de fin est : la décision enregistre événement, motif, canal choisi et clé de déduplication ; une répétition ne crée aucun nouvel envoi."
+      ],
+      "next": "Le module suivant traite le modèle IA comme un autre fournisseur non fiable, borné avant et après l’appel."
+    }
+  ]
+}

@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
@@ -18,7 +20,7 @@ export async function PATCH(req: NextRequest, context: Context) {
   const adminEmail = await actor(req);
   if (!adminEmail) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const { id } = await context.params;
-  const body = await req.json().catch(() => null) as { action?: unknown } | null;
+  const body = await readJsonLimited(req).catch(() => null) as { action?: unknown } | null;
   const action = body?.action;
   if (action === "send") {
     try {
@@ -32,7 +34,7 @@ export async function PATCH(req: NextRequest, context: Context) {
     const { data, error } = await supabase.from("mobile_notification_campaigns")
       .update({ status: "cancelled", updated_at: new Date().toISOString() })
       .eq("id", id).in("status", ["draft", "scheduled"]).select("*").maybeSingle();
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
     if (!data) return NextResponse.json({ error: "Cette campagne ne peut plus être annulée." }, { status: 409 });
     await supabase.from("mobile_control_audit").insert({ actor_email: adminEmail, action: "campaign_cancelled", entity_type: "mobile_notification_campaign", entity_id: id });
     return NextResponse.json({ campaign: data });

@@ -1,0 +1,984 @@
+{
+  "id": "retention-loyalty",
+  "order": 38,
+  "icon": "heart",
+  "color": "#db2777",
+  "title": "Email, rétention, fidélité et recommandation",
+  "summary": "Créer de la valeur après l’achat au lieu de dépendre uniquement de l’acquisition.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/38-retention-loyalty/lifecycle-email.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/38-retention-loyalty/segmentation-automation.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/38-retention-loyalty/loyalty-referral.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/38-retention-loyalty/cohort-retention-analysis.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lifecycle-email",
+      "order": 0,
+      "title": "Emails de cycle de vie et délivrabilité",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Emails de cycle de vie et délivrabilité en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une carte du cycle email avec règles d’arrêt en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Orchestrer bienvenue, panier, commande, usage, réapprovisionnement et réactivation selon événement, consentement, fréquence et valeur réelle. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Orchestrer bienvenue, panier, commande, usage, réapprovisionnement et réactivation selon événement, consentement, fréquence et valeur réelle. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Emails de cycle de vie et délivrabilité ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Orchestrer bienvenue, panier, commande, usage, réapprovisionnement et réactivation selon événement, consentement, fréquence et valeur réelle. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Emails de cycle de vie et délivrabilité, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une carte du cycle email avec règles d’arrêt. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Cohorte",
+                  "definition": "Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Cycle de vie",
+                  "definition": "Mesure ou structure qui rend la décision concernant Emails de cycle de vie et délivrabilité comparable et reproductible."
+                },
+                {
+                  "term": "Rétention",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Emails de cycle de vie et délivrabilité améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Emails de cycle de vie et délivrabilité à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/lifecycle-email.md",
+                "source": "# Lifecycle email and deliverability\n- [ ] Customer problem: Orchestrate welcome, cart, order, usage, replenishment, and reactivation based on event, consent, frequency, and real value.\n- [ ] Deliverable: an email lifecycle map with stopping rules\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/a/answer/81126\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Emails de cycle de vie et délivrabilité avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/lifecycle-email.md",
+                "source": "# Lifecycle email and deliverability\n- [x] Customer problem: Orchestrate welcome, cart, order, usage, replenishment, and reactivation based on event, consent, frequency, and real value.\n- [ ] Deliverable: an email lifecycle map with stopping rules\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/a/answer/81126\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Emails de cycle de vie et délivrabilité",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Emails de cycle de vie et délivrabilité complète chaque section de une carte du cycle email avec règles d’arrêt, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une carte du cycle email avec règles d’arrêt existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une carte du cycle email avec règles d’arrêt, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une carte du cycle email avec règles d’arrêt existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Emails de cycle de vie et délivrabilité paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Emails de cycle de vie et délivrabilité progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une carte du cycle email avec règles d’arrêt à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Emails de cycle de vie et délivrabilité complète chaque section de une carte du cycle email avec règles d’arrêt, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Lifecycle email and deliverability\n- [x] Customer problem: Orchestrate welcome, cart, order, usage, replenishment, and reactivation based on event, consent, frequency, and real value.\n- [ ] Deliverable: an email lifecycle map with stopping rules\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/a/answer/81126\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Emails de cycle de vie et délivrabilité",
+          "filename": "exercises/38-retention-loyalty/lifecycle-email.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lifecycle-email-q1",
+          "question": "Quelle démarche applique correctement Emails de cycle de vie et délivrabilité ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Emails de cycle de vie et délivrabilité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Emails de cycle de vie et délivrabilité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Emails de cycle de vie et délivrabilité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Emails de cycle de vie et délivrabilité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Emails de cycle de vie et délivrabilité, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "lifecycle-email-q2",
+          "question": "Quelle définition correspond au terme « Cohorte » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Emails de cycle de vie et délivrabilité comparable et reproductible.",
+            "Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Emails de cycle de vie et délivrabilité améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Cohorte » signifie : Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Emails de cycle de vie et délivrabilité comparable et reproductible. ». La réponse de référence est « Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Emails de cycle de vie et délivrabilité améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Emails de cycle de vie et délivrabilité, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "lifecycle-email-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Emails de cycle de vie et délivrabilité paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Emails de cycle de vie et délivrabilité, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Emails de cycle de vie et délivrabilité est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une carte du cycle email avec règles d’arrêt rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Emails de cycle de vie et délivrabilité, poursuivez avec Segmentation, personnalisation et automatisation afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "segmentation-automation",
+      "order": 1,
+      "title": "Segmentation, personnalisation et automatisation",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Segmentation, personnalisation et automatisation en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une matrice segments-messages-exclusions en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Segmenter sur besoins et comportements utiles, limiter les données, définir priorités et exclusions puis tester les automatisations comme du code métier. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Segmenter sur besoins et comportements utiles, limiter les données, définir priorités et exclusions puis tester les automatisations comme du code métier. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Segmentation, personnalisation et automatisation ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Segmenter sur besoins et comportements utiles, limiter les données, définir priorités et exclusions puis tester les automatisations comme du code métier. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Segmentation, personnalisation et automatisation, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une matrice segments-messages-exclusions. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Cohorte",
+                  "definition": "Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Cycle de vie",
+                  "definition": "Mesure ou structure qui rend la décision concernant Segmentation, personnalisation et automatisation comparable et reproductible."
+                },
+                {
+                  "term": "Rétention",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Segmentation, personnalisation et automatisation améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Segmentation, personnalisation et automatisation à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/segmentation-automation.md",
+                "source": "# Segmentation, personalization, and automation\n- [ ] Customer problem: Segment on useful needs and behavior, minimize data, define priorities and exclusions, then test automation as business code.\n- [ ] Deliverable: a segment-message-exclusion matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Segmentation, personnalisation et automatisation avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/segmentation-automation.md",
+                "source": "# Segmentation, personalization, and automation\n- [x] Customer problem: Segment on useful needs and behavior, minimize data, define priorities and exclusions, then test automation as business code.\n- [ ] Deliverable: a segment-message-exclusion matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Segmentation, personnalisation et automatisation",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Segmentation, personnalisation et automatisation complète chaque section de une matrice segments-messages-exclusions, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une matrice segments-messages-exclusions existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une matrice segments-messages-exclusions, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une matrice segments-messages-exclusions existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Segmentation, personnalisation et automatisation paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Segmentation, personnalisation et automatisation progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une matrice segments-messages-exclusions à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Segmentation, personnalisation et automatisation complète chaque section de une matrice segments-messages-exclusions, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Segmentation, personalization, and automation\n- [x] Customer problem: Segment on useful needs and behavior, minimize data, define priorities and exclusions, then test automation as business code.\n- [ ] Deliverable: a segment-message-exclusion matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Segmentation, personnalisation et automatisation",
+          "filename": "exercises/38-retention-loyalty/segmentation-automation.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "segmentation-automation-q1",
+          "question": "Quelle démarche applique correctement Segmentation, personnalisation et automatisation ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Segmentation, personnalisation et automatisation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Segmentation, personnalisation et automatisation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Segmentation, personnalisation et automatisation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Segmentation, personnalisation et automatisation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Segmentation, personnalisation et automatisation, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "segmentation-automation-q2",
+          "question": "Quelle définition correspond au terme « Cohorte » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Segmentation, personnalisation et automatisation comparable et reproductible.",
+            "Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Segmentation, personnalisation et automatisation améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Cohorte » signifie : Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Segmentation, personnalisation et automatisation comparable et reproductible. ». La réponse de référence est « Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Segmentation, personnalisation et automatisation améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Segmentation, personnalisation et automatisation, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "segmentation-automation-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Segmentation, personnalisation et automatisation paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Segmentation, personnalisation et automatisation, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Segmentation, personnalisation et automatisation est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une matrice segments-messages-exclusions rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Segmentation, personnalisation et automatisation, poursuivez avec Programme de fidélité et recommandation rentable afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "loyalty-referral",
+      "order": 2,
+      "title": "Programme de fidélité et recommandation rentable",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Programme de fidélité et recommandation rentable en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un modèle fidélité-parrainage avec économie unitaire en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Récompenser un comportement créateur de valeur, calculer coût et responsabilité, prévenir fraude et rendre conditions et expiration compréhensibles. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Récompenser un comportement créateur de valeur, calculer coût et responsabilité, prévenir fraude et rendre conditions et expiration compréhensibles. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Programme de fidélité et recommandation rentable ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Récompenser un comportement créateur de valeur, calculer coût et responsabilité, prévenir fraude et rendre conditions et expiration compréhensibles. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Programme de fidélité et recommandation rentable, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un modèle fidélité-parrainage avec économie unitaire. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Cohorte",
+                  "definition": "Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Cycle de vie",
+                  "definition": "Mesure ou structure qui rend la décision concernant Programme de fidélité et recommandation rentable comparable et reproductible."
+                },
+                {
+                  "term": "Rétention",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Programme de fidélité et recommandation rentable améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Programme de fidélité et recommandation rentable à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/loyalty-referral.md",
+                "source": "# Profitable loyalty and referral programs\n- [ ] Customer problem: Reward value-creating behavior, calculate cost and liability, prevent fraud, and make conditions and expiration understandable.\n- [ ] Deliverable: a loyalty-referral model with unit economics\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/merchants/answer/12827255\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Programme de fidélité et recommandation rentable avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/loyalty-referral.md",
+                "source": "# Profitable loyalty and referral programs\n- [x] Customer problem: Reward value-creating behavior, calculate cost and liability, prevent fraud, and make conditions and expiration understandable.\n- [ ] Deliverable: a loyalty-referral model with unit economics\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/merchants/answer/12827255\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Programme de fidélité et recommandation rentable",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Programme de fidélité et recommandation rentable complète chaque section de un modèle fidélité-parrainage avec économie unitaire, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un modèle fidélité-parrainage avec économie unitaire existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un modèle fidélité-parrainage avec économie unitaire, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un modèle fidélité-parrainage avec économie unitaire existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Programme de fidélité et recommandation rentable paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Programme de fidélité et recommandation rentable progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un modèle fidélité-parrainage avec économie unitaire à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Programme de fidélité et recommandation rentable complète chaque section de un modèle fidélité-parrainage avec économie unitaire, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Profitable loyalty and referral programs\n- [x] Customer problem: Reward value-creating behavior, calculate cost and liability, prevent fraud, and make conditions and expiration understandable.\n- [ ] Deliverable: a loyalty-referral model with unit economics\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/merchants/answer/12827255\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Programme de fidélité et recommandation rentable",
+          "filename": "exercises/38-retention-loyalty/loyalty-referral.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "loyalty-referral-q1",
+          "question": "Quelle démarche applique correctement Programme de fidélité et recommandation rentable ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Programme de fidélité et recommandation rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Programme de fidélité et recommandation rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Programme de fidélité et recommandation rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Programme de fidélité et recommandation rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Programme de fidélité et recommandation rentable, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "loyalty-referral-q2",
+          "question": "Quelle définition correspond au terme « Cohorte » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Programme de fidélité et recommandation rentable comparable et reproductible.",
+            "Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Programme de fidélité et recommandation rentable améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Cohorte » signifie : Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Programme de fidélité et recommandation rentable comparable et reproductible. ». La réponse de référence est « Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Programme de fidélité et recommandation rentable améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Programme de fidélité et recommandation rentable, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "loyalty-referral-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Programme de fidélité et recommandation rentable paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Programme de fidélité et recommandation rentable, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Programme de fidélité et recommandation rentable est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un modèle fidélité-parrainage avec économie unitaire rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Programme de fidélité et recommandation rentable, poursuivez avec Cohortes, réachat, churn et voix du client afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "cohort-retention-analysis",
+      "order": 3,
+      "title": "Cohortes, réachat, churn et voix du client",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Cohortes, réachat, churn et voix du client en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un tableau de cohortes et un backlog de rétention en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Lire rétention par première commande, produit, canal et période, compléter les chiffres par motifs qualitatifs et prioriser les causes contrôlables. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Lire rétention par première commande, produit, canal et période, compléter les chiffres par motifs qualitatifs et prioriser les causes contrôlables. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Cohortes, réachat, churn et voix du client ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Lire rétention par première commande, produit, canal et période, compléter les chiffres par motifs qualitatifs et prioriser les causes contrôlables. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Cohortes, réachat, churn et voix du client, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un tableau de cohortes et un backlog de rétention. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Cohorte",
+                  "definition": "Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Cycle de vie",
+                  "definition": "Mesure ou structure qui rend la décision concernant Cohortes, réachat, churn et voix du client comparable et reproductible."
+                },
+                {
+                  "term": "Rétention",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Cohortes, réachat, churn et voix du client améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Cohortes, réachat, churn et voix du client à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/cohort-retention-analysis.md",
+                "source": "# Cohorts, repeat purchase, churn, and customer voice\n- [ ] Customer problem: Read retention by first order, product, channel, and period; complement numbers with qualitative reasons and prioritize controllable causes.\n- [ ] Deliverable: a cohort table and retention backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/analytics/answer/9670133\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Cohortes, réachat, churn et voix du client avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/38-retention-loyalty/cohort-retention-analysis.md",
+                "source": "# Cohorts, repeat purchase, churn, and customer voice\n- [x] Customer problem: Read retention by first order, product, channel, and period; complement numbers with qualitative reasons and prioritize controllable causes.\n- [ ] Deliverable: a cohort table and retention backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/analytics/answer/9670133\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Cohortes, réachat, churn et voix du client",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Cohortes, réachat, churn et voix du client complète chaque section de un tableau de cohortes et un backlog de rétention, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un tableau de cohortes et un backlog de rétention existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un tableau de cohortes et un backlog de rétention, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un tableau de cohortes et un backlog de rétention existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Cohortes, réachat, churn et voix du client paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Cohortes, réachat, churn et voix du client progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un tableau de cohortes et un backlog de rétention à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Cohortes, réachat, churn et voix du client complète chaque section de un tableau de cohortes et un backlog de rétention, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Cohorts, repeat purchase, churn, and customer voice\n- [x] Customer problem: Read retention by first order, product, channel, and period; complement numbers with qualitative reasons and prioritize controllable causes.\n- [ ] Deliverable: a cohort table and retention backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://support.google.com/analytics/answer/9670133\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Cohortes, réachat, churn et voix du client",
+          "filename": "exercises/38-retention-loyalty/cohort-retention-analysis.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "cohort-retention-analysis-q1",
+          "question": "Quelle démarche applique correctement Cohortes, réachat, churn et voix du client ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Cohortes, réachat, churn et voix du client, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Cohortes, réachat, churn et voix du client, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Cohortes, réachat, churn et voix du client, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Cohortes, réachat, churn et voix du client, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Cohortes, réachat, churn et voix du client, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "cohort-retention-analysis-q2",
+          "question": "Quelle définition correspond au terme « Cohorte » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Cohortes, réachat, churn et voix du client comparable et reproductible.",
+            "Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Cohortes, réachat, churn et voix du client améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Cohorte » signifie : Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Cohortes, réachat, churn et voix du client comparable et reproductible. ». La réponse de référence est « Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Cohortes, réachat, churn et voix du client améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence. ». « Cohorte » signifie : Concept central de Cohortes, réachat, churn et voix du client, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "cohort-retention-analysis-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Cohortes, réachat, churn et voix du client paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Cohortes, réachat, churn et voix du client, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Cohortes, réachat, churn et voix du client est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un tableau de cohortes et un backlog de rétention rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Cohortes, réachat, churn et voix du client, poursuivez avec Tableau de bord : revenus, marge, trésorerie et KPIs afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

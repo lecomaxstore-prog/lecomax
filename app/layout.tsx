@@ -1,4 +1,5 @@
 import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA } from "@/lib/social-image";
+import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -7,6 +8,7 @@ import { Inter, Sora } from "next/font/google";
 import { unstable_cache } from "next/cache";
 import "./globals.css";
 import Header from "@/components/Header";
+import GoogleAuthReturn from "@/components/GoogleAuthReturn";
 import Footer from "@/components/Footer";
 
 import { CartProvider } from "@/components/CartContext";
@@ -42,18 +44,17 @@ const SITE_URL = "https://lecomax.com";
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content" };
 const BING_SITE_VERIFICATION = process.env.BING_SITE_VERIFICATION?.trim();
 
-const SOCIAL_TITLE = "L'ecomax | Mode, Tech & Sport au Maroc";
-const SOCIAL_DESCRIPTION = "Chaussures, vêtements et accessoires tech sélectionnés pour vous. Livraison partout au Maroc, paiement sécurisé et retours sous 30 jours.";
+const SOCIAL_TITLE = STOREFRONT_TITLE;
+const SOCIAL_DESCRIPTION = STOREFRONT_DESCRIPTION;
 
 const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  manifest: "/manifest.json?v=5",
+  manifest: "/manifest.json?v=12",
   title: {
-    default: "L'ecomax — Mode, Tech & Sport · Livraison partout au Maroc",
+    default: STOREFRONT_TITLE,
     template: "%s",
   },
-  description:
-    "L'ecomax est la boutique en ligne au Maroc pour acheter des chaussures de sport, vêtements tendance, écouteurs sans fil TWS, enceintes bluetooth et accessoires gaming. Livraison {{shipping}} partout au Maroc, paiement à la livraison, Retours sous 30 jours, selon conditions. Commandez sur lecomax.com.",
+  description: STOREFRONT_DESCRIPTION,
   keywords: [
     "L'ecomax",
     "lecomax",
@@ -80,15 +81,15 @@ const defaultMetadata: Metadata = {
   category: "shopping",
   icons: {
     icon: [
-      { url: "/favicon.ico?v=5", sizes: "any", type: "image/x-icon" },
-      { url: "/brand/lecomax-premium-icon.png?v=1", sizes: "1280x1280", type: "image/png" },
-      { url: "/icons/icon-192.png?v=5", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png?v=5", sizes: "512x512", type: "image/png" },
+      { url: "/brand/favicon-premium-v12.ico", sizes: "16x16 32x32 48x48", type: "image/x-icon" },
+      { url: "/brand/favicon-premium-v12-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/premium-v12-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/premium-v12-512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
-      { url: "/icons/apple-touch-icon.png?v=5", sizes: "180x180", type: "image/png" },
+      { url: "/icons/premium-v12-180.png", sizes: "180x180", type: "image/png" },
     ],
-    shortcut: "/favicon.ico?v=5",
+    shortcut: "/brand/favicon-premium-v12.ico",
   },
   openGraph: {
     type: "website",
@@ -206,8 +207,8 @@ export default async function RootLayout({
       "alternateName": "Lecomax",
       "url": "${SITE_URL}",
       "foundingLocation": { "@type": "Place", "name": "Sidi Bennour, Maroc" },
-      "logo": { "@type": "ImageObject", "url": "${SITE_URL}/images/lecomax%20logo.png" },
-      "description": "L'ecomax est une boutique en ligne marocaine fondée à Sidi Bennour, spécialisée dans les chaussures de sport, vêtements tendance, écouteurs sans fil, enceintes bluetooth et accessoires gaming. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc.",
+      "logo": { "@type": "ImageObject", "url": "${SITE_URL}/icons/premium-v12-512.png", "width": 512, "height": 512 },
+      "description": "L'ecomax est une marketplace lifestyle généraliste fondée à Sidi Bennour, ouverte à tous les univers du quotidien. Une sélection qui évolue avec vos envies. Livraison ${formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc.",
       "areaServed": { "@type": "Country", "name": "Maroc" },
       "contactPoint": { "@type": "ContactPoint", "contactType": "customer service", "telephone": "+212-699-289-568", "availableLanguage": ["French", "Arabic"] },
       "sameAs": ["https://www.instagram.com/lecomaxcom", "https://www.tiktok.com/@lecomaxcom", "https://www.facebook.com/lecomaxcom"]
@@ -217,7 +218,7 @@ export default async function RootLayout({
       "@id": "${SITE_URL}/#website",
       "url": "${SITE_URL}",
       "name": "L'ecomax",
-      "description": "Boutique en ligne au Maroc — chaussures, vêtements, accessoires tech",
+      "description": "Marketplace lifestyle au Maroc — trouvailles et essentiels pour tous les univers du quotidien",
       "publisher": { "@id": "${SITE_URL}/#organization" },
       "inLanguage": "fr-MA"
     },
@@ -263,6 +264,7 @@ export default async function RootLayout({
         </a>
         <CartProvider>
           <WishlistProvider>
+          <GoogleAuthReturn />
           <SiteProtection />
           <PageTracker />
           <StoreSync />

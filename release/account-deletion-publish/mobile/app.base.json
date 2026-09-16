@@ -1,0 +1,119 @@
+{
+  "expo": {
+    "name": "Lecomax",
+    "slug": "lecomax",
+    "version": "1.0.6",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/298c2ed9-078f-4c41-b46f-282c17e1e532",
+      "enabled": true,
+      "checkAutomatically": "ON_ERROR_RECOVERY",
+      "fallbackToCacheTimeout": 0
+    },
+    "orientation": "default",
+    "icon": "./assets/images/app-icon-shopping-v12.png",
+    "scheme": "lecomax",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/images/app-icon-shopping-v12.png",
+      "bundleIdentifier": "com.lecomax.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "CFBundleAllowMixedLocalizations": true,
+        "CFBundleDevelopmentRegion": "fr"
+      },
+      "associatedDomains": [
+        "applinks:lecomax.com"
+      ],
+      "buildNumber": "24"
+    },
+    "android": {
+      "package": "com.lecomax.app",
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "lecomax.com",
+              "pathPrefix": "/"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ],
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/images/app-icon-shopping-adaptive-v12.png"
+      },
+      "versionCode": 24
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/favicon-shopping-v12.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/images/app-icon-shopping-v12.png",
+          "imageWidth": 96
+        }
+      ],
+      "expo-secure-store",
+      [
+        "expo-localization",
+        {
+          "supportedLocales": [
+            "fr",
+            "en"
+          ],
+          "supportsRTL": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Autoriser Lecomax à sélectionner une photo pour votre profil.",
+          "cameraPermission": "Autoriser Lecomax à prendre une photo pour votre profil.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon-v2.png",
+          "color": "#12B83F",
+          "defaultChannel": "marketing"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Autoriser Lecomax à scanner les codes produits.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ]
+    ],
+    "locales": {
+      "fr": "./src/i18n/native/fr.json",
+      "en": "./src/i18n/native/en.json"
+    },
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}

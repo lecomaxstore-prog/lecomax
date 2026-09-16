@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
@@ -15,7 +16,7 @@ type NotifyType = "confirmed" | "shipped" | "delivered" | "cancelled";
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
-  const body = await req.json() as {
+  const body = await readJsonLimited(req) as {
     type: NotifyType;
     channel: "email" | "both";
   };

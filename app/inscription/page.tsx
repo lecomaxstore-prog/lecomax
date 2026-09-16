@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import { supabase } from "@/lib/supabase";
+import { safeAuthReturnPath, startGoogleSignIn } from "@/lib/google-auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,9 +18,15 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
+  useEffect(() => {
+    const resetGoogleLoading = () => setGoogleLoading(false);
+    window.addEventListener("pageshow", resetGoogleLoading);
+    return () => window.removeEventListener("pageshow", resetGoogleLoading);
+  }, []);
+
   const returnPath = () => {
     const value = new URLSearchParams(window.location.search).get("redirect") ?? "/compte";
-    return value.startsWith("/") && !value.startsWith("//") ? value : "/compte";
+    return safeAuthReturnPath(value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,11 +61,15 @@ export default function RegisterPage() {
   };
 
   const handleGoogle = async () => {
+    if (googleLoading || loading) return;
+    setError("");
     setGoogleLoading(true);
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}${returnPath()}` },
-    });
+    try {
+      await startGoogleSignIn(returnPath());
+    } catch {
+      setError("La connexion Google n’a pas pu démarrer. Veuillez réessayer.");
+      setGoogleLoading(false);
+    }
   };
 
   return (

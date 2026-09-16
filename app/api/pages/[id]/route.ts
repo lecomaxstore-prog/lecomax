@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -13,7 +15,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const { id } = await params;
   const { data, error } = await supabase.from("pages").select("*").eq("id", id).single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 404 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 404 });
   return NextResponse.json(data);
 }
 
@@ -21,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const { id } = await params;
   let body: unknown;
-  try { body = await req.json(); } catch {
+  try { body = await readJsonLimited(req); } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const parsed = validatePageInput(body, true);
@@ -49,7 +51,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { id } = await params;
   const { data: current } = await supabase.from("pages").select("slug").eq("id", id).maybeSingle();
   const { error } = await supabase.from("pages").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   if (current?.slug) revalidatePath(`/${current.slug}`, "page");
   return NextResponse.json({ ok: true });
 }

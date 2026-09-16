@@ -6,6 +6,7 @@ mobile/.expo/
 mobile/android/
 mobile/ios/
 .next/
+.next-dev-*/
 .next-broken-*/
 out/
 release/

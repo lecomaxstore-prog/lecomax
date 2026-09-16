@@ -1,3 +1,5 @@
+import { validPushEndpoint } from "@/lib/push-endpoint";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
@@ -7,7 +9,7 @@ function valid(value: unknown): value is Subscription {
   if (!subscription || typeof subscription.endpoint !== "string" ||
     typeof subscription.keys?.p256dh !== "string" || typeof subscription.keys.auth !== "string" ||
     !subscription.keys.p256dh || !subscription.keys.auth) return false;
-  try { return new URL(subscription.endpoint).protocol === "https:"; } catch { return false; }
+  try { return validPushEndpoint(subscription.endpoint); } catch { return false; }
 }
 
 /** Browser rotation proves possession of the OLD subscription's private auth
@@ -15,7 +17,7 @@ function valid(value: unknown): value is Subscription {
  * This also works after the admin login cookie expires while the page is closed.
  */
 export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   if (!valid(body?.oldSubscription) || !valid(body?.subscription)) {
     return NextResponse.json({ error: "Abonnement incomplet" }, { status: 400 });
   }

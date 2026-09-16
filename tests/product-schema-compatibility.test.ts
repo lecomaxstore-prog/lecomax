@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
@@ -30,6 +31,7 @@ function loadRoute(firstError: { code: string; message: string } | null) {
   }).outputText, {
     exports, URL, process: { env: {} },
     require(name: string) {
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
       if (name === 'next/server') return { NextResponse: { json: (body: unknown, options?: { status?: number }) => ({ body, status: options?.status ?? 200 }) } };
       if (name === '@supabase/supabase-js') return { createClient: () => ({ from: () => query }) };
       if (name === '@/mobile/src/lib/catalog-availability') return availability;

@@ -5,5 +5,5 @@ export const SOCIAL_IMAGE_METADATA = {
   width: 1200,
   height: 630,
   type: "image/jpeg",
-  alt: "L’ecomax — Votre style. Votre univers. Mode, tech et sport au Maroc.",
+  alt: "L’ecomax — Votre marketplace lifestyle. Tous les univers du quotidien au Maroc.",
 };

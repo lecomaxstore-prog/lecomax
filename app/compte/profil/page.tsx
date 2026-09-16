@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { customerApiFetch } from "@/lib/customer-api";
 
@@ -289,14 +290,14 @@ export default function ProfilPage() {
         </div>
         <div className="p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <p className="text-[12px] text-neutral-500 leading-relaxed max-w-md">
-            La suppression de votre compte est irréversible. Toutes vos données seront définitivement effacées.
+            Demandez la suppression de votre compte et de vos données personnelles. Les données de transaction soumises à une obligation de conservation sont conservées selon notre politique de confidentialité.
           </p>
-          <button
-            type="button"
+          <Link
+            href="/suppression-compte/"
             className="text-[12px] font-semibold tracking-normal px-6 py-3 border border-red-200 text-red-600 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors whitespace-nowrap self-start sm:self-auto"
           >
             Supprimer mon compte
-          </button>
+          </Link>
         </div>
       </div>
 

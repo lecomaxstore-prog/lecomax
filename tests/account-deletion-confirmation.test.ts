@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -17,6 +18,7 @@ function setup({ authenticated = true, databaseError = false, status = "pending"
   vm.runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, {
     exports, console: { error: () => {} }, process: { env: {} },
     require: (name: string) => {
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
       if (name === "next/server") return { NextResponse: { json: (body: unknown, options: ResponseInit) => Response.json(body, options) } };
       if (name === "@/lib/request-auth") return { getCustomerUser: async () => authenticated ? { id: "verified-user", email: "owner@example.com" } : null };
       if (name === "@supabase/supabase-js") return { createClient: () => ({ from: () => query }) };

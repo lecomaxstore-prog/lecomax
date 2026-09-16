@@ -38,23 +38,26 @@ export default function CardColorOptions({ colors }: { colors: string[] }) {
         type="button"
         aria-expanded={open}
         aria-controls={id}
-        aria-label={`Voir les couleurs disponibles (${colors.length})`}
+        aria-label={`${open ? "Masquer" : "Voir"} les couleurs disponibles (${colors.length})`}
         onKeyDown={(event) => {
           if (event.key === "Escape") { event.preventDefault(); setOpen(false); }
         }}
         onClick={(event) => { event.preventDefault(); event.stopPropagation(); setOpen((previous) => !previous); }}
-        className="flex min-h-11 w-full items-center justify-between gap-3 bg-transparent py-3 text-[11px] font-normal text-[#74796f] transition-colors hover:text-[#263b2d] focus-visible:rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 motion-reduce:transition-none"
+        className="flex min-h-11 w-full items-center justify-between gap-2 rounded-md bg-transparent py-2.5 text-[11px] font-medium text-[#425447] transition-colors hover:text-[#183c30] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700 motion-reduce:transition-none"
       >
-        <span>{open ? "Masquer les couleurs" : "Voir les couleurs"}</span>
-        <svg aria-hidden="true" className="shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-          <path d="M5 12h14" />
-          {!open && <path d="M12 5v14" />}
-        </svg>
+        <span className="flex min-w-0 items-center gap-2.5">
+          <span className="text-[10px] font-normal text-[#74796f]">{colors.length} couleur{colors.length > 1 ? "s" : ""}</span>
+        </span>
+        <span aria-hidden="true" className="flex h-5 w-5 shrink-0 items-center justify-center text-[#7b8778]">
+          <svg className={`transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m6 9 6 6 6-6" />
+          </svg>
+        </span>
       </button>
-      <ul id={id} hidden={!open} aria-label="Couleurs disponibles" className="mb-2 max-h-48 overflow-y-auto border-t border-[#eceee7] text-[11px] text-[#52604f]">
+      <ul id={id} hidden={!open} aria-label="Couleurs disponibles" className={`${open ? "flex" : "hidden"} mb-2 max-h-32 flex-wrap gap-x-4 gap-y-2 overflow-y-auto pb-1 text-[10px] text-[#536052]`}>
         {colors.map((color) => (
-          <li key={color} className="flex min-h-10 items-center gap-2.5 border-b border-[#f0f2eb] py-2.5 last:border-b-0">
-            <span aria-hidden="true" className="h-3.5 w-3.5 shrink-0 rounded-full border border-black/10 ring-2 ring-white" style={{ background: swatchBackground(color) }} />
+          <li key={color} className="flex min-w-0 max-w-full items-center gap-1.5 py-0.5">
+            <span aria-hidden="true" className="h-3 w-3 shrink-0 rounded-full border border-black/15" style={{ background: swatchBackground(color) }} />
             <span className="min-w-0 break-words">{color}</span>
           </li>
         ))}

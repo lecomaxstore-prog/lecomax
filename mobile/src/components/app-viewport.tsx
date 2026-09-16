@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useMemo } from "react";
 import {
+  Platform,
   StyleSheet,
   useWindowDimensions,
   View,
@@ -7,6 +8,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { palette } from "@/constants/theme";
+import { useKeyboardViewport } from "@/hooks/use-keyboard-viewport";
 import {
   isTabletWidth,
   responsiveContentWidth,
@@ -22,11 +24,13 @@ type AppViewportValue = {
   horizontalInset: number;
   isConstrained: boolean;
   isTablet: boolean;
+  keyboardVisible: boolean;
 };
 
 const AppViewportContext = createContext<AppViewportValue | null>(null);
 
 export function AppViewport({ children }: PropsWithChildren) {
+  const keyboard = useKeyboardViewport();
   const { width: windowWidth, height: windowHeight } = useWindowDimensions();
   const contentWidth = responsiveContentWidth(windowWidth);
   const horizontalInset = Math.max((windowWidth - contentWidth) / 2, 0);
@@ -39,13 +43,16 @@ export function AppViewport({ children }: PropsWithChildren) {
       horizontalInset,
       isConstrained: windowWidth > contentWidth,
       isTablet,
+      keyboardVisible: keyboard.visible,
     }),
-    [contentWidth, horizontalInset, isTablet, windowHeight, windowWidth],
+    [contentWidth, horizontalInset, isTablet, windowHeight, windowWidth, keyboard.visible],
   );
 
   return (
     <AppViewportContext.Provider value={value}>
-      <View style={styles.background}>
+      <View style={[styles.background, Platform.OS === "web" && keyboard.visible && {
+        position: "absolute", top: keyboard.top, left: 0, height: keyboard.height,
+      }]}>
         <View
           style={[
             styles.viewport,

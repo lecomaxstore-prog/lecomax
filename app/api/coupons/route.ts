@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation, protectAdminRead } from "@/lib/api-security";
@@ -22,7 +24,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "coupons:create", limit: 20 });
   if (blocked) return blocked;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   const cleaned = cleanCouponPayload({ ...((body && typeof body === "object") ? body : {}), active: true });
   if (!cleaned.payload) {
     return NextResponse.json({ error: cleaned.error }, { status: 400 });
@@ -35,6 +37,6 @@ export async function POST(req: NextRequest) {
     })
     .select()
     .single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 400 });
   return NextResponse.json(data, { status: 201 });
 }

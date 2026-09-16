@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/review-followups",
+      "schedule": "0 9 * * *"
+    },
+    {
+      "path": "/api/cron/mobile-campaigns",
+      "schedule": "5 9 * * *"
+    }
+  ]
+}

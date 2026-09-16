@@ -1,0 +1,984 @@
+{
+  "id": "business-operations",
+  "order": 39,
+  "icon": "briefcase",
+  "color": "#334155",
+  "title": "Pilotage du commerce et plan de croissance 90 jours",
+  "summary": "Relier produit, finance, opérations, confiance et exécution hebdomadaire.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/39-business-operations/finance-dashboard.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/39-business-operations/inventory-suppliers.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/39-business-operations/legal-trust-checklist.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/39-business-operations/growth-90-day-capstone.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "finance-dashboard",
+      "order": 0,
+      "title": "Tableau de bord : revenus, marge, trésorerie et KPIs",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Tableau de bord : revenus, marge, trésorerie et KPIs en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un tableau de bord hebdomadaire avec définitions en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Relier chiffre d’affaires, marge contributive, frais fixes, trésorerie, remboursements, CAC, conversion et rétention sans piloter par une métrique vaniteuse. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Relier chiffre d’affaires, marge contributive, frais fixes, trésorerie, remboursements, CAC, conversion et rétention sans piloter par une métrique vaniteuse. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Tableau de bord : revenus, marge, trésorerie et KPIs ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Relier chiffre d’affaires, marge contributive, frais fixes, trésorerie, remboursements, CAC, conversion et rétention sans piloter par une métrique vaniteuse. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Tableau de bord : revenus, marge, trésorerie et KPIs, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un tableau de bord hebdomadaire avec définitions. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Trésorerie",
+                  "definition": "Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Rotation du stock",
+                  "definition": "Mesure ou structure qui rend la décision concernant Tableau de bord : revenus, marge, trésorerie et KPIs comparable et reproductible."
+                },
+                {
+                  "term": "Objectif",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Tableau de bord : revenus, marge, trésorerie et KPIs améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Tableau de bord : revenus, marge, trésorerie et KPIs à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/finance-dashboard.md",
+                "source": "# Dashboard: revenue, margin, cash flow, and KPIs\n- [ ] Customer problem: Connect revenue, contribution margin, fixed costs, cash flow, refunds, CAC, conversion, and retention without managing by vanity metrics.\n- [ ] Deliverable: a weekly dashboard with metric definitions\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/manage-your-business/manage-your-finances\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Tableau de bord : revenus, marge, trésorerie et KPIs avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/finance-dashboard.md",
+                "source": "# Dashboard: revenue, margin, cash flow, and KPIs\n- [x] Customer problem: Connect revenue, contribution margin, fixed costs, cash flow, refunds, CAC, conversion, and retention without managing by vanity metrics.\n- [ ] Deliverable: a weekly dashboard with metric definitions\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/manage-your-business/manage-your-finances\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Tableau de bord : revenus, marge, trésorerie et KPIs",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Tableau de bord : revenus, marge, trésorerie et KPIs complète chaque section de un tableau de bord hebdomadaire avec définitions, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un tableau de bord hebdomadaire avec définitions existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un tableau de bord hebdomadaire avec définitions, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un tableau de bord hebdomadaire avec définitions existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Tableau de bord : revenus, marge, trésorerie et KPIs paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Tableau de bord : revenus, marge, trésorerie et KPIs progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un tableau de bord hebdomadaire avec définitions à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Tableau de bord : revenus, marge, trésorerie et KPIs complète chaque section de un tableau de bord hebdomadaire avec définitions, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Dashboard: revenue, margin, cash flow, and KPIs\n- [x] Customer problem: Connect revenue, contribution margin, fixed costs, cash flow, refunds, CAC, conversion, and retention without managing by vanity metrics.\n- [ ] Deliverable: a weekly dashboard with metric definitions\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/manage-your-business/manage-your-finances\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Tableau de bord : revenus, marge, trésorerie et KPIs",
+          "filename": "exercises/39-business-operations/finance-dashboard.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "finance-dashboard-q1",
+          "question": "Quelle démarche applique correctement Tableau de bord : revenus, marge, trésorerie et KPIs ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Tableau de bord : revenus, marge, trésorerie et KPIs, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Tableau de bord : revenus, marge, trésorerie et KPIs, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Tableau de bord : revenus, marge, trésorerie et KPIs, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Tableau de bord : revenus, marge, trésorerie et KPIs, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Tableau de bord : revenus, marge, trésorerie et KPIs, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "finance-dashboard-q2",
+          "question": "Quelle définition correspond au terme « Trésorerie » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Tableau de bord : revenus, marge, trésorerie et KPIs comparable et reproductible.",
+            "Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Tableau de bord : revenus, marge, trésorerie et KPIs améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Trésorerie » signifie : Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Tableau de bord : revenus, marge, trésorerie et KPIs comparable et reproductible. ». La réponse de référence est « Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Tableau de bord : revenus, marge, trésorerie et KPIs améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Tableau de bord : revenus, marge, trésorerie et KPIs, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "finance-dashboard-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Tableau de bord : revenus, marge, trésorerie et KPIs paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Tableau de bord : revenus, marge, trésorerie et KPIs, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Tableau de bord : revenus, marge, trésorerie et KPIs est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un tableau de bord hebdomadaire avec définitions rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Tableau de bord : revenus, marge, trésorerie et KPIs, poursuivez avec Prévision, achats, fournisseurs et stock afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "inventory-suppliers",
+      "order": 1,
+      "title": "Prévision, achats, fournisseurs et stock",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Prévision, achats, fournisseurs et stock en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un plan d’approvisionnement et une fiche fournisseur en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Calculer demande, délai, variabilité, point de commande et stock de sécurité, évaluer qualité fournisseur et prévoir rupture comme surstock. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Calculer demande, délai, variabilité, point de commande et stock de sécurité, évaluer qualité fournisseur et prévoir rupture comme surstock. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Prévision, achats, fournisseurs et stock ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Calculer demande, délai, variabilité, point de commande et stock de sécurité, évaluer qualité fournisseur et prévoir rupture comme surstock. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Prévision, achats, fournisseurs et stock, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un plan d’approvisionnement et une fiche fournisseur. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Trésorerie",
+                  "definition": "Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Rotation du stock",
+                  "definition": "Mesure ou structure qui rend la décision concernant Prévision, achats, fournisseurs et stock comparable et reproductible."
+                },
+                {
+                  "term": "Objectif",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Prévision, achats, fournisseurs et stock améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Prévision, achats, fournisseurs et stock à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/inventory-suppliers.md",
+                "source": "# Forecasting, purchasing, suppliers, and inventory\n- [ ] Customer problem: Calculate demand, lead time, variability, reorder point, and safety stock; assess supplier quality and plan for stockouts and excess.\n- [ ] Deliverable: a replenishment plan and supplier scorecard\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/manage-your-business/buy-assets-equipment\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Prévision, achats, fournisseurs et stock avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/inventory-suppliers.md",
+                "source": "# Forecasting, purchasing, suppliers, and inventory\n- [x] Customer problem: Calculate demand, lead time, variability, reorder point, and safety stock; assess supplier quality and plan for stockouts and excess.\n- [ ] Deliverable: a replenishment plan and supplier scorecard\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/manage-your-business/buy-assets-equipment\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Prévision, achats, fournisseurs et stock",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Prévision, achats, fournisseurs et stock complète chaque section de un plan d’approvisionnement et une fiche fournisseur, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un plan d’approvisionnement et une fiche fournisseur existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un plan d’approvisionnement et une fiche fournisseur, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un plan d’approvisionnement et une fiche fournisseur existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Prévision, achats, fournisseurs et stock paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Prévision, achats, fournisseurs et stock progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un plan d’approvisionnement et une fiche fournisseur à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Prévision, achats, fournisseurs et stock complète chaque section de un plan d’approvisionnement et une fiche fournisseur, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Forecasting, purchasing, suppliers, and inventory\n- [x] Customer problem: Calculate demand, lead time, variability, reorder point, and safety stock; assess supplier quality and plan for stockouts and excess.\n- [ ] Deliverable: a replenishment plan and supplier scorecard\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/manage-your-business/buy-assets-equipment\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Prévision, achats, fournisseurs et stock",
+          "filename": "exercises/39-business-operations/inventory-suppliers.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "inventory-suppliers-q1",
+          "question": "Quelle démarche applique correctement Prévision, achats, fournisseurs et stock ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Prévision, achats, fournisseurs et stock, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Prévision, achats, fournisseurs et stock, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Prévision, achats, fournisseurs et stock, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Prévision, achats, fournisseurs et stock, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Prévision, achats, fournisseurs et stock, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "inventory-suppliers-q2",
+          "question": "Quelle définition correspond au terme « Trésorerie » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Prévision, achats, fournisseurs et stock comparable et reproductible.",
+            "Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Prévision, achats, fournisseurs et stock améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Trésorerie » signifie : Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Prévision, achats, fournisseurs et stock comparable et reproductible. ». La réponse de référence est « Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Prévision, achats, fournisseurs et stock améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Prévision, achats, fournisseurs et stock, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "inventory-suppliers-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Prévision, achats, fournisseurs et stock paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Prévision, achats, fournisseurs et stock, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Prévision, achats, fournisseurs et stock est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un plan d’approvisionnement et une fiche fournisseur rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Prévision, achats, fournisseurs et stock, poursuivez avec Confiance, politiques, conformité et gestion du risque afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "legal-trust-checklist",
+      "order": 2,
+      "title": "Confiance, politiques, conformité et gestion du risque",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Confiance, politiques, conformité et gestion du risque en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer un registre de confiance et de risques avec propriétaires en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Rendre identité, prix, paiement, livraison, retours, garanties, confidentialité et contact compréhensibles, puis obtenir un conseil local pour les obligations applicables. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Rendre identité, prix, paiement, livraison, retours, garanties, confidentialité et contact compréhensibles, puis obtenir un conseil local pour les obligations applicables. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Confiance, politiques, conformité et gestion du risque ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Rendre identité, prix, paiement, livraison, retours, garanties, confidentialité et contact compréhensibles, puis obtenir un conseil local pour les obligations applicables. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Confiance, politiques, conformité et gestion du risque, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est un registre de confiance et de risques avec propriétaires. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Trésorerie",
+                  "definition": "Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Rotation du stock",
+                  "definition": "Mesure ou structure qui rend la décision concernant Confiance, politiques, conformité et gestion du risque comparable et reproductible."
+                },
+                {
+                  "term": "Objectif",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Confiance, politiques, conformité et gestion du risque améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Confiance, politiques, conformité et gestion du risque à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/legal-trust-checklist.md",
+                "source": "# Trust, policies, compliance, and risk management\n- [ ] Customer problem: Make identity, price, payment, delivery, returns, warranty, privacy, and contact understandable, then obtain local advice for applicable duties.\n- [ ] Deliverable: a trust and risk register with owners\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://commission.europa.eu/law/law-topic/consumer-protection-law_en\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Confiance, politiques, conformité et gestion du risque avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/legal-trust-checklist.md",
+                "source": "# Trust, policies, compliance, and risk management\n- [x] Customer problem: Make identity, price, payment, delivery, returns, warranty, privacy, and contact understandable, then obtain local advice for applicable duties.\n- [ ] Deliverable: a trust and risk register with owners\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://commission.europa.eu/law/law-topic/consumer-protection-law_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Confiance, politiques, conformité et gestion du risque",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Confiance, politiques, conformité et gestion du risque complète chaque section de un registre de confiance et de risques avec propriétaires, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : un registre de confiance et de risques avec propriétaires existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire un registre de confiance et de risques avec propriétaires, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : un registre de confiance et de risques avec propriétaires existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Confiance, politiques, conformité et gestion du risque paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Confiance, politiques, conformité et gestion du risque progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un registre de confiance et de risques avec propriétaires à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Confiance, politiques, conformité et gestion du risque complète chaque section de un registre de confiance et de risques avec propriétaires, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Trust, policies, compliance, and risk management\n- [x] Customer problem: Make identity, price, payment, delivery, returns, warranty, privacy, and contact understandable, then obtain local advice for applicable duties.\n- [ ] Deliverable: a trust and risk register with owners\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://commission.europa.eu/law/law-topic/consumer-protection-law_en\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Confiance, politiques, conformité et gestion du risque",
+          "filename": "exercises/39-business-operations/legal-trust-checklist.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "legal-trust-checklist-q1",
+          "question": "Quelle démarche applique correctement Confiance, politiques, conformité et gestion du risque ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Confiance, politiques, conformité et gestion du risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Confiance, politiques, conformité et gestion du risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Confiance, politiques, conformité et gestion du risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Confiance, politiques, conformité et gestion du risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Confiance, politiques, conformité et gestion du risque, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "legal-trust-checklist-q2",
+          "question": "Quelle définition correspond au terme « Trésorerie » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Confiance, politiques, conformité et gestion du risque comparable et reproductible.",
+            "Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Confiance, politiques, conformité et gestion du risque améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Trésorerie » signifie : Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Confiance, politiques, conformité et gestion du risque comparable et reproductible. ». La réponse de référence est « Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Confiance, politiques, conformité et gestion du risque améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Confiance, politiques, conformité et gestion du risque, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "legal-trust-checklist-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Confiance, politiques, conformité et gestion du risque paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Confiance, politiques, conformité et gestion du risque, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Confiance, politiques, conformité et gestion du risque est un problème client observable, jamais une tendance isolée.",
+        "Le livrable un registre de confiance et de risques avec propriétaires rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Confiance, politiques, conformité et gestion du risque, poursuivez avec Projet final : plan 0→100 sur 90 jours afin de relier la compétence acquise à l’étape suivante du système de vente."
+    },
+    {
+      "id": "growth-90-day-capstone",
+      "order": 3,
+      "title": "Projet final : plan 0→100 sur 90 jours",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Avoir terminé les fondations web ou savoir ouvrir le projet, modifier un fichier et vérifier le résultat dans le navigateur. Aucune expérience commerciale préalable n’est nécessaire."
+      ],
+      "objectives": [
+        "Transformer Projet final : plan 0→100 sur 90 jours en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer une feuille de route 90 jours avec critères de sortie en décisions concrètes, mesurables et applicables à une boutique réelle.",
+        "Transformer Transformer vision en diagnostic, priorités, sprints, livrables, budget, métriques et revues hebdomadaires couvrant site, offre, acquisition, vente et rétention. en décisions concrètes, mesurables et applicables à une boutique réelle."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Transformer vision en diagnostic, priorités, sprints, livrables, budget, métriques et revues hebdomadaires couvrant site, offre, acquisition, vente et rétention. Une bonne décision relie toujours le besoin du client, la règle visuelle ou commerciale utilisée, son exécution dans le site et un signal observable. On évite ainsi les préférences vagues et les tactiques copiées sans comprendre leur rôle."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Projet final : plan 0→100 sur 90 jours ressemble à l’aménagement d’un vrai magasin : chaque couleur, espace, message ou offre doit aider le visiteur à comprendre où il est, ce qu’il peut acheter et pourquoi il peut faire confiance à la prochaine étape."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Transformer vision en diagnostic, priorités, sprints, livrables, budget, métriques et revues hebdomadaires couvrant site, offre, acquisition, vente et rétention. Commencez par nommer le problème précis avant de choisir un outil. Observez le contexte, l’appareil, l’intention et les objections du client. Écrivez ensuite une hypothèse qui relie une modification à un résultat attendu, sans présenter cette hypothèse comme une certitude."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Pour maîtriser Projet final : plan 0→100 sur 90 jours, construisez d’abord une version minimale avec des règles explicites, puis examinez-la sur mobile et ordinateur. Contrastez les cas normaux, vides, longs et erronés. La qualité vient d’un système cohérent et testable, pas d’une accumulation d’effets visuels ou de messages promotionnels."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le livrable de cette leçon est une feuille de route 90 jours avec critères de sortie. Il doit indiquer une situation initiale, la décision prise, la preuve attendue et une limite de sécurité. Comparez ensuite comportement et métriques avant/après sur une période suffisante, en tenant compte du trafic, des coûts et de la satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Trésorerie",
+                  "definition": "Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence."
+                },
+                {
+                  "term": "Rotation du stock",
+                  "definition": "Mesure ou structure qui rend la décision concernant Projet final : plan 0→100 sur 90 jours comparable et reproductible."
+                },
+                {
+                  "term": "Objectif",
+                  "definition": "Limite de contrôle utilisée pour vérifier que Projet final : plan 0→100 sur 90 jours améliore le système sans déplacer le problème."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Appliquez Projet final : plan 0→100 sur 90 jours à une petite page ou campagne avant de généraliser. Documentez les règles réutilisables, les exceptions et les critères d’arrêt afin qu’une autre personne puisse reproduire la décision sans dépendre de votre mémoire."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Vérifications dans le navigateur ou les outils",
+              "ordered": true,
+              "items": [
+                "Vérifier manuellement le canevas avec un produit réel et un écran mobile étroit"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/growth-90-day-capstone.md",
+                "source": "# Final project: a 0-to-100 90-day plan\n- [ ] Customer problem: Turn vision into diagnosis, priorities, sprints, deliverables, budget, metrics, and weekly reviews across site, offer, acquisition, sales, and retention.\n- [ ] Deliverable: a 90-day roadmap with exit criteria\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/plan-your-business/write-your-business-plan\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Cadre le problème et le livrable précis de Projet final : plan 0→100 sur 90 jours avant toute exécution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Ajoute les contrôles, la source officielle et une décision fondée sur les preuves plutôt que sur l’intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/39-business-operations/growth-90-day-capstone.md",
+                "source": "# Final project: a 0-to-100 90-day plan\n- [x] Customer problem: Turn vision into diagnosis, priorities, sprints, deliverables, budget, metrics, and weekly reviews across site, offer, acquisition, sales, and retention.\n- [ ] Deliverable: a 90-day roadmap with exit criteria\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/plan-your-business/write-your-business-plan\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Projet final : plan 0→100 sur 90 jours",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution de référence pour Projet final : plan 0→100 sur 90 jours complète chaque section de une feuille de route 90 jours avec critères de sortie, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Le résultat est vérifiable : une feuille de route 90 jours avec critères de sortie existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, utilisez cette méthode pour produire une feuille de route 90 jours avec critères de sortie, puis contrôlez le rendu mobile, l’accessibilité, la vitesse, la cohérence du catalogue et l’effet sur le parcours allant de la découverte à l’achat."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "Le résultat est vérifiable : une feuille de route 90 jours avec critères de sortie existe, ses décisions sont justifiées, les principaux cas limites sont testés et au moins une mesure permet de décider s’il faut conserver, corriger ou abandonner l’approche.",
+      "commonErrors": [
+        {
+          "symptom": "Projet final : plan 0→100 sur 90 jours paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini.",
+          "cause": "La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle.",
+          "fix": "Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+        },
+        {
+          "symptom": "Les chiffres associés à Projet final : plan 0→100 sur 90 jours progressent tandis que marge, retours, désabonnements ou satisfaction se dégradent.",
+          "cause": "Une métrique locale a été optimisée sans métriques garde-fou ni lecture du coût total et de la qualité des clients acquis.",
+          "fix": "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une feuille de route 90 jours avec critères de sortie à partir du canevas, l’appliquer à un produit L’ecomax et écrire la preuve qui autoriserait sa publication.",
+        "steps": [
+          "Décrire le client, son intention, son objection principale et l’état actuel avec une preuve.",
+          "Compléter chaque décision du canevas sans copier une marque concurrente ni inventer de données.",
+          "Tester le livrable sur mobile et ordinateur, puis noter résultat, risque, métrique et prochaine action."
+        ],
+        "hints": [
+          "Réduisez le périmètre à un produit, une audience et une action principale.",
+          "Quand deux options semblent bonnes, choisissez celle qui améliore la compréhension tout en protégeant confiance, accessibilité et marge."
+        ],
+        "solution": {
+          "explanation": "La solution de référence pour Projet final : plan 0→100 sur 90 jours complète chaque section de une feuille de route 90 jours avec critères de sortie, sépare faits et hypothèses, ajoute une mesure principale et des garde-fous, puis exige une vérification réelle avant généralisation.",
+          "code": "# Final project: a 0-to-100 90-day plan\n- [x] Customer problem: Turn vision into diagnosis, priorities, sprints, deliverables, budget, metrics, and weekly reviews across site, offer, acquisition, sales, and retention.\n- [ ] Deliverable: a 90-day roadmap with exit criteria\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.sba.gov/business-guide/plan-your-business/write-your-business-plan\n- [ ] Decision: keep, revise, or stop after evidence\n- Décision vérifiée: Projet final : plan 0→100 sur 90 jours",
+          "filename": "exercises/39-business-operations/growth-90-day-capstone.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "growth-90-day-capstone-q1",
+          "question": "Quelle démarche applique correctement Projet final : plan 0→100 sur 90 jours ?",
+          "options": [
+            "Copier la tactique la plus visible d’un concurrent et la publier partout.",
+            "Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation.",
+            "Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention.",
+            "Ne regarder que le nombre de clics pendant quelques heures."
+          ],
+          "correctIndex": 1,
+          "explanation": "Pour Projet final : plan 0→100 sur 90 jours, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Copier la tactique la plus visible d’un concurrent et la publier partout. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Projet final : plan 0→100 sur 90 jours, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est correcte. Elle affirme « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Projet final : plan 0→100 sur 90 jours, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ajouter davantage de couleurs, promotions et fenêtres pour attirer l’attention. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Projet final : plan 0→100 sur 90 jours, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable.",
+            "Cette option est incorrecte. Elle affirme « Ne regarder que le nombre de clics pendant quelques heures. ». La réponse de référence est « Définir problème, hypothèse, petit test, mesure principale et garde-fous avant généralisation. ». Pour Projet final : plan 0→100 sur 90 jours, la bonne réponse relie un problème réel à une expérience bornée et à plusieurs preuves; elle évite de confondre attention, causalité et résultat commercial durable."
+          ]
+        },
+        {
+          "id": "growth-90-day-capstone-q2",
+          "question": "Quelle définition correspond au terme « Trésorerie » ?",
+          "options": [
+            "Mesure ou structure qui rend la décision concernant Projet final : plan 0→100 sur 90 jours comparable et reproductible.",
+            "Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence.",
+            "Limite de contrôle utilisée pour vérifier que Projet final : plan 0→100 sur 90 jours améliore le système sans déplacer le problème.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« Trésorerie » signifie : Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure ou structure qui rend la décision concernant Projet final : plan 0→100 sur 90 jours comparable et reproductible. ». La réponse de référence est « Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est correcte. Elle affirme « Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Limite de contrôle utilisée pour vérifier que Projet final : plan 0→100 sur 90 jours améliore le système sans déplacer le problème. ». La réponse de référence est « Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence. ». « Trésorerie » signifie : Concept central de Projet final : plan 0→100 sur 90 jours, défini par une règle observable plutôt que par une préférence."
+          ]
+        },
+        {
+          "id": "growth-90-day-capstone-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Projet final : plan 0→100 sur 90 jours paraît séduisant mais les visiteurs ne comprennent pas mieux l’offre et aucun critère de réussite n’a été défini. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite.",
+            "Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Ajouter marge, remboursement, rétention, consentement et satisfaction aux critères; arrêter l’expérience si un garde-fou dépasse sa limite. ». La réponse de référence est « Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est correcte. Elle affirme « Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long. ». Le diagnostic part de la cause suivante : La solution a commencé par une tendance ou un outil plutôt que par un problème client, une hypothèse et un signal de contrôle. Le correctif adapté est : Reformuler le problème de Projet final : plan 0→100 sur 90 jours, choisir une seule modification prioritaire, définir la preuve attendue et tester les cas mobile, clavier et contenu long."
+          ]
+        }
+      ],
+      "recap": [
+        "Le point de départ de Projet final : plan 0→100 sur 90 jours est un problème client observable, jamais une tendance isolée.",
+        "Le livrable une feuille de route 90 jours avec critères de sortie rend hypothèses, décisions, risques et preuves partageables.",
+        "Une amélioration n’est conservée que si résultat principal, marge, confiance et satisfaction restent compatibles."
+      ],
+      "next": "Après Projet final : plan 0→100 sur 90 jours, poursuivez avec Lire parenthèses, accolades, balises et ponctuation afin de relier la compétence acquise à l’étape suivante du système de vente."
+    }
+  ]
+}

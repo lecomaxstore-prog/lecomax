@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { router, useLocalSearchParams } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -26,6 +26,7 @@ import { AuthConfirmation } from "@/components/auth-confirmation";
 import { palette, typography } from "@/constants/theme";
 import { supabase } from "@/lib/supabase";
 import { runtimeConfig } from "@/lib/runtime-config";
+import { completeGoogleSignIn, startGoogleSignIn } from "@/lib/google-auth";
 
 const schema = z.object({
   firstName: z.string(),
@@ -69,6 +70,8 @@ export default function AuthScreen() {
     message: string;
   }>();
   const [resetting, setResetting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const googlePending = useRef(false);
   const [confirmationEmail, setConfirmationEmail] = useState<string>();
 
   const {
@@ -88,8 +91,55 @@ export default function AuthScreen() {
     },
   });
 
-  const submit = handleSubmit(
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const callback = new URL(window.location.href);
+    if (!callback.searchParams.has("code") && !callback.searchParams.has("error")) return;
+    let active = true;
+    googlePending.current = true;
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setGoogleLoading(true);
+      return completeGoogleSignIn(callback.href);
+    }).then(() => {
+      if (active) {
+        window.history.replaceState(null, "", "/auth");
+        router.replace(callback.searchParams.get("returnTo") === "account" ? "/account" : "/profile");
+      }
+    }).catch(() => {
+      if (active) {
+        window.history.replaceState(null, "", "/auth");
+        setFeedback({ type: "error", message: msg("auth.googleFailed") });
+      }
+    }).finally(() => {
+      if (active) {
+        googlePending.current = false;
+        setGoogleLoading(false);
+      }
+    });
+    return () => { active = false; };
+  }, []);
+
+  const continueWithGoogle = async () => {
+    if (googlePending.current || isSubmitting) return;
+    googlePending.current = true;
+    setGoogleLoading(true);
+    setFeedback(undefined);
+    try {
+      if (await startGoogleSignIn(params.returnTo === "account" ? "account" : "profile")) {
+        router.replace(params.returnTo === "account" ? "/account" : "/profile");
+      }
+    } catch {
+      setFeedback({ type: "error", message: msg("auth.googleFailed") });
+    } finally {
+      googlePending.current = false;
+      setGoogleLoading(false);
+    }
+  };
+
+  const submit = () => handleSubmit(
     async ({ firstName, lastName, email, password, confirmPassword }) => {
+      if (googlePending.current) return;
       setFeedback(undefined);
       if (
         mode === "signup" &&
@@ -154,7 +204,7 @@ export default function AuthScreen() {
 
       router.replace(params.returnTo === "account" ? "/account" : "/profile");
     },
-  );
+  )();
 
   const resetPassword = async () => {
     if (resetting) return;
@@ -283,6 +333,16 @@ export default function AuthScreen() {
               </Text>
             </View>
           ) : null}
+
+          <AnimatedPressable accessibilityRole="button" accessibilityLabel={msg("auth.continueWithGoogle")} accessibilityState={{ busy: googleLoading, disabled: googleLoading || isSubmitting }} disabled={googleLoading || isSubmitting} onPress={() => void continueWithGoogle()} style={[styles.googleButton, (googleLoading || isSubmitting) && styles.buttonDisabled]}>
+            {googleLoading ? <ActivityIndicator color="#234735" /> : <Ionicons name="logo-google" size={20} color="#4285F4" />}
+            <Text style={styles.googleLabel}>{googleLoading ? msg("auth.googleConnecting") : msg("auth.continueWithGoogle")}</Text>
+          </AnimatedPressable>
+          <View style={styles.dividerRow}>
+            <View style={styles.divider} />
+            <Text style={styles.dividerText}>{msg("common.orUppercase")}</Text>
+            <View style={styles.divider} />
+          </View>
 
           {mode === "signup" ? (
             <View style={styles.nameRow}>
@@ -575,7 +635,7 @@ export default function AuthScreen() {
             accessibilityLabel={
               mode === "login" ? msg("auth.signInText") : msg("auth.createMyAccount")
             }
-            disabled={isSubmitting}
+            disabled={isSubmitting || googleLoading}
             onPress={() => void submit()}
             style={[
               styles.submitButton,
@@ -677,6 +737,8 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
+  googleButton: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12, paddingHorizontal: 16, borderRadius: 14, borderWidth: 1, borderColor: "#DDE1DE", backgroundColor: "#FFFFFF" },
+  googleLabel: { fontFamily: typography.semibold, fontSize: 13, color: "#203D2C" },
   screen: { flex: 1, backgroundColor: "#F6F7F4" },
   header: {
     minHeight: 70,

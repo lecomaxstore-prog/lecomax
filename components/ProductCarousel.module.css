@@ -1,0 +1,35 @@
+.track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 12px) / 2);
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  padding-block: 4px 12px;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 640px) {
+  .track {
+    grid-auto-columns: calc((100% - 32px) / 3);
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .track {
+    grid-auto-columns: calc((100% - 60px) / 4);
+    gap: 20px;
+  }
+}

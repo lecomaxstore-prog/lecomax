@@ -21,6 +21,7 @@ import { AppViewportOverlay, useAppViewport } from "@/components/app-viewport";
 import { palette, typography } from "@/constants/theme";
 import { imageUrl } from "@/lib/format";
 import { ProductPhoto } from "@/components/product-photo";
+import { ZoomableProductPhoto } from "@/components/zoomable-product-photo";
 
 type Props = {
   images: (string | undefined)[];
@@ -276,6 +277,7 @@ export const ProductGallery = memo(function ProductGallery({
                 >
                   {item.uri ? (
                     <ProductPhoto
+                      premiumLoading
                       uri={item.uri}
                       contentFit="contain"
                       contentPosition="center"
@@ -371,15 +373,7 @@ export const ProductGallery = memo(function ProductGallery({
             </AnimatedPressable>
             </View>
             <View style={styles.zoomStage}>
-            <ProductPhoto
-              uri={zoomedImage}
-              accessibilityLabel={productName}
-              contentFit="contain"
-              cachePolicy="memory-disk"
-              recyclingKey={zoomedImage}
-              transition={180}
-              style={styles.zoomPhoto}
-            />
+            {zoomedImage && <ZoomableProductPhoto key={zoomedImage} uri={zoomedImage} name={productName} />}
             </View>
             <View style={styles.zoomNavigation}>
               <AnimatedPressable

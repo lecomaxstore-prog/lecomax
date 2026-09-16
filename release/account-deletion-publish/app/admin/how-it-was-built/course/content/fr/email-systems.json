@@ -1,0 +1,1100 @@
+{
+  "id": "email-systems",
+  "order": 21,
+  "icon": "✉️",
+  "color": "#DB2777",
+  "title": "Resend, Nodemailer, IMAP et EmailJS",
+  "summary": "Envoyer et recevoir des messages de manière sûre en comprenant les frontières serveur, navigateur, SMTP et IMAP.",
+  "files": [
+    {
+      "path": "app/api/send-confirmation/route.ts",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/21-email/resend-order.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/21-email/nodemailer-smtp.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/21-email/imap-inbox.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/21-email/emailjs-contact.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "resend-transactional",
+      "order": 0,
+      "title": "Envoyer un email transactionnel avec Resend",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les variables d’environnement, async/await et la séparation entre code navigateur, route serveur et fournisseur de courrier.",
+        "Pouvoir reformuler « email transactionnel » avant de coder : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+        "Savoir créer exercises/21-email/resend-order.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Garder la clé Resend côté serveur, séparer la création du message de son envoi et enregistrer l’identifiant fournisseur pour diagnostiquer la livraison.",
+        "Construire une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API, puis prouver le résultat avec ce signal précis : Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un email est une livraison asynchrone : accepter la demande, remettre le message au fournisseur et constater sa livraison sont trois événements différents. Dans « Envoyer un email transactionnel avec Resend », l’entrée concrète est une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne. Le concept email transactionnel signifie : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Le modèle n’est donc complet que si déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente et si l’on peut observer Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Envoyer un email ressemble à déposer un colis : le reçu du guichet prouve la prise en charge, pas l’ouverture du colis par son destinataire. Ici, la pièce que vous allez réellement contrôler est une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne. Garder la clé Resend côté serveur, séparer la création du message de son envoi et enregistrer l’identifiant fournisseur pour diagnostiquer la livraison. Le terme email transactionnel n’est pas une étiquette décorative : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/21-email/resend-order.ts, l’exemple réduit volontairement le système à une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus. Elle révèle pourquoi la correction professionnelle consiste à déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. Appliquez ensuite la même preuve à confirmations de commande, demandes de contact et traitement de la boîte support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "email transactionnel",
+                  "definition": "Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation."
+                },
+                {
+                  "term": "Délivrabilité",
+                  "definition": "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam."
+                },
+                {
+                  "term": "Secret serveur",
+                  "definition": "Identifiant sensible disponible seulement pendant l’exécution côté serveur."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne, écrivez d’abord l’observation attendue « Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur », puis implémentez une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API. Simulez le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus et ne terminez que lorsque la mesure confirme la protection : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/21-email/resend-order.ts",
+                "source": "import { Resend } from \"resend\";\nconst resend = new Resend(process.env.RESEND_API_KEY);\nexport async function sendReceipt(to: string, orderId: string) {\n  if (!to || !orderId) throw new Error(\"missing receipt input\");\n  return resend.emails.send({\n    from: \"L’ecomax <orders@example.com>\", to,\n    subject: `Commande ${orderId}`, text: `Merci. Référence : ${orderId}`,\n  });\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "importe la dépendance nommée, sans l’instancier implicitement — import { Resend } from \"resend\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — const resend = new Resend(process.env.RESEND_API_KEY);."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "définit la forme des données acceptées à cette frontière — export async function sendReceipt(to: string, orderId: string) {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!to || !orderId) throw new Error(\"missing receipt input\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "renvoie la valeur produite au code appelant — return resend.emails.send({."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "configure cette clé du workflow ou du service — from: \"L’ecomax <orders@example.com>\", to,."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "configure cette clé du workflow ou du service — subject: `Commande ${orderId}`, text: `Merci. Référence : ${orderId}`,."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/21-email/resend-order.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/21-email/resend-order.ts et identifier dans les annotations l’entrée « une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne ». — code exercises/21-email/resend-order.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. Le cas volontairement défaillant montre « le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus » sans exposer de secret ; après application du garde-fou — déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège confirmations de commande, demandes de contact et traitement de la boîte support. Le livrable une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API doit rester côté de la bonne frontière de confiance ; réutilisez email transactionnel pour justifier les validations et conservez comme preuve Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/21-email/resend-order.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. Le cas volontairement défaillant montre « le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus » sans exposer de secret ; après application du garde-fou — déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement email transactionnel : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+          "fix": "Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur."
+        },
+        {
+          "symptom": "une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Envoyer un email transactionnel avec Resend, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; confondre l’acceptation du fournisseur avec la livraison et réessayer sans clé de déduplication.",
+          "fix": "Figer une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API dans exercises/21-email/resend-order.ts, démontrer Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur, puis déclencher et corriger le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus.",
+        "steps": [
+          "Créer exercises/21-email/resend-order.ts et identifier dans les annotations l’entrée « une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus.",
+          "Implémenter « déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente », relancer la commande et expliquer le rôle de email transactionnel."
+        ],
+        "hints": [
+          "Relisez la définition : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur »."
+        ],
+        "solution": {
+          "explanation": "Pour Envoyer un email transactionnel avec Resend, la solution maintient une seule autorité et applique précisément « déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente ». Elle rend le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus reproductible puis contrôlé, et elle n’est acceptée que lorsque Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur.",
+          "code": "import { Resend } from \"resend\";\nconst resend = new Resend(process.env.RESEND_API_KEY);\nexport async function sendReceipt(to: string, orderId: string) {\n  if (!to || !orderId) throw new Error(\"missing receipt input\");\n  return resend.emails.send({\n    from: \"L’ecomax <orders@example.com>\", to,\n    subject: `Commande ${orderId}`, text: `Merci. Référence : ${orderId}`,\n  });\n}",
+          "filename": "exercises/21-email/resend-order.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "resend-transactional-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Envoyer un email transactionnel avec Resend » dans ce scénario ?",
+          "options": [
+            "déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente, puis vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur.",
+            "Ignorer « le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus » parce que le chemin normal affiche une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API.",
+            "Déplacer la validation vers l’interface et considérer email transactionnel comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente, puis vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus » parce que le chemin normal affiche une fonction serveur minimale qui envoie un reçu de commande sans exposer la clé API. ». La réponse de référence est « déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente, puis vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer email transactionnel comme un détail serveur. ». La réponse de référence est « déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente, puis vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente, puis vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation."
+          ]
+        },
+        {
+          "id": "resend-transactional-q2",
+          "question": "Quelle définition correspond au terme « email transactionnel » ?",
+          "options": [
+            "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam.",
+            "Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+            "Identifiant sensible disponible seulement pendant l’exécution côté serveur.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« email transactionnel » signifie : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam. ». La réponse de référence est « Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. ». « email transactionnel » signifie : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+            "Cette option est correcte. Elle affirme « Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. ». « email transactionnel » signifie : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+            "Cette option est incorrecte. Elle affirme « Identifiant sensible disponible seulement pendant l’exécution côté serveur. ». La réponse de référence est « Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. ». « email transactionnel » signifie : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. ». « email transactionnel » signifie : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation."
+          ]
+        },
+        {
+          "id": "resend-transactional-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « le checkout envoie directement l’email avant confirmation du paiement et un rechargement produit deux reçus » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur ».",
+            "Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement email transactionnel : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Le correctif adapté est : Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement email transactionnel : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Le correctif adapté est : Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur.",
+            "Cette option est incorrecte. Elle affirme « Figer une confirmation de commande déclenchée côté serveur après une transition payée et corrélée à un identifiant interne, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement email transactionnel : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Le correctif adapté est : Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement email transactionnel : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Le correctif adapté est : Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement email transactionnel : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation. Le correctif adapté est : Appliquer ce garde-fou spécifique : déclencher depuis l’état serveur confirmé, valider destinataire et référence, puis stocker une clé d’envoi idempotente. Rejouer ensuite le cas et vérifier que Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur."
+          ]
+        }
+      ],
+      "recap": [
+        "Garder la clé Resend côté serveur, séparer la création du message de son envoi et enregistrer l’identifiant fournisseur pour diagnostiquer la livraison.",
+        "email transactionnel : Message déclenché par une action précise du destinataire, par exemple une commande ou une réinitialisation.",
+        "La preuve de fin est : Resend accepte un message contenant la référence attendue, le serveur conserve son identifiant fournisseur et aucune clé n’atteint le navigateur."
+      ],
+      "next": "La leçon suivante remplace l’API spécialisée par un transport SMTP dont la connexion est vérifiée séparément."
+    },
+    {
+      "id": "nodemailer-smtp",
+      "order": 1,
+      "title": "Comprendre SMTP avec Nodemailer",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les variables d’environnement, async/await et la séparation entre code navigateur, route serveur et fournisseur de courrier.",
+        "Pouvoir reformuler « SMTP » avant de coder : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+        "Savoir créer exercises/21-email/nodemailer-smtp.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Configurer hôte, port, chiffrement et authentification depuis l’environnement puis vérifier la connexion avant d’accepter un flux métier.",
+        "Construire un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur, puis prouver le résultat avec ce signal précis : transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un email est une livraison asynchrone : accepter la demande, remettre le message au fournisseur et constater sa livraison sont trois événements différents. Dans « Comprendre SMTP avec Nodemailer », l’entrée concrète est un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client. Le concept SMTP signifie : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Le modèle n’est donc complet que si faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC et si l’on peut observer transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Envoyer un email ressemble à déposer un colis : le reçu du guichet prouve la prise en charge, pas l’ouverture du colis par son destinataire. Ici, la pièce que vous allez réellement contrôler est un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client. Configurer hôte, port, chiffrement et authentification depuis l’environnement puis vérifier la connexion avant d’accepter un flux métier. Le terme SMTP n’est pas une étiquette décorative : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/21-email/nodemailer-smtp.ts, l’exemple réduit volontairement le système à un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client. Elle révèle pourquoi la correction professionnelle consiste à faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. Appliquez ensuite la même preuve à confirmations de commande, demandes de contact et traitement de la boîte support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "SMTP",
+                  "definition": "Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques."
+                },
+                {
+                  "term": "Délivrabilité",
+                  "definition": "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam."
+                },
+                {
+                  "term": "Secret serveur",
+                  "definition": "Identifiant sensible disponible seulement pendant l’exécution côté serveur."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client, écrivez d’abord l’observation attendue « transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects », puis implémentez un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur. Simulez secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client et ne terminez que lorsque la mesure confirme la protection : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/21-email/nodemailer-smtp.ts",
+                "source": "import nodemailer from \"nodemailer\";\nconst transport = nodemailer.createTransport({\n  host: process.env.SMTP_HOST, port: 587, secure: false,\n  requireTLS: true,\n  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },\n});\nexport async function verifyMailServer() {\n  await transport.verify();\n  return { ready: true };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "importe la dépendance nommée, sans l’instancier implicitement — import nodemailer from \"nodemailer\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const transport = nodemailer.createTransport({."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — host: process.env.SMTP_HOST, port: 587, secure: false,."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "configure cette clé du workflow ou du service — requireTLS: true,."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export async function verifyMailServer() {."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — await transport.verify();."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "renvoie la valeur produite au code appelant — return { ready: true };."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/21-email/nodemailer-smtp.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/21-email/nodemailer-smtp.ts et identifier dans les annotations l’entrée « un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client ». — code exercises/21-email/nodemailer-smtp.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. Le cas volontairement défaillant montre « secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client » sans exposer de secret ; après application du garde-fou — faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège confirmations de commande, demandes de contact et traitement de la boîte support. Le livrable un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur doit rester côté de la bonne frontière de confiance ; réutilisez SMTP pour justifier les validations et conservez comme preuve transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/21-email/nodemailer-smtp.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. Le cas volontairement défaillant montre « secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client » sans exposer de secret ; après application du garde-fou — faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement SMTP : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+          "fix": "Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects."
+        },
+        {
+          "symptom": "un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Comprendre SMTP avec Nodemailer, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; confondre l’acceptation du fournisseur avec la livraison et réessayer sans clé de déduplication.",
+          "fix": "Figer un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur dans exercises/21-email/nodemailer-smtp.ts, démontrer transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects, puis déclencher et corriger secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client.",
+        "steps": [
+          "Créer exercises/21-email/nodemailer-smtp.ts et identifier dans les annotations l’entrée « un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client.",
+          "Implémenter « faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC », relancer la commande et expliquer le rôle de SMTP."
+        ],
+        "hints": [
+          "Relisez la définition : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects »."
+        ],
+        "solution": {
+          "explanation": "Pour Comprendre SMTP avec Nodemailer, la solution maintient une seule autorité et applique précisément « faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC ». Elle rend secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client reproductible puis contrôlé, et elle n’est acceptée que lorsque transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects.",
+          "code": "import nodemailer from \"nodemailer\";\nconst transport = nodemailer.createTransport({\n  host: process.env.SMTP_HOST, port: 587, secure: false,\n  requireTLS: true,\n  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },\n});\nexport async function verifyMailServer() {\n  await transport.verify();\n  return { ready: true };\n}",
+          "filename": "exercises/21-email/nodemailer-smtp.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "nodemailer-smtp-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Comprendre SMTP avec Nodemailer » dans ce scénario ?",
+          "options": [
+            "faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC, puis vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects.",
+            "Ignorer « secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client » parce que le chemin normal affiche un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur.",
+            "Déplacer la validation vers l’interface et considérer SMTP comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC, puis vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client » parce que le chemin normal affiche un transport SMTP vérifiable dont les identifiants restent exclusivement côté serveur. ». La réponse de référence est « faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC, puis vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer SMTP comme un détail serveur. ». La réponse de référence est « faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC, puis vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC, puis vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques."
+          ]
+        },
+        {
+          "id": "nodemailer-smtp-q2",
+          "question": "Quelle définition correspond au terme « SMTP » ?",
+          "options": [
+            "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam.",
+            "Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+            "Identifiant sensible disponible seulement pendant l’exécution côté serveur.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« SMTP » signifie : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam. ». La réponse de référence est « Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. ». « SMTP » signifie : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+            "Cette option est correcte. Elle affirme « Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. ». « SMTP » signifie : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+            "Cette option est incorrecte. Elle affirme « Identifiant sensible disponible seulement pendant l’exécution côté serveur. ». La réponse de référence est « Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. ». « SMTP » signifie : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. ». « SMTP » signifie : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques."
+          ]
+        },
+        {
+          "id": "nodemailer-smtp-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « secure true est associé au port STARTTLS 587 ou les secrets SMTP sont importés dans un composant client » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects ».",
+            "Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement SMTP : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Le correctif adapté est : Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement SMTP : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Le correctif adapté est : Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects.",
+            "Cette option est incorrecte. Elle affirme « Figer un serveur SMTP authentifié par variables privées dont on veut tester la configuration sans envoyer de message client, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement SMTP : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Le correctif adapté est : Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement SMTP : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Le correctif adapté est : Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement SMTP : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques. Le correctif adapté est : Appliquer ce garde-fou spécifique : faire correspondre port et mode TLS à la documentation du fournisseur, vérifier au démarrage serveur et ne jamais préfixer les secrets par NEXT_PUBLIC. Rejouer ensuite le cas et vérifier que transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects."
+          ]
+        }
+      ],
+      "recap": [
+        "Configurer hôte, port, chiffrement et authentification depuis l’environnement puis vérifier la connexion avant d’accepter un flux métier.",
+        "SMTP : Protocole utilisé par les serveurs pour soumettre et transférer les messages électroniques.",
+        "La preuve de fin est : transport.verify réussit dans l’environnement serveur autorisé et échoue clairement lorsque hôte, port, TLS ou identifiants sont incorrects."
+      ],
+      "next": "La leçon suivante passe de l’envoi SMTP à la lecture IMAP avec verrou de boîte et nettoyage garanti."
+    },
+    {
+      "id": "imap-inbox",
+      "order": 2,
+      "title": "Lire une boîte avec IMAP en sécurité",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les variables d’environnement, async/await et la séparation entre code navigateur, route serveur et fournisseur de courrier.",
+        "Pouvoir reformuler « verrou de boîte » avant de coder : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+        "Savoir créer exercises/21-email/imap-inbox.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Acquérir un verrou de boîte, limiter les données récupérées et garantir libération puis déconnexion dans finally même après une erreur.",
+        "Construire une lecture IMAP bornée qui compte les messages sans télécharger leur contenu, puis prouver le résultat avec ce signal précis : la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un email est une livraison asynchrone : accepter la demande, remettre le message au fournisseur et constater sa livraison sont trois événements différents. Dans « Lire une boîte avec IMAP en sécurité », l’entrée concrète est un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur. Le concept verrou de boîte signifie : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Le modèle n’est donc complet que si acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées et si l’on peut observer la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Envoyer un email ressemble à déposer un colis : le reçu du guichet prouve la prise en charge, pas l’ouverture du colis par son destinataire. Ici, la pièce que vous allez réellement contrôler est une lecture IMAP bornée qui compte les messages sans télécharger leur contenu ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur. Acquérir un verrou de boîte, limiter les données récupérées et garantir libération puis déconnexion dans finally même après une erreur. Le terme verrou de boîte n’est pas une étiquette décorative : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/21-email/imap-inbox.ts, l’exemple réduit volontairement le système à une lecture IMAP bornée qui compte les messages sans télécharger leur contenu. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées. Elle révèle pourquoi la correction professionnelle consiste à acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. Appliquez ensuite la même preuve à confirmations de commande, demandes de contact et traitement de la boîte support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "verrou de boîte",
+                  "definition": "Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné."
+                },
+                {
+                  "term": "Délivrabilité",
+                  "definition": "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam."
+                },
+                {
+                  "term": "Secret serveur",
+                  "definition": "Identifiant sensible disponible seulement pendant l’exécution côté serveur."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur, écrivez d’abord l’observation attendue « la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception », puis implémentez une lecture IMAP bornée qui compte les messages sans télécharger leur contenu. Simulez une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées et ne terminez que lorsque la mesure confirme la protection : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/21-email/imap-inbox.ts",
+                "source": "import { ImapFlow } from \"imapflow\";\nconst client = new ImapFlow({\n  host: process.env.IMAP_HOST!, port: 993, secure: true,\n  auth: { user: process.env.IMAP_USER!, pass: process.env.IMAP_PASS! },\n  logger: false,\n});\nexport async function countInbox() {\n  await client.connect(); const lock = await client.getMailboxLock(\"INBOX\");\n  try { return client.mailbox.exists; } finally { lock.release(); await client.logout(); }\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "importe la dépendance nommée, sans l’instancier implicitement — import { ImapFlow } from \"imapflow\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const client = new ImapFlow({."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — host: process.env.IMAP_HOST!, port: 993, secure: true,."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — auth: { user: process.env.IMAP_USER!, pass: process.env.IMAP_PASS! },."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "configure cette clé du workflow ou du service — logger: false,."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export async function countInbox() {."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — await client.connect(); const lock = await client.getMailboxLock(\"INBOX\");."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — try { return client.mailbox.exists; } finally { lock.release(); await client.logout(); }."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/21-email/imap-inbox.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/21-email/imap-inbox.ts et identifier dans les annotations l’entrée « un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur ». — code exercises/21-email/imap-inbox.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. Le cas volontairement défaillant montre « une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées » sans exposer de secret ; après application du garde-fou — acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège confirmations de commande, demandes de contact et traitement de la boîte support. Le livrable une lecture IMAP bornée qui compte les messages sans télécharger leur contenu doit rester côté de la bonne frontière de confiance ; réutilisez verrou de boîte pour justifier les validations et conservez comme preuve la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/21-email/imap-inbox.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. Le cas volontairement défaillant montre « une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées » sans exposer de secret ; après application du garde-fou — acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement verrou de boîte : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+          "fix": "Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception."
+        },
+        {
+          "symptom": "une lecture IMAP bornée qui compte les messages sans télécharger leur contenu semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Lire une boîte avec IMAP en sécurité, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; confondre l’acceptation du fournisseur avec la livraison et réessayer sans clé de déduplication.",
+          "fix": "Figer un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une lecture IMAP bornée qui compte les messages sans télécharger leur contenu dans exercises/21-email/imap-inbox.ts, démontrer la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception, puis déclencher et corriger une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées.",
+        "steps": [
+          "Créer exercises/21-email/imap-inbox.ts et identifier dans les annotations l’entrée « un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées.",
+          "Implémenter « acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées », relancer la commande et expliquer le rôle de verrou de boîte."
+        ],
+        "hints": [
+          "Relisez la définition : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception »."
+        ],
+        "solution": {
+          "explanation": "Pour Lire une boîte avec IMAP en sécurité, la solution maintient une seule autorité et applique précisément « acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées ». Elle rend une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées reproductible puis contrôlé, et elle n’est acceptée que lorsque la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception.",
+          "code": "import { ImapFlow } from \"imapflow\";\nconst client = new ImapFlow({\n  host: process.env.IMAP_HOST!, port: 993, secure: true,\n  auth: { user: process.env.IMAP_USER!, pass: process.env.IMAP_PASS! },\n  logger: false,\n});\nexport async function countInbox() {\n  await client.connect(); const lock = await client.getMailboxLock(\"INBOX\");\n  try { return client.mailbox.exists; } finally { lock.release(); await client.logout(); }\n}",
+          "filename": "exercises/21-email/imap-inbox.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "imap-inbox-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Lire une boîte avec IMAP en sécurité » dans ce scénario ?",
+          "options": [
+            "acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées, puis vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception.",
+            "Ignorer « une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées » parce que le chemin normal affiche une lecture IMAP bornée qui compte les messages sans télécharger leur contenu.",
+            "Déplacer la validation vers l’interface et considérer verrou de boîte comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées, puis vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées » parce que le chemin normal affiche une lecture IMAP bornée qui compte les messages sans télécharger leur contenu. ». La réponse de référence est « acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées, puis vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer verrou de boîte comme un détail serveur. ». La réponse de référence est « acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées, puis vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées, puis vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné."
+          ]
+        },
+        {
+          "id": "imap-inbox-q2",
+          "question": "Quelle définition correspond au terme « verrou de boîte » ?",
+          "options": [
+            "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam.",
+            "Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+            "Identifiant sensible disponible seulement pendant l’exécution côté serveur.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« verrou de boîte » signifie : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam. ». La réponse de référence est « Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. ». « verrou de boîte » signifie : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+            "Cette option est correcte. Elle affirme « Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. ». « verrou de boîte » signifie : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+            "Cette option est incorrecte. Elle affirme « Identifiant sensible disponible seulement pendant l’exécution côté serveur. ». La réponse de référence est « Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. ». « verrou de boîte » signifie : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. ». « verrou de boîte » signifie : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné."
+          ]
+        },
+        {
+          "id": "imap-inbox-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « une exception pendant la lecture conserve le verrou INBOX et les exécutions suivantes restent bloquées » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception ».",
+            "Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement verrou de boîte : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Le correctif adapté est : Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement verrou de boîte : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Le correctif adapté est : Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception.",
+            "Cette option est incorrecte. Elle affirme « Figer un traitement support qui compte ou lit INBOX sans laisser une connexion ni un verrou ouverts après erreur, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement verrou de boîte : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Le correctif adapté est : Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement verrou de boîte : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Le correctif adapté est : Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement verrou de boîte : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné. Le correctif adapté est : Appliquer ce garde-fou spécifique : acquérir le verrou le plus tard possible, entourer toute lecture de try/finally et borner durée, volume et données journalisées. Rejouer ensuite le cas et vérifier que la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception."
+          ]
+        }
+      ],
+      "recap": [
+        "Acquérir un verrou de boîte, limiter les données récupérées et garantir libération puis déconnexion dans finally même après une erreur.",
+        "verrou de boîte : Mécanisme qui sérialise les opérations sensibles pendant qu’un dossier IMAP est sélectionné.",
+        "La preuve de fin est : la connexion sécurisée s’ouvre, le verrou protège l’opération et le bloc finally libère puis déconnecte aussi bien en succès qu’en exception."
+      ],
+      "next": "La leçon suivante examine EmailJS, où la clé publique est volontairement visible mais où le spam doit être limité ailleurs."
+    },
+    {
+      "id": "emailjs-browser",
+      "order": 3,
+      "title": "Formulaire navigateur avec EmailJS",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les variables d’environnement, async/await et la séparation entre code navigateur, route serveur et fournisseur de courrier.",
+        "Pouvoir reformuler « clé publique » avant de coder : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+        "Savoir créer exercises/21-email/emailjs-contact.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Comprendre qu’une clé publique est visible, valider et limiter côté interface, puis renforcer le modèle avec quotas, modèle fournisseur et protection anti-abus.",
+        "Construire un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé, puis prouver le résultat avec ce signal précis : le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un email est une livraison asynchrone : accepter la demande, remettre le message au fournisseur et constater sa livraison sont trois événements différents. Dans « Formulaire navigateur avec EmailJS », l’entrée concrète est un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur. Le concept clé publique signifie : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Le modèle n’est donc complet que si réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus et si l’on peut observer le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Envoyer un email ressemble à déposer un colis : le reçu du guichet prouve la prise en charge, pas l’ouverture du colis par son destinataire. Ici, la pièce que vous allez réellement contrôler est un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur. Comprendre qu’une clé publique est visible, valider et limiter côté interface, puis renforcer le modèle avec quotas, modèle fournisseur et protection anti-abus. Le terme clé publique n’est pas une étiquette décorative : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/21-email/emailjs-contact.ts, l’exemple réduit volontairement le système à un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota. Elle révèle pourquoi la correction professionnelle consiste à réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. Appliquez ensuite la même preuve à confirmations de commande, demandes de contact et traitement de la boîte support, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "clé publique",
+                  "definition": "Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur."
+                },
+                {
+                  "term": "Délivrabilité",
+                  "definition": "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam."
+                },
+                {
+                  "term": "Secret serveur",
+                  "definition": "Identifiant sensible disponible seulement pendant l’exécution côté serveur."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur, écrivez d’abord l’observation attendue « le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée », puis implémentez un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé. Simulez le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota et ne terminez que lorsque la mesure confirme la protection : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/21-email/emailjs-contact.ts",
+                "source": "import emailjs from \"@emailjs/browser\";\ntype Contact = { name: string; replyTo: string; message: string };\nexport async function sendContact(input: Contact) {\n  if (input.message.trim().length < 10) throw new Error(\"message too short\");\n  return emailjs.send(\n    process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,\n    process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!, input,\n    { publicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY! },\n  );\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "importe la dépendance nommée, sans l’instancier implicitement — import emailjs from \"@emailjs/browser\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "définit la forme des données acceptées à cette frontière — type Contact = { name: string; replyTo: string; message: string };."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export async function sendContact(input: Contact) {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (input.message.trim().length < 10) throw new Error(\"message too short\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "renvoie la valeur produite au code appelant — return emailjs.send(."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!, input,."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — { publicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY! },."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "ferme la structure ouverte par les lignes précédentes — );."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/21-email/emailjs-contact.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/21-email/emailjs-contact.ts et identifier dans les annotations l’entrée « un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur ». — code exercises/21-email/emailjs-contact.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. Le cas volontairement défaillant montre « le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota » sans exposer de secret ; après application du garde-fou — réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège confirmations de commande, demandes de contact et traitement de la boîte support. Le livrable un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé doit rester côté de la bonne frontière de confiance ; réutilisez clé publique pour justifier les validations et conservez comme preuve le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/21-email/emailjs-contact.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. Le cas volontairement défaillant montre « le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota » sans exposer de secret ; après application du garde-fou — réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement clé publique : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+          "fix": "Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée."
+        },
+        {
+          "symptom": "un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Formulaire navigateur avec EmailJS, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; confondre l’acceptation du fournisseur avec la livraison et réessayer sans clé de déduplication.",
+          "fix": "Figer un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé dans exercises/21-email/emailjs-contact.ts, démontrer le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée, puis déclencher et corriger le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota.",
+        "steps": [
+          "Créer exercises/21-email/emailjs-contact.ts et identifier dans les annotations l’entrée « un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota.",
+          "Implémenter « réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus », relancer la commande et expliquer le rôle de clé publique."
+        ],
+        "hints": [
+          "Relisez la définition : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée »."
+        ],
+        "solution": {
+          "explanation": "Pour Formulaire navigateur avec EmailJS, la solution maintient une seule autorité et applique précisément « réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus ». Elle rend le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota reproductible puis contrôlé, et elle n’est acceptée que lorsque le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée.",
+          "code": "import emailjs from \"@emailjs/browser\";\ntype Contact = { name: string; replyTo: string; message: string };\nexport async function sendContact(input: Contact) {\n  if (input.message.trim().length < 10) throw new Error(\"message too short\");\n  return emailjs.send(\n    process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,\n    process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!, input,\n    { publicKey: process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY! },\n  );\n}",
+          "filename": "exercises/21-email/emailjs-contact.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "emailjs-browser-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Formulaire navigateur avec EmailJS » dans ce scénario ?",
+          "options": [
+            "réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus, puis vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée.",
+            "Ignorer « le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota » parce que le chemin normal affiche un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé.",
+            "Déplacer la validation vers l’interface et considérer clé publique comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus, puis vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota » parce que le chemin normal affiche un envoi de formulaire typé qui refuse les messages trop courts et n’embarque aucun secret privé. ». La réponse de référence est « réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus, puis vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer clé publique comme un détail serveur. ». La réponse de référence est « réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus, puis vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus, puis vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur."
+          ]
+        },
+        {
+          "id": "emailjs-browser-q2",
+          "question": "Quelle définition correspond au terme « clé publique » ?",
+          "options": [
+            "Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam.",
+            "Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+            "Identifiant sensible disponible seulement pendant l’exécution côté serveur.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« clé publique » signifie : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Capacité d’un message légitime à atteindre la boîte attendue plutôt qu’un rejet ou le spam. ». La réponse de référence est « Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. ». « clé publique » signifie : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+            "Cette option est correcte. Elle affirme « Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. ». « clé publique » signifie : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+            "Cette option est incorrecte. Elle affirme « Identifiant sensible disponible seulement pendant l’exécution côté serveur. ». La réponse de référence est « Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. ». « clé publique » signifie : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. ». « clé publique » signifie : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur."
+          ]
+        },
+        {
+          "id": "emailjs-browser-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « le formulaire est considéré sûr parce que la clé s’appelle publicKey, puis des robots épuisent le quota » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée ».",
+            "Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement clé publique : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement clé publique : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée.",
+            "Cette option est incorrecte. Elle affirme « Figer un petit formulaire public qui remet un message via EmailJS sans confondre clé publique et secret serveur, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement clé publique : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement clé publique : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement clé publique : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver EmailJS aux messages peu sensibles, borner et encoder les champs, restreindre les origines et ajouter limitation de débit ou défi anti-abus. Rejouer ensuite le cas et vérifier que le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée."
+          ]
+        }
+      ],
+      "recap": [
+        "Comprendre qu’une clé publique est visible, valider et limiter côté interface, puis renforcer le modèle avec quotas, modèle fournisseur et protection anti-abus.",
+        "clé publique : Identifiant conçu pour être distribué au client et qui ne remplace jamais une authentification serveur.",
+        "La preuve de fin est : le navigateur envoie uniquement les champs attendus avec l’identifiant public, tandis que limites de domaine, modèle et anti-abus refusent une origine non autorisée."
+      ],
+      "next": "Le module suivant déplace l’autorité côté serveur pour les montants, événements et remboursements PayPal."
+    }
+  ]
+}

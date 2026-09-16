@@ -1,0 +1,1013 @@
+{
+  "id": "module-01-internet-web",
+  "order": 1,
+  "icon": "🌐",
+  "color": "#2563EB",
+  "title": "Internet, HTTP, DNS, serveurs et API",
+  "summary": "Suivre une requête complète depuis une URL jusqu’aux données rendues, avec les méthodes, statuts, en-têtes, DNS, HTTPS et JSON.",
+  "files": [
+    {
+      "path": "next.config.js",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/01-web/request-lab.mjs",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/01-web/request-response.ps1",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/01-web/http-statuses.mjs",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/01-web/dns-check.ps1",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-01-01-client-server",
+      "order": 0,
+      "title": "Du navigateur au serveur et retour",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Du navigateur au serveur et retour",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le client initie un échange en envoyant une requête décrivant une ressource; le serveur calcule une réponse indépendante contenant un statut, des métadonnées et un corps. Le navigateur interprète ensuite ce corps pour produire la page. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Comme un restaurant : le client commande précisément, la cuisine traite la demande et le serveur rapporte un plat accompagné d’informations sur son état."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Une URL fournit le protocole, l’hôte, le port, le chemin et parfois une requête. Le navigateur transforme ces éléments en message HTTP plutôt que de lire directement les fichiers du serveur. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Next.js reçoit le chemin, choisit une route dans app et exécute les composants serveur nécessaires. La réponse obtenue est sérialisée puis transportée, même lorsque client et serveur résident sur le même ordinateur. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Les DevTools Network montrent la durée, les en-têtes, le statut et le corps de chaque échange. Utilisez cette vue pour distinguer un défaut réseau d’un défaut d’affichage React. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "client",
+                  "definition": "Programme qui envoie une requête."
+                },
+                {
+                  "term": "server",
+                  "definition": "Programme qui reçoit une requête et construit une réponse."
+                },
+                {
+                  "term": "response body",
+                  "definition": "Contenu transporté après les en-têtes."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Pour diagnostiquer une page vide, confirmez d’abord qu’une requête existe, qu’elle reçoit un statut utile et que son corps contient les données prévues."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/01-web/request-response.ps1",
+                "source": "$response = Invoke-WebRequest -Uri \"http://localhost:3000/\" -Method Get\n$response.StatusCode\n$response.Headers[\"Content-Type\"]\n\n$previewLength = [Math]::Min(160, $response.Content.Length)\n$response.Content.Substring(0, $previewLength)\n\ncurl.exe -i http://localhost:3000/",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Envoyer GET puis lire séparément statut et type de contenu."
+                  },
+                  {
+                    "lines": "5-6",
+                    "label": "Limiter l’aperçu du corps sans supposer une longueur minimale."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "Comparer avec le message HTTP brut produit par curl."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "Preuve de réussite: curl affiche une ligne 200, des en-têtes Content-Type puis un corps HTML; Network montre le même échange."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "Preuve de réussite: curl affiche une ligne 200, des en-têtes Content-Type puis un corps HTML; Network montre le même échange."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/01-web/request-response.ps1",
+                "source": "$response = Invoke-WebRequest -Uri \"http://localhost:3000/\" -Method Get\n\"Status: $($response.StatusCode)\"\n\"Content-Type: $($response.Headers['Content-Type'])\"\n$previewLength = [Math]::Min(160, $response.Content.Length)\n$response.Content.Substring(0, $previewLength)\ncurl.exe -i http://localhost:3000/",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Le script prouve statut, en-tête et corps par deux clients; Network ajoute ensuite le découpage temporel et les sous-requêtes du navigateur."
+                  },
+                  {
+                    "lines": "1-6",
+                    "label": "Preuve de réussite: curl affiche une ligne 200, des en-têtes Content-Type puis un corps HTML; Network montre le même échange."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Rechargez l’accueil L’ecomax et observez dans Network le document principal, puis les images, scripts et appels de données demandés séparément."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "powershell -ExecutionPolicy Bypass -File academy-labs/01-web/request-response.ps1",
+        "curl.exe -i http://localhost:3000/"
+      ],
+      "expectedResult": "Preuve de réussite: curl affiche une ligne 200, des en-têtes Content-Type puis un corps HTML; Network montre le même échange.",
+      "commonErrors": [
+        {
+          "symptom": "La connexion à localhost est refusée.",
+          "cause": "Aucun serveur n’écoute sur le port demandé.",
+          "fix": "Lancez npm run dev et utilisez exactement l’URL Local imprimée."
+        },
+        {
+          "symptom": "Le document répond mais une partie de la page manque.",
+          "cause": "Une sous-requête de script, image ou API a échoué séparément.",
+          "fix": "Filtrez Network sur les statuts en erreur et inspectez la première requête rouge."
+        }
+      ],
+      "exercise": {
+        "task": "Tracer le document d’accueil depuis curl jusqu’à l’onglet Network.",
+        "steps": [
+          "Ouvrez academy-labs/01-web/request-response.ps1 et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Le script prouve statut, en-tête et corps par deux clients; Network ajoute ensuite le découpage temporel et les sous-requêtes du navigateur.",
+          "code": "$response = Invoke-WebRequest -Uri \"http://localhost:3000/\" -Method Get\n\"Status: $($response.StatusCode)\"\n\"Content-Type: $($response.Headers['Content-Type'])\"\n$previewLength = [Math]::Min(160, $response.Content.Length)\n$response.Content.Substring(0, $previewLength)\ncurl.exe -i http://localhost:3000/",
+          "filename": "academy-labs/01-web/request-response.ps1",
+          "language": "powershell"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-01-01-client-server-q1",
+          "question": "Qui initie normalement une consultation de page ?",
+          "options": [
+            "Le client",
+            "Le CSS",
+            "Le DNS seul",
+            "Le disque du serveur"
+          ],
+          "correctIndex": 0,
+          "explanation": "Le client envoie la requête; le serveur ne produit une réponse qu’après sa réception.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Le client ». Le client envoie la requête; le serveur ne produit une réponse qu’après sa réception.",
+            "Cette option est incorrecte. Elle affirme « Le CSS ». La réponse de référence est « Le client ». Le client envoie la requête; le serveur ne produit une réponse qu’après sa réception.",
+            "Cette option est incorrecte. Elle affirme « Le DNS seul ». La réponse de référence est « Le client ». Le client envoie la requête; le serveur ne produit une réponse qu’après sa réception.",
+            "Cette option est incorrecte. Elle affirme « Le disque du serveur ». La réponse de référence est « Le client ». Le client envoie la requête; le serveur ne produit une réponse qu’après sa réception."
+          ]
+        },
+        {
+          "id": "lesson-01-01-client-server-q2",
+          "question": "Quelle définition correspond au terme « client » ?",
+          "options": [
+            "Programme qui reçoit une requête et construit une réponse.",
+            "Programme qui envoie une requête.",
+            "Contenu transporté après les en-têtes.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« client » signifie : Programme qui envoie une requête.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Programme qui reçoit une requête et construit une réponse. ». La réponse de référence est « Programme qui envoie une requête. ». « client » signifie : Programme qui envoie une requête.",
+            "Cette option est correcte. Elle affirme « Programme qui envoie une requête. ». « client » signifie : Programme qui envoie une requête.",
+            "Cette option est incorrecte. Elle affirme « Contenu transporté après les en-têtes. ». La réponse de référence est « Programme qui envoie une requête. ». « client » signifie : Programme qui envoie une requête.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Programme qui envoie une requête. ». « client » signifie : Programme qui envoie une requête."
+          ]
+        },
+        {
+          "id": "lesson-01-01-client-server-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « La connexion à localhost est refusée. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Filtrez Network sur les statuts en erreur et inspectez la première requête rouge.",
+            "Lancez npm run dev et utilisez exactement l’URL Local imprimée.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Aucun serveur n’écoute sur le port demandé. Le correctif adapté est : Lancez npm run dev et utilisez exactement l’URL Local imprimée.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Lancez npm run dev et utilisez exactement l’URL Local imprimée. ». Le diagnostic part de la cause suivante : Aucun serveur n’écoute sur le port demandé. Le correctif adapté est : Lancez npm run dev et utilisez exactement l’URL Local imprimée.",
+            "Cette option est incorrecte. Elle affirme « Filtrez Network sur les statuts en erreur et inspectez la première requête rouge. ». La réponse de référence est « Lancez npm run dev et utilisez exactement l’URL Local imprimée. ». Le diagnostic part de la cause suivante : Aucun serveur n’écoute sur le port demandé. Le correctif adapté est : Lancez npm run dev et utilisez exactement l’URL Local imprimée.",
+            "Cette option est correcte. Elle affirme « Lancez npm run dev et utilisez exactement l’URL Local imprimée. ». Le diagnostic part de la cause suivante : Aucun serveur n’écoute sur le port demandé. Le correctif adapté est : Lancez npm run dev et utilisez exactement l’URL Local imprimée.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Lancez npm run dev et utilisez exactement l’URL Local imprimée. ». Le diagnostic part de la cause suivante : Aucun serveur n’écoute sur le port demandé. Le correctif adapté est : Lancez npm run dev et utilisez exactement l’URL Local imprimée."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: une page web résulte d’échanges requête/réponse observables, pas d’un accès direct du navigateur au serveur.",
+        "client: Programme qui envoie une requête.",
+        "server: Programme qui reçoit une requête et construit une réponse.",
+        "response body: Contenu transporté après les en-têtes."
+      ],
+      "next": "La prochaine leçon lit la grammaire HTTP : méthodes, statuts et en-têtes."
+    },
+    {
+      "id": "lesson-01-02-http",
+      "order": 1,
+      "title": "Méthodes, statuts, en-têtes et JSON",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Méthodes, statuts, en-têtes et JSON",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "HTTP est un contrat de messages : la méthode exprime l’intention, le chemin identifie la ressource, les en-têtes décrivent l’échange, le statut classe le résultat et le corps transporte la représentation. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Une enveloppe porte l’adresse et les instructions, un accusé indique succès ou problème, et la lettre intérieure correspond au corps."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "GET lit, POST crée ou déclenche, PUT/PATCH remplacent ou modifient et DELETE supprime; le serveur doit cependant imposer la sémantique et l’autorisation réelles. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Les statuts 2xx signalent un succès, 4xx un problème de requête ou d’autorisation, et 5xx une défaillance serveur. response.ok couvre 200 à 299 mais fetch ne rejette pas automatiquement une réponse 404. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Content-Type décrit le format envoyé et Accept le format souhaité. response.json() doit seulement être appelé lorsque le corps contient effectivement du JSON valide. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "method",
+                  "definition": "Verbe HTTP exprimant l’opération demandée."
+                },
+                {
+                  "term": "status code",
+                  "definition": "Nombre à trois chiffres classant le résultat."
+                },
+                {
+                  "term": "header",
+                  "definition": "Métadonnée clé-valeur attachée au message."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Traitez séparément erreur réseau, statut HTTP non réussi et corps invalide afin d’afficher un message exact et de conserver le diagnostic."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/01-web/http-statuses.mjs",
+                "source": "const response = await fetch(\"http://localhost:3000/api/products?limit=2\", {\n  method: \"GET\",\n  headers: { Accept: \"application/json\" },\n});\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst products = await response.json();\nif (!Array.isArray(products)) throw new TypeError(\"Expected a product array\");\nconsole.table(products.map(({ id, name }) => ({ id, name })));",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Méthodes, statuts, en-têtes et JSON »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -i -H \"Accept: application/json\" http://localhost:3000/api/products?limit=2\nnode academy-labs/01-web/http-statuses.mjs",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/01-web/http-statuses.mjs et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — curl.exe -i -H \"Accept: application/json\" http://localhost:3000/api/products?limit=2"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence. — node academy-labs/01-web/http-statuses.mjs"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Preuve de réussite: la réponse expose son statut, son Content-Type et un corps JSON; un statut non-2xx produit une erreur explicite."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Les routes de produits doivent renvoyer JSON avec un statut cohérent; l’interface vérifie response.ok avant de construire une grille."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -i -H \"Accept: application/json\" http://localhost:3000/api/products?limit=2",
+        "node academy-labs/01-web/http-statuses.mjs"
+      ],
+      "expectedResult": "Preuve de réussite: la réponse expose son statut, son Content-Type et un corps JSON; un statut non-2xx produit une erreur explicite.",
+      "commonErrors": [
+        {
+          "symptom": "Le code tente de lire du JSON et reçoit « Unexpected token < ».",
+          "cause": "La route a renvoyé une page HTML d’erreur ou de redirection.",
+          "fix": "Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route."
+        },
+        {
+          "symptom": "Une réponse 404 passe dans le flux de succès.",
+          "cause": "fetch résout sa promesse pour les statuts HTTP reçus.",
+          "fix": "Testez response.ok et lancez une erreur contenant response.status."
+        }
+      ],
+      "exercise": {
+        "task": "Écrire un fetch robuste qui distingue succès JSON et statut d’échec.",
+        "steps": [
+          "Ouvrez academy-labs/01-web/http-statuses.mjs et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "La solution valide le statut avant la désérialisation; elle ne laisse donc pas un corps d’erreur se faire passer pour les données métier.",
+          "code": "const response = await fetch(\"http://localhost:3000/api/products?limit=2\", {\n  method: \"GET\",\n  headers: { Accept: \"application/json\" },\n});\n\nif (!response.ok) throw new Error(`HTTP ${response.status}`);\nconst products = await response.json();\nif (!Array.isArray(products)) throw new TypeError(\"Expected a product array\");\nconsole.table(products.map(({ id, name }) => ({ id, name })));",
+          "filename": "academy-labs/01-web/http-statuses.mjs",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-01-02-http-q1",
+          "question": "Que signifie principalement 401 ?",
+          "options": [
+            "Création réussie",
+            "Authentification requise ou invalide",
+            "Erreur serveur générique",
+            "Contenu absent définitivement"
+          ],
+          "correctIndex": 1,
+          "explanation": "401 concerne l’identité authentifiée; 403 signifie plutôt identité connue mais action interdite.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Création réussie ». La réponse de référence est « Authentification requise ou invalide ». 401 concerne l’identité authentifiée; 403 signifie plutôt identité connue mais action interdite.",
+            "Cette option est correcte. Elle affirme « Authentification requise ou invalide ». 401 concerne l’identité authentifiée; 403 signifie plutôt identité connue mais action interdite.",
+            "Cette option est incorrecte. Elle affirme « Erreur serveur générique ». La réponse de référence est « Authentification requise ou invalide ». 401 concerne l’identité authentifiée; 403 signifie plutôt identité connue mais action interdite.",
+            "Cette option est incorrecte. Elle affirme « Contenu absent définitivement ». La réponse de référence est « Authentification requise ou invalide ». 401 concerne l’identité authentifiée; 403 signifie plutôt identité connue mais action interdite."
+          ]
+        },
+        {
+          "id": "lesson-01-02-http-q2",
+          "question": "Quelle définition correspond au terme « method » ?",
+          "options": [
+            "Nombre à trois chiffres classant le résultat.",
+            "Verbe HTTP exprimant l’opération demandée.",
+            "Métadonnée clé-valeur attachée au message.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« method » signifie : Verbe HTTP exprimant l’opération demandée.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Nombre à trois chiffres classant le résultat. ». La réponse de référence est « Verbe HTTP exprimant l’opération demandée. ». « method » signifie : Verbe HTTP exprimant l’opération demandée.",
+            "Cette option est correcte. Elle affirme « Verbe HTTP exprimant l’opération demandée. ». « method » signifie : Verbe HTTP exprimant l’opération demandée.",
+            "Cette option est incorrecte. Elle affirme « Métadonnée clé-valeur attachée au message. ». La réponse de référence est « Verbe HTTP exprimant l’opération demandée. ». « method » signifie : Verbe HTTP exprimant l’opération demandée.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Verbe HTTP exprimant l’opération demandée. ». « method » signifie : Verbe HTTP exprimant l’opération demandée."
+          ]
+        },
+        {
+          "id": "lesson-01-02-http-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Le code tente de lire du JSON et reçoit « Unexpected token < ». » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Testez response.ok et lancez une erreur contenant response.status.",
+            "Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La route a renvoyé une page HTML d’erreur ou de redirection. Le correctif adapté est : Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route. ». Le diagnostic part de la cause suivante : La route a renvoyé une page HTML d’erreur ou de redirection. Le correctif adapté est : Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route.",
+            "Cette option est incorrecte. Elle affirme « Testez response.ok et lancez une erreur contenant response.status. ». La réponse de référence est « Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route. ». Le diagnostic part de la cause suivante : La route a renvoyé une page HTML d’erreur ou de redirection. Le correctif adapté est : Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route.",
+            "Cette option est correcte. Elle affirme « Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route. ». Le diagnostic part de la cause suivante : La route a renvoyé une page HTML d’erreur ou de redirection. Le correctif adapté est : Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route. ». Le diagnostic part de la cause suivante : La route a renvoyé une page HTML d’erreur ou de redirection. Le correctif adapté est : Inspectez statut et Content-Type avant response.json(), puis corrigez l’URL ou la route."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: la méthode exprime l’intention, le statut classe le résultat et les en-têtes rendent le corps interprétable.",
+        "method: Verbe HTTP exprimant l’opération demandée.",
+        "status code: Nombre à trois chiffres classant le résultat.",
+        "header: Métadonnée clé-valeur attachée au message."
+      ],
+      "next": "La prochaine leçon explique comment un nom de domaine trouve le bon serveur et sécurise le transport."
+    },
+    {
+      "id": "lesson-01-03-dns-https",
+      "order": 2,
+      "title": "DNS, domaines, ports et HTTPS",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de DNS, domaines, ports et HTTPS",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "DNS traduit un nom stable en information de routage, TCP atteint un service sur un port, puis TLS authentifie le serveur et chiffre le canal avant que HTTP ne circule. Chaque couche résout un problème distinct. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "DNS est l’annuaire, l’adresse IP l’immeuble, le port le numéro de bureau et TLS le contrôle d’identité avec une conversation scellée."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Un enregistrement A pointe vers IPv4, AAAA vers IPv6 et CNAME crée un alias vers un autre nom. Les changements sont mis en cache pendant leur TTL et ne deviennent donc pas universels instantanément. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "localhost contourne le DNS public et vise votre machine; le port 3000 sélectionne le serveur de développement. En production, HTTPS utilise généralement 443 et la plateforme achemine ensuite vers l’application. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Le certificat TLS doit couvrir le nom demandé et remonter à une autorité approuvée. HTTPS protège le transport, mais ne rend pas automatiquement le code serveur autorisé ou sans faille. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "DNS",
+                  "definition": "Système distribué qui résout des noms en enregistrements."
+                },
+                {
+                  "term": "TTL",
+                  "definition": "Durée pendant laquelle une réponse DNS peut rester en cache."
+                },
+                {
+                  "term": "TLS",
+                  "definition": "Protocole d’authentification et de chiffrement du canal."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Diagnostiquez dans l’ordre : résolution DNS, connexion au port, certificat TLS, réponse HTTP, puis contenu applicatif."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/01-web/dns-check.ps1",
+                "source": "$apex = Resolve-DnsName lecomax.com -Type A\n$www = Resolve-DnsName www.lecomax.com -Type CNAME\n$apex | Select-Object Name, Type, IPAddress\n$www | Select-Object Name, Type, NameHost\n\nTest-NetConnection lecomax.com -Port 443\ncurl.exe -I https://lecomax.com",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « DNS, domaines, ports et HTTPS »."
+                  },
+                  {
+                    "lines": "4-5",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "6-7",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "Resolve-DnsName lecomax.com -Type A\nResolve-DnsName www.lecomax.com -Type CNAME\nTest-NetConnection lecomax.com -Port 443\ncurl.exe -I https://lecomax.com",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/01-web/dns-check.ps1 et prédisez la sortie de l’exemple. — Resolve-DnsName lecomax.com -Type A"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — Resolve-DnsName www.lecomax.com -Type CNAME"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence. — Test-NetConnection lecomax.com -Port 443"
+                  },
+                  {
+                    "lines": "4",
+                    "label": "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence. — curl.exe -I https://lecomax.com"
+                  },
+                  {
+                    "lines": "1-4",
+                    "label": "Preuve de réussite: DNS retourne une cible et HTTPS répond avec un certificat valide ainsi qu’un statut ou une redirection explicite."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Le domaine L’ecomax doit pointer vers Vercel, couvrir la variante www choisie et rediriger vers une URL canonique HTTPS."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "Resolve-DnsName lecomax.com -Type A",
+        "Resolve-DnsName www.lecomax.com -Type CNAME",
+        "Test-NetConnection lecomax.com -Port 443",
+        "curl.exe -I https://lecomax.com"
+      ],
+      "expectedResult": "Preuve de réussite: DNS retourne une cible et HTTPS répond avec un certificat valide ainsi qu’un statut ou une redirection explicite.",
+      "commonErrors": [
+        {
+          "symptom": "Certains utilisateurs voient l’ancien site après un changement DNS.",
+          "cause": "Des résolveurs conservent l’ancienne réponse jusqu’à expiration du TTL.",
+          "fix": "Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées."
+        },
+        {
+          "symptom": "Le navigateur signale un nom de certificat incorrect.",
+          "cause": "Le certificat ne contient pas le domaine ou sous-domaine demandé.",
+          "fix": "Ajoutez le domaine exact à la plateforme, validez DNS puis laissez-la émettre le certificat."
+        }
+      ],
+      "exercise": {
+        "task": "Dessiner et vérifier la chaîne nom → DNS → plateforme → HTTPS → application.",
+        "steps": [
+          "Ouvrez academy-labs/01-web/dns-check.ps1 et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "La solution teste chaque couche séparément afin qu’une panne garde une localisation précise.",
+          "code": "$apex = Resolve-DnsName lecomax.com -Type A\n$www = Resolve-DnsName www.lecomax.com -Type CNAME\n$apex | Select-Object Name, Type, IPAddress\n$www | Select-Object Name, Type, NameHost\n\nTest-NetConnection lecomax.com -Port 443\ncurl.exe -I https://lecomax.com",
+          "filename": "academy-labs/01-web/dns-check.ps1",
+          "language": "powershell"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-01-03-dns-https-q1",
+          "question": "Pourquoi un changement DNS peut-il sembler lent ?",
+          "options": [
+            "Le CSS le bloque",
+            "Les caches gardent la réponse pendant le TTL",
+            "HTTP interdit les domaines",
+            "Git doit fusionner"
+          ],
+          "correctIndex": 1,
+          "explanation": "Le TTL autorise temporairement la réutilisation d’une réponse antérieure.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Le CSS le bloque ». La réponse de référence est « Les caches gardent la réponse pendant le TTL ». Le TTL autorise temporairement la réutilisation d’une réponse antérieure.",
+            "Cette option est correcte. Elle affirme « Les caches gardent la réponse pendant le TTL ». Le TTL autorise temporairement la réutilisation d’une réponse antérieure.",
+            "Cette option est incorrecte. Elle affirme « HTTP interdit les domaines ». La réponse de référence est « Les caches gardent la réponse pendant le TTL ». Le TTL autorise temporairement la réutilisation d’une réponse antérieure.",
+            "Cette option est incorrecte. Elle affirme « Git doit fusionner ». La réponse de référence est « Les caches gardent la réponse pendant le TTL ». Le TTL autorise temporairement la réutilisation d’une réponse antérieure."
+          ]
+        },
+        {
+          "id": "lesson-01-03-dns-https-q2",
+          "question": "Quelle définition correspond au terme « DNS » ?",
+          "options": [
+            "Durée pendant laquelle une réponse DNS peut rester en cache.",
+            "Système distribué qui résout des noms en enregistrements.",
+            "Protocole d’authentification et de chiffrement du canal.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« DNS » signifie : Système distribué qui résout des noms en enregistrements.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Durée pendant laquelle une réponse DNS peut rester en cache. ». La réponse de référence est « Système distribué qui résout des noms en enregistrements. ». « DNS » signifie : Système distribué qui résout des noms en enregistrements.",
+            "Cette option est correcte. Elle affirme « Système distribué qui résout des noms en enregistrements. ». « DNS » signifie : Système distribué qui résout des noms en enregistrements.",
+            "Cette option est incorrecte. Elle affirme « Protocole d’authentification et de chiffrement du canal. ». La réponse de référence est « Système distribué qui résout des noms en enregistrements. ». « DNS » signifie : Système distribué qui résout des noms en enregistrements.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Système distribué qui résout des noms en enregistrements. ». « DNS » signifie : Système distribué qui résout des noms en enregistrements."
+          ]
+        },
+        {
+          "id": "lesson-01-03-dns-https-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Certains utilisateurs voient l’ancien site après un changement DNS. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Ajoutez le domaine exact à la plateforme, validez DNS puis laissez-la émettre le certificat.",
+            "Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Des résolveurs conservent l’ancienne réponse jusqu’à expiration du TTL. Le correctif adapté est : Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées. ». Le diagnostic part de la cause suivante : Des résolveurs conservent l’ancienne réponse jusqu’à expiration du TTL. Le correctif adapté est : Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées.",
+            "Cette option est incorrecte. Elle affirme « Ajoutez le domaine exact à la plateforme, validez DNS puis laissez-la émettre le certificat. ». La réponse de référence est « Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées. ». Le diagnostic part de la cause suivante : Des résolveurs conservent l’ancienne réponse jusqu’à expiration du TTL. Le correctif adapté est : Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées.",
+            "Cette option est correcte. Elle affirme « Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées. ». Le diagnostic part de la cause suivante : Des résolveurs conservent l’ancienne réponse jusqu’à expiration du TTL. Le correctif adapté est : Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées. ». Le diagnostic part de la cause suivante : Des résolveurs conservent l’ancienne réponse jusqu’à expiration du TTL. Le correctif adapté est : Comparez plusieurs résolveurs, attendez le TTL et évitez des modifications répétées."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: DNS localise, le port choisit un service et TLS authentifie puis chiffre avant HTTP.",
+        "DNS: Système distribué qui résout des noms en enregistrements.",
+        "TTL: Durée pendant laquelle une réponse DNS peut rester en cache.",
+        "TLS: Protocole d’authentification et de chiffrement du canal."
+      ],
+      "next": "La prochaine leçon consomme une API et transforme sa réponse en données utilisables."
+    },
+    {
+      "id": "lesson-01-04-api-fetch",
+      "order": 3,
+      "title": "Consommer une API avec fetch",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Consommer une API avec fetch",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une API est une frontière contractuelle entre deux programmes. Le consommateur doit gérer le temps d’attente, le statut, la forme inconnue du corps et l’annulation avant de considérer les données comme fiables. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Commander via un formulaire standard : même si la livraison arrive, vous vérifiez l’étiquette et le contenu avant de ranger les articles."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "fetch retourne immédiatement une promesse; await suspend seulement la fonction async concernée jusqu’à l’arrivée d’une réponse ou d’une erreur réseau. L’interface doit prévoir un état de chargement pendant cet intervalle. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Les données externes restent unknown en pratique, même si TypeScript annonce un type. Une vérification d’exécution protège les composants contre une réponse modifiée, incomplète ou malveillante. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "AbortController permet d’annuler un chargement devenu inutile, par exemple après navigation ou nouvelle recherche. L’annulation évite qu’une ancienne réponse remplace un état plus récent. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "API",
+                  "definition": "Contrat exposant des opérations et formats à d’autres programmes."
+                },
+                {
+                  "term": "Promise",
+                  "definition": "Objet représentant un résultat futur réussi ou échoué."
+                },
+                {
+                  "term": "serialization",
+                  "definition": "Conversion de données en format transportable comme JSON."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Encapsulez chaque appel dans une fonction qui valide le statut et la forme, puis faites gérer loading, empty et error par l’interface appelante."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/01-web/request-lab.mjs",
+                "source": "async function loadProducts(signal) {\n  const response = await fetch(\"http://localhost:3000/api/products?limit=4\", { signal });\n  if (!response.ok) throw new Error(`Products: ${response.status}`);\n  const payload = await response.json();\n  if (!Array.isArray(payload)) throw new TypeError(\"Expected a product array\");\n  return payload;\n}\n\nconst controller = new AbortController();\nconst products = await loadProducts(controller.signal);\nconsole.table(products.map(({ id, name, price }) => ({ id, name, price })));",
+                "annotations": [
+                  {
+                    "lines": "1-4",
+                    "label": "Entrées et préparation de « Consommer une API avec fetch »."
+                  },
+                  {
+                    "lines": "5-8",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "9-11",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -i http://localhost:3000/api/products?limit=4\nnode academy-labs/01-web/request-lab.mjs",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/01-web/request-lab.mjs et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — curl.exe -i http://localhost:3000/api/products?limit=4"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence. — node academy-labs/01-web/request-lab.mjs"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "Preuve de réussite: quatre produits validés apparaissent dans console.table, ou une erreur contenant le statut explique précisément l’échec."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Une grille L’ecomax ne doit recevoir qu’un tableau de produits validé; un échec affiche une récupération possible sans faire disparaître toute la page."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -i http://localhost:3000/api/products?limit=4",
+        "node academy-labs/01-web/request-lab.mjs"
+      ],
+      "expectedResult": "Preuve de réussite: quatre produits validés apparaissent dans console.table, ou une erreur contenant le statut explique précisément l’échec.",
+      "commonErrors": [
+        {
+          "symptom": "Une réponse plus ancienne remplace les résultats d’une recherche récente.",
+          "cause": "Les requêtes concurrentes ne sont ni annulées ni ordonnées.",
+          "fix": "Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête."
+        },
+        {
+          "symptom": "Le composant plante sur payload.products.map.",
+          "cause": "La réponse ne contient pas un tableau products.",
+          "fix": "Validez Array.isArray et transformez l’échec en état d’erreur lisible."
+        }
+      ],
+      "exercise": {
+        "task": "Charger quatre produits, valider leur conteneur et afficher une erreur contrôlée.",
+        "steps": [
+          "Ouvrez academy-labs/01-web/request-lab.mjs et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "La solution ne confond jamais transport réussi et données valides; elle vérifie les deux frontières avant de retourner le tableau.",
+          "code": "async function loadProducts(signal) {\n  const response = await fetch(\"http://localhost:3000/api/products?limit=4\", { signal });\n  if (!response.ok) throw new Error(`Products: ${response.status}`);\n  const payload = await response.json();\n  if (!Array.isArray(payload)) throw new TypeError(\"Expected a product array\");\n  return payload;\n}\n\nconst controller = new AbortController();\nconst products = await loadProducts(controller.signal);\nconsole.table(products.map(({ id, name, price }) => ({ id, name, price })));",
+          "filename": "academy-labs/01-web/request-lab.mjs",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-01-04-api-fetch-q1",
+          "question": "Quel fait fetch ne garantit-il pas ?",
+          "options": [
+            "Retourner une Promise",
+            "Fournir un objet Response",
+            "Rejeter automatiquement un statut 500",
+            "Accepter un signal"
+          ],
+          "correctIndex": 2,
+          "explanation": "Un statut HTTP reçu résout normalement fetch; le code doit tester response.ok.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Retourner une Promise ». La réponse de référence est « Rejeter automatiquement un statut 500 ». Un statut HTTP reçu résout normalement fetch; le code doit tester response.ok.",
+            "Cette option est incorrecte. Elle affirme « Fournir un objet Response ». La réponse de référence est « Rejeter automatiquement un statut 500 ». Un statut HTTP reçu résout normalement fetch; le code doit tester response.ok.",
+            "Cette option est correcte. Elle affirme « Rejeter automatiquement un statut 500 ». Un statut HTTP reçu résout normalement fetch; le code doit tester response.ok.",
+            "Cette option est incorrecte. Elle affirme « Accepter un signal ». La réponse de référence est « Rejeter automatiquement un statut 500 ». Un statut HTTP reçu résout normalement fetch; le code doit tester response.ok."
+          ]
+        },
+        {
+          "id": "lesson-01-04-api-fetch-q2",
+          "question": "Quelle définition correspond au terme « API » ?",
+          "options": [
+            "Objet représentant un résultat futur réussi ou échoué.",
+            "Contrat exposant des opérations et formats à d’autres programmes.",
+            "Conversion de données en format transportable comme JSON.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« API » signifie : Contrat exposant des opérations et formats à d’autres programmes.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Objet représentant un résultat futur réussi ou échoué. ». La réponse de référence est « Contrat exposant des opérations et formats à d’autres programmes. ». « API » signifie : Contrat exposant des opérations et formats à d’autres programmes.",
+            "Cette option est correcte. Elle affirme « Contrat exposant des opérations et formats à d’autres programmes. ». « API » signifie : Contrat exposant des opérations et formats à d’autres programmes.",
+            "Cette option est incorrecte. Elle affirme « Conversion de données en format transportable comme JSON. ». La réponse de référence est « Contrat exposant des opérations et formats à d’autres programmes. ». « API » signifie : Contrat exposant des opérations et formats à d’autres programmes.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Contrat exposant des opérations et formats à d’autres programmes. ». « API » signifie : Contrat exposant des opérations et formats à d’autres programmes."
+          ]
+        },
+        {
+          "id": "lesson-01-04-api-fetch-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Une réponse plus ancienne remplace les résultats d’une recherche récente. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Validez Array.isArray et transformez l’échec en état d’erreur lisible.",
+            "Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Les requêtes concurrentes ne sont ni annulées ni ordonnées. Le correctif adapté est : Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête. ». Le diagnostic part de la cause suivante : Les requêtes concurrentes ne sont ni annulées ni ordonnées. Le correctif adapté est : Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête.",
+            "Cette option est incorrecte. Elle affirme « Validez Array.isArray et transformez l’échec en état d’erreur lisible. ». La réponse de référence est « Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête. ». Le diagnostic part de la cause suivante : Les requêtes concurrentes ne sont ni annulées ni ordonnées. Le correctif adapté est : Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête.",
+            "Cette option est correcte. Elle affirme « Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête. ». Le diagnostic part de la cause suivante : Les requêtes concurrentes ne sont ni annulées ni ordonnées. Le correctif adapté est : Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête. ». Le diagnostic part de la cause suivante : Les requêtes concurrentes ne sont ni annulées ni ordonnées. Le correctif adapté est : Annulez le contrôleur précédent avant chaque nouvelle recherche ou comparez un identifiant de requête."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: un client API fiable vérifie réseau, statut, format et pertinence temporelle avant d’utiliser les données.",
+        "API: Contrat exposant des opérations et formats à d’autres programmes.",
+        "Promise: Objet représentant un résultat futur réussi ou échoué.",
+        "serialization: Conversion de données en format transportable comme JSON."
+      ],
+      "next": "Le module suivant enregistre les changements de code avec Git et les partage sur GitHub."
+    }
+  ]
+}

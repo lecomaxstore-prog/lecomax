@@ -18,12 +18,12 @@ test("translation preflight and responses allow app origins without allowing unr
   }
   const { middleware } = load("middleware.ts", {
     process: { env: {} },
-    require: (name: string) => name === "next/server" ? { NextResponse } : {},
+    require: (name: string) => name === "next/server" ? { NextResponse } : name.endsWith("edge-rate-limit") ? { edgeRateLimit: () => null } : {},
   });
   for (const origin of ["http://localhost:8081", "https://app.lecomax.com", "https://untrusted.invalid"]) {
     for (const method of ["OPTIONS", "GET", "POST"]) {
       const response = await middleware({
-        method, nextUrl: new URL("https://lecomax.com/api/product-translations"),
+        method, nextUrl: new URL("https://lecomax.com/api/product-translations"), cookies: { has: () => false },
         headers: new Headers({ origin }),
       });
       assert.equal(response.status, method === "OPTIONS" ? 204 : 200);

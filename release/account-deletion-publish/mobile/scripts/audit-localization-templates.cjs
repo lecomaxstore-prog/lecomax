@@ -1,0 +1,3 @@
+﻿const fs=require('fs'),path=require('path'),ts=require('../node_modules/typescript');const root=path.resolve(__dirname,'../src');const list=[];
+for(const file of fs.readdirSync(root,{recursive:true}).filter(f=>/\.tsx?$/.test(f)&&!f.startsWith('data')&&!f.startsWith('i18n'))){const sf=ts.createSourceFile(file,fs.readFileSync(path.join(root,file),'utf8'),99,true,file.endsWith('tsx')?4:3);function walk(n){if(ts.isTemplateExpression(n))list.push({file,line:sf.getLineAndCharacterOfPosition(n.getStart(sf)).line+1,text:n.getText(sf)});ts.forEachChild(n,walk)}walk(sf)}
+fs.writeFileSync(path.resolve(__dirname,'../out/localization/templates.json'),JSON.stringify(list,null,2));console.log(list.map((x,i)=>i+' '+x.file+':'+x.line+' '+x.text.replace(/\n/g,' ')).join('\n'));

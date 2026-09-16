@@ -1,0 +1,80 @@
+name: Verify
+
+# Runs the checks that need no credentials on every branch and pull request.
+# Deliberately excluded:
+#   npm run build / npm run audit:supabase / npm run audit:loyalty / smoke:*
+#     need live Supabase credentials. Vercel already builds every push, which
+#     covers build breakage; run the Supabase audits locally against .env.local.
+#   npm run lint (root)
+#     `next lint` has never been configured here and prompts interactively.
+#     Mobile linting runs below via `expo lint`.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  website:
+    name: Website
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Tests
+        run: npm test
+
+      - name: Admin API contracts
+        run: npm run audit:admin-api
+
+      - name: Mobile secret exposure
+        run: npm run audit:mobile-secrets
+
+      - name: Mobile interaction accessibility
+        run: npm run audit:mobile-interactions
+
+  mobile:
+    name: Mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: mobile
+
+      - name: Typecheck
+        run: npm run typecheck
+        working-directory: mobile
+
+      - name: Lint
+        run: npm run lint
+        working-directory: mobile

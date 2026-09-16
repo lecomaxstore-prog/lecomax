@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseServiceHeaders } from "@/lib/supabase-service-headers";
@@ -14,7 +16,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (blocked) return blocked;
 
   const { id } = await params;
-  const body = await req.json().catch(() => null);
+  const body = await readJsonLimited(req).catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
 
   const updates: Record<string, unknown> = {};
@@ -31,7 +33,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .select("*, admin_roles(id, name, color, slug)")
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data);
 }
 
@@ -51,7 +53,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
   // 2. Delete from admin_staff table
   const { error } = await supabase.from("admin_staff").delete().eq("id", id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
 
   // 3. Delete the Supabase Auth user (so the email can be reused)
   if (staff?.email) {

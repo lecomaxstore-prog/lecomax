@@ -1,6 +1,6 @@
 ﻿import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatMAD, getProduct, products, type CardProduct, type Product } from "@/lib/products";
+import { formatMAD, products, type CardProduct, type Product } from "@/lib/products";
 import { getDbProductRaw, getDbProducts } from "@/lib/db-server";
 import { rankSimilarProducts } from "@/lib/product-recommendations";
 import ProductActions from "@/components/ProductActions";
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const shippingConfig = await getServerShippingConfig();
   const shareProduct = await getProductShareData(slug);
-  if (!shareProduct) return { title: "Produit | L'ecomax" };
+  if (!shareProduct) notFound();
 
   const price = formatMAD(shareProduct.price);
   const availability = shareProduct.stock === 0 ? "Rupture de stock" : "En stock";
@@ -129,7 +129,7 @@ export default async function ProductPage({
   // Supabase is the shared source of truth for the website, mobile app and
   // admin. Deleted products must not reappear from the bundled catalogue.
   const dbProd = await getDbProductRaw(slug);
-  if (dbProd?.active === false) notFound();
+  if (!dbProd || !dbProd.active) notFound();
   let product: Product | null = null;
 
   if (dbProd) {
@@ -366,18 +366,29 @@ export default async function ProductPage({
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }} />
 
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-1.5 text-[12px] text-neutral-400 mb-6 flex-wrap">
-        <Link href="/" className="hover:text-black transition-colors">Accueil</Link>
-        <span>/</span>
-        <Link href={`/${product.category}`} className="hover:text-black transition-colors capitalize">{product.category}</Link>
-        {product.subCategory && product.subCategory.toLowerCase() !== product.category.toLowerCase() && (
-          <>
-            <span>/</span>
-            <span className="text-neutral-600 truncate max-w-[100px]">{product.subCategory}</span>
-          </>
-        )}
-        <span>/</span>
-        <span className="text-black font-medium truncate max-w-[180px]">{product.name}</span>
+      <nav aria-label="Fil d’Ariane" className="mb-6 border-b border-neutral-200/70 pb-4 md:mb-8">
+        <ol className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[12px] leading-5 sm:gap-x-3">
+          <li className="shrink-0">
+            <Link href="/" className="inline-flex min-h-8 items-center gap-1.5 rounded-sm text-neutral-500 transition-colors hover:text-[#234735] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#234735] focus-visible:ring-offset-4">
+              <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/></svg>
+              Accueil
+            </Link>
+          </li>
+          <li className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <svg aria-hidden="true" className="shrink-0 text-neutral-300" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            <Link href={`/${product.category}`} className="inline-flex min-h-8 items-center rounded-sm capitalize text-neutral-500 transition-colors hover:text-[#234735] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#234735] focus-visible:ring-offset-4">{product.category}</Link>
+          </li>
+          {product.subCategory && product.subCategory.toLowerCase() !== product.category.toLowerCase() && (
+            <li className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <svg aria-hidden="true" className="shrink-0 text-neutral-300" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              <span className="break-words text-neutral-500">{product.subCategory}</span>
+            </li>
+          )}
+          <li className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:gap-3">
+            <svg aria-hidden="true" className="hidden shrink-0 text-neutral-300 sm:block" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            <span aria-current="page" className="break-words text-[13px] font-semibold leading-6 text-[#234735]">{product.name}</span>
+          </li>
+        </ol>
       </nav>
 
       <ProductColorProvider defaultColor={
@@ -516,9 +527,7 @@ export default async function ProductPage({
 
       {/* ── Related ── */}
       {related.length > 0 && (
-        <section className="mt-16 border-t border-neutral-100 pt-12">
-          <h2 className="h-display text-2xl md:text-3xl mb-2">Vous aimerez aussi</h2>
-          <div className="w-8 h-[3px] bg-black mb-8" />
+        <section className="mt-12 border-t border-neutral-200/70 pt-8 md:mt-16 md:pt-10">
           <ProductCarousel products={related} />
         </section>
       )}

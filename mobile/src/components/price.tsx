@@ -27,9 +27,23 @@ export const Price = memo(function Price({
   const parts = emphasized ? moneyParts(price) : [];
   const amount = parts.filter((part) => part.type !== "currency").map((part) => part.value).join("").trim();
   const currency = parts.find((part) => part.type === "currency")?.value ?? "MAD";
+  const previousAmount = emphasized && promotional
+    ? moneyParts(previousPrice).filter((part) => part.type !== "currency").map((part) => part.value).join("").trim()
+    : "";
 
   return (
     <View style={[styles.row, compact && styles.compactRow]}>
+      {emphasized ? (
+        <View style={styles.amountRow}>
+          <Text
+            accessibilityLabel={money(price)}
+            style={[styles.emphasizedCurrent, tight && styles.tightCurrent, inverse && styles.inverse]}
+          >
+            {amount}
+          </Text>
+          <Text style={[styles.currency, inverse && styles.inverse]}>{currency}</Text>
+        </View>
+      ) : (
       <Text
         accessibilityLabel={money(price)}
         adjustsFontSizeToFit={compact}
@@ -37,21 +51,18 @@ export const Price = memo(function Price({
         numberOfLines={1}
         style={[styles.current, promotional && styles.promotional, compact && styles.compactCurrent, emphasized && styles.emphasizedCurrent, tight && styles.tightCurrent, inverse && styles.inverse]}
       >
-        {emphasized ? (
-          <>
-            {amount}
-            <Text style={[styles.currency, inverse && styles.inverse]}>{"\u00A0"}{currency}</Text>
-          </>
-        ) : money(price)}
+        {money(price)}
       </Text>
+      )}
       {promotional ? (
         <Text
           adjustsFontSizeToFit={compact}
           minimumFontScale={0.85}
-          numberOfLines={1}
-          style={[styles.old, compact && styles.compactOld]}
+          numberOfLines={emphasized ? undefined : 1}
+          accessibilityLabel={money(previousPrice)}
+          style={[styles.old, compact && styles.compactOld, emphasized && styles.emphasizedOld]}
         >
-          {money(previousPrice)}
+          {emphasized ? `${previousAmount}\u00A0${currency}` : money(previousPrice)}
         </Text>
       ) : null}
     </View>
@@ -66,7 +77,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     alignItems: "flex-start",
     justifyContent: "center",
-    gap: 2,
+    gap: 4,
   },
   current: {
     color: palette.ink,
@@ -75,22 +86,30 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   promotional: { color: palette.ink },
+  amountRow: {
+    maxWidth: "100%",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "baseline",
+    columnGap: 4,
+    rowGap: 0,
+  },
   compactCurrent: { maxWidth: "100%", fontSize: 14, lineHeight: 20 },
   tightCurrent: { fontSize: 13, lineHeight: 18 },
   emphasizedCurrent: {
-    color: "#202521",
+    color: "#203D2C",
     fontFamily: typography.semibold,
-    fontSize: 17,
+    fontSize: 16,
     lineHeight: 22,
-    letterSpacing: -0.4,
+    letterSpacing: -0.3,
     fontVariant: ["tabular-nums"],
     includeFontPadding: false,
   },
   currency: {
-    color: "#777C76",
+    color: "#626D63",
     fontFamily: typography.medium,
-    fontSize: 9,
-    letterSpacing: 0.4,
+    fontSize: 10,
+    letterSpacing: 0.2,
   },
   inverse: { color: palette.white },
   old: {
@@ -101,4 +120,5 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
   },
   compactOld: { maxWidth: "100%", fontSize: 10, lineHeight: 14 },
+  emphasizedOld: { color: "#737B73", fontFamily: typography.regular, fontVariant: ["tabular-nums"], includeFontPadding: false },
 });

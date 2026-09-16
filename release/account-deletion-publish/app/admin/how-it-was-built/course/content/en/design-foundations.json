@@ -1,0 +1,984 @@
+{
+  "id": "design-foundations",
+  "order": 28,
+  "icon": "palette",
+  "color": "#ec4899",
+  "title": "Visual design: color, typography, and systems",
+  "summary": "Choose and code a coherent, readable, accessible identity.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/28-design-foundations/color-theory-brand.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/28-design-foundations/accessible-color-states.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/28-design-foundations/typography-reading.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/28-design-foundations/design-tokens-system.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "color-theory-brand",
+      "order": 0,
+      "title": "Color theory and brand personality",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Color theory and brand personality into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a brand palette with roles, HEX/HSL values, and use cases into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Understand hue, saturation, lightness, harmony, and contextual meaning instead of choosing a palette only by taste. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Understand hue, saturation, lightness, harmony, and contextual meaning instead of choosing a palette only by taste. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Color theory and brand personality is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Understand hue, saturation, lightness, harmony, and contextual meaning instead of choosing a palette only by taste. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Color theory and brand personality, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a brand palette with roles, HEX/HSL values, and use cases. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Contrast",
+                  "definition": "A central Color theory and brand personality concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Type scale",
+                  "definition": "A measure or structure that makes the Color theory and brand personality decision comparable and reproducible."
+                },
+                {
+                  "term": "Design token",
+                  "definition": "A control boundary used to verify that Color theory and brand personality improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Color theory and brand personality to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/color-theory-brand.md",
+                "source": "# Color theory and brand personality\n- [ ] Customer problem: Understand hue, saturation, lightness, harmony, and contextual meaning instead of choosing a palette only by taste.\n- [ ] Deliverable: a brand palette with roles, HEX/HSL values, and use cases\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/color\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Color theory and brand personality before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/color-theory-brand.md",
+                "source": "# Color theory and brand personality\n- [x] Customer problem: Understand hue, saturation, lightness, harmony, and contextual meaning instead of choosing a palette only by taste.\n- [ ] Deliverable: a brand palette with roles, HEX/HSL values, and use cases\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/color\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Color theory and brand personality",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Color theory and brand personality completes every section of a brand palette with roles, HEX/HSL values, and use cases, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a brand palette with roles, HEX/HSL values, and use cases exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a brand palette with roles, HEX/HSL values, and use cases, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a brand palette with roles, HEX/HSL values, and use cases exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Color theory and brand personality looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Color theory and brand personality rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a brand palette with roles, HEX/HSL values, and use cases from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Color theory and brand personality completes every section of a brand palette with roles, HEX/HSL values, and use cases, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Color theory and brand personality\n- [x] Customer problem: Understand hue, saturation, lightness, harmony, and contextual meaning instead of choosing a palette only by taste.\n- [ ] Deliverable: a brand palette with roles, HEX/HSL values, and use cases\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/color\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Color theory and brand personality",
+          "filename": "exercises/28-design-foundations/color-theory-brand.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "color-theory-brand-q1",
+          "question": "Which approach correctly applies Color theory and brand personality?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Color theory and brand personality, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Color theory and brand personality, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Color theory and brand personality, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Color theory and brand personality, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Color theory and brand personality, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "color-theory-brand-q2",
+          "question": "Which definition matches the term “Contrast”?",
+          "options": [
+            "A measure or structure that makes the Color theory and brand personality decision comparable and reproducible.",
+            "A central Color theory and brand personality concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Color theory and brand personality improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Contrast” means: A central Color theory and brand personality concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Color theory and brand personality decision comparable and reproducible. ». The reference answer is « A central Color theory and brand personality concept defined by an observable rule rather than preference. ». “Contrast” means: A central Color theory and brand personality concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Color theory and brand personality concept defined by an observable rule rather than preference. ». “Contrast” means: A central Color theory and brand personality concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Color theory and brand personality improves the system without moving the problem elsewhere. ». The reference answer is « A central Color theory and brand personality concept defined by an observable rule rather than preference. ». “Contrast” means: A central Color theory and brand personality concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Color theory and brand personality concept defined by an observable rule rather than preference. ». “Contrast” means: A central Color theory and brand personality concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "color-theory-brand-q3",
+          "question": "What is the best first fix when you observe: “Color theory and brand personality looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Color theory and brand personality problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Color theory and brand personality starts from an observable customer problem, never an isolated trend.",
+        "The a brand palette with roles, HEX/HSL values, and use cases deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Color theory and brand personality, continue with Contrast, states, and color accessibility to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "accessible-color-states",
+      "order": 1,
+      "title": "Contrast, states, and color accessibility",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Contrast, states, and color accessibility into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a contrast and interactive-state matrix into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Ensure readability, focus, error, success, and disabled states without conveying information through color alone. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Ensure readability, focus, error, success, and disabled states without conveying information through color alone. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Contrast, states, and color accessibility is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Ensure readability, focus, error, success, and disabled states without conveying information through color alone. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Contrast, states, and color accessibility, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a contrast and interactive-state matrix. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Contrast",
+                  "definition": "A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Type scale",
+                  "definition": "A measure or structure that makes the Contrast, states, and color accessibility decision comparable and reproducible."
+                },
+                {
+                  "term": "Design token",
+                  "definition": "A control boundary used to verify that Contrast, states, and color accessibility improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Contrast, states, and color accessibility to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/accessible-color-states.md",
+                "source": "# Contrast, states, and color accessibility\n- [ ] Customer problem: Ensure readability, focus, error, success, and disabled states without conveying information through color alone.\n- [ ] Deliverable: a contrast and interactive-state matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Contrast, states, and color accessibility before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/accessible-color-states.md",
+                "source": "# Contrast, states, and color accessibility\n- [x] Customer problem: Ensure readability, focus, error, success, and disabled states without conveying information through color alone.\n- [ ] Deliverable: a contrast and interactive-state matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Contrast, states, and color accessibility",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Contrast, states, and color accessibility completes every section of a contrast and interactive-state matrix, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a contrast and interactive-state matrix exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a contrast and interactive-state matrix, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a contrast and interactive-state matrix exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Contrast, states, and color accessibility looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Contrast, states, and color accessibility rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a contrast and interactive-state matrix from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Contrast, states, and color accessibility completes every section of a contrast and interactive-state matrix, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Contrast, states, and color accessibility\n- [x] Customer problem: Ensure readability, focus, error, success, and disabled states without conveying information through color alone.\n- [ ] Deliverable: a contrast and interactive-state matrix\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Contrast, states, and color accessibility",
+          "filename": "exercises/28-design-foundations/accessible-color-states.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "accessible-color-states-q1",
+          "question": "Which approach correctly applies Contrast, states, and color accessibility?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Contrast, states, and color accessibility, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contrast, states, and color accessibility, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contrast, states, and color accessibility, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contrast, states, and color accessibility, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Contrast, states, and color accessibility, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "accessible-color-states-q2",
+          "question": "Which definition matches the term “Contrast”?",
+          "options": [
+            "A measure or structure that makes the Contrast, states, and color accessibility decision comparable and reproducible.",
+            "A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Contrast, states, and color accessibility improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Contrast” means: A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Contrast, states, and color accessibility decision comparable and reproducible. ». The reference answer is « A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference. ». “Contrast” means: A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference. ». “Contrast” means: A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Contrast, states, and color accessibility improves the system without moving the problem elsewhere. ». The reference answer is « A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference. ». “Contrast” means: A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference. ». “Contrast” means: A central Contrast, states, and color accessibility concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "accessible-color-states-q3",
+          "question": "What is the best first fix when you observe: “Contrast, states, and color accessibility looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Contrast, states, and color accessibility problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Contrast, states, and color accessibility starts from an observable customer problem, never an isolated trend.",
+        "The a contrast and interactive-state matrix deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Contrast, states, and color accessibility, continue with Typography, readability, and vertical rhythm to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "typography-reading",
+      "order": 2,
+      "title": "Typography, readability, and vertical rhythm",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Typography, readability, and vertical rhythm into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a documented responsive type scale into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Build hierarchy with families, weight, size, line height, line length, and spacing for each screen. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Build hierarchy with families, weight, size, line height, line length, and spacing for each screen. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Typography, readability, and vertical rhythm is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Build hierarchy with families, weight, size, line height, line length, and spacing for each screen. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Typography, readability, and vertical rhythm, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a documented responsive type scale. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Contrast",
+                  "definition": "A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Type scale",
+                  "definition": "A measure or structure that makes the Typography, readability, and vertical rhythm decision comparable and reproducible."
+                },
+                {
+                  "term": "Design token",
+                  "definition": "A control boundary used to verify that Typography, readability, and vertical rhythm improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Typography, readability, and vertical rhythm to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/typography-reading.md",
+                "source": "# Typography, readability, and vertical rhythm\n- [ ] Customer problem: Build hierarchy with families, weight, size, line height, line length, and spacing for each screen.\n- [ ] Deliverable: a documented responsive type scale\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/typography\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Typography, readability, and vertical rhythm before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/typography-reading.md",
+                "source": "# Typography, readability, and vertical rhythm\n- [x] Customer problem: Build hierarchy with families, weight, size, line height, line length, and spacing for each screen.\n- [ ] Deliverable: a documented responsive type scale\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/typography\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Typography, readability, and vertical rhythm",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Typography, readability, and vertical rhythm completes every section of a documented responsive type scale, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a documented responsive type scale exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a documented responsive type scale, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a documented responsive type scale exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Typography, readability, and vertical rhythm looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Typography, readability, and vertical rhythm rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a documented responsive type scale from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Typography, readability, and vertical rhythm completes every section of a documented responsive type scale, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Typography, readability, and vertical rhythm\n- [x] Customer problem: Build hierarchy with families, weight, size, line height, line length, and spacing for each screen.\n- [ ] Deliverable: a documented responsive type scale\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/learn/design/typography\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Typography, readability, and vertical rhythm",
+          "filename": "exercises/28-design-foundations/typography-reading.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "typography-reading-q1",
+          "question": "Which approach correctly applies Typography, readability, and vertical rhythm?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Typography, readability, and vertical rhythm, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Typography, readability, and vertical rhythm, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Typography, readability, and vertical rhythm, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Typography, readability, and vertical rhythm, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Typography, readability, and vertical rhythm, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "typography-reading-q2",
+          "question": "Which definition matches the term “Contrast”?",
+          "options": [
+            "A measure or structure that makes the Typography, readability, and vertical rhythm decision comparable and reproducible.",
+            "A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Typography, readability, and vertical rhythm improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Contrast” means: A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Typography, readability, and vertical rhythm decision comparable and reproducible. ». The reference answer is « A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference. ». “Contrast” means: A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference. ». “Contrast” means: A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Typography, readability, and vertical rhythm improves the system without moving the problem elsewhere. ». The reference answer is « A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference. ». “Contrast” means: A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference. ». “Contrast” means: A central Typography, readability, and vertical rhythm concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "typography-reading-q3",
+          "question": "What is the best first fix when you observe: “Typography, readability, and vertical rhythm looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Typography, readability, and vertical rhythm problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Typography, readability, and vertical rhythm starts from an observable customer problem, never an isolated trend.",
+        "The a documented responsive type scale deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Typography, readability, and vertical rhythm, continue with Tokens, components, and design-system consistency to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "design-tokens-system",
+      "order": 3,
+      "title": "Tokens, components, and design-system consistency",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Tokens, components, and design-system consistency into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a small L’ecomax design system with tokens and components into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Turn color, spacing, radius, shadow, and typography into named reusable decisions in CSS and Tailwind. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Turn color, spacing, radius, shadow, and typography into named reusable decisions in CSS and Tailwind. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Tokens, components, and design-system consistency is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Turn color, spacing, radius, shadow, and typography into named reusable decisions in CSS and Tailwind. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Tokens, components, and design-system consistency, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a small L’ecomax design system with tokens and components. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Contrast",
+                  "definition": "A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Type scale",
+                  "definition": "A measure or structure that makes the Tokens, components, and design-system consistency decision comparable and reproducible."
+                },
+                {
+                  "term": "Design token",
+                  "definition": "A control boundary used to verify that Tokens, components, and design-system consistency improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Tokens, components, and design-system consistency to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/design-tokens-system.md",
+                "source": "# Tokens, components, and design-system consistency\n- [ ] Customer problem: Turn color, spacing, radius, shadow, and typography into named reusable decisions in CSS and Tailwind.\n- [ ] Deliverable: a small L’ecomax design system with tokens and components\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Tokens, components, and design-system consistency before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/28-design-foundations/design-tokens-system.md",
+                "source": "# Tokens, components, and design-system consistency\n- [x] Customer problem: Turn color, spacing, radius, shadow, and typography into named reusable decisions in CSS and Tailwind.\n- [ ] Deliverable: a small L’ecomax design system with tokens and components\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Tokens, components, and design-system consistency",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Tokens, components, and design-system consistency completes every section of a small L’ecomax design system with tokens and components, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a small L’ecomax design system with tokens and components exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a small L’ecomax design system with tokens and components, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a small L’ecomax design system with tokens and components exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Tokens, components, and design-system consistency looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Tokens, components, and design-system consistency rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a small L’ecomax design system with tokens and components from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Tokens, components, and design-system consistency completes every section of a small L’ecomax design system with tokens and components, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Tokens, components, and design-system consistency\n- [x] Customer problem: Turn color, spacing, radius, shadow, and typography into named reusable decisions in CSS and Tailwind.\n- [ ] Deliverable: a small L’ecomax design system with tokens and components\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Tokens, components, and design-system consistency",
+          "filename": "exercises/28-design-foundations/design-tokens-system.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "design-tokens-system-q1",
+          "question": "Which approach correctly applies Tokens, components, and design-system consistency?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Tokens, components, and design-system consistency, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Tokens, components, and design-system consistency, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Tokens, components, and design-system consistency, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Tokens, components, and design-system consistency, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Tokens, components, and design-system consistency, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "design-tokens-system-q2",
+          "question": "Which definition matches the term “Contrast”?",
+          "options": [
+            "A measure or structure that makes the Tokens, components, and design-system consistency decision comparable and reproducible.",
+            "A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Tokens, components, and design-system consistency improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Contrast” means: A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Tokens, components, and design-system consistency decision comparable and reproducible. ». The reference answer is « A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference. ». “Contrast” means: A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference. ». “Contrast” means: A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Tokens, components, and design-system consistency improves the system without moving the problem elsewhere. ». The reference answer is « A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference. ». “Contrast” means: A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference. ». “Contrast” means: A central Tokens, components, and design-system consistency concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "design-tokens-system-q3",
+          "question": "What is the best first fix when you observe: “Tokens, components, and design-system consistency looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Tokens, components, and design-system consistency problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Tokens, components, and design-system consistency starts from an observable customer problem, never an isolated trend.",
+        "The a small L’ecomax design system with tokens and components deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Tokens, components, and design-system consistency, continue with Alignment, proximity, repetition, and whitespace to connect the new skill to the next part of the selling system."
+    }
+  ]
+}

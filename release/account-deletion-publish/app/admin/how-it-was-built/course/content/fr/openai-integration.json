@@ -1,0 +1,1104 @@
+{
+  "id": "openai-integration",
+  "order": 24,
+  "icon": "🤖",
+  "color": "#059669",
+  "title": "OpenAI, sécurité, coûts et validation",
+  "summary": "Intégrer un modèle comme service non fiable : secrets au serveur, capacités limitées, budget mesuré et sortie toujours validée.",
+  "files": [
+    {
+      "path": "app/api/ai-product/route.ts",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/24-ai/validate-output.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/24-ai/openai-product.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/24-ai/safety-boundary.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/24-ai/cost-budget.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "openai-server-call",
+      "order": 0,
+      "title": "Appeler OpenAI depuis le serveur",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les routes serveur, la validation d’objets inconnus, les limites de capacité et la facturation par unités d’usage.",
+        "Pouvoir reformuler « contexte » avant de coder : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+        "Savoir créer exercises/24-ai/openai-product.ts, exécuter npm run build et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Garder la clé côté serveur, donner une consigne bornée avec contexte minimal et traiter la sortie du modèle comme une proposition non fiable.",
+        "Construire une fonction serveur qui produit un brouillon court sans transmettre de donnée client, puis prouver le résultat avec ce signal précis : la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un modèle est un service probabiliste non fiable : son entrée est une donnée, sa sortie est une proposition, et aucune des deux ne reçoit implicitement une autorité métier. Dans « Appeler OpenAI depuis le serveur », l’entrée concrète est une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client. Le concept contexte signifie : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Le modèle n’est donc complet que si authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie et si l’on peut observer la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le modèle ressemble à un stagiaire très rapide : donnez-lui un dossier limité, contrôlez le budget et relisez toujours son travail avant publication. Ici, la pièce que vous allez réellement contrôler est une fonction serveur qui produit un brouillon court sans transmettre de donnée client ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client. Garder la clé côté serveur, donner une consigne bornée avec contexte minimal et traiter la sortie du modèle comme une proposition non fiable. Le terme contexte n’est pas une étiquette décorative : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/24-ai/openai-product.ts, l’exemple réduit volontairement le système à une fonction serveur qui produit un brouillon court sans transmettre de donnée client. Lisez chaque ligne comme une responsabilité, puis exécutez npm run build. La principale défaillance à provoquer est la suivante : un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt. Elle révèle pourquoi la correction professionnelle consiste à authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. Appliquez ensuite la même preuve à brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "contexte",
+                  "definition": "Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées."
+                },
+                {
+                  "term": "Limite de capacité",
+                  "definition": "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire."
+                },
+                {
+                  "term": "Sortie non fiable",
+                  "definition": "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client, écrivez d’abord l’observation attendue « la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation », puis implémentez une fonction serveur qui produit un brouillon court sans transmettre de donnée client. Simulez un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt et ne terminez que lorsque la mesure confirme la protection : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/24-ai/openai-product.ts",
+                "source": "import OpenAI from \"openai\";\nconst openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\nexport async function draftProduct(name: string) {\n  if (name.trim().length < 3) throw new Error(\"name too short\");\n  const response = await openai.responses.create({\n    model: \"gpt-5-mini\", input: `Write a factual 60-word description for: ${name}`,\n  });\n  return response.output_text.trim();\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "importe la dépendance nommée, sans l’instancier implicitement — import OpenAI from \"openai\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "lit une configuration serveur ; sa valeur ne doit jamais être journalisée — const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "définit la forme des données acceptées à cette frontière — export async function draftProduct(name: string) {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (name.trim().length < 3) throw new Error(\"name too short\");."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "attend la fin de l’opération asynchrone avant de continuer — const response = await openai.responses.create({."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "configure cette clé du workflow ou du service — model: \"gpt-5-mini\", input: `Write a factual 60-word description for: ${name}`,."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "ferme la structure ouverte par les lignes précédentes — });."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "renvoie la valeur produite au code appelant — return response.output_text.trim();."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/24-ai/openai-product.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/24-ai/openai-product.ts et identifier dans les annotations l’entrée « une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client ». — code exercises/24-ai/openai-product.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npm run build, la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. Le cas volontairement défaillant montre « un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt » sans exposer de secret ; après application du garde-fou — authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées. Le livrable une fonction serveur qui produit un brouillon court sans transmettre de donnée client doit rester côté de la bonne frontière de confiance ; réutilisez contexte pour justifier les validations et conservez comme preuve la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/24-ai/openai-product.ts",
+        "npm run build"
+      ],
+      "expectedResult": "Après npm run build, la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. Le cas volontairement défaillant montre « un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt » sans exposer de secret ; après application du garde-fou — authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement contexte : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+          "fix": "Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation."
+        },
+        {
+          "symptom": "une fonction serveur qui produit un brouillon court sans transmettre de donnée client semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Appeler OpenAI depuis le serveur, la commande npm run build, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; traiter une consigne dans le texte comme une autorisation, exposer un secret ou publier une sortie non validée.",
+          "fix": "Figer une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une fonction serveur qui produit un brouillon court sans transmettre de donnée client dans exercises/24-ai/openai-product.ts, démontrer la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation, puis déclencher et corriger un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt.",
+        "steps": [
+          "Créer exercises/24-ai/openai-product.ts et identifier dans les annotations l’entrée « une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client ».",
+          "Exécuter npm run build une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt.",
+          "Implémenter « authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie », relancer la commande et expliquer le rôle de contexte."
+        ],
+        "hints": [
+          "Relisez la définition : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation »."
+        ],
+        "solution": {
+          "explanation": "Pour Appeler OpenAI depuis le serveur, la solution maintient une seule autorité et applique précisément « authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie ». Elle rend un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt reproductible puis contrôlé, et elle n’est acceptée que lorsque la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation.",
+          "code": "import OpenAI from \"openai\";\nconst openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });\nexport async function draftProduct(name: string) {\n  if (name.trim().length < 3) throw new Error(\"name too short\");\n  const response = await openai.responses.create({\n    model: \"gpt-5-mini\", input: `Write a factual 60-word description for: ${name}`,\n  });\n  return response.output_text.trim();\n}",
+          "filename": "exercises/24-ai/openai-product.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "openai-server-call-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Appeler OpenAI depuis le serveur » dans ce scénario ?",
+          "options": [
+            "authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie, puis vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation.",
+            "Ignorer « un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt » parce que le chemin normal affiche une fonction serveur qui produit un brouillon court sans transmettre de donnée client.",
+            "Déplacer la validation vers l’interface et considérer contexte comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie, puis vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt » parce que le chemin normal affiche une fonction serveur qui produit un brouillon court sans transmettre de donnée client. ». La réponse de référence est « authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie, puis vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer contexte comme un détail serveur. ». La réponse de référence est « authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie, puis vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie, puis vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées."
+          ]
+        },
+        {
+          "id": "openai-server-call-q2",
+          "question": "Quelle définition correspond au terme « contexte » ?",
+          "options": [
+            "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire.",
+            "Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+            "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« contexte » signifie : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire. ». La réponse de référence est « Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. ». « contexte » signifie : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+            "Cette option est correcte. Elle affirme « Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. ». « contexte » signifie : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+            "Cette option est incorrecte. Elle affirme « Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier. ». La réponse de référence est « Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. ». « contexte » signifie : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. ». « contexte » signifie : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées."
+          ]
+        },
+        {
+          "id": "openai-server-call-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « un composant client appelle le fournisseur avec la clé ou transmet tout l’objet commande dans le prompt » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation ».",
+            "Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement contexte : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Le correctif adapté est : Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement contexte : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Le correctif adapté est : Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation.",
+            "Cette option est incorrecte. Elle affirme « Figer une route serveur authentifiée produit un brouillon court à partir du nom public d’un produit, sans données client, exécuter npm run build, enregistrer uniquement le signal utile et comparer explicitement le résultat à « la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement contexte : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Le correctif adapté est : Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement contexte : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Le correctif adapté est : Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement contexte : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées. Le correctif adapté est : Appliquer ce garde-fou spécifique : authentifier et limiter la route, sélectionner les champs publics nécessaires, fixer délai et budget, puis valider la sortie. Rejouer ensuite le cas et vérifier que la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation."
+          ]
+        }
+      ],
+      "recap": [
+        "Garder la clé côté serveur, donner une consigne bornée avec contexte minimal et traiter la sortie du modèle comme une proposition non fiable.",
+        "contexte : Informations fournies au modèle pour accomplir la tâche ; elles doivent être pertinentes, minimales et autorisées.",
+        "La preuve de fin est : la clé reste côté serveur, l’appel fixe modèle et limite de sortie, et la réponse est marquée brouillon jusqu’à validation."
+      ],
+      "next": "La leçon suivante montre pourquoi une liste de mots interdits ne constitue pas une frontière de sécurité IA."
+    },
+    {
+      "id": "ai-safety",
+      "order": 1,
+      "title": "Sécurité IA et injection de prompt",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les routes serveur, la validation d’objets inconnus, les limites de capacité et la facturation par unités d’usage.",
+        "Pouvoir reformuler « injection de prompt » avant de coder : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+        "Savoir créer exercises/24-ai/safety-boundary.ts, exécuter npx tsc --noEmit et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Séparer instructions système et contenu externe, limiter capacités et données, puis exiger une autorisation classique avant toute action sensible.",
+        "Construire une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable, puis prouver le résultat avec ce signal précis : une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un modèle est un service probabiliste non fiable : son entrée est une donnée, sa sortie est une proposition, et aucune des deux ne reçoit implicitement une autorité métier. Dans « Sécurité IA et injection de prompt », l’entrée concrète est une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée. Le concept injection de prompt signifie : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Le modèle n’est donc complet que si traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet et si l’on peut observer une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le modèle ressemble à un stagiaire très rapide : donnez-lui un dossier limité, contrôlez le budget et relisez toujours son travail avant publication. Ici, la pièce que vous allez réellement contrôler est une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée. Séparer instructions système et contenu externe, limiter capacités et données, puis exiger une autorisation classique avant toute action sensible. Le terme injection de prompt n’est pas une étiquette décorative : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/24-ai/safety-boundary.ts, l’exemple réduit volontairement le système à une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable. Lisez chaque ligne comme une responsabilité, puis exécutez npx tsc --noEmit. La principale défaillance à provoquer est la suivante : une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent. Elle révèle pourquoi la correction professionnelle consiste à traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. Appliquez ensuite la même preuve à brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "injection de prompt",
+                  "definition": "Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu."
+                },
+                {
+                  "term": "Limite de capacité",
+                  "definition": "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire."
+                },
+                {
+                  "term": "Sortie non fiable",
+                  "definition": "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée, écrivez d’abord l’observation attendue « une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés », puis implémentez une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable. Simulez une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent et ne terminez que lorsque la mesure confirme la protection : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/24-ai/safety-boundary.ts",
+                "source": "type DraftTask = { task: \"draft_product_copy\"; productName: string; publicFacts: string[] };\nexport function buildBoundedDraftTask(input: unknown): DraftTask {\n  if (!input || typeof input !== \"object\") throw new Error(\"invalid task\");\n  const value = input as Record<string, unknown>;\n  if (value.task !== \"draft_product_copy\") throw new Error(\"capability not allowed\");\n  if (typeof value.productName !== \"string\" || value.productName.trim().length > 120) throw new Error(\"invalid name\");\n  if (!Array.isArray(value.publicFacts) || value.publicFacts.length > 8 ||\n      !value.publicFacts.every((fact) => typeof fact === \"string\" && fact.length <= 200)) throw new Error(\"invalid facts\");\n  // Text remains untrusted; safety comes from no secrets/tools here and validated output later.\n  return { task: \"draft_product_copy\", productName: value.productName.trim(), publicFacts: [...value.publicFacts] };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type DraftTask = { task: \"draft_product_copy\"; productName: string; publicFacts: stri…."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export function buildBoundedDraftTask(input: unknown): DraftTask {."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!input || typeof input !== \"object\") throw new Error(\"invalid task\");."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const value = input as Record<string, unknown>;."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (value.task !== \"draft_product_copy\") throw new Error(\"capability not allowed\");."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (typeof value.productName !== \"string\" || value.productName.trim().length > 120) t…."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!Array.isArray(value.publicFacts) || value.publicFacts.length > 8 ||."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — !value.publicFacts.every((fact) => typeof fact === \"string\" && fact.length <= 200)) t…."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "documente une intention sans être exécutée — // Text remains untrusted; safety comes from no secrets/tools here and validated outp…."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "renvoie la valeur produite au code appelant — return { task: \"draft_product_copy\", productName: value.productName.trim(), publicFac…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/24-ai/safety-boundary.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/24-ai/safety-boundary.ts et identifier dans les annotations l’entrée « une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée ». — code exercises/24-ai/safety-boundary.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npx tsc --noEmit, une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. Le cas volontairement défaillant montre « une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent » sans exposer de secret ; après application du garde-fou — traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées. Le livrable une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable doit rester côté de la bonne frontière de confiance ; réutilisez injection de prompt pour justifier les validations et conservez comme preuve une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/24-ai/safety-boundary.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "Après npx tsc --noEmit, une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. Le cas volontairement défaillant montre « une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent » sans exposer de secret ; après application du garde-fou — traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement injection de prompt : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+          "fix": "Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés."
+        },
+        {
+          "symptom": "une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Sécurité IA et injection de prompt, la commande npx tsc --noEmit, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; traiter une consigne dans le texte comme une autorisation, exposer un secret ou publier une sortie non validée.",
+          "fix": "Figer une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable dans exercises/24-ai/safety-boundary.ts, démontrer une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés, puis déclencher et corriger une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent.",
+        "steps": [
+          "Créer exercises/24-ai/safety-boundary.ts et identifier dans les annotations l’entrée « une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée ».",
+          "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent.",
+          "Implémenter « traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet », relancer la commande et expliquer le rôle de injection de prompt."
+        ],
+        "hints": [
+          "Relisez la définition : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés »."
+        ],
+        "solution": {
+          "explanation": "Pour Sécurité IA et injection de prompt, la solution maintient une seule autorité et applique précisément « traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet ». Elle rend une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent reproductible puis contrôlé, et elle n’est acceptée que lorsque une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés.",
+          "code": "type DraftTask = { task: \"draft_product_copy\"; productName: string; publicFacts: string[] };\nexport function buildBoundedDraftTask(input: unknown): DraftTask {\n  if (!input || typeof input !== \"object\") throw new Error(\"invalid task\");\n  const value = input as Record<string, unknown>;\n  if (value.task !== \"draft_product_copy\") throw new Error(\"capability not allowed\");\n  if (typeof value.productName !== \"string\" || value.productName.trim().length > 120) throw new Error(\"invalid name\");\n  if (!Array.isArray(value.publicFacts) || value.publicFacts.length > 8 ||\n      !value.publicFacts.every((fact) => typeof fact === \"string\" && fact.length <= 200)) throw new Error(\"invalid facts\");\n  // Text remains untrusted; safety comes from no secrets/tools here and validated output later.\n  return { task: \"draft_product_copy\", productName: value.productName.trim(), publicFacts: [...value.publicFacts] };\n}",
+          "filename": "exercises/24-ai/safety-boundary.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "ai-safety-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Sécurité IA et injection de prompt » dans ce scénario ?",
+          "options": [
+            "traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet, puis vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés.",
+            "Ignorer « une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent » parce que le chemin normal affiche une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable.",
+            "Déplacer la validation vers l’interface et considérer injection de prompt comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet, puis vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent » parce que le chemin normal affiche une frontière de capacité qui accepte une tâche structurée sans outil sensible et traite tout texte comme non fiable. ». La réponse de référence est « traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet, puis vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer injection de prompt comme un détail serveur. ». La réponse de référence est « traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet, puis vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet, puis vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu."
+          ]
+        },
+        {
+          "id": "ai-safety-q2",
+          "question": "Quelle définition correspond au terme « injection de prompt » ?",
+          "options": [
+            "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire.",
+            "Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+            "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« injection de prompt » signifie : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire. ». La réponse de référence est « Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. ». « injection de prompt » signifie : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+            "Cette option est correcte. Elle affirme « Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. ». « injection de prompt » signifie : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+            "Cette option est incorrecte. Elle affirme « Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier. ». La réponse de référence est « Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. ». « injection de prompt » signifie : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. ». « injection de prompt » signifie : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu."
+          ]
+        },
+        {
+          "id": "ai-safety-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « une regex pour password, api key ou ignore previous donne une fausse sécurité : synonymes, encodage et autres langues la contournent » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés ».",
+            "Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement injection de prompt : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Le correctif adapté est : Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement injection de prompt : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Le correctif adapté est : Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés.",
+            "Cette option est incorrecte. Elle affirme « Figer une tâche draft_product_copy reçoit uniquement des champs de catalogue bornés et ne possède aucun outil de paiement, email ou base privée, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement injection de prompt : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Le correctif adapté est : Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement injection de prompt : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Le correctif adapté est : Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement injection de prompt : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu. Le correctif adapté est : Appliquer ce garde-fou spécifique : traiter tout texte comme donnée non fiable, limiter capacités et schéma, garder secrets hors contexte, exiger validation et autorisation avant effet. Rejouer ensuite le cas et vérifier que une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés."
+          ]
+        }
+      ],
+      "recap": [
+        "Séparer instructions système et contenu externe, limiter capacités et données, puis exiger une autorisation classique avant toute action sensible.",
+        "injection de prompt : Contenu non fiable conçu pour détourner le modèle de ses règles ou obtenir un accès indu.",
+        "La preuve de fin est : une tâche inconnue, un objet supplémentaire ou un champ trop long est refusé structurellement, indépendamment des mots employés."
+      ],
+      "next": "La leçon suivante borne aussi tokens, concurrence et dépense avant que l’usage ne devienne incontrôlé."
+    },
+    {
+      "id": "ai-cost-control",
+      "order": 2,
+      "title": "Maîtriser coûts, latence et quotas IA",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les routes serveur, la validation d’objets inconnus, les limites de capacité et la facturation par unités d’usage.",
+        "Pouvoir reformuler « budget de jetons » avant de coder : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+        "Savoir créer exercises/24-ai/cost-budget.ts, exécuter npx tsc --noEmit et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Choisir le plus petit modèle suffisant, borner entrée et sortie, mettre en cache les résultats stables et mesurer coût par fonctionnalité.",
+        "Construire un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit, puis prouver le résultat avec ce signal précis : chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un modèle est un service probabiliste non fiable : son entrée est une donnée, sa sortie est une proposition, et aucune des deux ne reçoit implicitement une autorité métier. Dans « Maîtriser coûts, latence et quotas IA », l’entrée concrète est une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur. Le concept budget de jetons signifie : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Le modèle n’est donc complet que si réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget et si l’on peut observer chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le modèle ressemble à un stagiaire très rapide : donnez-lui un dossier limité, contrôlez le budget et relisez toujours son travail avant publication. Ici, la pièce que vous allez réellement contrôler est un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur. Choisir le plus petit modèle suffisant, borner entrée et sortie, mettre en cache les résultats stables et mesurer coût par fonctionnalité. Le terme budget de jetons n’est pas une étiquette décorative : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/24-ai/cost-budget.ts, l’exemple réduit volontairement le système à un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit. Lisez chaque ligne comme une responsabilité, puis exécutez npx tsc --noEmit. La principale défaillance à provoquer est la suivante : vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée. Elle révèle pourquoi la correction professionnelle consiste à réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. Appliquez ensuite la même preuve à brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "budget de jetons",
+                  "definition": "Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus."
+                },
+                {
+                  "term": "Limite de capacité",
+                  "definition": "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire."
+                },
+                {
+                  "term": "Sortie non fiable",
+                  "definition": "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur, écrivez d’abord l’observation attendue « chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée », puis implémentez un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit. Simulez vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée et ne terminez que lorsque la mesure confirme la protection : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/24-ai/cost-budget.ts",
+                "source": "type Usage = { inputTokens: number; outputTokens: number };\nconst MAX_OUTPUT_TOKENS = 300;\nexport function withinBudget(usage: Usage) {\n  const total = usage.inputTokens + usage.outputTokens;\n  return { total, accepted: usage.outputTokens <= MAX_OUTPUT_TOKENS && total <= 2000 };\n}\nconst decision = withinBudget({ inputTokens: 420, outputTokens: 180 });\nif (!decision.accepted) throw new Error(\"AI budget exceeded\");\nconsole.log(decision);",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type Usage = { inputTokens: number; outputTokens: number };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const MAX_OUTPUT_TOKENS = 300;."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export function withinBudget(usage: Usage) {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const total = usage.inputTokens + usage.outputTokens;."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "renvoie la valeur produite au code appelant — return { total, accepted: usage.outputTokens <= MAX_OUTPUT_TOKENS && total <= 2000 };."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const decision = withinBudget({ inputTokens: 420, outputTokens: 180 });."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!decision.accepted) throw new Error(\"AI budget exceeded\");."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "rend le résultat observable dans le terminal sans constituer une validation métier — console.log(decision);."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/24-ai/cost-budget.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/24-ai/cost-budget.ts et identifier dans les annotations l’entrée « une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur ». — code exercises/24-ai/cost-budget.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npx tsc --noEmit, chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. Le cas volontairement défaillant montre « vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée » sans exposer de secret ; après application du garde-fou — réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées. Le livrable un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit doit rester côté de la bonne frontière de confiance ; réutilisez budget de jetons pour justifier les validations et conservez comme preuve chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/24-ai/cost-budget.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "Après npx tsc --noEmit, chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. Le cas volontairement défaillant montre « vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée » sans exposer de secret ; après application du garde-fou — réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement budget de jetons : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+          "fix": "Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée."
+        },
+        {
+          "symptom": "un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Maîtriser coûts, latence et quotas IA, la commande npx tsc --noEmit, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; traiter une consigne dans le texte comme une autorisation, exposer un secret ou publier une sortie non validée.",
+          "fix": "Figer une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit dans exercises/24-ai/cost-budget.ts, démontrer chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée, puis déclencher et corriger vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée.",
+        "steps": [
+          "Créer exercises/24-ai/cost-budget.ts et identifier dans les annotations l’entrée « une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur ».",
+          "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée.",
+          "Implémenter « réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget », relancer la commande et expliquer le rôle de budget de jetons."
+        ],
+        "hints": [
+          "Relisez la définition : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée »."
+        ],
+        "solution": {
+          "explanation": "Pour Maîtriser coûts, latence et quotas IA, la solution maintient une seule autorité et applique précisément « réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget ». Elle rend vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée reproductible puis contrôlé, et elle n’est acceptée que lorsque chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée.",
+          "code": "type Usage = { inputTokens: number; outputTokens: number };\nconst MAX_OUTPUT_TOKENS = 300;\nexport function withinBudget(usage: Usage) {\n  const total = usage.inputTokens + usage.outputTokens;\n  return { total, accepted: usage.outputTokens <= MAX_OUTPUT_TOKENS && total <= 2000 };\n}\nconst decision = withinBudget({ inputTokens: 420, outputTokens: 180 });\nif (!decision.accepted) throw new Error(\"AI budget exceeded\");\nconsole.log(decision);",
+          "filename": "exercises/24-ai/cost-budget.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "ai-cost-control-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Maîtriser coûts, latence et quotas IA » dans ce scénario ?",
+          "options": [
+            "réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget, puis vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée.",
+            "Ignorer « vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée » parce que le chemin normal affiche un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit.",
+            "Déplacer la validation vers l’interface et considérer budget de jetons comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget, puis vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée » parce que le chemin normal affiche un garde-budget déterministe qui refuse une consommation supérieure aux limites du produit. ». La réponse de référence est « réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget, puis vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer budget de jetons comme un détail serveur. ». La réponse de référence est « réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget, puis vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget, puis vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus."
+          ]
+        },
+        {
+          "id": "ai-cost-control-q2",
+          "question": "Quelle définition correspond au terme « budget de jetons » ?",
+          "options": [
+            "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire.",
+            "Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+            "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« budget de jetons » signifie : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire. ». La réponse de référence est « Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. ». « budget de jetons » signifie : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+            "Cette option est correcte. Elle affirme « Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. ». « budget de jetons » signifie : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+            "Cette option est incorrecte. Elle affirme « Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier. ». La réponse de référence est « Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. ». « budget de jetons » signifie : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. ». « budget de jetons » signifie : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus."
+          ]
+        },
+        {
+          "id": "ai-cost-control-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « vérifier usage après la réponse limite une sortie mais n’empêche ni rafale concurrente ni dépense cumulée » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée ».",
+            "Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement budget de jetons : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement budget de jetons : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée.",
+            "Cette option est incorrecte. Elle affirme « Figer une fonctionnalité de brouillon possède un plafond de sortie, un budget total et une limite d’appels par utilisateur, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement budget de jetons : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement budget de jetons : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement budget de jetons : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus. Le correctif adapté est : Appliquer ce garde-fou spécifique : réserver quota avant l’appel, fixer max_output_tokens et timeout, limiter le débit, puis rapprocher usage réel et budget. Rejouer ensuite le cas et vérifier que chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée."
+          ]
+        }
+      ],
+      "recap": [
+        "Choisir le plus petit modèle suffisant, borner entrée et sortie, mettre en cache les résultats stables et mesurer coût par fonctionnalité.",
+        "budget de jetons : Limite explicite de texte traité ou généré pour maîtriser coût, temps et surface d’abus.",
+        "La preuve de fin est : chaque appel enregistre modèle, tokens, latence, résultat et coût estimé ; le plafond refuse avant dépassement et déclenche une alerte agrégée."
+      ],
+      "next": "La leçon suivante vérifie le contenu structuré avant qu’il ne devienne une fiche produit publique."
+    },
+    {
+      "id": "ai-output-validation",
+      "order": 3,
+      "title": "Valider les sorties IA",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Comprendre les routes serveur, la validation d’objets inconnus, les limites de capacité et la facturation par unités d’usage.",
+        "Pouvoir reformuler « sortie structurée » avant de coder : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+        "Savoir créer exercises/24-ai/validate-output.ts, exécuter npx tsc --noEmit et comparer une sortie réelle à une attente écrite."
+      ],
+      "objectives": [
+        "Exiger une structure, vérifier types et limites, filtrer le HTML puis garder une revue humaine pour les affirmations commerciales sensibles.",
+        "Construire un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat, puis prouver le résultat avec ce signal précis : objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un modèle est un service probabiliste non fiable : son entrée est une donnée, sa sortie est une proposition, et aucune des deux ne reçoit implicitement une autorité métier. Dans « Valider les sorties IA », l’entrée concrète est une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale. Le concept sortie structurée signifie : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Le modèle n’est donc complet que si partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication et si l’on peut observer objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le modèle ressemble à un stagiaire très rapide : donnez-lui un dossier limité, contrôlez le budget et relisez toujours son travail avant publication. Ici, la pièce que vous allez réellement contrôler est un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat ; l’analogie cesse d’être utile dès qu’elle masque la frontière technique décrite dans le code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Commencez par délimiter le cas de cette leçon : une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale. Exiger une structure, vérifier types et limites, filtrer le HTML puis garder une revue humaine pour les affirmations commerciales sensibles. Le terme sortie structurée n’est pas une étiquette décorative : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Il permet de décider quelle donnée entre, quelle autorité peut agir et quelle observation constitue une preuve plutôt qu’une simple impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Dans exercises/24-ai/validate-output.ts, l’exemple réduit volontairement le système à un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat. Lisez chaque ligne comme une responsabilité, puis exécutez npx tsc --noEmit. La principale défaillance à provoquer est la suivante : un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution. Elle révèle pourquoi la correction professionnelle consiste à partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication, et non à cacher l’erreur."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Dans un système réel, le chemin heureux n’est qu’un cas parmi les répétitions, entrées invalides et pannes partielles. Le résultat attendu est objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. Appliquez ensuite la même preuve à brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées, avec une trace de corrélation sans secret ni donnée personnelle afin que réussite et échec restent explicables."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "sortie structurée",
+                  "definition": "Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application."
+                },
+                {
+                  "term": "Limite de capacité",
+                  "definition": "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire."
+                },
+                {
+                  "term": "Sortie non fiable",
+                  "definition": "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Dans un autre projet, partez de une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale, écrivez d’abord l’observation attendue « objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine », puis implémentez un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat. Simulez un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution et ne terminez que lorsque la mesure confirme la protection : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/24-ai/validate-output.ts",
+                "source": "type ProductDraft = { title: string; description: string; tags: string[] };\nexport function validateDraft(value: unknown): ProductDraft {\n  if (!value || typeof value !== \"object\") throw new Error(\"invalid draft\");\n  const draft = value as Record<string, unknown>;\n  if (Object.keys(draft).some((key) => ![\"title\", \"description\", \"tags\"].includes(key))) throw new Error(\"unexpected field\");\n  if (typeof draft.title !== \"string\" || !draft.title.trim() || draft.title.length > 80) throw new Error(\"invalid title\");\n  if (typeof draft.description !== \"string\" || !draft.description.trim() || draft.description.length > 500) throw new Error(\"invalid description\");\n  if (!Array.isArray(draft.tags) || draft.tags.length > 8 ||\n      !draft.tags.every((tag) => typeof tag === \"string\" && tag.trim().length > 0 && tag.length <= 30)) throw new Error(\"invalid tags\");\n  return { title: draft.title.trim(), description: draft.description.trim(), tags: draft.tags.map((tag) => tag.trim()) };\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "définit la forme des données acceptées à cette frontière — type ProductDraft = { title: string; description: string; tags: string[] };."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — export function validateDraft(value: unknown): ProductDraft {."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!value || typeof value !== \"object\") throw new Error(\"invalid draft\");."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "déclare ou transforme cette donnée pour l’étape suivante — const draft = value as Record<string, unknown>;."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (Object.keys(draft).some((key) => ![\"title\", \"description\", \"tags\"].includes(key))…."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (typeof draft.title !== \"string\" || !draft.title.trim() || draft.title.length > 80…."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (typeof draft.description !== \"string\" || !draft.description.trim() || draft.descr…."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — if (!Array.isArray(draft.tags) || draft.tags.length > 8 ||."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "refuse ou bifurque explicitement lorsque cette condition est vraie — !draft.tags.every((tag) => typeof tag === \"string\" && tag.trim().length > 0 && tag.le…."
+                  },
+                  {
+                    "lines": "10",
+                    "label": "ouvre la fonction qui porte la responsabilité annoncée — return { title: draft.title.trim(), description: draft.description.trim(), tags: draf…."
+                  },
+                  {
+                    "lines": "11",
+                    "label": "ferme la structure ouverte par les lignes précédentes — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/24-ai/validate-output.ts\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Créer exercises/24-ai/validate-output.ts et identifier dans les annotations l’entrée « une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale ». — code exercises/24-ai/validate-output.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Après npx tsc --noEmit, objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. Le cas volontairement défaillant montre « un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution » sans exposer de secret ; après application du garde-fou — partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication — il est refusé ou traité une seule fois selon le contrat."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Dans L’ecomax, cette leçon protège brouillons de fiches produit et assistance éditoriale sans accès aux paiements ni aux données privées. Le livrable un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat doit rester côté de la bonne frontière de confiance ; réutilisez sortie structurée pour justifier les validations et conservez comme preuve objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/24-ai/validate-output.ts",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "Après npx tsc --noEmit, objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. Le cas volontairement défaillant montre « un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution » sans exposer de secret ; après application du garde-fou — partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication — il est refusé ou traité une seule fois selon le contrat.",
+      "commonErrors": [
+        {
+          "symptom": "un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution",
+          "cause": "La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement sortie structurée : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+          "fix": "Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine."
+        },
+        {
+          "symptom": "un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat semble fonctionner, mais personne ne peut produire la preuve annoncée après un nouvel essai.",
+          "cause": "Pour Valider les sorties IA, la commande npx tsc --noEmit, les données d’entrée et le résultat n’ont pas été reliés dans une reproduction déterministe ; traiter une consigne dans le texte comme une autorisation, exposer un secret ou publier une sortie non validée.",
+          "fix": "Figer une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine »."
+        }
+      ],
+      "exercise": {
+        "task": "Réaliser un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat dans exercises/24-ai/validate-output.ts, démontrer objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine, puis déclencher et corriger un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution.",
+        "steps": [
+          "Créer exercises/24-ai/validate-output.ts et identifier dans les annotations l’entrée « une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale ».",
+          "Exécuter npx tsc --noEmit une première fois et conserver la sortie sans secret comme référence.",
+          "Modifier une seule entrée pour reproduire ce défaut : un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution.",
+          "Implémenter « partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication », relancer la commande et expliquer le rôle de sortie structurée."
+        ],
+        "hints": [
+          "Relisez la définition : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Cherchez la ligne où cette règle doit être imposée, pas seulement commentée.",
+          "La preuve cible n’est pas « cela semble marcher » : elle est « objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine »."
+        ],
+        "solution": {
+          "explanation": "Pour Valider les sorties IA, la solution maintient une seule autorité et applique précisément « partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication ». Elle rend un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution reproductible puis contrôlé, et elle n’est acceptée que lorsque objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine.",
+          "code": "type ProductDraft = { title: string; description: string; tags: string[] };\nexport function validateDraft(value: unknown): ProductDraft {\n  if (!value || typeof value !== \"object\") throw new Error(\"invalid draft\");\n  const draft = value as Record<string, unknown>;\n  if (Object.keys(draft).some((key) => ![\"title\", \"description\", \"tags\"].includes(key))) throw new Error(\"unexpected field\");\n  if (typeof draft.title !== \"string\" || !draft.title.trim() || draft.title.length > 80) throw new Error(\"invalid title\");\n  if (typeof draft.description !== \"string\" || !draft.description.trim() || draft.description.length > 500) throw new Error(\"invalid description\");\n  if (!Array.isArray(draft.tags) || draft.tags.length > 8 ||\n      !draft.tags.every((tag) => typeof tag === \"string\" && tag.trim().length > 0 && tag.length <= 30)) throw new Error(\"invalid tags\");\n  return { title: draft.title.trim(), description: draft.description.trim(), tags: draft.tags.map((tag) => tag.trim()) };\n}",
+          "filename": "exercises/24-ai/validate-output.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "ai-output-validation-q1",
+          "question": "Quelle décision prouve réellement la maîtrise de « Valider les sorties IA » dans ce scénario ?",
+          "options": [
+            "partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication, puis vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine.",
+            "Ignorer « un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution » parce que le chemin normal affiche un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat.",
+            "Déplacer la validation vers l’interface et considérer sortie structurée comme un détail serveur.",
+            "Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic."
+          ],
+          "correctIndex": 0,
+          "explanation": "La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication, puis vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+            "Cette option est incorrecte. Elle affirme « Ignorer « un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution » parce que le chemin normal affiche un validateur qui empêche un brouillon de devenir donnée produit avant de respecter le contrat. ». La réponse de référence est « partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication, puis vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+            "Cette option est incorrecte. Elle affirme « Déplacer la validation vers l’interface et considérer sortie structurée comme un détail serveur. ». La réponse de référence est « partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication, puis vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+            "Cette option est incorrecte. Elle affirme « Journaliser toutes les entrées et tous les secrets pour faciliter le diagnostic. ». La réponse de référence est « partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication, puis vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». La première décision relie le garde-fou au signal vérifiable. Les autres ignorent le défaut précis, déplacent l’autorité vers une frontière non fiable ou créent une fuite ; Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application."
+          ]
+        },
+        {
+          "id": "ai-output-validation-q2",
+          "question": "Quelle définition correspond au terme « sortie structurée » ?",
+          "options": [
+            "Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire.",
+            "Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+            "Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« sortie structurée » signifie : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Restriction technique empêchant le modèle d’accéder à une action ou une donnée non nécessaire. ». La réponse de référence est « Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. ». « sortie structurée » signifie : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+            "Cette option est correcte. Elle affirme « Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. ». « sortie structurée » signifie : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+            "Cette option est incorrecte. Elle affirme « Valeur qui doit être validée, bornée et parfois approuvée avant tout effet métier. ». La réponse de référence est « Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. ». « sortie structurée » signifie : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. ». « sortie structurée » signifie : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application."
+          ]
+        },
+        {
+          "id": "ai-output-validation-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « un cast as ProductDraft convainc TypeScript mais ne contrôle aucune valeur reçue à l’exécution » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Figer une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine ».",
+            "Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement sortie structurée : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Le correctif adapté est : Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement sortie structurée : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Le correctif adapté est : Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine.",
+            "Cette option est incorrecte. Elle affirme « Figer une réponse inconnue doit devenir ProductDraft seulement si titre, description et tags respectent type, longueur et politique éditoriale, exécuter npx tsc --noEmit, enregistrer uniquement le signal utile et comparer explicitement le résultat à « objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine ». ». La réponse de référence est « Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement sortie structurée : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Le correctif adapté est : Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine.",
+            "Cette option est correcte. Elle affirme « Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement sortie structurée : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Le correctif adapté est : Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine. ». Le diagnostic part de la cause suivante : La mise en œuvre confond le chemin heureux avec le contrat complet et n’applique pas correctement sortie structurée : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application. Le correctif adapté est : Appliquer ce garde-fou spécifique : partir de unknown, vérifier chaque propriété et limite, normaliser un nouvel objet sans champs supplémentaires et demander approbation avant publication. Rejouer ensuite le cas et vérifier que objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine."
+          ]
+        }
+      ],
+      "recap": [
+        "Exiger une structure, vérifier types et limites, filtrer le HTML puis garder une revue humaine pour les affirmations commerciales sensibles.",
+        "sortie structurée : Réponse contrainte par une forme machine attendue, mais qui doit encore être validée par l’application.",
+        "La preuve de fin est : objets incomplets, chaînes vides, tags trop nombreux et propriétés inattendues échouent ; seul l’objet normalisé passe en relecture humaine."
+      ],
+      "next": "Le module suivant mesure l’usage du produit avec la même discipline de schéma, de minimisation et de preuve."
+    }
+  ]
+}

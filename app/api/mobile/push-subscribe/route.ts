@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser } from "@/lib/request-auth";
@@ -26,7 +27,7 @@ export async function POST(req: NextRequest) {
   if (blocked) return blocked;
   const user = await getCustomerUser(req);
   let body: { token?: unknown; platform?: unknown; installationId?: unknown };
-  try { body = await req.json(); }
+  try { body = await readJsonLimited(req); }
   catch { return NextResponse.json({ error: "Requête JSON invalide." }, { status: 400 }); }
   if (!validExpoToken(body.token) || !["ios", "android"].includes(String(body.platform)) || !validInstallationId(body.installationId)) {
     return NextResponse.json({ error: "Jeton de notification invalide." }, { status: 400 });
@@ -56,7 +57,7 @@ export async function DELETE(req: NextRequest) {
   if (blocked) return blocked;
   const user = await getCustomerUser(req);
   let body: { token?: unknown; installationId?: unknown };
-  try { body = await req.json(); }
+  try { body = await readJsonLimited(req); }
   catch { return NextResponse.json({ error: "Requête JSON invalide." }, { status: 400 }); }
   if (!validExpoToken(body.token) || !validInstallationId(body.installationId)) return NextResponse.json({ error: "Jeton invalide." }, { status: 400 });
   let query = supabase

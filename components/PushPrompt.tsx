@@ -310,7 +310,7 @@ export default function PushPrompt() {
             <div>
               <p className="text-neutral-900 text-[10.5px] font-black tracking-[0.13em] leading-none">L&apos;ECOMAX</p>
               <p className="text-[9px] font-medium tracking-[0.15em] uppercase leading-none mt-[3px]"
-                 style={{ color: "rgba(0,0,0,0.35)" }}>Mode · Tech · Sport</p>
+                 style={{ color: "rgba(0,0,0,0.35)" }}>Votre marketplace lifestyle</p>
             </div>
           </div>
           <button onClick={() => dismiss(false)} aria-label="Fermer"

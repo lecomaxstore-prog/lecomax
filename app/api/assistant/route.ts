@@ -1,19 +1,28 @@
-import { NextResponse } from "next/server";
+import { readJsonLimited } from "@/lib/request-body";
+import { NextRequest, NextResponse } from "next/server";
+import { sensitiveRateLimit } from "@/lib/sensitive-rate-limit";
 import { supabase } from "@/lib/supabase";
 import { extractIntent } from "@/lib/assistant-intent";
 import { processIntent } from "@/lib/assistant-tools";
 import type { AssistantMessage } from "@/lib/assistant-types";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const limited = await sensitiveRateLimit(request, "assistant");
+  if (limited) return limited;
   try {
-    const body = await request.json();
+    const body = await readJsonLimited(request, 64 * 1024);
     const { sessionId, messages, platform = "web" } = body as {
       sessionId?: string;
       messages: { role: "user" | "assistant"; content: string; recommendations?: any[] }[];
       platform: "web" | "mobile_app";
     };
 
-    if (!messages || messages.length === 0) {
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > 30 ||
+      messages.some(message => !message || !["user", "assistant"].includes(message.role) ||
+        typeof message.content !== "string" || !message.content.trim() || message.content.length > 4000) ||
+      messages[messages.length - 1].role !== "user" ||
+      !["web", "mobile_app"].includes(platform) ||
+      (sessionId !== undefined && (typeof sessionId !== "string" || !/^[0-9a-f-]{36}$/i.test(sessionId)))) {
       return NextResponse.json({ error: "No messages provided" }, { status: 400 });
     }
 
@@ -87,4 +96,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

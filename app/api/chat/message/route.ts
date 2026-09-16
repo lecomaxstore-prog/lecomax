@@ -1,3 +1,5 @@
+import { ownsChat } from "@/lib/chat-ownership";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import type OpenAI from "openai";
@@ -221,8 +223,9 @@ async function buildSystemPrompt(): Promise<string> {
 
 /** POST /api/chat/message — visitor sends a message */
 export async function POST(req: Request) {
-  const payload = await req.json();
+  const payload = await readJsonLimited(req);
   const session_id = payload.session_id as string | undefined;
+  if (!(await ownsChat(req, supabase, session_id))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   const aiTakeover = payload.ai_takeover === true;
   let messageBody = typeof payload.body === "string" ? payload.body.trim() : "";
   if (!session_id || (!messageBody && !aiTakeover)) {

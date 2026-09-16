@@ -1,3 +1,5 @@
+import { validPushEndpoint } from "../lib/push-endpoint.ts";
+import { securityIo } from "./helpers/security-io.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -10,7 +12,8 @@ function load(file: string, dependencies: Record<string, unknown>) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText, {
     exports, URL, process: { env: {} },
-    require(name: string) { assert.ok(name in dependencies, name); return dependencies[name]; },
+    require(name: string) {
+      const securityModule = securityIo(name); if (securityModule) return securityModule; if (name === "@/lib/push-endpoint") return { validPushEndpoint }; assert.ok(name in dependencies, name); return dependencies[name]; },
   });
   return exports;
 }
@@ -46,8 +49,8 @@ function renewalApi(initial: Record<string, string>[]) {
   return { rows, request: (body: unknown) => route.POST({ json: async () => body }) as Promise<Response> };
 }
 
-const old = { endpoint: 'https://push.example/old', keys: { auth: 'private-old-auth', p256dh: 'old-key' } };
-const next = { endpoint: 'https://push.example/new', keys: { auth: 'private-new-auth', p256dh: 'new-key' } };
+const old = { endpoint: 'https://fcm.googleapis.com/old', keys: { auth: 'private-old-auth', p256dh: 'old-key' } };
+const next = { endpoint: 'https://fcm.googleapis.com/new', keys: { auth: 'private-new-auth', p256dh: 'new-key' } };
 const adminRow = { endpoint: old.endpoint, ...old.keys, user_agent: '[LECOMAX_ADMIN] Chrome' };
 
 test('background rotation preserves admin audience without a login cookie and is idempotent', async () => {

@@ -1,0 +1,1357 @@
+[
+  {
+    "file": "app/api/abandoned-carts/route.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/abandoned-carts/[id]/route.ts",
+    "methods": [
+      "PATCH"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/account/avatar/route.ts",
+    "methods": [
+      "POST",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/account/delete-request/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/account/password-reset/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/account/profile/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/activity/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/app-releases/finalize/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/app-releases/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/app-releases/upload/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/app-releases/[id]/route.ts",
+    "methods": [
+      "PATCH",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/approvals/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/approvals/[id]/route.ts",
+    "methods": [
+      "PATCH",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/auth/session/route.ts",
+    "methods": [
+      "POST",
+      "DELETE"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/auth/verify/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/checkout-settings/route.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/dashboard/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/ecomedia/comments/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/ecomedia/comments/[id]/route.ts",
+    "methods": [
+      "PATCH",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/ecomedia/generate/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/ecomedia/posts/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/ecomedia/posts/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/how-built-pin/route.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/mobile-audience/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/mobile-campaigns/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/mobile-campaigns/[id]/route.ts",
+    "methods": [
+      "PATCH"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/products/bulk/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/push-subscribe/route.ts",
+    "methods": [
+      "POST",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/push-test/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/roles/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/roles/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/staff/permissions/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/staff/resend-invite/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/staff/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/staff/verify-invite/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/staff/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/support/conversations/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/support/conversations/[id]/messages/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/admin/support/conversations/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PATCH"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ads/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ads/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ai-broadcast/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ai-product/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ai-reply/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ai-review/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/analytics/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/announcements/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/announcements/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/app-releases/android/latest/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/assistant/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/auth/signup/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/banners/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/banners/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/categories/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/categories/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/feedback/route.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/join/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/message/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/poll/[sessionId]/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/reply/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/sessions/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/sessions/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PATCH"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/start/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat/typing/route.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat-kb/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/chat-kb/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/checkout/quote/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/client-data/consent/route.ts",
+    "methods": [
+      "POST",
+      "DELETE"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/client-data/event/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/client-data/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/coupons/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/coupons/validate/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/coupons/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/cron/mobile-campaigns/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/cron/review-followups/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/dev-docs/content/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/dev-docs/tree/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/comments/route.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/comments/[id]/route.ts",
+    "methods": [
+      "PATCH",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/likes/route.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/posts/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/posts/[slug]/route.ts",
+    "methods": [
+      "GET",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/saved/route.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/social-image/[slug]/route.tsx",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/ecomedia/upload/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/feed/products.xml/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/inbox/reply/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/inbox/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/inbox/[uid]/route.ts",
+    "methods": [
+      "GET",
+      "DELETE",
+      "PATCH"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/indexnow/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/loyalty/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/media/route.ts",
+    "methods": [
+      "GET",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/messages/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/messages/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/mobile/notification-preferences/route.ts",
+    "methods": [
+      "GET",
+      "PUT"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/mobile/notifications/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/mobile/push-subscribe/route.ts",
+    "methods": [
+      "POST",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/mobile/web-push/route.ts",
+    "methods": [
+      "GET",
+      "POST",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/newsletter/generate/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/newsletter/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/newsletter/send/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/newsletter/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/og/product/[slug]/route.tsx",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/orders/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/orders/[id]/notify/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/orders/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/orders/[id]/trustpilot/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/page-views/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/pages/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/pages/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/payment-methods/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/paypal/config/route.ts",
+    "methods": [],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/paypal/mobile/cancel/route.ts",
+    "methods": [],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/paypal/mobile/capture/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/paypal/mobile/create/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/paypal/mobile/return/route.ts",
+    "methods": [],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/paypal/webhook/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/points/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/product-translations/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/products/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/products/[id]/duplicate/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/products/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/products/[id]/stock/route.ts",
+    "methods": [
+      "PATCH"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/promotions/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/promotions/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/push/generate/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/push/renew/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/push/send/route.ts",
+    "methods": [
+      "POST",
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/push/subscribe/route.ts",
+    "methods": [
+      "POST",
+      "DELETE",
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/recommendations/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/returns/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/returns/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/reviews/admin/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/reviews/check/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/reviews/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/reviews/stats/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/reviews/upload-photo/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/reviews/[id]/route.ts",
+    "methods": [
+      "DELETE",
+      "PUT"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/search/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/send-confirmation/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/settings/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/shipping/config/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/shipping/quote/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/shipping/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/shipping/[id]/route.ts",
+    "methods": [
+      "PUT",
+      "DELETE"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/size-guide/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/support/conversations/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/support/conversations/[id]/messages/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/support/conversations/[id]/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/tracking/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/trustpilot-featured/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/trustpilot-reviews/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/upload/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/upload-media/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/whatsapp/conversations/route.ts",
+    "methods": [
+      "GET"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/whatsapp/conversations/[id]/route.ts",
+    "methods": [
+      "GET",
+      "PATCH"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/whatsapp/send/route.ts",
+    "methods": [
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/whatsapp/webhook/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": false,
+    "rawBody": false
+  },
+  {
+    "file": "app/api/wishlist/route.ts",
+    "methods": [
+      "GET",
+      "POST"
+    ],
+    "guard": true,
+    "rawBody": false
+  }
+]

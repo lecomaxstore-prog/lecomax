@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { capturePayPalCheckout } from "@/lib/paypal-server";
 import { enforceRateLimit } from "@/lib/api-security";
@@ -9,7 +10,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Client non autorisé." }, { status: 403 });
   }
 
-  const body = (await request.json().catch(() => null)) as {
+  const body = (await readJsonLimited(request).catch(() => null)) as {
     orderId?: unknown;
   } | null;
   const orderId =

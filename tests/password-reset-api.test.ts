@@ -1,10 +1,11 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
 
-function setup({ user = { email: "owner@example.com" } as { email?: string } | null, status = 200, fail = false, configured = true } = {}) {
+function setup({ user = { email: "owner@example.com" } as { email?: string } | null, status = 200, fail = false, configured = true, limited = false } = {}) {
   const calls: { url: URL; init: RequestInit }[] = [];
   const exports: { POST?: (request: unknown) => Promise<Response> } = {};
   const source = readFileSync(new URL("../app/api/account/password-reset/route.ts", import.meta.url), "utf8");
@@ -12,7 +13,12 @@ function setup({ user = { email: "owner@example.com" } as { email?: string } | n
     exports, URL, AbortSignal,
     process: { env: configured ? { NEXT_PUBLIC_SUPABASE_URL: "https://auth.example.com", NEXT_PUBLIC_SUPABASE_ANON_KEY: "public-key", NEXT_PUBLIC_SITE_URL: "https://shop.example.com" } : {} },
     require: (name: string) => {
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
       if (name === "@/lib/request-auth") return { getCustomerUser: async () => user };
+      if (name === "@/lib/sensitive-rate-limit") return { sensitiveRateLimit: async (_req: unknown, _scope: string, email: string) => {
+        assert.equal(email, user?.email);
+        return limited ? Response.json({ error: "limited" }, { status: 429 }) : null;
+      } };
       if (name === "next/server") return { NextResponse: { json: (body: unknown, options: ResponseInit) => Response.json(body, options) } };
       throw new Error(`Unexpected import ${name}`);
     },
@@ -34,6 +40,12 @@ test("reset API only sends to the authenticated account and configured redirect"
   assert.deepEqual(JSON.parse(calls[0].init.body as string), { email: "owner@example.com" });
   assert.equal(calls[0].url.searchParams.get("redirect_to"), "https://shop.example.com/mot-de-passe");
   assert.ok(calls[0].init.signal);
+});
+
+test("reset API rate limit prevents calling the email provider", async () => {
+  const { post, calls } = setup({ limited: true });
+  assert.equal((await post()).status, 429);
+  assert.equal(calls.length, 0);
 });
 
 for (const scenario of [

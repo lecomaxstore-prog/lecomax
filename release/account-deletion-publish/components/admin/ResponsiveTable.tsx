@@ -1,0 +1,30 @@
+import { Children, cloneElement, isValidElement, type ReactElement, type ReactNode, type TableHTMLAttributes } from "react";
+
+type ElementProps = { children?: ReactNode; colSpan?: number; [key: string]: unknown };
+function textOf(node: ReactNode): string {
+  return Children.toArray(node).map(child => typeof child === "string" || typeof child === "number"
+    ? String(child) : isValidElement<ElementProps>(child) ? textOf(child.props.children) : "").join(" ").trim();
+}
+
+/** One row tree and one set of handlers. Desktop table, labelled cards below lg. */
+export default function ResponsiveTable({ children, className = "", ...props }: TableHTMLAttributes<HTMLTableElement>) {
+  const sections = Children.toArray(children);
+  const head = sections.find(child => isValidElement(child) && child.type === "thead") as ReactElement<ElementProps> | undefined;
+  const headerRow = Children.toArray(head?.props.children).find(isValidElement) as ReactElement<ElementProps> | undefined;
+  const labels = Children.toArray(headerRow?.props.children).map(cell => textOf(cell) || "Actions");
+  return <table {...props} role="table" className={`admin-responsive-table ${className}`}>
+    {sections.map(section => {
+      if (!isValidElement<ElementProps>(section) || section.type !== "tbody") return section;
+      return cloneElement(section, { role: "rowgroup", children: Children.map(section.props.children, row => {
+        if (!isValidElement<ElementProps>(row) || row.type !== "tr") return row;
+        return cloneElement(row, { role: "row", children: Children.toArray(row.props.children).map((cell, index) => {
+          if (!isValidElement<ElementProps>(cell) || cell.type !== "td") return cell;
+          return cloneElement(cell, { role: "cell", "data-wide": Number(cell.props.colSpan) > 1 || undefined, children: <>
+            {!(Number(cell.props.colSpan) > 1) && <span className="admin-cell-label" aria-hidden="true">{labels[index]}</span>}
+            <div className="admin-cell-value">{cell.props.children}</div>
+          </> });
+        }) });
+      }) });
+    })}
+  </table>;
+}

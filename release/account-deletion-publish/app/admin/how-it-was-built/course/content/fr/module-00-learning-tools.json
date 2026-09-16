@@ -1,0 +1,1010 @@
+{
+  "id": "module-00-learning-tools",
+  "order": 0,
+  "icon": "🧭",
+  "color": "#16A34A",
+  "title": "Apprendre, configurer son ordinateur et lancer le projet",
+  "summary": "Une méthode de travail reproductible avec VS Code, PowerShell, Node.js et npm, depuis le premier dossier jusqu’au serveur Next.js local.",
+  "files": [
+    {
+      "path": "package.json",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/00-tools/setup.ps1",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/00-tools/learning-log.md",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/00-tools/terminal-practice.ps1",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/00-tools/vscode-map.md",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/00-tools/setup-node.ps1",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-00-01-learning-map",
+      "order": 0,
+      "title": "Partir de zéro : installer VS Code et créer son espace",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Aucun projet ni éditeur ne doit déjà être ouvert; il suffit de savoir ouvrir le menu Démarrer et saisir du texte."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer l’installation vérifiable de VS Code et la création d’un premier dossier de travail",
+        "À la fin, vous saurez expliquer puis appliquer un journal d’expériences qui conserve les preuves"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un développeur ne mémorise pas tout : il construit une carte reliant un objectif, un fichier, une commande et une preuve. Chaque expérience doit répondre à une petite question et produire un résultat vérifiable. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Comme un carnet de laboratoire : la recette seule ne suffit pas, il faut noter ce qui a été testé et observé."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Ouvrez Windows PowerShell depuis le menu Démarrer. winget installe VS Code sans supposer qu’il existe déjà; si winget manque, téléchargez l’installateur officiel code.visualstudio.com et cochez l’ajout à PATH. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Avant toute commande, relevez le dossier courant, le fichier visé et l’état initial. Ces trois repères évitent de modifier le mauvais projet ou d’attribuer un ancien problème au nouveau changement. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Après l’action, conservez la commande exacte, la sortie utile et votre conclusion dans un journal. Une erreur devient alors une donnée d’apprentissage, pas un échec opaque. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "workspace",
+                  "definition": "Dossier racine contenant le code, la configuration et l’historique du projet."
+                },
+                {
+                  "term": "hypothesis",
+                  "definition": "Prédiction testable formulée avant une expérience."
+                },
+                {
+                  "term": "feedback loop",
+                  "definition": "Cycle court entre une action et la preuve de son résultat."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Pour toute fonctionnalité, écrivez d’abord le comportement attendu, changez une seule chose, puis comparez l’état avant/après."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/00-tools/setup.ps1",
+                "source": "winget --version\nwinget install --id Microsoft.VisualStudioCode --exact --source winget --accept-package-agreements --accept-source-agreements\n\n$courseRoot = Join-Path $HOME \"Documents/lecomax-academy\"\nNew-Item -ItemType Directory -Path $courseRoot -Force | Out-Null\nSet-Location -LiteralPath $courseRoot\nNew-Item -ItemType Directory -Path \"academy-labs/00-tools\" -Force | Out-Null\n\n$log = @(\"# Learning log\", \"\", \"## Goal\", \"Open my first workspace and record evidence.\")\n$log | Set-Content -LiteralPath \"academy-labs/00-tools/learning-log.md\" -Encoding utf8\nGet-Location\nGet-Item -LiteralPath \"academy-labs/00-tools/learning-log.md\"",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Vérifier winget puis installer VS Code depuis son identifiant officiel."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Construire un premier workspace sous Documents puis s’y placer explicitement."
+                  },
+                  {
+                    "lines": "9-12",
+                    "label": "Écrire un vrai journal Markdown puis prouver son chemin et son existence."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Preuve de réussite: VS Code est installé et PowerShell affiche un dossier lecomax-academy contenant le journal Markdown créé."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "Preuve de réussite: VS Code est installé et PowerShell affiche un dossier lecomax-academy contenant le journal Markdown créé."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/00-tools/setup.ps1",
+                "source": "$courseRoot = Join-Path $HOME \"Documents/lecomax-academy\"\nSet-Location -LiteralPath $courseRoot\n$path = (Get-Location).Path\n$entry = @(\n  \"# Learning log\",\n  \"\",\n  \"## Goal\",\n  \"Confirm the location of my practice workspace.\",\n  \"\",\n  \"## Prediction and observation\",\n  \"Prediction: the path ends with lecomax-academy.\",\n  \"Observation: $path\",\n  \"Conclusion: the next relative command will run inside this workspace.\"\n)\n$entry | Set-Content -LiteralPath \"academy-labs/00-tools/learning-log.md\" -Encoding utf8\nGet-Content -LiteralPath \"academy-labs/00-tools/learning-log.md\"",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution sépare prédiction et observation afin que la comparaison révèle ce qui a réellement été appris."
+                  },
+                  {
+                    "lines": "1-16",
+                    "label": "Preuve de réussite: VS Code est installé et PowerShell affiche un dossier lecomax-academy contenant le journal Markdown créé."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Ce workspace d’entraînement évite de toucher L’ecomax trop tôt; la quatrième leçon ouvrira ensuite le vrai dossier seulement après vérification de package.json."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "winget --version",
+        "winget install --id Microsoft.VisualStudioCode --exact --source winget --accept-package-agreements --accept-source-agreements",
+        "$courseRoot = Join-Path $HOME \"Documents\\lecomax-academy\"",
+        "New-Item -ItemType Directory -Path $courseRoot -Force"
+      ],
+      "expectedResult": "Preuve de réussite: VS Code est installé et PowerShell affiche un dossier lecomax-academy contenant le journal Markdown créé.",
+      "commonErrors": [
+        {
+          "symptom": "« winget » n’est pas reconnu.",
+          "cause": "App Installer est absent ou Windows est trop ancien pour fournir winget.",
+          "fix": "Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell."
+        },
+        {
+          "symptom": "Une expérience ne permet pas de savoir quel changement a résolu le problème.",
+          "cause": "Plusieurs fichiers ou commandes ont été modifiés en même temps.",
+          "fix": "Revenez à l’état initial et répétez avec une seule variable modifiée par essai."
+        }
+      ],
+      "exercise": {
+        "task": "Créer un journal contenant un objectif, une prédiction, une commande, une observation et une conclusion.",
+        "steps": [
+          "Exécutez setup.ps1 ligne par ligne dans PowerShell et lisez la sortie avant de continuer.",
+          "Ouvrez learning-log.md et ajoutez votre prédiction sur la sortie de Get-Location.",
+          "Exécutez Get-Location, recopiez le chemin utile et concluez si la prédiction était correcte."
+        ],
+        "hints": [
+          "Un titre Markdown commence par #.",
+          "La conclusion doit expliquer ce que la sortie prouve, pas seulement la recopier."
+        ],
+        "solution": {
+          "explanation": "La solution sépare prédiction et observation afin que la comparaison révèle ce qui a réellement été appris.",
+          "code": "$courseRoot = Join-Path $HOME \"Documents/lecomax-academy\"\nSet-Location -LiteralPath $courseRoot\n$path = (Get-Location).Path\n$entry = @(\n  \"# Learning log\",\n  \"\",\n  \"## Goal\",\n  \"Confirm the location of my practice workspace.\",\n  \"\",\n  \"## Prediction and observation\",\n  \"Prediction: the path ends with lecomax-academy.\",\n  \"Observation: $path\",\n  \"Conclusion: the next relative command will run inside this workspace.\"\n)\n$entry | Set-Content -LiteralPath \"academy-labs/00-tools/learning-log.md\" -Encoding utf8\nGet-Content -LiteralPath \"academy-labs/00-tools/learning-log.md\"",
+          "filename": "academy-labs/00-tools/setup.ps1",
+          "language": "powershell"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-00-01-learning-map-q1",
+          "question": "Quelle action donne la meilleure preuve d’apprentissage ?",
+          "options": [
+            "Relire dix fois une commande",
+            "Copier un tutoriel sans l’exécuter",
+            "Prédire, exécuter, observer et expliquer le résultat",
+            "Changer plusieurs fichiers à la fois"
+          ],
+          "correctIndex": 2,
+          "explanation": "Une prédiction comparée à une preuve observable force le cerveau à corriger son modèle mental.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relire dix fois une commande ». La réponse de référence est « Prédire, exécuter, observer et expliquer le résultat ». Une prédiction comparée à une preuve observable force le cerveau à corriger son modèle mental.",
+            "Cette option est incorrecte. Elle affirme « Copier un tutoriel sans l’exécuter ». La réponse de référence est « Prédire, exécuter, observer et expliquer le résultat ». Une prédiction comparée à une preuve observable force le cerveau à corriger son modèle mental.",
+            "Cette option est correcte. Elle affirme « Prédire, exécuter, observer et expliquer le résultat ». Une prédiction comparée à une preuve observable force le cerveau à corriger son modèle mental.",
+            "Cette option est incorrecte. Elle affirme « Changer plusieurs fichiers à la fois ». La réponse de référence est « Prédire, exécuter, observer et expliquer le résultat ». Une prédiction comparée à une preuve observable force le cerveau à corriger son modèle mental."
+          ]
+        },
+        {
+          "id": "lesson-00-01-learning-map-q2",
+          "question": "Quelle définition correspond au terme « workspace » ?",
+          "options": [
+            "Prédiction testable formulée avant une expérience.",
+            "Dossier racine contenant le code, la configuration et l’historique du projet.",
+            "Cycle court entre une action et la preuve de son résultat.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« workspace » signifie : Dossier racine contenant le code, la configuration et l’historique du projet.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Prédiction testable formulée avant une expérience. ». La réponse de référence est « Dossier racine contenant le code, la configuration et l’historique du projet. ». « workspace » signifie : Dossier racine contenant le code, la configuration et l’historique du projet.",
+            "Cette option est correcte. Elle affirme « Dossier racine contenant le code, la configuration et l’historique du projet. ». « workspace » signifie : Dossier racine contenant le code, la configuration et l’historique du projet.",
+            "Cette option est incorrecte. Elle affirme « Cycle court entre une action et la preuve de son résultat. ». La réponse de référence est « Dossier racine contenant le code, la configuration et l’historique du projet. ». « workspace » signifie : Dossier racine contenant le code, la configuration et l’historique du projet.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Dossier racine contenant le code, la configuration et l’historique du projet. ». « workspace » signifie : Dossier racine contenant le code, la configuration et l’historique du projet."
+          ]
+        },
+        {
+          "id": "lesson-00-01-learning-map-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « « winget » n’est pas reconnu. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Revenez à l’état initial et répétez avec une seule variable modifiée par essai.",
+            "Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : App Installer est absent ou Windows est trop ancien pour fournir winget. Le correctif adapté est : Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell. ». Le diagnostic part de la cause suivante : App Installer est absent ou Windows est trop ancien pour fournir winget. Le correctif adapté est : Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell.",
+            "Cette option est incorrecte. Elle affirme « Revenez à l’état initial et répétez avec une seule variable modifiée par essai. ». La réponse de référence est « Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell. ». Le diagnostic part de la cause suivante : App Installer est absent ou Windows est trop ancien pour fournir winget. Le correctif adapté est : Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell.",
+            "Cette option est correcte. Elle affirme « Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell. ». Le diagnostic part de la cause suivante : App Installer est absent ou Windows est trop ancien pour fournir winget. Le correctif adapté est : Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell. ». Le diagnostic part de la cause suivante : App Installer est absent ou Windows est trop ancien pour fournir winget. Le correctif adapté est : Mettez App Installer à jour depuis Microsoft Store ou utilisez l’installateur officiel VS Code, puis rouvrez PowerShell."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: apprendre signifie produire une prédiction, une expérience contrôlée et une conclusion vérifiable.",
+        "workspace: Dossier racine contenant le code, la configuration et l’historique du projet.",
+        "hypothesis: Prédiction testable formulée avant une expérience.",
+        "feedback loop: Cycle court entre une action et la preuve de son résultat."
+      ],
+      "next": "La prochaine leçon transforme la terminal en outil de navigation sûr."
+    },
+    {
+      "id": "lesson-00-02-terminal-files",
+      "order": 1,
+      "title": "Naviguer avec PowerShell sans se perdre",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la première leçon et disposer de Documents\\lecomax-academy; L’ecomax n’est pas encore requis."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer les chemins absolus et relatifs",
+        "À la fin, vous saurez expliquer puis appliquer des commandes de lecture sûres avant toute modification"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "La terminal possède toujours un dossier courant; chaque chemin relatif part de ce point, tandis qu’un chemin absolu nomme l’emplacement complet. Une commande agit sur la cible obtenue après cette résolution. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Le dossier courant est votre position sur une carte; « .. » remonte d’une rue et un chemin absolu donne l’adresse complète."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Get-Location répond à « où suis-je ? » et Get-ChildItem répond à « qu’y a-t-il ici ? ». Exécutez-les ensemble avant une commande dépendante du chemin. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Set-Location change uniquement le contexte de la terminal, pas les fichiers. -LiteralPath demande à PowerShell de traiter les caractères du chemin tels quels, ce qui est important pour les espaces et apostrophes. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Resolve-Path permet de confirmer une cible avant de la lire ou de la modifier. Cette vérification est essentielle dès qu’une commande peut écrire, déplacer ou supprimer. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "current directory",
+                  "definition": "Emplacement utilisé comme départ des chemins relatifs."
+                },
+                {
+                  "term": "absolute path",
+                  "definition": "Adresse complète depuis la racine du disque."
+                },
+                {
+                  "term": "relative path",
+                  "definition": "Adresse calculée depuis le dossier courant."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Inspectez d’abord, résolvez ensuite la cible exacte, puis seulement après lancez une commande qui écrit."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/00-tools/terminal-practice.ps1",
+                "source": "$courseRoot = Join-Path $HOME \"Documents\\lecomax-academy\"\nSet-Location -LiteralPath $courseRoot\nGet-Location\nGet-ChildItem -Name\n\nSet-Location -LiteralPath \"academy-labs\\00-tools\"\nGet-ChildItem -File -Name\nSet-Location -LiteralPath $courseRoot\n\n$logPath = Resolve-Path -LiteralPath \"academy-labs\\00-tools\\learning-log.md\"\n$logPath\nGet-Content -LiteralPath $logPath -TotalCount 12",
+                "annotations": [
+                  {
+                    "lines": "1-4",
+                    "label": "Calculer une adresse absolue stable, s’y placer puis observer sans modifier."
+                  },
+                  {
+                    "lines": "6-8",
+                    "label": "Entrer dans un sous-dossier puis revenir avec le chemin absolu mémorisé."
+                  },
+                  {
+                    "lines": "10-12",
+                    "label": "Établir le chemin absolu du journal avant de lire son contenu."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "Preuve de réussite: vous entrez dans 00-tools, revenez exactement à la racine et lisez le journal sans modifier aucun fichier."
+                  },
+                  {
+                    "lines": "9",
+                    "label": "Preuve de réussite: vous entrez dans 00-tools, revenez exactement à la racine et lisez le journal sans modifier aucun fichier."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/00-tools/terminal-practice.ps1",
+                "source": "$courseRoot = Join-Path $HOME \"Documents\\lecomax-academy\"\nSet-Location -LiteralPath $courseRoot\nGet-Location\nGet-ChildItem -LiteralPath \"academy-labs\" -Name\nGet-ChildItem -LiteralPath \"academy-labs\\00-tools\" -Name\n$logPath = Resolve-Path -LiteralPath \"academy-labs\\00-tools\\learning-log.md\"\n$logPath\nGet-Content -LiteralPath $logPath -TotalCount 1",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La solution garde une position stable et passe chaque dossier comme cible explicite, ce qui rend les commandes indépendantes entre elles."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Preuve de réussite: vous entrez dans 00-tools, revenez exactement à la racine et lisez le journal sans modifier aucun fichier."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Vous réutiliserez cette séquence dans L’ecomax pour distinguer app, components, lib et public sans modifier leurs fichiers."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "$courseRoot = Join-Path $HOME \"Documents\\lecomax-academy\"",
+        "Set-Location -LiteralPath $courseRoot",
+        "Get-ChildItem -LiteralPath academy-labs -Name",
+        "Resolve-Path -LiteralPath academy-labs\\00-tools\\learning-log.md"
+      ],
+      "expectedResult": "Preuve de réussite: vous entrez dans 00-tools, revenez exactement à la racine et lisez le journal sans modifier aucun fichier.",
+      "commonErrors": [
+        {
+          "symptom": "PowerShell indique que le chemin est introuvable.",
+          "cause": "Le chemin relatif part d’un autre dossier courant que prévu.",
+          "fix": "Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets."
+        },
+        {
+          "symptom": "Un chemin avec apostrophe ou crochets est interprété de travers.",
+          "cause": "Un paramètre générique traite certains caractères comme des motifs.",
+          "fix": "Passez une chaîne correctement citée à -LiteralPath."
+        }
+      ],
+      "exercise": {
+        "task": "Produire une carte texte du workspace d’entraînement sans changer de fichier ni dépendre de L’ecomax.",
+        "steps": [
+          "Placez-vous dans lecomax-academy et confirmez la racine avec Get-Location.",
+          "Listez academy-labs puis academy-labs\\00-tools sans changer de dossier.",
+          "Résolvez le journal, lisez son titre et comparez son chemin relatif au chemin absolu."
+        ],
+        "hints": [
+          "Get-ChildItem accepte -LiteralPath sans changer de dossier.",
+          "Ajoutez -Name pour une sortie plus lisible."
+        ],
+        "solution": {
+          "explanation": "La solution garde une position stable et passe chaque dossier comme cible explicite, ce qui rend les commandes indépendantes entre elles.",
+          "code": "$courseRoot = Join-Path $HOME \"Documents\\lecomax-academy\"\nSet-Location -LiteralPath $courseRoot\nGet-Location\nGet-ChildItem -LiteralPath \"academy-labs\" -Name\nGet-ChildItem -LiteralPath \"academy-labs\\00-tools\" -Name\n$logPath = Resolve-Path -LiteralPath \"academy-labs\\00-tools\\learning-log.md\"\n$logPath\nGet-Content -LiteralPath $logPath -TotalCount 1",
+          "filename": "academy-labs/00-tools/terminal-practice.ps1",
+          "language": "powershell"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-00-02-terminal-files-q1",
+          "question": "Depuis le workspace, que désigne academy-labs/00-tools ?",
+          "options": [
+            "Un chemin absolu",
+            "Un chemin relatif",
+            "Une URL Internet",
+            "Une variable PowerShell"
+          ],
+          "correctIndex": 1,
+          "explanation": "Il ne contient ni lecteur ni racine complète; PowerShell le résout depuis le dossier courant.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Un chemin absolu ». La réponse de référence est « Un chemin relatif ». Il ne contient ni lecteur ni racine complète; PowerShell le résout depuis le dossier courant.",
+            "Cette option est correcte. Elle affirme « Un chemin relatif ». Il ne contient ni lecteur ni racine complète; PowerShell le résout depuis le dossier courant.",
+            "Cette option est incorrecte. Elle affirme « Une URL Internet ». La réponse de référence est « Un chemin relatif ». Il ne contient ni lecteur ni racine complète; PowerShell le résout depuis le dossier courant.",
+            "Cette option est incorrecte. Elle affirme « Une variable PowerShell ». La réponse de référence est « Un chemin relatif ». Il ne contient ni lecteur ni racine complète; PowerShell le résout depuis le dossier courant."
+          ]
+        },
+        {
+          "id": "lesson-00-02-terminal-files-q2",
+          "question": "Quelle définition correspond au terme « current directory » ?",
+          "options": [
+            "Adresse complète depuis la racine du disque.",
+            "Emplacement utilisé comme départ des chemins relatifs.",
+            "Adresse calculée depuis le dossier courant.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« current directory » signifie : Emplacement utilisé comme départ des chemins relatifs.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Adresse complète depuis la racine du disque. ». La réponse de référence est « Emplacement utilisé comme départ des chemins relatifs. ». « current directory » signifie : Emplacement utilisé comme départ des chemins relatifs.",
+            "Cette option est correcte. Elle affirme « Emplacement utilisé comme départ des chemins relatifs. ». « current directory » signifie : Emplacement utilisé comme départ des chemins relatifs.",
+            "Cette option est incorrecte. Elle affirme « Adresse calculée depuis le dossier courant. ». La réponse de référence est « Emplacement utilisé comme départ des chemins relatifs. ». « current directory » signifie : Emplacement utilisé comme départ des chemins relatifs.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Emplacement utilisé comme départ des chemins relatifs. ». « current directory » signifie : Emplacement utilisé comme départ des chemins relatifs."
+          ]
+        },
+        {
+          "id": "lesson-00-02-terminal-files-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « PowerShell indique que le chemin est introuvable. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Passez une chaîne correctement citée à -LiteralPath.",
+            "Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le chemin relatif part d’un autre dossier courant que prévu. Le correctif adapté est : Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets. ». Le diagnostic part de la cause suivante : Le chemin relatif part d’un autre dossier courant que prévu. Le correctif adapté est : Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets.",
+            "Cette option est incorrecte. Elle affirme « Passez une chaîne correctement citée à -LiteralPath. ». La réponse de référence est « Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets. ». Le diagnostic part de la cause suivante : Le chemin relatif part d’un autre dossier courant que prévu. Le correctif adapté est : Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets.",
+            "Cette option est correcte. Elle affirme « Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets. ». Le diagnostic part de la cause suivante : Le chemin relatif part d’un autre dossier courant que prévu. Le correctif adapté est : Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets. ». Le diagnostic part de la cause suivante : Le chemin relatif part d’un autre dossier courant que prévu. Le correctif adapté est : Exécutez Get-Location, puis utilisez Resolve-Path ou un chemin absolu entre guillemets."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: toute commande de fichier dépend d’une cible résolue à partir du dossier courant.",
+        "current directory: Emplacement utilisé comme départ des chemins relatifs.",
+        "absolute path: Adresse complète depuis la racine du disque.",
+        "relative path: Adresse calculée depuis le dossier courant."
+      ],
+      "next": "La prochaine leçon relie ces fichiers aux fonctions essentielles de VS Code."
+    },
+    {
+      "id": "lesson-00-03-vscode",
+      "order": 2,
+      "title": "Lire et modifier efficacement dans VS Code",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir installé VS Code à la leçon 1 et savoir retrouver lecomax-academy avec PowerShell."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer l’Explorateur, la recherche globale et la palette de commandes",
+        "À la fin, vous saurez expliquer puis appliquer la lecture des symboles, erreurs et différences avant sauvegarde"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "VS Code est une vue structurée du workspace : l’Explorateur montre où vit le code, la recherche montre où un concept est utilisé, et le panneau Problems relie un diagnostic à une ligne précise. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "C’est un atelier : l’Explorateur est l’étagère, la palette est la boîte à outils et Problems est le tableau de contrôle qualité."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Utilisez Ctrl+P pour ouvrir un fichier par son nom et Ctrl+Shift+F pour rechercher un texte dans tout le projet. Cette navigation par intention est plus fiable qu’une longue exploration manuelle. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Le survol d’un symbole TypeScript affiche son type, F12 ouvre sa définition et Shift+F12 trouve ses usages. Suivez ces liens pour comprendre le flux réel avant de modifier une fonction partagée. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Après une modification, lisez Problems puis l’onglet Source Control pour examiner les lignes changées. Enregistrez seulement une édition comprise et vérifiez que les diagnostics associés disparaissent. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "workspace",
+                  "definition": "Ensemble de dossiers indexés ensemble par l’éditeur."
+                },
+                {
+                  "term": "symbol",
+                  "definition": "Élément nommé du code, comme une fonction, un type ou une variable."
+                },
+                {
+                  "term": "diagnostic",
+                  "definition": "Message localisé indiquant une erreur, un avertissement ou une suggestion."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Recherchez d’abord les définitions et usages d’un symbole partagé afin d’évaluer l’impact de votre changement."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "markdown",
+                "filename": "academy-labs/00-tools/vscode-map.md",
+                "source": "# VS Code map\n\n## Navigate\n- Ctrl+P: open a file by name\n- Ctrl+Shift+F: search every file in the workspace\n- Ctrl+Shift+P: run an editor command\n\n## Understand code\n- F12: go to a symbol definition\n- Shift+F12: find every reference\n- Ctrl+Shift+M: open the Problems panel",
+                "annotations": [
+                  {
+                    "lines": "1-5",
+                    "label": "Ctrl+P vise un nom; Ctrl+Shift+F vise un texte dans tout le workspace."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "La palette donne accès aux actions même sans connaître leur raccourci."
+                  },
+                  {
+                    "lines": "8-11",
+                    "label": "Définitions, références et diagnostics relient une ligne au reste du programme."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "Preuve de réussite: VS Code affiche une version, ouvre le bon workspace et Ctrl+P retrouve learning-log.md sans parcourir manuellement les dossiers."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "markdown",
+                "filename": "academy-labs/00-tools/vscode-map.md",
+                "source": "# VS Code evidence map\n\n- Ctrl+P: opened learning-log.md by filename.\n- Ctrl+Shift+F: found \"Conclusion\" across the workspace.\n- Ctrl+Shift+P: opened the Command Palette.\n- F12: will open a code symbol definition in L'ecomax.\n- Shift+F12: will list every reference to that symbol.\n- Ctrl+Shift+M: opened the Problems panel.",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La carte relie chaque raccourci à une observation concrète; vous pourrez donc retrouver l’outil par son intention au lieu de le mémoriser sans contexte."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "Preuve de réussite: VS Code affiche une version, ouvre le bon workspace et Ctrl+P retrouve learning-log.md sans parcourir manuellement les dossiers."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Quand L’ecomax sera ouvert à la prochaine leçon, Ctrl+P trouvera package.json et Shift+F12 montrera les usages d’un symbole avant toute modification."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code --version",
+        "code \"$HOME\\Documents\\lecomax-academy\"",
+        "code \"$HOME\\Documents\\lecomax-academy\\academy-labs\\00-tools\\learning-log.md\""
+      ],
+      "expectedResult": "Preuve de réussite: VS Code affiche une version, ouvre le bon workspace et Ctrl+P retrouve learning-log.md sans parcourir manuellement les dossiers.",
+      "commonErrors": [
+        {
+          "symptom": "La recherche ne trouve qu’un fichier déjà ouvert.",
+          "cause": "Ctrl+F a été utilisé au lieu de la recherche globale.",
+          "fix": "Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace."
+        },
+        {
+          "symptom": "« code » n’est pas reconnu après l’installation.",
+          "cause": "La terminal ouverte avant l’installation n’a pas rechargé PATH, ou l’option PATH était désactivée.",
+          "fix": "Fermez toutes les terminals, rouvrez PowerShell et lancez code --version; sinon réparez l’installation en activant Add to PATH."
+        }
+      ],
+      "exercise": {
+        "task": "Ouvrir le workspace sans souris, retrouver le journal et consigner six raccourcis avec leur preuve.",
+        "steps": [
+          "Ouvrez lecomax-academy avec la commande code et utilisez Ctrl+P pour ouvrir learning-log.md.",
+          "Recherchez « Conclusion » avec Ctrl+Shift+F puis ouvrez la palette avec Ctrl+Shift+P.",
+          "Ajoutez les six raccourcis du fichier vscode-map.md et la preuve observée pour chacun."
+        ],
+        "hints": [
+          "Ctrl+P ouvre un fichier par son nom, sans parcourir l’Explorateur.",
+          "Ctrl+Shift+P permet de chercher une action par des mots."
+        ],
+        "solution": {
+          "explanation": "La carte relie chaque raccourci à une observation concrète; vous pourrez donc retrouver l’outil par son intention au lieu de le mémoriser sans contexte.",
+          "code": "# VS Code evidence map\n\n- Ctrl+P: opened learning-log.md by filename.\n- Ctrl+Shift+F: found \"Conclusion\" across the workspace.\n- Ctrl+Shift+P: opened the Command Palette.\n- F12: will open a code symbol definition in L'ecomax.\n- Shift+F12: will list every reference to that symbol.\n- Ctrl+Shift+M: opened the Problems panel.",
+          "filename": "academy-labs/00-tools/vscode-map.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-00-03-vscode-q1",
+          "question": "Quel outil montre tous les usages d’un symbole TypeScript ?",
+          "options": [
+            "Ctrl+S",
+            "Shift+F12",
+            "Alt+F4",
+            "Ctrl+Z"
+          ],
+          "correctIndex": 1,
+          "explanation": "Shift+F12 lance Find All References et révèle l’impact potentiel d’une modification.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Ctrl+S ». La réponse de référence est « Shift+F12 ». Shift+F12 lance Find All References et révèle l’impact potentiel d’une modification.",
+            "Cette option est correcte. Elle affirme « Shift+F12 ». Shift+F12 lance Find All References et révèle l’impact potentiel d’une modification.",
+            "Cette option est incorrecte. Elle affirme « Alt+F4 ». La réponse de référence est « Shift+F12 ». Shift+F12 lance Find All References et révèle l’impact potentiel d’une modification.",
+            "Cette option est incorrecte. Elle affirme « Ctrl+Z ». La réponse de référence est « Shift+F12 ». Shift+F12 lance Find All References et révèle l’impact potentiel d’une modification."
+          ]
+        },
+        {
+          "id": "lesson-00-03-vscode-q2",
+          "question": "Quelle définition correspond au terme « workspace » ?",
+          "options": [
+            "Élément nommé du code, comme une fonction, un type ou une variable.",
+            "Ensemble de dossiers indexés ensemble par l’éditeur.",
+            "Message localisé indiquant une erreur, un avertissement ou une suggestion.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« workspace » signifie : Ensemble de dossiers indexés ensemble par l’éditeur.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Élément nommé du code, comme une fonction, un type ou une variable. ». La réponse de référence est « Ensemble de dossiers indexés ensemble par l’éditeur. ». « workspace » signifie : Ensemble de dossiers indexés ensemble par l’éditeur.",
+            "Cette option est correcte. Elle affirme « Ensemble de dossiers indexés ensemble par l’éditeur. ». « workspace » signifie : Ensemble de dossiers indexés ensemble par l’éditeur.",
+            "Cette option est incorrecte. Elle affirme « Message localisé indiquant une erreur, un avertissement ou une suggestion. ». La réponse de référence est « Ensemble de dossiers indexés ensemble par l’éditeur. ». « workspace » signifie : Ensemble de dossiers indexés ensemble par l’éditeur.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Ensemble de dossiers indexés ensemble par l’éditeur. ». « workspace » signifie : Ensemble de dossiers indexés ensemble par l’éditeur."
+          ]
+        },
+        {
+          "id": "lesson-00-03-vscode-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « La recherche ne trouve qu’un fichier déjà ouvert. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Fermez toutes les terminals, rouvrez PowerShell et lancez code --version; sinon réparez l’installation en activant Add to PATH.",
+            "Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Ctrl+F a été utilisé au lieu de la recherche globale. Le correctif adapté est : Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace. ». Le diagnostic part de la cause suivante : Ctrl+F a été utilisé au lieu de la recherche globale. Le correctif adapté est : Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace.",
+            "Cette option est incorrecte. Elle affirme « Fermez toutes les terminals, rouvrez PowerShell et lancez code --version; sinon réparez l’installation en activant Add to PATH. ». La réponse de référence est « Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace. ». Le diagnostic part de la cause suivante : Ctrl+F a été utilisé au lieu de la recherche globale. Le correctif adapté est : Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace.",
+            "Cette option est correcte. Elle affirme « Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace. ». Le diagnostic part de la cause suivante : Ctrl+F a été utilisé au lieu de la recherche globale. Le correctif adapté est : Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace. ». Le diagnostic part de la cause suivante : Ctrl+F a été utilisé au lieu de la recherche globale. Le correctif adapté est : Utilisez Ctrl+Shift+F et vérifiez que le dossier racine est bien le workspace."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: l’éditeur relie fichiers, symboles, diagnostics et différences pour rendre un changement compréhensible.",
+        "workspace: Ensemble de dossiers indexés ensemble par l’éditeur.",
+        "symbol: Élément nommé du code, comme une fonction, un type ou une variable.",
+        "diagnostic: Message localisé indiquant une erreur, un avertissement ou une suggestion."
+      ],
+      "next": "La prochaine leçon installe et utilise le moteur Node.js et le gestionnaire npm."
+    },
+    {
+      "id": "lesson-00-04-node-npm",
+      "order": 3,
+      "title": "Comprendre Node.js, npm et les scripts",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir VS Code et PowerShell prêts. Téléchargez l’archive ZIP fournie de L’ecomax, extrayez-la, ouvrez le dossier extrait dans VS Code puis Terminal → New Terminal."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer la différence entre runtime, package manager et dépendance",
+        "À la fin, vous saurez expliquer puis appliquer les flux npm ci, npm run dev et npm run build"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Node.js exécute JavaScript hors du navigateur, npm installe l’arbre de paquets décrit par package.json et package-lock.json, puis un script npm lance un outil local dans un environnement reproductible. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Node.js est le moteur, package.json la liste de pièces, package-lock le plan exact et npm le mécanicien qui assemble le tout."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "node --version confirme quelle version du runtime répond dans cette terminal. Une version incompatible peut faire échouer un projet avant même que votre code soit lu. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "npm ci respecte exactement package-lock.json et convient à une installation propre; npm install peut recalculer et mettre à jour le verrou lorsqu’on ajoute une dépendance. Le verrou garantit la même résolution sur chaque machine. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "npm run dev privilégie le retour rapide et reste actif, tandis que npm run build compile et valide le résultat de production. Une page visible en développement ne prouve donc pas qu’elle peut être déployée. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "runtime",
+                  "definition": "Programme qui charge et exécute le code."
+                },
+                {
+                  "term": "dependency",
+                  "definition": "Paquet externe utilisé par le projet avec une version déclarée."
+                },
+                {
+                  "term": "lockfile",
+                  "definition": "Fichier enregistrant les versions exactes de tout l’arbre de paquets."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Conservez le lockfile, utilisez les scripts du projet et lisez la première erreur utile plutôt que les dernières lignes répétitives."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/00-tools/setup-node.ps1",
+                "source": "winget install --id OpenJS.NodeJS.LTS --exact --source winget --accept-package-agreements --accept-source-agreements\nnode --version\nnpm --version\nwhere.exe node\n\nif (-not (Test-Path -LiteralPath \"package.json\")) { throw \"Open a terminal in the L'ecomax root first.\" }\nif (-not (Test-Path -LiteralPath \"package-lock.json\")) { throw \"package-lock.json is required for npm ci.\" }\nnpm ci\nnpm run build\nnpm run dev",
+                "annotations": [
+                  {
+                    "lines": "1-4",
+                    "label": "Installer Node.js LTS puis prouver versions et chemin réel dans PATH."
+                  },
+                  {
+                    "lines": "6-7",
+                    "label": "Refuser de continuer tant que la terminal n’est pas dans la racine L’ecomax verrouillée."
+                  },
+                  {
+                    "lines": "8-10",
+                    "label": "Installer exactement le verrou, valider la production, puis seulement lancer la boucle dev."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "Preuve de réussite: les versions s’affichent, les dépendances verrouillées s’installent, le serveur annonce une URL locale et le build se termine sans erreur."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — solution guidée",
+              "code": {
+                "language": "powershell",
+                "filename": "academy-labs/00-tools/setup-node.ps1",
+                "source": "node --version\nnpm --version\nTest-Path -LiteralPath package.json\nTest-Path -LiteralPath package-lock.json\nnpm ci\nnpm run build\nnpm run dev",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "La séquence vérifie les outils, lance le script déclaré, observe la preuve navigateur puis libère le port avec une interruption contrôlée."
+                  },
+                  {
+                    "lines": "1-7",
+                    "label": "Preuve de réussite: les versions s’affichent, les dépendances verrouillées s’installent, le serveur annonce une URL locale et le build se termine sans erreur."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "L’ecomax utilise Next.js; npm run dev fournit l’URL locale et npm run build vérifie routes, types et rendu destinés à Vercel."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "winget install --id OpenJS.NodeJS.LTS --exact --source winget --accept-package-agreements --accept-source-agreements",
+        "node --version",
+        "npm --version",
+        "Test-Path -LiteralPath package.json",
+        "npm ci",
+        "npm run build",
+        "npm run dev"
+      ],
+      "expectedResult": "Preuve de réussite: les versions s’affichent, les dépendances verrouillées s’installent, le serveur annonce une URL locale et le build se termine sans erreur.",
+      "commonErrors": [
+        {
+          "symptom": "« node » ou « npm » n’est pas reconnu.",
+          "cause": "Node.js n’est pas installé ou sa localisation manque dans PATH.",
+          "fix": "Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node."
+        },
+        {
+          "symptom": "npm ci refuse de continuer car le verrou ne correspond pas.",
+          "cause": "package.json a changé sans mise à jour cohérente de package-lock.json.",
+          "fix": "Vérifiez le diff; si l’ajout est voulu, exécutez npm install une fois puis validez les deux fichiers."
+        }
+      ],
+      "exercise": {
+        "task": "Démarrer L’ecomax localement, identifier l’URL et arrêter proprement le serveur.",
+        "steps": [
+          "Installez Node LTS, rouvrez la terminal et vérifiez node, npm, package.json et package-lock.json.",
+          "Exécutez npm ci puis npm run build; ne passez à dev que si les deux se terminent sans erreur.",
+          "Lancez npm run dev, ouvrez exactement l’URL Local imprimée, puis revenez à la terminal et arrêtez avec Ctrl+C."
+        ],
+        "hints": [
+          "Le serveur reste volontairement actif après le message Ready.",
+          "Si le port 3000 est occupé, Next.js peut proposer 3001."
+        ],
+        "solution": {
+          "explanation": "La séquence vérifie les outils, lance le script déclaré, observe la preuve navigateur puis libère le port avec une interruption contrôlée.",
+          "code": "node --version\nnpm --version\nTest-Path -LiteralPath package.json\nTest-Path -LiteralPath package-lock.json\nnpm ci\nnpm run build\nnpm run dev",
+          "filename": "academy-labs/00-tools/setup-node.ps1",
+          "language": "powershell"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-00-04-node-npm-q1",
+          "question": "Pourquoi npm run build reste nécessaire après un test en développement ?",
+          "options": [
+            "Il change les couleurs",
+            "Il valide la compilation et le rendu de production",
+            "Il installe VS Code",
+            "Il remplace Git"
+          ],
+          "correctIndex": 1,
+          "explanation": "Le mode production applique des contrôles et chemins de compilation que la boucle dev rapide ne prouve pas entièrement.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Il change les couleurs ». La réponse de référence est « Il valide la compilation et le rendu de production ». Le mode production applique des contrôles et chemins de compilation que la boucle dev rapide ne prouve pas entièrement.",
+            "Cette option est correcte. Elle affirme « Il valide la compilation et le rendu de production ». Le mode production applique des contrôles et chemins de compilation que la boucle dev rapide ne prouve pas entièrement.",
+            "Cette option est incorrecte. Elle affirme « Il installe VS Code ». La réponse de référence est « Il valide la compilation et le rendu de production ». Le mode production applique des contrôles et chemins de compilation que la boucle dev rapide ne prouve pas entièrement.",
+            "Cette option est incorrecte. Elle affirme « Il remplace Git ». La réponse de référence est « Il valide la compilation et le rendu de production ». Le mode production applique des contrôles et chemins de compilation que la boucle dev rapide ne prouve pas entièrement."
+          ]
+        },
+        {
+          "id": "lesson-00-04-node-npm-q2",
+          "question": "Quelle définition correspond au terme « runtime » ?",
+          "options": [
+            "Paquet externe utilisé par le projet avec une version déclarée.",
+            "Programme qui charge et exécute le code.",
+            "Fichier enregistrant les versions exactes de tout l’arbre de paquets.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« runtime » signifie : Programme qui charge et exécute le code.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Paquet externe utilisé par le projet avec une version déclarée. ». La réponse de référence est « Programme qui charge et exécute le code. ». « runtime » signifie : Programme qui charge et exécute le code.",
+            "Cette option est correcte. Elle affirme « Programme qui charge et exécute le code. ». « runtime » signifie : Programme qui charge et exécute le code.",
+            "Cette option est incorrecte. Elle affirme « Fichier enregistrant les versions exactes de tout l’arbre de paquets. ». La réponse de référence est « Programme qui charge et exécute le code. ». « runtime » signifie : Programme qui charge et exécute le code.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Programme qui charge et exécute le code. ». « runtime » signifie : Programme qui charge et exécute le code."
+          ]
+        },
+        {
+          "id": "lesson-00-04-node-npm-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « « node » ou « npm » n’est pas reconnu. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Vérifiez le diff; si l’ajout est voulu, exécutez npm install une fois puis validez les deux fichiers.",
+            "Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Node.js n’est pas installé ou sa localisation manque dans PATH. Le correctif adapté est : Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node. ». Le diagnostic part de la cause suivante : Node.js n’est pas installé ou sa localisation manque dans PATH. Le correctif adapté est : Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node.",
+            "Cette option est incorrecte. Elle affirme « Vérifiez le diff; si l’ajout est voulu, exécutez npm install une fois puis validez les deux fichiers. ». La réponse de référence est « Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node. ». Le diagnostic part de la cause suivante : Node.js n’est pas installé ou sa localisation manque dans PATH. Le correctif adapté est : Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node.",
+            "Cette option est correcte. Elle affirme « Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node. ». Le diagnostic part de la cause suivante : Node.js n’est pas installé ou sa localisation manque dans PATH. Le correctif adapté est : Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node. ». Le diagnostic part de la cause suivante : Node.js n’est pas installé ou sa localisation manque dans PATH. Le correctif adapté est : Installez une version LTS, fermez puis rouvrez la terminal et vérifiez avec where.exe node."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Node exécute, npm résout les paquets, les scripts normalisent les commandes et le build valide la production.",
+        "runtime: Programme qui charge et exécute le code.",
+        "dependency: Paquet externe utilisé par le projet avec une version déclarée.",
+        "lockfile: Fichier enregistrant les versions exactes de tout l’arbre de paquets."
+      ],
+      "next": "Le module suivant explique ce qui se passe entre l’URL locale et la page reçue par le navigateur."
+    }
+  ]
+}

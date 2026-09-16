@@ -1,0 +1,1072 @@
+{
+  "id": "web-quality",
+  "order": 20,
+  "icon": "♿",
+  "color": "#2563EB",
+  "title": "SEO, accessibility, and performance",
+  "summary": "Build pages that are discoverable, usable by everyone, and fast on real devices, then verify them with a reproducible audit.",
+  "files": [
+    {
+      "path": "app/layout.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/20-web-quality/audit.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/20-web-quality/product-metadata.ts",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/20-web-quality/AccessibleProductCard.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/20-web-quality/FastHero.tsx",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "seo-metadata",
+      "order": 0,
+      "title": "Technical SEO and metadata",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand semantic HTML, Next.js metadata, and the difference between laboratory and real-user measurement.",
+        "Be able to restate “canonical URL” before coding: The preferred address declared to search engines when several URLs may show the same content.",
+        "Know how to create exercises/20-web-quality/product-metadata.ts, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Give every page a distinct title, useful description, canonical URL, and social data consistent with visible content.",
+        "Build typed Next.js metadata for an indexable, shareable product page, then prove the result with this exact signal: the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A high-quality page serves three audiences at once: the person using it, assistive technology interpreting it, and the crawler discovering it. In “Technical SEO and metadata”, the concrete input is a product page reachable through several URLs that needs a title and canonical matching the visible product. canonical URL means: The preferred address declared to search engines when several URLs may show the same content. The model is complete only when you generate metadata from the same validated product source as the rendering, with a stable absolute production URL and can observe that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A web page is a physical shop: its sign must be identifiable, its aisles usable, and its entrance fast enough not to turn visitors away. Here the part you will actually inspect is typed Next.js metadata for an indexable, shareable product page; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a product page reachable through several URLs that needs a title and canonical matching the visible product. Give every page a distinct title, useful description, canonical URL, and social data consistent with visible content. The term canonical URL is not a decorative label: The preferred address declared to search engines when several URLs may show the same content. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/20-web-quality/product-metadata.ts, the example deliberately reduces the system to typed Next.js metadata for an indexable, shareable product page. Read each line as one responsibility, then run npm run build. The main failure to trigger is: all product pages inherit layout metadata and crawlers can no longer distinguish products. It shows why the professional correction is to generate metadata from the same validated product source as the rendering, with a stable absolute production URL, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. Apply the same evidence to product pages, search results, and the add-to-cart journey, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "canonical URL",
+                  "definition": "The preferred address declared to search engines when several URLs may show the same content."
+                },
+                {
+                  "term": "Semantics",
+                  "definition": "Meaning conveyed by an HTML element independently of its visual appearance."
+                },
+                {
+                  "term": "Performance budget",
+                  "definition": "A measurable weight, latency, or stability limit that a page must not exceed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a product page reachable through several URLs that needs a title and canonical matching the visible product, first write the observation “the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content”, and then implement typed Next.js metadata for an indexable, shareable product page. Simulate all product pages inherit layout metadata and crawlers can no longer distinguish products and finish only when measurement confirms this safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "exercises/20-web-quality/product-metadata.ts",
+                "source": "import type { Metadata } from \"next\";\nconst product = { name: \"Sac de voyage\", description: \"Sac cabine robuste\", slug: \"sac-voyage\" };\nexport const metadata: Metadata = {\n  title: `${product.name} | L’ecomax`,\n  description: product.description,\n  alternates: { canonical: `/produit/${product.slug}` },\n  openGraph: { title: product.name, description: product.description },\n};",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "imports the named dependency without implicitly instantiating it — import type { Metadata } from \"next\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "declares or transforms this datum for the next step — const product = { name: \"Sac de voyage\", description: \"Sac cabine robuste\", slug: \"sa…."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "declares or transforms this datum for the next step — export const metadata: Metadata = {."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "configures this workflow or service key — title: `${product.name} | L’ecomax`,."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "configures this workflow or service key — description: product.description,."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "configures this workflow or service key — alternates: { canonical: `/produit/${product.slug}` },."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "configures this workflow or service key — openGraph: { title: product.name, description: product.description },."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "closes the structure opened by preceding lines — };."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/20-web-quality/product-metadata.ts\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/20-web-quality/product-metadata.ts and identify the input “a product page reachable through several URLs that needs a title and canonical matching the visible product” in the annotations. — code exercises/20-web-quality/product-metadata.ts"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. The deliberately failing case demonstrates “all product pages inherit layout metadata and crawlers can no longer distinguish products” without exposing a secret; after the safeguard—generate metadata from the same validated product source as the rendering, with a stable absolute production URL—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product pages, search results, and the add-to-cart journey. typed Next.js metadata for an indexable, shareable product page must remain on the correct side of the trust boundary; use canonical URL to justify validation and retain this as evidence: the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/20-web-quality/product-metadata.ts",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. The deliberately failing case demonstrates “all product pages inherit layout metadata and crawlers can no longer distinguish products” without exposing a secret; after the safeguard—generate metadata from the same validated product source as the rendering, with a stable absolute production URL—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "all product pages inherit layout metadata and crawlers can no longer distinguish products",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply canonical URL: The preferred address declared to search engines when several URLs may show the same content.",
+          "fix": "Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content."
+        },
+        {
+          "symptom": "typed Next.js metadata for an indexable, shareable product page appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Technical SEO and metadata, npm run build, input data, and outcome were not connected in a deterministic reproduction; optimizing one score while degrading keyboard use or visible content.",
+          "fix": "Freeze a product page reachable through several URLs that needs a title and canonical matching the visible product, run npm run build, record only the useful signal, and explicitly compare the outcome with “the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement typed Next.js metadata for an indexable, shareable product page in exercises/20-web-quality/product-metadata.ts, demonstrate that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content, then trigger and repair all product pages inherit layout metadata and crawlers can no longer distinguish products.",
+        "steps": [
+          "Create exercises/20-web-quality/product-metadata.ts and identify the input “a product page reachable through several URLs that needs a title and canonical matching the visible product” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: all product pages inherit layout metadata and crawlers can no longer distinguish products.",
+          "Implement “generate metadata from the same validated product source as the rendering, with a stable absolute production URL”, rerun the command, and explain the role of canonical URL."
+        ],
+        "hints": [
+          "Read the definition again: The preferred address declared to search engines when several URLs may show the same content. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content”."
+        ],
+        "solution": {
+          "explanation": "For Technical SEO and metadata, the solution keeps one authority and specifically applies “generate metadata from the same validated product source as the rendering, with a stable absolute production URL”. It makes all product pages inherit layout metadata and crawlers can no longer distinguish products reproducible and then controlled, and is accepted only when the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content.",
+          "code": "import type { Metadata } from \"next\";\nconst product = { name: \"Sac de voyage\", description: \"Sac cabine robuste\", slug: \"sac-voyage\" };\nexport const metadata: Metadata = {\n  title: `${product.name} | L’ecomax`,\n  description: product.description,\n  alternates: { canonical: `/produit/${product.slug}` },\n  openGraph: { title: product.name, description: product.description },\n};",
+          "filename": "exercises/20-web-quality/product-metadata.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "seo-metadata-q1",
+          "question": "Which decision actually demonstrates mastery of “Technical SEO and metadata” in this scenario?",
+          "options": [
+            "generate metadata from the same validated product source as the rendering, with a stable absolute production URL, then verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content.",
+            "Ignore “all product pages inherit layout metadata and crawlers can no longer distinguish products” because the normal path displays typed Next.js metadata for an indexable, shareable product page.",
+            "Move validation into the UI and treat canonical URL as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The preferred address declared to search engines when several URLs may show the same content.",
+          "answerExplanations": [
+            "This option is correct. It says « generate metadata from the same validated product source as the rendering, with a stable absolute production URL, then verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The preferred address declared to search engines when several URLs may show the same content.",
+            "This option is incorrect. It says « Ignore “all product pages inherit layout metadata and crawlers can no longer distinguish products” because the normal path displays typed Next.js metadata for an indexable, shareable product page. ». The reference answer is « generate metadata from the same validated product source as the rendering, with a stable absolute production URL, then verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The preferred address declared to search engines when several URLs may show the same content.",
+            "This option is incorrect. It says « Move validation into the UI and treat canonical URL as a server detail. ». The reference answer is « generate metadata from the same validated product source as the rendering, with a stable absolute production URL, then verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The preferred address declared to search engines when several URLs may show the same content.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « generate metadata from the same validated product source as the rendering, with a stable absolute production URL, then verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; The preferred address declared to search engines when several URLs may show the same content."
+          ]
+        },
+        {
+          "id": "seo-metadata-q2",
+          "question": "Which definition matches the term “canonical URL”?",
+          "options": [
+            "Meaning conveyed by an HTML element independently of its visual appearance.",
+            "The preferred address declared to search engines when several URLs may show the same content.",
+            "A measurable weight, latency, or stability limit that a page must not exceed.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“canonical URL” means: The preferred address declared to search engines when several URLs may show the same content.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Meaning conveyed by an HTML element independently of its visual appearance. ». The reference answer is « The preferred address declared to search engines when several URLs may show the same content. ». “canonical URL” means: The preferred address declared to search engines when several URLs may show the same content.",
+            "This option is correct. It says « The preferred address declared to search engines when several URLs may show the same content. ». “canonical URL” means: The preferred address declared to search engines when several URLs may show the same content.",
+            "This option is incorrect. It says « A measurable weight, latency, or stability limit that a page must not exceed. ». The reference answer is « The preferred address declared to search engines when several URLs may show the same content. ». “canonical URL” means: The preferred address declared to search engines when several URLs may show the same content.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « The preferred address declared to search engines when several URLs may show the same content. ». “canonical URL” means: The preferred address declared to search engines when several URLs may show the same content."
+          ]
+        },
+        {
+          "id": "seo-metadata-q3",
+          "question": "What is the best first fix when you observe: “all product pages inherit layout metadata and crawlers can no longer distinguish products”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a product page reachable through several URLs that needs a title and canonical matching the visible product, run npm run build, record only the useful signal, and explicitly compare the outcome with “the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content”.",
+            "Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply canonical URL: The preferred address declared to search engines when several URLs may show the same content. The appropriate fix is: Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply canonical URL: The preferred address declared to search engines when several URLs may show the same content. The appropriate fix is: Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content.",
+            "This option is incorrect. It says « Freeze a product page reachable through several URLs that needs a title and canonical matching the visible product, run npm run build, record only the useful signal, and explicitly compare the outcome with “the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content”. ». The reference answer is « Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply canonical URL: The preferred address declared to search engines when several URLs may show the same content. The appropriate fix is: Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content.",
+            "This option is correct. It says « Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply canonical URL: The preferred address declared to search engines when several URLs may show the same content. The appropriate fix is: Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply canonical URL: The preferred address declared to search engines when several URLs may show the same content. The appropriate fix is: Apply this specific safeguard: generate metadata from the same validated product source as the rendering, with a stable absolute production URL. Replay the case and verify that the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content."
+          ]
+        }
+      ],
+      "recap": [
+        "Give every page a distinct title, useful description, canonical URL, and social data consistent with visible content.",
+        "canonical URL: The preferred address declared to search engines when several URLs may show the same content.",
+        "Completion evidence: the built HTML contains a distinct title, useful description, expected canonical, and Open Graph data matching the content."
+      ],
+      "next": "The next lesson verifies that the same page remains understandable and operable without a mouse or color vision."
+    },
+    {
+      "id": "accessible-interface",
+      "order": 1,
+      "title": "Keyboard and screen-reader accessibility",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand semantic HTML, Next.js metadata, and the difference between laboratory and real-user measurement.",
+        "Be able to restate “accessible name” before coding: Text computed by the browser to identify a control to assistive technology.",
+        "Know how to create exercises/20-web-quality/AccessibleProductCard.tsx, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Use semantic HTML, logical focus order, accessible names, and announcements that depend on neither color nor a mouse.",
+        "Build a keyboard-operable product card whose stock state is announced correctly, then prove the result with this exact signal: Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A high-quality page serves three audiences at once: the person using it, assistive technology interpreting it, and the crawler discovering it. In “Keyboard and screen-reader accessibility”, the concrete input is a product card whose button and stock state must be understood in reading order and operated by keyboard. accessible name means: Text computed by the browser to identify a control to assistive technology. The model is complete only when you choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements and can observe that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A web page is a physical shop: its sign must be identifiable, its aisles usable, and its entrance fast enough not to turn visitors away. Here the part you will actually inspect is a keyboard-operable product card whose stock state is announced correctly; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a product card whose button and stock state must be understood in reading order and operated by keyboard. Use semantic HTML, logical focus order, accessible names, and announcements that depend on neither color nor a mouse. The term accessible name is not a decorative label: Text computed by the browser to identify a control to assistive technology. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/20-web-quality/AccessibleProductCard.tsx, the example deliberately reduces the system to a keyboard-operable product card whose stock state is announced correctly. Read each line as one responsibility, then run npm run build. The main failure to trigger is: a visible clickable div works with a mouse but has no role, name, or keyboard behavior. It shows why the professional correction is to choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. Apply the same evidence to product pages, search results, and the add-to-cart journey, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "accessible name",
+                  "definition": "Text computed by the browser to identify a control to assistive technology."
+                },
+                {
+                  "term": "Semantics",
+                  "definition": "Meaning conveyed by an HTML element independently of its visual appearance."
+                },
+                {
+                  "term": "Performance budget",
+                  "definition": "A measurable weight, latency, or stability limit that a page must not exceed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a product card whose button and stock state must be understood in reading order and operated by keyboard, first write the observation “Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state”, and then implement a keyboard-operable product card whose stock state is announced correctly. Simulate a visible clickable div works with a mouse but has no role, name, or keyboard behavior and finish only when measurement confirms this safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/20-web-quality/AccessibleProductCard.tsx",
+                "source": "export function AccessibleProductCard() {\n  return <article aria-labelledby=\"product-title\">\n    <h2 id=\"product-title\">Sac de voyage</h2>\n    <p>Capacité 60 litres, disponible en noir.</p>\n    <button type=\"button\" aria-describedby=\"stock-status\">Ajouter au panier</button>\n    <span id=\"stock-status\" role=\"status\">En stock</span>\n  </article>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "opens the function that owns the stated responsibility — export function AccessibleProductCard() {."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "returns the produced value to calling code — return <article aria-labelledby=\"product-title\">."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "declares the interface element and its semantics — <h2 id=\"product-title\">Sac de voyage</h2>."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "declares the interface element and its semantics — <p>Capacité 60 litres, disponible en noir.</p>."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "declares the interface element and its semantics — <button type=\"button\" aria-describedby=\"stock-status\">Ajouter au panier</button>."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "declares the interface element and its semantics — <span id=\"stock-status\" role=\"status\">En stock</span>."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "declares the interface element and its semantics — </article>;."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/20-web-quality/AccessibleProductCard.tsx\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/20-web-quality/AccessibleProductCard.tsx and identify the input “a product card whose button and stock state must be understood in reading order and operated by keyboard” in the annotations. — code exercises/20-web-quality/AccessibleProductCard.tsx"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. The deliberately failing case demonstrates “a visible clickable div works with a mouse but has no role, name, or keyboard behavior” without exposing a secret; after the safeguard—choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product pages, search results, and the add-to-cart journey. a keyboard-operable product card whose stock state is announced correctly must remain on the correct side of the trust boundary; use accessible name to justify validation and retain this as evidence: Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/20-web-quality/AccessibleProductCard.tsx",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. The deliberately failing case demonstrates “a visible clickable div works with a mouse but has no role, name, or keyboard behavior” without exposing a secret; after the safeguard—choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "a visible clickable div works with a mouse but has no role, name, or keyboard behavior",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply accessible name: Text computed by the browser to identify a control to assistive technology.",
+          "fix": "Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state."
+        },
+        {
+          "symptom": "a keyboard-operable product card whose stock state is announced correctly appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Keyboard and screen-reader accessibility, npm run build, input data, and outcome were not connected in a deterministic reproduction; optimizing one score while degrading keyboard use or visible content.",
+          "fix": "Freeze a product card whose button and stock state must be understood in reading order and operated by keyboard, run npm run build, record only the useful signal, and explicitly compare the outcome with “Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a keyboard-operable product card whose stock state is announced correctly in exercises/20-web-quality/AccessibleProductCard.tsx, demonstrate that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state, then trigger and repair a visible clickable div works with a mouse but has no role, name, or keyboard behavior.",
+        "steps": [
+          "Create exercises/20-web-quality/AccessibleProductCard.tsx and identify the input “a product card whose button and stock state must be understood in reading order and operated by keyboard” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: a visible clickable div works with a mouse but has no role, name, or keyboard behavior.",
+          "Implement “choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements”, rerun the command, and explain the role of accessible name."
+        ],
+        "hints": [
+          "Read the definition again: Text computed by the browser to identify a control to assistive technology. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state”."
+        ],
+        "solution": {
+          "explanation": "For Keyboard and screen-reader accessibility, the solution keeps one authority and specifically applies “choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements”. It makes a visible clickable div works with a mouse but has no role, name, or keyboard behavior reproducible and then controlled, and is accepted only when Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state.",
+          "code": "export function AccessibleProductCard() {\n  return <article aria-labelledby=\"product-title\">\n    <h2 id=\"product-title\">Sac de voyage</h2>\n    <p>Capacité 60 litres, disponible en noir.</p>\n    <button type=\"button\" aria-describedby=\"stock-status\">Ajouter au panier</button>\n    <span id=\"stock-status\" role=\"status\">En stock</span>\n  </article>;\n}",
+          "filename": "exercises/20-web-quality/AccessibleProductCard.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "accessible-interface-q1",
+          "question": "Which decision actually demonstrates mastery of “Keyboard and screen-reader accessibility” in this scenario?",
+          "options": [
+            "choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements, then verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state.",
+            "Ignore “a visible clickable div works with a mouse but has no role, name, or keyboard behavior” because the normal path displays a keyboard-operable product card whose stock state is announced correctly.",
+            "Move validation into the UI and treat accessible name as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Text computed by the browser to identify a control to assistive technology.",
+          "answerExplanations": [
+            "This option is correct. It says « choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements, then verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Text computed by the browser to identify a control to assistive technology.",
+            "This option is incorrect. It says « Ignore “a visible clickable div works with a mouse but has no role, name, or keyboard behavior” because the normal path displays a keyboard-operable product card whose stock state is announced correctly. ». The reference answer is « choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements, then verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Text computed by the browser to identify a control to assistive technology.",
+            "This option is incorrect. It says « Move validation into the UI and treat accessible name as a server detail. ». The reference answer is « choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements, then verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Text computed by the browser to identify a control to assistive technology.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements, then verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Text computed by the browser to identify a control to assistive technology."
+          ]
+        },
+        {
+          "id": "accessible-interface-q2",
+          "question": "Which definition matches the term “accessible name”?",
+          "options": [
+            "Meaning conveyed by an HTML element independently of its visual appearance.",
+            "Text computed by the browser to identify a control to assistive technology.",
+            "A measurable weight, latency, or stability limit that a page must not exceed.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“accessible name” means: Text computed by the browser to identify a control to assistive technology.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Meaning conveyed by an HTML element independently of its visual appearance. ». The reference answer is « Text computed by the browser to identify a control to assistive technology. ». “accessible name” means: Text computed by the browser to identify a control to assistive technology.",
+            "This option is correct. It says « Text computed by the browser to identify a control to assistive technology. ». “accessible name” means: Text computed by the browser to identify a control to assistive technology.",
+            "This option is incorrect. It says « A measurable weight, latency, or stability limit that a page must not exceed. ». The reference answer is « Text computed by the browser to identify a control to assistive technology. ». “accessible name” means: Text computed by the browser to identify a control to assistive technology.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Text computed by the browser to identify a control to assistive technology. ». “accessible name” means: Text computed by the browser to identify a control to assistive technology."
+          ]
+        },
+        {
+          "id": "accessible-interface-q3",
+          "question": "What is the best first fix when you observe: “a visible clickable div works with a mouse but has no role, name, or keyboard behavior”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a product card whose button and stock state must be understood in reading order and operated by keyboard, run npm run build, record only the useful signal, and explicitly compare the outcome with “Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state”.",
+            "Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply accessible name: Text computed by the browser to identify a control to assistive technology. The appropriate fix is: Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply accessible name: Text computed by the browser to identify a control to assistive technology. The appropriate fix is: Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state.",
+            "This option is incorrect. It says « Freeze a product card whose button and stock state must be understood in reading order and operated by keyboard, run npm run build, record only the useful signal, and explicitly compare the outcome with “Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state”. ». The reference answer is « Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply accessible name: Text computed by the browser to identify a control to assistive technology. The appropriate fix is: Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state.",
+            "This option is correct. It says « Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply accessible name: Text computed by the browser to identify a control to assistive technology. The appropriate fix is: Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply accessible name: Text computed by the browser to identify a control to assistive technology. The appropriate fix is: Apply this specific safeguard: choose the native HTML element first, keep focus visible, and test the real keyboard journey with announcements. Replay the case and verify that Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state."
+          ]
+        }
+      ],
+      "recap": [
+        "Use semantic HTML, logical focus order, accessible names, and announcements that depend on neither color nor a mouse.",
+        "accessible name: Text computed by the browser to identify a control to assistive technology.",
+        "Completion evidence: Tab reaches the button in logical order, Enter activates it, and a screen reader announces its name and associated stock state."
+      ],
+      "next": "The next lesson protects the interface’s speed and visual stability on a constrained device."
+    },
+    {
+      "id": "performance-core-web-vitals",
+      "order": 2,
+      "title": "Performance and Core Web Vitals",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand semantic HTML, Next.js metadata, and the difference between laboratory and real-user measurement.",
+        "Be able to restate “Largest Contentful Paint” before coding: Time required to render the largest meaningful element visible in the viewport.",
+        "Know how to create exercises/20-web-quality/FastHero.tsx, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Connect LCP, INP, and CLS to concrete causes, optimize the main element first, and measure before and after every change.",
+        "Build a dimensioned hero that reserves space and prioritizes only the critical image, then prove the result with this exact signal: a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A high-quality page serves three audiences at once: the person using it, assistive technology interpreting it, and the crawler discovering it. In “Performance and Core Web Vitals”, the concrete input is a product hero whose large image determines LCP and can shift content when dimensions are not reserved. Largest Contentful Paint means: Time required to render the largest meaningful element visible in the viewport. The model is complete only when you measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU and can observe that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A web page is a physical shop: its sign must be identifiable, its aisles usable, and its entrance fast enough not to turn visitors away. Here the part you will actually inspect is a dimensioned hero that reserves space and prioritizes only the critical image; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a product hero whose large image determines LCP and can shift content when dimensions are not reserved. Connect LCP, INP, and CLS to concrete causes, optimize the main element first, and measure before and after every change. The term Largest Contentful Paint is not a decorative label: Time required to render the largest meaningful element visible in the viewport. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/20-web-quality/FastHero.tsx, the example deliberately reduces the system to a dimensioned hero that reserves space and prioritizes only the critical image. Read each line as one responsibility, then run npm run build. The main failure to trigger is: adding priority to every image competes with the main resource and slows the page instead of helping. It shows why the professional correction is to measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. Apply the same evidence to product pages, search results, and the add-to-cart journey, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Largest Contentful Paint",
+                  "definition": "Time required to render the largest meaningful element visible in the viewport."
+                },
+                {
+                  "term": "Semantics",
+                  "definition": "Meaning conveyed by an HTML element independently of its visual appearance."
+                },
+                {
+                  "term": "Performance budget",
+                  "definition": "A measurable weight, latency, or stability limit that a page must not exceed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a product hero whose large image determines LCP and can shift content when dimensions are not reserved, first write the observation “a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images”, and then implement a dimensioned hero that reserves space and prioritizes only the critical image. Simulate adding priority to every image competes with the main resource and slows the page instead of helping and finish only when measurement confirms this safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "exercises/20-web-quality/FastHero.tsx",
+                "source": "import Image from \"next/image\";\nexport function FastHero() {\n  return <section>\n    <h1>Des essentiels utiles, livrés simplement</h1>\n    <Image src=\"/ecomax-hero-banner.jpg.png\" alt=\"Sélection L’ecomax\"\n      width={1440} height={720} priority sizes=\"100vw\" />\n  </section>;\n}",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "imports the named dependency without implicitly instantiating it — import Image from \"next/image\";."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "opens the function that owns the stated responsibility — export function FastHero() {."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "returns the produced value to calling code — return <section>."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "declares the interface element and its semantics — <h1>Des essentiels utiles, livrés simplement</h1>."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "declares the interface element and its semantics — <Image src=\"/ecomax-hero-banner.jpg.png\" alt=\"Sélection L’ecomax\"."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "declares or transforms this datum for the next step — width={1440} height={720} priority sizes=\"100vw\" />."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "declares the interface element and its semantics — </section>;."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "closes the structure opened by preceding lines — }."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/20-web-quality/FastHero.tsx\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/20-web-quality/FastHero.tsx and identify the input “a product hero whose large image determines LCP and can shift content when dimensions are not reserved” in the annotations. — code exercises/20-web-quality/FastHero.tsx"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. The deliberately failing case demonstrates “adding priority to every image competes with the main resource and slows the page instead of helping” without exposing a secret; after the safeguard—measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product pages, search results, and the add-to-cart journey. a dimensioned hero that reserves space and prioritizes only the critical image must remain on the correct side of the trust boundary; use Largest Contentful Paint to justify validation and retain this as evidence: a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/20-web-quality/FastHero.tsx",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. The deliberately failing case demonstrates “adding priority to every image competes with the main resource and slows the page instead of helping” without exposing a secret; after the safeguard—measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "adding priority to every image competes with the main resource and slows the page instead of helping",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply Largest Contentful Paint: Time required to render the largest meaningful element visible in the viewport.",
+          "fix": "Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images."
+        },
+        {
+          "symptom": "a dimensioned hero that reserves space and prioritizes only the critical image appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Performance and Core Web Vitals, npm run build, input data, and outcome were not connected in a deterministic reproduction; optimizing one score while degrading keyboard use or visible content.",
+          "fix": "Freeze a product hero whose large image determines LCP and can shift content when dimensions are not reserved, run npm run build, record only the useful signal, and explicitly compare the outcome with “a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a dimensioned hero that reserves space and prioritizes only the critical image in exercises/20-web-quality/FastHero.tsx, demonstrate that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images, then trigger and repair adding priority to every image competes with the main resource and slows the page instead of helping.",
+        "steps": [
+          "Create exercises/20-web-quality/FastHero.tsx and identify the input “a product hero whose large image determines LCP and can shift content when dimensions are not reserved” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: adding priority to every image competes with the main resource and slows the page instead of helping.",
+          "Implement “measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU”, rerun the command, and explain the role of Largest Contentful Paint."
+        ],
+        "hints": [
+          "Read the definition again: Time required to render the largest meaningful element visible in the viewport. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images”."
+        ],
+        "solution": {
+          "explanation": "For Performance and Core Web Vitals, the solution keeps one authority and specifically applies “measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU”. It makes adding priority to every image competes with the main resource and slows the page instead of helping reproducible and then controlled, and is accepted only when a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images.",
+          "code": "import Image from \"next/image\";\nexport function FastHero() {\n  return <section>\n    <h1>Des essentiels utiles, livrés simplement</h1>\n    <Image src=\"/ecomax-hero-banner.jpg.png\" alt=\"Sélection L’ecomax\"\n      width={1440} height={720} priority sizes=\"100vw\" />\n  </section>;\n}",
+          "filename": "exercises/20-web-quality/FastHero.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "performance-core-web-vitals-q1",
+          "question": "Which decision actually demonstrates mastery of “Performance and Core Web Vitals” in this scenario?",
+          "options": [
+            "measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU, then verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images.",
+            "Ignore “adding priority to every image competes with the main resource and slows the page instead of helping” because the normal path displays a dimensioned hero that reserves space and prioritizes only the critical image.",
+            "Move validation into the UI and treat Largest Contentful Paint as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Time required to render the largest meaningful element visible in the viewport.",
+          "answerExplanations": [
+            "This option is correct. It says « measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU, then verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Time required to render the largest meaningful element visible in the viewport.",
+            "This option is incorrect. It says « Ignore “adding priority to every image competes with the main resource and slows the page instead of helping” because the normal path displays a dimensioned hero that reserves space and prioritizes only the critical image. ». The reference answer is « measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU, then verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Time required to render the largest meaningful element visible in the viewport.",
+            "This option is incorrect. It says « Move validation into the UI and treat Largest Contentful Paint as a server detail. ». The reference answer is « measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU, then verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Time required to render the largest meaningful element visible in the viewport.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU, then verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; Time required to render the largest meaningful element visible in the viewport."
+          ]
+        },
+        {
+          "id": "performance-core-web-vitals-q2",
+          "question": "Which definition matches the term “Largest Contentful Paint”?",
+          "options": [
+            "Meaning conveyed by an HTML element independently of its visual appearance.",
+            "Time required to render the largest meaningful element visible in the viewport.",
+            "A measurable weight, latency, or stability limit that a page must not exceed.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Largest Contentful Paint” means: Time required to render the largest meaningful element visible in the viewport.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Meaning conveyed by an HTML element independently of its visual appearance. ». The reference answer is « Time required to render the largest meaningful element visible in the viewport. ». “Largest Contentful Paint” means: Time required to render the largest meaningful element visible in the viewport.",
+            "This option is correct. It says « Time required to render the largest meaningful element visible in the viewport. ». “Largest Contentful Paint” means: Time required to render the largest meaningful element visible in the viewport.",
+            "This option is incorrect. It says « A measurable weight, latency, or stability limit that a page must not exceed. ». The reference answer is « Time required to render the largest meaningful element visible in the viewport. ». “Largest Contentful Paint” means: Time required to render the largest meaningful element visible in the viewport.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Time required to render the largest meaningful element visible in the viewport. ». “Largest Contentful Paint” means: Time required to render the largest meaningful element visible in the viewport."
+          ]
+        },
+        {
+          "id": "performance-core-web-vitals-q3",
+          "question": "What is the best first fix when you observe: “adding priority to every image competes with the main resource and slows the page instead of helping”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a product hero whose large image determines LCP and can shift content when dimensions are not reserved, run npm run build, record only the useful signal, and explicitly compare the outcome with “a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images”.",
+            "Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Largest Contentful Paint: Time required to render the largest meaningful element visible in the viewport. The appropriate fix is: Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Largest Contentful Paint: Time required to render the largest meaningful element visible in the viewport. The appropriate fix is: Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images.",
+            "This option is incorrect. It says « Freeze a product hero whose large image determines LCP and can shift content when dimensions are not reserved, run npm run build, record only the useful signal, and explicitly compare the outcome with “a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images”. ». The reference answer is « Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Largest Contentful Paint: Time required to render the largest meaningful element visible in the viewport. The appropriate fix is: Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images.",
+            "This option is correct. It says « Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Largest Contentful Paint: Time required to render the largest meaningful element visible in the viewport. The appropriate fix is: Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply Largest Contentful Paint: Time required to render the largest meaningful element visible in the viewport. The appropriate fix is: Apply this specific safeguard: measure the actual bottleneck, reserve width and height, prioritize only the LCP image, and remeasure with constrained network and CPU. Replay the case and verify that a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images."
+          ]
+        }
+      ],
+      "recap": [
+        "Connect LCP, INP, and CLS to concrete causes, optimize the main element first, and measure before and after every change.",
+        "Largest Contentful Paint: Time required to render the largest meaningful element visible in the viewport.",
+        "Completion evidence: a before-and-after measurement shows the expected LCP element, no image-related shift, and no priority given to offscreen images."
+      ],
+      "next": "The next lesson combines SEO, accessibility, and performance in a reproducible, impact-ranked audit."
+    },
+    {
+      "id": "quality-audit",
+      "order": 3,
+      "title": "Audit SEO, accessibility, and performance",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Understand semantic HTML, Next.js metadata, and the difference between laboratory and real-user measurement.",
+        "Be able to restate “audit” before coding: A systematic review based on criteria, evidence, and priority.",
+        "Know how to create exercises/20-web-quality/audit.md, run npm run build, and compare real output with a written expectation."
+      ],
+      "objectives": [
+        "Combine automated checks with a manual journey, retain before-and-after evidence, and rank fixes by user impact and risk.",
+        "Build a reproducible audit checklist for L’ecomax product pages, then prove the result with this exact signal: the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A high-quality page serves three audiences at once: the person using it, assistive technology interpreting it, and the crawler discovering it. In “Audit SEO, accessibility, and performance”, the concrete input is a product page ready to ship that another person must audit with the same criteria. audit means: A systematic review based on criteria, evidence, and priority. The model is complete only when you combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations and can observe that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A web page is a physical shop: its sign must be identifiable, its aisles usable, and its entrance fast enough not to turn visitors away. Here the part you will actually inspect is a reproducible audit checklist for L’ecomax product pages; stop using the analogy if it obscures the technical boundary shown by the code."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Start by bounding this lesson’s case: a product page ready to ship that another person must audit with the same criteria. Combine automated checks with a manual journey, retain before-and-after evidence, and rank fixes by user impact and risk. The term audit is not a decorative label: A systematic review based on criteria, evidence, and priority. It determines what enters, which authority may act, and which observation counts as evidence rather than an impression."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "In exercises/20-web-quality/audit.md, the example deliberately reduces the system to a reproducible audit checklist for L’ecomax product pages. Read each line as one responsibility, then run npm run build. The main failure to trigger is: a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work. It shows why the professional correction is to combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations, not to conceal the error."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "In a real system, the happy path is only one case among retries, invalid input, and partial outages. The expected proof is that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. Apply the same evidence to product pages, search results, and the add-to-cart journey, using a correlation trace without secrets or personal data so both success and failure remain explainable."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "audit",
+                  "definition": "A systematic review based on criteria, evidence, and priority."
+                },
+                {
+                  "term": "Semantics",
+                  "definition": "Meaning conveyed by an HTML element independently of its visual appearance."
+                },
+                {
+                  "term": "Performance budget",
+                  "definition": "A measurable weight, latency, or stability limit that a page must not exceed."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "In another project, begin with a product page ready to ship that another person must audit with the same criteria, first write the observation “the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding”, and then implement a reproducible audit checklist for L’ecomax product pages. Simulate a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work and finish only when measurement confirms this safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/20-web-quality/audit.md",
+                "source": "# Audit d’une page produit\n- [ ] Un seul h1 décrit le produit\n- [ ] Le bouton panier possède un nom accessible\n- [ ] Les images ont dimensions et texte alternatif\n- [ ] Le contenu principal fonctionne sans souris\n- [ ] Le build ne signale aucune erreur\n- [ ] LCP, INP et CLS sont mesurés\n- [ ] Les corrections sont classées par impact",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "creates a verifiable title or milestone — # Audit d’une page produit."
+                  },
+                  {
+                    "lines": "2",
+                    "label": "states a criterion that must be executed and evidenced — - [ ] Un seul h1 décrit le produit."
+                  },
+                  {
+                    "lines": "3",
+                    "label": "states a criterion that must be executed and evidenced — - [ ] Le bouton panier possède un nom accessible."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "states a criterion that must be executed and evidenced — - [ ] Les images ont dimensions et texte alternatif."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "states a criterion that must be executed and evidenced — - [ ] Le contenu principal fonctionne sans souris."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "states a criterion that must be executed and evidenced — - [ ] Le build ne signale aucune erreur."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "states a criterion that must be executed and evidenced — - [ ] LCP, INP et CLS sont mesurés."
+                  },
+                  {
+                    "lines": "8",
+                    "label": "states a criterion that must be executed and evidenced — - [ ] Les corrections sont classées par impact."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "code exercises/20-web-quality/audit.md\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Create exercises/20-web-quality/audit.md and identify the input “a product page ready to ship that another person must audit with the same criteria” in the annotations. — code exercises/20-web-quality/audit.md"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Run npm run build once and retain secret-free output as the baseline. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "After npm run build, the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. The deliberately failing case demonstrates “a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work” without exposing a secret; after the safeguard—combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations—it is rejected or processed once according to the contract."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, this lesson protects product pages, search results, and the add-to-cart journey. a reproducible audit checklist for L’ecomax product pages must remain on the correct side of the trust boundary; use audit to justify validation and retain this as evidence: the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "code exercises/20-web-quality/audit.md",
+        "npm run build"
+      ],
+      "expectedResult": "After npm run build, the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. The deliberately failing case demonstrates “a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work” without exposing a secret; after the safeguard—combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations—it is rejected or processed once according to the contract.",
+      "commonErrors": [
+        {
+          "symptom": "a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work",
+          "cause": "The implementation mistakes the happy path for the complete contract and does not correctly apply audit: A systematic review based on criteria, evidence, and priority.",
+          "fix": "Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding."
+        },
+        {
+          "symptom": "a reproducible audit checklist for L’ecomax product pages appears to work, but nobody can reproduce the promised evidence on a fresh run.",
+          "cause": "For Audit SEO, accessibility, and performance, npm run build, input data, and outcome were not connected in a deterministic reproduction; optimizing one score while degrading keyboard use or visible content.",
+          "fix": "Freeze a product page ready to ship that another person must audit with the same criteria, run npm run build, record only the useful signal, and explicitly compare the outcome with “the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding”."
+        }
+      ],
+      "exercise": {
+        "task": "Implement a reproducible audit checklist for L’ecomax product pages in exercises/20-web-quality/audit.md, demonstrate that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding, then trigger and repair a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work.",
+        "steps": [
+          "Create exercises/20-web-quality/audit.md and identify the input “a product page ready to ship that another person must audit with the same criteria” in the annotations.",
+          "Run npm run build once and retain secret-free output as the baseline.",
+          "Change exactly one input to reproduce this defect: a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work.",
+          "Implement “combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations”, rerun the command, and explain the role of audit."
+        ],
+        "hints": [
+          "Read the definition again: A systematic review based on criteria, evidence, and priority. Find the line where the rule must be enforced, not merely documented.",
+          "The target evidence is not “it seems to work”; it is “the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding”."
+        ],
+        "solution": {
+          "explanation": "For Audit SEO, accessibility, and performance, the solution keeps one authority and specifically applies “combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations”. It makes a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work reproducible and then controlled, and is accepted only when the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding.",
+          "code": "# Audit d’une page produit\n- [ ] Un seul h1 décrit le produit\n- [ ] Le bouton panier possède un nom accessible\n- [ ] Les images ont dimensions et texte alternatif\n- [ ] Le contenu principal fonctionne sans souris\n- [ ] Le build ne signale aucune erreur\n- [ ] LCP, INP et CLS sont mesurés\n- [ ] Les corrections sont classées par impact",
+          "filename": "exercises/20-web-quality/audit.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "quality-audit-q1",
+          "question": "Which decision actually demonstrates mastery of “Audit SEO, accessibility, and performance” in this scenario?",
+          "options": [
+            "combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations, then verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding.",
+            "Ignore “a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work” because the normal path displays a reproducible audit checklist for L’ecomax product pages.",
+            "Move validation into the UI and treat audit as a server detail.",
+            "Log every input and secret to simplify diagnosis."
+          ],
+          "correctIndex": 0,
+          "explanation": "The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A systematic review based on criteria, evidence, and priority.",
+          "answerExplanations": [
+            "This option is correct. It says « combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations, then verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A systematic review based on criteria, evidence, and priority.",
+            "This option is incorrect. It says « Ignore “a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work” because the normal path displays a reproducible audit checklist for L’ecomax product pages. ». The reference answer is « combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations, then verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A systematic review based on criteria, evidence, and priority.",
+            "This option is incorrect. It says « Move validation into the UI and treat audit as a server detail. ». The reference answer is « combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations, then verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A systematic review based on criteria, evidence, and priority.",
+            "This option is incorrect. It says « Log every input and secret to simplify diagnosis. ». The reference answer is « combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations, then verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». The first decision connects the safeguard to verifiable evidence. The others ignore the exact failure, move authority to an untrusted boundary, or create a leak; A systematic review based on criteria, evidence, and priority."
+          ]
+        },
+        {
+          "id": "quality-audit-q2",
+          "question": "Which definition matches the term “audit”?",
+          "options": [
+            "Meaning conveyed by an HTML element independently of its visual appearance.",
+            "A systematic review based on criteria, evidence, and priority.",
+            "A measurable weight, latency, or stability limit that a page must not exceed.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“audit” means: A systematic review based on criteria, evidence, and priority.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Meaning conveyed by an HTML element independently of its visual appearance. ». The reference answer is « A systematic review based on criteria, evidence, and priority. ». “audit” means: A systematic review based on criteria, evidence, and priority.",
+            "This option is correct. It says « A systematic review based on criteria, evidence, and priority. ». “audit” means: A systematic review based on criteria, evidence, and priority.",
+            "This option is incorrect. It says « A measurable weight, latency, or stability limit that a page must not exceed. ». The reference answer is « A systematic review based on criteria, evidence, and priority. ». “audit” means: A systematic review based on criteria, evidence, and priority.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A systematic review based on criteria, evidence, and priority. ». “audit” means: A systematic review based on criteria, evidence, and priority."
+          ]
+        },
+        {
+          "id": "quality-audit-q3",
+          "question": "What is the best first fix when you observe: “a single Lighthouse score is saved without device, scenario, or proof that keyboard journeys work”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Freeze a product page ready to ship that another person must audit with the same criteria, run npm run build, record only the useful signal, and explicitly compare the outcome with “the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding”.",
+            "Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply audit: A systematic review based on criteria, evidence, and priority. The appropriate fix is: Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply audit: A systematic review based on criteria, evidence, and priority. The appropriate fix is: Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding.",
+            "This option is incorrect. It says « Freeze a product page ready to ship that another person must audit with the same criteria, run npm run build, record only the useful signal, and explicitly compare the outcome with “the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding”. ». The reference answer is « Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply audit: A systematic review based on criteria, evidence, and priority. The appropriate fix is: Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding.",
+            "This option is correct. It says « Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply audit: A systematic review based on criteria, evidence, and priority. The appropriate fix is: Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding. ». Diagnosis starts with this cause: The implementation mistakes the happy path for the complete contract and does not correctly apply audit: A systematic review based on criteria, evidence, and priority. The appropriate fix is: Apply this specific safeguard: combine automated and manual checks, retain measurement context, and prioritize user blockers before micro-optimizations. Replay the case and verify that the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding."
+          ]
+        }
+      ],
+      "recap": [
+        "Combine automated checks with a manual journey, retain before-and-after evidence, and rank fixes by user impact and risk.",
+        "audit: A systematic review based on criteria, evidence, and priority.",
+        "Completion evidence: the checklist records a URL, reproduction, baseline, correction, and verification measurement for every finding."
+      ],
+      "next": "The next module applies these observable boundaries to asynchronous email systems."
+    }
+  ]
+}

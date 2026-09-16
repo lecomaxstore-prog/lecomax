@@ -1,0 +1,407 @@
+"use client";
+import { preorderCopy } from "@/lib/preorder-copy";
+
+import { useEffect, useState } from "react";
+
+import Link from "next/link";
+import Image from "next/image";
+import { supabase } from "@/lib/supabase";
+import { formatMAD } from "@/lib/products";
+import { customerApiFetch } from "@/lib/customer-api";
+import AccountRecommendations from "@/components/AccountRecommendations";
+import { useWishlist } from "@/components/WishlistContext";
+
+type UserInfo = {
+  email: string;
+  full_name: string;
+  created_at: string;
+  prenom?: string;
+};
+
+type RecentOrder = {
+  id: string;
+  order_number: string;
+  total: number;
+  status: string;
+  created_at: string;
+  items: { fulfillment_type?: "STANDARD" | "PREORDER"; name: string; image: string; qty: number }[];
+};
+
+const STATUS_LABEL: Record<string, { label: string; color: string }> = {
+  pending:   { label: "En attente",   color: "bg-amber-50 text-amber-700 border-amber-200" },
+  confirmed: { label: "Confirmée",    color: "bg-blue-50 text-blue-700 border-blue-200" },
+  shipped:   { label: "Expédiée",     color: "bg-purple-50 text-purple-700 border-purple-200" },
+  delivered: { label: "Livrée",       color: "bg-green-50 text-green-700 border-green-200" },
+  cancelled: { label: "Annulée",      color: "bg-red-50 text-red-700 border-red-200" },
+};
+
+
+
+export default function ComptePage() {
+  const { count: wishlistCount } = useWishlist();
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [orders, setOrders] = useState<RecentOrder[]>([]);
+  const [orderCount, setOrderCount] = useState<number | null>(null);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+  const [ordersError, setOrdersError] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [pendingPoints, setPendingPoints] = useState(0);
+  const [tierProgress, setTierProgress] = useState(0);
+  const [tierName, setTierName] = useState("Bronze");
+  const [tierNext, setTierNext] = useState<number | null>(500);
+  const [tierNextLabel, setTierNextLabel] = useState<string | null>("Silver");
+  const [addressCount, setAddressCount] = useState<number | null>(null);
+  const [savedPosts, setSavedPosts] = useState<{ id: string; title: string; slug: string; image_url?: string; likes_count: number; comments_count: number }[]>([]);
+  const [savedLoading, setSavedLoading] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) return;
+      const u = session.user;
+      const email = u.email ?? "";
+      setUser({
+        email,
+        full_name: u.user_metadata?.full_name || u.user_metadata?.name || "",
+        created_at: u.created_at,
+        prenom: u.user_metadata?.prenom,
+      });
+      // Load address count from user metadata
+      const saved = u.user_metadata?.addresses;
+      setAddressCount(Array.isArray(saved) ? saved.length : 0);
+      // Fetch saved Ecomedia posts
+      setSavedLoading(true);
+      supabase.auth.getSession().then(({ data }) => fetch("/api/ecomedia/saved", { headers: data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {} }))
+        .then(r => r.json())
+        .then(d => { if (Array.isArray(d.posts)) setSavedPosts(d.posts); })
+        .catch(() => {})
+        .finally(() => setSavedLoading(false));
+      // Fetch recent orders by email
+      customerApiFetch(`/api/orders?email=${encodeURIComponent(email)}&limit=3`)
+        .then(async r => {
+          if (!r.ok) throw new Error("Orders unavailable");
+          const header = r.headers.get("X-Total-Count");
+          const total = header === null ? NaN : Number(header);
+          if (Number.isFinite(total)) setOrderCount(total);
+          return r.json();
+        })
+        .then((data: RecentOrder[]) => {
+          setOrders(Array.isArray(data) ? data : []);
+          setOrdersLoading(false);
+        })
+        .catch(() => { setOrdersError(true); setOrdersLoading(false); });
+      // Fetch EcoClub points
+      if (email) {
+        customerApiFetch(`/api/points?email=${encodeURIComponent(email)}`)
+          .then(r => r.json())
+          .then(d => {
+            if (typeof d.points === "number") {
+              setPoints(d.points);
+              setPendingPoints(Number(d.pending ?? 0));
+              setTierProgress(Number(d.progress ?? 0));
+              setTierName(d.tier ?? "Bronze");
+              setTierNext(d.next ?? null);
+              setTierNextLabel(d.nextLabel ?? null);
+            }
+          })
+          .catch(() => {});
+      }
+    });
+  }, []);
+
+  const memberSince = user?.created_at
+    ? new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric" }).format(new Date(user.created_at))
+    : "";
+
+  const firstName = user?.prenom || user?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "vous";
+  const hasFullName = !!(user?.full_name?.trim());
+  const today = new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+
+  return (
+    <div className="account-overview flex flex-col gap-6">
+
+      {/* ─── Hero welcome banner ─── */}
+      <div className="account-welcome overflow-hidden rounded-3xl bg-[#183c30] text-white">
+        <div className="account-welcome-inner px-6 sm:px-8 py-7 sm:py-9 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-6">
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-medium text-emerald-100/70 mb-4">
+              {today.charAt(0).toUpperCase() + today.slice(1)}
+            </p>
+            <h1 className="font-semibold text-[28px] sm:text-[36px] leading-[1.15] tracking-[-0.035em] mb-3 break-words">
+              Bonjour, {firstName} <span className="inline-block text-[23px]" aria-hidden="true">👋</span>
+            </h1>
+            <p className="max-w-md text-[13px] leading-6 text-white/70 mb-5">Tout votre univers L’Ecomax, au même endroit.</p>
+            <div className="flex items-center gap-2 flex-wrap">
+              {memberSince && (
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-white/70 border border-white/15 rounded-full px-3 py-1.5">
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  Membre depuis {memberSince}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-bold tracking-normal rounded-full px-3 py-1" style={{ background: "rgba(205,127,50,0.15)", color: "#cd7f32", border: "1px solid rgba(205,127,50,0.25)" }}>
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                EcoClub {tierName}
+              </span>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-2 shrink-0">
+            <Link href="/compte/commandes" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-[12px] font-semibold text-emerald-950 transition-colors hover:bg-emerald-50 group">
+              Mes commandes
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="group-hover:translate-x-0.5 transition-transform"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </Link>
+            <Link href="/nouveautes" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/20 px-4 py-3 text-[12px] font-medium text-white transition-colors hover:bg-white/10">Nouveautés</Link>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── Profile completion nudge ─── */}
+      {user && !hasFullName && (
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50/60 border border-amber-200 rounded-2xl px-5 py-4 flex flex-col min-[460px]:flex-row min-[460px]:items-center justify-between gap-4 shadow-[0_8px_24px_rgba(245,158,11,0.07)]">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-amber-600"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div>
+              <p className="font-bold text-[12px] text-amber-800">Complétez votre profil</p>
+              <p className="text-[11px] text-amber-600 mt-0.5">Ajoutez votre nom pour personnaliser votre expérience.</p>
+            </div>
+          </div>
+          <Link href="/compte/profil" className="w-full min-[460px]:w-auto shrink-0 text-center text-[12px] font-semibold tracking-normal bg-amber-500 text-white px-5 py-2.5 rounded-xl hover:bg-amber-600 hover:-translate-y-0.5 transition-all whitespace-nowrap shadow-sm">
+            Compléter →
+          </Link>
+        </div>
+      )}
+
+      {/* ─── Stats cards ─── */}
+      <div className="account-stats grid grid-cols-3 gap-2 sm:gap-4">
+        {[
+          {
+            label: "Commandes",
+            value: ordersLoading || orderCount === null ? "—" : String(orderCount),
+            sub: "au total",
+            href: "/compte/commandes",
+            bg: "bg-white",
+            icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+            ),
+            color: "#183c30",
+          },
+          {
+            label: "Adresses",
+            value: addressCount === null ? "—" : String(addressCount),
+            sub: "sauvegardées",
+            href: "/compte/adresses",
+            bg: "bg-white",
+            icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            ),
+            color: "#000",
+          },
+          {
+            label: "EcoClub",
+            value: tierName,
+            sub: `${points.toLocaleString("fr-MA")} pts`,
+            href: "/ecoclub",
+            bg: "bg-white",
+            icon: (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            ),
+            color: tierName === "Gold" ? "#927025" : tierName === "Silver" ? "#64748b" : "#94633b",
+          },
+        ].map((s) => (
+          <Link key={s.label} href={s.href} className={`group min-w-0 ${s.bg} border border-neutral-200/80 hover:border-emerald-800/30 transition-colors rounded-2xl p-3 sm:p-5 flex flex-col gap-3`}>
+            <div className="flex h-7 w-7 items-center justify-center text-neutral-500">
+              {s.icon}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold text-[18px] sm:text-[26px] leading-none tracking-tight" style={{ color: s.color }}>{s.value}</p>
+              <p className="text-[10px] sm:text-[12px] font-medium text-neutral-600 mt-2">{s.label}</p>
+              <p className="text-[10px] text-neutral-500 mt-1">{s.sub}</p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* ─── EcoClub progress ─── */}
+      <div className="account-loyalty bg-[#183c30] rounded-2xl px-4 sm:px-6 py-5 flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-5">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(205,127,50,0.2)" }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#cd7f32" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[12px] font-semibold tracking-normal text-white">EcoClub {tierName}</span>
+            <span className="text-[10px] font-semibold text-neutral-400">
+              {points.toLocaleString("fr-MA")} pts
+            </span>
+          </div>
+          <div role="progressbar" aria-label="Progression EcoClub" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(100, Math.max(0, tierProgress))} className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{
+                width: `${Math.min(100, Math.max(0, tierProgress))}%`,
+                background: "linear-gradient(90deg, #cd7f32, #f59e0b)",
+              }}
+            />
+          </div>
+          <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[10px]">
+            {tierNext && tierNextLabel ? (
+              <p className="text-neutral-500">
+                {Math.max(0, tierNext - points).toLocaleString("fr-MA")} pts pour atteindre <span className="font-semibold text-neutral-500">{tierNextLabel}</span>
+              </p>
+            ) : <p className="text-neutral-500">Niveau maximum</p>}
+            {pendingPoints > 0 && <p className="font-semibold text-amber-400">+{pendingPoints.toLocaleString("fr-MA")} pts en attente</p>}
+          </div>
+        </div>
+        <Link href="/ecoclub" className="shrink-0 text-[12px] font-semibold tracking-normal text-neutral-400 hover:text-white transition-colors">
+          Détails →
+        </Link>
+      </div>
+
+      {/* ─── Recent orders ─── */}
+      <div className="account-orders rounded-2xl bg-white border border-neutral-200/80 overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+          <div className="flex items-center gap-2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+            <p className="font-semibold text-[13px] tracking-normal">Commandes récentes</p>
+          </div>
+          <Link href="/compte/commandes" className="text-[10px] font-bold tracking-normal text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
+            Tout voir
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </Link>
+        </div>
+
+        {ordersLoading ? (
+          <div className="px-6 py-10 flex items-center justify-center gap-2 text-neutral-400">
+            <span className="w-4 h-4 border-2 border-neutral-200 border-t-neutral-400 rounded-full animate-spin" />
+            <span className="text-[12px] font-bold tracking-normal">Chargement…</span>
+          </div>
+        ) : ordersError ? (
+          <div role="status" className="p-6 text-center">
+            <p className="text-sm text-neutral-600">Vos commandes sont momentanément indisponibles.</p>
+            <Link href="/compte/commandes" className="inline-flex mt-4 rounded-xl bg-[#183c30] px-5 py-3 text-sm font-semibold text-white">Réessayer dans mes commandes</Link>
+          </div>
+        ) : orders.length === 0 ? (
+          <div className="px-6 py-12 flex flex-col items-center text-center">
+            <div className="w-14 h-14 rounded-2xl bg-neutral-50 border border-dashed border-neutral-200 flex items-center justify-center mb-4">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            </div>
+            <p className="text-[12px] font-semibold tracking-normal text-neutral-500 mb-1.5">Aucune commande</p>
+            <p className="text-[12px] text-neutral-400 leading-relaxed max-w-[200px] mb-5">Vos commandes apparaîtront ici après votre premier achat.</p>
+            <Link href="/" className="inline-flex items-center gap-2 rounded-xl bg-[#183c30] text-white font-semibold text-[10px] tracking-normal px-6 py-3 hover:bg-neutral-800 transition-colors">
+              Explorer la boutique
+            </Link>
+          </div>
+        ) : (
+          <div className="divide-y divide-neutral-50">
+            {orders.map((order) => {
+              const st = STATUS_LABEL[order.status] ?? { label: order.status, color: "bg-neutral-100 text-neutral-600 border-neutral-200" };
+              const date = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric" }).format(new Date(order.created_at));
+              return (
+                <Link key={order.id} href={`/suivre-commande?order_number=${order.order_number}`} className="flex items-center gap-4 px-6 py-4 hover:bg-neutral-50 transition-colors group">
+                  <div className="flex -space-x-2 shrink-0">
+                    {order.items.slice(0, 2).map((item, i) => (
+                      <div key={i} className="w-10 h-10 border-2 border-white rounded-xl overflow-hidden bg-neutral-100">
+                        <Image src={item.image || "/images/placeholder.png"} alt={item.name} width={40} height={40} className="object-cover w-full h-full" />
+                      </div>
+                    ))}
+                    {order.items.some(item=>item.fulfillment_type === "PREORDER") && <span className="text-xs text-amber-800">{preorderCopy.fr.badge}</span>}
+                    {order.items.length > 2 && (
+                      <div className="w-10 h-10 border-2 border-white rounded-xl bg-neutral-100 flex items-center justify-center text-[10px] font-semibold text-neutral-500">
+                        +{order.items.length - 2}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                      <p className="font-semibold text-[13px] tracking-normal">{order.order_number}</p>
+                      <span className={`text-[12px] font-semibold tracking-normal px-2 py-0.5 rounded-full border ${st.color}`}>{st.label}</span>
+                    </div>
+                    <p className="text-[11px] text-neutral-400">{date} · {order.items.length} article{order.items.length > 1 ? "s" : ""}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-semibold text-[14px]">{formatMAD(order.total)}</p>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="ml-auto mt-1 text-neutral-500 group-hover:text-black group-hover:translate-x-0.5 transition-all"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* ─── Saved Ecomedia posts ─── */}
+      {(savedLoading || savedPosts.length > 0) && (
+        <div className="rounded-2xl bg-white border border-neutral-200/80 overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+            <div className="flex items-center gap-2.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-black"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>
+              <p className="font-semibold text-[13px] tracking-normal">Posts enregistrés</p>
+            </div>
+            <Link href="/ecomedia" className="text-[10px] font-bold tracking-normal text-neutral-400 hover:text-black transition-colors flex items-center gap-1">
+              Ecomedia
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </Link>
+          </div>
+          {savedLoading ? (
+            <div className="px-6 py-8 flex items-center justify-center gap-2 text-neutral-400">
+              <span className="w-4 h-4 border-2 border-neutral-200 border-t-neutral-400 rounded-full animate-spin" />
+              <span className="text-[12px] font-bold tracking-normal">Chargement…</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-px bg-neutral-100">
+              {savedPosts.slice(0, 9).map((p) => (
+                <Link key={p.id} href={`/ecomedia/${p.slug}`} className="relative aspect-square bg-neutral-50 overflow-hidden group">
+                  {p.image_url ? (
+                    <Image src={p.image_url} alt={p.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="160px" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-neutral-100">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-500"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end p-2 opacity-0 group-hover:opacity-100">
+                    <div className="flex items-center gap-2 text-white text-[10px] font-bold">
+                      <span className="flex items-center gap-0.5"><svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>{p.likes_count}</span>
+                      <span className="flex items-center gap-0.5"><svg width="11" height="11" viewBox="0 0 24 24" fill="white" stroke="none"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>{p.comments_count}</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── Quick actions ─── */}
+      <section className="account-shortcuts" aria-labelledby="account-shortcuts-title">
+        <div className="account-shortcuts-heading">
+          <p>Votre espace</p>
+          <h2 id="account-shortcuts-title">Les essentiels</h2>
+        </div>
+        <nav className="account-shortcuts-list" aria-label="Accès rapide au compte">
+          {[
+            { href: "/wishlist", label: "Mes favoris", sub: `${wishlistCount} enregistré${wishlistCount > 1 ? "s" : ""}`, color: "bg-rose-50 text-rose-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 00-7.8 7.8l1.1 1.1L12 21.2l7.8-7.8a5.5 5.5 0 001-7.8Z"/></svg> },
+            { href: "/compte/profil", label: "Mon profil", sub: "Infos personnelles", color: "bg-neutral-50 text-neutral-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+            { href: "/compte/adresses", label: "Mes adresses", sub: "Livraison", color: "bg-emerald-50 text-emerald-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> },
+            { href: "/suivre-commande", label: "Suivre un colis", sub: "Ma commande", color: "bg-neutral-50 text-neutral-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+            { href: "/retours", label: "Retours", sub: "Initier un retour", color: "bg-rose-50 text-rose-600", icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> },
+          ].map((action) => (
+            <Link key={action.href} href={action.href} className="account-shortcut">
+              <span className="account-shortcut-icon" aria-hidden="true">
+                {action.icon}
+              </span>
+              <span className="account-shortcut-copy">
+                <span className="account-shortcut-label">{action.label}</span>
+                <span className="account-shortcut-description">{action.sub}</span>
+              </span>
+              <span className="account-shortcut-arrow" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="m9 5 7 7-7 7" /></svg>
+              </span>
+            </Link>
+          ))}
+        </nav>
+      </section>
+
+      <AccountRecommendations />
+
+    </div>
+  );
+}

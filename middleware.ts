@@ -1,3 +1,5 @@
+import { sameRequestOrigin } from "./lib/request-origin";
+import { edgeRateLimit } from "./lib/edge-rate-limit";
 import { getAdminAccess } from "@/lib/admin-access";
 import { adminApiPermission, hasAdminPermission } from "@/lib/admin-policy";
 import { NextRequest, NextResponse } from "next/server";
@@ -116,17 +118,7 @@ const ROUTE_PERMISSIONS: Record<string, string | null | undefined> = {
  * Prevents CSRF from third-party sites — the SameSite=Strict cookie already
  * blocks most vectors, but an explicit Origin check is defence in depth.
  */
-function isSameOrigin(req: NextRequest): boolean {
-  const origin = req.headers.get("origin");
-  if (!origin) return true; // server-to-server or same-origin form posts have no Origin
-  const host = req.headers.get("host") ?? "";
-  try {
-    const originHost = new URL(origin).host;
-    return originHost === host;
-  } catch {
-    return false;
-  }
-}
+function isSameOrigin(req: NextRequest): boolean { return sameRequestOrigin(req); }
 
 const MOBILE_PUBLIC_API =
   /^\/api\/(?:products|product-translations|search|categories|promotions|settings|banners|recommendations|reviews(?:\/(?:stats|check))?|shipping\/quote|checkout\/quote|payment-methods|paypal\/mobile\/(?:create|capture)|orders|wishlist|points|coupons\/validate|newsletter|size-guide|account\/(?:profile|avatar|delete-request)|mobile\/push-subscribe|app-releases\/android\/latest|support\/conversations(?:\/[0-9a-f-]+(?:\/messages)?)?)$/;
@@ -137,6 +129,8 @@ const MOBILE_WEB_ORIGINS = new Set([
 ]);
 
 function isAllowedMobileOrigin(origin: string) {
+  if (origin === "https://app.lecomax.com") return true;
+  if (process.env.NODE_ENV === "production") return false;
   if (MOBILE_WEB_ORIGINS.has(origin)) return true;
   return /^http:\/\/(?:localhost|127\.0\.0\.1|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+)(?::\d+)?$/i.test(origin);
 }
@@ -157,7 +151,10 @@ function mobileCorsHeaders(req: NextRequest, response: NextResponse, pathname: s
 }
 
 export async function middleware(req: NextRequest) {
-  const pathname = req.nextUrl.pathname;
+  const pathname = req.nextUrl.pathname.replace(/\/+$/, "") || "/";
+  const limited = edgeRateLimit(req, pathname);
+  if (limited) return limited;
+  if (pathname.startsWith("/api/") && !req.headers.get("content-type")?.includes("multipart/form-data") && Number(req.headers.get("content-length") || 0) > 1024 * 1024) return NextResponse.json({ error: "Request too large" }, { status: 413 });
   const lowerPath = pathname.toLowerCase();
 
   // ── Block well-known scanner / attack paths immediately ────────────────────
@@ -255,7 +252,9 @@ export async function middleware(req: NextRequest) {
     if (!hasAdminPermission(access, adminApiPermission(pathname, req.method))) return NextResponse.json({ error: "Forbidden", code: "FORBIDDEN" }, { status: 403 });
   }
 
-  return mobileCorsHeaders(req, applyRobotsHeader(NextResponse.next(), pathname), pathname);
+  const response = applyRobotsHeader(NextResponse.next(), pathname);
+  if (pathname.startsWith("/admin") || pathname.startsWith("/api/") && (req.headers.has("authorization") || req.cookies.has("admin_session") || /^\/api\/(?:orders|tracking|inbox|messages|client-data|chat|account|support)(?:\/|$)/.test(pathname))) response.headers.set("Cache-Control", "private, no-store");
+  return mobileCorsHeaders(req, response, pathname);
 }
 
 export const config = {

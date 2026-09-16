@@ -1,0 +1,992 @@
+{
+  "id": "module-04-css",
+  "order": 4,
+  "icon": "🎨",
+  "color": "#7C3AED",
+  "title": "CSS : cascade, boîtes, layouts et design tokens",
+  "summary": "Comprendre comment le navigateur choisit une déclaration, calcule une boîte, distribue l’espace et applique couleurs, typographie et états cohérents.",
+  "files": [
+    {
+      "path": "app/globals.css",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/04-css/product-card.css",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/04-css/cascade.css",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/04-css/box.css",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/04-css/layout.css",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/04-css/tokens.css",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-04-01-cascade",
+      "order": 0,
+      "title": "Sélecteurs, cascade, héritage et spécificité",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Sélecteurs, cascade, héritage et spécificité",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Pour chaque propriété et élément, le navigateur collecte les déclarations correspondantes, compare origine, importance, couche, spécificité et ordre, puis calcule une valeur; certaines propriétés héritent ensuite du parent. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Plusieurs règles administratives visent la même situation; une priorité explicite et stable décide laquelle s’applique."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Un sélecteur décrit les éléments ciblés; gardez-le court et lié au composant. Une longue chaîne structurelle casse lorsque le HTML change et augmente inutilement la spécificité. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "La spécificité compare principalement identifiants, classes/attributs et types; l’ordre ne départage que des priorités égales. !important masque souvent une architecture confuse et rend les états difficiles à surcharger. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "color et font héritent souvent, alors que margin et border non. DevTools Styles montre les règles rayées et Computed révèle la valeur finale ainsi que sa source. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "cascade",
+                  "definition": "Algorithme qui choisit la déclaration gagnante."
+                },
+                {
+                  "term": "specificity",
+                  "definition": "Poids du sélecteur utilisé dans la cascade."
+                },
+                {
+                  "term": "inheritance",
+                  "definition": "Transmission de certaines valeurs calculées du parent à l’enfant."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Inspectez la valeur calculée avant d’ajouter une nouvelle règle; corrigez la source gagnante plutôt que d’empiler une priorité supérieure."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "css",
+                "filename": "academy-labs/04-css/cascade.css",
+                "source": ":root { --brand-green: #16a34a; }\n\n.product-card { color: #111827; }\n.product-card .price { color: var(--brand-green); }\n.product-card[data-sale=\"true\"] .price { color: #dc2626; }\n\n@media (prefers-contrast: more) {\n  .product-card { border: 2px solid currentColor; }\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Sélecteurs, cascade, héritage et spécificité »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpx eslint app components",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/04-css/cascade.css et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npx eslint app components"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: Computed affiche #16A34A normalement, #DC2626 en promotion et une bordure accrue si le système demande plus de contraste."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Les prix normaux utilisent le vert #16A34A et les promotions le rouge #DC2626 via un état data-sale explicite plutôt que des sélecteurs de position."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npx eslint app components"
+      ],
+      "expectedResult": "Preuve de réussite: Computed affiche #16A34A normalement, #DC2626 en promotion et une bordure accrue si le système demande plus de contraste.",
+      "commonErrors": [
+        {
+          "symptom": "Une règle écrite plus bas ne change pas la couleur.",
+          "cause": "Une règle antérieure possède une spécificité ou importance supérieure.",
+          "fix": "Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important."
+        },
+        {
+          "symptom": "Tous les enfants prennent une couleur inattendue.",
+          "cause": "color est héritée depuis un ancêtre.",
+          "fix": "Identifiez la source dans Computed et définissez la couleur au niveau sémantique approprié."
+        }
+      ],
+      "exercise": {
+        "task": "Créer les états normal et promotion d’un prix sans !important.",
+        "steps": [
+          "Ouvrez academy-labs/04-css/cascade.css et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "L’attribut d’état rend l’intention visible dans le DOM et le sélecteur plus spécifique uniquement lorsque cet état existe.",
+          "code": ":root { --brand-green: #16a34a; }\n\n.product-card { color: #111827; }\n.product-card .price { color: var(--brand-green); }\n.product-card[data-sale=\"true\"] .price { color: #dc2626; }\n\n@media (prefers-contrast: more) {\n  .product-card { border: 2px solid currentColor; }\n}",
+          "filename": "academy-labs/04-css/cascade.css",
+          "language": "css"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-04-01-cascade-q1",
+          "question": "Où voir la valeur CSS finale ?",
+          "options": [
+            "DevTools Computed",
+            "package-lock",
+            "GitHub Issues",
+            "DNS"
+          ],
+          "correctIndex": 0,
+          "explanation": "Computed montre la valeur calculée et permet de remonter à sa déclaration.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « DevTools Computed ». Computed montre la valeur calculée et permet de remonter à sa déclaration.",
+            "Cette option est incorrecte. Elle affirme « package-lock ». La réponse de référence est « DevTools Computed ». Computed montre la valeur calculée et permet de remonter à sa déclaration.",
+            "Cette option est incorrecte. Elle affirme « GitHub Issues ». La réponse de référence est « DevTools Computed ». Computed montre la valeur calculée et permet de remonter à sa déclaration.",
+            "Cette option est incorrecte. Elle affirme « DNS ». La réponse de référence est « DevTools Computed ». Computed montre la valeur calculée et permet de remonter à sa déclaration."
+          ]
+        },
+        {
+          "id": "lesson-04-01-cascade-q2",
+          "question": "Quelle définition correspond au terme « cascade » ?",
+          "options": [
+            "Poids du sélecteur utilisé dans la cascade.",
+            "Algorithme qui choisit la déclaration gagnante.",
+            "Transmission de certaines valeurs calculées du parent à l’enfant.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« cascade » signifie : Algorithme qui choisit la déclaration gagnante.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Poids du sélecteur utilisé dans la cascade. ». La réponse de référence est « Algorithme qui choisit la déclaration gagnante. ». « cascade » signifie : Algorithme qui choisit la déclaration gagnante.",
+            "Cette option est correcte. Elle affirme « Algorithme qui choisit la déclaration gagnante. ». « cascade » signifie : Algorithme qui choisit la déclaration gagnante.",
+            "Cette option est incorrecte. Elle affirme « Transmission de certaines valeurs calculées du parent à l’enfant. ». La réponse de référence est « Algorithme qui choisit la déclaration gagnante. ». « cascade » signifie : Algorithme qui choisit la déclaration gagnante.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Algorithme qui choisit la déclaration gagnante. ». « cascade » signifie : Algorithme qui choisit la déclaration gagnante."
+          ]
+        },
+        {
+          "id": "lesson-04-01-cascade-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Une règle écrite plus bas ne change pas la couleur. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Identifiez la source dans Computed et définissez la couleur au niveau sémantique approprié.",
+            "Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Une règle antérieure possède une spécificité ou importance supérieure. Le correctif adapté est : Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important. ». Le diagnostic part de la cause suivante : Une règle antérieure possède une spécificité ou importance supérieure. Le correctif adapté est : Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important.",
+            "Cette option est incorrecte. Elle affirme « Identifiez la source dans Computed et définissez la couleur au niveau sémantique approprié. ». La réponse de référence est « Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important. ». Le diagnostic part de la cause suivante : Une règle antérieure possède une spécificité ou importance supérieure. Le correctif adapté est : Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important.",
+            "Cette option est correcte. Elle affirme « Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important. ». Le diagnostic part de la cause suivante : Une règle antérieure possède une spécificité ou importance supérieure. Le correctif adapté est : Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important. ». Le diagnostic part de la cause suivante : Une règle antérieure possède une spécificité ou importance supérieure. Le correctif adapté est : Lisez Styles/Computed, simplifiez les sélecteurs et retirez l’escalade !important."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: la cascade choisit une valeur par propriété; DevTools révèle pourquoi une règle gagne.",
+        "cascade: Algorithme qui choisit la déclaration gagnante.",
+        "specificity: Poids du sélecteur utilisé dans la cascade.",
+        "inheritance: Transmission de certaines valeurs calculées du parent à l’enfant."
+      ],
+      "next": "La prochaine leçon calcule précisément largeur, hauteur, espacements et débordements."
+    },
+    {
+      "id": "lesson-04-02-box-model",
+      "order": 1,
+      "title": "Modèle de boîte, unités et débordement",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Modèle de boîte, unités et débordement",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Chaque élément génère une boîte composée de contenu, padding, border et margin. box-sizing détermine si width englobe padding et border; le contenu et son contexte imposent ensuite minimums, maximums et débordement. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un colis possède l’objet, le rembourrage, le carton et l’espace laissé autour; annoncer sa taille peut inclure ou exclure l’emballage."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Avec content-box, width ne couvre que le contenu; padding et border s’ajoutent. border-box rend les dimensions externes plus prévisibles pour les composants. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "rem suit la taille racine, em le contexte typographique, % le contenant et viewport units la fenêtre. Utilisez des tailles fluides avec min(), max() ou clamp() plutôt que supposer un écran fixe. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Un texte long, une image sans max-width ou un enfant flex avec min-width auto peut provoquer un scroll horizontal. Trouvez l’élément responsable au lieu de masquer globalement overflow-x. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "content box",
+                  "definition": "Zone où le contenu est disposé."
+                },
+                {
+                  "term": "border-box",
+                  "definition": "Calcul incluant padding et bordure dans la taille déclarée."
+                },
+                {
+                  "term": "overflow",
+                  "definition": "Partie du contenu dépassant la boîte disponible."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Fixez border-box globalement, préférez max-inline-size aux largeurs rigides et testez contenu très long, zoom 200% et largeur 320px."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "css",
+                "filename": "academy-labs/04-css/box.css",
+                "source": "*, *::before, *::after { box-sizing: border-box; }\n\n.product-card {\n  inline-size: min(100%, 22rem);\n  padding: 1rem;\n  border: 1px solid #e5e7eb;\n  border-radius: 0.75rem;\n  overflow-wrap: anywhere;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Modèle de boîte, unités et débordement »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/04-css/box.css et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: la carte inclut padding et bordure dans sa limite, rétrécit sans scroll horizontal et reste lisible au zoom."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Les cartes L’ecomax restent à 100% de leur colonne jusqu’à 22rem, et noms ou codes produit longs reviennent à la ligne sans élargir la page."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: la carte inclut padding et bordure dans sa limite, rétrécit sans scroll horizontal et reste lisible au zoom.",
+      "commonErrors": [
+        {
+          "symptom": "Une boîte de width 100% dépasse son parent.",
+          "cause": "content-box ajoute padding et border au 100%.",
+          "fix": "Appliquez border-box et inspectez les dimensions dans le diagramme Box Model."
+        },
+        {
+          "symptom": "La page défile horizontalement sur mobile.",
+          "cause": "Un descendant impose une largeur minimale supérieure au viewport.",
+          "fix": "Identifiez-le avec l’inspecteur, puis corrigez min-width, wrapping ou dimension média."
+        }
+      ],
+      "exercise": {
+        "task": "Construire une carte qui accepte un titre très long à 320px sans débordement.",
+        "steps": [
+          "Ouvrez academy-labs/04-css/box.css et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "border-box stabilise la taille externe, min() adapte la largeur au parent et overflow-wrap gère les jetons sans espace.",
+          "code": "*, *::before, *::after { box-sizing: border-box; }\n\n.product-card {\n  inline-size: min(100%, 22rem);\n  padding: 1rem;\n  border: 1px solid #e5e7eb;\n  border-radius: 0.75rem;\n  overflow-wrap: anywhere;\n}",
+          "filename": "academy-labs/04-css/box.css",
+          "language": "css"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-04-02-box-model-q1",
+          "question": "Avec border-box, que comprend width ?",
+          "options": [
+            "Contenu seulement",
+            "Contenu, padding et bordure",
+            "Margin uniquement",
+            "La hauteur du viewport"
+          ],
+          "correctIndex": 1,
+          "explanation": "La marge reste externe; contenu, padding et border sont contenus dans la largeur déclarée.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Contenu seulement ». La réponse de référence est « Contenu, padding et bordure ». La marge reste externe; contenu, padding et border sont contenus dans la largeur déclarée.",
+            "Cette option est correcte. Elle affirme « Contenu, padding et bordure ». La marge reste externe; contenu, padding et border sont contenus dans la largeur déclarée.",
+            "Cette option est incorrecte. Elle affirme « Margin uniquement ». La réponse de référence est « Contenu, padding et bordure ». La marge reste externe; contenu, padding et border sont contenus dans la largeur déclarée.",
+            "Cette option est incorrecte. Elle affirme « La hauteur du viewport ». La réponse de référence est « Contenu, padding et bordure ». La marge reste externe; contenu, padding et border sont contenus dans la largeur déclarée."
+          ]
+        },
+        {
+          "id": "lesson-04-02-box-model-q2",
+          "question": "Quelle définition correspond au terme « content box » ?",
+          "options": [
+            "Calcul incluant padding et bordure dans la taille déclarée.",
+            "Zone où le contenu est disposé.",
+            "Partie du contenu dépassant la boîte disponible.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« content box » signifie : Zone où le contenu est disposé.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Calcul incluant padding et bordure dans la taille déclarée. ». La réponse de référence est « Zone où le contenu est disposé. ». « content box » signifie : Zone où le contenu est disposé.",
+            "Cette option est correcte. Elle affirme « Zone où le contenu est disposé. ». « content box » signifie : Zone où le contenu est disposé.",
+            "Cette option est incorrecte. Elle affirme « Partie du contenu dépassant la boîte disponible. ». La réponse de référence est « Zone où le contenu est disposé. ». « content box » signifie : Zone où le contenu est disposé.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Zone où le contenu est disposé. ». « content box » signifie : Zone où le contenu est disposé."
+          ]
+        },
+        {
+          "id": "lesson-04-02-box-model-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Une boîte de width 100% dépasse son parent. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Identifiez-le avec l’inspecteur, puis corrigez min-width, wrapping ou dimension média.",
+            "Appliquez border-box et inspectez les dimensions dans le diagramme Box Model.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : content-box ajoute padding et border au 100%. Le correctif adapté est : Appliquez border-box et inspectez les dimensions dans le diagramme Box Model.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Appliquez border-box et inspectez les dimensions dans le diagramme Box Model. ». Le diagnostic part de la cause suivante : content-box ajoute padding et border au 100%. Le correctif adapté est : Appliquez border-box et inspectez les dimensions dans le diagramme Box Model.",
+            "Cette option est incorrecte. Elle affirme « Identifiez-le avec l’inspecteur, puis corrigez min-width, wrapping ou dimension média. ». La réponse de référence est « Appliquez border-box et inspectez les dimensions dans le diagramme Box Model. ». Le diagnostic part de la cause suivante : content-box ajoute padding et border au 100%. Le correctif adapté est : Appliquez border-box et inspectez les dimensions dans le diagramme Box Model.",
+            "Cette option est correcte. Elle affirme « Appliquez border-box et inspectez les dimensions dans le diagramme Box Model. ». Le diagnostic part de la cause suivante : content-box ajoute padding et border au 100%. Le correctif adapté est : Appliquez border-box et inspectez les dimensions dans le diagramme Box Model.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Appliquez border-box et inspectez les dimensions dans le diagramme Box Model. ». Le diagnostic part de la cause suivante : content-box ajoute padding et border au 100%. Le correctif adapté est : Appliquez border-box et inspectez les dimensions dans le diagramme Box Model."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: la taille visible résulte de plusieurs couches; unités fluides et contraintes de contenu empêchent les débordements.",
+        "content box: Zone où le contenu est disposé.",
+        "border-box: Calcul incluant padding et bordure dans la taille déclarée.",
+        "overflow: Partie du contenu dépassant la boîte disponible."
+      ],
+      "next": "La prochaine leçon distribue cet espace avec Flexbox et Grid."
+    },
+    {
+      "id": "lesson-04-03-flex-grid",
+      "order": 2,
+      "title": "Distribuer l’espace avec Flexbox et Grid",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Distribuer l’espace avec Flexbox et Grid",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Flexbox distribue l’espace le long d’un axe principal et aligne sur l’axe transversal; Grid définit simultanément lignes et colonnes. Le contenu fournit des tailles intrinsèques que flex et grid négocient avec l’espace disponible. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Flexbox range des objets sur une étagère; Grid organise des emplacements sur un casier bidimensionnel."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "justify-content agit sur l’axe principal et align-items sur le transversal, dont la direction dépend de flex-direction. gap crée un espacement régulier sans marges conditionnelles. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "flex-basis propose une taille initiale, grow partage le surplus et shrink absorbe le manque. min-inline-size:0 autorise un enfant à devenir plus petit que son contenu intrinsèque. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Grid minmax fixe une borne utile et 1fr partage l’espace restant; auto-fit replie les pistes vides. Ce modèle crée une grille responsive guidée par le composant plutôt que par une liste de téléphones. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "main axis",
+                  "definition": "Axe défini par flex-direction."
+                },
+                {
+                  "term": "grid track",
+                  "definition": "Espace entre deux lignes de grille adjacentes."
+                },
+                {
+                  "term": "intrinsic size",
+                  "definition": "Taille préférée dérivée du contenu lui-même."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Choisissez flex pour une rangée/colonne et grid pour une matrice; laissez le contenu et minmax décider avant d’ajouter des media queries."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "css",
+                "filename": "academy-labs/04-css/layout.css",
+                "source": ".toolbar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }\n.toolbar__search { flex: 1 1 16rem; min-inline-size: 0; }\n\n.product-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));\n  gap: clamp(.75rem, 2vw, 1.5rem);\n}",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Distribuer l’espace avec Flexbox et Grid »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/04-css/layout.css et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: la barre revient proprement à la ligne et la grille passe naturellement de quatre à une colonne sans débordement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "La barre de recherche utilise flex-wrap; la grille produits remplit automatiquement la largeur avec des cartes jamais plus étroites que 15rem."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: la barre revient proprement à la ligne et la grille passe naturellement de quatre à une colonne sans débordement.",
+      "commonErrors": [
+        {
+          "symptom": "justify-content semble agir dans la mauvaise direction.",
+          "cause": "flex-direction a changé l’axe principal.",
+          "fix": "Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut."
+        },
+        {
+          "symptom": "Une piste Grid déborde malgré 1fr.",
+          "cause": "Le minimum intrinsèque d’un enfant dépasse la piste.",
+          "fix": "Utilisez minmax(0,1fr), min-inline-size:0 ou un wrapping adapté au contenu."
+        }
+      ],
+      "exercise": {
+        "task": "Créer une barre flexible et une grille auto-adaptative sans breakpoint.",
+        "steps": [
+          "Ouvrez academy-labs/04-css/layout.css et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "flex-wrap protège la barre, tandis que auto-fit et minmax laissent le navigateur calculer le nombre de colonnes possible.",
+          "code": ".toolbar { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }\n.toolbar__search { flex: 1 1 16rem; min-inline-size: 0; }\n\n.product-grid {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));\n  gap: clamp(.75rem, 2vw, 1.5rem);\n}",
+          "filename": "academy-labs/04-css/layout.css",
+          "language": "css"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-04-03-flex-grid-q1",
+          "question": "Quel outil convient à une grille de cartes en lignes et colonnes ?",
+          "options": [
+            "Grid",
+            "float uniquement",
+            "position absolute",
+            "table HTML"
+          ],
+          "correctIndex": 0,
+          "explanation": "Grid contrôle explicitement les deux dimensions sans détourner la sémantique HTML.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Grid ». Grid contrôle explicitement les deux dimensions sans détourner la sémantique HTML.",
+            "Cette option est incorrecte. Elle affirme « float uniquement ». La réponse de référence est « Grid ». Grid contrôle explicitement les deux dimensions sans détourner la sémantique HTML.",
+            "Cette option est incorrecte. Elle affirme « position absolute ». La réponse de référence est « Grid ». Grid contrôle explicitement les deux dimensions sans détourner la sémantique HTML.",
+            "Cette option est incorrecte. Elle affirme « table HTML ». La réponse de référence est « Grid ». Grid contrôle explicitement les deux dimensions sans détourner la sémantique HTML."
+          ]
+        },
+        {
+          "id": "lesson-04-03-flex-grid-q2",
+          "question": "Quelle définition correspond au terme « main axis » ?",
+          "options": [
+            "Espace entre deux lignes de grille adjacentes.",
+            "Axe défini par flex-direction.",
+            "Taille préférée dérivée du contenu lui-même.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« main axis » signifie : Axe défini par flex-direction.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Espace entre deux lignes de grille adjacentes. ». La réponse de référence est « Axe défini par flex-direction. ». « main axis » signifie : Axe défini par flex-direction.",
+            "Cette option est correcte. Elle affirme « Axe défini par flex-direction. ». « main axis » signifie : Axe défini par flex-direction.",
+            "Cette option est incorrecte. Elle affirme « Taille préférée dérivée du contenu lui-même. ». La réponse de référence est « Axe défini par flex-direction. ». « main axis » signifie : Axe défini par flex-direction.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Axe défini par flex-direction. ». « main axis » signifie : Axe défini par flex-direction."
+          ]
+        },
+        {
+          "id": "lesson-04-03-flex-grid-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « justify-content semble agir dans la mauvaise direction. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Utilisez minmax(0,1fr), min-inline-size:0 ou un wrapping adapté au contenu.",
+            "Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : flex-direction a changé l’axe principal. Le correctif adapté est : Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut. ». Le diagnostic part de la cause suivante : flex-direction a changé l’axe principal. Le correctif adapté est : Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut.",
+            "Cette option est incorrecte. Elle affirme « Utilisez minmax(0,1fr), min-inline-size:0 ou un wrapping adapté au contenu. ». La réponse de référence est « Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut. ». Le diagnostic part de la cause suivante : flex-direction a changé l’axe principal. Le correctif adapté est : Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut.",
+            "Cette option est correcte. Elle affirme « Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut. ». Le diagnostic part de la cause suivante : flex-direction a changé l’axe principal. Le correctif adapté est : Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut. ». Le diagnostic part de la cause suivante : flex-direction a changé l’axe principal. Le correctif adapté est : Affichez les overlays Flex DevTools et raisonnez en axes, pas en gauche/haut."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Flexbox négocie un axe; Grid organise deux axes et minmax produit une adaptation guidée par le contenu.",
+        "main axis: Axe défini par flex-direction.",
+        "grid track: Espace entre deux lignes de grille adjacentes.",
+        "intrinsic size: Taille préférée dérivée du contenu lui-même."
+      ],
+      "next": "La prochaine leçon transforme couleurs, espacements et typographie en système réutilisable."
+    },
+    {
+      "id": "lesson-04-04-tokens-states",
+      "order": 3,
+      "title": "Couleurs, typographie, tokens et états",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Couleurs, typographie, tokens et états",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Un design system nomme des décisions visuelles selon leur rôle plutôt que leur valeur brute. Les composants consomment ces tokens et définissent tous leurs états d’interaction, ce qui maintient cohérence, contraste et évolutivité. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Les tokens sont une palette de peinture étiquetée « marque », « danger », « texte »; changer une recette met à jour toutes les pièces qui l’emploient."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Un nom sémantique comme --color-danger survit à une nouvelle palette, contrairement à --red. Gardez les primitives rares et exposez des rôles compréhensibles par l’équipe. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Le contraste concerne texte, icônes informatives, bordures essentielles et focus. La couleur ne doit jamais être l’unique signal de promotion, erreur ou sélection; ajoutez texte, icône ou forme. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Définissez default, hover, active, focus-visible, disabled et loading. La typographie conserve des tailles en rem, une hauteur de ligne lisible et une largeur de texte limitée. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "design token",
+                  "definition": "Nom stable représentant une décision de design."
+                },
+                {
+                  "term": "contrast ratio",
+                  "definition": "Mesure de différence de luminance entre deux couleurs."
+                },
+                {
+                  "term": "focus-visible",
+                  "definition": "État de focus affiché lorsque l’utilisateur a besoin d’un indicateur."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Centralisez les rôles visuels, vérifiez le contraste, documentez les codes HEX et testez chaque état au clavier et avec préférences système."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "css",
+                "filename": "academy-labs/04-css/tokens.css",
+                "source": ":root {\n  --color-brand: #16a34a;\n  --color-brand-strong: #15803d;\n  --color-text: #111827;\n  --color-muted: #6b7280;\n  --color-surface: #ffffff;\n  --color-danger: #dc2626;\n  --space-2: .5rem; --space-4: 1rem; --radius-card: .75rem;\n}\n.buy-button { background: var(--color-brand); color: #fff; }\n.buy-button:hover { background: var(--color-brand-strong); }\n.buy-button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }\n.buy-button:disabled { opacity: .55; cursor: not-allowed; }",
+                "annotations": [
+                  {
+                    "lines": "1-5",
+                    "label": "Entrées et préparation de « Couleurs, typographie, tokens et états »."
+                  },
+                  {
+                    "lines": "6-9",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "10-13",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/04-css/tokens.css et prédisez la sortie de l’exemple. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "Preuve de réussite: le bouton utilise les codes documentés, conserve un texte contrasté et expose visiblement hover, focus et disabled."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "L’ecomax emploie #16A34A pour la marque/action, #15803D au survol, #111827 pour le texte, #6B7280 pour le secondaire, #DC2626 pour le danger et #F59E0B pour un focus très visible."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npm run build"
+      ],
+      "expectedResult": "Preuve de réussite: le bouton utilise les codes documentés, conserve un texte contrasté et expose visiblement hover, focus et disabled.",
+      "commonErrors": [
+        {
+          "symptom": "Changer le vert exige de modifier des dizaines de fichiers.",
+          "cause": "Les valeurs HEX sont dupliquées sans token de rôle.",
+          "fix": "Définissez les tokens racine puis remplacez progressivement les valeurs par var()."
+        },
+        {
+          "symptom": "Le focus clavier disparaît.",
+          "cause": "outline a été supprimé sans alternative visible.",
+          "fix": "Restaurez un focus-visible contrasté avec épaisseur et offset suffisants."
+        }
+      ],
+      "exercise": {
+        "task": "Créer une palette de tokens L’ecomax et les six états du bouton d’achat.",
+        "steps": [
+          "Ouvrez academy-labs/04-css/tokens.css et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Les tokens séparent intention et valeur; les pseudo-classes rendent chaque transition perceptible sans changer le balisage.",
+          "code": ":root {\n  --color-brand: #16a34a;\n  --color-brand-strong: #15803d;\n  --color-text: #111827;\n  --color-muted: #6b7280;\n  --color-surface: #ffffff;\n  --color-danger: #dc2626;\n  --space-2: .5rem; --space-4: 1rem; --radius-card: .75rem;\n}\n.buy-button { background: var(--color-brand); color: #fff; }\n.buy-button:hover { background: var(--color-brand-strong); }\n.buy-button:focus-visible { outline: 3px solid #f59e0b; outline-offset: 3px; }\n.buy-button:disabled { opacity: .55; cursor: not-allowed; }",
+          "filename": "academy-labs/04-css/tokens.css",
+          "language": "css"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-04-04-tokens-states-q1",
+          "question": "Quel code représente l’action principale L’ecomax ?",
+          "options": [
+            "#16A34A",
+            "#FFFFFF",
+            "#6B7280",
+            "#DC2626"
+          ],
+          "correctIndex": 0,
+          "explanation": "#16A34A est le token de marque/action; le rouge reste réservé au danger ou à la promotion sémantique.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « #16A34A ». #16A34A est le token de marque/action; le rouge reste réservé au danger ou à la promotion sémantique.",
+            "Cette option est incorrecte. Elle affirme « #FFFFFF ». La réponse de référence est « #16A34A ». #16A34A est le token de marque/action; le rouge reste réservé au danger ou à la promotion sémantique.",
+            "Cette option est incorrecte. Elle affirme « #6B7280 ». La réponse de référence est « #16A34A ». #16A34A est le token de marque/action; le rouge reste réservé au danger ou à la promotion sémantique.",
+            "Cette option est incorrecte. Elle affirme « #DC2626 ». La réponse de référence est « #16A34A ». #16A34A est le token de marque/action; le rouge reste réservé au danger ou à la promotion sémantique."
+          ]
+        },
+        {
+          "id": "lesson-04-04-tokens-states-q2",
+          "question": "Quelle définition correspond au terme « design token » ?",
+          "options": [
+            "Mesure de différence de luminance entre deux couleurs.",
+            "Nom stable représentant une décision de design.",
+            "État de focus affiché lorsque l’utilisateur a besoin d’un indicateur.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« design token » signifie : Nom stable représentant une décision de design.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Mesure de différence de luminance entre deux couleurs. ». La réponse de référence est « Nom stable représentant une décision de design. ». « design token » signifie : Nom stable représentant une décision de design.",
+            "Cette option est correcte. Elle affirme « Nom stable représentant une décision de design. ». « design token » signifie : Nom stable représentant une décision de design.",
+            "Cette option est incorrecte. Elle affirme « État de focus affiché lorsque l’utilisateur a besoin d’un indicateur. ». La réponse de référence est « Nom stable représentant une décision de design. ». « design token » signifie : Nom stable représentant une décision de design.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Nom stable représentant une décision de design. ». « design token » signifie : Nom stable représentant une décision de design."
+          ]
+        },
+        {
+          "id": "lesson-04-04-tokens-states-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Changer le vert exige de modifier des dizaines de fichiers. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Restaurez un focus-visible contrasté avec épaisseur et offset suffisants.",
+            "Définissez les tokens racine puis remplacez progressivement les valeurs par var().",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Les valeurs HEX sont dupliquées sans token de rôle. Le correctif adapté est : Définissez les tokens racine puis remplacez progressivement les valeurs par var().",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Définissez les tokens racine puis remplacez progressivement les valeurs par var(). ». Le diagnostic part de la cause suivante : Les valeurs HEX sont dupliquées sans token de rôle. Le correctif adapté est : Définissez les tokens racine puis remplacez progressivement les valeurs par var().",
+            "Cette option est incorrecte. Elle affirme « Restaurez un focus-visible contrasté avec épaisseur et offset suffisants. ». La réponse de référence est « Définissez les tokens racine puis remplacez progressivement les valeurs par var(). ». Le diagnostic part de la cause suivante : Les valeurs HEX sont dupliquées sans token de rôle. Le correctif adapté est : Définissez les tokens racine puis remplacez progressivement les valeurs par var().",
+            "Cette option est correcte. Elle affirme « Définissez les tokens racine puis remplacez progressivement les valeurs par var(). ». Le diagnostic part de la cause suivante : Les valeurs HEX sont dupliquées sans token de rôle. Le correctif adapté est : Définissez les tokens racine puis remplacez progressivement les valeurs par var().",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Définissez les tokens racine puis remplacez progressivement les valeurs par var(). ». Le diagnostic part de la cause suivante : Les valeurs HEX sont dupliquées sans token de rôle. Le correctif adapté est : Définissez les tokens racine puis remplacez progressivement les valeurs par var()."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: les tokens nomment les décisions et chaque composant doit rendre perceptibles tous ses états.",
+        "design token: Nom stable représentant une décision de design.",
+        "contrast ratio: Mesure de différence de luminance entre deux couleurs.",
+        "focus-visible: État de focus affiché lorsque l’utilisateur a besoin d’un indicateur."
+      ],
+      "next": "Le module suivant applique ce système à une interface responsive et à Tailwind."
+    }
+  ]
+}

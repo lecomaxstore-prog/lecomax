@@ -1,0 +1,984 @@
+{
+  "id": "conversion-ux",
+  "order": 30,
+  "icon": "cursor",
+  "color": "#f97316",
+  "title": "Ecommerce UX and conversion optimization",
+  "summary": "Understand customers and remove friction without manipulation.",
+  "files": [
+    {
+      "path": "README.md",
+      "mode": "existing"
+    },
+    {
+      "path": "exercises/30-conversion-ux/customer-research-journey.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/30-conversion-ux/value-proposition-trust.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/30-conversion-ux/product-page-conversion.md",
+      "mode": "create"
+    },
+    {
+      "path": "exercises/30-conversion-ux/cart-checkout-friction.md",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "customer-research-journey",
+      "order": 0,
+      "title": "Customer research, useful personas, and journeys",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Customer research, useful personas, and journeys into concrete, measurable decisions that can be applied to a real store.",
+        "Turn an evidence-based customer journey map into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Base segments, jobs, objections, and moments of truth on interviews, support, search, and observed behavior. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Base segments, jobs, objections, and moments of truth on interviews, support, search, and observed behavior. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Customer research, useful personas, and journeys is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Base segments, jobs, objections, and moments of truth on interviews, support, search, and observed behavior. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Customer research, useful personas, and journeys, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers an evidence-based customer journey map. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Friction",
+                  "definition": "A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Value proposition",
+                  "definition": "A measure or structure that makes the Customer research, useful personas, and journeys decision comparable and reproducible."
+                },
+                {
+                  "term": "Guardrail",
+                  "definition": "A control boundary used to verify that Customer research, useful personas, and journeys improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Customer research, useful personas, and journeys to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/customer-research-journey.md",
+                "source": "# Customer research, useful personas, and journeys\n- [ ] Customer problem: Base segments, jobs, objections, and moments of truth on interviews, support, search, and observed behavior.\n- [ ] Deliverable: an evidence-based customer journey map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.gov.uk/service-manual/user-research\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Customer research, useful personas, and journeys before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/customer-research-journey.md",
+                "source": "# Customer research, useful personas, and journeys\n- [x] Customer problem: Base segments, jobs, objections, and moments of truth on interviews, support, search, and observed behavior.\n- [ ] Deliverable: an evidence-based customer journey map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.gov.uk/service-manual/user-research\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Customer research, useful personas, and journeys",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Customer research, useful personas, and journeys completes every section of an evidence-based customer journey map, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: an evidence-based customer journey map exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce an evidence-based customer journey map, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: an evidence-based customer journey map exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Customer research, useful personas, and journeys looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Customer research, useful personas, and journeys rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build an evidence-based customer journey map from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Customer research, useful personas, and journeys completes every section of an evidence-based customer journey map, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Customer research, useful personas, and journeys\n- [x] Customer problem: Base segments, jobs, objections, and moments of truth on interviews, support, search, and observed behavior.\n- [ ] Deliverable: an evidence-based customer journey map\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.gov.uk/service-manual/user-research\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Customer research, useful personas, and journeys",
+          "filename": "exercises/30-conversion-ux/customer-research-journey.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "customer-research-journey-q1",
+          "question": "Which approach correctly applies Customer research, useful personas, and journeys?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Customer research, useful personas, and journeys, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customer research, useful personas, and journeys, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customer research, useful personas, and journeys, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customer research, useful personas, and journeys, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Customer research, useful personas, and journeys, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "customer-research-journey-q2",
+          "question": "Which definition matches the term “Friction”?",
+          "options": [
+            "A measure or structure that makes the Customer research, useful personas, and journeys decision comparable and reproducible.",
+            "A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Customer research, useful personas, and journeys improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Friction” means: A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Customer research, useful personas, and journeys decision comparable and reproducible. ». The reference answer is « A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference. ». “Friction” means: A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference. ». “Friction” means: A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Customer research, useful personas, and journeys improves the system without moving the problem elsewhere. ». The reference answer is « A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference. ». “Friction” means: A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference. ». “Friction” means: A central Customer research, useful personas, and journeys concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "customer-research-journey-q3",
+          "question": "What is the best first fix when you observe: “Customer research, useful personas, and journeys looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Customer research, useful personas, and journeys problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Customer research, useful personas, and journeys starts from an observable customer problem, never an isolated trend.",
+        "The an evidence-based customer journey map deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Customer research, useful personas, and journeys, continue with Value proposition, proof, and trust to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "value-proposition-trust",
+      "order": 1,
+      "title": "Value proposition, proof, and trust",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Value proposition, proof, and trust into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a value proposition with an evidence hierarchy into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Clearly state who the product is for, what it solves, why it differs, and what evidence reduces perceived risk. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Clearly state who the product is for, what it solves, why it differs, and what evidence reduces perceived risk. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Value proposition, proof, and trust is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Clearly state who the product is for, what it solves, why it differs, and what evidence reduces perceived risk. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Value proposition, proof, and trust, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a value proposition with an evidence hierarchy. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Friction",
+                  "definition": "A central Value proposition, proof, and trust concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Value proposition",
+                  "definition": "A measure or structure that makes the Value proposition, proof, and trust decision comparable and reproducible."
+                },
+                {
+                  "term": "Guardrail",
+                  "definition": "A control boundary used to verify that Value proposition, proof, and trust improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Value proposition, proof, and trust to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/value-proposition-trust.md",
+                "source": "# Value proposition, proof, and trust\n- [ ] Customer problem: Clearly state who the product is for, what it solves, why it differs, and what evidence reduces perceived risk.\n- [ ] Deliverable: a value proposition with an evidence hierarchy\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.nngroup.com/articles/value-propositions/\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Value proposition, proof, and trust before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/value-proposition-trust.md",
+                "source": "# Value proposition, proof, and trust\n- [x] Customer problem: Clearly state who the product is for, what it solves, why it differs, and what evidence reduces perceived risk.\n- [ ] Deliverable: a value proposition with an evidence hierarchy\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.nngroup.com/articles/value-propositions/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Value proposition, proof, and trust",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Value proposition, proof, and trust completes every section of a value proposition with an evidence hierarchy, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a value proposition with an evidence hierarchy exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a value proposition with an evidence hierarchy, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a value proposition with an evidence hierarchy exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Value proposition, proof, and trust looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Value proposition, proof, and trust rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a value proposition with an evidence hierarchy from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Value proposition, proof, and trust completes every section of a value proposition with an evidence hierarchy, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Value proposition, proof, and trust\n- [x] Customer problem: Clearly state who the product is for, what it solves, why it differs, and what evidence reduces perceived risk.\n- [ ] Deliverable: a value proposition with an evidence hierarchy\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://www.nngroup.com/articles/value-propositions/\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Value proposition, proof, and trust",
+          "filename": "exercises/30-conversion-ux/value-proposition-trust.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "value-proposition-trust-q1",
+          "question": "Which approach correctly applies Value proposition, proof, and trust?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Value proposition, proof, and trust, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Value proposition, proof, and trust, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Value proposition, proof, and trust, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Value proposition, proof, and trust, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Value proposition, proof, and trust, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "value-proposition-trust-q2",
+          "question": "Which definition matches the term “Friction”?",
+          "options": [
+            "A measure or structure that makes the Value proposition, proof, and trust decision comparable and reproducible.",
+            "A central Value proposition, proof, and trust concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Value proposition, proof, and trust improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Friction” means: A central Value proposition, proof, and trust concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Value proposition, proof, and trust decision comparable and reproducible. ». The reference answer is « A central Value proposition, proof, and trust concept defined by an observable rule rather than preference. ». “Friction” means: A central Value proposition, proof, and trust concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Value proposition, proof, and trust concept defined by an observable rule rather than preference. ». “Friction” means: A central Value proposition, proof, and trust concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Value proposition, proof, and trust improves the system without moving the problem elsewhere. ». The reference answer is « A central Value proposition, proof, and trust concept defined by an observable rule rather than preference. ». “Friction” means: A central Value proposition, proof, and trust concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Value proposition, proof, and trust concept defined by an observable rule rather than preference. ». “Friction” means: A central Value proposition, proof, and trust concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "value-proposition-trust-q3",
+          "question": "What is the best first fix when you observe: “Value proposition, proof, and trust looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Value proposition, proof, and trust problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Value proposition, proof, and trust starts from an observable customer problem, never an isolated trend.",
+        "The a value proposition with an evidence hierarchy deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Value proposition, proof, and trust, continue with A product page that informs and converts to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "product-page-conversion",
+      "order": 2,
+      "title": "A product page that informs and converts",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn A product page that informs and converts into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a complete testable product page into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Order media, title, price, variants, benefits, details, delivery, returns, reviews, and action without hiding conditions. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Order media, title, price, variants, benefits, details, delivery, returns, reviews, and action without hiding conditions. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "A product page that informs and converts is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Order media, title, price, variants, benefits, details, delivery, returns, reviews, and action without hiding conditions. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master A product page that informs and converts, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a complete testable product page. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Friction",
+                  "definition": "A central A product page that informs and converts concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Value proposition",
+                  "definition": "A measure or structure that makes the A product page that informs and converts decision comparable and reproducible."
+                },
+                {
+                  "term": "Guardrail",
+                  "definition": "A control boundary used to verify that A product page that informs and converts improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply A product page that informs and converts to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/product-page-conversion.md",
+                "source": "# A product page that informs and converts\n- [ ] Customer problem: Order media, title, price, variants, benefits, details, delivery, returns, reviews, and action without hiding conditions.\n- [ ] Deliverable: a complete testable product page\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/appearance/structured-data/merchant-listing\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for A product page that informs and converts before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/product-page-conversion.md",
+                "source": "# A product page that informs and converts\n- [x] Customer problem: Order media, title, price, variants, benefits, details, delivery, returns, reviews, and action without hiding conditions.\n- [ ] Deliverable: a complete testable product page\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/appearance/structured-data/merchant-listing\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: A product page that informs and converts",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for A product page that informs and converts completes every section of a complete testable product page, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a complete testable product page exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a complete testable product page, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a complete testable product page exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "A product page that informs and converts looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with A product page that informs and converts rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a complete testable product page from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for A product page that informs and converts completes every section of a complete testable product page, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# A product page that informs and converts\n- [x] Customer problem: Order media, title, price, variants, benefits, details, delivery, returns, reviews, and action without hiding conditions.\n- [ ] Deliverable: a complete testable product page\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://developers.google.com/search/docs/appearance/structured-data/merchant-listing\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: A product page that informs and converts",
+          "filename": "exercises/30-conversion-ux/product-page-conversion.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "product-page-conversion-q1",
+          "question": "Which approach correctly applies A product page that informs and converts?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For A product page that informs and converts, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For A product page that informs and converts, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For A product page that informs and converts, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For A product page that informs and converts, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For A product page that informs and converts, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "product-page-conversion-q2",
+          "question": "Which definition matches the term “Friction”?",
+          "options": [
+            "A measure or structure that makes the A product page that informs and converts decision comparable and reproducible.",
+            "A central A product page that informs and converts concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that A product page that informs and converts improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Friction” means: A central A product page that informs and converts concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the A product page that informs and converts decision comparable and reproducible. ». The reference answer is « A central A product page that informs and converts concept defined by an observable rule rather than preference. ». “Friction” means: A central A product page that informs and converts concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central A product page that informs and converts concept defined by an observable rule rather than preference. ». “Friction” means: A central A product page that informs and converts concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that A product page that informs and converts improves the system without moving the problem elsewhere. ». The reference answer is « A central A product page that informs and converts concept defined by an observable rule rather than preference. ». “Friction” means: A central A product page that informs and converts concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central A product page that informs and converts concept defined by an observable rule rather than preference. ». “Friction” means: A central A product page that informs and converts concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "product-page-conversion-q3",
+          "question": "What is the best first fix when you observe: “A product page that informs and converts looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the A product page that informs and converts problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "A product page that informs and converts starts from an observable customer problem, never an isolated trend.",
+        "The a complete testable product page deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After A product page that informs and converts, continue with Cart, checkout, and friction reduction to connect the new skill to the next part of the selling system."
+    },
+    {
+      "id": "cart-checkout-friction",
+      "order": 3,
+      "title": "Cart, checkout, and friction reduction",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Complete the web foundations or know how to open the project, edit a file, and verify the result in a browser. No previous commercial experience is required."
+      ],
+      "objectives": [
+        "Turn Cart, checkout, and friction reduction into concrete, measurable decisions that can be applied to a real store.",
+        "Turn a funnel audit with a prioritized friction backlog into concrete, measurable decisions that can be applied to a real store.",
+        "Turn Reduce fields and surprises, preserve context and errors, reassure without fake countdowns, and measure abandonment by step. into concrete, measurable decisions that can be applied to a real store."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Reduce fields and surprises, preserve context and errors, reassure without fake countdowns, and measure abandonment by step. A sound decision always connects the customer need, the visual or commercial rule, its implementation in the site, and an observable signal. This prevents vague preferences and copied tactics whose purpose is not understood."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "Cart, checkout, and friction reduction is like arranging a physical shop: every color, space, message, or offer should help a visitor understand where they are, what they can buy, and why they can trust the next step."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Reduce fields and surprises, preserve context and errors, reassure without fake countdowns, and measure abandonment by step. Name the precise problem before selecting a tool. Observe context, device, intent, and customer objections. Then write a hypothesis that links one change to an expected result without presenting that hypothesis as established fact."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "To master Cart, checkout, and friction reduction, first build a minimal version with explicit rules, then inspect it on mobile and desktop. Contrast normal, empty, long, and error cases. Quality comes from a coherent testable system, not from accumulating visual effects or promotional messages."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "This lesson delivers a funnel audit with a prioritized friction backlog. It must record the starting situation, decision, expected evidence, and safety limit. Compare behavior and before/after metrics over enough time while accounting for traffic, costs, and satisfaction."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "Friction",
+                  "definition": "A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference."
+                },
+                {
+                  "term": "Value proposition",
+                  "definition": "A measure or structure that makes the Cart, checkout, and friction reduction decision comparable and reproducible."
+                },
+                {
+                  "term": "Guardrail",
+                  "definition": "A control boundary used to verify that Cart, checkout, and friction reduction improves the system without moving the problem elsewhere."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Apply Cart, checkout, and friction reduction to one small page or campaign before scaling it. Document reusable rules, exceptions, and stopping criteria so another person can reproduce the decision without depending on your memory."
+            },
+            {
+              "id": "manual-checks",
+              "type": "list",
+              "title": "Checks in the browser or developer tools",
+              "ordered": true,
+              "items": [
+                "Manually review the template with a real product and a narrow mobile viewport"
+              ]
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/cart-checkout-friction.md",
+                "source": "# Cart, checkout, and friction reduction\n- [ ] Customer problem: Reduce fields and surprises, preserve context and errors, reassure without fake countdowns, and measure abandonment by step.\n- [ ] Deliverable: a funnel audit with a prioritized friction backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/articles/sign-in-form-best-practices\n- [ ] Decision: keep, revise, or stop after evidence",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Frames the exact problem and deliverable for Cart, checkout, and friction reduction before execution."
+                  },
+                  {
+                    "lines": "4-7",
+                    "label": "Adds checks, the official source, and an evidence-based decision instead of intuition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — guided solution",
+              "code": {
+                "language": "markdown",
+                "filename": "exercises/30-conversion-ux/cart-checkout-friction.md",
+                "source": "# Cart, checkout, and friction reduction\n- [x] Customer problem: Reduce fields and surprises, preserve context and errors, reassure without fake countdowns, and measure abandonment by step.\n- [ ] Deliverable: a funnel audit with a prioritized friction backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/articles/sign-in-form-best-practices\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Cart, checkout, and friction reduction",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "The reference solution for Cart, checkout, and friction reduction completes every section of a funnel audit with a prioritized friction backlog, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling."
+                  },
+                  {
+                    "lines": "1-8",
+                    "label": "The result is verifiable: a funnel audit with a prioritized friction backlog exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "In L’ecomax, use this method to produce a funnel audit with a prioritized friction backlog, then check mobile rendering, accessibility, speed, catalog consistency, and its effect on the journey from discovery to purchase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev"
+      ],
+      "expectedResult": "The result is verifiable: a funnel audit with a prioritized friction backlog exists, its decisions are justified, major edge cases are tested, and at least one measure supports a keep, revise, or stop decision.",
+      "commonErrors": [
+        {
+          "symptom": "Cart, checkout, and friction reduction looks attractive, but visitors understand the offer no better and no success criterion exists.",
+          "cause": "Work started from a trend or tool instead of a customer problem, hypothesis, and control signal.",
+          "fix": "Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+        },
+        {
+          "symptom": "Numbers associated with Cart, checkout, and friction reduction rise while margin, returns, unsubscribes, or satisfaction deteriorate.",
+          "cause": "A local metric was optimized without guardrails or a view of total cost and acquired-customer quality.",
+          "fix": "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit."
+        }
+      ],
+      "exercise": {
+        "task": "Build a funnel audit with a prioritized friction backlog from the template, apply it to one L’ecomax product, and state the evidence required before publication.",
+        "steps": [
+          "Describe the customer, intent, main objection, and current state with evidence.",
+          "Complete every template decision without copying a competitor or inventing data.",
+          "Test on mobile and desktop, then record result, risk, metric, and next action."
+        ],
+        "hints": [
+          "Narrow the scope to one product, one audience, and one primary action.",
+          "When two options look good, choose the one that improves understanding while protecting trust, accessibility, and margin."
+        ],
+        "solution": {
+          "explanation": "The reference solution for Cart, checkout, and friction reduction completes every section of a funnel audit with a prioritized friction backlog, separates facts from hypotheses, adds a primary measure and guardrails, and requires real verification before scaling.",
+          "code": "# Cart, checkout, and friction reduction\n- [x] Customer problem: Reduce fields and surprises, preserve context and errors, reassure without fake countdowns, and measure abandonment by step.\n- [ ] Deliverable: a funnel audit with a prioritized friction backlog\n- [ ] Mobile, keyboard, and long-content review\n- [ ] Primary metric plus margin, trust, and satisfaction guardrails\n- [ ] Official reference: https://web.dev/articles/sign-in-form-best-practices\n- [ ] Decision: keep, revise, or stop after evidence\n- Verified decision: Cart, checkout, and friction reduction",
+          "filename": "exercises/30-conversion-ux/cart-checkout-friction.md",
+          "language": "markdown"
+        }
+      },
+      "quiz": [
+        {
+          "id": "cart-checkout-friction-q1",
+          "question": "Which approach correctly applies Cart, checkout, and friction reduction?",
+          "options": [
+            "Copy a competitor’s most visible tactic and publish it everywhere.",
+            "Define the problem, hypothesis, small test, primary measure, and guardrails before scaling.",
+            "Add more colors, promotions, and popups to attract attention.",
+            "Look only at click count for a few hours."
+          ],
+          "correctIndex": 1,
+          "explanation": "For Cart, checkout, and friction reduction, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Copy a competitor’s most visible tactic and publish it everywhere. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Cart, checkout, and friction reduction, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is correct. It says « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Cart, checkout, and friction reduction, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Add more colors, promotions, and popups to attract attention. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Cart, checkout, and friction reduction, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results.",
+            "This option is incorrect. It says « Look only at click count for a few hours. ». The reference answer is « Define the problem, hypothesis, small test, primary measure, and guardrails before scaling. ». For Cart, checkout, and friction reduction, the correct answer connects a real problem to a bounded experiment and multiple forms of evidence; it does not confuse attention, causality, and durable business results."
+          ]
+        },
+        {
+          "id": "cart-checkout-friction-q2",
+          "question": "Which definition matches the term “Friction”?",
+          "options": [
+            "A measure or structure that makes the Cart, checkout, and friction reduction decision comparable and reproducible.",
+            "A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference.",
+            "A control boundary used to verify that Cart, checkout, and friction reduction improves the system without moving the problem elsewhere.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“Friction” means: A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference.",
+          "answerExplanations": [
+            "This option is incorrect. It says « A measure or structure that makes the Cart, checkout, and friction reduction decision comparable and reproducible. ». The reference answer is « A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference. ». “Friction” means: A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference.",
+            "This option is correct. It says « A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference. ». “Friction” means: A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « A control boundary used to verify that Cart, checkout, and friction reduction improves the system without moving the problem elsewhere. ». The reference answer is « A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference. ». “Friction” means: A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference. ». “Friction” means: A central Cart, checkout, and friction reduction concept defined by an observable rule rather than preference."
+          ]
+        },
+        {
+          "id": "cart-checkout-friction-q3",
+          "question": "What is the best first fix when you observe: “Cart, checkout, and friction reduction looks attractive, but visitors understand the offer no better and no success criterion exists.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit.",
+            "Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Add margin, refund, retention, consent, and satisfaction criteria; stop the experiment when a guardrail crosses its limit. ». The reference answer is « Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is correct. It says « Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases. ». Diagnosis starts with this cause: Work started from a trend or tool instead of a customer problem, hypothesis, and control signal. The appropriate fix is: Restate the Cart, checkout, and friction reduction problem, choose one priority change, define expected evidence, and test mobile, keyboard, and long-content cases."
+          ]
+        }
+      ],
+      "recap": [
+        "Cart, checkout, and friction reduction starts from an observable customer problem, never an isolated trend.",
+        "The a funnel audit with a prioritized friction backlog deliverable makes hypotheses, decisions, risks, and evidence shareable.",
+        "An improvement is kept only when the primary result, margin, trust, and satisfaction remain compatible."
+      ],
+      "next": "After Cart, checkout, and friction reduction, continue with Brand voice and clear copywriting to connect the new skill to the next part of the selling system."
+    }
+  ]
+}

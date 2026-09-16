@@ -1,3 +1,4 @@
+import sanitizeHtml from "sanitize-html";
 export type SitePageInput = {
   title?: string;
   slug?: string;
@@ -54,32 +55,13 @@ export function validatePageInput(body: unknown, partial = false): { value?: Sit
   return { value };
 }
 
-const ALLOWED_TAGS = new Set(["p", "br", "h2", "h3", "h4", "ul", "ol", "li", "strong", "b", "em", "i", "u", "blockquote", "a", "img", "hr"]);
-
 export function sanitizePageHtml(html: string) {
-  let safe = html.replace(/<!--[\s\S]*?-->/g, "");
-  safe = safe.replace(/<(script|style|iframe|object|embed|form|svg|math|template)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, "");
-  safe = safe.replace(/<(script|style|iframe|object|embed|form|input|button|meta|link|base|svg|math|template)\b[^>]*\/?\s*>/gi, "");
-  return safe.replace(/<\/?([a-z][a-z0-9-]*)([^>]*)>/gi, (whole, rawTag: string, rawAttributes: string) => {
-    const tag = rawTag.toLowerCase();
-    if (!ALLOWED_TAGS.has(tag)) return "";
-    if (whole.startsWith("</")) return `</${tag}>`;
-    if (["br", "hr"].includes(tag)) return `<${tag}>`;
-
-    const attributes: string[] = [];
-    const attrPattern = /([a-zA-Z][\w-]*)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
-    let match: RegExpExecArray | null;
-    while ((match = attrPattern.exec(rawAttributes))) {
-      const name = match[1].toLowerCase();
-      const rawValue = match[2] ?? match[3] ?? "";
-      const escaped = rawValue.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-      if (name === "title" || name === "alt") attributes.push(`${name}="${escaped.slice(0, 300)}"`);
-      if (tag === "a" && name === "href" && /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(rawValue)) attributes.push(`href="${escaped.slice(0, 1000)}"`);
-      if (tag === "a" && name === "target" && ["_blank", "_self"].includes(rawValue)) attributes.push(`target="${rawValue}"`);
-      if (tag === "img" && name === "src" && /^(https?:\/\/|\/)/i.test(rawValue)) attributes.push(`src="${escaped.slice(0, 1000)}"`);
-      if (tag === "img" && ["width", "height"].includes(name) && /^\d{1,4}$/.test(rawValue)) attributes.push(`${name}="${rawValue}"`);
-    }
-    if (tag === "a") attributes.push('rel="noopener noreferrer"');
-    return `<${tag}${attributes.length ? ` ${attributes.join(" ")}` : ""}>`;
+  return sanitizeHtml(html, {
+    allowedTags: ["p", "br", "h2", "h3", "h4", "ul", "ol", "li", "strong", "b", "em", "i", "u", "blockquote", "a", "img", "hr"],
+    allowedAttributes: { a: ["href", "title", "target", "rel"], img: ["src", "alt", "title", "width", "height"] },
+    allowedSchemes: ["http", "https", "mailto", "tel"],
+    allowedSchemesByTag: { img: ["http", "https"] },
+    allowProtocolRelative: false,
+    transformTags: { a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }) },
   });
 }

@@ -1,3 +1,5 @@
+import { publicDatabaseError } from "@/lib/public-error";
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifySessionToken } from "@/lib/admin-session";
@@ -24,7 +26,7 @@ export async function GET(req: NextRequest) {
     supabase.from("mobile_push_tokens").select("id", { count: "exact", head: true }).eq("active", true).eq("platform", "android"),
     supabase.from("mobile_push_tokens").select("id", { count: "exact", head: true }).eq("active", true).eq("platform", "ios"),
   ]);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   const [web, receiptsOk, receiptsPending, receiptsFailed, uncertain] = await Promise.all([
     supabase.from("mobile_web_push_subscriptions").select("endpoint", { count: "exact", head: true }),
     supabase.from("mobile_push_receipts").select("ticket_id", { count: "exact", head: true }).eq("status", "ok"),
@@ -42,7 +44,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const blocked = await protectAdminMutation(req, { key: "mobile-campaigns:create", limit: 20, windowMs: 60_000 });
   if (blocked) return blocked;
-  const body = await req.json().catch(() => null) as (Record<string, unknown> & { action?: unknown }) | null;
+  const body = await readJsonLimited(req).catch(() => null) as (Record<string, unknown> & { action?: unknown }) | null;
   const parsed = validateMobileCampaign(body);
   if ("error" in parsed) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const adminEmail = await actor(req);
@@ -61,7 +63,7 @@ export async function POST(req: NextRequest) {
     status,
     created_by: adminEmail,
   }).select("*").single();
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   await supabase.from("mobile_control_audit").insert({
     actor_email: adminEmail,
     action: action === "send" ? "campaign_created_for_send" : `campaign_${status}`,

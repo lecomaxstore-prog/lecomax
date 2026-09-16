@@ -1,0 +1,7 @@
+{
+  "ios": {
+    "NSCameraUsageDescription": "Autorisez L’ECOMAX à utiliser la caméra pour scanner les codes produits ou prendre une photo.",
+    "NSPhotoLibraryUsageDescription": "Autorisez L’ECOMAX à sélectionner une photo pour votre profil.",
+    "NSFaceIDUsageDescription": "Autorisez L’ECOMAX à utiliser Face ID pour protéger vos informations de connexion."
+  }
+}

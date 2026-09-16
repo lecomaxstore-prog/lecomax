@@ -1,3 +1,4 @@
+import { ownsChat } from "@/lib/chat-ownership";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { checkChatSession } from "@/lib/chat-session-server";
@@ -18,6 +19,7 @@ export async function GET(
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
   const { sessionId } = await params;
+  if (!(await ownsChat(_req, supabase, sessionId))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const [{ data: session, error: sessionError }, { data: messages, error: messageError }] = await Promise.all([
     supabase.from("chat_sessions").select("id, status, created_at, last_at").eq("id", sessionId).single(),

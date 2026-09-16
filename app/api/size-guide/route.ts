@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { DEFAULT_SHOE_GUIDE, completeShoeGuide } from "@/lib/shoe-size-guide";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   }
   try {
-    const { clothing, shoes } = await req.json();
+    const { clothing, shoes } = await readJsonLimited(req);
     if (!Array.isArray(clothing) || !Array.isArray(shoes) || clothing.length > 100 || shoes.length > 100) {
       return NextResponse.json({ error: "Guide des tailles invalide." }, { status: 400 });
     }

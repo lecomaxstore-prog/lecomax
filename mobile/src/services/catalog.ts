@@ -309,6 +309,19 @@ export type ReviewEligibility = {
   reason: ReviewEligibilityReason;
 };
 
+export type ReviewOrderProof = {
+  order_number?: string;
+  contact_type: "phone" | "email";
+  contact: string;
+};
+
+export function verifyReviewOrder(slug: string, proof: ReviewOrderProof) {
+  return apiRequest<ReviewEligibility>("/api/reviews/check", {
+    method: "POST", retries: 0,
+    body: JSON.stringify({ product_slug: slug, ...proof }),
+  });
+}
+
 async function authenticatedHeaders() {
   const { data } = await supabase.auth.getSession();
   const token = data.session?.access_token;
@@ -332,21 +345,26 @@ export async function submitVerifiedReview(input: {
   title?: string;
   body: string;
   color?: string;
+  proof?: ReviewOrderProof;
+  authorName?: string;
 }) {
-  const headers = await authenticatedHeaders();
-  if (!headers) throw new Error(msg("catalog.signInToLeaveAReview"));
+  const headers = input.proof ? undefined : await authenticatedHeaders();
+  if (!input.proof && !headers) throw new Error(msg("catalog.signInToLeaveAReview"));
   return apiRequest<{ success: true; verified_purchase: true }>(
     "/api/reviews",
     {
       method: "POST",
-      headers,
-      authenticated: true,
+      headers: headers ?? undefined,
+      authenticated: !input.proof,
+      retries: 0,
       body: JSON.stringify({
         product_slug: input.productSlug,
         rating: input.rating,
         title: input.title,
         review_body: input.body,
         color: input.color,
+        author_name: input.authorName,
+        ...input.proof,
       }),
     },
   );

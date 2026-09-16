@@ -1,0 +1,1020 @@
+{
+  "id": "sql-data-modeling",
+  "order": 15,
+  "icon": "🗃️",
+  "color": "#2563eb",
+  "title": "SQL and relational modeling",
+  "summary": "Design tables, keys, relationships, and constraints, query with joins, and make concurrent mutations safe.",
+  "files": [
+    {
+      "path": "scripts/run-migrations.mjs",
+      "mode": "existing"
+    },
+    {
+      "path": "lib/db-server.ts",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/sql-data-modeling/sql-tables-types-keys.sql",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/sql-data-modeling/sql-relations-normalization.sql",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "sql-tables-types-keys",
+      "order": 0,
+      "title": "Tables, types, keys, and constraints",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of integrity of a relational row in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of integrity of a relational row.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "integrity of a relational row is like a workbook where every sheet has identity, entry rules, and verified references to other sheets. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "not null expresses a required value; default does not replace domain validation but keeps inserts coherent when the value is truly implicit. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Checks on cents and stock also protect scripts, imports, and future APIs that may bypass today’s form validation. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "integrity of a relational row",
+                  "definition": "A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation."
+                },
+                {
+                  "term": "Tables, types, keys, and constraints",
+                  "definition": "uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows."
+                },
+                {
+                  "term": "primary key",
+                  "definition": "A column or set that uniquely identifies every row."
+                },
+                {
+                  "term": "foreign key",
+                  "definition": "A controlled reference to another table’s key."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "For every column, write its unit, nullability, default, uniqueness, and valid range before the migration."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-tables-types-keys.sql",
+                "source": "create table products (\n  id uuid primary key default gen_random_uuid(),\n  slug text not null unique,\n  name text not null check (char_length(name) >= 2),\n  price_cents integer not null check (price_cents >= 0),\n  stock integer not null default 0 check (stock >= 0),\n  created_at timestamptz not null default now()\n);\ncreate index products_created_at_idx on products (created_at desc);",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Tables, types, keys, and constraints: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-tables-types-keys.sql\" | Set-Clipboard\nnpm run validate:course",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/sql-data-modeling/sql-tables-types-keys.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file. — Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-tables-types-keys.sql\" | Set-Clipboard"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — create table products ( — then type the remaining lines in order while checking every type and return value. — npm run validate:course"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/sql-data-modeling/sql-tables-types-keys.sql, the result must demonstrate “Tables, types, keys, and constraints” and make integrity of a relational row observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-tables-types-keys.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax products store price in cents, reject negative stock, and guarantee a unique slug for the product page."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-tables-types-keys.sql\" | Set-Clipboard",
+        "npm run validate:course"
+      ],
+      "expectedResult": "In academy-labs/sql-data-modeling/sql-tables-types-keys.sql, the result must demonstrate “Tables, types, keys, and constraints” and make integrity of a relational row observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-tables-types-keys.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows.",
+      "commonErrors": [
+        {
+          "symptom": "The “Tables, types, keys, and constraints” example runs, but it does not demonstrate integrity of a relational row.",
+          "cause": "The implementation contradicts this lesson rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/sql-data-modeling/sql-tables-types-keys.sql, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: not null expresses a required value; default does not replace domain validation but keeps inserts coherent when the value is truly implicit.",
+          "fix": "Add an explicit verification case using this principle: Checks on cents and stock also protect scripts, imports, and future APIs that may bypass today’s form validation."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/sql-data-modeling/sql-tables-types-keys.sql, rebuild the annotated “Tables, types, keys, and constraints” example so it demonstrates integrity of a relational row, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/sql-data-modeling/sql-tables-types-keys.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — create table products ( — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — create index products_created_at_idx on products (created_at desc); — obeys this observable rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows.",
+          "After the copy command, paste the SQL into the SQL editor of a test Supabase project, run it once, and read every success or error before changing anything.",
+          "Save the file, run Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-tables-types-keys.sql\" | Set-Clipboard then npm run validate:course, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/sql-data-modeling/sql-tables-types-keys.sql, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: not null expresses a required value; default does not replace domain validation but keeps inserts coherent when the value is truly implicit.",
+          "Compare your version with the solution line by line and apply this correction: Checks on cents and stock also protect scripts, imports, and future APIs that may bypass today’s form validation."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/sql-data-modeling/sql-tables-types-keys.sql solution contains 9 annotated lines. It implements integrity of a relational row directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "create table products (\n  id uuid primary key default gen_random_uuid(),\n  slug text not null unique,\n  name text not null check (char_length(name) >= 2),\n  price_cents integer not null check (price_cents >= 0),\n  stock integer not null default 0 check (stock >= 0),\n  created_at timestamptz not null default now()\n);\ncreate index products_created_at_idx on products (created_at desc);",
+          "filename": "academy-labs/sql-data-modeling/sql-tables-types-keys.sql",
+          "language": "sql"
+        }
+      },
+      "quiz": [
+        {
+          "id": "sql-tables-types-keys-q1",
+          "question": "Which statement applies integrity of a relational row correctly in a production application?",
+          "options": [
+            "uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows.",
+            "The browser can decide integrity of a relational row by itself because its data is always trustworthy.",
+            "integrity of a relational row only concerns colors and has no effect on data.",
+            "Failures related to integrity of a relational row may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 0,
+          "explanation": "The correct answer is “uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is correct. It says « uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. ». The correct answer is “uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « The browser can decide integrity of a relational row by itself because its data is always trustworthy. ». The reference answer is « uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. ». The correct answer is “uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « integrity of a relational row only concerns colors and has no effect on data. ». The reference answer is « uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. ». The correct answer is “uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to integrity of a relational row may be ignored when the happy path worked once. ». The reference answer is « uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. ». The correct answer is “uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "sql-tables-types-keys-q2",
+          "question": "Which definition matches the term “integrity of a relational row”?",
+          "options": [
+            "uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows.",
+            "A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation.",
+            "A column or set that uniquely identifies every row.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“integrity of a relational row” means: A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation.",
+          "answerExplanations": [
+            "This option is incorrect. It says « uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. ». The reference answer is « A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation. ». “integrity of a relational row” means: A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation.",
+            "This option is correct. It says « A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation. ». “integrity of a relational row” means: A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation.",
+            "This option is incorrect. It says « A column or set that uniquely identifies every row. ». The reference answer is « A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation. ». “integrity of a relational row” means: A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation. ». “integrity of a relational row” means: A table represents a set of entities of one kind; each column defines a value, each key provides identity, and each constraint rejects invalid state at the final boundary. The schema is an executable contract, not optional documentation."
+          ]
+        },
+        {
+          "id": "sql-tables-types-keys-q3",
+          "question": "What is the best first fix when you observe: “The “Tables, types, keys, and constraints” example runs, but it does not demonstrate integrity of a relational row.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: Checks on cents and stock also protect scripts, imports, and future APIs that may bypass today’s form validation.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: Checks on cents and stock also protect scripts, imports, and future APIs that may bypass today’s form validation. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: uuid gives identity independent of insertion order, while unique on slug guarantees one product URL never maps to two rows. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain integrity of a relational row with an input → transformation → output diagram.",
+        "For every column, write its unit, nullability, default, uniqueness, and valid range before the migration.",
+        "L’ecomax products store price in cents, reject negative stock, and guarantee a unique slug for the product page."
+      ],
+      "next": "The next lesson links orders, lines, and products without duplicating changing facts."
+    },
+    {
+      "id": "sql-relations-normalization",
+      "order": 1,
+      "title": "Relationships and normalization",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of modeling relationships between entities in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of modeling relationships between entities.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "modeling relationships between entities is like a workbook where every sheet has identity, entry rules, and verified references to other sheets. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "product_id may become null when a product is deleted, but product_name and unit_price_cents remain so the historical invoice never changes. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "ON DELETE cascade fits lines dependent on a removed order, while profiles or products often require restrict, archive, or set null based on audit needs. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "modeling relationships between entities",
+                  "definition": "A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen."
+                },
+                {
+                  "term": "Relationships and normalization",
+                  "definition": "order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone."
+                },
+                {
+                  "term": "foreign key",
+                  "definition": "A controlled reference to another table’s key."
+                },
+                {
+                  "term": "constraint",
+                  "definition": "A rule the database guarantees for every write."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Draw cardinalities and lifecycles, then decide whether deletion should restrict, preserve, or cascade for every relationship."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-relations-normalization.sql",
+                "source": "create table order_items (\n  id uuid primary key default gen_random_uuid(),\n  order_id uuid not null references orders(id) on delete cascade,\n  product_id uuid references products(id) on delete set null,\n  product_name text not null,\n  unit_price_cents integer not null check (unit_price_cents >= 0),\n  quantity integer not null check (quantity > 0),\n  unique (order_id, product_id)\n);",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Relationships and normalization: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-relations-normalization.sql\" | Set-Clipboard\nnpm run validate:course",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/sql-data-modeling/sql-relations-normalization.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file. — Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-relations-normalization.sql\" | Set-Clipboard"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — create table order_items ( — then type the remaining lines in order while checking every type and return value. — npm run validate:course"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/sql-data-modeling/sql-relations-normalization.sql, the result must demonstrate “Relationships and normalization” and make modeling relationships between entities observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-relations-normalization.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax normalizes products and categories but snapshots name, variant, and price in order_items to preserve purchase evidence."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-relations-normalization.sql\" | Set-Clipboard",
+        "npm run validate:course"
+      ],
+      "expectedResult": "In academy-labs/sql-data-modeling/sql-relations-normalization.sql, the result must demonstrate “Relationships and normalization” and make modeling relationships between entities observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-relations-normalization.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone.",
+      "commonErrors": [
+        {
+          "symptom": "The “Relationships and normalization” example runs, but it does not demonstrate modeling relationships between entities.",
+          "cause": "The implementation contradicts this lesson rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/sql-data-modeling/sql-relations-normalization.sql, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: product_id may become null when a product is deleted, but product_name and unit_price_cents remain so the historical invoice never changes.",
+          "fix": "Add an explicit verification case using this principle: ON DELETE cascade fits lines dependent on a removed order, while profiles or products often require restrict, archive, or set null based on audit needs."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/sql-data-modeling/sql-relations-normalization.sql, rebuild the annotated “Relationships and normalization” example so it demonstrates modeling relationships between entities, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/sql-data-modeling/sql-relations-normalization.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — create table order_items ( — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — ); — obeys this observable rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone.",
+          "After the copy command, paste the SQL into the SQL editor of a test Supabase project, run it once, and read every success or error before changing anything.",
+          "Save the file, run Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-relations-normalization.sql\" | Set-Clipboard then npm run validate:course, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/sql-data-modeling/sql-relations-normalization.sql, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: product_id may become null when a product is deleted, but product_name and unit_price_cents remain so the historical invoice never changes.",
+          "Compare your version with the solution line by line and apply this correction: ON DELETE cascade fits lines dependent on a removed order, while profiles or products often require restrict, archive, or set null based on audit needs."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/sql-data-modeling/sql-relations-normalization.sql solution contains 9 annotated lines. It implements modeling relationships between entities directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "create table order_items (\n  id uuid primary key default gen_random_uuid(),\n  order_id uuid not null references orders(id) on delete cascade,\n  product_id uuid references products(id) on delete set null,\n  product_name text not null,\n  unit_price_cents integer not null check (unit_price_cents >= 0),\n  quantity integer not null check (quantity > 0),\n  unique (order_id, product_id)\n);",
+          "filename": "academy-labs/sql-data-modeling/sql-relations-normalization.sql",
+          "language": "sql"
+        }
+      },
+      "quiz": [
+        {
+          "id": "sql-relations-normalization-q1",
+          "question": "Which statement applies modeling relationships between entities correctly in a production application?",
+          "options": [
+            "The browser can decide modeling relationships between entities by itself because its data is always trustworthy.",
+            "order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone.",
+            "modeling relationships between entities only concerns colors and has no effect on data.",
+            "Failures related to modeling relationships between entities may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 1,
+          "explanation": "The correct answer is “order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide modeling relationships between entities by itself because its data is always trustworthy. ». The reference answer is « order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. ». The correct answer is “order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. ». The correct answer is “order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « modeling relationships between entities only concerns colors and has no effect on data. ». The reference answer is « order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. ». The correct answer is “order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to modeling relationships between entities may be ignored when the happy path worked once. ». The reference answer is « order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. ». The correct answer is “order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "sql-relations-normalization-q2",
+          "question": "Which definition matches the term “modeling relationships between entities”?",
+          "options": [
+            "order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone.",
+            "A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen.",
+            "A controlled reference to another table’s key.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“modeling relationships between entities” means: A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen.",
+          "answerExplanations": [
+            "This option is incorrect. It says « order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. ». The reference answer is « A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen. ». “modeling relationships between entities” means: A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen.",
+            "This option is correct. It says « A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen. ». “modeling relationships between entities” means: A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen.",
+            "This option is incorrect. It says « A controlled reference to another table’s key. ». The reference answer is « A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen. ». “modeling relationships between entities” means: A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen. ». “modeling relationships between entities” means: A one-to-many relationship places the foreign key on the many side; a many-to-many relationship becomes a junction table carrying its own attributes. Normalization stores each changing fact once, while a historical snapshot deliberately copies what must remain frozen."
+          ]
+        },
+        {
+          "id": "sql-relations-normalization-q3",
+          "question": "What is the best first fix when you observe: “The “Relationships and normalization” example runs, but it does not demonstrate modeling relationships between entities.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: ON DELETE cascade fits lines dependent on a removed order, while profiles or products often require restrict, archive, or set null based on audit needs.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: ON DELETE cascade fits lines dependent on a removed order, while profiles or products often require restrict, archive, or set null based on audit needs. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: order_items materializes the order-product relationship and carries quantity and purchased price; those attributes belong to the relationship, not the product alone. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain modeling relationships between entities with an input → transformation → output diagram.",
+        "Draw cardinalities and lifecycles, then decide whether deletion should restrict, preserve, or cascade for every relationship.",
+        "L’ecomax normalizes products and categories but snapshots name, variant, and price in order_items to preserve purchase evidence."
+      ],
+      "next": "The next lesson queries this model with filters, joins, aggregates, and stable pagination."
+    },
+    {
+      "id": "sql-select-joins-aggregates",
+      "order": 2,
+      "title": "SELECT, JOIN, and aggregates",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of construction of a relational result in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of construction of a relational result.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "construction of a relational result is like a workbook where every sheet has identity, entry rules, and verified references to other sheets. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "sum computes in the database without transferring every row to the server; multiplying cents by quantity keeps integer math aligned with snapshots. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "A secondary id criterion makes order deterministic when two orders share created_at, which is required for stable pagination. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "construction of a relational result",
+                  "definition": "A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate."
+                },
+                {
+                  "term": "SELECT, JOIN, and aggregates",
+                  "definition": "INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference."
+                },
+                {
+                  "term": "constraint",
+                  "definition": "A rule the database guarantees for every write."
+                },
+                {
+                  "term": "transaction",
+                  "definition": "A group of operations committed entirely or rolled back entirely."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Write the domain question in one sentence, select only useful columns, and inspect EXPLAIN ANALYZE before adding an index."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql",
+                "source": "select\n  o.id, o.created_at,\n  sum(oi.unit_price_cents * oi.quantity) as subtotal_cents,\n  count(oi.id) as line_count\nfrom orders o\njoin order_items oi on oi.order_id = o.id\nwhere o.status = 'paid'\ngroup by o.id, o.created_at\norder by o.created_at desc, o.id desc\nlimit 20;",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "SELECT, JOIN, and aggregates: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-10",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql\" | Set-Clipboard\nnpm run validate:course",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file. — Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql\" | Set-Clipboard"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — select — then type the remaining lines in order while checking every type and return value. — npm run validate:course"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql, the result must demonstrate “SELECT, JOIN, and aggregates” and make construction of a relational result observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "The L’ecomax admin table gets total and line count per order in one ordered query instead of N+1 calls."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql\" | Set-Clipboard",
+        "npm run validate:course"
+      ],
+      "expectedResult": "In academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql, the result must demonstrate “SELECT, JOIN, and aggregates” and make construction of a relational result observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference.",
+      "commonErrors": [
+        {
+          "symptom": "The “SELECT, JOIN, and aggregates” example runs, but it does not demonstrate construction of a relational result.",
+          "cause": "The implementation contradicts this lesson rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: sum computes in the database without transferring every row to the server; multiplying cents by quantity keeps integer math aligned with snapshots.",
+          "fix": "Add an explicit verification case using this principle: A secondary id criterion makes order deterministic when two orders share created_at, which is required for stable pagination."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql, rebuild the annotated “SELECT, JOIN, and aggregates” example so it demonstrates construction of a relational result, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — select — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — limit 20; — obeys this observable rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference.",
+          "After the copy command, paste the SQL into the SQL editor of a test Supabase project, run it once, and read every success or error before changing anything.",
+          "Save the file, run Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql\" | Set-Clipboard then npm run validate:course, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: sum computes in the database without transferring every row to the server; multiplying cents by quantity keeps integer math aligned with snapshots.",
+          "Compare your version with the solution line by line and apply this correction: A secondary id criterion makes order deterministic when two orders share created_at, which is required for stable pagination."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql solution contains 10 annotated lines. It implements construction of a relational result directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "select\n  o.id, o.created_at,\n  sum(oi.unit_price_cents * oi.quantity) as subtotal_cents,\n  count(oi.id) as line_count\nfrom orders o\njoin order_items oi on oi.order_id = o.id\nwhere o.status = 'paid'\ngroup by o.id, o.created_at\norder by o.created_at desc, o.id desc\nlimit 20;",
+          "filename": "academy-labs/sql-data-modeling/sql-select-joins-aggregates.sql",
+          "language": "sql"
+        }
+      },
+      "quiz": [
+        {
+          "id": "sql-select-joins-aggregates-q1",
+          "question": "Which statement applies construction of a relational result correctly in a production application?",
+          "options": [
+            "The browser can decide construction of a relational result by itself because its data is always trustworthy.",
+            "construction of a relational result only concerns colors and has no effect on data.",
+            "INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference.",
+            "Failures related to construction of a relational result may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 2,
+          "explanation": "The correct answer is “INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide construction of a relational result by itself because its data is always trustworthy. ». The reference answer is « INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. ». The correct answer is “INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « construction of a relational result only concerns colors and has no effect on data. ». The reference answer is « INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. ». The correct answer is “INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. ». The correct answer is “INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to construction of a relational result may be ignored when the happy path worked once. ». The reference answer is « INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. ». The correct answer is “INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "sql-select-joins-aggregates-q2",
+          "question": "Which definition matches the term “construction of a relational result”?",
+          "options": [
+            "INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference.",
+            "A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate.",
+            "A rule the database guarantees for every write.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“construction of a relational result” means: A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate.",
+          "answerExplanations": [
+            "This option is incorrect. It says « INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. ». The reference answer is « A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate. ». “construction of a relational result” means: A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate.",
+            "This option is correct. It says « A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate. ». “construction of a relational result” means: A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate.",
+            "This option is incorrect. It says « A rule the database guarantees for every write. ». The reference answer is « A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate. ». “construction of a relational result” means: A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate. ». “construction of a relational result” means: A query describes the desired result: FROM chooses sets, JOIN relates rows, WHERE filters before aggregation, GROUP BY forms groups, and ORDER BY guarantees order. The engine then chooses an execution plan that indexes can accelerate."
+          ]
+        },
+        {
+          "id": "sql-select-joins-aggregates-q3",
+          "question": "What is the best first fix when you observe: “The “SELECT, JOIN, and aggregates” example runs, but it does not demonstrate construction of a relational result.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: A secondary id criterion makes order deterministic when two orders share created_at, which is required for stable pagination.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: A secondary id criterion makes order deterministic when two orders share created_at, which is required for stable pagination. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: INNER JOIN excludes orders without lines; LEFT JOIN would retain them with nulls, a choice driven by the domain question rather than syntax preference. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain construction of a relational result with an input → transformation → output diagram.",
+        "Write the domain question in one sentence, select only useful columns, and inspect EXPLAIN ANALYZE before adding an index.",
+        "The L’ecomax admin table gets total and line count per order in one ordered query instead of N+1 calls."
+      ],
+      "next": "The next lesson protects multiple writes with transactions, targeted indexes, and reversible migrations."
+    },
+    {
+      "id": "sql-transactions-indexes",
+      "order": 3,
+      "title": "Transactions, indexes, and migrations",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of atomicity of a multi-table mutation in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of atomicity of a multi-table mutation.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "atomicity of a multi-table mutation is like a workbook where every sheet has identity, entry rules, and verified references to other sheets. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Creating order_items only after stock succeeds and rolling back on any exception prevents paid orders without reservation or reservations without a line. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "An index follows a frequent filter and ordering query; multiplying indexes slows INSERT/UPDATE and does not fix a query selecting too much data. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "atomicity of a multi-table mutation",
+                  "definition": "A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change."
+                },
+                {
+                  "term": "Transactions, indexes, and migrations",
+                  "definition": "The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock."
+                },
+                {
+                  "term": "transaction",
+                  "definition": "A group of operations committed entirely or rolled back entirely."
+                },
+                {
+                  "term": "primary key",
+                  "definition": "A column or set that uniquely identifies every row."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Group related invariants in a transaction, measure plans before and after indexes, and deploy schema through repeatable migrations."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+                "source": "begin;\nupdate products\nset stock = stock - 2\nwhere id = '00000000-0000-0000-0000-000000000001' and stock >= 2\nreturning id, stock;\n-- Exiger exactement une ligne avant de créer order_items.\ninsert into order_items (order_id, product_id, product_name, unit_price_cents, quantity)\nvalues ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Sac', 4990, 2);\ncommit;",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Transactions, indexes, and migrations: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard\nnpm run validate:course",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/sql-data-modeling/sql-transactions-indexes.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file. — Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — begin; — then type the remaining lines in order while checking every type and return value. — npm run validate:course"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/sql-data-modeling/sql-transactions-indexes.sql, the result must demonstrate “Transactions, indexes, and migrations” and make atomicity of a multi-table mutation observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax decrements stock and creates lines together; its migrations add constraints and indexes without manual production editing."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard",
+        "npm run validate:course"
+      ],
+      "expectedResult": "In academy-labs/sql-data-modeling/sql-transactions-indexes.sql, the result must demonstrate “Transactions, indexes, and migrations” and make atomicity of a multi-table mutation observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard then npm run validate:course completes without an error, and the behavior follows this exact rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock.",
+      "commonErrors": [
+        {
+          "symptom": "The “Transactions, indexes, and migrations” example runs, but it does not demonstrate atomicity of a multi-table mutation.",
+          "cause": "The implementation contradicts this lesson rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/sql-data-modeling/sql-transactions-indexes.sql, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: Creating order_items only after stock succeeds and rolling back on any exception prevents paid orders without reservation or reservations without a line.",
+          "fix": "Add an explicit verification case using this principle: An index follows a frequent filter and ordering query; multiplying indexes slows INSERT/UPDATE and does not fix a query selecting too much data."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/sql-data-modeling/sql-transactions-indexes.sql, rebuild the annotated “Transactions, indexes, and migrations” example so it demonstrates atomicity of a multi-table mutation, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/sql-data-modeling/sql-transactions-indexes.sql and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — begin; — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — commit; — obeys this observable rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock.",
+          "After the copy command, paste the SQL into the SQL editor of a test Supabase project, run it once, and read every success or error before changing anything.",
+          "Save the file, run Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard then npm run validate:course, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/sql-data-modeling/sql-transactions-indexes.sql, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: Creating order_items only after stock succeeds and rolling back on any exception prevents paid orders without reservation or reservations without a line.",
+          "Compare your version with the solution line by line and apply this correction: An index follows a frequent filter and ordering query; multiplying indexes slows INSERT/UPDATE and does not fix a query selecting too much data."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/sql-data-modeling/sql-transactions-indexes.sql solution contains 9 annotated lines. It implements atomicity of a multi-table mutation directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "begin;\nupdate products\nset stock = stock - 2\nwhere id = '00000000-0000-0000-0000-000000000001' and stock >= 2\nreturning id, stock;\n-- Exiger exactement une ligne avant de créer order_items.\ninsert into order_items (order_id, product_id, product_name, unit_price_cents, quantity)\nvalues ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Sac', 4990, 2);\ncommit;",
+          "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+          "language": "sql"
+        }
+      },
+      "quiz": [
+        {
+          "id": "sql-transactions-indexes-q1",
+          "question": "Which statement applies atomicity of a multi-table mutation correctly in a production application?",
+          "options": [
+            "The browser can decide atomicity of a multi-table mutation by itself because its data is always trustworthy.",
+            "atomicity of a multi-table mutation only concerns colors and has no effect on data.",
+            "Failures related to atomicity of a multi-table mutation may be ignored when the happy path worked once.",
+            "The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock."
+          ],
+          "correctIndex": 3,
+          "explanation": "The correct answer is “The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide atomicity of a multi-table mutation by itself because its data is always trustworthy. ». The reference answer is « The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. ». The correct answer is “The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « atomicity of a multi-table mutation only concerns colors and has no effect on data. ». The reference answer is « The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. ». The correct answer is “The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to atomicity of a multi-table mutation may be ignored when the happy path worked once. ». The reference answer is « The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. ». The correct answer is “The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. ». The correct answer is “The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "sql-transactions-indexes-q2",
+          "question": "Which definition matches the term “atomicity of a multi-table mutation”?",
+          "options": [
+            "The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock.",
+            "A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change.",
+            "A group of operations committed entirely or rolled back entirely.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“atomicity of a multi-table mutation” means: A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. ». The reference answer is « A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change. ». “atomicity of a multi-table mutation” means: A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change.",
+            "This option is correct. It says « A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change. ». “atomicity of a multi-table mutation” means: A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change.",
+            "This option is incorrect. It says « A group of operations committed entirely or rolled back entirely. ». The reference answer is « A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change. ». “atomicity of a multi-table mutation” means: A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change. ». “atomicity of a multi-table mutation” means: A transaction creates an all-or-nothing boundary around several writes: a failure must restore the previous state. Indexes accelerate specific access patterns at the cost of space and write work, while migrations version every schema change."
+          ]
+        },
+        {
+          "id": "sql-transactions-indexes-q3",
+          "question": "What is the best first fix when you observe: “The “Transactions, indexes, and migrations” example runs, but it does not demonstrate atomicity of a multi-table mutation.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: An index follows a frequent filter and ordering query; multiplying indexes slows INSERT/UPDATE and does not fix a query selecting too much data.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: An index follows a frequent filter and ordering query; multiplying indexes slows INSERT/UPDATE and does not fix a query selecting too much data. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The stock >= 2 condition merges checking and decrement into one atomic statement; zero returned rows means unavailable without negative stock. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain atomicity of a multi-table mutation with an input → transformation → output diagram.",
+        "Group related invariants in a transaction, measure plans before and after indexes, and deploy schema through repeatable migrations.",
+        "L’ecomax decrements stock and creates lines together; its migrations add constraints and indexes without manual production editing."
+      ],
+      "next": "The next module applies these principles with Supabase clients, Auth, RLS, Storage, and Realtime."
+    }
+  ]
+}

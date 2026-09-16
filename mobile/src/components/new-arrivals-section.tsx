@@ -21,11 +21,15 @@ export const NewArrivalsSection = memo(function NewArrivalsSection({
   return (
     <View style={styles.header}>
       <View style={styles.headerCopy}>
-        <Text style={styles.eyebrow}>{msg("newArrivalsSection.lEcomaxSelectionUppercase")}</Text>
+        <View style={styles.eyebrowRow}>
+          <Text style={styles.eyebrow}>{msg("newArrivalsSection.lEcomaxSelectionUppercase")}</Text>
+          <View style={styles.eyebrowRule} />
+        </View>
         <Text accessibilityRole="header" style={styles.title}>{msg("common.newArrivalsTitle")}</Text>
         <Text style={styles.count}>{msg("counts.productCount", { count })}</Text>
       </View>
       <AnimatedPressable
+        accessibilityRole="button"
         accessibilityLabel={msg("newArrivalsSection.viewAllNewArrivals")}
         onPress={() => router.push({ pathname: "/catalog", params: { sort: "new" } })}
         pressedScale={0.95}
@@ -48,37 +52,61 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     justifyContent: "space-between",
     gap: 12,
+    flexWrap: "wrap",
     borderTopWidth: 1,
     borderTopColor: palette.line,
   },
-  headerCopy: { flex: 1, minWidth: 0 },
+  headerCopy: { flexGrow: 1, flexShrink: 1, flexBasis: 210, minWidth: 0 },
+  eyebrowRow: {
+    alignSelf: "flex-start",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 2,
+    maxWidth: "100%",
+  },
+  eyebrowRule: {
+    width: 28,
+    height: 2,
+    borderRadius: 1,
+    flexShrink: 0,
+    backgroundColor: palette.greenDark,
+  },
   eyebrow: {
-    color: colors.primaryDark,
+    color: palette.forest,
     fontFamily: typography.semibold,
-    fontSize: 9,
-    letterSpacing: 1.4,
+    fontSize: 10,
+    lineHeight: 16,
+    letterSpacing: 0.8,
+    includeFontPadding: false,
+    flexShrink: 1,
   },
   title: {
-    marginTop: 6,
+    marginTop: 10,
     color: colors.text,
     fontFamily: typography.bold,
-    fontSize: 26,
-    lineHeight: 32,
-    letterSpacing: -0.7,
+    fontSize: 30,
+    lineHeight: 37,
+    letterSpacing: -1,
   },
   count: {
-    marginTop: 5,
+    marginTop: 8,
     color: colors.textSecondary,
     fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 17,
+    fontSize: 13,
+    lineHeight: 20,
   },
   action: {
     minWidth: 72,
     minHeight: 44,
+    paddingHorizontal: 12,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: "#DEE8DA",
+    backgroundColor: "#FFFFFF",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     gap: 6,
   },
   actionText: {

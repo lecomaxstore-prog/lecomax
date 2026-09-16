@@ -1,0 +1,972 @@
+{
+  "id": "module-06-javascript-foundations",
+  "order": 6,
+  "icon": "⚡",
+  "color": "#EAB308",
+  "title": "JavaScript fondamental",
+  "summary": "Maîtriser valeurs, variables, opérateurs, branchements, boucles, chaînes, nullish values, erreurs et modules avec des preuves dans Node et DevTools.",
+  "files": [
+    {
+      "path": "package.json",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/06-javascript/fundamentals.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/values.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/control-flow.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/strings.js",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/06-javascript/price.mjs",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "lesson-06-01-values",
+      "order": 0,
+      "title": "Valeurs, variables, types et opérateurs",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Valeurs, variables, types et opérateurs",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une variable associe un nom à une valeur; le type appartient à la valeur et détermine les opérations significatives. const protège la liaison contre une réaffectation, tandis que le calcul produit de nouvelles valeurs sans modifier les entrées. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Une étiquette pointe vers le contenu d’une boîte; le type décrit ce que l’on peut raisonnablement faire avec ce contenu."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Une variable associe un nom à une valeur; le type appartient à la valeur et détermine les opérations significatives. const protège la liaison contre une réaffectation, tandis que le calcul produit de nouvelles valeurs sans modifier les entrées. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Nommez les unités, utilisez const par défaut, ajoutez des parenthèses pour l’intention et formatez seulement à la frontière d’affichage afin de garder les calculs numériques. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "primitive",
+                  "definition": "Valeur simple comme number, string ou boolean."
+                },
+                {
+                  "term": "coercion",
+                  "definition": "Conversion implicite d’un type vers un autre."
+                },
+                {
+                  "term": "expression",
+                  "definition": "Code évalué en une valeur."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Écrire un calcul de panier validant ses nombres et retournant sous-total, remise et total sans mutation."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Valeurs, variables, types et opérateurs »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/values.js",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/06-javascript/values.js et prédisez la sortie de l’exemple. — node academy-labs/06-javascript/values.js"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Preuve de réussite: la console affiche 698 de sous-total, 628.2 de total et un label à deux décimales."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "L’ecomax conserve prix et quantités comme nombres; « MAD » est ajouté seulement dans le composant d’affichage."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/values.js"
+      ],
+      "expectedResult": "Preuve de réussite: la console affiche 698 de sous-total, 628.2 de total et un label à deux décimales.",
+      "commonErrors": [
+        {
+          "symptom": "Le total devient 3492.",
+          "cause": "Le symptôme contredit le mécanisme attendu : Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier.",
+          "fix": "Convertissez explicitement l’entrée texte avec Number et validez-la."
+        },
+        {
+          "symptom": "Le total vaut NaN.",
+          "cause": "Le symptôme contredit le mécanisme attendu : Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier.",
+          "fix": "Tracez chaque opérande avec typeof et Number.isFinite avant le calcul."
+        }
+      ],
+      "exercise": {
+        "task": "Écrire un calcul de panier validant ses nombres et retournant sous-total, remise et total sans mutation.",
+        "steps": [
+          "Ouvrez academy-labs/06-javascript/values.js et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Nommez les unités, utilisez const par défaut, ajoutez des parenthèses pour l’intention et formatez seulement à la frontière d’affichage afin de garder les calculs numériques.",
+          "code": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+          "filename": "academy-labs/06-javascript/values.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-01-values-q1",
+          "question": "Pourquoi garder le prix comme number ?",
+          "options": [
+            "Pour calculer avant de formater",
+            "Pour éviter const",
+            "Pour remplacer CSS",
+            "Pour créer du DNS"
+          ],
+          "correctIndex": 0,
+          "explanation": "Le symbole monétaire appartient à la présentation; le domaine calcule des nombres.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « Pour calculer avant de formater ». Le symbole monétaire appartient à la présentation; le domaine calcule des nombres.",
+            "Cette option est incorrecte. Elle affirme « Pour éviter const ». La réponse de référence est « Pour calculer avant de formater ». Le symbole monétaire appartient à la présentation; le domaine calcule des nombres.",
+            "Cette option est incorrecte. Elle affirme « Pour remplacer CSS ». La réponse de référence est « Pour calculer avant de formater ». Le symbole monétaire appartient à la présentation; le domaine calcule des nombres.",
+            "Cette option est incorrecte. Elle affirme « Pour créer du DNS ». La réponse de référence est « Pour calculer avant de formater ». Le symbole monétaire appartient à la présentation; le domaine calcule des nombres."
+          ]
+        },
+        {
+          "id": "lesson-06-01-values-q2",
+          "question": "Quelle définition correspond au terme « primitive » ?",
+          "options": [
+            "Conversion implicite d’un type vers un autre.",
+            "Valeur simple comme number, string ou boolean.",
+            "Code évalué en une valeur.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« primitive » signifie : Valeur simple comme number, string ou boolean.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Conversion implicite d’un type vers un autre. ». La réponse de référence est « Valeur simple comme number, string ou boolean. ». « primitive » signifie : Valeur simple comme number, string ou boolean.",
+            "Cette option est correcte. Elle affirme « Valeur simple comme number, string ou boolean. ». « primitive » signifie : Valeur simple comme number, string ou boolean.",
+            "Cette option est incorrecte. Elle affirme « Code évalué en une valeur. ». La réponse de référence est « Valeur simple comme number, string ou boolean. ». « primitive » signifie : Valeur simple comme number, string ou boolean.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Valeur simple comme number, string ou boolean. ». « primitive » signifie : Valeur simple comme number, string ou boolean."
+          ]
+        },
+        {
+          "id": "lesson-06-01-values-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Le total devient 3492. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Tracez chaque opérande avec typeof et Number.isFinite avant le calcul.",
+            "Convertissez explicitement l’entrée texte avec Number et validez-la.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier. Le correctif adapté est : Convertissez explicitement l’entrée texte avec Number et validez-la.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Convertissez explicitement l’entrée texte avec Number et validez-la. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier. Le correctif adapté est : Convertissez explicitement l’entrée texte avec Number et validez-la.",
+            "Cette option est incorrecte. Elle affirme « Tracez chaque opérande avec typeof et Number.isFinite avant le calcul. ». La réponse de référence est « Convertissez explicitement l’entrée texte avec Number et validez-la. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier. Le correctif adapté est : Convertissez explicitement l’entrée texte avec Number et validez-la.",
+            "Cette option est correcte. Elle affirme « Convertissez explicitement l’entrée texte avec Number et validez-la. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier. Le correctif adapté est : Convertissez explicitement l’entrée texte avec Number et validez-la.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Convertissez explicitement l’entrée texte avec Number et validez-la. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : Les opérateurs suivent précédence et coercition; + additionne des nombres mais concatène dès qu’une chaîne intervient. Number.isFinite et typeof rendent les hypothèses visibles avant un calcul financier. Le correctif adapté est : Convertissez explicitement l’entrée texte avec Number et validez-la."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Une variable associe un nom à une valeur; le type appartient à la valeur et détermine les opérations significatives. const protège la liaison contre une réaffectation, tandis que le calcul produit de nouvelles valeurs sans modifier les entrées.",
+        "primitive: Valeur simple comme number, string ou boolean.",
+        "coercion: Conversion implicite d’un type vers un autre.",
+        "expression: Code évalué en une valeur."
+      ],
+      "next": "La prochaine leçon contrôle le chemin d’exécution avec conditions et boucles."
+    },
+    {
+      "id": "lesson-06-02-control-flow",
+      "order": 1,
+      "title": "Conditions, comparaisons et boucles",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Conditions, comparaisons et boucles",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Le flux d’exécution choisit des chemins selon des expressions booléennes et répète un bloc sur une collection. Une condition correcte exprime une règle métier exhaustive plutôt qu’une vérité approximative. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un aiguillage choisit une voie selon un signal; une boucle inspecte chaque wagon avec la même procédure."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Le flux d’exécution choisit des chemins selon des expressions booléennes et répète un bloc sur une collection. Une condition correcte exprime une règle métier exhaustive plutôt qu’une vérité approximative. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "=== évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Énumérez les cas stock zéro, un et plusieurs avant d’écrire if; utilisez for...of quand l’ordre et les sorties anticipées comptent, puis testez chaque frontière. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "boolean",
+                  "definition": "Valeur true ou false pilotant une décision."
+                },
+                {
+                  "term": "branch",
+                  "definition": "Chemin conditionnel du programme."
+                },
+                {
+                  "term": "iteration",
+                  "definition": "Une exécution du corps d’une boucle."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Implémenter les libellés de stock pour zéro, un et plusieurs articles et vérifier les valeurs limites."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/control-flow.js",
+                "source": "const stockBySize = { S: 0, M: 4, L: 2 };\nfor (const [size, stock] of Object.entries(stockBySize)) {\n  if (stock <= 0) { console.log(size, \"épuisé\"); continue; }\n  const label = stock === 1 ? \"dernier article\" : `${stock} articles`;\n  console.log(size, label);\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Entrées et préparation de « Conditions, comparaisons et boucles »."
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "5-6",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/control-flow.js",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/06-javascript/control-flow.js et prédisez la sortie de l’exemple. — node academy-labs/06-javascript/control-flow.js"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Preuve de réussite: S est épuisé, M affiche quatre articles et L deux, sans traiter S dans la suite."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Les variantes épuisées sont désactivées; le dernier article affiche une urgence textuelle sans mentir sur la disponibilité."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/control-flow.js"
+      ],
+      "expectedResult": "Preuve de réussite: S est épuisé, M affiche quatre articles et L deux, sans traiter S dans la suite.",
+      "commonErrors": [
+        {
+          "symptom": "La chaîne « 0 » est considérée disponible.",
+          "cause": "Le symptôme contredit le mécanisme attendu : === évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant.",
+          "fix": "Normalisez le stock en nombre et comparez avec <= 0."
+        },
+        {
+          "symptom": "La boucle ne termine jamais.",
+          "cause": "Le symptôme contredit le mécanisme attendu : === évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant.",
+          "fix": "Vérifiez que l’état contrôlant la répétition progresse à chaque tour."
+        }
+      ],
+      "exercise": {
+        "task": "Implémenter les libellés de stock pour zéro, un et plusieurs articles et vérifier les valeurs limites.",
+        "steps": [
+          "Ouvrez academy-labs/06-javascript/control-flow.js et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Énumérez les cas stock zéro, un et plusieurs avant d’écrire if; utilisez for...of quand l’ordre et les sorties anticipées comptent, puis testez chaque frontière.",
+          "code": "const stockBySize = { S: 0, M: 4, L: 2 };\nfor (const [size, stock] of Object.entries(stockBySize)) {\n  if (stock <= 0) { console.log(size, \"épuisé\"); continue; }\n  const label = stock === 1 ? \"dernier article\" : `${stock} articles`;\n  console.log(size, label);\n}",
+          "filename": "academy-labs/06-javascript/control-flow.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-02-control-flow-q1",
+          "question": "Quel opérateur compare sans coercition ?",
+          "options": [
+            "===",
+            "=",
+            "==",
+            "=>"
+          ],
+          "correctIndex": 0,
+          "explanation": "=== compare type et valeur sans conversion implicite.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « === ». === compare type et valeur sans conversion implicite.",
+            "Cette option est incorrecte. Elle affirme « = ». La réponse de référence est « === ». === compare type et valeur sans conversion implicite.",
+            "Cette option est incorrecte. Elle affirme « == ». La réponse de référence est « === ». === compare type et valeur sans conversion implicite.",
+            "Cette option est incorrecte. Elle affirme « => ». La réponse de référence est « === ». === compare type et valeur sans conversion implicite."
+          ]
+        },
+        {
+          "id": "lesson-06-02-control-flow-q2",
+          "question": "Quelle définition correspond au terme « boolean » ?",
+          "options": [
+            "Chemin conditionnel du programme.",
+            "Valeur true ou false pilotant une décision.",
+            "Une exécution du corps d’une boucle.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« boolean » signifie : Valeur true ou false pilotant une décision.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Chemin conditionnel du programme. ». La réponse de référence est « Valeur true ou false pilotant une décision. ». « boolean » signifie : Valeur true ou false pilotant une décision.",
+            "Cette option est correcte. Elle affirme « Valeur true ou false pilotant une décision. ». « boolean » signifie : Valeur true ou false pilotant une décision.",
+            "Cette option est incorrecte. Elle affirme « Une exécution du corps d’une boucle. ». La réponse de référence est « Valeur true ou false pilotant une décision. ». « boolean » signifie : Valeur true ou false pilotant une décision.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Valeur true ou false pilotant une décision. ». « boolean » signifie : Valeur true ou false pilotant une décision."
+          ]
+        },
+        {
+          "id": "lesson-06-02-control-flow-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « La chaîne « 0 » est considérée disponible. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Vérifiez que l’état contrôlant la répétition progresse à chaque tour.",
+            "Normalisez le stock en nombre et comparez avec <= 0.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : === évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant. Le correctif adapté est : Normalisez le stock en nombre et comparez avec <= 0.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Normalisez le stock en nombre et comparez avec <= 0. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : === évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant. Le correctif adapté est : Normalisez le stock en nombre et comparez avec <= 0.",
+            "Cette option est incorrecte. Elle affirme « Vérifiez que l’état contrôlant la répétition progresse à chaque tour. ». La réponse de référence est « Normalisez le stock en nombre et comparez avec <= 0. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : === évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant. Le correctif adapté est : Normalisez le stock en nombre et comparez avec <= 0.",
+            "Cette option est correcte. Elle affirme « Normalisez le stock en nombre et comparez avec <= 0. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : === évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant. Le correctif adapté est : Normalisez le stock en nombre et comparez avec <= 0.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Normalisez le stock en nombre et comparez avec <= 0. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : === évite la conversion implicite, && exige deux conditions, || une alternative et ! inverse. return termine une fonction, break une boucle et continue passe immédiatement à l’élément suivant. Le correctif adapté est : Normalisez le stock en nombre et comparez avec <= 0."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Le flux d’exécution choisit des chemins selon des expressions booléennes et répète un bloc sur une collection. Une condition correcte exprime une règle métier exhaustive plutôt qu’une vérité approximative.",
+        "boolean: Valeur true ou false pilotant une décision.",
+        "branch: Chemin conditionnel du programme.",
+        "iteration: Une exécution du corps d’une boucle."
+      ],
+      "next": "La prochaine leçon traite chaînes, valeurs absentes et formats d’affichage."
+    },
+    {
+      "id": "lesson-06-03-strings-nullish",
+      "order": 2,
+      "title": "Chaînes, templates et valeurs nullish",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Chaînes, templates et valeurs nullish",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une chaîne est une séquence immuable; ses méthodes retournent de nouvelles chaînes. undefined décrit souvent une absence non fournie et null une absence explicite; le code doit décider lesquelles sont acceptables à chaque frontière. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Un gabarit assemble des étiquettes; optional chaining regarde dans une boîte seulement si elle existe."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Une chaîne est une séquence immuable; ses méthodes retournent de nouvelles chaînes. undefined décrit souvent une absence non fournie et null une absence explicite; le code doit décider lesquelles sont acceptables à chaque frontière. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Définissez les valeurs manquantes autorisées, normalisez trim/casse une fois à l’entrée et ne remplacez pas zéro ou false lorsqu’ils portent un sens métier. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "immutable",
+                  "definition": "Valeur non modifiée en place."
+                },
+                {
+                  "term": "nullish",
+                  "definition": "null ou undefined."
+                },
+                {
+                  "term": "template literal",
+                  "definition": "Chaîne délimitée par backticks avec interpolation."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Construire un libellé robuste pour données partielles sans masquer les valeurs métier valides."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/strings.js",
+                "source": "function productLabel(product) {\n  const name = product.name?.trim() || \"Produit sans nom\";\n  const color = product.variant?.color ?? \"couleur standard\";\n  return `${name} — ${color}`;\n}\nconsole.log(productLabel({ name: \"  Casque \", variant: null }));",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Entrées et préparation de « Chaînes, templates et valeurs nullish »."
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "5-6",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/strings.js",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/06-javascript/strings.js et prédisez la sortie de l’exemple. — node academy-labs/06-javascript/strings.js"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Preuve de réussite: la console affiche « Casque — couleur standard » sans TypeError."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Les variantes produit optionnelles affichent un fallback traduit, tandis qu’un stock zéro reste zéro."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/strings.js"
+      ],
+      "expectedResult": "Preuve de réussite: la console affiche « Casque — couleur standard » sans TypeError.",
+      "commonErrors": [
+        {
+          "symptom": "Cannot read properties of null.",
+          "cause": "Le symptôme contredit le mécanisme attendu : ?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës.",
+          "fix": "Utilisez optional chaining à la frontière réellement optionnelle."
+        },
+        {
+          "symptom": "Un stock zéro devient « inconnu ».",
+          "cause": "Le symptôme contredit le mécanisme attendu : ?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës.",
+          "fix": "Utilisez ?? plutôt que || pour préserver zéro et false."
+        }
+      ],
+      "exercise": {
+        "task": "Construire un libellé robuste pour données partielles sans masquer les valeurs métier valides.",
+        "steps": [
+          "Ouvrez academy-labs/06-javascript/strings.js et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Définissez les valeurs manquantes autorisées, normalisez trim/casse une fois à l’entrée et ne remplacez pas zéro ou false lorsqu’ils portent un sens métier.",
+          "code": "function productLabel(product) {\n  const name = product.name?.trim() || \"Produit sans nom\";\n  const color = product.variant?.color ?? \"couleur standard\";\n  return `${name} — ${color}`;\n}\nconsole.log(productLabel({ name: \"  Casque \", variant: null }));",
+          "filename": "academy-labs/06-javascript/strings.js",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-03-strings-nullish-q1",
+          "question": "Quel opérateur préserve zéro ?",
+          "options": [
+            "??",
+            "||",
+            "=",
+            "++"
+          ],
+          "correctIndex": 0,
+          "explanation": "?? ne bascule que pour null ou undefined.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « ?? ». ?? ne bascule que pour null ou undefined.",
+            "Cette option est incorrecte. Elle affirme « || ». La réponse de référence est « ?? ». ?? ne bascule que pour null ou undefined.",
+            "Cette option est incorrecte. Elle affirme « = ». La réponse de référence est « ?? ». ?? ne bascule que pour null ou undefined.",
+            "Cette option est incorrecte. Elle affirme « ++ ». La réponse de référence est « ?? ». ?? ne bascule que pour null ou undefined."
+          ]
+        },
+        {
+          "id": "lesson-06-03-strings-nullish-q2",
+          "question": "Quelle définition correspond au terme « immutable » ?",
+          "options": [
+            "null ou undefined.",
+            "Valeur non modifiée en place.",
+            "Chaîne délimitée par backticks avec interpolation.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« immutable » signifie : Valeur non modifiée en place.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « null ou undefined. ». La réponse de référence est « Valeur non modifiée en place. ». « immutable » signifie : Valeur non modifiée en place.",
+            "Cette option est correcte. Elle affirme « Valeur non modifiée en place. ». « immutable » signifie : Valeur non modifiée en place.",
+            "Cette option est incorrecte. Elle affirme « Chaîne délimitée par backticks avec interpolation. ». La réponse de référence est « Valeur non modifiée en place. ». « immutable » signifie : Valeur non modifiée en place.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Valeur non modifiée en place. ». « immutable » signifie : Valeur non modifiée en place."
+          ]
+        },
+        {
+          "id": "lesson-06-03-strings-nullish-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Cannot read properties of null. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Utilisez ?? plutôt que || pour préserver zéro et false.",
+            "Utilisez optional chaining à la frontière réellement optionnelle.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : ?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës. Le correctif adapté est : Utilisez optional chaining à la frontière réellement optionnelle.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Utilisez optional chaining à la frontière réellement optionnelle. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : ?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës. Le correctif adapté est : Utilisez optional chaining à la frontière réellement optionnelle.",
+            "Cette option est incorrecte. Elle affirme « Utilisez ?? plutôt que || pour préserver zéro et false. ». La réponse de référence est « Utilisez optional chaining à la frontière réellement optionnelle. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : ?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës. Le correctif adapté est : Utilisez optional chaining à la frontière réellement optionnelle.",
+            "Cette option est correcte. Elle affirme « Utilisez optional chaining à la frontière réellement optionnelle. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : ?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës. Le correctif adapté est : Utilisez optional chaining à la frontière réellement optionnelle.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Utilisez optional chaining à la frontière réellement optionnelle. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : ?. arrête l’accès sur null/undefined; ?? choisit un fallback uniquement pour ces deux valeurs, tandis que || remplace aussi chaîne vide, zéro et false. Les template literals interpolent des expressions sans concaténations ambiguës. Le correctif adapté est : Utilisez optional chaining à la frontière réellement optionnelle."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Une chaîne est une séquence immuable; ses méthodes retournent de nouvelles chaînes. undefined décrit souvent une absence non fournie et null une absence explicite; le code doit décider lesquelles sont acceptables à chaque frontière.",
+        "immutable: Valeur non modifiée en place.",
+        "nullish: null ou undefined.",
+        "template literal: Chaîne délimitée par backticks avec interpolation."
+      ],
+      "next": "La prochaine leçon lit les erreurs et organise le code en modules."
+    },
+    {
+      "id": "lesson-06-04-errors-modules",
+      "order": 3,
+      "title": "Erreurs, stack traces et modules",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Savoir utiliser le clavier et la souris; aucune expérience de programmation n’est supposée. Les outils et le projet sont installés pas à pas dans le premier module.",
+        "Avoir terminé la leçon précédente et savoir lancer npm run dev."
+      ],
+      "objectives": [
+        "À la fin, vous saurez expliquer puis appliquer le modèle mental de Erreurs, stack traces et modules",
+        "À la fin, vous saurez expliquer puis appliquer une implémentation minimale vérifiée par une preuve"
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Modèle mental",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Une erreur est un résultat structuré signalant qu’un contrat ne peut être respecté. La stack trace relie le point d’échec aux appels précédents; les modules rendent les contrats explicites par imports et exports. Gardez toujours séparés l’intention, les données qui entrent, la transformation effectuée et le résultat observable. Cette séparation permet de prévoir le comportement avant d’exécuter le code et de diagnostiquer précisément une erreur."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Analogie simple",
+              "text": "Une alarme nommée indique le capteur déclenché et le journal retrace le chemin jusqu’à lui; un module est une pièce avec portes d’entrée déclarées."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Comprendre en profondeur",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Une erreur est un résultat structuré signalant qu’un contrat ne peut être respecté. La stack trace relie le point d’échec aux appels précédents; les modules rendent les contrats explicites par imports et exports. Lisez l’exemple de haut en bas, identifiez chaque entrée, puis prédisez le résultat avant de lancer la commande. Cette habitude transforme une syntaxe mémorisée en compréhension réutilisable."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic. Dans un vrai projet, vérifiez cette mécanique avec le navigateur, le terminal ou les DevTools au lieu de supposer qu’elle fonctionne. Une preuve observable vaut mieux qu’une intuition."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Validez les arguments à l’entrée, choisissez TypeError ou RangeError précis, évitez les catch silencieux et exportez de petites fonctions testables sans effet global. Appliquez enfin le concept par une petite modification isolée, contrôlez le résultat, puis revenez en arrière si nécessaire. Des changements courts rendent les causes et les effets faciles à relier."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "exception",
+                  "definition": "Objet propagé hors du flux normal."
+                },
+                {
+                  "term": "stack trace",
+                  "definition": "Suite des appels menant à l’erreur."
+                },
+                {
+                  "term": "module",
+                  "definition": "Fichier avec portée propre et interface import/export."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Exemple annoté",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "Application générale",
+              "text": "Créer une fonction de total qui échoue explicitement pour types ou plages invalides et lire sa stack."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Exemple annoté",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/price.mjs",
+                "source": "export function calculateTotal(price, quantity) {\n  if (!Number.isFinite(price)) throw new TypeError(\"price must be finite\");\n  if (!Number.isInteger(quantity) || quantity < 1) throw new RangeError(\"quantity must be positive\");\n  return price * quantity;\n}\n\nconsole.log(\"valid total\", calculateTotal(349, 2));\ntry { calculateTotal(349, 0); }\ncatch (error) { console.error(error.name, error.message); console.error(error.stack); }",
+                "annotations": [
+                  {
+                    "lines": "1-3",
+                    "label": "Entrées et préparation de « Erreurs, stack traces et modules »."
+                  },
+                  {
+                    "lines": "4-6",
+                    "label": "La règle centrale à suivre et à prédire."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "La sortie observable qui prouve le comportement."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Deuxième exemple — exécuter et vérifier",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "node academy-labs/06-javascript/price.mjs",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Ouvrez academy-labs/06-javascript/price.mjs et prédisez la sortie de l’exemple. — node academy-labs/06-javascript/price.mjs"
+                  },
+                  {
+                    "lines": "1",
+                    "label": "Preuve de réussite: 698 s’affiche pour les données valides puis RangeError et sa stack prouvent le rejet de quantity=0."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application à L’ecomax",
+              "text": "Les calculs panier rejettent données impossibles avant paiement; les logs gardent nom et contexte sans exposer de secret."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "node academy-labs/06-javascript/price.mjs"
+      ],
+      "expectedResult": "Preuve de réussite: 698 s’affiche pour les données valides puis RangeError et sa stack prouvent le rejet de quantity=0.",
+      "commonErrors": [
+        {
+          "symptom": "Une erreur est avalée et le total devient undefined.",
+          "cause": "Le symptôme contredit le mécanisme attendu : throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic.",
+          "fix": "Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause."
+        },
+        {
+          "symptom": "L’import provoque un effet inattendu.",
+          "cause": "Le symptôme contredit le mécanisme attendu : throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic.",
+          "fix": "Gardez l’exécution de démonstration hors du module de fonctions exportées."
+        }
+      ],
+      "exercise": {
+        "task": "Créer une fonction de total qui échoue explicitement pour types ou plages invalides et lire sa stack.",
+        "steps": [
+          "Ouvrez academy-labs/06-javascript/price.mjs et prédisez la sortie de l’exemple.",
+          "Reproduisez l’exemple dans le fichier d’exercice sans copier la solution.",
+          "Exécutez la commande indiquée, comparez le résultat attendu et expliquez toute différence."
+        ],
+        "hints": [
+          "Commencez par les entrées, puis suivez une transformation à la fois.",
+          "Utilisez le premier message d’erreur et la ligne indiquée comme preuve de diagnostic."
+        ],
+        "solution": {
+          "explanation": "Validez les arguments à l’entrée, choisissez TypeError ou RangeError précis, évitez les catch silencieux et exportez de petites fonctions testables sans effet global.",
+          "code": "export function calculateTotal(price, quantity) {\n  if (!Number.isFinite(price)) throw new TypeError(\"price must be finite\");\n  if (!Number.isInteger(quantity) || quantity < 1) throw new RangeError(\"quantity must be positive\");\n  return price * quantity;\n}\n\nconsole.log(\"valid total\", calculateTotal(349, 2));\ntry { calculateTotal(349, 0); }\ncatch (error) { console.error(error.name, error.message); console.error(error.stack); }",
+          "filename": "academy-labs/06-javascript/price.mjs",
+          "language": "javascript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "lesson-06-04-errors-modules-q1",
+          "question": "Où commencer dans une stack ?",
+          "options": [
+            "La première frame pertinente du projet",
+            "La dernière ligne au hasard",
+            "Le CSS",
+            "Le DNS"
+          ],
+          "correctIndex": 0,
+          "explanation": "Cette frame situe le code contrôlé qui a déclenché ou propagé l’erreur.",
+          "answerExplanations": [
+            "Cette option est correcte. Elle affirme « La première frame pertinente du projet ». Cette frame situe le code contrôlé qui a déclenché ou propagé l’erreur.",
+            "Cette option est incorrecte. Elle affirme « La dernière ligne au hasard ». La réponse de référence est « La première frame pertinente du projet ». Cette frame situe le code contrôlé qui a déclenché ou propagé l’erreur.",
+            "Cette option est incorrecte. Elle affirme « Le CSS ». La réponse de référence est « La première frame pertinente du projet ». Cette frame situe le code contrôlé qui a déclenché ou propagé l’erreur.",
+            "Cette option est incorrecte. Elle affirme « Le DNS ». La réponse de référence est « La première frame pertinente du projet ». Cette frame situe le code contrôlé qui a déclenché ou propagé l’erreur."
+          ]
+        },
+        {
+          "id": "lesson-06-04-errors-modules-q2",
+          "question": "Quelle définition correspond au terme « exception » ?",
+          "options": [
+            "Suite des appels menant à l’erreur.",
+            "Objet propagé hors du flux normal.",
+            "Fichier avec portée propre et interface import/export.",
+            "Ce terme ne possède aucune définition technique précise."
+          ],
+          "correctIndex": 1,
+          "explanation": "« exception » signifie : Objet propagé hors du flux normal.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Suite des appels menant à l’erreur. ». La réponse de référence est « Objet propagé hors du flux normal. ». « exception » signifie : Objet propagé hors du flux normal.",
+            "Cette option est correcte. Elle affirme « Objet propagé hors du flux normal. ». « exception » signifie : Objet propagé hors du flux normal.",
+            "Cette option est incorrecte. Elle affirme « Fichier avec portée propre et interface import/export. ». La réponse de référence est « Objet propagé hors du flux normal. ». « exception » signifie : Objet propagé hors du flux normal.",
+            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Objet propagé hors du flux normal. ». « exception » signifie : Objet propagé hors du flux normal."
+          ]
+        },
+        {
+          "id": "lesson-06-04-errors-modules-q3",
+          "question": "Quel est le meilleur premier correctif lorsque vous observez : « Une erreur est avalée et le total devient undefined. » ?",
+          "options": [
+            "Relancer exactement la même action sans lire le premier message d’erreur.",
+            "Gardez l’exécution de démonstration hors du module de fonctions exportées.",
+            "Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause.",
+            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+          ],
+          "correctIndex": 2,
+          "explanation": "Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic. Le correctif adapté est : Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause.",
+          "answerExplanations": [
+            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic. Le correctif adapté est : Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause.",
+            "Cette option est incorrecte. Elle affirme « Gardez l’exécution de démonstration hors du module de fonctions exportées. ». La réponse de référence est « Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic. Le correctif adapté est : Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause.",
+            "Cette option est correcte. Elle affirme « Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic. Le correctif adapté est : Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause.",
+            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause. ». Le diagnostic part de la cause suivante : Le symptôme contredit le mécanisme attendu : throw interrompt le chemin normal; catch doit soit récupérer avec sens, soit enrichir puis relancer. La première frame appartenant au projet est souvent le meilleur point de départ du diagnostic. Le correctif adapté est : Ne capturez que pour récupérer; sinon laissez remonter ou relancez avec cause."
+          ]
+        }
+      ],
+      "recap": [
+        "Idée centrale: Une erreur est un résultat structuré signalant qu’un contrat ne peut être respecté. La stack trace relie le point d’échec aux appels précédents; les modules rendent les contrats explicites par imports et exports.",
+        "exception: Objet propagé hors du flux normal.",
+        "stack trace: Suite des appels menant à l’erreur.",
+        "module: Fichier avec portée propre et interface import/export."
+      ],
+      "next": "Le module suivant transforme les données avec fonctions, tableaux et objets."
+    }
+  ]
+}

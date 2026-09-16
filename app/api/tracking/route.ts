@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { sensitiveRateLimit } from "@/lib/sensitive-rate-limit";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -33,6 +34,8 @@ function cleanDisplayText(value: unknown): string {
 
 // GET /api/tracking?order=ECO-XXXXXX&email=xxx@xxx.com
 export async function GET(req: NextRequest) {
+  const ipLimit = await sensitiveRateLimit(req, "tracking-ip");
+  if (ipLimit) return ipLimit;
   const rawOrderNumber = req.nextUrl.searchParams.get("order") ?? "";
   const compactOrderNumber = rawOrderNumber.normalize("NFKC").trim().toUpperCase().replace(/^#/, "").replace(/\s+/g, "");
   const order_number = /^\d{6}$/.test(compactOrderNumber)
@@ -46,13 +49,15 @@ export async function GET(req: NextRequest) {
       { status: 400 }
     );
   }
-  if (!/^ECO-\d{6}$/.test(order_number) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!/^ECO-\d{6}$/.test(order_number) || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return NextResponse.json(
       { error: "Format invalide. Utilisez un numéro ECO-XXXXXX et l'adresse e-mail de la commande." },
       { status: 400 }
     );
   }
 
+  const accountLimit = await sensitiveRateLimit(req, "tracking-account", email);
+  if (accountLimit) return accountLimit;
   const { data, error } = await supabase
     .from("orders")
     .select("id, order_number, status, tracking_number, total, created_at, customer, items, payment_method, pricing_snapshot")

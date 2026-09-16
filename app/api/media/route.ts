@@ -1,3 +1,4 @@
+import { publicDatabaseError } from "@/lib/public-error";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -34,7 +35,7 @@ export async function DELETE(req: NextRequest) {
   const name = req.nextUrl.searchParams.get("name")?.trim();
   if (!name || name.length > 500 || name.startsWith("/") || name.includes("..") || name.includes("\\")) return NextResponse.json({ error: "Chemin de fichier invalide." }, { status: 400 });
   const { data, error } = await supabase.storage.from(BUCKET).remove([name]);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   if (!data?.length) return NextResponse.json({ error: "Fichier introuvable." }, { status: 404 });
   return NextResponse.json({ ok: true, name });
 }

@@ -1,0 +1,1029 @@
+{
+  "id": "ecommerce-architecture",
+  "order": 17,
+  "icon": "🛒",
+  "color": "#a855f7",
+  "title": "Complete ecommerce architecture",
+  "summary": "Connect catalog, variants, cart, money, checkout, order, payment, and stock without trusting the browser.",
+  "files": [
+    {
+      "path": "components/CartContext.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/checkout/page.tsx",
+      "mode": "existing"
+    },
+    {
+      "path": "app/api/orders/route.ts",
+      "mode": "existing"
+    },
+    {
+      "path": "app/api/products/route.ts",
+      "mode": "existing"
+    },
+    {
+      "path": "academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/ecommerce-architecture/commerce-cart-money.tsx",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/ecommerce-architecture/commerce-checkout-orders.ts",
+      "mode": "create"
+    },
+    {
+      "path": "academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts",
+      "mode": "create"
+    }
+  ],
+  "lessons": [
+    {
+      "id": "commerce-catalog-variants-stock",
+      "order": 0,
+      "title": "Catalog, variants, and stock",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of identity of a sellable variant in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of identity of a sellable variant.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "identity of a sellable variant is like a control chain where every station verifies the receipt before passing the parcel onward. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Displayed stock guides selection but remains a snapshot that can change; only atomic checkout validation actually reserves an item. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Images, labels, and color order may change without breaking orders because relationships use stable identifiers and snapshots. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "identity of a sellable variant",
+                  "definition": "A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels."
+                },
+                {
+                  "term": "Catalog, variants, and stock",
+                  "definition": "Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row."
+                },
+                {
+                  "term": "variant",
+                  "definition": "A sellable product, size, color, and stock combination."
+                },
+                {
+                  "term": "snapshot",
+                  "definition": "A historical copy of data at purchase time."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Model what is sold separately from what is presented, then give every stocked unit a stable identity."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts",
+                "source": "type Variant = { id: string; size: string; color: string; stock: number };\ntype Product = { id: string; slug: string; name: string; variants: Variant[] };\nfunction availableVariants(product: Product) {\n  return product.variants.filter((variant) => variant.stock > 0);\n}\nfunction findVariant(product: Product, variantId: string) {\n  return product.variants.find((variant) => variant.id === variantId) ?? null;\n}",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Catalog, variants, and stock: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\ncurl.exe -i http://localhost:3000/api/products",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — type Variant = { id: string; size: string; color: string; stock: number }; — then type the remaining lines in order while checking every type and return value. — curl.exe -i http://localhost:3000/api/products"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts, the result must demonstrate “Catalog, variants, and stock” and make identity of a sellable variant observable. npm run dev then curl.exe -i http://localhost:3000/api/products completes without an error, and the behavior follows this exact rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax sends variantId for a size/color and disables sold-out combinations without removing the product page."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "curl.exe -i http://localhost:3000/api/products"
+      ],
+      "expectedResult": "In academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts, the result must demonstrate “Catalog, variants, and stock” and make identity of a sellable variant observable. npm run dev then curl.exe -i http://localhost:3000/api/products completes without an error, and the behavior follows this exact rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row.",
+      "commonErrors": [
+        {
+          "symptom": "The “Catalog, variants, and stock” example runs, but it does not demonstrate identity of a sellable variant.",
+          "cause": "The implementation contradicts this lesson rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: Displayed stock guides selection but remains a snapshot that can change; only atomic checkout validation actually reserves an item.",
+          "fix": "Add an explicit verification case using this principle: Images, labels, and color order may change without breaking orders because relationships use stable identifiers and snapshots."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts, rebuild the annotated “Catalog, variants, and stock” example so it demonstrates identity of a sellable variant, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — type Variant = { id: string; size: string; color: string; stock: number }; — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — } — obeys this observable rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row.",
+          "Save the file, run npm run dev then curl.exe -i http://localhost:3000/api/products, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: Displayed stock guides selection but remains a snapshot that can change; only atomic checkout validation actually reserves an item.",
+          "Compare your version with the solution line by line and apply this correction: Images, labels, and color order may change without breaking orders because relationships use stable identifiers and snapshots."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts solution contains 8 annotated lines. It implements identity of a sellable variant directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "type Variant = { id: string; size: string; color: string; stock: number };\ntype Product = { id: string; slug: string; name: string; variants: Variant[] };\nfunction availableVariants(product: Product) {\n  return product.variants.filter((variant) => variant.stock > 0);\n}\nfunction findVariant(product: Product, variantId: string) {\n  return product.variants.find((variant) => variant.id === variantId) ?? null;\n}",
+          "filename": "academy-labs/ecommerce-architecture/commerce-catalog-variants-stock.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "commerce-catalog-variants-stock-q1",
+          "question": "Which statement applies identity of a sellable variant correctly in a production application?",
+          "options": [
+            "Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row.",
+            "The browser can decide identity of a sellable variant by itself because its data is always trustworthy.",
+            "identity of a sellable variant only concerns colors and has no effect on data.",
+            "Failures related to identity of a sellable variant may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 0,
+          "explanation": "The correct answer is “Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is correct. It says « Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. ». The correct answer is “Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « The browser can decide identity of a sellable variant by itself because its data is always trustworthy. ». The reference answer is « Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. ». The correct answer is “Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « identity of a sellable variant only concerns colors and has no effect on data. ». The reference answer is « Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. ». The correct answer is “Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to identity of a sellable variant may be ignored when the happy path worked once. ». The reference answer is « Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. ». The correct answer is “Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "commerce-catalog-variants-stock-q2",
+          "question": "Which definition matches the term “identity of a sellable variant”?",
+          "options": [
+            "Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row.",
+            "A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels.",
+            "A sellable product, size, color, and stock combination.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“identity of a sellable variant” means: A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. ». The reference answer is « A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels. ». “identity of a sellable variant” means: A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels.",
+            "This option is correct. It says « A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels. ». “identity of a sellable variant” means: A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels.",
+            "This option is incorrect. It says « A sellable product, size, color, and stock combination. ». The reference answer is « A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels. ». “identity of a sellable variant” means: A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels. ». “identity of a sellable variant” means: A product groups content and marketing, while a variant represents the unit actually selected, priced, and stocked. A size-color combination therefore has its own identifier and stock; the interface must never reconstruct identity from fragile labels."
+          ]
+        },
+        {
+          "id": "commerce-catalog-variants-stock-q3",
+          "question": "What is the best first fix when you observe: “The “Catalog, variants, and stock” example runs, but it does not demonstrate identity of a sellable variant.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: Images, labels, and color order may change without breaking orders because relationships use stable identifiers and snapshots.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: Images, labels, and color order may change without breaking orders because relationships use stable identifiers and snapshots. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: Product.id identifies the model and Variant.id the purchasable combination; the cart carries variantId so server and stock refer to the exact same row. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain identity of a sellable variant with an input → transformation → output diagram.",
+        "Model what is sold separately from what is presented, then give every stocked unit a stable identity.",
+        "L’ecomax sends variantId for a size/color and disables sold-out combinations without removing the product page."
+      ],
+      "next": "The next lesson builds a minimal cart and calculates money without floating-point errors."
+    },
+    {
+      "id": "commerce-cart-money",
+      "order": 1,
+      "title": "Cart, quantities, and money",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of deterministic cart calculation in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of deterministic cart calculation.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "deterministic cart calculation is like a control chain where every station verifies the receipt before passing the parcel onward. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Subtotal, shipping, and total derive from lines; storing them separately would allow desynchronization when quantity changes. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "localStorage improves continuity but is editable: the server ignores client unitPriceCents and reloads every variant before validation. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "deterministic cart calculation",
+                  "definition": "The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step."
+                },
+                {
+                  "term": "Cart, quantities, and money",
+                  "definition": "One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal."
+                },
+                {
+                  "term": "snapshot",
+                  "definition": "A historical copy of data at purchase time."
+                },
+                {
+                  "term": "idempotency",
+                  "definition": "A property ensuring repetition does not apply an effect twice."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Store identifiers and quantities, derive amounts as integers, and treat all browser persistence as untrusted."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "tsx",
+                "filename": "academy-labs/ecommerce-architecture/commerce-cart-money.tsx",
+                "source": "type CartLine = { variantId: string; quantity: number; unitPriceCents: number };\nconst lines: CartLine[] = [{ variantId: \"bag-black\", quantity: 2, unitPriceCents: 4990 }];\nconst subtotalCents = lines.reduce((sum, line) =>\n  sum + line.unitPriceCents * line.quantity, 0);\nconst shippingCents = subtotalCents >= 8000 ? 0 : 590;\nconst totalCents = subtotalCents + shippingCents;\nconst totalLabel = new Intl.NumberFormat(\"fr-FR\", { style: \"currency\", currency: \"EUR\" })\n  .format(totalCents / 100);",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Cart, quantities, and money: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-8",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpx tsc --noEmit",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/ecommerce-architecture/commerce-cart-money.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — type CartLine = { variantId: string; quantity: number; unitPriceCents: number }; — then type the remaining lines in order while checking every type and return value. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/ecommerce-architecture/commerce-cart-money.tsx, the result must demonstrate “Cart, quantities, and money” and make deterministic cart calculation observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax CartContext provides instant UX, but the orders API recalculates every cent from Supabase."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npx tsc --noEmit"
+      ],
+      "expectedResult": "In academy-labs/ecommerce-architecture/commerce-cart-money.tsx, the result must demonstrate “Cart, quantities, and money” and make deterministic cart calculation observable. npm run dev then npx tsc --noEmit completes without an error, and the behavior follows this exact rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal.",
+      "commonErrors": [
+        {
+          "symptom": "The “Cart, quantities, and money” example runs, but it does not demonstrate deterministic cart calculation.",
+          "cause": "The implementation contradicts this lesson rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/ecommerce-architecture/commerce-cart-money.tsx, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: Subtotal, shipping, and total derive from lines; storing them separately would allow desynchronization when quantity changes.",
+          "fix": "Add an explicit verification case using this principle: localStorage improves continuity but is editable: the server ignores client unitPriceCents and reloads every variant before validation."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/ecommerce-architecture/commerce-cart-money.tsx, rebuild the annotated “Cart, quantities, and money” example so it demonstrates deterministic cart calculation, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/ecommerce-architecture/commerce-cart-money.tsx and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — type CartLine = { variantId: string; quantity: number; unitPriceCents: number }; — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — .format(totalCents / 100); — obeys this observable rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal.",
+          "Save the file, run npm run dev then npx tsc --noEmit, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/ecommerce-architecture/commerce-cart-money.tsx, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: Subtotal, shipping, and total derive from lines; storing them separately would allow desynchronization when quantity changes.",
+          "Compare your version with the solution line by line and apply this correction: localStorage improves continuity but is editable: the server ignores client unitPriceCents and reloads every variant before validation."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/ecommerce-architecture/commerce-cart-money.tsx solution contains 8 annotated lines. It implements deterministic cart calculation directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "type CartLine = { variantId: string; quantity: number; unitPriceCents: number };\nconst lines: CartLine[] = [{ variantId: \"bag-black\", quantity: 2, unitPriceCents: 4990 }];\nconst subtotalCents = lines.reduce((sum, line) =>\n  sum + line.unitPriceCents * line.quantity, 0);\nconst shippingCents = subtotalCents >= 8000 ? 0 : 590;\nconst totalCents = subtotalCents + shippingCents;\nconst totalLabel = new Intl.NumberFormat(\"fr-FR\", { style: \"currency\", currency: \"EUR\" })\n  .format(totalCents / 100);",
+          "filename": "academy-labs/ecommerce-architecture/commerce-cart-money.tsx",
+          "language": "tsx"
+        }
+      },
+      "quiz": [
+        {
+          "id": "commerce-cart-money-q1",
+          "question": "Which statement applies deterministic cart calculation correctly in a production application?",
+          "options": [
+            "The browser can decide deterministic cart calculation by itself because its data is always trustworthy.",
+            "One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal.",
+            "deterministic cart calculation only concerns colors and has no effect on data.",
+            "Failures related to deterministic cart calculation may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 1,
+          "explanation": "The correct answer is “One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide deterministic cart calculation by itself because its data is always trustworthy. ». The reference answer is « One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. ». The correct answer is “One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. ». The correct answer is “One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « deterministic cart calculation only concerns colors and has no effect on data. ». The reference answer is « One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. ». The correct answer is “One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to deterministic cart calculation may be ignored when the happy path worked once. ». The reference answer is « One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. ». The correct answer is “One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "commerce-cart-money-q2",
+          "question": "Which definition matches the term “deterministic cart calculation”?",
+          "options": [
+            "One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal.",
+            "The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step.",
+            "A historical copy of data at purchase time.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“deterministic cart calculation” means: The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step.",
+          "answerExplanations": [
+            "This option is incorrect. It says « One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. ». The reference answer is « The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step. ». “deterministic cart calculation” means: The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step.",
+            "This option is correct. It says « The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step. ». “deterministic cart calculation” means: The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step.",
+            "This option is incorrect. It says « A historical copy of data at purchase time. ». The reference answer is « The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step. ». “deterministic cart calculation” means: The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step. ». “deterministic cart calculation” means: The client cart is an intent made of identifiers and quantities, not an authority over prices. Amounts remain integer cents throughout calculations and become a localized string only at the final display step."
+          ]
+        },
+        {
+          "id": "commerce-cart-money-q3",
+          "question": "What is the best first fix when you observe: “The “Cart, quantities, and money” example runs, but it does not demonstrate deterministic cart calculation.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: localStorage improves continuity but is editable: the server ignores client unitPriceCents and reloads every variant before validation.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: localStorage improves continuity but is editable: the server ignores client unitPriceCents and reloads every variant before validation. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: One line per variantId merges repeated additions, bounds quantity between one and a reasonable limit, and removes the line when the user chooses removal. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain deterministic cart calculation with an input → transformation → output diagram.",
+        "Store identifiers and quantities, derive amounts as integers, and treat all browser persistence as untrusted.",
+        "L’ecomax CartContext provides instant UX, but the orders API recalculates every cent from Supabase."
+      ],
+      "next": "The next lesson turns this intent into an order and snapshots after server validation."
+    },
+    {
+      "id": "commerce-checkout-orders",
+      "order": 2,
+      "title": "Checkout, orders, and snapshots",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of server-side order creation in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of server-side order creation.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "server-side order creation is like a control chain where every station verifies the receipt before passing the parcel onward. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "Snapshots freeze purchased name, unit price, and variant, while the address is normalized and retained under the privacy policy. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "pending_payment distinguishes a prepared order from a paid order; a thank-you page is never proof of payment. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "server-side order creation",
+                  "definition": "Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment."
+                },
+                {
+                  "term": "Checkout, orders, and snapshots",
+                  "definition": "The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available."
+                },
+                {
+                  "term": "idempotency",
+                  "definition": "A property ensuring repetition does not apply an effect twice."
+                },
+                {
+                  "term": "webhook",
+                  "definition": "A signed server request sent by a service when an event occurs."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Recalculate every rule on the server, create order and lines atomically, and keep status transitions monotonic and audited."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "academy-labs/ecommerce-architecture/commerce-checkout-orders.ts",
+                "source": "const requested = input.items.map((item) => ({ variantId: item.variantId, quantity: item.quantity }));\nconst variants = await loadVariants(requested.map((item) => item.variantId));\nconst snapshots = requested.map((item) => {\n  const variant = variants.find((row) => row.id === item.variantId);\n  if (!variant || item.quantity < 1 || item.quantity > variant.stock) throw new Error(\"Article indisponible\");\n  return { variantId: variant.id, name: variant.product_name, unitPriceCents: variant.price_cents, quantity: item.quantity };\n});\nconst subtotalCents = snapshots.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);\nconst order = await createOrderWithItems({ snapshots, subtotalCents });",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Checkout, orders, and snapshots: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-9",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npm run dev\nnpx tsc --noEmit\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/ecommerce-architecture/commerce-checkout-orders.ts and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npm run dev"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — const requested = input.items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })); — then type the remaining lines in order while checking every type and return value. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "3",
+                    "label": "Verify that the final instruction — const order = await createOrderWithItems({ snapshots, subtotalCents }); — obeys this observable rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. — npm run build"
+                  },
+                  {
+                    "lines": "1-3",
+                    "label": "In academy-labs/ecommerce-architecture/commerce-checkout-orders.ts, the result must demonstrate “Checkout, orders, and snapshots” and make server-side order creation observable. npm run dev then npx tsc --noEmit then npm run build completes without an error, and the behavior follows this exact rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "The L’ecomax orders API validates stock, recalculates amount, snapshots lines, and returns orderId without marking it paid."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npm run dev",
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "expectedResult": "In academy-labs/ecommerce-architecture/commerce-checkout-orders.ts, the result must demonstrate “Checkout, orders, and snapshots” and make server-side order creation observable. npm run dev then npx tsc --noEmit then npm run build completes without an error, and the behavior follows this exact rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available.",
+      "commonErrors": [
+        {
+          "symptom": "The “Checkout, orders, and snapshots” example runs, but it does not demonstrate server-side order creation.",
+          "cause": "The implementation contradicts this lesson rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/ecommerce-architecture/commerce-checkout-orders.ts, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: Snapshots freeze purchased name, unit price, and variant, while the address is normalized and retained under the privacy policy.",
+          "fix": "Add an explicit verification case using this principle: pending_payment distinguishes a prepared order from a paid order; a thank-you page is never proof of payment."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/ecommerce-architecture/commerce-checkout-orders.ts, rebuild the annotated “Checkout, orders, and snapshots” example so it demonstrates server-side order creation, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/ecommerce-architecture/commerce-checkout-orders.ts and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — const requested = input.items.map((item) => ({ variantId: item.variantId, quantity: item.quantity })); — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — const order = await createOrderWithItems({ snapshots, subtotalCents }); — obeys this observable rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available.",
+          "Save the file, run npm run dev then npx tsc --noEmit then npm run build, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/ecommerce-architecture/commerce-checkout-orders.ts, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: Snapshots freeze purchased name, unit price, and variant, while the address is normalized and retained under the privacy policy.",
+          "Compare your version with the solution line by line and apply this correction: pending_payment distinguishes a prepared order from a paid order; a thank-you page is never proof of payment."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/ecommerce-architecture/commerce-checkout-orders.ts solution contains 9 annotated lines. It implements server-side order creation directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "const requested = input.items.map((item) => ({ variantId: item.variantId, quantity: item.quantity }));\nconst variants = await loadVariants(requested.map((item) => item.variantId));\nconst snapshots = requested.map((item) => {\n  const variant = variants.find((row) => row.id === item.variantId);\n  if (!variant || item.quantity < 1 || item.quantity > variant.stock) throw new Error(\"Article indisponible\");\n  return { variantId: variant.id, name: variant.product_name, unitPriceCents: variant.price_cents, quantity: item.quantity };\n});\nconst subtotalCents = snapshots.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0);\nconst order = await createOrderWithItems({ snapshots, subtotalCents });",
+          "filename": "academy-labs/ecommerce-architecture/commerce-checkout-orders.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "commerce-checkout-orders-q1",
+          "question": "Which statement applies server-side order creation correctly in a production application?",
+          "options": [
+            "The browser can decide server-side order creation by itself because its data is always trustworthy.",
+            "server-side order creation only concerns colors and has no effect on data.",
+            "The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available.",
+            "Failures related to server-side order creation may be ignored when the happy path worked once."
+          ],
+          "correctIndex": 2,
+          "explanation": "The correct answer is “The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide server-side order creation by itself because its data is always trustworthy. ». The reference answer is « The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. ». The correct answer is “The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « server-side order creation only concerns colors and has no effect on data. ». The reference answer is « The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. ». The correct answer is “The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. ». The correct answer is “The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to server-side order creation may be ignored when the happy path worked once. ». The reference answer is « The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. ». The correct answer is “The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "commerce-checkout-orders-q2",
+          "question": "Which definition matches the term “server-side order creation”?",
+          "options": [
+            "The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available.",
+            "Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment.",
+            "A property ensuring repetition does not apply an effect twice.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“server-side order creation” means: Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. ». The reference answer is « Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment. ». “server-side order creation” means: Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment.",
+            "This option is correct. It says « Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment. ». “server-side order creation” means: Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment.",
+            "This option is incorrect. It says « A property ensuring repetition does not apply an effect twice. ». The reference answer is « Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment. ». “server-side order creation” means: Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment. ». “server-side order creation” means: Checkout collects intent and an address, then the server rebuilds truth from the database: variants, prices, stock, coupon, and shipping. An order and its historical lines are created in a transaction with an explicit state before payment."
+          ]
+        },
+        {
+          "id": "commerce-checkout-orders-q3",
+          "question": "What is the best first fix when you observe: “The “Checkout, orders, and snapshots” example runs, but it does not demonstrate server-side order creation.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: pending_payment distinguishes a prepared order from a paid order; a thank-you page is never proof of payment.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: pending_payment distinguishes a prepared order from a paid order; a thank-you page is never proof of payment. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The API accepts variantId and quantity but ignores client name, price, and total; it requires every requested variant to exist and remain available. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain server-side order creation with an input → transformation → output diagram.",
+        "Recalculate every rule on the server, create order and lines atomically, and keep status transitions monotonic and audited.",
+        "The L’ecomax orders API validates stock, recalculates amount, snapshots lines, and returns orderId without marking it paid."
+      ],
+      "next": "The next lesson confirms payment through a signed, idempotent, concurrency-safe webhook."
+    },
+    {
+      "id": "commerce-payments-idempotency",
+      "order": 3,
+      "title": "Payment, webhooks, and idempotency",
+      "estimatedMinutes": 45,
+      "prerequisites": [
+        "Know how to open the L’ecomax project in VS Code and use its integrated terminal.",
+        "Have read the previous lesson and be able to explain the role of reliable payment confirmation in your own words."
+      ],
+      "objectives": [
+        "Build an accurate mental model of reliable payment confirmation.",
+        "Write and run a minimal example before integrating it into a real feature.",
+        "Recognize failure states, read their symptoms, and apply a verifiable correction."
+      ],
+      "sections": [
+        {
+          "id": "mental-model",
+          "title": "Mental model",
+          "blocks": [
+            {
+              "id": "mental",
+              "type": "paragraph",
+              "text": "The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency. First draw the inputs, transformations, trust boundaries, and outputs. That map lets you predict where code runs and where each failure must be handled."
+            },
+            {
+              "id": "analogy",
+              "type": "callout",
+              "tone": "analogy",
+              "title": "Simple analogy",
+              "text": "reliable payment confirmation is like a control chain where every station verifies the receipt before passing the parcel onward. The analogy helps you remember the main journey, but running code is the evidence: inspect every value at the input, during transformation, and at the output."
+            }
+          ]
+        },
+        {
+          "id": "deep-understanding",
+          "title": "Understand it deeply",
+          "blocks": [
+            {
+              "id": "explanation-1",
+              "type": "paragraph",
+              "text": "The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. Start with the smallest working version and inspect its real value in the terminal or DevTools before adding an abstraction."
+            },
+            {
+              "id": "explanation-2",
+              "type": "paragraph",
+              "text": "event.id has a unique constraint: replay returns success without recreating email, points, stock decrement, or refund. Then connect the rule to the contract between browser, server, and database; every boundary needs a defined input and an explicit failure."
+            },
+            {
+              "id": "explanation-3",
+              "type": "paragraph",
+              "text": "Locking the order and comparing total/currency prevents concurrent events or a partial amount from producing an inconsistent transition. Finally test the normal case, a boundary input, and a deliberate failure so the behavior is proven beyond the happy path."
+            },
+            {
+              "id": "vocabulary",
+              "type": "vocabulary",
+              "items": [
+                {
+                  "term": "reliable payment confirmation",
+                  "definition": "The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency."
+                },
+                {
+                  "term": "Payment, webhooks, and idempotency",
+                  "definition": "The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid."
+                },
+                {
+                  "term": "webhook",
+                  "definition": "A signed server request sent by a service when an event occurs."
+                },
+                {
+                  "term": "variant",
+                  "definition": "A sellable product, size, color, and stock combination."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "worked-examples",
+          "title": "Annotated example",
+          "blocks": [
+            {
+              "id": "general",
+              "type": "callout",
+              "tone": "idea",
+              "title": "General application",
+              "text": "Treat every webhook as untrusted and repeatable, verify external proof, and record event plus effect in one transaction."
+            },
+            {
+              "id": "annotated-code",
+              "type": "code",
+              "title": "Annotated example",
+              "code": {
+                "language": "typescript",
+                "filename": "academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts",
+                "source": "const event = await verifyWebhookSignature(request);\nif (event.type !== \"PAYMENT.CAPTURE.COMPLETED\") return new Response(null, { status: 204 });\nconst existing = await findProcessedEvent(event.id);\nif (existing) return Response.json({ received: true });\nawait inTransaction(async (tx) => {\n  const order = await tx.lockOrderByProviderId(event.orderId);\n  if (order.total_cents !== event.amountCents || event.currency !== \"EUR\") throw new Error(\"Montant incohérent\");\n  await tx.markPaidAndRecordEvent(order.id, event.id);\n});\nreturn Response.json({ received: true });",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "Payment, webhooks, and idempotency: the first two lines establish the contract and input data."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "This block performs the main transformation; follow values line by line and verify their types."
+                  },
+                  {
+                    "lines": "7-10",
+                    "label": "The ending exposes the expected result or failure so the caller can react without guessing."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "solution-example",
+              "type": "code",
+              "title": "Second example — run and verify",
+              "code": {
+                "language": "shell",
+                "filename": "Terminal",
+                "source": "npx tsc --noEmit\nnpm run build",
+                "annotations": [
+                  {
+                    "lines": "1",
+                    "label": "Open academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts and isolate the exercise function or component without deleting the rest of the L’ecomax file. — npx tsc --noEmit"
+                  },
+                  {
+                    "lines": "2",
+                    "label": "Start from the first-line contract — const event = await verifyWebhookSignature(request); — then type the remaining lines in order while checking every type and return value. — npm run build"
+                  },
+                  {
+                    "lines": "1-2",
+                    "label": "In academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts, the result must demonstrate “Payment, webhooks, and idempotency” and make reliable payment confirmation observable. npx tsc --noEmit then npm run build completes without an error, and the behavior follows this exact rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "lecomax",
+              "type": "callout",
+              "tone": "important",
+              "title": "Application to L’ecomax",
+              "text": "L’ecomax marks paid only after a verified webhook, then triggers confirmation and stock once through a unique event.id."
+            }
+          ]
+        }
+      ],
+      "commands": [
+        "npx tsc --noEmit",
+        "npm run build"
+      ],
+      "expectedResult": "In academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts, the result must demonstrate “Payment, webhooks, and idempotency” and make reliable payment confirmation observable. npx tsc --noEmit then npm run build completes without an error, and the behavior follows this exact rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid.",
+      "commonErrors": [
+        {
+          "symptom": "The “Payment, webhooks, and idempotency” example runs, but it does not demonstrate reliable payment confirmation.",
+          "cause": "The implementation contradicts this lesson rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid.",
+          "fix": "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+        },
+        {
+          "symptom": "The normal case works in academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts, but the boundary case fails or stays silent.",
+          "cause": "The following boundary is not represented in the code yet: event.id has a unique constraint: replay returns success without recreating email, points, stock decrement, or refund.",
+          "fix": "Add an explicit verification case using this principle: Locking the order and comparing total/currency prevents concurrent events or a partial amount from producing an inconsistent transition."
+        }
+      ],
+      "exercise": {
+        "task": "In academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts, rebuild the annotated “Payment, webhooks, and idempotency” example so it demonstrates reliable payment confirmation, then verify that exact behavior with the provided commands.",
+        "steps": [
+          "Open academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts and isolate the exercise function or component without deleting the rest of the L’ecomax file.",
+          "Start from the first-line contract — const event = await verifyWebhookSignature(request); — then type the remaining lines in order while checking every type and return value.",
+          "Verify that the final instruction — return Response.json({ received: true }); — obeys this observable rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid.",
+          "Save the file, run npx tsc --noEmit then npm run build, and test both a normal value and the boundary case described under common errors."
+        ],
+        "hints": [
+          "Start from the contract visible in academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts, not from a new abstraction or package.",
+          "If the result diverges, reread this boundary: event.id has a unique constraint: replay returns success without recreating email, points, stock decrement, or refund.",
+          "Compare your version with the solution line by line and apply this correction: Locking the order and comparing total/currency prevents concurrent events or a partial amount from producing an inconsistent transition."
+        ],
+        "solution": {
+          "explanation": "The complete academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts solution contains 10 annotated lines. It implements reliable payment confirmation directly, preserves the contract shown in the example, and makes the failure case explicit without adding a dependency.",
+          "code": "const event = await verifyWebhookSignature(request);\nif (event.type !== \"PAYMENT.CAPTURE.COMPLETED\") return new Response(null, { status: 204 });\nconst existing = await findProcessedEvent(event.id);\nif (existing) return Response.json({ received: true });\nawait inTransaction(async (tx) => {\n  const order = await tx.lockOrderByProviderId(event.orderId);\n  if (order.total_cents !== event.amountCents || event.currency !== \"EUR\") throw new Error(\"Montant incohérent\");\n  await tx.markPaidAndRecordEvent(order.id, event.id);\n});\nreturn Response.json({ received: true });",
+          "filename": "academy-labs/ecommerce-architecture/commerce-payments-idempotency.ts",
+          "language": "typescript"
+        }
+      },
+      "quiz": [
+        {
+          "id": "commerce-payments-idempotency-q1",
+          "question": "Which statement applies reliable payment confirmation correctly in a production application?",
+          "options": [
+            "The browser can decide reliable payment confirmation by itself because its data is always trustworthy.",
+            "reliable payment confirmation only concerns colors and has no effect on data.",
+            "Failures related to reliable payment confirmation may be ignored when the happy path worked once.",
+            "The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid."
+          ],
+          "correctIndex": 3,
+          "explanation": "The correct answer is “The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The browser can decide reliable payment confirmation by itself because its data is always trustworthy. ». The reference answer is « The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. ». The correct answer is “The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « reliable payment confirmation only concerns colors and has no effect on data. ». The reference answer is « The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. ». The correct answer is “The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is incorrect. It says « Failures related to reliable payment confirmation may be ignored when the happy path worked once. ». The reference answer is « The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. ». The correct answer is “The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios.",
+            "This option is correct. It says « The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. ». The correct answer is “The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid..” It describes observable, testable behavior; the alternatives remove a security boundary, confuse presentation with data, or ignore failure scenarios."
+          ]
+        },
+        {
+          "id": "commerce-payments-idempotency-q2",
+          "question": "Which definition matches the term “reliable payment confirmation”?",
+          "options": [
+            "The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid.",
+            "The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency.",
+            "A signed server request sent by a service when an event occurs.",
+            "This term has no precise technical definition."
+          ],
+          "correctIndex": 1,
+          "explanation": "“reliable payment confirmation” means: The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency.",
+          "answerExplanations": [
+            "This option is incorrect. It says « The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. ». The reference answer is « The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency. ». “reliable payment confirmation” means: The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency.",
+            "This option is correct. It says « The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency. ». “reliable payment confirmation” means: The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency.",
+            "This option is incorrect. It says « A signed server request sent by a service when an event occurs. ». The reference answer is « The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency. ». “reliable payment confirmation” means: The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency.",
+            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency. ». “reliable payment confirmation” means: The browser may start payment, but only the provider confirms its result through a signed server notification. A webhook is delivered at least once, possibly late or out of order, so handling must verify signature, amount, currency, identity, and idempotency."
+          ]
+        },
+        {
+          "id": "commerce-payments-idempotency-q3",
+          "question": "What is the best first fix when you observe: “The “Payment, webhooks, and idempotency” example runs, but it does not demonstrate reliable payment confirmation.”?",
+          "options": [
+            "Repeat the same action without reading the first error message.",
+            "Add an explicit verification case using this principle: Locking the order and comparing total/currency prevents concurrent events or a partial amount from producing an inconsistent transition.",
+            "Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "Hide the error in the interface and treat the problem as solved."
+          ],
+          "correctIndex": 2,
+          "explanation": "Diagnosis starts with this cause: The implementation contradicts this lesson rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+          "answerExplanations": [
+            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Add an explicit verification case using this principle: Locking the order and comparing total/currency prevents concurrent events or a partial amount from producing an inconsistent transition. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is correct. It says « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands.",
+            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands. ». Diagnosis starts with this cause: The implementation contradicts this lesson rule: The signature is verified according to the provider protocol before trusting the body; knowing an orderId does not authorize marking it paid. The appropriate fix is: Return to the first value that diverges, apply that rule, and rerun the lesson’s exact commands."
+          ]
+        }
+      ],
+      "recap": [
+        "You can now explain reliable payment confirmation with an input → transformation → output diagram.",
+        "Treat every webhook as untrusted and repeatable, verify external proof, and record event plus effect in one transaction.",
+        "L’ecomax marks paid only after a verified webhook, then triggers confirmation and stock once through a unique event.id."
+      ],
+      "next": "The next module deepens authentication, authorization, threats, secrets, and privacy duties."
+    }
+  ]
+}

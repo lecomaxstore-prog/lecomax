@@ -1,3 +1,4 @@
+import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -94,7 +95,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
-    const parsed = await req.json();
+    const parsed = await readJsonLimited(req);
     if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("invalid body");
     body = parsed as Record<string, unknown>;
   } catch {

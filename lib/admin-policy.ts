@@ -4,12 +4,16 @@ export function adminApiPermission(pathname: string, method: string): string | n
   const read = method === "GET" || method === "HEAD";
   if (path === "/api/admin/staff/permissions" || path === "/api/admin/push-subscribe") return null;
   if (path === "/api/admin/dashboard") return null; // handler filters metrics by permission
+  if (path === "/api/admin/auth/verify") return null;
   if (path === "/api/admin/approvals") return null; // handler restricts ownership
   if (path.startsWith("/api/admin/approvals/")) return undefined;
   if (/^\/api\/products(?:\/|$)/.test(path)) return read ? "products.view" : method === "DELETE" ? "products.delete" : method === "POST" ? "products.create" : "products.edit";
   if (/^\/api\/orders(?:\/|$)/.test(path)) return read ? "orders.view" : "orders.edit";
   if (path.startsWith("/api/admin/support")) return read ? "messages.view" : "messages.reply";
   const areas: Record<string, string> = {
+    inbox: read ? "messages.view" : "messages.reply", chat: read ? "messages.view" : "messages.reply",
+    "chat-kb": "messages.reply", "client-data": "customers.view",
+    analytics: "analytics.view", push: "push.send", points: "loyalty.edit", loyalty: "loyalty.edit",
     settings: "settings.edit", categories: "categories.edit", banners: "banners.edit", pages: "pages.edit",
     shipping: "shipping.edit", promotions: "promotions.edit", coupons: "promotions.edit", ads: "ads.edit",
     announcements: "announcement.edit", "size-guide": "size-guide.edit", newsletter: "newsletter.edit",

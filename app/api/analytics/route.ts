@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { verifySessionToken } from "@/lib/admin-session";
+import { isAdminRequest } from "@/lib/request-auth";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -48,8 +48,7 @@ function groupBySessions(rows: ViewRow[]) {
 }
 
 export async function GET(req: NextRequest) {
-  const session = req.cookies.get("admin_session")?.value;
-  if (!session || !(await verifySessionToken(session))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const requestedDays = Number.parseInt(new URL(req.url).searchParams.get("days") || "30", 10);
   const days = [7, 14, 30, 60, 90, 180].includes(requestedDays) ? requestedDays : 30;

@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -61,6 +62,9 @@ function harness(seed: Record<string, Row[]> = {}) {
     const module = { exports: {} };
     cache.set(filename, module.exports);
     const require = (id: string) => {
+      const securityModule = securityIo(id); if (securityModule) return securityModule;
+      if (id === "@/lib/api-security") return { protectAdminRead: async () => null, protectAdminMutation: async () => null };
+      if (id === "@/lib/chat-ownership") return { chatVisitor: async () => visitor, chatVisitorToken: async () => "test-cookie", CHAT_VISITOR_COOKIE: "chat_visitor", ownsChat: async () => true };
       if (id === "@supabase/supabase-js") return { createClient: () => db };
       if (id === "@/lib/push-notifications") return { broadcastAdminPushNotification: async () => { throw new Error("Unexpected notification"); } };
       if (id === "@/lib/groq-client") return { getGroqClient: () => { throw new Error("Unexpected AI request"); } };

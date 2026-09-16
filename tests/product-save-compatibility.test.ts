@@ -1,3 +1,4 @@
+import { securityIo } from "./helpers/security-io.ts";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -41,6 +42,7 @@ for (const method of ['POST', 'PUT']) {
       vm.runInNewContext(ts.transpileModule(readFileSync(resolve(path), 'utf8'), {
         compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
       }).outputText, { exports, console, process: { env: {} }, require: (name: string) => {
+      const securityModule = securityIo(name); if (securityModule) return securityModule;
         if (name in mocks) return mocks[name];
         const dependency = name.startsWith('@/') ? resolve(name.slice(2)) : resolve(dirname(path), name);
         return load(dependency.endsWith('.ts') ? dependency : dependency + '.ts');

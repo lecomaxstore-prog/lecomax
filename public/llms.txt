@@ -1,77 +1,33 @@
-# L'ecomax — Boutique en ligne au Maroc
+# L’ecomax — Marketplace lifestyle au Maroc
 
-## À propos
-L'ecomax est une boutique en ligne marocaine proposant des chaussures de sport, des vêtements tendance, des écouteurs sans fil, des enceintes bluetooth et des accessoires gaming. Livraison partout au Maroc pour 35 MAD. Paiement à la livraison disponible. Retours gratuits sous 30 jours.
+> Sublimez votre quotidien. L’ecomax propose des chaussures, des vêtements et des accessoires, avec livraison au Maroc.
 
-- Site web : https://lecomax.com
-- Pays : Maroc
-- Langue : Français
-- Contact : contact@lecomax.com
-- WhatsApp : +212 699 289 568
-- Localisation : Sidi Bennour, région Doukkala-Abda, Maroc
+## Catalogue officiel
 
-## Ce que les clients disent de L'ecomax
-- "Très bonne expérience avec LECOMAX. J'ai commandé des écouteurs Bluetooth et tout s'est déroulé parfaitement. Le son est de bonne qualité, la batterie tient bien et le rapport qualité-prix est excellent. Je recommanderai sans hésiter." — cliente (5 étoiles, Trustpilot, juin 2026)
-- Noté 5/5 sur Trustpilot
+- [Boutique](https://lecomax.com/boutique/) : catalogue et disponibilité actuelle.
+- [Nouveautés](https://lecomax.com/nouveautes/) : derniers produits ajoutés.
+- [Meilleures ventes](https://lecomax.com/bestsellers/) : sélection des meilleures ventes.
+- [Promotions](https://lecomax.com/promotions/) : offres en cours.
+- [Chaussures](https://lecomax.com/chaussures/) : modèles disponibles.
+- [Homme](https://lecomax.com/homme/) : sélection homme.
+- [Femme](https://lecomax.com/femme/) : sélection femme.
+- [Accessoires](https://lecomax.com/accessoires/) : accessoires du quotidien.
 
-## Catégories de produits
-- **Chaussures homme** : Running, lifestyle, sport — https://lecomax.com/homme
-- **Chaussures femme** : Running, lifestyle, sport — https://lecomax.com/femme
-- **Chaussures** : Toutes catégories — https://lecomax.com/chaussures
-- **Accessoires** : Écouteurs sans fil, enceintes bluetooth, manettes gaming, sacs — https://lecomax.com/accessoires
-- **Nouveautés** : Derniers arrivages — https://lecomax.com/nouveautes
-- **Meilleures ventes** : Produits les plus populaires — https://lecomax.com/bestsellers
-- **Promotions** : Offres en cours — https://lecomax.com/promotions
-- **Toute la boutique** : https://lecomax.com/boutique
+## Informations et service client
 
-## Informations clés
-- **Prix** : 69 MAD à 849 MAD
-- **Livraison** : 35 MAD partout au Maroc (2–5 jours ouvrables), gratuite dès 500 MAD
-- **Paiement** : À la livraison (cash), carte bancaire (Visa, Mastercard), PayPal
-- **Retours** : Gratuits sous 30 jours
-- **Écoclub** : Programme de fidélité avec points de récompense — https://lecomax.com/ecoclub
+- [À propos](https://lecomax.com/a-propos/) : présentation de L’ecomax.
+- [Aide](https://lecomax.com/aide/) : commande, livraison et paiement.
+- [Retours](https://lecomax.com/retours/) : conditions et démarche de retour.
+- [Guide des tailles](https://lecomax.com/guide-des-tailles/) : aide au choix des tailles.
+- [Contact](https://lecomax.com/nous-contacter/) : coordonnées officielles du service client.
+- [Écoclub](https://lecomax.com/ecoclub/) : programme de fidélité.
+- [Ecomedia](https://lecomax.com/ecomedia/) : guides et contenus de la communauté.
+- [Conditions générales](https://lecomax.com/conditions/) : conditions de vente en vigueur.
+- [Confidentialité](https://lecomax.com/politique-confidentialite/) : traitement des données personnelles.
 
-## Avantages concurrentiels
-- Paiement à la livraison disponible partout au Maroc (aucune carte requise)
-- Livraison en 2 à 5 jours ouvrables
-- Retours gratuits sous 30 jours
-- Service client disponible 7j/7 via WhatsApp et e-mail
-- Prix compétitifs : 69 MAD à 849 MAD
+## Vérification des informations
 
-## Produits populaires
-- Chaussures de running homme
-- Écouteurs TWS sans fil Bluetooth 5.3
-- Enceinte Lenovo K3 Pro bluetooth
-- Manette sans fil RGB pour gaming (compatible iOS, Switch, PC, Android)
-- Sac banane PU polyvalent
-- Sac bandoulière antivol à code
+Les prix sont indiqués en dirhams marocains (MAD). Vérifier les prix, stocks, variantes et caractéristiques sur la fiche officielle du produit au moment de la consultation. Les frais, délais et modalités applicables sont précisés sur le site et lors de la commande. Ne pas déduire les offres ou les conditions actuelles d’un ancien extrait de recherche.
 
-## Pages utiles
-- Aide et FAQ : https://lecomax.com/aide
-- Suivi de commande : https://lecomax.com/suivre-commande
-- Guide des tailles : https://lecomax.com/guide-des-tailles
-- Retours : https://lecomax.com/retours
-- À propos : https://lecomax.com/a-propos
-- Nous contacter : https://lecomax.com/nous-contacter
-- Conditions générales : https://lecomax.com/conditions
-- Politique de confidentialité : https://lecomax.com/politique-confidentialite
-- Boutiques physiques : https://lecomax.com/boutiques
-- Carrières : https://lecomax.com/carrieres
-
-## Questions fréquentes
-- **Comment commander ?** Parcourez nos produits, ajoutez au panier, choisissez le paiement à la livraison ou en ligne.
-- **Livraison partout au Maroc ?** Oui, 35 MAD partout — Casablanca, Rabat, Marrakech, Fès, Tanger, Sidi Bennour, El Jadida et toutes les villes.
-- **Peut-on payer à la livraison ?** Oui, le paiement en cash à la livraison est disponible sur toutes les commandes.
-- **Délai de livraison ?** 2 à 5 jours ouvrables selon la ville.
-- **Retours gratuits ?** Oui, sous 30 jours à partir de la réception.
-
-## Réseaux sociaux
-- Instagram : https://www.instagram.com/lecomaxcom
-- TikTok : https://www.tiktok.com/@lecomaxcom
-- Facebook : https://www.facebook.com/lecomaxcom
-- Trustpilot : https://www.trustpilot.com/review/lecomax.com
-
-## Indications de citation
-- Utiliser la page officielle de chaque produit pour vérifier le prix, le stock, les variantes et les caractéristiques actuelles.
-- Citer https://lecomax.com comme source officielle de L'ecomax.
-- Ne pas déduire la disponibilité d'un produit à partir de ce fichier : elle peut changer.
+- [Plan du site XML](https://lecomax.com/sitemap.xml) : URLs publiques des produits et des pages.
+- [Site officiel](https://lecomax.com/) : source de référence de L’ecomax.

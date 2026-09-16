@@ -1,3 +1,4 @@
+import { publicDatabaseError } from "@/lib/public-error";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
@@ -14,6 +15,6 @@ export async function GET(req: NextRequest) {
     .select("*")
     .order("points", { ascending: false });
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   return NextResponse.json(data ?? []);
 }

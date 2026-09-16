@@ -1,0 +1,89 @@
+import { msg, useLocale } from "@/i18n";
+import { router, usePathname } from "expo-router";
+import { memo, useEffect, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { BrandLogo } from "@/components/brand-logo";
+import { HeaderActionButton } from "@/components/header-action-button";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { supabase } from "@/lib/supabase";
+import { useCommerceStore } from "@/stores/commerce";
+import { useNotificationStore } from "@/stores/notifications";
+
+export const HomeHeader = memo(function HomeHeader() {
+  useLocale();
+  const [signedIn, setSignedIn] = useState(false);
+  const pathname = usePathname();
+  const colorScheme = useColorScheme();
+  const unreadCount = useNotificationStore((state) => state.unreadCount);
+  const cartCount = useCommerceStore((state) =>
+    state.cart.reduce((total, line) => total + line.quantity, 0),
+  );
+
+  useEffect(() => {
+    void supabase.auth
+      .getSession()
+      .then(({ data }) => setSignedIn(Boolean(data.session)));
+    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSignedIn(Boolean(session));
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
+
+  return (
+    <View style={[styles.root, colorScheme === "dark" && styles.rootDark]}>
+      <View style={styles.logoSlot}>
+        <BrandLogo header animated />
+      </View>
+      <View style={styles.actions}>
+        <HeaderActionButton
+          shape="rounded"
+          tone="ghost"
+          accessibilityLabel={msg("notifications.unreadCount", { count: unreadCount })}
+          icon="notifications-outline"
+          activeIcon="notifications"
+          active={pathname === "/notifications"}
+          badge={unreadCount}
+          onPress={() => router.push("/notifications")}
+        />
+        <HeaderActionButton
+          accessibilityLabel={signedIn ? msg("homeHeader.openMyProfile") : msg("auth.signInText")}
+          shape="rounded"
+          tone="ghost"
+          icon="person-outline"
+          activeIcon="person"
+          active={pathname === "/profile" || pathname === "/account"}
+          onPress={() => router.push(signedIn ? "/profile" : "/auth")}
+        />
+        <HeaderActionButton
+          accessibilityLabel={msg("cart.accessibleCount", { count: cartCount })}
+          shape="rounded"
+          tone="ghost"
+          icon="bag-handle-outline"
+          activeIcon="bag-handle"
+          active={pathname === "/cart"}
+          badge={cartCount}
+          onPress={() => router.push("/cart")}
+        />
+      </View>
+    </View>
+  );
+});
+
+const styles = StyleSheet.create({
+  root: {
+    minHeight: 64,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#FFFFFF",
+  },
+  rootDark: { backgroundColor: "#0B0B0B" },
+  logoSlot: { width: 106, alignItems: "flex-start" },
+  actions: {
+    flexShrink: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 2,
+  },
+});

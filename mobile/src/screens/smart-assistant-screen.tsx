@@ -82,12 +82,13 @@ export default function SmartAssistantScreen() {
         <View style={{ flex: 1 }}><Text style={styles.brand}>L’ECOMAX</Text><Text style={styles.headerTitle}>Votre assistant shopping</Text></View>
         <View style={styles.headerIcon}><Ionicons name="sparkles" size={19} color="#23843F" /></View>
       </View>
-      <KeyboardAvoidingView style={styles.body} behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      <KeyboardAvoidingView style={styles.body} behavior={Platform.OS === "ios" ? "padding" : Platform.OS === "android" ? "height" : undefined}>
         <FlatList
           ref={list}
           data={messages}
           keyExtractor={(_, index) => String(index)}
           keyboardShouldPersistTaps="handled"
+          onLayout={() => { if (messages.length) list.current?.scrollToEnd({ animated: false }); }}
           contentContainerStyle={styles.messages}
           onContentSizeChange={() => { if (messages.length) list.current?.scrollToEnd({ animated: true }); }}
           ListEmptyComponent={<View>
@@ -152,7 +153,7 @@ export default function SmartAssistantScreen() {
 }
 
 const styles = StyleSheet.create({
-  body: { flex: 1, width: "100%", maxWidth: 760, alignSelf: "center" },
+  body: { flex: 1, minHeight: 0, width: "100%", maxWidth: 760, alignSelf: "center" },
   header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, paddingVertical: 17, borderBottomWidth: 1, borderColor: "#E8EBE5", backgroundColor: "#FFFFFF" },
   back: { width: 42, height: 42, borderRadius: 15, borderWidth: 1, borderColor: "#E8EBE5", alignItems: "center", justifyContent: "center" },
   brand: { fontFamily: typography.bold, fontSize: 11, letterSpacing: 2, color: "#23843F", marginBottom: 5 },
