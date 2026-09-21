@@ -22,6 +22,7 @@ export async function getPushNotificationState() {
     supported: true,
     enabled: Notification.permission === "granted" && Boolean(subscription) && await secureGetItem(REGISTERED) === subscription?.endpoint && await secureGetItem(DISABLED) !== "true",
     status: Notification.permission === "default" ? "undetermined" : Notification.permission,
+    canAskAgain: Notification.permission === "default",
   };
 }
 

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import type { CardProduct } from "@/lib/products";
+import { isNewArrivalEligible, type CardProduct } from "@/lib/products";
 import ProductCard from "./ProductCard";
 import SearchOverlay from "./SearchOverlay";
 import { useCart } from "./CartContext";
@@ -46,7 +46,7 @@ export default function MobileHome({ products, heroImage }: Props) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const { count: cartCount } = useCart();
   const { count: wishlistCount } = useWishlist();
-  const arrivals = products.slice(0, 6);
+  const arrivals = products.filter(isNewArrivalEligible).slice(0, 6);
   const heroSrc = heroImage || "/images/hero secrtion/hero section mobile version.png";
   const tabs = [
     { id: "home", label: "Accueil", href: "/" },

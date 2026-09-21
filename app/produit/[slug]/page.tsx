@@ -1,6 +1,6 @@
 ﻿import { notFound } from "next/navigation";
 import Link from "next/link";
-import { formatMAD, products, type CardProduct, type Product } from "@/lib/products";
+import { formatMAD, products, isNewArrivalEligible, type CardProduct, type Product } from "@/lib/products";
 import { getDbProductRaw, getDbProducts, getProductReviewStats, getPublicProductSlugs } from "@/lib/db-server";
 import { rankSimilarProducts } from "@/lib/product-recommendations";
 import ProductActions from "@/components/ProductActions";
@@ -154,7 +154,7 @@ export default async function ProductPage({
       sizes: (dbProd.sizes as string[]) ?? [],
       image: (dbProd.images ?? [])[0] || "",
       gallery: (dbProd.images ?? []).filter(Boolean).slice(1),
-      badge: dbProd.featured ? "Nouveau" : undefined,
+      badge: dbProd.featured && isNewArrivalEligible(dbProd) ? "Nouveau" : undefined,
       description: dbProd.description ?? "",
       video: dbProd.video ?? undefined,
       descriptionImages: (dbProd.description_images as string[] | null) ?? undefined,

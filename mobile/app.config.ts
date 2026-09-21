@@ -24,8 +24,13 @@ const apiUrl = process.env.EXPO_PUBLIC_API_URL || process.env.NEXT_PUBLIC_SITE_U
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || local.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || local.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const productionBuild = process.env.EAS_BUILD_PROFILE?.startsWith("production") === true;
+const googleServicesFile = process.env.GOOGLE_SERVICES_JSON ||
+  (fs.existsSync(path.resolve(__dirname, "google-services.json")) ? "./google-services.json" : undefined);
 
 if (productionBuild) {
+  if (process.env.EAS_BUILD_PLATFORM === "android" && !googleServicesFile) {
+    throw new Error("Android push notifications require GOOGLE_SERVICES_JSON (an EAS file variable) or mobile/google-services.json.");
+  }
   if (!apiUrl.startsWith("https://")) throw new Error("Production API URL must use HTTPS.");
   if (!supabaseUrl?.startsWith("https://") || !supabaseAnonKey) {
     throw new Error("Production Supabase public client configuration is missing.");
@@ -34,6 +39,10 @@ if (productionBuild) {
 
 export default {
   ...baseConfig.expo,
+  android: {
+    ...baseConfig.expo.android,
+    ...(googleServicesFile ? { googleServicesFile } : {}),
+  },
   plugins: [
     ...(baseConfig.expo.plugins ?? []),
     [

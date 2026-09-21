@@ -17,6 +17,7 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { useAppViewport } from "@/components/app-viewport";
 import { CampaignHero } from "@/components/campaign-hero";
 import { NotificationOptIn } from "@/components/notification-opt-in";
+import { NotificationInvitation } from "@/components/notification-invitation";
 import { CategoryShortcuts } from "@/components/category-shortcuts";
 import { HomeHeader } from "@/components/home-header";
 import { HomePromotionSection } from "@/components/home-promotion-section";
@@ -148,6 +149,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView edges={["top"]} style={styles.safeArea}>
+      <NotificationInvitation />
       <ScrollView
         ref={scrollRef}
         {...scrollReturn}

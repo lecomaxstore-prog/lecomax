@@ -2,7 +2,7 @@ import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { getCustomerUser } from "@/lib/request-auth";
-import type { CardProduct } from "@/lib/products";
+import { isNewArrivalEligible, type CardProduct } from "@/lib/products";
 
 const MAX_WISHLIST_ITEMS = 100;
 
@@ -115,7 +115,7 @@ async function wishlistProducts(
       image: images[0] ?? "/images/placeholder.png",
       colors: Array.isArray(product.colors) ? product.colors.map(String) : [],
       sizes: Array.isArray(product.sizes) ? product.sizes.map(String) : [],
-      badge: product.featured ? "Nouveau" : undefined,
+      badge: product.featured && isNewArrivalEligible(product) ? "Nouveau" : undefined,
     });
   }
   return slugs

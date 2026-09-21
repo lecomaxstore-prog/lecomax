@@ -16,7 +16,7 @@ const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
-import { type CardProduct, products as catalogProducts } from "@/lib/products";
+import { type CardProduct, products as catalogProducts, isNewArrivalEligible } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
@@ -143,9 +143,10 @@ export default async function HomePage() {
   // Preserve the original selection; automatically include products created
   // after this feature was enabled. The live catalogue is newest first.
   const automaticNewArrivalsSince = Date.parse("2026-09-15T10:14:41Z");
-  const originalNewArrivals = allProducts.filter((product) => product.badge === "Nouveau");
-  const existingSelection = originalNewArrivals.length > 0 ? originalNewArrivals : allProducts;
-  const futureNewArrivals = allProducts.filter((product) =>
+  const newArrivalCandidates = allProducts.filter(isNewArrivalEligible);
+  const originalNewArrivals = newArrivalCandidates.filter((product) => product.badge === "Nouveau");
+  const existingSelection = originalNewArrivals.length > 0 ? originalNewArrivals : newArrivalCandidates;
+  const futureNewArrivals = newArrivalCandidates.filter((product) =>
     product.createdAt && Date.parse(product.createdAt) >= automaticNewArrivalsSince
   );
   const futureSlugs = new Set(futureNewArrivals.map((product) => product.slug));

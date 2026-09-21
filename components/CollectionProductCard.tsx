@@ -42,7 +42,7 @@ export default function CollectionProductCard({ product, index = 0, visibilityCl
           <div className="absolute top-3 right-3 flex flex-col gap-1 items-end">
             {outOfStock && (
               <span className="bg-neutral-950 px-2.5 py-[5px] text-[10px] font-black uppercase tracking-[0.12em] leading-none text-white">
-                �puis�
+                Épuisé
               </span>
             )}
             {product.badge && (
@@ -60,7 +60,7 @@ export default function CollectionProductCard({ product, index = 0, visibilityCl
           <div className="product-card-cta absolute inset-x-0 bottom-0 px-3 pb-3 pt-12 pointer-events-none">
             <div className={`flex min-h-11 items-center justify-between rounded-xl border px-3.5 pl-4 shadow-[0_8px_24px_rgba(0,0,0,.16)] backdrop-blur-md ${outOfStock ? "border-white/10 bg-neutral-950/95 text-white" : "border-transparent bg-[#f1f2f2] text-[#4f5553]"}`}>
               <span className="text-[10px] font-extrabold tracking-[0.08em]">
-                {outOfStock ? "Produit �puis�" : "Voir le produit"}
+                {outOfStock ? "Produit épuisé" : "Voir le produit"}
               </span>
               <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${outOfStock ? "bg-white/10 text-white" : "bg-[#079b70] text-white"}`}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

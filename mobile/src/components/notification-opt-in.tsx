@@ -11,7 +11,7 @@ import { getMobileNotificationPreferences, updateMobileNotificationPreferences }
 import { supabase } from "@/lib/supabase";
 import { useSettings } from "@/hooks/use-catalog";
 
-export function NotificationOptIn() {
+export function NotificationOptIn({ onEnabled }: { onEnabled?: () => void } = {}) {
   useLocale();
   const client = useQueryClient();
   const settings = useSettings();
@@ -41,6 +41,7 @@ export function NotificationOptIn() {
         }
       }
       await state.refetch();
+      if (token) onEnabled?.();
     } catch { setError(true); }
     finally { setBusy(false); }
   };
@@ -52,7 +53,7 @@ export function NotificationOptIn() {
     catch { setError(true); }
     finally { setBusy(false); }
   };
-  const denied = state.data?.status === "denied";
+  const denied = state.data?.status === "denied" && !state.data?.canAskAgain;
   const unsupported = state.data && !state.data.supported;
   return (
     <Animated.View entering={FadeInDown.duration(500).reduceMotion(ReduceMotion.System)} style={styles.card}>

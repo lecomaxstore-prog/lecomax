@@ -64,12 +64,12 @@ export async function registerForPushNotifications(
   await configureAndroidChannels();
   const current = await Notifications.getPermissionsAsync();
   const permission =
-    current.status === "granted"
+    current.granted || current.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL
       ? current
       : options.requestPermission === false
         ? current
         : await Notifications.requestPermissionsAsync();
-  if (permission.status !== "granted") return null;
+  if (!permission.granted && permission.ios?.status !== Notifications.IosAuthorizationStatus.PROVISIONAL) return null;
 
   const projectId =
     Constants.expoConfig?.extra?.eas?.projectId ??
@@ -98,8 +98,9 @@ export async function getPushNotificationState() {
   const disabled = await secureGetItem(PUSH_DISABLED_KEY) === "true";
   return {
     supported: true,
-    enabled: permission.status === "granted" && Boolean(token) && !disabled,
+    enabled: (permission.granted || permission.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) && Boolean(token) && !disabled,
     status: permission.status,
+    canAskAgain: permission.canAskAgain,
   };
 }
 

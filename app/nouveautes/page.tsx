@@ -2,7 +2,7 @@
 import { useStoreRefresh } from "@/lib/use-store-refresh";
 import { useMemo, useRef, useState } from "react";
 import ProductCard from "@/components/ProductCard";
-import { apiToCard, type CardProduct } from "@/lib/products";
+import { apiToCard, isNewArrivalEligible, type CardProduct } from "@/lib/products";
 
 export default function NouveautesPage() {
   const PRODUCTS_PER_PAGE = 10;
@@ -15,7 +15,7 @@ export default function NouveautesPage() {
       .then((r) => r.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          const dbCards = data.map(apiToCard);
+          const dbCards = data.map(apiToCard).filter(isNewArrivalEligible);
           setList(dbCards);
           setPage(current => Math.max(1, Math.min(current, Math.ceil(dbCards.length / PRODUCTS_PER_PAGE))));
         }

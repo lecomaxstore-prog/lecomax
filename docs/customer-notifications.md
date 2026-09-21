@@ -1,5 +1,40 @@
 # Customer product and offer notifications
 
+## September 21 activation repair
+
+The home screen now shows a one-time notification invitation after 2.5 seconds,
+once settings and device permission have loaded. Customers can activate or choose
+Later; the existing home/account controls remain available. Unsupported devices,
+previously answered system permission requests, and the admin disable switch do
+not trigger the invitation. Native registration accepts iOS provisional permission,
+and Android can request permission again when the OS allows it. Background
+registration retries temporary failures twice without opening permission prompts.
+
+The read-only September 21 database check still reports PGRST205 for
+`mobile_web_push_subscriptions`, `mobile_push_receipts`, and
+`mobile_campaign_dispatches`. The SQL RPC is unavailable and no direct database
+connection is configured locally. Apply the deployment migrations listed below
+using the Supabase SQL editor or an authorized database connection. These changes
+have not been applied to production by this repair.
+
+Android configuration now reads `GOOGLE_SERVICES_JSON` (an EAS file environment
+variable) or `mobile/google-services.json`. Obtain that file for the Firebase Android
+app with package `com.lecomax.app`. Production Android builds on EAS fail clearly
+if neither is supplied. Also configure the corresponding FCM V1 service account
+in the EAS project's Android push credentials, following
+[Expo's FCM setup](https://docs.expo.dev/push-notifications/fcm-credentials/).
+The service account private key belongs in EAS credentials, not in the app bundle.
+Firebase native configuration requires a new Android binary, not just an OTA update.
+
+Before rollout, install the new binary on a test phone, accept the invitation,
+verify successful subscription, and send a notification only to that test device.
+Check delivery with the app open and closed, notification navigation, opt-out,
+and recovery after changing permission in phone settings. Physical delivery and
+production rollout remain unverified until credentials and database access exist.
+
+Validated locally: mobile TypeScript checks, six registration/Expo response tests,
+and the isolated SQL campaign/migration test (including repeat execution).
+
 Publishing an active product queues one new-product campaign. Publishing an active,
 unexpired promotion queues one offer campaign. Adding a discount to an existing
 active product, or lowering its discounted price, queues an offer campaign. Repeated

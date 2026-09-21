@@ -17,7 +17,23 @@ export function MobileNotificationLifecycle() {
       void queryClient.invalidateQueries({ queryKey: ["mobile-notifications"] });
       void getMobileNotificationInbox().then(inbox => setUnreadCount(inbox.unreadCount)).catch(() => {});
     };
-    const register = () => void registerForPushNotifications(undefined, { requestPermission: false }).catch(() => {});
+    let disposed = false;
+    let registering = false;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    const register = (attempt = 0) => {
+      if (disposed || registering) return;
+      clearTimeout(retryTimer);
+      registering = true;
+      void registerForPushNotifications(undefined, { requestPermission: false })
+        .then(() => {
+          if (!disposed) void queryClient.invalidateQueries({ queryKey: ["push-permission"] });
+        })
+        .catch(() => {
+          // Recover from a temporary offline launch without prompting again.
+          if (!disposed && attempt < 2) retryTimer = setTimeout(() => register(attempt + 1), 15_000 * (attempt + 1));
+        })
+        .finally(() => { registering = false; });
+    };
     refresh();
     register();
     const foreground = AppState.addEventListener("change", state => {
@@ -35,12 +51,13 @@ export function MobileNotificationLifecycle() {
       const message = (event: MessageEvent) => { if (event.data?.type === "LECOMAX_NOTIFICATION") refresh(); };
       if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", message);
       return () => {
+        disposed = true; clearTimeout(retryTimer);
         foreground.remove(); auth.data.subscription.unsubscribe();
         if ("serviceWorker" in navigator) navigator.serviceWorker.removeEventListener("message", message);
       };
     }
     const tokenChanges = Notifications.addPushTokenListener(() => {
-      void registerForPushNotifications(undefined, { requestPermission: false }).catch(() => {});
+      register();
     });
 
     const received = Notifications.addNotificationReceivedListener(() => {
@@ -58,6 +75,7 @@ export function MobileNotificationLifecycle() {
         .catch(() => {});
     }
     return () => {
+      disposed = true; clearTimeout(retryTimer);
       foreground.remove();
       received.remove();
       responses.remove();

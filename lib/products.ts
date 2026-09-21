@@ -295,7 +295,6 @@ const accessoires: Product[] = [
     category: "accessoires",
     subCategory: "Audio",
     price: 99,
-    badge: "Nouveau",
     colors: ["Édition Standard"],
     sizes: ["Taille unique"],
     image: "/images/products/Lenovo%20K3%20PRO/1.avif",
@@ -356,7 +355,6 @@ const accessoires: Product[] = [
     category: "accessoires",
     subCategory: "Audio",
     price: 99,
-    badge: "Nouveau",
     colors: ["Blanc", "Noir"],
     sizes: ["Taille unique"],
     image: "/images/products/lenovo%20gm2%20pro/1.avif",
@@ -390,7 +388,6 @@ const accessoires: Product[] = [
     category: "accessoires",
     subCategory: "Audio",
     price: 99,
-    badge: "Nouveau",
     colors: ["Blanc", "Noir"],
     sizes: ["Taille unique"],
     image: "/images/products/lenovo%20lp40%20pro/1.avif",
@@ -552,11 +549,16 @@ export function apiToCard(p: {
       "/images/placeholder.png",
     colors: (p.colors as string[]) ?? [],
     sizes: (p.sizes as string[]) ?? [],
-    badge: p.featured ? "Nouveau" : undefined,
+    badge: p.featured && isNewArrivalEligible(p) ? "Nouveau" : undefined,
     createdAt: p.created_at,
     preorder_enabled: p.preorder_enabled === true,
     preorder_estimated_at: p.preorder_estimated_at ?? null,
     preorder_message: p.preorder_message ?? null,
     stock: typeof p.stock === "number" ? p.stock : undefined,
   };
+}
+
+/** Restored Lenovo catalogue items must not be promoted as new arrivals. */
+export function isNewArrivalEligible(product: { slug: string; name: string; brand?: string | null }): boolean {
+  return !/\blenovo\b/i.test(`${product.brand ?? ""} ${product.slug} ${product.name}`);
 }
