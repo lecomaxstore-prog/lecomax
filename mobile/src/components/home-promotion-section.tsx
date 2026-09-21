@@ -249,9 +249,9 @@ const styles = StyleSheet.create({
   },
   productImage: {
     position: "absolute",
-    top: 42,
+    top: 20,
     right: 10,
-    bottom: 42,
+    bottom: 20,
     left: 10,
   },
   offerBadge: {

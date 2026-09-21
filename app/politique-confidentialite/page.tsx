@@ -212,6 +212,11 @@ export default function PolitiqueConfidentialitePage() {
             </div>
 
             {/* nav links */}
+            <div className="mt-8 rounded-xl border border-neutral-200 p-6">
+              <h2 className="text-lg font-semibold">Suppression du compte L&apos;ecomax</h2>
+              <p className="mt-2 text-sm text-neutral-600">Demandez la suppression de votre compte et des données associées, sans vous connecter.</p>
+              <Link href="/suppression-compte/" className="mt-3 inline-block font-semibold underline underline-offset-4">Demander la suppression de mon compte</Link>
+            </div>
             <div className="mt-8 flex flex-wrap items-center gap-6 pt-6 border-t border-neutral-100">
               <Link href="/" className="inline-flex items-center gap-2 text-[12px] font-bold text-neutral-400 hover:text-black transition-colors">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>

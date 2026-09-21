@@ -26,3 +26,11 @@ The shared limiter covers its existing sensitive-route call sites. General middl
 ## Search discovery
 
 The preceding release passed live metadata, sitemap, crawler and API-protection checks, and IndexNow accepted 52 public URLs. Direct Google Search Console access remains unavailable in this session; a connection is still needed for Google-specific inspection or submission. Neither IndexNow acceptance nor crawler access guarantees indexing.
+
+## Resumed production verification — 15 September 2026
+
+- Confirmed the production shared Redis limiter: HTTP 429 on invalid tracking request 31, with Retry-After 893 seconds. Requests omitted order/email parameters; no customer data was queried.
+- Re-ran the release verification successfully: homepage SEO metadata, canonical URL, parseable structured data, crawler access, 52 canonical sitemap URLs, public discovery content, and anonymous API protection.
+- The public Google Merchant feed returned HTTP 200 and parsed as XML with 25 product items.
+- The release checkout already contains commit `3a9584c` for Redis configuration and the historical key verification record. No additional application deployment was needed for these passing checks.
+- Browser inventory returned no connected browsers, and no Search Console connector is available. Google-specific sitemap submission, URL inspection, and Merchant Center account configuration remain unverified and require an accessible owner session.

@@ -29,6 +29,7 @@ const staticPages: SitemapEntry[] = [
   { path: "/conditions/", changeFrequency: "yearly", priority: 0.3 },
   { path: "/conditions-utilisation/", changeFrequency: "yearly", priority: 0.3 },
   { path: "/politique-confidentialite/", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/suppression-compte/", changeFrequency: "yearly", priority: 0.3 },
   { path: "/cookies/", changeFrequency: "yearly", priority: 0.3 },
 ];
 

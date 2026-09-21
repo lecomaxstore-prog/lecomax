@@ -25,7 +25,9 @@ export function ZoomableProductPhoto({ uri, name }: { uri: string; name: string 
     current.current = { scale, x: Math.min(maxX, Math.max(-maxX, next.x)), y: Math.min(maxY, Math.max(-maxY, next.y)) };
     setPosition(current.current);
   };
-  const responder = useRef(PanResponder.create({
+  // PanResponder registers these callbacks; refs are read only during gestures.
+  // eslint-disable-next-line react-hooks/refs
+  const [responder] = useState(() => PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
     onPanResponderGrant: () => {
@@ -57,7 +59,7 @@ export function ZoomableProductPhoto({ uri, name }: { uri: string; name: string 
       }
     },
     onPanResponderTerminationRequest: () => false,
-  })).current;
+  }));
 
   return <View style={styles.container}>
     <View style={styles.stage} onLayout={event => {

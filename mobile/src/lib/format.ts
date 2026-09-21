@@ -1,7 +1,7 @@
 import { currentLocale } from "@/i18n";
-import { runtimeConfig } from "@/lib/runtime-config";
 
-const siteUrl = runtimeConfig.apiUrl;
+// Product media lives on the website; the local Metro proxy only serves /api.
+const siteUrl = "https://lecomax.com";
 
 export const moneyParts = (value: number, currency = "MAD") => {
   const safeCurrency = /^[A-Z]{3}$/.test(currency.toUpperCase()) ? currency.toUpperCase() : "MAD";

@@ -336,10 +336,15 @@ export async function POST(req: NextRequest) {
     p_settings: commerce.config.rawSettings, p_setting_keys: COMMERCE_SETTING_KEYS,
     p_zones: commerce.config.zones, p_coupon: commerce.coupon });
   if (error) {
+    console.error("Order creation RPC failed:", error);
+
     const conflict = /STOCK|UNAVAILABLE|VARIANT|FULFILLMENT_CHANGED|PRICE_CHANGED|CONFIGURATION_CHANGED|COUPON/.test(error.message);
     return NextResponse.json({ error: conflict ? preorderCopy.fr.changed : "La création sécurisée de la commande est indisponible.", code: conflict ? error.message : "ORDER_TRANSACTION_UNAVAILABLE" }, { status: conflict ? 409 : 503 });
   }
-  if (!data) return NextResponse.json({ error: "Commande indisponible." }, { status: 503 });
+  if (!data) {
+    console.error("Order creation RPC returned no data");
+    return NextResponse.json({ error: "Commande indisponible." }, { status: 503 });
+  }
   if (data.duplicate) return NextResponse.json({ id: data.id, order_number: data.order_number, items: data.items, duplicate: true });
   revalidateTag("storefront-products");
   items.splice(0, items.length, ...data.items);

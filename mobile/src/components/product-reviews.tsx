@@ -206,6 +206,8 @@ export const ProductReviews = memo(function ProductReviews({
   const verificationVersion = useRef(0);
   const invitation = useLocalSearchParams<{ order?: string }>();
   useEffect(() => {
+    // Synchronize the editable order field when a review invitation changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (typeof invitation.order === "string") setOrderNumber(invitation.order);
   }, [invitation.order]);
   const invalidateProof = () => {
@@ -265,6 +267,8 @@ export const ProductReviews = memo(function ProductReviews({
 
   useEffect(() => {
     let active = true;
+    // A different product invalidates purchase proof and the previous review draft.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     invalidateProof();
     setReviewOpen(false);
     setSuccess(false);

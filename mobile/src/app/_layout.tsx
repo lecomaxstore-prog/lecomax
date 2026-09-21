@@ -140,6 +140,12 @@ function WebMouseScrollBridge() {
 
     const onMouseDown = (event: MouseEvent) => {
       if (event.button !== 0) return;
+      draggedScroller = null;
+      suppressClick = false;
+      // Text selection and form controls must keep the browser's focus behavior.
+      if (event.target instanceof Element && event.target.closest(
+        'input, textarea, select, button, a, [contenteditable="true"], [role="textbox"], [role="button"]',
+      )) return;
       draggedScroller = findHorizontalScroller(event.target, false);
       if (!draggedScroller) return;
       dragStartX = event.clientX;

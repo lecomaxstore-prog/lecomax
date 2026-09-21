@@ -85,7 +85,7 @@ export default function AccountScreen() {
   const localName = useUserStore((state) => state.name);
   const [session, setSession] = useState<Session | null>();
   const [sessionError, setSessionError] = useState<string>();
-  const [sheet, setSheet] = useState<Sheet>(null);
+  const [sheet, setSheetState] = useState<Sheet>(null);
   const [notificationState, setNotificationState] =
     useState<NotificationState>("loading");
   const [notificationSaving, setNotificationSaving] = useState(false);
@@ -103,12 +103,13 @@ export default function AccountScreen() {
   const [logoutError, setLogoutError] = useState<string>();
   const logoutPending = useRef(false);
 
-  useEffect(() => {
-    if (sheet !== "settings") {
+  function setSheet(next: Sheet) {
+    setSheetState(next);
+    if (next !== "settings") {
       setLogoutConfirming(false);
       setLogoutError(undefined);
     }
-  }, [sheet]);
+  }
 
   const settings = useMemo(
     () =>
@@ -1625,3 +1626,4 @@ const styles = StyleSheet.create({
   },
   darkBorder: { backgroundColor: "#343A35" },
 });
+

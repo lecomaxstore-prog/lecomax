@@ -1,0 +1,78 @@
+[
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-gm2-pro-ecouteurs/",
+    "agent": "Mozilla/5.0",
+    "status": 404,
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex\"/>",
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/\"/>"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-lp40-pro-ecouteurs/",
+    "agent": "Mozilla/5.0",
+    "status": 404,
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex\"/>",
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/\"/>"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-k3-pro-enceinte/",
+    "agent": "Mozilla/5.0",
+    "status": 200,
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/a-lenovo-k3-pro-enceinte/\"/>"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-gm2-pro-ecouteurs/",
+    "agent": "Googlebot",
+    "status": 404,
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex\"/>",
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/\"/>"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-lp40-pro-ecouteurs/",
+    "agent": "Googlebot",
+    "status": 404,
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex\"/>",
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/\"/>"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/a-lenovo-k3-pro-enceinte/",
+    "agent": "Googlebot",
+    "status": 200,
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/produit/a-lenovo-k3-pro-enceinte/\"/>"
+    ]
+  }
+]

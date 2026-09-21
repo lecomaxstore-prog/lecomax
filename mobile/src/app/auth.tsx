@@ -17,7 +17,6 @@ import {
   type TextStyle,
   View,
 } from "react-native";
-import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { z } from "zod";
 import { AnimatedPressable } from "@/components/animated-pressable";
@@ -56,6 +55,9 @@ export default function AuthScreen() {
   const params = useLocalSearchParams<{
     mode?: "login" | "signup";
     returnTo?: string;
+    code?: string;
+    error?: string;
+    error_description?: string;
   }>();
   const insets = useSafeAreaInsets();
   const [mode, setMode] = useState<"login" | "signup">(
@@ -92,20 +94,28 @@ export default function AuthScreen() {
   });
 
   useEffect(() => {
-    if (Platform.OS !== "web") return;
-    const callback = new URL(window.location.href);
+    const callback = new URL(Platform.OS === "web" ? window.location.href : "lecomax://auth");
+    if (Platform.OS !== "web") {
+      for (const key of ["code", "error", "error_description", "returnTo"] as const) {
+        const value = params[key];
+        if (typeof value === "string") callback.searchParams.set(key, value);
+      }
+    }
     if (!callback.searchParams.has("code") && !callback.searchParams.has("error")) return;
     let active = true;
-    setGoogleLoading(true);
     googlePending.current = true;
-    void completeGoogleSignIn(callback.href).then(() => {
+    void Promise.resolve().then(() => {
+      if (!active) return;
+      setGoogleLoading(true);
+      return completeGoogleSignIn(callback.href);
+    }).then(() => {
       if (active) {
-        window.history.replaceState(null, "", "/auth");
+        if (Platform.OS === "web") window.history.replaceState(null, "", "/auth");
         router.replace(callback.searchParams.get("returnTo") === "account" ? "/account" : "/profile");
       }
     }).catch(() => {
       if (active) {
-        window.history.replaceState(null, "", "/auth");
+        if (Platform.OS === "web") window.history.replaceState(null, "", "/auth");
         setFeedback({ type: "error", message: msg("auth.googleFailed") });
       }
     }).finally(() => {
@@ -115,7 +125,7 @@ export default function AuthScreen() {
       }
     });
     return () => { active = false; };
-  }, []);
+  }, [params.code, params.error, params.error_description, params.returnTo]);
 
   const continueWithGoogle = async () => {
     if (googlePending.current || isSubmitting) return;
@@ -134,7 +144,7 @@ export default function AuthScreen() {
     }
   };
 
-  const submit = handleSubmit(
+  const submit = () => handleSubmit(
     async ({ firstName, lastName, email, password, confirmPassword }) => {
       if (googlePending.current) return;
       setFeedback(undefined);
@@ -201,7 +211,7 @@ export default function AuthScreen() {
 
       router.replace(params.returnTo === "account" ? "/account" : "/profile");
     },
-  );
+  )();
 
   const resetPassword = async () => {
     if (resetting) return;
@@ -241,7 +251,7 @@ export default function AuthScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      enabled
+      enabled={Platform.OS !== "web"}
       style={styles.screen}
     >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 10) }]}>
@@ -282,7 +292,7 @@ export default function AuthScreen() {
             clearErrors();
           }} />
         ) : <>
-        <Animated.View entering={FadeIn.duration(320)} style={styles.intro}>
+        <View style={styles.intro}>
           <Text style={styles.title}>
             {mode === "login" ? msg("auth.welcomeBack") : msg("auth.welcomeToLEcomax")}
           </Text>
@@ -291,12 +301,9 @@ export default function AuthScreen() {
               ? msg("auth.signInToAccessYourAccount")
               : msg("auth.createYourAccountInJustAFewMoments")}
           </Text>
-        </Animated.View>
+        </View>
 
-        <Animated.View
-          entering={FadeInDown.delay(100).duration(380)}
-          style={styles.form}
-        >
+        <View style={styles.form}>
           <Text style={styles.formTitle}>{mode === "login" ? msg("auth.signIn") : msg("auth.createAnAccount")}</Text>
           {feedback ? (
             <View
@@ -726,7 +733,7 @@ export default function AuthScreen() {
               style={styles.alternateArrow}
             />
           </AnimatedPressable>
-        </Animated.View>
+        </View>
         </>}
       </ScrollView>
     </KeyboardAvoidingView>
@@ -848,7 +855,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFBF8",
   },
   inputShellFocused: {
-    borderWidth: 1.5,
     borderColor: "#458853",
     shadowColor: palette.ink,
     shadowOffset: { width: 0, height: 4 },
@@ -875,7 +881,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
     color: palette.ink,
     fontFamily: typography.medium,
-    fontSize: 13,
+    fontSize: 16,
     outlineWidth: 0,
   },
   nameInput: { marginLeft: 5 },

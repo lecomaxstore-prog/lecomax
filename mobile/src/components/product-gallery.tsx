@@ -120,7 +120,7 @@ export const ProductGallery = memo(function ProductGallery({
   const galleryWidth = contentWidth;
   const galleryHeight = Math.max(
     320,
-    Math.min(galleryWidth * 1.02, windowHeight * 0.52, 520),
+    Math.min(galleryWidth * 1.12, windowHeight * 0.58, 580),
   );
   const media = useMemo<GalleryItem[]>(
     () => [
@@ -478,8 +478,7 @@ const styles = StyleSheet.create({
   },
   productImage: {
     width: "100%",
-    height: "96%",
-    transform: [{ translateY: 6 }],
+    height: "100%",
   },
   missingImage: {
     width: "100%",

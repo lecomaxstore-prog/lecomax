@@ -1,4 +1,4 @@
-﻿import { queryOptions } from "@tanstack/react-query";
+import { queryOptions } from "@tanstack/react-query";
 import { z } from "zod";
 import { ApiError, apiRequestValidated } from "@/lib/api-client";
 const responseSchema = z.discriminatedUnion("status", [

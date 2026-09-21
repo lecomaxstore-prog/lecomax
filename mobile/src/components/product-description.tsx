@@ -1,4 +1,4 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { productTranslationOptions } from "@/lib/product-translation-query";
@@ -50,3 +50,4 @@ const styles = StyleSheet.create({
   actionText: { color: "#203D2C", fontFamily: typography.medium, fontSize: 11 },
   description: { color: "#6F7568", fontFamily: typography.regular, fontSize: 13, lineHeight: 23 },
 });
+

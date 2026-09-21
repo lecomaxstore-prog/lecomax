@@ -40,11 +40,11 @@ test("local translation preview override never changes release or native API rou
     [true, "web", "app.lecomax.com", "https://lecomax.com"],
   ] as const) {
     const { runtimeConfig } = load("mobile/src/lib/runtime-config.ts", {
-      __DEV__: dev, location: { hostname },
+      __DEV__: dev, location: { hostname, origin: `https://${hostname}` },
       process: { env: { EXPO_PUBLIC_TRANSLATION_API_URL: "http://127.0.0.1:3002" } },
       require: (name: string) => name === "expo-constants" ? { default: { expoConfig: { extra: { apiUrl: "https://lecomax.com" } } } } : { Platform: { OS: platform } },
     });
     assert.equal(runtimeConfig.translationApiUrl, expected);
-    assert.equal(runtimeConfig.apiUrl, "https://lecomax.com");
+    assert.equal(runtimeConfig.apiUrl, dev && platform === "web" && hostname === "localhost" ? "https://localhost" : "https://lecomax.com");
   }
 });

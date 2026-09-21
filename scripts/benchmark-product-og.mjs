@@ -48,7 +48,7 @@ async function measure(label, fn) {
     wallMs: Math.round(performance.now() - start), bytes: bytes.length, conversions }));
   return bytes;
 }
-const original = load(execFileSync('git', ['show', 'c70b3b3:app/api/og/product/[slug]/route.tsx'], { encoding: 'utf8' }));
+const original = load(execFileSync('git', ['show', 'HEAD:app/api/og/product/[slug]/route.tsx'], { encoding: 'utf8' }));
 current = load(readFileSync(new URL('../lib/product-og-renderer.tsx', import.meta.url), 'utf8'));
 const reference = await measure('original', () => original.GET(new Request('https://example.test'), { params: Promise.resolve({ slug: product.slug }) }));
 const output = await measure('current-cold', () => current.renderProductOgImage(product));

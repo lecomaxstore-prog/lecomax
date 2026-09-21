@@ -1,0 +1,86 @@
+[
+  {
+    "url": "https://www.lecomax.com/images/products/lenovo gm2 pro/4.avif",
+    "status": 200,
+    "finalUrl": "https://www.lecomax.com/images/products/lenovo%20gm2%20pro/4.avif",
+    "inSitemap": false,
+    "canonical": [],
+    "robots": [],
+    "robotsHeader": null,
+    "h1": []
+  },
+  {
+    "url": "https://lecomax.com/images/products/Sac bandoulière/4.avif",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/images/products/Sac%20bandouli%C3%A8re/4.avif",
+    "inSitemap": false,
+    "canonical": [],
+    "robots": [],
+    "robotsHeader": null,
+    "h1": []
+  },
+  {
+    "url": "https://lecomax.com/authentication.html",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/connexion/",
+    "inSitemap": false,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"noindex, nofollow, nocache\"/>",
+      "<meta name=\"googlebot\" content=\"noindex, nofollow, noimageindex\"/>"
+    ],
+    "robotsHeader": "noindex, nofollow, noarchive, noimageindex",
+    "title": "Connexion",
+    "h1": [
+      "Heureux de vous revoir."
+    ]
+  },
+  {
+    "url": "https://lecomax.com/images/products/BAASPLOA Men's Lightweight Running \nSneakers/Yellow.avif",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/images/products/BAASPLOA%20Men's%20Lightweight%20Running%20Sneakers/Yellow.avif",
+    "inSitemap": false,
+    "canonical": [],
+    "robots": [],
+    "robotsHeader": null,
+    "h1": []
+  },
+  {
+    "url": "https://lecomax.com/produit/h-doudoune-hiver",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/homme/",
+    "inSitemap": false,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/homme/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Vêtements Homme | L&#x27;ecomax — Maroc",
+    "h1": [
+      "Homme"
+    ]
+  },
+  {
+    "url": "https://lecomax.com/produit/c-running-daily",
+    "status": 200,
+    "finalUrl": "https://lecomax.com/chaussures/",
+    "inSitemap": false,
+    "canonical": [
+      "<link rel=\"canonical\" href=\"https://lecomax.com/chaussures/\"/>"
+    ],
+    "robots": [
+      "<meta name=\"robots\" content=\"index, follow\"/>",
+      "<meta name=\"googlebot\" content=\"index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1\"/>"
+    ],
+    "robotsHeader": null,
+    "title": "Chaussures Sport &amp; Lifestyle | L&#x27;ecomax — Maroc",
+    "h1": [
+      "Chaussures"
+    ]
+  }
+]
