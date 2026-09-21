@@ -3,7 +3,12 @@ function internalPath(value: string) {
     const url = value.includes("://")
       ? new URL(value)
       : new URL(value, "https://lecomax.com");
-    const path = url.pathname.replace(/\/+$/, "") || "/";
+    // In lecomax://auth, "auth" is the URL hostname, not its pathname.
+    // Keep it as the route so OAuth callbacks reach the code-exchange screen.
+    const route = url.protocol === "lecomax:" && url.hostname
+      ? `/${url.hostname}${url.pathname}`
+      : url.pathname;
+    const path = route.replace(/\/+$/, "") || "/";
     if (path.startsWith("/produit/")) {
       return `/product/${encodeURIComponent(decodeURIComponent(path.slice(9)))}${url.search}`;
     }

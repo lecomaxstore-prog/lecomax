@@ -1,5 +1,27 @@
 # Google sign-in
 
+## September 21 callback routing repair
+
+Native links such as `lecomax://auth?code=...` previously lost the `auth` route
+because the URL parser puts it in `hostname`, leaving `pathname` empty. The
+system-link handler now combines the hostname and pathname for the app scheme,
+preserving the authorization code and account destination. This routes both cold
+and warm app callbacks to the existing PKCE completion screen instead of Home.
+Triple-slash, relative, and HTTPS product links remain supported.
+
+The hosted Google provider and `lecomax://auth**` redirect were checked and are
+enabled. No hosted settings were changed for this repair. Publish an app update
+containing this JavaScript fix before testing the installed app. Automated tests
+cover link routing, code exchange, cancellation, and callback navigation; an actual
+Google account round trip still needs device verification.
+
+Published to Android `production`, runtime `1.0.7`, on September 21, 2026:
+update group `daa711f6-15df-472a-82ea-aa20dbd2931c`, Android update
+`01a0c55f-ddc8-7c01-b738-b6eafe1275d2`. Release source is the existing live
+`b609b4d` baseline in `release/current-fixes-publish` plus the native-intent fix.
+Reopen the app online and accept the downloaded-update restart prompt before
+testing Google sign-up.
+
 The same **Continue with Google** action creates an account or signs in an existing user. The app uses Supabase Google OAuth with PKCE. Google client secrets stay in Supabase, never in the app.
 
 Google is enabled. The hosted Supabase redirect allowlist was updated and read back successfully on September 14, 2026. The existing website redirects were preserved, and these app callbacks were added:

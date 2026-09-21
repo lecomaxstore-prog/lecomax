@@ -83,3 +83,17 @@ test("iOS retains keyboard padding and web leaves keyboard sizing to its viewpor
   assert.equal(web.props.enabled, false);
   assert.equal(web.props.behavior, undefined);
 });
+test("Android system link reaches the callback screen and finishes at the account", async () => {
+  const intent: any = {};
+  vm.runInNewContext(ts.transpileModule(readFileSync(new URL("../mobile/src/app/+native-intent.ts", import.meta.url), "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText, { exports: intent, URL });
+  const route = intent.redirectSystemPath({ path: "lecomax://auth?code=google-code&returnTo=account", initial: true });
+  const url = new URL(route, "https://lecomax.com");
+  assert.equal(url.pathname, "/auth");
+  const state = setup("android", Object.fromEntries(url.searchParams));
+  await new Promise(setImmediate);
+  assert.equal(new URL(state.callbacks[0]).searchParams.get("code"), "google-code");
+  assert.deepEqual(state.routes, ["/account"]);
+});
+
