@@ -249,9 +249,11 @@ export default function AuthScreen() {
   };
 
   return (
+    // Android already resizes the native window for the keyboard. A second
+    // height adjustment can collapse the form and make focused fields jump.
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      enabled={Platform.OS !== "web"}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      enabled={Platform.OS === "ios"}
       style={styles.screen}
     >
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 10) }]}>
@@ -277,6 +279,9 @@ export default function AuthScreen() {
       </View>
 
       <ScrollView
+        style={styles.scroll}
+        removeClippedSubviews={false}
+        keyboardDismissMode="none"
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
@@ -778,6 +783,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: "#F0FAF3",
   },
+  scroll: { flex: 1 },
   scrollContent: {
     width: "100%",
     maxWidth: 480,
