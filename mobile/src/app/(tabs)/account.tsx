@@ -9,6 +9,7 @@ import * as WebBrowser from "expo-web-browser";
 import type { Session } from "@supabase/supabase-js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  type ViewStyle,
   ActivityIndicator,
   Alert,
   Linking,
@@ -1567,7 +1568,7 @@ const styles = StyleSheet.create({
   },
   settingsList: { paddingBottom: 8 },
   // Explicit web overflow keeps the sheet wheel-scrollable with a mouse/trackpad.
-  sheetScroll: { flexShrink: 1, maxHeight: "78%", overflowY: "auto" },
+  sheetScroll: { flexShrink: 1, maxHeight: "78%", overflowY: "auto" } as ViewStyle & { overflowY: "auto" },
   sheetScrollContent: { paddingBottom: 8 },
   settingsSectionLabel: {
     marginBottom: 8,
