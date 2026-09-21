@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
 import { validateHeroBanner } from "@/lib/hero-banners";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.value) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const { data, error } = await supabase.from("banners").insert(parsed.value).select().single();
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidateTag("storefront-banners");
   revalidatePath("/", "page");
   return NextResponse.json(data, { status: 201 });
 }

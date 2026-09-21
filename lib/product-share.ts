@@ -31,7 +31,7 @@ function absoluteImageUrl(image: string) {
  * Social previews use the same current product as the website and app.
  */
 export async function getProductShareData(slug: string): Promise<ProductShareData | null> {
-  const databaseProduct = await getDbProductRaw(slug).catch(() => null);
+  const databaseProduct = await getDbProductRaw(slug);
 
   if (!databaseProduct || !databaseProduct.active) return null;
 

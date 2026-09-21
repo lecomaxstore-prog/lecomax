@@ -65,6 +65,7 @@ export function useSettings() {
     } catch { /* unsupported browser */ }
     window.addEventListener("storage", onStorage);
     window.addEventListener("focus", refresh);
+    window.addEventListener("online", refresh);
     document.addEventListener("visibilitychange", onVisibility);
     if (firstSubscriber) settingsTimer = setInterval(() => {
       if (document.visibilityState === "visible") refresh();
@@ -77,6 +78,7 @@ export function useSettings() {
       channel?.close();
       window.removeEventListener("storage", onStorage);
       window.removeEventListener("focus", refresh);
+      window.removeEventListener("online", refresh);
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, []);

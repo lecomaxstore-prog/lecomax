@@ -5,7 +5,6 @@ import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { Inter, Sora } from "next/font/google";
-import { unstable_cache } from "next/cache";
 import "./globals.css";
 import Header from "@/components/Header";
 import GoogleAuthReturn from "@/components/GoogleAuthReturn";
@@ -26,7 +25,7 @@ import PushPrompt from "@/components/PushPrompt";
 import ChatWidget from "@/components/ChatWidget";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount, shippingConfigFromSettings } from "@/lib/shipping-config";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { getStorefrontSettings } from "@/lib/storefront-settings-server";
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -129,18 +128,9 @@ const defaultMetadata: Metadata = {
   },
 };
 
-const getSiteMetadataSettings = unstable_cache(async () => {
-  const supabase = createServerSupabaseClient();
-  const { data } = await supabase.from("settings").select("key,value").in("key", [
-    "store_name", "seo_title", "seo_description", "favicon_image", "og_image",
-    "shipping_cost", "free_shipping_threshold", "shipping_estimated_days",
-  ]);
-  return Object.fromEntries((data ?? []).map((row) => [row.key, String(row.value ?? "")]));
-}, ["site-metadata-settings"], { revalidate: 300 });
-
 export async function generateMetadata(): Promise<Metadata> {
   try {
-    const settings = await getSiteMetadataSettings();
+    const settings = await getStorefrontSettings();
     const storeName = settings.store_name || "L'ecomax";
     const seoTitle = settings.seo_title?.trim();
     const seoDescription = settings.seo_description?.trim();
@@ -150,7 +140,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const shippingConfig = shippingConfigFromSettings(settings);
     const replaceShipping = (value: unknown) => typeof value === "string"
       ? value.replace(/\{\{shipping\}\}/g, `${formatShippingAmount(shippingConfig.cost)} MAD`)
-      : value;
+      : undefined;
 
     return {
       ...defaultMetadata,

@@ -1,4 +1,5 @@
 import { publicDatabaseError } from "@/lib/public-error";
+import { revalidateTag } from "next/cache";
 import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
@@ -132,6 +133,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (error) return NextResponse.json({ error: /STOCK/.test(error.message) ? "Pr?commande en attente de stock. R?approvisionnez les variantes avant de pr?parer la commande." : error.message }, { status: 409 });
 
   let loyalty: unknown = null;
+  revalidateTag("storefront-products");
   if (update.status === "delivered") {
     const result = await supabase.rpc("award_order_loyalty_points", { p_order_id: id });
     loyalty = result.data;

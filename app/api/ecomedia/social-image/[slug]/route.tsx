@@ -1,6 +1,11 @@
 import { ImageResponse } from "next/og";
 import { supabaseServiceHeaders } from "@/lib/supabase-service-headers";
 
+export const runtime = "nodejs";
+export const dynamic = "force-static";
+export const revalidate = 300;
+export function generateStaticParams() { return []; }
+
 type SocialPost = {
   title: string;
   media_url: string | null;
@@ -19,7 +24,7 @@ async function getSocialPost(slug: string): Promise<SocialPost | null> {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${query}`,
       {
         headers: supabaseServiceHeaders(),
-        next: { revalidate: 300 },
+        next: { revalidate: 300, tags: ["storefront-ecomedia"] },
       }
     );
     if (!response.ok) return null;

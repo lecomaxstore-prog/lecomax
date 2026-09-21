@@ -9,8 +9,17 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
 let maintenanceCache: { enabled: boolean; expiresAt: number } | null = null;
+let maintenanceRequest: Promise<boolean> | null = null;
 
 async function isMaintenanceEnabled(): Promise<boolean> {
+  if (maintenanceCache && maintenanceCache.expiresAt > Date.now()) return maintenanceCache.enabled;
+  if (!maintenanceRequest) {
+    maintenanceRequest = loadMaintenanceMode().finally(() => { maintenanceRequest = null; });
+  }
+  return maintenanceRequest;
+}
+
+async function loadMaintenanceMode(): Promise<boolean> {
   const now = Date.now();
   if (maintenanceCache && maintenanceCache.expiresAt > now) return maintenanceCache.enabled;
 
@@ -258,5 +267,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path+", "/api/:path*", "/((?!_next/static|_next/image|favicon|images|manifest|sw).*)"],
+  matcher: ["/admin/:path+", "/api/:path*", "/((?!_next/static|_next/image|favicon|images|brand/|icons/|fonts/|manifest|sw).*)"],
 };

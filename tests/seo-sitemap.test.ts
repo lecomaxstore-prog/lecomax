@@ -19,7 +19,7 @@ async function sitemap(result: { data: unknown[] | null; error: unknown }) {
       if (name === "@/lib/products") return { products: [{ slug: "old-product" }] };
       if (name === "@/lib/ecomedia-guides") return { ecomediaGuides: [] };
       if (name === "@/lib/supabase-server") return {
-        createServerSupabaseClient: () => ({
+        createPublicSupabaseClient: () => ({
           from(table: string) {
             const query = {
               select() { return query; }, eq() { return query; }, order() { return query; },

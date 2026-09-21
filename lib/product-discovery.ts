@@ -1,6 +1,6 @@
 import "server-only";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { after } from "next/server";
 import { SITE_URL } from "@/lib/seo";
 import { deliverProductNotification } from "@/lib/product-notification";
@@ -29,7 +29,8 @@ function productUrl(slug: string): string {
 }
 
 function refreshPublicCatalogue(change: ProductDiscoveryChange) {
-  revalidatePath("/", "layout");
+  revalidateTag("storefront-products");
+  revalidatePath("/", "page");
   revalidatePath("/boutique");
   revalidatePath("/nouveautes");
   revalidatePath("/bestsellers");
@@ -40,7 +41,10 @@ function refreshPublicCatalogue(change: ProductDiscoveryChange) {
 
   const products = [change.current, change.previous].filter(Boolean) as DiscoverableProduct[];
   for (const product of products) {
-    if (product.slug) revalidatePath(productPath(product.slug));
+    if (product.slug) {
+      revalidatePath(productPath(product.slug));
+      revalidatePath(`/api/og/product/${encodeURIComponent(product.slug)}`);
+    }
     if (product.category) revalidatePath(`/${encodeURIComponent(product.category)}`);
   }
 }

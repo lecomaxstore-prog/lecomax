@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { publicDatabaseError } from "@/lib/public-error";
 import { protectAdminRead, protectAdminMutation } from "@/lib/api-security";
 import { readJsonLimited } from "@/lib/request-body";
@@ -16,6 +17,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { id } = await params;
   const { error } = await supabase.from("reviews").delete().eq("id", id);
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidateTag("storefront-reviews");
   return NextResponse.json({ success: true });
 }
 
@@ -30,5 +32,6 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
   const { data, error } = await supabase.from("reviews").update(body as object).eq("id", id).select().single();
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidateTag("storefront-reviews");
   return NextResponse.json(data);
 }

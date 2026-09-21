@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { publicDatabaseError } from "@/lib/public-error";
 import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await sb.from("ecomedia_posts").insert(payload).select().single();
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidateTag("storefront-ecomedia");
   let notification = null;
   if (data.is_published) {
     try { notification = await notifyPublishedEcomediaPost(data); }

@@ -1,7 +1,7 @@
 ﻿import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatMAD, products, type CardProduct, type Product } from "@/lib/products";
-import { getDbProductRaw, getDbProducts } from "@/lib/db-server";
+import { getDbProductRaw, getDbProducts, getProductReviewStats, getPublicProductSlugs } from "@/lib/db-server";
 import { rankSimilarProducts } from "@/lib/product-recommendations";
 import ProductActions from "@/components/ProductActions";
 import { colorPricesFromTags } from "@/lib/product-variant-pricing";
@@ -20,12 +20,11 @@ import { calculateShipping, formatShippingAmount, shippingSummary } from "@/lib/
 import { colorSizeStockFromTags } from "@/lib/product-inventory";
 import { catalogAvailability } from "@/mobile/src/lib/catalog-availability";
 import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
 import { getProductShareData } from "@/lib/product-share";
 import { colorImageMapFromTags, legacyColorImageMap, primaryColorImages } from "@/lib/product-color-images";
 
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const PRODUCT_SITE_URL = "https://lecomax.com";
 
@@ -77,8 +76,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   };
 }
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
+export async function generateStaticParams() {
+  return getPublicProductSlugs();
 }
 
 /* ── Color name → CSS hex ── */
@@ -180,20 +179,7 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
-  // Fetch real review stats from DB
-  let reviewRating = 0;
-  let reviewCount = 0;
-  try {
-    const supa = createServerSupabaseClient();
-    const { data: revData } = await supa
-      .from("reviews")
-      .select("rating").eq("verified_purchase", true)
-      .eq("product_slug", slug);
-    if (revData && revData.length > 0) {
-      reviewCount = revData.length;
-      reviewRating = Math.round((revData.reduce((s: number, r: { rating: number }) => s + r.rating, 0) / revData.length) * 10) / 10;
-    }
-  } catch { /* use fallback */ }
+  const { rating: reviewRating, count: reviewCount } = await getProductReviewStats(slug);
 
   const displayRating = reviewRating;
   const displayReviewCount = reviewCount;

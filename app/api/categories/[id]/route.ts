@@ -3,7 +3,7 @@ import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -74,6 +74,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (oldMediaKey !== newMediaKey) await supabase.from("settings").delete().eq("key", oldMediaKey);
     Object.assign(data, media);
   }
+  revalidateTag("storefront-categories");
   revalidatePath("/", "layout");
   return NextResponse.json({ ...data, label: data.name });
 }
@@ -86,6 +87,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
   const { error } = await supabase.from("categories").delete().eq("id", id);
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
   if (category?.slug) await supabase.from("settings").delete().eq("key", `category_media:${category.slug}`);
+  revalidateTag("storefront-categories");
   revalidatePath("/", "layout");
   return NextResponse.json({ success: true });
 }

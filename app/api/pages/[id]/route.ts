@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
 import { validatePageInput } from "@/lib/site-pages";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,7 +41,9 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const payload = { ...parsed.value, updated_at: new Date().toISOString() };
   const { data, error } = await supabase.from("pages").update(payload).eq("id", id).select().single();
   if (error) return NextResponse.json({ error: error.code === "23505" ? "Cette adresse est déjà utilisée." : error.message }, { status: error.code === "23505" ? 409 : 500 });
+  revalidateTag("storefront-pages");
   revalidatePath(`/${current.slug}`, "page");
+  revalidateTag("storefront-pages");
   revalidatePath(`/${data.slug}`, "page");
   return NextResponse.json(data);
 }
@@ -52,6 +54,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { data: current } = await supabase.from("pages").select("slug").eq("id", id).maybeSingle();
   const { error } = await supabase.from("pages").delete().eq("id", id);
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidateTag("storefront-pages");
   if (current?.slug) revalidatePath(`/${current.slug}`, "page");
   return NextResponse.json({ ok: true });
 }

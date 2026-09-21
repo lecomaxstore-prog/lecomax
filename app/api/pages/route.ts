@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
 import { validatePageInput } from "@/lib/site-pages";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
   const payload = { ...parsed.value, updated_at: new Date().toISOString() };
   const { data, error } = await supabase.from("pages").insert(payload).select().single();
   if (error) return NextResponse.json({ error: error.code === "23505" ? "Cette adresse est déjà utilisée." : error.message }, { status: error.code === "23505" ? 409 : 500 });
+  revalidateTag("storefront-pages");
   revalidatePath(`/${data.slug}`, "page");
   return NextResponse.json(data, { status: 201 });
 }

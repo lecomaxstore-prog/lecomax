@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { publicDatabaseError } from "@/lib/public-error";
 import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
@@ -43,6 +44,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     .single();
 
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidateTag("storefront-ecomedia");
   let notification = null;
   if (!previous?.is_published && data.is_published) {
     try { notification = await notifyPublishedEcomediaPost(data); }
@@ -58,6 +60,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   const { data: post } = await sb.from("ecomedia_posts").select("media_url").eq("id", id).maybeSingle();
   const { error } = await sb.from("ecomedia_posts").delete().eq("id", id);
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  revalidateTag("storefront-ecomedia");
   if (post?.media_url) {
     try {
       const marker = "/storage/v1/object/public/";

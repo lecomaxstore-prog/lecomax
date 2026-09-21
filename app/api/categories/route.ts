@@ -3,7 +3,7 @@ import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
     await supabase.from("categories").delete().eq("id", data.id);
     return NextResponse.json({ error: `Impossible d'enregistrer les visuels responsifs : ${mediaError.message}` }, { status: 500 });
   }
+  revalidateTag("storefront-categories");
   revalidatePath("/", "layout");
   return NextResponse.json({ ...data, image_mobile, image_position, image_mobile_position }, { status: 201 });
 }

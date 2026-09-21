@@ -78,10 +78,15 @@ function searchableText(product: RecommendationProduct) {
   ].filter(Boolean).join(" "));
 }
 
+const FAMILY_PATTERNS = PRODUCT_FAMILIES.map(({ name, terms }) => ({
+  name,
+  patterns: terms.map((term) => new RegExp(`(?:^| )${normalize(term)}s?(?: |$)`)),
+}));
+
 function familyOf(product: RecommendationProduct) {
   for (const source of [product.name, product.slug, product.subCategory, product.category]) {
     const text = normalize(source);
-    const match = PRODUCT_FAMILIES.find(({ terms }) => terms.some((term) => new RegExp(`(?:^| )${normalize(term)}s?(?: |$)`).test(text)));
+    const match = FAMILY_PATTERNS.find(({ patterns }) => patterns.some((pattern) => pattern.test(text)));
     if (match) return match.name;
   }
   return null;

@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { publicDatabaseError } from "@/lib/public-error";
 import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
@@ -226,6 +227,8 @@ export async function POST(req: NextRequest) {
       { error: "Votre avis n’a pas pu être enregistré. Réessayez." },
       { status: 503 },
     );
+
+  revalidateTag("storefront-reviews");
 
   await broadcastAdminPushNotification({
     eventKey: `review:${productSlug}:${deliveredOrder.id}`,

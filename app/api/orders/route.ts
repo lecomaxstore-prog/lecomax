@@ -1,5 +1,6 @@
 import { publicDatabaseError } from "@/lib/public-error";
 import { readJsonLimited } from "@/lib/request-body";
+import { revalidateTag } from "next/cache";
 import { calculateCart, CommerceError, COMMERCE_SETTING_KEYS } from "@/lib/commerce-server";
 import { preorderCopy } from "@/lib/preorder-copy";
 import { databaseAvailability } from "@/lib/preorder";
@@ -340,6 +341,7 @@ export async function POST(req: NextRequest) {
   }
   if (!data) return NextResponse.json({ error: "Commande indisponible." }, { status: 503 });
   if (data.duplicate) return NextResponse.json({ id: data.id, order_number: data.order_number, items: data.items, duplicate: true });
+  revalidateTag("storefront-products");
   items.splice(0, items.length, ...data.items);
 
   if (featureSettings.enable_ecoclub !== "false") {

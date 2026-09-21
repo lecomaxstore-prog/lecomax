@@ -1,4 +1,5 @@
 import { readJsonLimited } from "@/lib/request-body";
+import { revalidateTag } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { verifyPayPalWebhook } from "@/lib/paypal-server";
@@ -47,5 +48,6 @@ export async function POST(req: NextRequest) {
     console.error("PayPal reconciliation unavailable", { code: error.code });
     return NextResponse.json({ error: "Order reconciliation unavailable." }, { status: 503 });
   }
+  revalidateTag("storefront-products");
   return NextResponse.json(data, { headers: { "Cache-Control": "private, no-store" } });
 }

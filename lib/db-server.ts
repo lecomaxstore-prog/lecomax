@@ -3,11 +3,13 @@
  * Uses the service role key — NEVER import this from client components.
  */
 import { apiToCard, type CardProduct } from "./products";
-import { createServerSupabaseClient } from "./supabase-server";
+import { cache } from "react";
+import { unstable_cache } from "next/cache";
+import { createPublicSupabaseClient, createServerSupabaseClient } from "./supabase-server";
 import { selectPromotionProducts } from "@/mobile/src/lib/store-promotions";
 
 function getClient() {
-  return createServerSupabaseClient();
+  return createPublicSupabaseClient(["storefront-products"]);
 }
 
 type ApiProduct = {
@@ -35,6 +37,17 @@ type ApiProduct = {
   description_images: string[] | null;
 };
 
+// Primitive arguments share one query between homepage rails and metadata/page renders.
+const getProductRows = cache(async (category?: string, featured?: boolean, activeOnly = true) => {
+  let query = getClient().from("products").select("*").order("created_at", { ascending: false });
+  if (category) query = query.eq("category", category);
+  if (featured) query = query.eq("featured", true);
+  if (activeOnly) query = query.eq("active", true);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []) as ApiProduct[];
+});
+
 export async function getDbProducts(options?: {
   category?: string;
   featured?: boolean;
@@ -43,19 +56,12 @@ export async function getDbProducts(options?: {
   limit?: number;
 }): Promise<CardProduct[]> {
   try {
-    const sb = getClient();
-    let q = sb.from("products").select("*").order("created_at", { ascending: false });
-    if (options?.category) q = q.eq("category", options.category);
-    if (options?.featured) q = q.eq("featured", true);
-    if (options?.activeOnly !== false) q = q.eq("active", true);
-    if (options?.limit && !options.promotionOnly) q = q.limit(options.limit);
-    const [{ data, error }, promotions] = await Promise.all([
-      q,
+    const [products, promotions] = await Promise.all([
+      getProductRows(options?.category, options?.featured, options?.activeOnly !== false),
       // Keep this schema tolerant: older deployments do not expose product_ids.
-      options?.promotionOnly ? sb.from("promotions").select("*") : Promise.resolve(null),
+      options?.promotionOnly ? createPublicSupabaseClient(["storefront-promotions"]).from("promotions").select("*") : Promise.resolve(null),
     ]);
-    if (error || promotions?.error) return [];
-    const products = (data as ApiProduct[]) ?? [];
+    if (promotions?.error) return [];
     const selected = options?.promotionOnly ? selectPromotionProducts(products, promotions?.data ?? []) : products;
     return (options?.limit ? selected.slice(0, options.limit) : selected).map(apiToCard);
   } catch {
@@ -64,10 +70,10 @@ export async function getDbProducts(options?: {
 }
 
 /** Fetch average rating + count per product slug from the reviews table. */
-export async function getReviewStats(): Promise<Record<string, { rating: number; count: number }>> {
-  try {
-    const sb = getClient();
-    const { data } = await sb.from("reviews").select("product_slug,rating").eq("verified_purchase", true);
+const loadReviewStats = unstable_cache(async (): Promise<Record<string, { rating: number; count: number }>> => {
+    const sb = createServerSupabaseClient();
+    const { data, error } = await sb.from("reviews").select("product_slug,rating").eq("verified_purchase", true);
+    if (error) throw error;
     if (!data || data.length === 0) return {};
     const acc: Record<string, { sum: number; count: number }> = {};
     for (const r of data as { product_slug: string; rating: number }[]) {
@@ -81,18 +87,28 @@ export async function getReviewStats(): Promise<Record<string, { rating: number;
         { rating: Math.round((sum / count) * 10) / 10, count },
       ])
     );
-  } catch {
-    return {};
-  }
+}, ["storefront-review-stats-v1"], { revalidate: 300, tags: ["storefront-reviews"] });
+
+export const getReviewStats = cache(async () => {
+  try { return await loadReviewStats(); } catch { return {}; }
+});
+
+export const getProductReviewStats = cache(async (slug: string) => {
+  const stats = await getReviewStats();
+  return stats[slug] ?? { rating: 0, count: 0 };
+});
+
+export async function getPublicProductSlugs() {
+  const { data, error } = await getClient().from("products").select("slug").eq("active", true);
+  if (error) return [];
+  return (data ?? []) as { slug: string }[];
 }
 
 /** Returns the raw API product (all fields) for the product detail page. */
-export async function getDbProductRaw(slug: string): Promise<ApiProduct | null> {
-  try {
-    const sb = getClient();
-    const { data } = await sb.from("products").select("*").eq("slug", slug).maybeSingle();
-    return (data as ApiProduct) ?? null;
-  } catch {
-    return null;
-  }
-}
+export const getDbProductRaw = cache(async (slug: string): Promise<ApiProduct | null> => {
+  const sb = getClient();
+  const { data, error } = await sb.from("products").select("*").eq("slug", slug).maybeSingle();
+  // Throw on outages so ISR keeps the last good page/image instead of caching a 404.
+  if (error) throw error;
+  return (data as ApiProduct) ?? null;
+});

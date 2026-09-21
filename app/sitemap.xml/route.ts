@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { SITE_URL } from "@/lib/seo";
 import { products } from "@/lib/products";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createPublicSupabaseClient } from "@/lib/supabase-server";
 import { ecomediaGuides } from "@/lib/ecomedia-guides";
 
 type SitemapEntry = {
@@ -59,6 +59,7 @@ function renderEntry(entry: SitemapEntry): string {
 }
 
 export const revalidate = 3600;
+export const dynamic = "force-static";
 
 export async function GET() {
   const entries = new Map<string, SitemapEntry>();
@@ -78,7 +79,9 @@ export async function GET() {
   }));
 
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient([
+      "storefront-products", "storefront-ecomedia", "storefront-pages", "storefront-categories",
+    ], 3600);
     const [productsResult, postsResult, pagesResult, categoriesResult] = await Promise.all([
       supabase.from("products").select("slug,updated_at").eq("active", true).order("updated_at", { ascending: false }).limit(5000),
       supabase.from("ecomedia_posts").select("slug,created_at,updated_at").eq("is_published", true).order("created_at", { ascending: false }).limit(1000),

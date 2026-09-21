@@ -4,6 +4,7 @@ import { useEffect, startTransition } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { isSupabaseConfigured, supabase } from "@/lib/supabase";
 import { refreshSettings } from "@/lib/use-settings";
+import { needsStorefrontServerRefresh } from "@/lib/storefront-refresh";
 import { STORE_REFRESH_EVENT, STORE_REFRESH_INTERVAL_MS, STORE_TABLE_QUERIES } from "@/mobile/src/lib/store-sync";
 
 /** Refresh open storefronts after database changes, with a polling fallback. */
@@ -20,8 +21,11 @@ export default function StoreSync() {
       if (Date.now() - lastRefresh < 1_000) return;
       lastRefresh = Date.now();
       window.dispatchEvent(new Event(STORE_REFRESH_EVENT));
-      void refreshSettings().catch(() => {});
-      startTransition(() => router.refresh());
+      // useSettings owns settings polling/focus refresh; don't run a second
+      // settings request on this timer as well.
+      if (needsStorefrontServerRefresh(pathname ?? "/")) {
+        startTransition(() => router.refresh());
+      }
     };
     const onChange = () => {
       clearTimeout(debounce);
@@ -33,7 +37,10 @@ export default function StoreSync() {
     document.addEventListener("visibilitychange", refresh);
     const channel = isSupabaseConfigured ? supabase.channel("website-store") : null;
     for (const table of Object.keys(STORE_TABLE_QUERIES)) {
-      channel?.on("postgres_changes", { event: "*", schema: "public", table }, onChange);
+      channel?.on("postgres_changes", { event: "*", schema: "public", table }, () => {
+        if (table === "settings") void refreshSettings().catch(() => {});
+        onChange();
+      });
     }
     channel?.subscribe();
     return () => {

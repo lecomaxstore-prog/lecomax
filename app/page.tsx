@@ -21,6 +21,7 @@ import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { getStorefrontSettings } from "@/lib/storefront-settings-server";
 import { serializeJsonLd } from "@/lib/seo";
 
 const SITE_URL_PAGE = "https://lecomax.com";
@@ -76,23 +77,12 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export const revalidate = 60; // ISR — revalidate every 60 seconds
+export const revalidate = 300;
 
 async function getHeroImages() {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/settings?key=in.(hero_image,hero_image_mobile,shipping_cost,free_shipping_threshold,shipping_estimated_days)&select=key,value`,
-      {
-        headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`,
-        },
-        cache: "no-store",
-      }
-    );
-    if (!res.ok) return {};
-    const rows: { key: string; value: string }[] = await res.json();
-    return Object.fromEntries(rows.filter(r => r.value).map(r => [r.key, r.value]));
+    const settings = await getStorefrontSettings();
+    return Object.fromEntries(Object.entries(settings).filter(([, value]) => value));
   } catch {
     return {};
   }
@@ -102,7 +92,7 @@ async function getHeroBanners(): Promise<HeroBannerRecord[]> {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/banners?active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
-      { headers: supabaseServiceHeaders(), cache: "no-store" }
+      { headers: supabaseServiceHeaders(), next: { revalidate: 300, tags: ["storefront-banners"] } }
     );
     return response.ok ? await response.json() : [];
   } catch { return []; }
@@ -136,7 +126,7 @@ export default async function HomePage() {
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/ecomedia_posts?${ecomediaParams}`,
       {
         headers: supabaseServiceHeaders(),
-        cache: "no-store",
+        next: { revalidate: 300, tags: ["storefront-ecomedia"] },
       }
     );
     if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }

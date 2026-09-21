@@ -1,31 +1,17 @@
 import "server-only";
 
 import type { Metadata } from "next";
-import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import { DEFAULT_SHIPPING_CONFIG, shippingConfigFromSettings, type ShippingConfig } from "@/lib/shipping-config";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { getStorefrontSettings } from "@/lib/storefront-settings-server";
 
-const loadServerShippingConfig = unstable_cache(async (): Promise<ShippingConfig> => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !key) return DEFAULT_SHIPPING_CONFIG;
-
+export const getServerShippingConfig = cache(async (): Promise<ShippingConfig> => {
   try {
-    const supabase = createServerSupabaseClient();
-    const { data, error } = await supabase
-      .from("settings")
-      .select("key,value")
-      .in("key", ["shipping_cost", "free_shipping_threshold", "free_shipping_enabled", "shipping_estimated_days"]);
-    if (error) return DEFAULT_SHIPPING_CONFIG;
-    return shippingConfigFromSettings(Object.fromEntries((data ?? []).map((row) => [row.key, row.value])));
+    return shippingConfigFromSettings(await getStorefrontSettings());
   } catch {
     return DEFAULT_SHIPPING_CONFIG;
   }
-}, ["server-shipping-config"], { revalidate: 60, tags: ["store-settings"] });
-
-export async function getServerShippingConfig(): Promise<ShippingConfig> {
-  return loadServerShippingConfig();
-}
+});
 
 export async function withShippingMetadata(metadata: Metadata): Promise<Metadata> {
   const config = await getServerShippingConfig();

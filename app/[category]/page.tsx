@@ -14,7 +14,7 @@ import { sanitizePageHtml } from "@/lib/site-pages";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount } from "@/lib/shipping-config";
 import { serializeJsonLd } from "@/lib/seo";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createPublicSupabaseClient } from "@/lib/supabase-server";
 
 const valid = new Set(categories.map((c) => c.slug));
 
@@ -27,7 +27,7 @@ type DbCategory = {
 
 const getDbCategory = cache(async (slug: string): Promise<DbCategory | null> => {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = createPublicSupabaseClient(["storefront-categories", "store-settings"]);
     const [{ data }, { data: mediaRow }] = await Promise.all([
       supabase.from("categories").select("slug,name,description,image").eq("slug", slug).eq("active", true).maybeSingle(),
       supabase.from("settings").select("value").eq("key", `category_media:${slug}`).maybeSingle(),
@@ -37,6 +37,12 @@ const getDbCategory = cache(async (slug: string): Promise<DbCategory | null> => 
     try { media = mediaRow?.value ? JSON.parse(mediaRow.value) : {}; } catch { /* ignore */ }
     return { ...data, label: data.name, ...media } as DbCategory;
   } catch { return null; }
+});
+
+const getCmsPage = cache(async (slug: string) => {
+  const supabase = createPublicSupabaseClient(["storefront-pages"]);
+  const { data } = await supabase.from("pages").select("*").eq("slug", slug).eq("active", true).maybeSingle();
+  return data;
 });
 
 const categoryMeta: Record<string, { title: string; description: string; keywords: string[] }> = {
@@ -93,8 +99,7 @@ export async function generateMetadata({
   const dbCategory = await getDbCategory(category);
   const cat = dbCategory ? { label: dbCategory.label, description: dbCategory.description || staticCategory?.description || "", hero: dbCategory.image || staticCategory?.hero || "" } : staticCategory;
   if (!cat) {
-    const supa = createServerSupabaseClient();
-    const { data: page } = await supa.from("pages").select("title,slug,meta_title,meta_description").eq("slug", category).eq("active", true).maybeSingle();
+    const page = await getCmsPage(category);
     if (!page) return {};
     const title = page.meta_title || page.title;
     const description = page.meta_description || `Découvrez ${page.title} sur L'ecomax.`;
@@ -131,7 +136,7 @@ export function generateStaticParams() {
   return categories.map((c) => ({ category: c.slug }));
 }
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function CategoryPage({
   params,
@@ -146,8 +151,7 @@ export default async function CategoryPage({
 
   // Check if it's a custom CMS page first
   if (!valid.has(category as never) && !dbCategory) {
-    const supa = createServerSupabaseClient();
-    const { data: page } = await supa.from("pages").select("*").eq("slug", category).eq("active", true).single();
+    const page = await getCmsPage(category);
     if (page) return <CustomPage page={page} />;
     notFound();
   }

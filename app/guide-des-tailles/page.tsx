@@ -1,10 +1,12 @@
 import { DEFAULT_SHOE_GUIDE, completeShoeGuide } from "@/lib/shoe-size-guide";
-import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { createPublicSupabaseClient } from "@/lib/supabase-server";
+
+export const revalidate = 300;
 
 export default async function GuideTaillesPage() {
   let shoesSizes = DEFAULT_SHOE_GUIDE;
   try {
-    const { data } = await createServerSupabaseClient().from("settings").select("value").eq("key", "size_guide_shoes").maybeSingle();
+    const { data } = await createPublicSupabaseClient(["store-settings"]).from("settings").select("value").eq("key", "size_guide_shoes").maybeSingle();
     if (data) shoesSizes = completeShoeGuide(JSON.parse(data.value));
   } catch { /* Keep the complete default guide available when settings cannot load. */ }
 

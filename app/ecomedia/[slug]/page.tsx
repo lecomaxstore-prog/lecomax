@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { hydrateCommunityPost, type EcomediaPost } from "@/lib/ecomedia";
 import PostCard from "@/components/ecomedia/PostCard";
@@ -12,13 +13,13 @@ export const dynamic = "force-dynamic";
 
 const SITE_URL = "https://lecomax.com";
 
-async function getPost(slug: string): Promise<EcomediaPost | null> {
+const getPost = cache(async (slug: string): Promise<EcomediaPost | null> => {
   try {
     const sb = createServerSupabaseClient();
     const { data } = await sb.from("ecomedia_posts").select("*").eq("slug", slug).eq("is_published", true).single();
     return data ? hydrateCommunityPost(data as EcomediaPost) : null;
   } catch { return null; }
-}
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

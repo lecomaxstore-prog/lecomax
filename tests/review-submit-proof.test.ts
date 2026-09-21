@@ -42,6 +42,7 @@ function setup({
     },
   };
   const dependencies: Record<string, unknown> = {
+    "next/cache": { revalidateTag: () => {} },
     "next/server": {
       NextResponse: {
         json: (body: unknown, options: any = {}) => ({
