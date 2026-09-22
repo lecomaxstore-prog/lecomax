@@ -4,7 +4,12 @@ import { createSessionToken, verifySessionToken } from "@/lib/admin-session";
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
 const MARKER = "how-built-pin@lecomax.local";
-const OWNER_PIN = process.env.HOW_BUILT_PIN;
+const CONFIGURATION_ERROR = "Accès sécurisé non configuré. Configurez HOW_BUILT_PIN avec au moins 8 caractères sur le serveur, puis redémarrez ou redéployez le site.";
+
+function configuredPin() {
+  const pin = process.env.HOW_BUILT_PIN;
+  return pin && pin.length >= 8 ? pin : null;
+}
 
 async function requireOwner(req: NextRequest) {
   const session = req.cookies.get("admin_session")?.value;
@@ -21,12 +26,17 @@ export async function GET(req: NextRequest) {
   if (!(await requireOwner(req))) return NextResponse.json({ error: "Accès réservé au propriétaire." }, { status: 403 });
   const access = req.cookies.get("how_built_access")?.value;
   const valid = access ? (await verifySessionToken(access, 8 * 60 * 60 * 1000)) === MARKER : false;
-  return valid ? NextResponse.json({ unlocked: true }) : NextResponse.json({ unlocked: false }, { status: 401 });
+  if (valid) return NextResponse.json({ unlocked: true });
+  if (!configuredPin()) return NextResponse.json({ unlocked: false, error: CONFIGURATION_ERROR }, { status: 503 });
+  return NextResponse.json({ unlocked: false }, { status: 401 });
 }
 
 export async function POST(req: NextRequest) {
   const email = await requireOwner(req);
   if (!email) return NextResponse.json({ error: "Accès réservé au propriétaire." }, { status: 403 });
+
+  const ownerPin = configuredPin();
+  if (!ownerPin) return NextResponse.json({ error: CONFIGURATION_ERROR }, { status: 503 });
 
   const key = clientKey(req, email);
   const now = Date.now();
@@ -37,14 +47,13 @@ export async function POST(req: NextRequest) {
   if (!current || current.resetAt <= now) attempts.set(key, { count: 1, resetAt: now + 15 * 60 * 1000 });
   else current.count += 1;
 
-  if (!OWNER_PIN || OWNER_PIN.length < 8) return NextResponse.json({ error: "Acc?s s?curis? non configur?." }, { status: 503 });
   const body = await readJsonLimited(req).catch(() => null);
-  if (typeof body?.pin !== "string" || body.pin !== OWNER_PIN) {
-    return NextResponse.json({ error: "Code PIN incorrect." }, { status: 401 });
+  if (typeof body?.pin !== "string" || body.pin !== ownerPin) {
+    return NextResponse.json({ error: "Code d’accès incorrect." }, { status: 401 });
   }
 
   attempts.delete(key);
-  const token = await createSessionToken(MARKER);
+  const token = await createSessionToken(MARKER, 8 * 60 * 60 * 1000);
   const response = NextResponse.json({ unlocked: true });
   response.cookies.set("how_built_access", token, {
     httpOnly: true,
