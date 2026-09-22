@@ -2,6 +2,38 @@
 
 ## September 21 activation repair
 
+Follow-up after the photo OTA: the saved 1.0.7 Android AAB
+(`release/android/notification-audit-v1.0.7.aab`) was inspected directly.
+Its `base/resources.pb` contains none of `google_app_id`,
+`gcm_defaultSenderId`, `google_api_key`, or `project_id`. This build lacks
+the Firebase client resources needed for Android push registration.
+Supabase remains the backend but does not replace FCM for Android delivery.
+A JavaScript OTA cannot add these native resources; configure Firebase and
+produce a new Android binary. Physical-device delivery is not fixed yet.
+
+The photo-upload release still used the old generic notification error message.
+The notification error classifier, localized messages, and Expo Go guard have
+now been staged in `release/google-signup-publish` on top of that release.
+All 11 notification/upload regression checks and mobile TypeScript pass.
+Published to Android production runtime `1.0.7`: group
+`a648de0b-955e-4329-b8fa-ce258d492716`, Android update
+`01a0c57b-214c-7c85-8532-fe9422db33a4`. This corrects the misleading error;
+it does not enable Firebase in the existing binary.
+
+Follow-up for the home-screen activation error: `.easignore` now includes the
+Firebase **client** `google-services.json` in build uploads, matching the local
+fallback in `app.config.ts`. The file is still excluded from Git. No such file
+was present locally during the repair; the build still needs it or the EAS file
+variable. Expo Go now reports remote push as unsupported. The opt-in control
+distinguishes Firebase/project configuration errors, connection failures, and
+localized API errors instead of blaming every failure on the network.
+
+A fresh read-only check confirmed `mobile_push_tokens` (including
+`installation_id`) and `mobile_notification_preferences` are available, and
+`app_notifications_enabled` is `true`. The web subscription table is still
+missing. The screenshot alone does not identify which registration stage failed;
+Android delivery still needs verification in the rebuilt app.
+
 The home screen now shows a one-time notification invitation after 2.5 seconds,
 once settings and device permission have loaded. Customers can activate or choose
 Later; the existing home/account controls remain available. Unsupported devices,

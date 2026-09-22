@@ -12,6 +12,25 @@ function load(path: string, dependencies: Record<string, unknown>) {
   return exports;
 }
 
+test("storefront settings use the public cache and recover after a failed read", async () => {
+  const failure = new Error("settings unavailable");
+  let result: { data: unknown; error: unknown } = { data: null, error: failure };
+  const query = { select: () => query, in: async () => result };
+  const settings = load("../lib/storefront-settings-server.ts", {
+    react: { cache: (fn: unknown) => fn },
+    "next/cache": { unstable_cache: () => { throw new Error("unexpected background cache wrapper"); } },
+    "./supabase-server": {
+      createPublicSupabaseClient: (tags: string[]) => {
+        assert.deepEqual(Array.from(tags), ["store-settings"]);
+        return { from: () => query };
+      },
+    },
+  });
+  await assert.rejects(settings.getStorefrontSettings(), failure);
+  result = { data: [{ key: "store_name", value: "Updated store" }, { key: "shipping_cost", value: 25 }], error: null };
+  assert.equal(JSON.stringify(await settings.getStorefrontSettings()), JSON.stringify({ store_name: "Updated store", shipping_cost: "25" }));
+});
+
 test("database failures propagate through product metadata instead of becoming cacheable 404s", async () => {
   let result: { data: unknown; error: unknown } = { data: null, error: new Error("database unavailable") };
   const query = { select: () => query, eq: () => query, maybeSingle: async () => result };

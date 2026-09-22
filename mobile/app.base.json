@@ -2,7 +2,7 @@
   "expo": {
     "name": "Lecomax",
     "slug": "lecomax",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "runtimeVersion": {
       "policy": "appVersion"
     },
@@ -28,7 +28,7 @@
       "associatedDomains": [
         "applinks:lecomax.com"
       ],
-      "buildNumber": "26"
+      "buildNumber": "28"
     },
     "android": {
       "package": "com.lecomax.app",
@@ -54,7 +54,7 @@
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/images/app-icon-shopping-adaptive-v12.png"
       },
-      "versionCode": 26
+      "versionCode": 28
     },
     "web": {
       "output": "static",

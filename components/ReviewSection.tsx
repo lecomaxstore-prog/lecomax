@@ -140,10 +140,14 @@ export default function ReviewSection({
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
   const [photoPreviews, setPhotoPreviews] = useState<string[]>([]);
   const [photoUploading, setPhotoUploading] = useState(false);
-  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const MAX_REVIEW_PHOTOS = 5;
+  const previewsRef = useRef<string[]>([]);
+  useEffect(() => { previewsRef.current = photoPreviews; }, [photoPreviews]);
+  useEffect(() => () => {
+    previewsRef.current.forEach((url) => URL.revokeObjectURL(url));
+  }, []);
 
   const addPhotos = (files: File[]) => {
     const valid = files.filter(
@@ -163,7 +167,6 @@ export default function ReviewSection({
       ...current,
       ...selected.map((file) => URL.createObjectURL(file)),
     ]);
-    setShowPhotoOptions(false);
   };
 
   const removePhoto = (index: number) => {
@@ -254,6 +257,11 @@ export default function ReviewSection({
     setRating(0);
     setBody("");
     setTitle("");
+    setPhotoFiles([]);
+    setPhotoPreviews((current) => {
+      current.forEach((url) => URL.revokeObjectURL(url));
+      return [];
+    });
     if (params.get("review") === "1") setShowForm(true);
     if (params.get("order")) setOrderNumber(params.get("order")!);
     invalidatePurchase();
@@ -307,13 +315,8 @@ export default function ReviewSection({
             if (!response.ok) throw new Error(data.error ?? "Erreur d'envoi");
             return data.url as string;
           }),
-        ).catch(() => null);
+        );
         setPhotoUploading(false);
-        if (!uploads) {
-          setFormError("Une photo n'a pas pu être envoyée.");
-          setSubmitting(false);
-          return;
-        }
         uploadedImageUrls = uploads;
       }
 
@@ -345,10 +348,11 @@ export default function ReviewSection({
           .then((d) => setReviews(d.reviews ?? []))
           .catch(() => {});
       }
-    } catch {
-      setFormError("Connexion interrompue. Réessayez dans quelques instants.");
+    } catch (error) {
+      setFormError(error instanceof Error ? error.message : "Connexion interrompue. Réessayez dans quelques instants.");
     } finally {
       setSubmitting(false);
+      setPhotoUploading(false);
     }
   };
 
@@ -598,13 +602,37 @@ export default function ReviewSection({
               />
             </div>
 
+            <div>
+              <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-neutral-500">Photos (facultatif)</p>
+              <p className="mb-3 text-xs text-neutral-500">Jusqu’à 5 photos · JPG, PNG ou WebP · 5 Mo par photo.</p>
+              <input ref={photoInputRef} type="file" accept="image/jpeg,image/png,image/webp" multiple className="hidden" aria-label="Choisir des photos" onChange={(event) => {
+                addPhotos(Array.from(event.target.files ?? []));
+                event.target.value = "";
+              }} />
+              <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" aria-label="Prendre une photo" onChange={(event) => {
+                addPhotos(Array.from(event.target.files ?? []));
+                event.target.value = "";
+              }} />
+              <div className="flex flex-wrap gap-3">
+                <button type="button" disabled={submitting || photoFiles.length >= MAX_REVIEW_PHOTOS} onClick={() => photoInputRef.current?.click()} className="rounded-full border border-neutral-200 px-4 py-2.5 text-xs font-bold hover:border-black disabled:opacity-50">Ajouter des photos</button>
+                <button type="button" disabled={submitting || photoFiles.length >= MAX_REVIEW_PHOTOS} onClick={() => cameraInputRef.current?.click()} className="rounded-full border border-neutral-200 px-4 py-2.5 text-xs font-bold hover:border-black disabled:opacity-50">Prendre une photo</button>
+              </div>
+              {photoPreviews.length > 0 && <ul className="mt-3 flex flex-wrap gap-3">
+                {photoPreviews.map((url, index) => <li key={url} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={url} alt={`Photo de votre avis ${index + 1}`} className="h-20 w-20 rounded-lg border border-neutral-200 object-cover" />
+                  <button type="button" disabled={submitting} onClick={() => removePhoto(index)} aria-label={`Supprimer la photo ${index + 1}`} className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-black text-white">×</button>
+                </li>)}
+              </ul>}
+            </div>
+
             <div className="flex gap-3">
               <button
                 type="submit"
                 disabled={submitting}
                 className="bg-black text-white px-6 py-3 text-[12px] font-black uppercase tracking-wide rounded-full hover:bg-neutral-800 transition-colors"
               >
-                {submitting ? "Publication..." : "Publier l'avis"}
+                {photoUploading ? "Envoi des photos..." : submitting ? "Publication..." : "Publier l'avis"}
               </button>
               <button
                 type="button"
@@ -659,7 +687,7 @@ export default function ReviewSection({
       ) : (
         <div
           ref={scrollRef}
-          className="flex gap-5 overflow-x-auto no-scrollbar pb-5 scroll-smooth"
+          className="flex items-start gap-4 overflow-x-auto no-scrollbar pb-5 scroll-smooth snap-x snap-mandatory"
         >
           {reviews.map((r) => {
             const isBodyArabic = /[\u0600-\u06FF]/.test(r.body);
@@ -670,21 +698,35 @@ export default function ReviewSection({
             return (
               <article
                 key={r.id}
-                className="relative flex w-[310px] flex-none flex-col gap-4 rounded-[28px] border border-neutral-200/80 bg-white p-6 shadow-[0_10px_35px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-[0_20px_45px_rgba(62,207,76,0.12)] md:w-[360px] overflow-hidden"
+                className="relative flex w-[min(380px,calc(100vw-40px))] flex-none snap-start flex-col gap-4 overflow-hidden rounded-[20px] border border-neutral-200/80 bg-white p-5 shadow-[0_6px_24px_rgba(0,0,0,0.035)] transition-shadow duration-200 hover:shadow-[0_10px_30px_rgba(0,0,0,0.07)] md:w-[380px] md:p-6"
               >
-                {/* Subtle Top Accent Glow */}
-                <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-[#3ecf4c] via-emerald-400 to-[#3ecf4c]" />
+                {/* Customer identity */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[#f1f3ef] text-[13px] font-bold text-neutral-700">
+                      {r.author_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-extrabold leading-tight text-neutral-900 truncate">
+                        {r.author_name}
+                      </p>
+                      <p className="mt-1 text-[11px] text-neutral-500">
+                        {formatDate(r.created_at)} {r.city ? `· ${r.city}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Top Bar: Rating & Verified Badge */}
-                <div className="flex items-center justify-between gap-2 pt-1">
-                  <div className="flex items-center gap-2 bg-neutral-50 px-3 py-1 rounded-full border border-neutral-100">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
                     <StarRow rating={r.rating} size={12} />
                     <span className="text-[11px] font-extrabold text-neutral-900">
                       {r.rating.toFixed(1)}
                     </span>
                   </div>
                   {r.verified_purchase === true && (
-                    <span className="flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-extrabold text-emerald-700 ring-1 ring-inset ring-emerald-200/70">
+                    <span className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-700">
                       <svg
                         width="11"
                         height="11"
@@ -706,7 +748,7 @@ export default function ReviewSection({
                 {r.title && (
                   <p
                     dir={isTitleArabic ? "rtl" : "ltr"}
-                    className="text-[15px] font-extrabold leading-snug text-neutral-900"
+                    className="text-[16px] font-bold leading-snug tracking-tight text-neutral-900"
                   >
                     {r.title}
                   </p>
@@ -715,7 +757,7 @@ export default function ReviewSection({
                 {/* Customer Review Body with Smart RTL Support */}
                 <p
                   dir={isBodyArabic ? "rtl" : "ltr"}
-                  className={`flex-1 text-[13px] leading-relaxed ${
+                  className={`break-words text-[13px] leading-relaxed ${
                     isBodyArabic
                       ? "bg-neutral-50 p-4 rounded-2xl border border-neutral-100 font-bold text-neutral-900"
                       : "text-neutral-700"
@@ -751,22 +793,28 @@ export default function ReviewSection({
                   </div>
                 )}
 
-                {/* Bottom Author Profile */}
-                <div className="flex items-center justify-between border-t border-neutral-100 pt-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-neutral-950 to-neutral-800 text-[13px] font-black text-white ring-2 ring-emerald-400/40">
-                      {r.author_name.charAt(0).toUpperCase()}
+                {r.admin_reply?.trim() && (
+                  <div className="-mx-5 -mb-5 mt-1 border-t border-neutral-100 bg-[#fafbf9] px-5 py-4 md:-mx-6 md:-mb-6 md:px-6">
+                    <div className="mb-3 flex items-center gap-2.5">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/icons/premium-v12-192.png"
+                        alt=""
+                        width={32}
+                        height={32}
+                        className="h-8 w-8 shrink-0 rounded-lg object-contain"
+                      />
+                      <p className="text-[12px] font-bold text-neutral-900">L’ecomax</p>
+                      <span className="ml-auto text-[10px] font-medium text-neutral-500">Réponse du magasin</span>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-extrabold leading-tight text-neutral-900 truncate">
-                        {r.author_name}
-                      </p>
-                      <p className="mt-0.5 text-[10px] text-neutral-400 font-medium">
-                        {formatDate(r.created_at)} {r.city ? `· ${r.city}` : ""}
-                      </p>
-                    </div>
+                    <p
+                      dir="auto"
+                      className="whitespace-pre-wrap break-words text-[13px] leading-[1.65] text-neutral-600"
+                    >
+                      {r.admin_reply.trim()}
+                    </p>
                   </div>
-                </div>
+                )}
               </article>
             );
           })}

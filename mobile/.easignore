@@ -25,4 +25,5 @@ ios/
 credentials.json
 .credentials/
 local.properties
-google-services.json
+# Firebase client identifiers are required in the Android build (not a service account key).
+!google-services.json

@@ -84,6 +84,14 @@ const input = {
   rating: 3,
   review_body: "A balanced and honest review of this product.",
 };
+
+test("verified review persists gallery and camera photos together", async () => {
+  const { post, inserts } = setup();
+  const photos = ["https://example.com/gallery.jpg", "https://example.com/camera.jpg"];
+  assert.equal((await post({ ...input, image_urls: photos })).status, 201);
+  assert.deepEqual(Array.from(inserts[0].image_urls), photos);
+  assert.equal(inserts[0].image_url, photos[0]);
+});
 test("phone-only guest publishes a real verified review with the matched order identity", async () => {
   const { post, inserts } = setup();
   assert.equal(

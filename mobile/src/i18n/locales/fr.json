@@ -1186,5 +1186,9 @@
   "auth.confirmResendWait": "Renvoyer dans {{seconds}} s",
   "auth.confirmResent": "Un nouvel email de confirmation a été demandé. Vérifiez votre boîte de réception.",
   "notificationOptIn.configurationError": "Les notifications ne sont pas disponibles dans cette version de l’application. Mettez l’application à jour ou contactez l’assistance.",
-  "notificationOptIn.connectionError": "Impossible de joindre le service de notifications. Vérifiez votre connexion et réessayez."
+  "notificationOptIn.connectionError": "Impossible de joindre le service de notifications. Vérifiez votre connexion et réessayez.",
+  "productReviews.verifiedPurchase": "Achat vérifié",
+  "productReviews.storeReply": "Réponse du magasin",
+  "productReviews.readReply": "Lire la réponse",
+  "productReviews.showLess": "Voir moins"
 }

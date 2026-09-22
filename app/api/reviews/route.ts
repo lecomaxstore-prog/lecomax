@@ -222,11 +222,13 @@ export async function POST(req: NextRequest) {
       },
       { status: 409 },
     );
-  if (insertError)
+  if (insertError) {
+    console.error("Review insert failed", { code: insertError.code, message: insertError.message });
     return NextResponse.json(
       { error: "Votre avis n’a pas pu être enregistré. Réessayez." },
       { status: 503 },
     );
+  }
 
   revalidateTag("storefront-reviews");
 

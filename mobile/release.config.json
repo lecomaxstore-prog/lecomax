@@ -1,8 +1,8 @@
 {
-  "versionName": "1.0.7",
-  "versionCode": 26,
+  "versionName": "1.0.8",
+  "versionCode": 28,
   "minimumAndroidVersion": "8.0",
-  "apkFileName": "lecomax-v1.0.7.apk",
+  "apkFileName": "lecomax-v1.0.8.apk",
   "required": false,
   "releaseNotes": [
     "Improved input visibility when the keyboard is open.",

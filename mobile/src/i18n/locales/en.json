@@ -1186,5 +1186,9 @@
   "auth.confirmResendWait": "Resend in {{seconds}}s",
   "auth.confirmResent": "A new confirmation email has been requested. Check your inbox.",
   "notificationOptIn.configurationError": "Notifications aren’t available in this version of the app. Please update the app or contact support.",
-  "notificationOptIn.connectionError": "We couldn’t connect to the notification service. Please check your connection and try again."
+  "notificationOptIn.connectionError": "We couldn’t connect to the notification service. Please check your connection and try again.",
+  "productReviews.verifiedPurchase": "Verified purchase",
+  "productReviews.storeReply": "Store reply",
+  "productReviews.readReply": "Read full reply",
+  "productReviews.showLess": "Show less"
 }

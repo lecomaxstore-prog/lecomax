@@ -5,7 +5,7 @@ import { useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Dimensions,
+  useWindowDimensions,
   Image,
   Modal,
   Pressable,
@@ -27,8 +27,6 @@ import {
 } from "@/services/catalog";
 import type { Review } from "@/types/commerce";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
-const CARD_WIDTH = SCREEN_WIDTH * 0.78;
 const CARD_GAP = 12;
 
 type Props = {
@@ -64,18 +62,6 @@ function containsArabic(value: string | null | undefined) {
   return Boolean(
     value && /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/.test(value),
   );
-}
-
-function relativeTime(dateString: string): string | null {
-  const now = Date.now();
-  const then = new Date(dateString).getTime();
-  const diffMs = now - then;
-  const diffDays = Math.floor(diffMs / 86_400_000);
-  if (diffDays < 1) return msg("productReviews.today");
-  if (diffDays === 1) return msg("productReviews.yesterday");
-  if (diffDays < 7) return `${diffDays}d`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w`;
-  return null; // older than a month → show the date only
 }
 
 function ReviewImages({ urls }: { urls: string[] }) {
@@ -182,6 +168,9 @@ export const ProductReviews = memo(function ProductReviews({
   onSubmitted,
 }: Props) {
   useLocale();
+  const { width } = useWindowDimensions();
+  const cardWidth = Math.min(width - 40, 380);
+  const [expandedReplies, setExpandedReplies] = useState<Record<string, boolean>>({});
   const [eligibility, setEligibility] = useState<ReviewEligibility | null>(
     null,
   );
@@ -637,7 +626,7 @@ export const ProductReviews = memo(function ProductReviews({
           horizontal
           showsHorizontalScrollIndicator={false}
           decelerationRate="fast"
-          snapToInterval={CARD_WIDTH + CARD_GAP}
+          snapToInterval={cardWidth + CARD_GAP}
           snapToAlignment="start"
           contentContainerStyle={styles.reviewCarousel}
           style={styles.reviewScroller}
@@ -645,7 +634,12 @@ export const ProductReviews = memo(function ProductReviews({
           {reviews.map((review, index) => {
             const bodyIsRtl = containsArabic(review.body);
             const titleIsRtl = containsArabic(review.title);
-            const relative = relativeTime(review.created_at);
+            const reply = review.admin_reply?.trim() || "";
+            const replyIsLong = reply.length > 180;
+            const replyExpanded = Boolean(expandedReplies[review.id]);
+            const replyCopy = replyIsLong && !replyExpanded
+              ? `${reply.slice(0, 160).replace(/\s+\S*$/, "")}…`
+              : reply;
             const imageUrls = review.image_urls?.length
               ? review.image_urls
               : review.image_url
@@ -655,12 +649,31 @@ export const ProductReviews = memo(function ProductReviews({
               <Animated.View
                 key={review.id}
                 entering={FadeInUp.delay(index * 80).duration(380)}
-                style={styles.reviewCard}
+                style={[styles.reviewCard, { width: cardWidth, paddingBottom: reply ? 0 : 18 }]}
               >
-                {/* ── Luxury Accent Glow Line ── */}
-                <View style={styles.cardAccent} />
+                {/* Customer identity */}
+                <View style={styles.reviewFooter}>
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarText}>
+                      {review.author_name.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                  <View style={styles.footerCopy}>
+                    <Text style={styles.authorName} numberOfLines={1}>
+                      {review.author_name}
+                    </Text>
+                    <Text style={styles.reviewDate}>
+                      {new Intl.DateTimeFormat(currentLocale(), {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      }).format(new Date(review.created_at))}
+                      {review.city ? ` · ${review.city}` : ""}
+                    </Text>
+                  </View>
+                </View>
 
-                {/* ── Top Header Row: Stars + Verified Badge ── */}
+
                 <View style={styles.reviewHeaderRow}>
                   <View style={styles.ratingBadge}>
                     <Stars
@@ -684,7 +697,7 @@ export const ProductReviews = memo(function ProductReviews({
                         color="#15803D"
                       />
                       <Text style={styles.verifiedBadgeText}>
-                        Achat Vérifié
+                        {msg("productReviews.verifiedPurchase")}
                       </Text>
                     </View>
                   ) : null}
@@ -703,7 +716,6 @@ export const ProductReviews = memo(function ProductReviews({
                 <View style={bodyIsRtl ? styles.arabicBodyBox : null}>
                   <Text
                     style={[styles.reviewBody, bodyIsRtl && styles.rtlText]}
-                    numberOfLines={4}
                   >
                     {bodyIsRtl ? `"${review.body}"` : review.body}
                   </Text>
@@ -712,54 +724,41 @@ export const ProductReviews = memo(function ProductReviews({
                 {/* ── Photos ── */}
                 <ReviewImages urls={imageUrls} />
 
-                {/* ── Divider ── */}
-                <View style={styles.cardDivider} />
-
-                {/* ── Footer: avatar + author + date ── */}
-                <View style={styles.reviewFooter}>
-                  <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>
-                      {review.author_name.charAt(0).toUpperCase()}
-                    </Text>
-                  </View>
-                  <View style={styles.footerCopy}>
-                    <Text style={styles.authorName} numberOfLines={1}>
-                      {review.author_name}
-                    </Text>
-                    <Text style={styles.reviewDate}>
-                      {new Intl.DateTimeFormat(currentLocale(), {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      }).format(new Date(review.created_at))}
-                      {relative ? ` · ${relative}` : ""}
-                      {review.city ? ` · ${review.city}` : ""}
-                    </Text>
-                  </View>
-                </View>
-
                 {/* ── Admin reply ── */}
-                {review.admin_reply ? (
+                {reply ? (
                   <View style={styles.reply}>
                     <View style={styles.replyHeader}>
-                      <Ionicons
-                        name="storefront-outline"
-                        size={11}
-                        color={palette.greenDark}
+                      <Image
+                        source={require("../../assets/images/app-icon-shopping-v12.png")}
+                        style={styles.replyIcon}
+                        accessibilityIgnoresInvertColors
                       />
-                      <Text style={styles.replyLabel}>
-                        {msg("productReviews.lecomaxReplyUppercase")}
-                      </Text>
+                      <Text style={styles.replyLabel}>L’ecomax</Text>
+                      <Text style={styles.replyCaption}>{msg("productReviews.storeReply")}</Text>
                     </View>
                     <Text
                       style={[
                         styles.replyText,
                         containsArabic(review.admin_reply) && styles.rtlText,
                       ]}
-                      numberOfLines={3}
                     >
-                      {review.admin_reply}
+                      {replyCopy}
                     </Text>
+                    {replyIsLong ? (
+                      <Pressable
+                        accessibilityRole="button"
+                        accessibilityState={{ expanded: replyExpanded }}
+                        onPress={() => setExpandedReplies((current) => ({
+                          ...current, [review.id]: !current[review.id],
+                        }))}
+                        style={styles.replyToggle}
+                      >
+                        <Text style={styles.replyToggleText}>
+                          {msg(replyExpanded ? "productReviews.showLess" : "productReviews.readReply")}
+                        </Text>
+                        <Ionicons name={replyExpanded ? "chevron-up" : "chevron-down"} size={13} color={palette.greenDark} />
+                      </Pressable>
+                    ) : null}
                   </View>
                 ) : null}
               </Animated.View>
@@ -1110,29 +1109,24 @@ const styles = StyleSheet.create({
     marginHorizontal: -20, // bleed out of section padding
   },
   reviewCarousel: {
+    alignItems: "flex-start",
     paddingHorizontal: 20,
+    paddingBottom: 12,
     gap: CARD_GAP,
     paddingRight: 32,
   },
   reviewCard: {
-    width: CARD_WIDTH,
     padding: 0,
-    borderRadius: 26,
+    borderRadius: 20,
     backgroundColor: palette.white,
     borderWidth: 1,
     borderColor: "#EAECE9",
     overflow: "hidden",
     shadowColor: "#0F172A",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 5,
-  },
-  cardAccent: {
-    height: 4,
-    backgroundColor: "#3ECF4C",
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.03,
+    shadowRadius: 8,
+    elevation: 1,
   },
 
   // ── Top Header Row ──
@@ -1141,18 +1135,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 18,
-    paddingTop: 16,
+    paddingTop: 0,
+    paddingBottom: 4,
+    flexWrap: "wrap",
+    gap: 8,
   },
   ratingBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-    backgroundColor: "#F7F9F6",
-    borderWidth: 1,
-    borderColor: "#EAECE9",
   },
   reviewRatingValue: {
     color: palette.ink,
@@ -1163,12 +1154,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-    backgroundColor: "#F0FDF4",
-    borderWidth: 1,
-    borderColor: "#DCFCE7",
   },
   verifiedBadgeText: {
     color: "#15803D",
@@ -1182,7 +1167,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     color: palette.ink,
     fontFamily: typography.bold,
-    fontSize: 14,
+    fontSize: 16,
     lineHeight: 20,
   },
   reviewBody: {
@@ -1211,14 +1196,6 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   },
 
-  // ── Divider ──
-  cardDivider: {
-    height: 1,
-    marginTop: 14,
-    marginHorizontal: 18,
-    backgroundColor: "#F1F5F9",
-  },
-
   // ── Footer (author) ──
   reviewFooter: {
     flexDirection: "row",
@@ -1232,10 +1209,10 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#0F172A",
+    backgroundColor: "#F0F2EF",
   },
   avatarText: {
-    color: palette.white,
+    color: "#384438",
     fontFamily: typography.black,
     fontSize: 13,
   },
@@ -1295,29 +1272,33 @@ const styles = StyleSheet.create({
 
   // ── Admin reply ──
   reply: {
-    marginTop: 0,
-    marginHorizontal: 20,
-    marginBottom: 16,
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: "#F4F7F3",
+    marginTop: 18,
+    paddingHorizontal: 18,
+    paddingTop: 14,
+    paddingBottom: 10,
+    borderTopWidth: 1,
+    borderTopColor: "#EDF0EB",
+    backgroundColor: "#FAFBF9",
   },
   replyHeader: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    marginBottom: 5,
+    gap: 8,
+    marginBottom: 10,
   },
+  replyIcon: { width: 28, height: 28, borderRadius: 7 },
+  replyCaption: { marginLeft: "auto", color: "#737970", fontFamily: typography.medium, fontSize: 10, flexShrink: 1 },
   replyLabel: {
-    color: palette.greenDark,
-    fontFamily: typography.black,
-    fontSize: 7,
-    letterSpacing: 0.8,
+    color: palette.ink,
+    fontFamily: typography.bold,
+    fontSize: 12,
   },
   replyText: {
     color: "#5A5F59",
     fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 17,
+    fontSize: 13,
+    lineHeight: 21,
   },
+  replyToggle: { flexDirection: "row", alignItems: "center", gap: 6, minHeight: 44, alignSelf: "flex-start" },
+  replyToggleText: { fontFamily: typography.bold, fontSize: 12, color: palette.greenDark },
 });

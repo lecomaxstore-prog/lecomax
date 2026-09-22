@@ -64,6 +64,10 @@ export default function AuthScreen() {
     params.mode === "signup" ? "signup" : "login",
   );
   const [showPassword, setShowPassword] = useState(false);
+  const lastNameRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
+  const passwordRef = useRef<TextInput>(null);
+  const confirmPasswordRef = useRef<TextInput>(null);
   const [focusedField, setFocusedField] = useState<
     "firstName" | "lastName" | "email" | "password" | "confirmPassword"
   >();
@@ -280,9 +284,9 @@ export default function AuthScreen() {
 
       <ScrollView
         style={styles.scroll}
-        removeClippedSubviews={false}
-        keyboardDismissMode="none"
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="none"
+        removeClippedSubviews={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={[
           styles.scrollContent,
@@ -362,6 +366,8 @@ export default function AuthScreen() {
                   <View style={styles.nameField}>
                     <Text style={styles.fieldLabel}>{msg("auth.firstNameUppercase")}</Text>
                     <View
+                      // Keep the native parent stable when focus adds shadow/elevation.
+                      collapsable={false}
                       style={[
                         styles.inputShell,
                         focusedField === "firstName" &&
@@ -382,6 +388,8 @@ export default function AuthScreen() {
                         autoCapitalize="words"
                         autoComplete="given-name"
                         returnKeyType="next"
+                        submitBehavior="submit"
+                        onSubmitEditing={() => lastNameRef.current?.focus()}
                         selectionColor={palette.greenDark}
                         showSoftInputOnFocus
                         style={[styles.input, styles.nameInput, webInputReset]}
@@ -397,12 +405,14 @@ export default function AuthScreen() {
                   <View style={styles.nameField}>
                     <Text style={styles.fieldLabel}>{msg("auth.lastNameUppercase")}</Text>
                     <View
+                      collapsable={false}
                       style={[
                         styles.inputShell,
                         focusedField === "lastName" && styles.inputShellFocused,
                       ]}
                     >
                       <TextInput
+                        ref={lastNameRef}
                         accessibilityLabel={msg("auth.lastName")}
                         value={value}
                         onChangeText={onChange}
@@ -416,6 +426,8 @@ export default function AuthScreen() {
                         autoCapitalize="words"
                         autoComplete="family-name"
                         returnKeyType="next"
+                        submitBehavior="submit"
+                        onSubmitEditing={() => emailRef.current?.focus()}
                         selectionColor={palette.greenDark}
                         showSoftInputOnFocus
                         style={[styles.input, styles.nameInput, webInputReset]}
@@ -434,6 +446,7 @@ export default function AuthScreen() {
               <View style={styles.fieldGroup}>
                 <Text style={styles.fieldLabel}>{msg("auth.emailAddressUppercase")}</Text>
                 <View
+                  collapsable={false}
                   style={[
                     styles.inputShell,
                     focusedField === "email" && styles.inputShellFocused,
@@ -453,6 +466,7 @@ export default function AuthScreen() {
                     />
                   </View>
                   <TextInput
+                    ref={emailRef}
                     accessibilityLabel={msg("auth.emailAddress")}
                     value={value}
                     onChangeText={onChange}
@@ -467,6 +481,8 @@ export default function AuthScreen() {
                     autoComplete="email"
                     keyboardType="email-address"
                     returnKeyType="next"
+                    submitBehavior="submit"
+                    onSubmitEditing={() => passwordRef.current?.focus()}
                     selectionColor={palette.greenDark}
                       showSoftInputOnFocus
                       style={[styles.input, webInputReset]}
@@ -507,6 +523,7 @@ export default function AuthScreen() {
                   ) : null}
                 </View>
                 <View
+                  collapsable={false}
                   style={[
                     styles.inputShell,
                     focusedField === "password" && styles.inputShellFocused,
@@ -528,6 +545,7 @@ export default function AuthScreen() {
                     />
                   </View>
                   <TextInput
+                    ref={passwordRef}
                     accessibilityLabel={msg("auth.password")}
                     value={value}
                     onChangeText={onChange}
@@ -537,8 +555,11 @@ export default function AuthScreen() {
                       onBlur();
                     }}
                     onSubmitEditing={
-                      mode === "login" ? () => void submit() : undefined
+                      mode === "login"
+                        ? () => void submit()
+                        : () => confirmPasswordRef.current?.focus()
                     }
+                    submitBehavior={mode === "login" ? "blurAndSubmit" : "submit"}
                     placeholder={mode === "login" ? msg("auth.yourPassword") : msg("auth.atLeast8Characters")}
                     placeholderTextColor="#A1A5A2"
                     autoCapitalize="none"
@@ -587,6 +608,7 @@ export default function AuthScreen() {
                     <Text style={styles.fieldLabel}>
                       {msg("auth.confirmPasswordUppercase")}</Text>
                     <View
+                      collapsable={false}
                       style={[
                         styles.inputShell,
                         focusedField === "confirmPassword" &&
@@ -607,6 +629,7 @@ export default function AuthScreen() {
                         />
                       </View>
                       <TextInput
+                        ref={confirmPasswordRef}
                         accessibilityLabel={msg("auth.confirmPassword")}
                         value={value}
                         onChangeText={onChange}
@@ -621,6 +644,7 @@ export default function AuthScreen() {
                         autoCapitalize="none"
                         autoComplete="new-password"
                         returnKeyType="done"
+                        submitBehavior="blurAndSubmit"
                         secureTextEntry={!showPassword}
                         selectionColor={palette.greenDark}
                         showSoftInputOnFocus
