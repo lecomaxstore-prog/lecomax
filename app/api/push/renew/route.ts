@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   const next: Subscription = body.subscription;
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
   const { data: previous, error } = await db.from("push_subscriptions")
-    .select("user_agent").eq("endpoint", old.endpoint)
+    .select("user_agent, admin_email").eq("endpoint", old.endpoint)
     .eq("p256dh", old.keys.p256dh).eq("auth", old.keys.auth).maybeSingle();
   if (error) return NextResponse.json({ error: "Renouvellement indisponible" }, { status: 503 });
   if (!previous) {
@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
   const { error: saveError } = await db.from("push_subscriptions").upsert({
     endpoint: next.endpoint, p256dh: next.keys.p256dh, auth: next.keys.auth,
     user_agent: previous.user_agent,
+    admin_email: previous.admin_email,
   }, { onConflict: "endpoint" });
   if (saveError) return NextResponse.json({ error: "Renouvellement indisponible" }, { status: 503 });
   if (old.endpoint !== next.endpoint) {

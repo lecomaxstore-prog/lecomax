@@ -1,6 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import LearningJourney from "./LearningJourney";
+import GuidedLesson from "./GuidedLesson";
+import FirstShopLab from "./FirstShopLab";
+import ShopWorkshop from "./ShopWorkshop";
+import { JOURNEY, translate } from "./course/journey";
 import manifestJson from "./course/generated/manifest.json";
 import { loadCourseIndex, loadCourseModule } from "./course/generated/loaders";
 import type {
@@ -234,11 +239,28 @@ export default function AcademySection({ lang }: Props) {
   const [solutionOpen, setSolutionOpen] = useState(false);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
+  const [completionError, setCompletionError] = useState("");
+  const [guided, setGuided] = useState(true);
+  const savingCompletion = useRef(false);
   const lastNavigationHash = useRef("");
   const pendingLessonNavigation = useRef<{ lessonId: string; behavior: ScrollBehavior } | null>(null);
   const activeManifest = manifest.modules.find(item => item.id === moduleId) ?? firstModule;
 
-  function toggleLessonComplete(id: string) {
+  async function toggleLessonComplete(id: string) {
+    if (savingCompletion.current) return;
+    setCompletionError("");
+    if (!completedLessons.has(id)) {
+      savingCompletion.current = true;
+      try {
+        const response = await fetch("/api/admin/learning-completion", { method: "POST" });
+        if (!response.ok) throw new Error("save-failed");
+      } catch {
+        setCompletionError(lang === "fr" ? "Leçon non enregistrée. Réessayez pour annuler le rappel de 21 h." : lang === "ar" ? "لم يتم حفظ الدرس. حاول مجدداً لإلغاء تذكير التاسعة مساءً." : "Lesson not saved. Try again to cancel tonight’s 9 PM reminder.");
+        return;
+      } finally {
+        savingCompletion.current = false;
+      }
+    }
     setCompletedLessons(previous => {
       const next = new Set(previous);
       next.has(id) ? next.delete(id) : next.add(id);
@@ -317,9 +339,7 @@ export default function AcademySection({ lang }: Props) {
         if (cancelled) return;
         setCourseModule(loaded);
         setLoadedModuleKey(lang + "/" + moduleId);
-        if (!loaded.lessons.some(lesson => lesson.id === lessonId)) {
-          setLessonId(loaded.lessons[0].id);
-        }
+        setLessonId(current => loaded.lessons.some(lesson => lesson.id === current) ? current : loaded.lessons[0].id);
       })
       .catch(error => {
         if (!cancelled) setModuleError(error instanceof Error ? error.message : String(error));
@@ -431,6 +451,10 @@ export default function AcademySection({ lang }: Props) {
     navigate(target.id, target.lessonIds[lessonIndex]);
   }
 
+  const journeyLessons = JOURNEY.flatMap(stage => stage.modules.flatMap(order =>
+    manifest.modules[order].lessonIds.map(id => ({ moduleId: manifest.modules[order].id, id }))));
+  const nextMission = journeyLessons[journeyLessons.findIndex(item => item.id === lessonId) + 1];
+
   function renderBlock(block: ContentBlock, lessonKey: string) {
     if (block.type === "paragraph") {
       return <p key={block.id} className="text-[15px] leading-7 text-neutral-700 sm:text-[13px]">{block.text}</p>;
@@ -461,19 +485,24 @@ export default function AcademySection({ lang }: Props) {
         <div className="absolute -end-20 -top-24 h-72 w-72 rounded-full bg-[#3ecf4c]/15 blur-3xl" />
         <div className="relative">
           <p className={`text-[11px] font-black text-[#3ecf4c] ${lang === "ar" ? "normal-case tracking-normal" : "uppercase tracking-[.25em]"}`}>{labels.badge}</p>
-          <h2 className="mt-3 max-w-4xl text-2xl font-black leading-tight sm:text-4xl">{labels.title}</h2>
-          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/55">{labels.intro}</p>
+          <h2 className="mt-3 max-w-4xl text-2xl font-black leading-tight sm:text-4xl">{translate(lang, "Ton site, construit par toi. Une petite étape à la fois.", "Your website, built by you. One small step at a time.", "موقعك، تبنيه بنفسك. خطوة صغيرة في كل مرة.")}</h2>
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/75">{translate(lang, "Commence par la mini-boutique ci-dessous. Observe, essaie, puis explique avec tes mots. Ensuite, suis le parcours : HTML → JavaScript → React → Next.js → données → mise en ligne.", "Start with the mini shop below. Watch, try, then explain in your own words. Then follow the journey: HTML → JavaScript → React → Next.js → data → launch.", "ابدأ بالمتجر المصغّر أدناه. شاهد، جرّب، ثم اشرح بكلماتك. بعدها اتبع المسار: HTML ثم JavaScript ثم React ثم Next.js ثم البيانات والنشر.")}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             {[[manifest.moduleCount, labels.modules], [manifest.lessonCount, labels.lessons], [3, labels.languages], ["∞", labels.free]].map(([value, label]) => <div key={String(label)} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2"><span className="text-sm font-black text-[#3ecf4c]">{value}</span><span className="ms-1.5 text-[10px] text-white/45">{label}</span></div>)}
           </div>
           <div className="mt-5 max-w-xl rounded-2xl border border-white/10 bg-white/[.06] p-4">
+            {completionError && <p role="alert" className="mb-3 text-sm text-red-300">{completionError}</p>}
+            <p className="mb-3 text-xs text-white/70">{lang === "fr" ? "Rappel à 21 h (Paris) si aucune leçon n’est marquée terminée aujourd’hui. Activez la cloche des notifications admin sur votre téléphone." : lang === "ar" ? "تذكير الساعة 21:00 بتوقيت باريس إذا لم تكمل درساً اليوم. فعّل جرس إشعارات الإدارة على هاتفك." : "9 PM reminder (Paris) if no lesson is marked complete today. Enable the admin notification bell on your phone."}</p>
             <div className="flex items-center justify-between gap-3 text-xs"><span className="font-black">{progressLabels.progress}</span><span className="tabular-nums text-white/55">{completedLessons.size}/{manifest.lessonCount} {progressLabels.completed}</span></div>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-[#3ecf4c] transition-[width] duration-500" style={{ width: `${Math.min(100, (completedLessons.size / manifest.lessonCount) * 100)}%` }} /></div>
           </div>
         </div>
       </section>
 
-      <section className="rounded-3xl border border-neutral-100 bg-white p-4 shadow-sm sm:p-6">
+      <ShopWorkshop lang={lang} onLesson={id => { const targetModule = manifest.modules.find(item => item.id === id); if (targetModule) { setGuided(true); navigate(targetModule.id, targetModule.lessonIds[0]); } }} />
+
+      <details className="rounded-3xl border border-neutral-100 bg-white p-4 shadow-sm sm:p-6">
+        <summary className="min-h-11 cursor-pointer font-bold">{translate(lang, "Choisir un sujet précis", "Choose a specific topic", "اختر موضوعًا محددًا")}</summary>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div><p className="text-[10px] font-black uppercase tracking-[.2em] text-[#16b277]">START HERE</p><h3 className="mt-1 text-xl font-black text-neutral-950">{progressLabels.beginnerPaths}</h3></div>
           <p className="max-w-2xl text-sm leading-6 text-neutral-500 sm:text-xs">{progressLabels.beginnerPathsIntro}</p>
@@ -484,7 +513,14 @@ export default function AcademySection({ lang }: Props) {
             <p className="mt-3 text-sm font-black text-neutral-950">{path.title}</p><p className="mt-1 text-xs leading-5 text-neutral-500">{path.desc}</p>
           </button>)}
         </div>
-      </section>
+      </details>
+
+      <LearningJourney lang={lang} manifest={manifest} index={activeCourseIndex} completed={completedLessons} onNavigate={(module, id) => { setGuided(true); navigate(module, id); }} />
+      <FirstShopLab lang={lang} />
+      <div className="flex flex-wrap gap-2" role="group" aria-label={translate(lang, "Mode de lecture", "Reading mode", "وضع القراءة")}>
+        <button type="button" data-reading-mode="guided" aria-pressed={guided} onClick={() => setGuided(true)} className="min-h-12 rounded-xl border bg-white px-4 py-3 font-bold aria-pressed:border-emerald-500 aria-pressed:bg-emerald-50">{translate(lang, "Pas à pas", "Step by step", "خطوة بخطوة")}</button>
+        <button type="button" data-reading-mode="full" aria-pressed={!guided} onClick={() => setGuided(false)} className="min-h-12 rounded-xl border bg-white px-4 py-3 font-bold aria-pressed:border-emerald-500 aria-pressed:bg-emerald-50">{translate(lang, "Leçon complète", "Full lesson", "الدرس الكامل")}</button>
+      </div>
 
       <section className="relative rounded-2xl border border-neutral-100 bg-white p-3 shadow-sm sm:p-4">
         <svg className="absolute start-6 top-1/2 -translate-y-1/2 text-neutral-400 sm:start-7" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -519,6 +555,7 @@ export default function AcademySection({ lang }: Props) {
 
         {moduleError ? <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-700 sm:p-6"><p>{moduleError}</p><button type="button" onClick={() => setRetryToken(value => value + 1)} className="mt-4 min-h-11 rounded-lg bg-red-700 px-3 py-2 text-sm font-black text-white sm:text-[11px]">{labels.retry}</button></div>
         : loading || loadedModuleKey !== requestedModuleKey ? <div role="status" aria-live="polite" className="flex min-h-96 items-center justify-center rounded-2xl border bg-white"><div className="text-center"><div className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-[#3ecf4c] border-t-transparent" /><p className="mt-3 text-xs text-neutral-400">{labels.loading}</p></div></div>
+        : lesson && activeCourseModule && guided ? <GuidedLesson key={lang + "/" + lesson.id} lesson={lesson} lang={lang} renderBlock={renderBlock} completed={completedLessons.has(lesson.id)} onComplete={async () => { if (!completedLessons.has(lesson.id)) await toggleLessonComplete(lesson.id); }} onNext={() => { if (nextMission) navigate(nextMission.moduleId, nextMission.id); }} hasNext={!!nextMission} saveError={completionError} />
         : lesson && activeCourseModule ? <LessonReader lesson={lesson} courseModule={activeCourseModule} labels={labels} progressLabels={progressLabels} lang={lang} copiedKey={copiedKey} onCopy={copy} renderBlock={renderBlock} visibleHints={visibleHints} setVisibleHints={setVisibleHints} solutionOpen={solutionOpen} setSolutionOpen={setSolutionOpen} answers={answers} setAnswers={setAnswers} completed={completedLessons.has(lesson.id)} onToggleComplete={() => toggleLessonComplete(lesson.id)} onPrevious={() => adjacent(-1)} onNext={() => adjacent(1)} hasPrevious={currentModuleIndex > 0 || currentLessonIndex > 0} hasNext={currentModuleIndex < manifest.modules.length - 1 || currentLessonIndex < activeManifest.lessonIds.length - 1} /> : null}
       </div>
     </div>

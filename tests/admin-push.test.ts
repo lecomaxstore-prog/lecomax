@@ -51,7 +51,7 @@ function renewalApi(initial: Record<string, string>[]) {
 
 const old = { endpoint: 'https://fcm.googleapis.com/old', keys: { auth: 'private-old-auth', p256dh: 'old-key' } };
 const next = { endpoint: 'https://fcm.googleapis.com/new', keys: { auth: 'private-new-auth', p256dh: 'new-key' } };
-const adminRow = { endpoint: old.endpoint, ...old.keys, user_agent: '[LECOMAX_ADMIN] Chrome' };
+const adminRow = { endpoint: old.endpoint, ...old.keys, user_agent: '[LECOMAX_ADMIN] Chrome', admin_email: 'owner@example.test' };
 
 test('background rotation preserves admin audience without a login cookie and is idempotent', async () => {
   const api = renewalApi([adminRow]);
@@ -59,6 +59,7 @@ test('background rotation preserves admin audience without a login cookie and is
   assert.equal(api.rows.length, 1);
   assert.equal(api.rows[0].endpoint, next.endpoint);
   assert.equal(api.rows[0].user_agent, adminRow.user_agent);
+  assert.equal(api.rows[0].admin_email, adminRow.admin_email);
   assert.equal((await api.request({ oldSubscription: old, subscription: next })).status, 200);
 });
 
@@ -69,9 +70,10 @@ test('knowing an endpoint alone cannot rotate an admin subscription', async () =
 });
 
 test('customer rotation cannot request promotion into the admin audience', async () => {
-  const api = renewalApi([{ ...adminRow, user_agent: 'Customer Chrome' }]);
-  assert.equal((await api.request({ oldSubscription: old, subscription: next, user_agent: '[LECOMAX_ADMIN] forged' })).status, 200);
+  const api = renewalApi([{ endpoint: old.endpoint, ...old.keys, user_agent: 'Customer Chrome' }]);
+  assert.equal((await api.request({ oldSubscription: old, subscription: next, user_agent: '[LECOMAX_ADMIN] forged', admin_email: adminRow.admin_email })).status, 200);
   assert.equal(api.rows[0].user_agent, 'Customer Chrome');
+  assert.equal(api.rows[0].admin_email, undefined);
   assert.equal((await api.request({ oldSubscription: old, subscription: { ...next, endpoint: 'http://insecure.example' } })).status, 400);
 });
 

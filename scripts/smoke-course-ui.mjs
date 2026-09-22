@@ -95,8 +95,9 @@ class CdpClient {
   }
 }
 
-async function createSessionToken(identity = "academy-smoke@localhost") {
+async function createSessionToken(identity) {
   const envText = await readFile(path.join(root, ".env.local"), "utf8").catch(() => "");
+  identity ??= (process.env.ADMIN_EMAIL ?? /^ADMIN_EMAIL=(.*)$/m.exec(envText)?.[1] ?? "contact@lecomax.com").trim().replace(/^['"]|['"]$/g, "").toLowerCase();
   const match = /^SUPABASE_SERVICE_ROLE_KEY=(.*)$/m.exec(envText);
   const secret = (process.env.SUPABASE_SERVICE_ROLE_KEY ?? match?.[1] ?? "dev-only-fallback-not-for-production-please-set-env")
     .trim()
@@ -226,6 +227,38 @@ async function main() {
     await pageClient.send("Page.navigate", { url: targetUrl });
     await waitFor(pageClient, `document.querySelector('#academy-lesson-title')?.textContent?.trim() === ${JSON.stringify(directLesson.title)}`, "the exact deep-linked Academy lesson");
 
+    await waitFor(pageClient, "document.querySelector('[data-shop-mission=page]')?.disabled === false", "mini shop workshop ready");
+    await evaluate(pageClient, `document.querySelector('[data-shop-choice="0"]').click(); document.querySelector('[data-shop-check]').click()`);
+    await waitFor(pageClient, "document.querySelector('[data-shop-preview]')?.textContent.includes('404')", "wrong page path preview");
+    await evaluate(pageClient, "document.querySelector('[data-shop-check]').click()");
+    await waitFor(pageClient, "Boolean(document.querySelector('[data-shop-feedback]')) && !document.querySelector('[data-shop-complete]')", "specific wrong-answer feedback without completion");
+    await evaluate(pageClient, `document.querySelector('[data-shop-choice="1"]').click()`);
+    await evaluate(pageClient, "document.querySelector('[data-shop-check]').click()");
+    await waitFor(pageClient, "document.querySelector('[data-shop-complete]')?.disabled === true", "reflection before mission completion");
+    await evaluate(pageClient, `(() => { const input = document.querySelector('[data-shop-reflection]'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, 'Le dossier donne la route et page.tsx affiche la page.'); input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+    await waitFor(pageClient, "document.querySelector('[data-shop-complete]')?.disabled === false", "reflection entered");
+    await evaluate(pageClient, "document.querySelector('[data-shop-complete]').click()");
+    await waitFor(pageClient, "document.querySelector('[data-workshop-score]')?.textContent.startsWith('1/5')", "one mission counted once");
+    await evaluate(pageClient, "document.querySelector('[data-shop-mission=state]').click()");
+    await evaluate(pageClient, `document.querySelector('[data-shop-choice="1"]').click()`);
+    await evaluate(pageClient, "document.querySelector('[data-shop-cart]').click(); document.querySelector('[data-shop-cart]').click(); document.querySelector('[data-shop-cart]').click()");
+    await waitFor(pageClient, "document.querySelector('[data-shop-count]')?.textContent.trim().endsWith('1')", "constant state stays at one");
+    await evaluate(pageClient, `document.querySelector('[data-shop-choice="0"]').click()`);
+    await evaluate(pageClient, "document.querySelector('[data-shop-cart]').click(); document.querySelector('[data-shop-cart]').click(); document.querySelector('[data-shop-cart]').click()");
+    await waitFor(pageClient, "document.querySelector('[data-shop-count]')?.textContent.trim().endsWith('3')", "functional state update adds all three clicks");
+
+    await waitFor(pageClient, "Boolean(document.querySelector('[role=progressbar]'))", "guided lesson progress");
+    await waitFor(pageClient, "[...document.querySelectorAll('button')].some(button => button.textContent.trim().startsWith('Continuer') && !button.disabled)", "guided lesson controls ready");
+    await evaluate(pageClient, `([...document.querySelectorAll('button')].find(button => button.textContent.trim().startsWith('Continuer'))).click()`);
+    await waitFor(pageClient, "document.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow') === '2'", "guided lesson advance");
+    const previousPageTime = await evaluate(pageClient, "performance.timeOrigin");
+    await pageClient.send("Page.reload");
+    await waitFor(pageClient, `performance.timeOrigin !== ${previousPageTime}`, "new page after reload");
+    await waitFor(pageClient, "document.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow') === '2'", "saved guided step after reload");
+    await waitFor(pageClient, "document.querySelector('[data-workshop-score]')?.textContent.startsWith('1/5') && document.querySelector('[data-shop-mission=link]')?.getAttribute('aria-current') === 'step'", "workshop progress and next mission after reload");
+    await evaluate(pageClient, `document.querySelector('[data-reading-mode=full]').click()`);
+    await waitFor(pageClient, "Boolean(document.querySelector('[data-lesson-id]'))", "full lesson reading mode");
+
     const desktop = await evaluate(pageClient, `(() => {
       const reader = document.querySelector('#academy-reader-top');
       const visibleAsides = [...reader.querySelectorAll('aside')].filter(node => getComputedStyle(node).display !== 'none');
@@ -243,7 +276,7 @@ async function main() {
       };
     })()`);
     assert(desktop.hash === expectedHash, "The direct lesson hash was not preserved.");
-    assert(desktop.title === directLesson.title && desktop.moduleId === module.id && desktop.lessonId === module.lessonIds[0], "The hash opened the wrong lesson.");
+    assert(desktop.title === directLesson.title && desktop.moduleId === module.id && desktop.lessonId === module.lessonIds[0], "The hash opened the wrong lesson: " + JSON.stringify({ title: desktop.title, moduleId: desktop.moduleId, lessonId: desktop.lessonId }));
     assert(desktop.direction === "ltr" && desktop.computedDirection === "ltr", "French Academy should render left-to-right.");
     assert(desktop.codePanels >= 3, "The lesson does not expose its annotated examples and commands.");
     assert(desktop.quizGroups >= 3, "The lesson does not expose the complete quiz.");
@@ -333,7 +366,7 @@ async function main() {
       const reader = document.querySelector('#academy-reader-top');
       const isVisible = node => Boolean(node && node.getClientRects().length && getComputedStyle(node).visibility !== 'hidden');
       const selects = [...reader.querySelectorAll('select')].filter(isVisible);
-      const details = reader.querySelector('details');
+      const details = reader.querySelector('[data-lesson-id] details');
       const visibleAsides = [...reader.querySelectorAll('aside')].filter(isVisible);
       return {
         selects: selects.length,
@@ -352,7 +385,7 @@ async function main() {
     const tablet = await evaluate(pageClient, `(() => {
       const reader = document.querySelector('#academy-reader-top');
       const visible = node => Boolean(node && node.getClientRects().length);
-      return { toc: visible(reader.querySelector('details')), selects: [...reader.querySelectorAll('select')].filter(visible).length, overflow: document.documentElement.scrollWidth - innerWidth };
+      return { toc: visible(reader.querySelector('[data-lesson-id] details')), selects: [...reader.querySelectorAll('select')].filter(visible).length, overflow: document.documentElement.scrollWidth - innerWidth };
     })()`);
     assert(tablet.toc && tablet.selects >= 2 && tablet.overflow <= 2, "Tablet Academy navigation or layout is invalid.");
 
@@ -360,7 +393,7 @@ async function main() {
     const finalDesktop = await evaluate(pageClient, `(() => {
       const reader = document.querySelector('#academy-reader-top');
       const visible = node => Boolean(node && node.getClientRects().length);
-      return { asides: [...reader.querySelectorAll('aside')].filter(visible).length, mobileToc: visible(reader.querySelector('details')), overflow: document.documentElement.scrollWidth - innerWidth };
+      return { asides: [...reader.querySelectorAll('aside')].filter(visible).length, mobileToc: visible(reader.querySelector('[data-lesson-id] details')), overflow: document.documentElement.scrollWidth - innerWidth };
     })()`);
     assert(finalDesktop.asides >= 2 && !finalDesktop.mobileToc && finalDesktop.overflow <= 2, "Desktop Academy navigation or layout is invalid.");
 
@@ -376,6 +409,8 @@ async function main() {
         navigatorVisible: visible(navigator),
         desktopTabsVisible: visible(document.querySelector('#course-desktop-tabs')),
         courseHeaderPosition: getComputedStyle(courseHeader).position,
+        courseHeaderOffset: getComputedStyle(courseHeader).top,
+        adminPadding: getComputedStyle(adminMain).paddingTop,
         courseHeaderTop: courseHeader.getBoundingClientRect().top,
         adminMainTop: adminMain.getBoundingClientRect().top,
         selectedSection: document.querySelector('#course-section-select')?.value,
@@ -450,7 +485,7 @@ async function main() {
     await evaluate(pageClient, `document.querySelector('[data-code-game-action="check"]').click()`);
     await waitFor(pageClient, `document.querySelector('[data-code-game-result]')?.dataset.codeGameResult === 'correct'`, "correct Code Game feedback");
     const gameMobile = await evaluate(pageClient, `({ overflow: document.querySelector('#admin-main').scrollWidth - document.querySelector('#admin-main').clientWidth, editorHeight: document.querySelector('#code-game-editor').getBoundingClientRect().height })`);
-    assert(gameMobile.overflow <= 2 && gameMobile.editorHeight >= 300, "Code Game is not usable at 390px.");
+    assert(gameMobile.overflow <= 2 && gameMobile.editorHeight >= 300, "Code Game is not usable at 390px: " + JSON.stringify(gameMobile));
 
     const exceptions = pageClient.events.filter(event => event.method === "Runtime.exceptionThrown");
     assert(exceptions.length === 0, "The browser reported an uncaught runtime exception.");

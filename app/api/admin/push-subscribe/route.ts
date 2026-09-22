@@ -4,6 +4,7 @@ import { readJsonLimited } from "@/lib/request-body";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
+import { getAdminAccess } from "@/lib/admin-access";
 import { ADMIN_PUSH_USER_AGENT_PREFIX } from "@/lib/push-notifications";
 
 const supabase = createClient(
@@ -14,7 +15,8 @@ const supabase = createClient(
 type SubscriptionBody = { endpoint?: string; keys?: { p256dh?: string; auth?: string } };
 
 export async function POST(req: NextRequest) {
-  if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  const access = await getAdminAccess(req);
+  if (!access) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   const body = await readJsonLimited(req).catch(() => null) as SubscriptionBody | null;
   if (!validPushEndpoint(body?.endpoint) || !body?.keys?.p256dh || !body.keys.auth) {
     return NextResponse.json({ error: "Abonnement incomplet" }, { status: 400 });
@@ -26,6 +28,7 @@ export async function POST(req: NextRequest) {
     p256dh: body.keys.p256dh,
     auth: body.keys.auth,
     user_agent: userAgent,
+    admin_email: access.email,
   }, { onConflict: "endpoint" });
 
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });

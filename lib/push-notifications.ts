@@ -108,7 +108,7 @@ export async function broadcastPushNotification(payload: PushPayload): Promise<P
 }
 
 /** Sends operational alerts only to authenticated admin devices. */
-export async function broadcastAdminPushNotification(payload: PushPayload, endpoint?: string): Promise<PushResult> {
+export async function broadcastAdminPushNotification(payload: PushPayload, endpoint?: string, ownerEmail?: string): Promise<PushResult> {
   configureWebPush();
   const supabase = getSupabase();
   let query = supabase
@@ -116,6 +116,7 @@ export async function broadcastAdminPushNotification(payload: PushPayload, endpo
     .select("endpoint, p256dh, auth")
     .like("user_agent", `${ADMIN_PUSH_USER_AGENT_PREFIX}%`);
   if (endpoint) query = query.eq("endpoint", endpoint);
+  if (ownerEmail) query = query.eq("admin_email", ownerEmail);
   const { data, error } = await query;
   if (error) throw new Error(error.message);
 

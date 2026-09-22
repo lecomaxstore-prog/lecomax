@@ -1,6 +1,14 @@
 {
   "crons": [
     {
+      "path": "/api/cron/learning-reminder?slot=summer",
+      "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/cron/learning-reminder?slot=winter",
+      "schedule": "0 20 * * *"
+    },
+    {
       "path": "/api/cron/review-followups",
       "schedule": "0 9 * * *"
     },

@@ -121,6 +121,10 @@
     scrollbar-color: #ccd9d0 transparent;
   }
   .admin-shell #admin-main::-webkit-scrollbar { width: 3px; }
+  /* Match the mobile scroll container's 20px top padding. */
+  .admin-shell #course-page-header { top: -20px; }
+  /* The general input rule must not shrink the learning code editor. */
+  .admin-shell #code-game-editor { min-height: 320px; }
   .admin-shell #admin-main::-webkit-scrollbar-thumb { background: #ccd9d0; border-radius: 4px; }
   .admin-topbar { border-color: #e9eeeb; box-shadow: none; }
   .admin-bottom-nav { background: #fff; border-color: #e5ebe7; box-shadow: 0 -2px 16px #173c2c05; }
