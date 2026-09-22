@@ -543,11 +543,13 @@ export default function ProductScreen() {
             {product.name.replace(/\b(t|tee)[- ](?=shirts?\b)/gi, "$1\u2011")}
           </Text>
           <View style={styles.priceCard}>
-            <View style={styles.priceRow}>
-              <Text accessibilityLabel={money(selectedPrice, currency)} style={[styles.price, saving > 0 && styles.promotionalPrice]}>
+            <View accessible accessibilityLabel={money(selectedPrice, currency)} style={styles.priceRow}>
+              <Text style={[styles.price, saving > 0 && styles.promotionalPrice]}>
                 {displayAmount}
-                <Text style={styles.priceCurrency}>{"\u00A0"}{displayCurrency}</Text>
               </Text>
+              <Text style={styles.priceCurrency}>{displayCurrency}</Text>
+            </View>
+            {saving > 0 ? <View style={styles.priceComparisonRow}>
               {selectedOriginalPrice &&
               selectedOriginalPrice > selectedPrice ? (
                 <View style={styles.originalPriceGroup}>
@@ -561,7 +563,7 @@ export default function ProductScreen() {
                   <Text style={styles.discountText}>−{saving} %</Text>
                 </View>
               ) : null}
-            </View>
+            </View> : null}
             {saving > 0 && selectedOriginalPrice ? (
               <View style={styles.savingsRow}>
                 <Text style={styles.savingsText}>
@@ -1138,11 +1140,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAF6ED",
   },
   priceCard: {
-    marginTop: 17,
+    marginTop: 22,
     marginBottom: 2,
-    paddingBottom: 22,
+    paddingBottom: 24,
     borderBottomWidth: 1,
-    borderBottomColor: "#E8EADF",
+    borderBottomColor: "#ECEAE5",
     backgroundColor: "transparent",
   },
   priceHeader: {
@@ -1164,25 +1166,40 @@ const styles = StyleSheet.create({
     letterSpacing: 0.7,
   },
   priceRow: {
-    minHeight: 45,
+    minHeight: 44,
     marginTop: 0,
+    flexDirection: "row",
+    alignItems: "baseline",
+    flexWrap: "wrap",
+    gap: 9,
+  },
+  priceComparisonRow: {
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: 11,
+    gap: 14,
+    marginTop: 8,
+    marginBottom: 0,
   },
   price: {
-    color: "#202521",
-    fontFamily: typography.semibold,
-    fontSize: 24,
-    lineHeight: 30,
-    letterSpacing: -0.6,
+    color: "#252823",
+    fontFamily: typography.regular,
+    fontSize: 32,
+    lineHeight: 42,
+    letterSpacing: -1.1,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
   },
-  priceCurrency: { fontFamily: typography.medium, fontSize: 10, letterSpacing: 0.4, color: "#777C76" },
+  priceCurrency: {
+    fontFamily: typography.medium,
+    fontSize: 11,
+    lineHeight: 16,
+    letterSpacing: 0.6,
+    color: "#777A72",
+    includeFontPadding: false,
+  },
   promotionalPrice: {
-    color: "#202521",
+    color: "#252823",
   },
   originalPriceGroup: {
     alignItems: "flex-start",
@@ -1197,33 +1214,34 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
   },
   originalPrice: {
-    color: "#93988F",
+    color: "#8B8B83",
     fontFamily: typography.regular,
-    fontSize: 14,
+    fontSize: 12,
     textDecorationLine: "line-through",
   },
   discountBadge: {
-    minHeight: 26,
-    paddingHorizontal: 9,
+    minHeight: 18,
+    paddingLeft: 14,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 7,
-    backgroundColor: "#EEF4E8",
+    borderLeftWidth: 1,
+    borderLeftColor: "#DEDCD5",
   },
   discountText: {
-    color: "#3C6540",
-    fontFamily: typography.semibold,
+    color: "#8C4B46",
+    fontFamily: typography.medium,
     fontSize: 11,
+    letterSpacing: 0.2,
   },
   savingsRow: {
     minHeight: 20,
-    marginTop: 3,
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
   },
   savingsText: {
-    color: "#778171",
+    color: "#777A72",
     fontFamily: typography.regular,
     fontSize: 11,
   },

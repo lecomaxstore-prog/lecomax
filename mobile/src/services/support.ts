@@ -1,4 +1,5 @@
 import { apiRequest } from "@/lib/api-client";
+import { uploadFile } from "@/lib/upload-file";
 import type { DocumentPickerAsset } from 'expo-document-picker';
 
 export type SupportStatus = "open" | "waiting" | "resolved";
@@ -37,7 +38,6 @@ export function sendSupportAttachment(id: string, body: string, clientMessageId:
   const form = new FormData();
   form.append('body', body);
   form.append('client_message_id', clientMessageId);
-  if (asset.file) form.append('file', asset.file, asset.name);
-  else form.append('file', { uri: asset.uri, name: asset.name, type: asset.mimeType || 'application/octet-stream' } as unknown as Blob);
+  form.append('file', uploadFile(asset), asset.name);
   return apiRequest<{ message: SupportMessage }>(`/api/support/conversations/${encodeURIComponent(id)}/messages`, { authenticated: true, method: 'POST', body: form, timeoutMs: 30_000 });
 }

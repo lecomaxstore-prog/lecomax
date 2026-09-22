@@ -208,7 +208,7 @@
   "notificationOptIn.enabled": "You’re connected",
   "notificationOptIn.enabledBody": "Notifications are enabled on this device. You can choose which updates you receive in your account preferences.",
   "notificationOptIn.choice": "Your choice, always. Change your preferences or turn alerts off in your account.",
-  "notificationOptIn.error": "We couldn’t finish saving your notification settings. Please check your connection and try again.",
+  "notificationOptIn.error": "We couldn’t finish turning on notifications. Please try again. If this continues, contact support.",
   "notificationOptIn.browserDenied": "Notifications are blocked. Open this site’s permissions in your browser, allow notifications, then refresh this page.",
   "notificationOptIn.browserUnsupported": "Use a browser that supports notifications. On iPhone, add this app to your Home Screen and open it from there.",
   "notificationOptIn.nativeUnsupported": "Open the installed app on your Android phone or iPhone to enable push notifications.",
@@ -1184,5 +1184,7 @@
   "auth.confirmSignIn": "Continue to sign in",
   "auth.confirmResend": "Resend confirmation email",
   "auth.confirmResendWait": "Resend in {{seconds}}s",
-  "auth.confirmResent": "A new confirmation email has been requested. Check your inbox."
+  "auth.confirmResent": "A new confirmation email has been requested. Check your inbox.",
+  "notificationOptIn.configurationError": "Notifications aren’t available in this version of the app. Please update the app or contact support.",
+  "notificationOptIn.connectionError": "We couldn’t connect to the notification service. Please check your connection and try again."
 }

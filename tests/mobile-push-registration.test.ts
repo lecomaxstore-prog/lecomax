@@ -4,7 +4,7 @@ import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
 
-function service({ provisional = false, disabled = false, fail = false, granted = true } = {}) {
+function service({ provisional = false, disabled = false, fail = false, granted = true, expoGo = false } = {}) {
   const storage = new Map<string, string>();
   if (disabled) storage.set("lecomax.push-disabled", "true");
   const calls: string[] = [];
@@ -14,7 +14,7 @@ function service({ provisional = false, disabled = false, fail = false, granted 
     "@/i18n": { msg: (key: string) => key },
     "expo-device": { isDevice: true },
     "react-native": { Platform: { OS: "android" } },
-    "expo-constants": { default: { easConfig: { projectId: "project" } } },
+    "expo-constants": { default: { easConfig: { projectId: "project" }, executionEnvironment: expoGo ? "storeClient" : "standalone" } },
     "expo-notifications": {
       IosAuthorizationStatus: { PROVISIONAL: 3 }, AndroidImportance: { HIGH: 4 },
       setNotificationHandler: () => {},
@@ -41,6 +41,13 @@ test("iOS provisional authorization registers without asking again", async () =>
   assert.ok(await api.registerForPushNotifications(undefined, { requestPermission: false }));
   assert.equal(calls.includes("prompt"), false);
   assert.equal((await api.getPushNotificationState()).enabled, true);
+});
+
+test("Expo Go reports unsupported without requesting a token or registering", async () => {
+  const { api, calls } = service({ expoGo: true });
+  assert.equal((await api.getPushNotificationState()).supported, false);
+  assert.equal(await api.registerForPushNotifications(), null);
+  assert.deepEqual(calls, []);
 });
 test("background registration respects device opt-out and never asks permission", async () => {
   for (const options of [{ disabled: true }, { granted: false }]) {

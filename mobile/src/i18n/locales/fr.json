@@ -208,7 +208,7 @@
   "notificationOptIn.enabled": "Vous êtes connecté",
   "notificationOptIn.enabledBody": "Les notifications sont activées sur cet appareil. Choisissez les actualités à recevoir dans les préférences de votre compte.",
   "notificationOptIn.choice": "Vous gardez le choix. Modifiez vos préférences ou désactivez les alertes dans votre compte.",
-  "notificationOptIn.error": "Impossible de terminer l’enregistrement. Vérifiez votre connexion et réessayez.",
+  "notificationOptIn.error": "Impossible d’activer les notifications. Réessayez. Si le problème persiste, contactez l’assistance.",
   "notificationOptIn.browserDenied": "Les notifications sont bloquées. Autorisez-les dans les permissions de ce site, puis actualisez cette page.",
   "notificationOptIn.browserUnsupported": "Utilisez un navigateur compatible. Sur iPhone, ajoutez cette app à l’écran d’accueil et ouvrez-la depuis son icône.",
   "notificationOptIn.nativeUnsupported": "Ouvrez l’application installée sur votre téléphone Android ou votre iPhone pour activer les notifications.",
@@ -1184,5 +1184,7 @@
   "auth.confirmSignIn": "Continuer vers la connexion",
   "auth.confirmResend": "Renvoyer l’email de confirmation",
   "auth.confirmResendWait": "Renvoyer dans {{seconds}} s",
-  "auth.confirmResent": "Un nouvel email de confirmation a été demandé. Vérifiez votre boîte de réception."
+  "auth.confirmResent": "Un nouvel email de confirmation a été demandé. Vérifiez votre boîte de réception.",
+  "notificationOptIn.configurationError": "Les notifications ne sont pas disponibles dans cette version de l’application. Mettez l’application à jour ou contactez l’assistance.",
+  "notificationOptIn.connectionError": "Impossible de joindre le service de notifications. Vérifiez votre connexion et réessayez."
 }

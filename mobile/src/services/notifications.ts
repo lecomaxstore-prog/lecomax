@@ -13,6 +13,7 @@ import {
 const PUSH_TOKEN_KEY = "lecomax.push-token";
 const INSTALLATION_ID_KEY = "lecomax.installation-id";
 const PUSH_DISABLED_KEY = "lecomax.push-disabled";
+const supportsRemotePush = () => Device.isDevice && Platform.OS !== "web" && Constants.executionEnvironment !== "storeClient";
 
 if (Platform.OS !== "web") {
   Notifications.setNotificationHandler({
@@ -59,7 +60,7 @@ export async function registerForPushNotifications(
   _userId?: string,
   options: { requestPermission?: boolean } = {},
 ) {
-  if (!Device.isDevice || Platform.OS === "web") return null;
+  if (!supportsRemotePush()) return null;
   if (options.requestPermission === false && await secureGetItem(PUSH_DISABLED_KEY) === "true") return null;
   await configureAndroidChannels();
   const current = await Notifications.getPermissionsAsync();
@@ -75,7 +76,7 @@ export async function registerForPushNotifications(
     Constants.expoConfig?.extra?.eas?.projectId ??
     Constants.easConfig?.projectId;
   if (!projectId) {
-    throw new Error(msg("notifications.theEasProjectIsNotConfiguredForNotifications"));
+    throw new Error("PUSH_NOT_CONFIGURED");
   }
 
   const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
@@ -90,7 +91,7 @@ export async function registerForPushNotifications(
 }
 
 export async function getPushNotificationState() {
-  if (!Device.isDevice || Platform.OS === "web") {
+  if (!supportsRemotePush()) {
     return { supported: false, enabled: false, status: "unsupported" as const };
   }
   const permission = await Notifications.getPermissionsAsync();

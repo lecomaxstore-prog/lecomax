@@ -10,13 +10,14 @@ import { disablePushNotifications, getPushNotificationState, registerForPushNoti
 import { getMobileNotificationPreferences, updateMobileNotificationPreferences } from "@/services/mobile-notifications";
 import { supabase } from "@/lib/supabase";
 import { useSettings } from "@/hooks/use-catalog";
+import { pushRegistrationErrorMessage } from "@/lib/push-registration-error";
 
 export function NotificationOptIn({ onEnabled }: { onEnabled?: () => void } = {}) {
   useLocale();
   const client = useQueryClient();
   const settings = useSettings();
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const state = useQuery({ queryKey: ["push-permission"], queryFn: getPushNotificationState, staleTime: 0 });
   useFocusEffect(useCallback(() => {
     void client.invalidateQueries({ queryKey: ["push-permission"] });
@@ -29,7 +30,7 @@ export function NotificationOptIn({ onEnabled }: { onEnabled?: () => void } = {}
 
   const enable = async () => {
     if (busy) return;
-    setBusy(true); setError(false);
+    setBusy(true); setError(null);
     try {
       const token = await registerForPushNotifications(undefined, { requestPermission: true });
       if (token) {
@@ -42,15 +43,15 @@ export function NotificationOptIn({ onEnabled }: { onEnabled?: () => void } = {}
       }
       await state.refetch();
       if (token) onEnabled?.();
-    } catch { setError(true); }
+    } catch (cause) { setError(pushRegistrationErrorMessage(cause)); }
     finally { setBusy(false); }
   };
   const enabled = state.data?.enabled;
   const disable = async () => {
     if (busy) return;
-    setBusy(true); setError(false);
+    setBusy(true); setError(null);
     try { await disablePushNotifications(); await state.refetch(); }
-    catch { setError(true); }
+    catch (cause) { setError(pushRegistrationErrorMessage(cause)); }
     finally { setBusy(false); }
   };
   const denied = state.data?.status === "denied" && !state.data?.canAskAgain;
@@ -65,10 +66,10 @@ export function NotificationOptIn({ onEnabled }: { onEnabled?: () => void } = {}
         </View>
       </View>
       <Text style={styles.description}>{msg(enabled ? "notificationOptIn.enabledBody" : "notificationOptIn.body")}</Text>
-      {error ? <Text accessibilityRole="alert" style={styles.error}>{msg("notificationOptIn.error")}</Text> : null}
+      {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
       {unsupported ? <Text style={styles.note}>{msg(Platform.OS === "web" ? "notificationOptIn.browserUnsupported" : "notificationOptIn.nativeUnsupported")}</Text> : denied ? (
         Platform.OS === "web" ? <Text style={styles.note}>{msg("notificationOptIn.browserDenied")}</Text> :
-        <AnimatedPressable accessibilityRole="button" onPress={() => void Linking.openSettings().catch(() => setError(true))} style={styles.button}><Text style={styles.buttonText}>{msg("scanner.openSettings")}</Text><Ionicons name="open-outline" size={17} color="#193D2B" /></AnimatedPressable>
+        <AnimatedPressable accessibilityRole="button" onPress={() => void Linking.openSettings().catch(cause => setError(pushRegistrationErrorMessage(cause)))} style={styles.button}><Text style={styles.buttonText}>{msg("scanner.openSettings")}</Text><Ionicons name="open-outline" size={17} color="#193D2B" /></AnimatedPressable>
       ) : !enabled || error ? (
         <AnimatedPressable accessibilityRole="button" accessibilityState={{ busy, disabled: busy || state.isPending }} disabled={busy || state.isPending} onPress={() => void enable()} style={[styles.button, busy && { opacity: 0.7 }]}>
           <Text style={styles.buttonText}>{msg(busy ? "notificationOptIn.enabling" : "notificationOptIn.enable")}</Text>

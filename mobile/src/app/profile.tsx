@@ -22,6 +22,7 @@ import { Screen } from "@/components/screen";
 import { palette, typography } from "@/constants/theme";
 import { apiRequest } from "@/lib/api-client";
 import { supabase } from "@/lib/supabase";
+import { uploadFile } from "@/lib/upload-file";
 
 type ProfileResponse = {
   profile: { prenom: string; nom: string; full_name: string; phone: string };
@@ -156,23 +157,19 @@ export default function ProfileScreen() {
     }
   };
   const chooseAvatar = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.82,
-    });
-    if (result.canceled || !result.assets[0]) return;
-    const asset = result.assets[0];
-    const form = new FormData();
-    if (asset.file) form.append("file", asset.file);
-    else form.append("file", {
-      uri: asset.uri,
-      name: asset.fileName || `avatar-${Date.now()}.jpg`,
-      type: asset.mimeType || "image/jpeg",
-    } as unknown as Blob);
+    if (avatarSaving) return;
     setAvatarSaving(true);
     try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.82,
+      });
+      if (result.canceled || !result.assets[0]) return;
+      const asset = result.assets[0];
+      const form = new FormData();
+      form.append("file", uploadFile(asset));
       const response = await apiRequest<{ avatarUrl: string }>("/api/account/avatar", {
         method: "POST",
         authenticated: true,
