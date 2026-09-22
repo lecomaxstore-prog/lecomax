@@ -8,7 +8,7 @@ const CONFIGURATION_ERROR = "Accès sécurisé non configuré. Configurez HOW_BU
 
 function configuredPin() {
   const pin = process.env.HOW_BUILT_PIN;
-  return pin && pin.length >= 8 ? pin : null;
+  return pin && pin.length >= 4 ? pin : null;
 }
 
 async function requireOwner(req: NextRequest) {

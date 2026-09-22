@@ -39,7 +39,7 @@ function setup(pin?: string) {
 }
 
 test("missing or short configuration reports readable errors before a submission", async () => {
-  for (const pin of [undefined, "1234"]) {
+  for (const pin of [undefined, "", "abc"]) {
     const { route, request } = setup(pin);
     const response = await route.GET(request("GET"));
     assert.equal(response.status, 503);
@@ -73,4 +73,17 @@ test("wrong codes remain rate limited and logout removes the access cookie", asy
   assert.equal((await route.POST(request("POST", "valid-code"))).status, 429);
   const response = await route.DELETE(request("DELETE"));
   assert.match(response.headers.get("set-cookie")!, /Max-Age=0/i);
+});
+
+test("four-letter access codes unlock for the owner", async () => {
+  const { route, request } = setup("abcd");
+  assert.equal((await route.GET(request("GET"))).status, 401);
+  assert.equal((await route.POST(request("POST", "abcd", false))).status, 403);
+  assert.equal((await route.POST(request("POST", "abce"))).status, 401);
+  assert.equal((await route.POST(request("POST", "abcd"))).status, 200);
+});
+
+ test("four-digit PINs including a leading zero unlock for the owner", async () => {
+  const { route, request } = setup("0427");
+  assert.equal((await route.POST(request("POST", "0427"))).status, 200);
 });
