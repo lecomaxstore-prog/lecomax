@@ -4,7 +4,7 @@ import { createSessionToken, verifySessionToken } from "@/lib/admin-session";
 
 const attempts = new Map<string, { count: number; resetAt: number }>();
 const MARKER = "how-built-pin@lecomax.local";
-const CONFIGURATION_ERROR = "Accès sécurisé non configuré. Configurez HOW_BUILT_PIN avec au moins 8 caractères sur le serveur, puis redémarrez ou redéployez le site.";
+const CONFIGURATION_ERROR = "Accès sécurisé non configuré. Configurez HOW_BUILT_PIN avec au moins 4 caractères sur le serveur, puis redémarrez ou redéployez le site.";
 
 function configuredPin() {
   const pin = process.env.HOW_BUILT_PIN;
