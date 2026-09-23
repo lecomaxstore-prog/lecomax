@@ -30,12 +30,7 @@ const nextConfig = {
   // Include source files in the dev-docs serverless function bundle (needed on Vercel)
   outputFileTracingIncludes: {
     "/api/dev-docs/*": [
-      "./app/**/*",
-      "./components/**/*",
-      "./lib/**/*",
-      "./scripts/**/*",
-      "./public/**/*.{txt,json,js,svg}",
-      "./*.{js,ts,json,md}",
+      "./.source-library/catalog.json",
     ],
   },
   images: {

@@ -1,79 +1,20 @@
-import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import { protectSourceBrowser, allowedSourcePath } from "@/lib/dev-docs-access";
-
-const BLOCKED_PATTERNS = [
-  /^\.env/i,
-  /[/\\]\.env/i,
-  /\.key$/i,
-  /\.pem$/i,
-  /\.p12$/i,
-  /node_modules/,
-  /^\.git[/\\]/,
-  /[/\\]\.git[/\\]/,
-  /^\.next[/\\]/,
-  /^\.vercel[/\\]/,
-];
-
-const BINARY_EXTENSIONS = new Set([
-  "avif", "webp", "png", "jpg", "jpeg", "gif", "bmp", "ico",
-  "woff", "woff2", "ttf", "eot", "otf",
-  "mp4", "mp3", "wav", "webm",
-  "zip", "tar", "gz",
-]);
-
-const MAX_SIZE = 300 * 1024; // 300 KB
-
+﻿import { NextRequest, NextResponse } from "next/server";
+import { protectSourceBrowser } from "@/lib/dev-docs-access";
+import { getSourceLibrary } from "@/lib/source-library";
+import { isLibraryPath } from "@/scripts/source-library.mjs";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   const denied = await protectSourceBrowser(req);
   if (denied) return denied;
-
-  const { searchParams } = new URL(req.url);
-  const filePath = (searchParams.get("path") ?? "").replace(/\\/g, "/").replace(/^\//, "");
-
-  if (!allowedSourcePath(filePath)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-
-  // Block path traversal
-  if (filePath.includes("..") || filePath.includes("//")) {
-    return NextResponse.json({ error: "Invalid path" }, { status: 400 });
-  }
-
-  // Block sensitive patterns
-  for (const pattern of BLOCKED_PATTERNS) {
-    if (pattern.test(filePath)) {
-      return NextResponse.json({ content: "// ⛔ Ce fichier ne peut pas être affiché pour des raisons de sécurité." });
-    }
-  }
-
-  const root = process.cwd();
-  const fullPath = path.resolve(root, ...filePath.split("/"));
-
-  // Prevent escaping project root
-  if (!fullPath.startsWith(root + path.sep)) {
-    return NextResponse.json({ error: "Access denied" }, { status: 403 });
-  }
-
-  const ext = path.extname(fullPath).slice(1).toLowerCase();
-  if (BINARY_EXTENSIONS.has(ext)) {
-    return NextResponse.json({ content: `// 🖼️ Fichier binaire (${ext.toUpperCase()}) — aperçu non disponible.` });
-  }
-
+  const requested = req.nextUrl.searchParams.get("path") || "";
+  if (!isLibraryPath(requested)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   try {
-    const realRoot = fs.realpathSync(root);
-    const realPath = fs.realpathSync(fullPath);
-    if (!realPath.startsWith(realRoot + path.sep)) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    const stat = fs.statSync(realPath);
-    if (!stat.isFile()) return NextResponse.json({ error: "Not a file" }, { status: 400 });
-    if (stat.size > MAX_SIZE) {
-      return NextResponse.json({
-        content: `// ⚠️ Fichier trop volumineux (${Math.round(stat.size / 1024)} KB > 300 KB)\n// Ouvrez-le directement dans VS Code.`,
-        size: stat.size,
-      });
-    }
-    const content = fs.readFileSync(fullPath, "utf-8");
-    return NextResponse.json({ content, size: stat.size }, { headers: { "Cache-Control": "no-store" } });
+    const library = await getSourceLibrary();
+    const file = library.files.find(item => item.path === requested);
+    if (!file) return NextResponse.json({ error: "File unavailable in this source library" }, { status: 404 });
+    return NextResponse.json({ ...file, generatedAt: library.generatedAt }, { headers: { "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
   } catch {
-    return NextResponse.json({ error: "File not found" }, { status: 404 });
+    return NextResponse.json({ error: "Source library unavailable" }, { status: 503 });
   }
 }

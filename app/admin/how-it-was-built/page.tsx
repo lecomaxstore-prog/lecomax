@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
+import CodeLibrary from "./CodeLibrary";
+import { translate } from "./course/journey";
 
 const AcademySection = dynamic(() => import("./AcademySection"), {
   loading: () => (
@@ -58,7 +60,7 @@ const UI: Record<Lang, {
     loading: "Chargement…", loadingTree: "Chargement de l'arbre…",
     error: "Erreur de connexion à l'API", noResults: "Aucun résultat",
     noFile: "Aucun fichier trouvé",
-    tabs: { start: "Commencer ici", academy: "Académie 0→Héros", hero: "De 0 à Héros", arch: "Architecture", files: "Explorateur", tech: "Stack", env: "Variables", pages: "Toutes les Pages", search: "Recherche", guide: "Guide", debug: "Déboguer", supabase: "Supabase", deploy: "Déployer", cours: "Cours technique", mentor: "Mentor" },
+    tabs: { start: "Commencer ici", academy: "Académie 0→Héros", hero: "De 0 à Héros", arch: "Architecture", files: "Mes fichiers", tech: "Stack", env: "Variables", pages: "Toutes les Pages", search: "Recherche", guide: "Guide", debug: "Déboguer", supabase: "Supabase", deploy: "Déployer", cours: "Cours technique", mentor: "Mentor" },
     heroTitle: "De 0 à Héros — Construction complète du site",
     heroSub: "Chaque phase : configuration → initialisation → Supabase → frontend → admin → APIs → GitHub → Vercel → Namecheap → outils de croissance → cycle commande → composants → variables env → flux de données.",
     archTitle: "Architecture complète", archSub: "Comment GitHub, Vercel, Supabase et les APIs externes s'articulent.",
@@ -84,7 +86,7 @@ const UI: Record<Lang, {
     loading: "Loading…", loadingTree: "Loading file tree…",
     error: "API connection error", noResults: "No results",
     noFile: "No files found",
-    tabs: { start: "Start here", academy: "Academy 0→Hero", hero: "0 to Hero", arch: "Architecture", files: "Explorer", tech: "Stack", env: "Variables", pages: "All Pages", search: "Search", guide: "Guide", debug: "Debug", supabase: "Supabase", deploy: "Deploy", cours: "Technical course", mentor: "Mentor" },
+    tabs: { start: "Start here", academy: "Academy 0→Hero", hero: "0 to Hero", arch: "Architecture", files: "My files", tech: "Stack", env: "Variables", pages: "All Pages", search: "Search", guide: "Guide", debug: "Debug", supabase: "Supabase", deploy: "Deploy", cours: "Technical course", mentor: "Mentor" },
     heroTitle: "0 to Hero — Full Site Build",
     heroSub: "Every phase: setup → init → Supabase → frontend → admin → APIs → GitHub → Vercel → Namecheap → growth tools → order lifecycle → components → env vars → data flows.",
     archTitle: "Complete Architecture", archSub: "How GitHub, Vercel, Supabase, and external APIs connect together.",
@@ -5409,6 +5411,8 @@ export default function HowItWasBuiltPage() {
   useEffect(() => {
     const openDeepLinkedCourse = () => {
       if (window.location.hash.startsWith("#academy/")) setTab("academy");
+      else if (window.location.hash.startsWith("#files")) setTab("files");
+      else if (!window.location.hash) setTab("start");
     };
     openDeepLinkedCourse();
     window.addEventListener("hashchange", openDeepLinkedCourse);
@@ -5422,7 +5426,7 @@ export default function HowItWasBuiltPage() {
 
   function selectTab(id: TabId) {
     setTab(id);
-    if (id !== "academy" && window.location.hash.startsWith("#academy/")) {
+    if ((id !== "academy" && window.location.hash.startsWith("#academy/")) || (id !== "files" && window.location.hash.startsWith("#files"))) {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
     window.requestAnimationFrame(() => {
@@ -5563,11 +5567,11 @@ export default function HowItWasBuiltPage() {
         {tab === "game" && <CodeCoachGame lang={lang} />}
         {tab === "academy" && <AcademySection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}
-        {tab === "files"  && <ExplorerSection />}
+        {tab === "files"  && <CodeLibrary lang={lang} />}
         {tab === "tech"   && <TechSec lang={lang} />}
         {tab === "env"    && <EnvSec lang={lang} />}
         {tab === "pages"  && <PagesSection lang={lang} />}
-        {tab === "search" && <SearchSec lang={lang} />}
+        {tab === "search" && <><CodeLibrary lang={lang} /><details className="mt-6 rounded-2xl border bg-white p-4"><summary className="min-h-12 cursor-pointer font-bold">{translate(lang, "Rechercher aussi dans les explications", "Also search the explanations", "ابحث أيضًا في الشروحات")}</summary><SearchSec lang={lang} /></details></>}
         {tab === "guide"    && <GuideSection />}
         {tab === "debug"    && <DebugSection />}
         {tab === "supabase" && <SupabaseSection />}

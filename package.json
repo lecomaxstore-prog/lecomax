@@ -3,9 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "predev": "npm run generate:course",
+    "predev": "npm run generate:course && npm run source:refresh",
+    "source:refresh": "node scripts/source-library.mjs",
     "dev": "next dev",
-    "prebuild": "npm run validate:course",
+    "prebuild": "npm run validate:course && npm run source:refresh",
     "build": "node scripts/next-build.mjs",
     "test": "node --test tests/*.test.ts && npm run -s test:android-back",
     "test:android-back": "node mobile/scripts/test-android-back.mjs",
@@ -21,6 +22,7 @@
     "audit:mobile-secrets": "node scripts/audit-mobile-secrets.mjs",
     "audit:mobile-interactions": "node scripts/audit-mobile-interactions.mjs",
     "smoke:course-ui": "node scripts/smoke-course-ui.mjs",
+    "smoke:source-library": "node scripts/smoke-course-ui.mjs --source-only",
     "smoke:admin-dashboard": "node scripts/smoke-admin-dashboard-ui.mjs",
     "smoke:mobile-responsive": "node scripts/smoke-mobile-responsive-ui.mjs"
   },

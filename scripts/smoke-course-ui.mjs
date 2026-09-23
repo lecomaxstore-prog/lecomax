@@ -205,11 +205,61 @@ async function main() {
       name: "how_built_access",
       value: pinToken,
       url: `${baseUrl}/admin/how-it-was-built/`,
-      path: "/admin/how-it-was-built",
+      path: "/",
       httpOnly: true,
       sameSite: "Strict",
     });
     assert(pinCookie.success, "The smoke-test course PIN cookie was rejected.");
+
+    if (process.env.COURSE_SOURCE_ONLY === "1" || process.argv.includes("--source-only")) {
+      await setViewport(pageClient, 390, 844);
+      await pageClient.send("Page.navigate", { url: `${baseUrl}/admin/how-it-was-built/#files/app%2Fpage.tsx?line=2` });
+      await waitFor(pageClient, `!!document.querySelector('[data-source-line="2"]')`, "actual source file");
+      const expected = await readFile(path.join(root, "app/page.tsx"), "utf8");
+      const content = await evaluate(pageClient, `fetch('/api/dev-docs/content?path=app/page.tsx').then(r => r.json())`);
+      assert(content.content === expected, "The reader API differs from the saved project file.");
+      await evaluate(pageClient, `document.querySelector('[data-source-line="4"]').click()`);
+      await waitFor(pageClient, `document.querySelector('[data-explanation-kind]')?.dataset.explanationKind === 'import' && document.querySelector('#source-explanation')?.textContent.includes('Metadata')`, "clicked line explanation with the actual import name");
+      assert(await evaluate(pageClient, `document.querySelector('[data-source-line="4"]').getAttribute('aria-pressed') === 'true' && location.hash.endsWith('line=4')`), "Clicked line was not selected and linked.");
+      await evaluate(pageClient, `document.querySelector('[data-source-line="4"]').focus()`);
+      await pageClient.send("Input.dispatchKeyEvent", { type: "keyDown", key: "ArrowDown", code: "ArrowDown", windowsVirtualKeyCode: 40 });
+      await pageClient.send("Input.dispatchKeyEvent", { type: "keyUp", key: "ArrowDown", code: "ArrowDown", windowsVirtualKeyCode: 40 });
+      await waitFor(pageClient, `document.activeElement?.dataset.sourceLine === '5' && document.querySelector('#source-explanation')?.textContent.includes('next/dynamic')`, "keyboard line navigation and updated explanation");
+      assert(await evaluate(pageClient, `document.querySelector('#admin-main').scrollWidth - document.querySelector('#admin-main').clientWidth <= 2`), "Explanation panel overflows on mobile.");
+      await evaluate(pageClient, `document.querySelector('button[aria-label="English"]').click()`);
+      await waitFor(pageClient, `document.querySelector('#source-explanation')?.textContent.includes('Bring in an existing tool')`, "English explanation");
+      await evaluate(pageClient, `document.querySelector('button[aria-label="العربية"]').click()`);
+      await waitFor(pageClient, `document.querySelector('#source-explanation')?.textContent.includes('استيراد أداة موجودة') && getComputedStyle(document.querySelector('#source-explanation')).direction === 'rtl'`, "Arabic explanation and right-to-left layout");
+      assert(await evaluate(pageClient, `document.querySelector('#admin-main').scrollWidth - document.querySelector('#admin-main').clientWidth <= 2`), "Arabic explanation overflows on mobile.");
+      await evaluate(pageClient, `document.querySelector('#source-reader button[aria-controls="source-explanation"]:not([data-source-line])').click()`);
+      await waitFor(pageClient, `!document.querySelector('#source-explanation') && !!document.querySelector('[data-source-line="5"]')`, "plain reading mode");
+      await evaluate(pageClient, `document.querySelector('#source-reader button[aria-controls="source-explanation"]').click()`);
+      await waitFor(pageClient, `!!document.querySelector('#source-explanation')`, "restored learning mode");
+      await evaluate(pageClient, `document.querySelector('button[aria-label="Français"]').click(); document.querySelector('[data-source-line="5"]').click()`);
+      await waitFor(pageClient, `document.querySelector('#source-explanation')?.textContent.includes('Récupérer un outil existant')`, "French explanation restored");
+      const mobileGuide = await pageClient.send("Page.captureScreenshot", { format: "png", fromSurface: true });
+      await mkdir(path.join(root, ".source-library"), { recursive: true });
+      await writeFile(path.join(root, ".source-library", "guide-mobile.png"), Buffer.from(mobileGuide.data, "base64"));
+      await evaluate(pageClient, `(() => { const input = document.querySelector('#source-query'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, 'package.json'); input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+      await waitFor(pageClient, `Array.from(document.querySelectorAll('button')).some(b => b.textContent.trim() === 'package.json')`, "filename search");
+      await evaluate(pageClient, `Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'package.json').click()`);
+      await waitFor(pageClient, `document.querySelector('#source-reader h3')?.textContent === 'package.json' && Array.from(document.querySelectorAll('[data-source-line]')).some(node => node.textContent.includes('lecomax'))`, "selected file contents");
+      await waitFor(pageClient, `document.querySelector('[data-explanation-kind]')?.dataset.explanationKind === 'data'`, "explanation resets to the new file format");
+      await evaluate(pageClient, `document.querySelector('#source-reader h3').parentElement.querySelectorAll('button')[1].click()`);
+      assert(await evaluate(pageClient, `JSON.parse(localStorage.getItem('lecomax-source-favourites-v1')).includes('package.json')`), "Favourite was not saved.");
+      const search = await evaluate(pageClient, `fetch('/api/dev-docs/library?q=export%20default').then(r => r.json())`);
+      assert(search.total > 0 && search.results.some(item => item.snippet.includes('export default')), "Full-text search failed.");
+      assert(await evaluate(pageClient, `document.querySelector('#admin-main').scrollWidth - document.querySelector('#admin-main').clientWidth <= 2`), "Source library overflows on mobile.");
+      await setViewport(pageClient, 1440, 1000);
+      await evaluate(pageClient, `document.querySelector('[data-source-line="2"]').click()`);
+      await waitFor(pageClient, `document.querySelector('#source-explanation')?.textContent.includes('La valeur « name »')`, "selected JSON property explanation");
+      assert(pageClient.events.filter(event => event.method === 'Runtime.exceptionThrown').length === 0, "Source library raised a browser exception.");
+      const screenshot = await pageClient.send("Page.captureScreenshot", { format: "png", fromSurface: true });
+      await mkdir(path.join(root, ".source-library"), { recursive: true });
+      await writeFile(path.join(root, ".source-library", "browser-check.png"), Buffer.from(screenshot.data, "base64"));
+      console.log("Source library browser test passed: real file, deep link, clickable explanation, keyboard navigation, French/English/Arabic, RTL, learning-mode toggle, file-switch explanation, filename and content search, favourites, mobile layout, desktop, and no runtime exceptions.");
+      return;
+    }
 
     const manifest = JSON.parse(await readFile(path.join(root, "app", "admin", "how-it-was-built", "course", "generated", "manifest.json"), "utf8"));
     const module = manifest.modules.find(item => item.id === "nextjs-app-router") ?? manifest.modules[0];
