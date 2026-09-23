@@ -75,6 +75,23 @@ function tutor({ denied = false, limited = false, fail = false } = {}) {
 }
 const question = { lang: "en", lessonId: "website", messages: [{ role: "user", content: "Explain this lesson", extra: "discard" }] };
 
+test("tutor explains Next.js in Darija or Arabic independently of the panel language", async () => {
+  for (const [replyLanguage, expected] of [["darija", /Moroccan Darija written in Arabic script/], ["ar", /clear Modern Standard Arabic/]] as const) {
+    const h = tutor();
+    assert.equal((await h.run({ ...question, replyLanguage })).status, 200);
+    assert.match(h.calls[0].instructions, expected);
+    assert.match(h.calls[0].instructions, /Next.js App Router/);
+    assert.match(h.calls[0].instructions, /lines step by step/);
+    assert.match(h.calls[0].instructions, /do not add a quiz/);
+  }
+  const invalid = tutor();
+  assert.equal((await invalid.run({ ...question, replyLanguage: "invalid" })).status, 400);
+  assert.equal(invalid.calls.length, 0);
+  const legacy = tutor();
+  await legacy.run(question);
+  assert.match(legacy.calls[0].instructions, /Reply in English/);
+});
+
 test("tutor requires owner unlock and rate limit before reading or sending questions", async () => {
   for (const [options, status] of [[{ denied: true }, 403], [{ limited: true }, 429]] as const) {
     const h = tutor(options);

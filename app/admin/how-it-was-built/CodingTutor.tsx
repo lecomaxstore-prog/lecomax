@@ -11,6 +11,7 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
   const t = (fr: string, en: string, ar: string) => translate(lang, fr, en, ar);
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
+  const [replyLanguage, setReplyLanguage] = useState("darija");
   const [lessonId, setLessonId] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
@@ -29,7 +30,7 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
     try {
       const response = await fetch("/api/admin/learning-assistant", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.slice(-9), lang, ...(lessonId ? { lessonId } : {}) }),
+        body: JSON.stringify({ messages: next.slice(-9), lang, replyLanguage, ...(lessonId ? { lessonId } : {}) }),
         signal: controller.signal, cache: "no-store",
       });
       const data = await response.json();
@@ -55,6 +56,17 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
     <p className="text-xs font-bold uppercase tracking-wide text-emerald-700">{t("Apprendre avec OpenAI", "Learn with OpenAI", "تعلّم مع OpenAI")}</p>
     <h2 id="coding-tutor-title" className="mt-2 text-xl font-black">{t("Mon tuteur de code", "My coding tutor", "معلّمي للبرمجة")}</h2>
     <p className="mt-2 text-sm leading-6 text-neutral-600">{t("Pose une question sur ton site, Expo ou une erreur de code. Ton tuteur explique simplement, avec un exemple et un petit exercice.", "Ask about your website, Expo or a coding error. Your tutor explains simply, with an example and a small exercise.", "اسأل عن موقعك أو Expo أو خطأ برمجي. يشرح المعلّم ببساطة مع مثال وتمرين صغير.")}</p>
+    <label htmlFor="tutor-language" className="mt-4 block text-sm font-bold">{t("Langue des explications", "Explanation language", "لغة الشرح")}</label>
+    <select id="tutor-language" value={replyLanguage} disabled={pending} onChange={e => { setReplyLanguage(e.target.value); setMessages([]); setError(""); }} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm">
+      <option value="darija">الدارجة المغربية — Darija</option>
+      <option value="ar">العربية الفصحى — Arabic</option>
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+    </select>
+    <p dir="rtl" className="mt-3 text-sm leading-7 text-emerald-800">لصق هنا شي كود من الموقع وسولني عليه. نشرحو ليك سطر بسطر، ونتعلّمو Next.js بشوية بشوية.</p>
+    <div className="mt-3 flex flex-wrap gap-2">
+      {["شرح ليا كيفاش Next.js كيبني صفحات الموقع", "شنو الفرق بين Server Component و Client Component؟", "اشرح لي هذا الكود سطرًا بسطر:"].map(question => <button key={question} type="button" disabled={pending} onClick={() => setDraft(question)} dir="rtl" className="rounded-xl border border-emerald-200 px-3 py-2 text-sm disabled:opacity-50">{question}</button>)}
+    </div>
     <label htmlFor="tutor-lesson" className="mt-4 block text-sm font-bold">{t("Sujet", "Topic", "الموضوع")}</label>
     <select id="tutor-lesson" value={lessonId} disabled={pending} onChange={e => { setLessonId(e.target.value); setMessages([]); setError(""); }} className="mt-2 min-h-12 w-full rounded-xl border border-neutral-300 bg-white px-3 text-sm">
       <option value="">{t("Une question de code", "A coding question", "سؤال برمجي")}</option>
@@ -63,7 +75,11 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
     <div role="log" aria-live="polite" aria-label={t("Conversation avec le tuteur", "Tutor conversation", "محادثة المعلّم")} className="mt-4 max-h-[32rem] space-y-3 overflow-y-auto">
       {messages.map((message, index) => <div key={index} className={`rounded-2xl p-4 ${message.role === "user" ? "bg-neutral-100" : "bg-emerald-50"}`}>
         <p className="mb-2 text-xs font-bold">{message.role === "user" ? t("Moi", "Me", "أنا") : t("Tuteur IA", "AI tutor", "المعلّم الذكي")}</p>
-        <p className="whitespace-pre-wrap break-words text-sm leading-7 [overflow-wrap:anywhere]">{message.content}</p>
+        <div dir={message.role === "user" ? "auto" : replyLanguage === "ar" || replyLanguage === "darija" ? "rtl" : "ltr"} className="space-y-3 text-sm leading-7">
+          {message.content.split(/```(?:[\w+-]+)?\n?([\s\S]*?)```/g).map((part, i) => i % 2
+            ? <pre key={i} dir="ltr" className="overflow-x-auto rounded-xl bg-neutral-900 p-3 text-left text-neutral-100"><code>{part}</code></pre>
+            : <p key={i} className="whitespace-pre-wrap break-words [overflow-wrap:anywhere]">{part}</p>)}
+        </div>
       </div>)}
     </div>
     <form onSubmit={send} className="mt-4 space-y-3">
