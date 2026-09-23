@@ -6,27 +6,10 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { typography } from "@/constants/theme";
 import { AnimatedPressable } from "@/components/animated-pressable";
-import { apiRequest } from "@/lib/api-client";
+import { askAssistant, type AssistantMessage as Message } from "@/services/assistant";
 import { localizedError } from "@/i18n/errors";
 import { msg } from "@/i18n";
 import { money } from "@/lib/format";
-
-type Recommendation = {
-  productSlug: string;
-  productName?: string;
-  productPrice?: number;
-  reason: string;
-};
-type Message = {
-  role: "user" | "assistant";
-  content: string;
-  recommendations?: Recommendation[];
-};
-type AssistantResponse = {
-  sessionId?: string;
-  message?: string;
-  recommendations?: Recommendation[];
-};
 
 export default function SmartAssistantScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -49,11 +32,7 @@ export default function SmartAssistantScreen() {
     setMessages(conversation);
     setDraft("");
     try {
-      const response = await apiRequest<AssistantResponse>("/api/assistant", {
-        method: "POST",
-        timeoutMs: 60_000,
-        body: JSON.stringify({ sessionId: sessionId.current, messages: conversation, platform: "mobile_app" }),
-      });
+      const response = await askAssistant(conversation, sessionId.current);
       if (!response?.message && !response?.recommendations?.length) {
         throw new Error("Empty assistant response");
       }
