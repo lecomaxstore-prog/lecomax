@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from "react-native";
 import { router } from "expo-router";
 import { Screen } from "@/components/screen";
@@ -10,6 +10,8 @@ import { askAssistant, type AssistantMessage as Message } from "@/services/assis
 import { localizedError } from "@/i18n/errors";
 import { msg } from "@/i18n";
 import { money } from "@/lib/format";
+import { TypingIndicator } from "@/components/typing-indicator";
+import { useReducedMotion } from "react-native-reanimated";
 
 export default function SmartAssistantScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -21,6 +23,27 @@ export default function SmartAssistantScreen() {
   const sending = useRef(false);
   const list = useRef<FlatList<Message>>(null);
   const input = useRef<TextInput>(null);
+  const contentHeight = useRef(0);
+  const viewportHeight = useRef(0);
+  const scrollFrame = useRef<number | null>(null);
+  const reduceMotion = useReducedMotion();
+  const scrollToLatest = useCallback(() => {
+    if (scrollFrame.current !== null) cancelAnimationFrame(scrollFrame.current);
+    scrollFrame.current = requestAnimationFrame(() => {
+      scrollFrame.current = null;
+      list.current?.scrollToOffset({
+        offset: Math.max(0, contentHeight.current - viewportHeight.current),
+        animated: !reduceMotion,
+      });
+    });
+  }, [reduceMotion]);
+
+  useEffect(() => {
+    if (messages.length) scrollToLatest();
+    return () => {
+      if (scrollFrame.current !== null) cancelAnimationFrame(scrollFrame.current);
+    };
+  }, [messages.length, pending, scrollToLatest]);
 
   async function send() {
     const content = draft.trim();
@@ -64,12 +87,15 @@ export default function SmartAssistantScreen() {
       <KeyboardAvoidingView style={styles.body} behavior={Platform.OS === "ios" ? "padding" : Platform.OS === "android" ? "height" : undefined}>
         <FlatList
           ref={list}
+          nativeID="assistant-conversation"
+          style={{ flex: 1, minHeight: 0 }}
           data={messages}
           keyExtractor={(_, index) => String(index)}
           keyboardShouldPersistTaps="handled"
-          onLayout={() => { if (messages.length) list.current?.scrollToEnd({ animated: false }); }}
+          onLayout={event => { viewportHeight.current = event.nativeEvent.layout.height; if (messages.length) scrollToLatest(); }}
           contentContainerStyle={styles.messages}
-          onContentSizeChange={() => { if (messages.length) list.current?.scrollToEnd({ animated: true }); }}
+          onContentSizeChange={(_, height) => { contentHeight.current = height; if (messages.length) scrollToLatest(); }}
+          ListFooterComponent={pending ? <TypingIndicator /> : null}
           ListEmptyComponent={<View>
             <LinearGradient colors={["#E5F2E1", "#F2F5E9"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
               <View style={styles.heroTop}><View style={styles.sparkle}><Ionicons name="sparkles" size={28} color="#287D45" /></View><Text style={styles.eyebrow}>UN PEU D’INSPIRATION ?</Text></View>
@@ -80,8 +106,8 @@ export default function SmartAssistantScreen() {
           </View>}
           renderItem={({ item }) => (
             <View style={[styles.bubble, item.role === "user" && styles.userBubble]}>
-              <Text style={[styles.messageLabel, item.role === "user" && { color: "#B3D0B8" }]}>{item.role === "user" ? "VOUS" : "L’ECOMAX"}</Text>
-              <Text style={[styles.message, item.role === "user" && { color: "#FFFFFF" }]}>{item.content}</Text>
+              {item.role !== "user" && <Text style={styles.messageLabel}>L’ECOMAX</Text>}
+              <Text selectable style={[styles.message, item.role === "user" && styles.userMessage]}>{item.content}</Text>
               {item.recommendations?.map((product) => (
                 <AnimatedPressable
                   key={product.productSlug}
@@ -99,7 +125,7 @@ export default function SmartAssistantScreen() {
             </View>
           )}
         />
-        {pending && <View style={styles.thinking}><ActivityIndicator accessibilityLabel={msg("common.loadingUppercase")} color="#23843F" /><Text style={styles.thinkingText}>Je regarde ça pour vous…</Text></View>}
+
         <View style={styles.composerArea}>
         {!!error && <View accessibilityRole="alert" style={styles.errorBox}>
           <Ionicons name="cloud-offline-outline" size={20} color="#946429" />
@@ -108,12 +134,17 @@ export default function SmartAssistantScreen() {
         </View>}
         <View style={[styles.composer, inputFocused && styles.composerFocused]}>
           <TextInput
+            nativeID="assistant-message"
             ref={input}
             onFocus={() => setInputFocused(true)}
             onBlur={() => setInputFocused(false)}
             accessibilityLabel="Votre message"
             placeholder="Une envie ? Parlons-en…"
             placeholderTextColor="#8A948D"
+            cursorColor="#23843F"
+            selectionColor="#A9D8B7"
+            selectionHandleColor="#23843F"
+            underlineColorAndroid="transparent"
             multiline
             maxLength={4000}
             value={draft}
@@ -122,7 +153,7 @@ export default function SmartAssistantScreen() {
             style={styles.input}
           />
           <AnimatedPressable accessibilityRole="button" accessibilityLabel="Envoyer" disabled={pending || !draft.trim()} onPress={() => void send()} style={[styles.send, (pending || !draft.trim()) && styles.disabled]}>
-            {pending ? <ActivityIndicator color="#FFFFFF" size="small" /> : <Ionicons name="arrow-up" size={22} color="#FFFFFF" />}
+            {pending ? <ActivityIndicator color="#587760" size="small" /> : <Ionicons name="arrow-up" size={22} color={draft.trim() ? "#FFFFFF" : "#78917D"} />}
           </AnimatedPressable>
         </View>
         </View>
@@ -147,22 +178,21 @@ const styles = StyleSheet.create({
   intro: { fontFamily: typography.regular, color: "#5B7160", fontSize: 13, lineHeight: 21, marginTop: 14 },
   heroFooter: { fontFamily: typography.medium, color: "#57745C", fontSize: 10, marginTop: 22 },
   bubble: { backgroundColor: "#FFFFFF", padding: 17, borderRadius: 20, borderTopLeftRadius: 5, maxWidth: "88%", alignSelf: "flex-start", gap: 9, borderWidth: 1, borderColor: "#E6EAE2" },
-  userBubble: { backgroundColor: "#214E36", borderColor: "#214E36", alignSelf: "flex-end", borderTopLeftRadius: 20, borderTopRightRadius: 5 },
+  userBubble: { backgroundColor: "#28543E", borderColor: "#28543E", alignSelf: "flex-end", maxWidth: "85%", minWidth: 64, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 22, borderTopLeftRadius: 22, borderBottomRightRadius: 7, gap: 0 },
+  userMessage: { color: "#FFFFFF", fontSize: 15, lineHeight: 23 },
   messageLabel: { fontFamily: typography.bold, fontSize: 9, letterSpacing: 1, color: "#468158" },
   message: { fontFamily: typography.regular, color: "#344A3C", fontSize: 14, lineHeight: 22 },
   product: { padding: 14, borderRadius: 14, backgroundColor: "#F5F8F1", gap: 8 },
   productTitle: { fontFamily: typography.semibold, fontSize: 15, color: "#243B2B" },
   productLink: { fontFamily: typography.semibold, fontSize: 12, color: "#168526", marginTop: 6 },
-  thinking: { flexDirection: "row", gap: 10, alignItems: "center", padding: 18 },
-  thinkingText: { fontFamily: typography.regular, color: "#78847C", fontSize: 12 },
   composerArea: { paddingHorizontal: 18, paddingVertical: 12, backgroundColor: "#F7F8F5", borderTopWidth: 1, borderColor: "#E8EBE5" },
   errorBox: { flexDirection: "row", alignItems: "center", gap: 10, padding: 12, backgroundColor: "#FBF2E4", borderRadius: 15, marginBottom: 12 },
   errorTitle: { fontFamily: typography.semibold, color: "#805721", fontSize: 11, marginBottom: 4 },
   errorText: { fontFamily: typography.regular, color: "#977A50", fontSize: 10, lineHeight: 16 },
   retry: { width: 40, height: 44, justifyContent: "center", alignItems: "center" },
-  composer: { position: "relative", width: "100%", minWidth: 0, height: 62, overflow: "hidden", backgroundColor: "#FFFFFF", borderRadius: 22, borderWidth: 1, borderColor: "#DDE5D8" },
-  input: { width: "100%", minWidth: 0, height: 60, paddingVertical: 20, paddingLeft: 16, paddingRight: 68, borderWidth: 0, outlineWidth: 0, backgroundColor: "transparent", textAlignVertical: "center", fontFamily: typography.regular, fontSize: 13, lineHeight: 20, color: "#243B2B" },
-  send: { position: "absolute", right: 8, top: 8, backgroundColor: "#23843F", width: 44, height: 44, alignItems: "center", justifyContent: "center", borderRadius: 15 },
-  disabled: { backgroundColor: "#ABBBA4" },
-  composerFocused: { borderColor: "#23843F" },
+  composer: { flexDirection: "row", alignItems: "center", gap: 10, width: "100%", minWidth: 0, minHeight: 64, padding: 8, backgroundColor: "#FFFFFF", borderRadius: 24, borderWidth: 1, borderColor: "#DDE7DC", boxShadow: "0 2px 8px rgba(32, 61, 43, 0.04)" },
+  input: { flex: 1, minWidth: 0, minHeight: 46, maxHeight: 120, paddingVertical: 12, paddingHorizontal: 10, borderWidth: 0, outlineWidth: 0, backgroundColor: "transparent", textAlignVertical: "center", fontFamily: typography.regular, fontSize: 16, lineHeight: 22, color: "#243B2B" },
+  send: { flexShrink: 0, alignSelf: "flex-end", backgroundColor: "#23843F", width: 46, height: 46, alignItems: "center", justifyContent: "center", borderRadius: 17 },
+  disabled: { backgroundColor: "#EAF0E6" },
+  composerFocused: { borderColor: "#75A783", boxShadow: "0 0 0 3px rgba(35, 132, 63, 0.08)" },
 });

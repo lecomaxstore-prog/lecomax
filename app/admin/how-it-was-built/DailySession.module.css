@@ -1,0 +1,52 @@
+.shell { max-width: 760px; margin: 0 auto; min-width: 0; color: #233d32; }
+.topline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin: 4px 0 20px; font-size: 10px; font-weight: 600; letter-spacing: .06em; color: #65796b; }
+.card { background: #fff; border: 1px solid #dfe7dd; border-radius: 24px; padding: 40px; box-shadow: 0 8px 32px #1e422805; min-width: 0; overflow-wrap: anywhere; }
+.card h2 { margin: 12px 0 24px; font-size: clamp(25px, 3vw, 34px); font-weight: 600; line-height: 1.25; letter-spacing: -.04em; outline: none; scroll-margin-top: 280px; }
+.card h3 { font-size: 21px; font-weight: 600; line-height: 1.5; letter-spacing: -.025em; }
+.card h4 { font-size: 16px; font-weight: 600; }
+.card p, .pathDetails p { font-size: 15px; line-height: 1.9; color: #52665a; }
+.card ul, .card ol, .pathDetails ol { padding-inline-start: 24px; list-style: decimal; font-size: 14px; line-height: 1.9; }
+.card ul { list-style: disc; }
+.card li + li { margin-top: 8px; }
+.stack { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.stack h2 { margin: 0; }
+.kicker, .card .kicker { font-size: 10px; font-weight: 700; color: #608050; letter-spacing: .13em; }
+.content { margin-top: 26px; }
+.plan { display: flex; flex-direction: column; gap: 14px; border-radius: 14px; background: #f5f8f1; padding: 20px; }
+.plan span { display: flex; gap: 18px; font-size: 12px; color: #778d69; }
+.plan strong { color: #354f37; font-weight: 500; }
+.primary, .secondary { display: block; width: 100%; min-height: 52px; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; text-align: center; }
+.primary { background: #244d36; color: #fff; }
+.primary:hover { background: #183b28; }
+.primary:disabled { opacity: .45; cursor: not-allowed; }
+.secondary { border: 1px solid #cfdccb; background: #f5f8f2; color: #254c30; }
+.textButton { min-height: 44px; color: #44653c; font-size: 12px; text-decoration: underline; text-underline-offset: 4px; }
+.shell button:focus-visible, .shell summary:focus-visible { outline: 2px solid #57874b; outline-offset: 3px; }
+.muted, .card .muted { font-size: 12px; color: #71816e; line-height: 1.8; }
+.explanation { border-inline-start: 3px solid #98b87c; background: #f5f8f1; padding: 20px; border-radius: 12px; }
+.explanation strong { font-size: 14px; }
+.explanation p { margin-top: 10px; font-size: 14px; }
+.card .steps { display: flex; list-style: none; padding: 0 0 20px; gap: 16px; border-bottom: 1px solid #e8ede4; }
+.steps li, .card .steps li + li { display: flex; align-items: center; gap: 7px; margin: 0; color: #7c8977; font-size: 11px; }
+.steps span { width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; background: #f0f4eb; border-radius: 50%; }
+.steps [aria-current] { color: #244d36; font-weight: 700; }
+.steps [aria-current] span { background: #244d36; color: #fff; }
+.details { border: 1px solid #e1e7dd; border-radius: 12px; padding: 4px 16px 12px; }
+.details summary { font-size: 12px; font-weight: 600; min-height: 48px; padding: 15px 0; cursor: pointer; }
+.details textarea { display: block; width: 100%; border: 1px solid #cad8c3; border-radius: 9px; padding: 12px; margin-top: 10px; font-size: 16px; }
+.check { display: flex; align-items: center; gap: 12px; padding: 18px; background: #f3f7ef; border-radius: 12px; min-height: 52px; font-size: 14px; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: #244d36; }
+.question { min-width: 0; }
+.question legend { font-size: 18px; line-height: 1.6; font-weight: 600; margin-bottom: 18px; }
+.option { display: flex; align-items: flex-start; gap: 12px; padding: 16px; margin-top: 10px; border: 1px solid #dce5d6; border-radius: 12px; font-size: 14px; line-height: 1.8; cursor: pointer; }
+.option[data-selected=true] { border-color: #698f54; background: #f1f7e9; }
+.option input { flex-shrink: 0; margin-top: 5px; width: 16px; height: 16px; accent-color: #244d36; }
+.successIcon { width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; font-size: 28px; background: #edf6e4; border: 1px solid #d4e6c5; color: #477431; border-radius: 50%; }
+.pathDetails { padding: 20px 6px; }
+.pathDetails summary { min-height: 44px; padding: 12px 0; font-size: 12px; cursor: pointer; color: #6b7d64; }
+.pathDetails p, .pathDetails li { font-size: 12px; line-height: 1.9; }
+.pathDetails ol { margin: 14px 0; }
+.footnote { font-size: 10px; line-height: 1.8; color: #7c8875; padding: 0 6px; }
+.code { max-width: 100%; overflow-x: auto; background: #173529; color: #e3edd9; padding: 20px; border-radius: 12px; font-size: 12px; line-height: 1.9; text-align: left; white-space: pre; }
+.warning { padding: 16px; background: #fff5da; color: #715713; border-radius: 12px; margin-bottom: 16px; font-size: 12px; }
+@media(max-width:600px) { .card { padding: 24px 20px; border-radius: 18px; } .topline { font-size: 9px; margin-bottom: 14px; } .stack { gap: 20px; } .card .steps { gap: 12px; } .steps li { font-size: 10px; } .primary { font-size: 13px; } }

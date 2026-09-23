@@ -2,6 +2,36 @@
 @tailwind components;
 @tailwind utilities;
 
+#assistant-conversation {
+  scrollbar-width: thin;
+  scrollbar-color: #b5c9ba transparent;
+  overscroll-behavior-y: contain;
+}
+#assistant-conversation::-webkit-scrollbar { width: 4px; }
+#assistant-conversation::-webkit-scrollbar-track { background: transparent; }
+#assistant-conversation::-webkit-scrollbar-thumb { background: #b5c9ba; border-radius: 999px; }
+#assistant-conversation::-webkit-scrollbar-thumb:hover { background: #7f9f89; }
+#assistant-conversation::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+#assistant-conversation::-webkit-scrollbar-corner { background: transparent; }
+/* Chromium's standard scrollbar properties override the custom thumb and
+   arrow rules. Use the custom rendering there; Firefox keeps the thin bar. */
+@supports selector(::-webkit-scrollbar) {
+  #assistant-conversation {
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+  }
+}
+
+/* The composer supplies the visible focus border; suppress the browser's
+   automatic inner textarea outline, including when navigating by keyboard. */
+#assistant-message,
+#assistant-message:focus,
+#assistant-message:focus-visible {
+  outline: none !important;
+  box-shadow: none;
+  caret-color: #23843f;
+}
+
 html,
 body,
 #root {

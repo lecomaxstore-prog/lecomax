@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
-import DailyLearning from "./DailyLearning";
+import DailyLearning from "./DailySession";
 import CodingTutor from "./CodingTutor";
 import { translate } from "./course/journey";
 import CodeLibrary from "./CodeLibrary";
@@ -5463,7 +5463,7 @@ export default function HowItWasBuiltPage() {
   }
 
   const activeTabIndex = TAB_IDS.indexOf(tab);
-  const shortTitle = lang === "en" ? "How it was built" : lang === "ar" ? "كيف بُني الموقع" : "Comment c'est construit";
+  const shortTitle = tab === "start" ? (lang === "en" ? "My daily lesson" : lang === "ar" ? "درسي اليومي" : "Ma leçon du jour") : lang === "en" ? "How it was built" : lang === "ar" ? "كيف بُني الموقع" : "Comment c'est construit";
   const groupLabels = lang === "en"
     ? { learn: "Learn", build: "Build L'ecomax", reference: "Explore the project" }
     : lang === "ar"
@@ -5485,8 +5485,8 @@ export default function HowItWasBuiltPage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <div className="min-w-0">
-              <h1 className="truncate text-sm font-black text-gray-950 sm:text-[15px]"><span className="sm:hidden">{shortTitle}</span><span className="hidden sm:inline">{u.title}</span></h1>
-              <p className="text-[10px] sm:text-[11px] text-gray-400 hidden sm:block truncate">{u.subtitle}</p>
+              <h1 className="truncate text-sm font-black text-gray-950 sm:text-[15px]"><span className="sm:hidden">{shortTitle}</span><span className="hidden sm:inline">{tab === "start" ? shortTitle : u.title}</span></h1>
+              {tab !== "start" && <p className="text-[10px] sm:text-[11px] text-gray-400 hidden sm:block truncate">{u.subtitle}</p>}
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -5506,7 +5506,7 @@ export default function HowItWasBuiltPage() {
           </div>
         </div>
         {/* Mobile course navigator */}
-        <div id="mobile-course-navigator" className="border-t border-gray-100 px-4 pb-3 pt-2 md:hidden">
+        <div id="mobile-course-navigator" className={tab === "start" ? "hidden" : "border-t border-gray-100 px-4 pb-3 pt-2 md:hidden"}>
           <div className="mx-auto max-w-xl">
             <div className="mb-1.5 flex items-center justify-between gap-3 text-[11px] font-bold text-gray-500">
               <span>{lang === "en" ? "Current section" : lang === "ar" ? "القسم الحالي" : "Section actuelle"}</span>
@@ -5540,7 +5540,7 @@ export default function HowItWasBuiltPage() {
         </div>
 
         {/* Desktop/tablet navigation — grouped and allowed to wrap, never clipped. */}
-        <div id="course-desktop-tabs" className="hidden border-t border-gray-100 bg-[#fafafa] md:block">
+        <div id="course-desktop-tabs" className={tab === "start" ? "hidden" : "hidden border-t border-gray-100 bg-[#fafafa] md:block"}>
           <div ref={tabListRef} role="tablist" aria-label={u.title} className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-6 py-2.5">
             {TAB_GROUPS.map((group, groupIndex) => (
               <div key={group.id} role="presentation" className={`flex flex-wrap items-center gap-1 rounded-2xl border border-gray-200/80 bg-white p-1 shadow-[0_1px_2px_rgba(15,23,42,.04)] ${groupIndex > 0 ? "xl:ms-1" : ""}`}>

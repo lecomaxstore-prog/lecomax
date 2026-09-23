@@ -24,7 +24,8 @@
     "smoke:course-ui": "node scripts/smoke-course-ui.mjs",
     "smoke:source-library": "node scripts/smoke-course-ui.mjs --source-only",
     "smoke:admin-dashboard": "node scripts/smoke-admin-dashboard-ui.mjs",
-    "smoke:mobile-responsive": "node scripts/smoke-mobile-responsive-ui.mjs"
+    "smoke:mobile-responsive": "node scripts/smoke-mobile-responsive-ui.mjs",
+    "smoke:daily-training": "node scripts/smoke-course-ui.mjs --daily-only"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",

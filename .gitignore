@@ -74,3 +74,10 @@ mobile/*.png
 
 # Private source snapshot generated at build time
 .source-library/
+
+# Local release worktrees, build backups, and audit output
+release/
+.next-dev-*/
+supabase_error.json
+fluid-release.patch
+mobile/latest-build-audit.json

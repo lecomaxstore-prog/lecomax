@@ -276,6 +276,12 @@ async function main() {
       return;
     }
 
+    if (process.argv.includes("--daily-only")) {
+      const { checkDailySession } = await import("./smoke-daily-session.mjs");
+      await checkDailySession({ client: pageClient, evaluate, waitFor, setViewport, baseUrl, root });
+      return;
+    }
+
     const manifest = JSON.parse(await readFile(path.join(root, "app", "admin", "how-it-was-built", "course", "generated", "manifest.json"), "utf8"));
     const module = manifest.modules.find(item => item.id === "nextjs-app-router") ?? manifest.modules[0];
     const frenchModule = JSON.parse(await readFile(path.join(root, "app", "admin", "how-it-was-built", "course", "content", "fr", module.id + ".json"), "utf8"));

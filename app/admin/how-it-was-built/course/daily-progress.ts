@@ -1,9 +1,16 @@
 import { DAILY_TEST_VERSION, gradeDailyTest } from "./daily-tests.ts";
 
 export type DailyAssessment = { version: number; answers: number[]; attempts: number; submittedOn: string };
-export type DailyEntry = { note: string; practiced: boolean; compared: boolean; readOn?: string; completedOn?: string; assessment?: DailyAssessment };
+export type DailyEntry = { note: string; practiced: boolean; compared: boolean; trainedDays?: string[]; readOn?: string; completedOn?: string; assessment?: DailyAssessment };
 export type DailyProgress = Record<string, DailyEntry>;
 const validDay = (value: unknown): value is string => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+
+export function recordTrainingDay(entry: DailyEntry, today: string, checked: boolean): DailyEntry {
+  if (!validDay(today) || !Number.isFinite(Date.parse(today)) || new Date(today).toISOString().slice(0, 10) !== today) return entry;
+  const days = new Set(entry.trainedDays ?? []);
+  if (checked) days.add(today); else days.delete(today);
+  return { ...entry, trainedDays: [...days].sort() };
+}
 
 export function recordDailyAttempt(id: string, entry: DailyEntry, answers: unknown, today: string): DailyEntry | null {
   const result = gradeDailyTest(id, answers);
@@ -31,6 +38,7 @@ export function readDailyProgress(raw: unknown, ids: string[]): DailyProgress {
       note: typeof value.note === "string" ? value.note.slice(0, 1500) : "",
       practiced: value.practiced === true,
       compared: value.compared === true,
+      ...(Array.isArray(value.trainedDays) ? { trainedDays: [...new Set(value.trainedDays.filter(day => validDay(day) && Number.isFinite(Date.parse(day)) && new Date(day).toISOString().slice(0, 10) === day))].sort() } : {}),
       ...(validDay(value.readOn) ? { readOn: value.readOn } : validDay(value.completedOn) ? { readOn: value.completedOn } : {}),
       ...(assessment ? { assessment } : {}),
       ...(passed && validDay(value.completedOn) ? { completedOn: value.completedOn } : {}),
@@ -40,7 +48,7 @@ export function readDailyProgress(raw: unknown, ids: string[]): DailyProgress {
 }
 
 export function resumeDailyLesson(progress: DailyProgress, ids: string[], today: string) {
-  const latestToday = ids.findLastIndex(id => progress[id]?.completedOn === today);
-  const next = ids.findIndex(id => !progress[id]?.completedOn);
+  const latestToday = ids.findLastIndex(id => progress[id]?.completedOn === today || progress[id]?.trainedDays?.includes(today));
+  const next = ids.findIndex(id => !progress[id]?.completedOn && !progress[id]?.trainedDays?.length);
   return latestToday >= 0 ? latestToday : next >= 0 ? next : Math.max(0, ids.length - 1);
 }

@@ -28,10 +28,10 @@ module.exports = {
         info: "#0071ae",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "Helvetica Neue", "Arial", "sans-serif"],
+        sans: ["var(--font-sans, Inter)", "Helvetica Neue", "Arial", "sans-serif"],
         display: [
-          "var(--font-display)",
-          "var(--font-sans)",
+          "var(--font-display, Sora)",
+          "var(--font-sans, Inter)",
           "Helvetica Neue",
           "Arial",
           "sans-serif",

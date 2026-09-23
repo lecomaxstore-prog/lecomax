@@ -5,9 +5,12 @@ import { DAILY_LESSONS, dailyText } from "./course/daily-lessons";
 import { translate } from "./course/journey";
 import type { CourseLanguage } from "./course/types";
 import { parisLearningDay } from "@/lib/learning-reminder-time";
-import { readDailyProgress, recordDailyAttempt, resumeDailyLesson, type DailyEntry as Entry, type DailyProgress as Progress } from "./course/daily-progress";
+import { readDailyProgress, recordDailyAttempt, recordTrainingDay, resumeDailyLesson, type DailyEntry as Entry, type DailyProgress as Progress } from "./course/daily-progress";
 import { DAILY_TEST_VERSION, gradeDailyTest } from "./course/daily-tests";
 import DailyLessonTest from "./DailyLessonTest";
+import DailyCodeExample from "./DailyCodeExample";
+import { DailyDashboard, LessonOutline } from "./DailyDashboard";
+import styles from "./DailyLearning.module.css";
 
 const STORAGE_KEY = "lecomax-daily-learning-v1";
 const empty: Entry = { note: "", practiced: false, compared: false };
@@ -18,20 +21,24 @@ export default function DailyLearning({ lang, onAcademy }: { lang: CourseLanguag
   const [selected, setSelected] = useState(0);
   const [step, setStep] = useState(0);
   const [ready, setReady] = useState(false);
+  const [today, setToday] = useState("");
   const [storageError, setStorageError] = useState(false);
   const [sync, setSync] = useState<"idle" | "saving" | "saved" | "error">("idle");
   const heading = useRef<HTMLHeadingElement>(null);
   const syncRequest = useRef(0);
   useEffect(() => {
+    const date = parisLearningDay().date;
+    setToday(date);
     try {
-      const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-      const ids = DAILY_LESSONS.map(lesson => lesson.id);
-      const clean = readDailyProgress(raw, ids);
+      const clean = readDailyProgress(JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}"), DAILY_LESSONS.map(lesson => lesson.id));
       setProgress(clean);
-      setSelected(resumeDailyLesson(clean, ids, parisLearningDay().date));
+      setSelected(resumeDailyLesson(clean, DAILY_LESSONS.map(lesson => lesson.id), date));
     } catch { setStorageError(true); }
     setReady(true);
-    return () => { syncRequest.current += 1; };
+    const updateDay = () => setToday(parisLearningDay().date);
+    const timer = setInterval(updateDay, 60_000);
+    window.addEventListener("focus", updateDay);
+    return () => { syncRequest.current += 1; clearInterval(timer); window.removeEventListener("focus", updateDay); };
   }, []);
   function save(next: Progress) {
     setProgress(next);
@@ -40,6 +47,9 @@ export default function DailyLearning({ lang, onAcademy }: { lang: CourseLanguag
   }
   const lesson = DAILY_LESSONS[selected];
   const entry = progress[lesson.id] ?? empty;
+  const trainingDays = new Set(Object.values(progress).flatMap(item => item.trainedDays ?? []));
+  const trained = entry.trainedDays?.includes(today) ?? false;
+  const explored = DAILY_LESSONS.filter(item => progress[item.id]?.trainedDays?.length || progress[item.id]?.completedOn).length;
   const completed = DAILY_LESSONS.filter(item => progress[item.id]?.completedOn).length;
   function update(patch: Partial<Entry>) { save({ ...progress, [lesson.id]: { ...entry, ...patch } }); }
   function move(nextStep: number) {
@@ -47,6 +57,11 @@ export default function DailyLearning({ lang, onAcademy }: { lang: CourseLanguag
     requestAnimationFrame(() => { heading.current?.focus({ preventScroll: true }); heading.current?.scrollIntoView({ block: "start", behavior: "instant" }); });
   }
   function choose(index: number) { syncRequest.current += 1; setSelected(index); setSync("idle"); move(0); }
+  function markTraining(checked: boolean) {
+    const date = parisLearningDay().date;
+    setToday(date);
+    save({ ...progress, [lesson.id]: recordTrainingDay(entry, date, checked) });
+  }
   async function syncValidation(answers: number[]) {
     if (!gradeDailyTest(lesson.id, answers)?.passed || sync === "saving") return;
     const requestId = ++syncRequest.current;
@@ -63,54 +78,67 @@ export default function DailyLearning({ lang, onAcademy }: { lang: CourseLanguag
     save({ ...progress, [lesson.id]: next });
     if (next.completedOn) void syncValidation(answers);
   }
-  const phases = [t("Comprendre", "Understand", "افهم"), t("Voir dans mon site", "See it in my site", "شاهده في موقعي"), t("Essayer", "Try it", "جرّب"), t("Retenir", "Remember", "تذكّر"), t("Test final", "Final test", "الاختبار النهائي")];
-  if (!ready) return <p role="status">{t("Préparation de ta leçon…", "Preparing your lesson…", "جارٍ تجهيز درسك…")}</p>;
-  return <section dir={lang === "ar" ? "rtl" : "ltr"} className="min-w-0 space-y-4" aria-label={t("Mes leçons quotidiennes", "My daily lessons", "دروسي اليومية")}>
-    <header className="rounded-3xl bg-neutral-950 p-5 text-white sm:p-7">
-      <p className="text-xs font-black uppercase tracking-wider text-green-400">{t("Mon petit cours du jour", "My small daily lesson", "درسي اليومي الصغير")}</p>
-      <h2 className="mt-3 text-2xl font-black sm:text-3xl">{t("Aujourd’hui, une seule idée à comprendre.", "Today, just one idea to understand.", "اليوم، فكرة واحدة فقط لفهمها.")}</h2>
-      <p className="mt-3 text-sm leading-7 text-white/80">{t("5 à 10 minutes environ. Une explication simple, un exemple de ton site et un petit exercice. Aucune connaissance nécessaire.", "About 5–10 minutes. A simple explanation, an example from your site and a small exercise. No prior knowledge needed.", "نحو 5 إلى 10 دقائق. شرح بسيط ومثال من موقعك وتمرين صغير. لا تحتاج إلى معرفة مسبقة.")}</p>
-      <p className="mt-3 text-sm font-bold text-green-300">{completed} / {DAILY_LESSONS.length} {t("leçons validées par un test", "lessons validated by a test", "دروس معتمدة باختبار")}</p>
-      <p className="mt-2 text-xs leading-5 text-white/65">{t("Un jour manqué ? Rien n’est perdu. Reprends où tu en es. Les jours indiquent un ordre, pas une date limite.", "Missed a day? Nothing is lost. Pick up where you left off. Days show an order, not a deadline.", "فاتك يوم؟ لا مشكلة. تابع من حيث توقفت. الأيام ترتيب للتعلم وليست مواعيد نهائية.")}</p>
-    </header>
-    {storageError && <p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm">{t("Le navigateur ne peut pas sauvegarder ta progression. Garde une copie de tes notes avant de quitter.", "Your browser cannot save your progress. Keep a copy of your notes before leaving.", "تعذّر حفظ تقدمك في المتصفح. احتفظ بنسخة من ملاحظاتك قبل المغادرة.")}</p>}
-    {selected > 0 && <details className="rounded-2xl border border-emerald-100 bg-emerald-50 p-4"><summary className="min-h-11 cursor-pointer text-sm font-bold">{t("30 secondes pour revoir l’idée précédente", "30 seconds to recall the previous idea", "30 ثانية لمراجعة الفكرة السابقة")}</summary><p className="mt-2 text-sm leading-7">{dailyText(lang, DAILY_LESSONS[selected - 1].question)}</p><details className="mt-2"><summary className="cursor-pointer py-2 text-sm underline">{t("Me rappeler la réponse", "Remind me of the answer", "ذكّرني بالإجابة")}</summary><p className="text-sm leading-7">{dailyText(lang, DAILY_LESSONS[selected - 1].answer)}</p></details></details>}
-    <article className="rounded-3xl border border-neutral-200 bg-white p-5 shadow-sm sm:p-7">
-      <p className="text-xs font-black text-emerald-700">{t("JOUR", "DAY", "اليوم")} {selected + 1} / {DAILY_LESSONS.length}{entry.completedOn ? " · ✓" : ""}</p>
-      <h3 ref={heading} tabIndex={-1} className="mt-2 scroll-mt-40 text-2xl font-black outline-none">{dailyText(lang, lesson.title)}</h3>
-      <p className="mt-3 text-sm text-neutral-600">{step + 1} / {phases.length} · {phases[step]}</p>
-      <a href={`#files/${encodeURIComponent(lesson.file)}`} className="mt-3 flex min-h-12 flex-col justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-bold text-blue-900">{t("Ouvrir le vrai fichier de cette leçon →", "Open this lesson’s actual file →", "افتح الملف الحقيقي لهذا الدرس ←")}<span dir="ltr" className="mt-1 break-all font-mono text-xs font-normal">{lesson.file}</span></a>
-      <p className={"mt-3 inline-block rounded-full px-3 py-1 text-xs font-bold " + (entry.completedOn ? "bg-green-100 text-green-900" : "bg-neutral-100 text-neutral-700")}>{entry.completedOn ? t("✓ Validée · 3/3", "✓ Validated · 3/3", "✓ معتمد · 3/3") : entry.assessment ? t("À revoir · test non réussi", "Review needed · test not passed", "تحتاج مراجعة · لم تجتز الاختبار") : t("En cours · test à passer", "In progress · test pending", "قيد التعلم · الاختبار مطلوب")}</p>
-      {entry.readOn && !entry.completedOn && !entry.assessment && <p className="mt-2 text-sm text-neutral-600">{t("Tu avais terminé la lecture. Tes notes sont conservées ; passe maintenant le test pour valider cette leçon.", "You previously finished reading. Your notes are kept; take the test to validate this lesson.", "سبق أن أنهيت القراءة. ملاحظاتك محفوظة؛ اجتز الاختبار لاعتماد هذا الدرس.")}</p>}
-      <div className="mt-3 flex gap-2" aria-hidden="true">{phases.map((phase, index) => <span key={phase} className={"h-1.5 flex-1 rounded-full " + (index <= step ? "bg-green-500" : "bg-neutral-100")} />)}</div>
-      <div className="mt-6 space-y-4 text-base leading-8">
-        {step === 0 && <p>{dailyText(lang, lesson.idea)}</p>}
-        {step === 1 && <><p>{dailyText(lang, lesson.example)}</p><div className="rounded-2xl bg-neutral-50 p-4"><p className="text-xs font-bold text-neutral-500">{t("Le fichier de ton site à reconnaître", "The file to recognise in your site", "الملف الذي تتعرف عليه في موقعك")}</p><code dir="ltr" className="mt-2 block break-all text-sm">{lesson.file}</code><p className="mt-2 text-sm text-neutral-500">{t("Tu n’as pas besoin de le modifier aujourd’hui.", "You do not need to edit it today.", "لا تحتاج إلى تعديله اليوم.")}</p></div></>}
-        {step === 2 && <><p>{dailyText(lang, lesson.task)}</p><label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl bg-green-50 p-4 text-sm"><input type="checkbox" checked={entry.practiced} disabled={Boolean(entry.completedOn)} onChange={event => update({ practiced: event.target.checked })} className="mt-1.5 h-5 w-5 shrink-0 accent-green-700" />{t("J’ai fait ce petit exercice.", "I have tried this small exercise.", "جرّبت هذا التمرين الصغير.")}</label></>}
-        {step === 3 && <>
-          <p className="font-bold">{dailyText(lang, lesson.question)}</p>
-          <label htmlFor="daily-note" className="block text-sm text-neutral-600">{t("Mes notes personnelles (facultatif, non noté)", "My personal notes (optional, not graded)", "ملاحظاتي الشخصية (اختيارية، دون تقييم)")}</label>
-          <textarea id="daily-note" value={entry.note} maxLength={1500} onChange={event => update({ note: event.target.value, compared: false })} rows={3} className="block w-full rounded-xl border border-neutral-300 p-3 text-base leading-7 focus:outline-green-600" />
-          <details key={lesson.id} className="rounded-xl bg-emerald-50 p-4"><summary className="min-h-11 cursor-pointer text-sm font-bold">{t("Comparer avec une explication", "Compare with an explanation", "قارن مع الشرح")}</summary><p className="mt-2 text-sm leading-7">{dailyText(lang, lesson.answer)}</p></details>
-        </>}
-        {step === 4 && <DailyLessonTest key={lesson.id} lessonId={lesson.id} lang={lang} assessment={entry.assessment} practiced={entry.practiced} saving={sync === "saving"} onSubmit={submitTest} onReview={() => move(0)} onPractice={() => move(2)} />}
+  const phases = [t("Comprendre", "Understand", "افهم"), t("Mon code", "My code", "الكود"), t("Pratiquer", "Practice", "تدرّب")];
+  const locale = lang === "fr" ? "fr-FR" : lang === "ar" ? "ar-MA" : "en-GB";
+  if (!ready) return <p role="status">{t("Préparation de ton atelier…", "Preparing your workshop…", "جارٍ تجهيز ورشتك…")}</p>;
+  const days = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(`${today}T12:00:00Z`);
+    date.setUTCDate(date.getUTCDate() - 6 + index);
+    return { date: date.toISOString().slice(0, 10), label: new Intl.DateTimeFormat(locale, { weekday: "short", timeZone: "UTC" }).format(date) };
+  });
+  return <section dir={lang === "ar" ? "rtl" : "ltr"} className={styles.workspace + " space-y-5"} aria-label={t("Mon entraînement quotidien", "My daily training", "تدريبي اليومي")}>
+    <DailyDashboard lang={lang} selected={selected} progress={progress} explored={explored} onStart={() => move(step)} />
+    {storageError && <p role="alert" className="rounded-xl bg-amber-50 p-4 text-sm">{t("La sauvegarde locale est indisponible. Garde une copie de tes notes.", "Local saving is unavailable. Keep a copy of your notes.", "الحفظ المحلي غير متاح. احتفظ بنسخة من ملاحظاتك.")}</p>}
+    <div className={styles.layout}>
+      <LessonOutline lang={lang} selected={selected} progress={progress} explored={explored} onChoose={choose} />
+      <div className={styles.reader}>
+    <article className={styles.article}>
+      <div className={styles.articleHeader}>
+        <div className={styles.lessonMeta}><span>{t("LES FONDATIONS", "THE FOUNDATIONS", "الأساسيات")} / {String(selected + 1).padStart(2, "0")}</span><span>{t("Lecture & pratique", "Read & practice", "قراءة وتطبيق")}</span></div>
+        <h3 ref={heading} tabIndex={-1}>{dailyText(lang, lesson.title)}</h3>
+        <nav aria-label={t("Étapes de la leçon", "Lesson steps", "خطوات الدرس")} className={styles.phases}>{phases.map((phase, index) => <button key={phase} type="button" aria-current={step === index ? "step" : undefined} onClick={() => move(index)}>{String(index + 1).padStart(2, "0")} · {phase}</button>)}</nav>
       </div>
-      <div className="mt-6 flex justify-between gap-3 border-t pt-4"><button disabled={step === 0} onClick={() => move(step - 1)} className="min-h-12 rounded-xl border px-4 text-sm font-bold disabled:opacity-30">{t("Retour", "Back", "رجوع")}</button>{step < phases.length - 1 && <button onClick={() => move(step + 1)} className="min-h-12 rounded-xl bg-neutral-950 px-5 text-sm font-bold text-white">{t("Continuer", "Continue", "متابعة")} →</button>}</div>
+      <div className={styles.body + " space-y-7"}>
+        {step === 0 && <>
+          <div><p className={styles.conceptLabel}><span />{t("Une notion à retenir", "One concept to remember", "فكرة لتتذكرها")}</p><h4>{t("L’idée en mots simples", "The idea in plain words", "الفكرة بكلمات بسيطة")}</h4><p className="mt-3 text-[15px] leading-8 text-neutral-600">{dailyText(lang, lesson.idea)}</p></div>
+          <div className={styles.example}><code dir="ltr">{lesson.file}</code><h4>{t("Dans ta boutique", "Inside your shop", "داخل متجرك")}</h4><p className="mt-3 text-sm leading-7 text-neutral-600">{dailyText(lang, lesson.example)}</p><button type="button" onClick={() => move(1)} className="mt-4 min-h-11 text-xs font-semibold text-emerald-800">{t("Découvrir le code de cet exemple →", "Explore the code behind this example →", "اكتشف كود هذا المثال ←")}</button></div>
+          <div className={styles.reflection}><span aria-hidden="true">✧</span><p>{t("Prends un instant : comment expliquerais-tu cette idée à un ami ? Tu n’as pas besoin de retenir chaque mot pour avancer.", "Take a moment: how would you explain this to a friend? You don’t need to memorise every word to move forward.", "توقف لحظة: كيف تشرح هذه الفكرة لصديق؟ لا تحتاج لحفظ كل كلمة حتى تتقدم.")}</p></div>
+        </>}
+        {step === 1 && <DailyCodeExample key={lesson.id} lesson={lesson} lang={lang} />}
+        {step === 2 && <>
+          <div><h4 className="text-sm font-bold">{t("À toi · un petit exercice", "Your turn · a small exercise", "دورك · تمرين صغير")}</h4><p className="mt-2 text-sm leading-7 text-neutral-700">{dailyText(lang, lesson.task)}</p></div>
+          <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl bg-emerald-50 p-4 text-sm"><input type="checkbox" checked={entry.practiced} disabled={Boolean(entry.completedOn)} onChange={event => update({ practiced: event.target.checked })} className="mt-0.5 h-5 w-5 shrink-0 accent-emerald-700" />{t("J’ai essayé cet exercice.", "I tried this exercise.", "جرّبت هذا التمرين.")}</label>
+          <div><h4 className="text-sm font-bold">{dailyText(lang, lesson.question)}</h4><details className="mt-3 rounded-xl border border-neutral-200 p-3"><summary className="cursor-pointer py-1 text-sm font-semibold text-emerald-800">{t("Voir une réponse simple", "See a simple answer", "شاهد إجابة بسيطة")}</summary><p className="mt-2 text-sm leading-7 text-neutral-600">{dailyText(lang, lesson.answer)}</p></details></div>
+          <div><label htmlFor="daily-note" className="text-sm font-semibold">{t("Ce que j’ai compris, avec mes mots", "What I understood, in my own words", "ما فهمته بكلماتي")}</label><textarea id="daily-note" value={entry.note} maxLength={1500} onChange={event => update({ note: event.target.value, compared: false })} rows={3} placeholder={t("Ce code sert à… On l’utilise parce que…", "This code is for… We use it because…", "هذا الكود يفعل… نستخدمه لأن…")} className="mt-2 block w-full rounded-xl border border-neutral-200 p-3 text-base leading-7 focus:outline-emerald-600" /></div>
+          <button type="button" onClick={() => markTraining(!trained)} className={"min-h-12 w-full rounded-xl px-4 text-sm font-semibold " + (trained ? "border border-emerald-200 bg-emerald-50 text-emerald-900" : "bg-emerald-800 text-white hover:bg-emerald-900")}>{trained ? t("✓ Entraînement enregistré · annuler", "✓ Training recorded · undo", "✓ سُجّل التدريب · تراجع") : t("Terminer mon entraînement du jour", "Finish today’s training", "إنهاء تدريب اليوم")}</button>
+          <details className="rounded-xl border border-neutral-200 p-4"><summary className="cursor-pointer py-1 text-sm font-semibold">{t("Pour aller plus loin : 3 questions (facultatif)", "Go further: 3 questions (optional)", "للتعمق: 3 أسئلة (اختياري)")}{entry.completedOn ? " ✓" : ""}</summary><div className="mt-4"><DailyLessonTest key={lesson.id} lessonId={lesson.id} lang={lang} assessment={entry.assessment} practiced={entry.practiced} saving={sync === "saving"} onSubmit={submitTest} onReview={() => move(0)} onPractice={() => document.getElementById("daily-note")?.focus()} /></div></details>
+        </>}
+      </div>
+      <div className="flex items-center justify-between gap-2 border-t border-neutral-100 p-4"><button disabled={step === 0} onClick={() => move(step - 1)} className="min-h-11 rounded-xl px-3 text-sm font-semibold text-neutral-500 disabled:opacity-30">{t("Retour", "Back", "رجوع")}</button>{step < 2 ? <button onClick={() => move(step + 1)} className="min-h-11 rounded-xl bg-emerald-800 px-4 text-sm font-semibold text-white">{step === 0 ? t("Voir mon code →", "See my code →", "شاهد الكود ←") : t("À moi d’essayer →", "Let me try →", "سأجرّب الآن ←")}</button> : selected < DAILY_LESSONS.length - 1 ? <button onClick={() => choose(selected + 1)} className="min-h-11 rounded-xl border border-neutral-200 px-4 text-sm font-semibold">{t("Leçon suivante →", "Next lesson →", "الدرس التالي ←")}</button> : <button onClick={onAcademy} className="min-h-11 rounded-xl bg-emerald-800 px-4 text-sm font-semibold text-white">{t("Continuer à apprendre →", "Keep learning →", "واصل التعلم ←")}</button>}</div>
     </article>
-    {entry.completedOn && <div role="status" className="rounded-2xl border border-green-200 bg-green-50 p-5">
-      <p className="font-black">{t("✓ Leçon terminée et validée par le test", "✓ Lesson completed and validated by the test", "✓ الدرس مكتمل ومعتمد بالاختبار")}</p>
-      <p className="mt-2 text-sm font-semibold">3/3 · 100% · {entry.completedOn}</p>
-      <p className="mt-2 text-sm leading-6">{t("Demain, reprends ce parcours. Tu peux aussi revoir cette leçon ou continuer maintenant.", "Return to this path tomorrow. You can also review this lesson or keep going now.", "عُد غدًا لهذا المسار. يمكنك أيضًا مراجعة الدرس أو المتابعة الآن.")}</p>
-      {selected < DAILY_LESSONS.length - 1 ? <button onClick={() => choose(selected + 1)} className="mt-3 min-h-12 rounded-xl border border-green-300 bg-white p-3 text-start text-sm font-bold">{t("La prochaine idée : ", "Next idea: ", "الفكرة التالية: ")}{dailyText(lang, DAILY_LESSONS[selected + 1].title)} →</button> : <button onClick={onAcademy} className="mt-3 min-h-12 rounded-xl bg-neutral-950 px-4 text-sm font-bold text-white">{t("Continuer avec l’Académie →", "Continue with the Academy →", "تابع مع الأكاديمية ←")}</button>}
-    </div>}
-    {sync === "saving" && <p role="status" className="text-sm text-neutral-600">{t("Synchronisation du jour validé…", "Syncing your validated learning day…", "جارٍ مزامنة يوم التعلم المعتمد…")}</p>}
-    {sync === "error" && <div role="alert" className="rounded-xl bg-amber-50 p-4 text-sm"><p>{t("Le test est réussi, mais la synchronisation du jour a échoué. Le résultat reste dans ce navigateur si le stockage est disponible.", "You passed, but learning-day sync failed. Your result stays in this browser if storage is available.", "نجحت في الاختبار لكن تعذّرت مزامنة اليوم. تبقى نتيجتك في هذا المتصفح إذا كان التخزين متاحًا.")}</p><button onClick={() => entry.assessment && void syncValidation(entry.assessment.answers)} className="mt-3 min-h-12 rounded-xl border border-amber-300 bg-white px-4 font-bold">{t("Réessayer la synchronisation", "Retry sync", "أعد المزامنة")}</button></div>}
-    {sync === "saved" && <p role="status" className="text-sm text-emerald-700">{t("Ton jour d’apprentissage a aussi été enregistré sur le serveur.", "Your learning day was also recorded on the server.", "سُجّل يوم تعلمك على الخادم أيضًا.")}</p>}
-    <details className="rounded-2xl border bg-white p-4">
-      <summary className="min-h-11 cursor-pointer font-bold">{t("Mon programme · revoir ou choisir un jour", "My programme · review or choose a day", "برنامجي · راجع يومًا أو اختره")}</summary>
-      <ol className="mt-3 grid gap-2 sm:grid-cols-2">{DAILY_LESSONS.map((item, index) => <li key={item.id}><button onClick={() => choose(index)} aria-current={index === selected ? "step" : undefined} className="min-h-12 w-full rounded-xl border p-3 text-start text-sm aria-[current=step]:border-green-600 aria-[current=step]:bg-green-50"><span className="me-2 font-bold">{progress[item.id]?.completedOn ? "✓" : index + 1}.</span>{dailyText(lang, item.title)}</button></li>)}</ol>
-      <button onClick={onAcademy} className="mt-4 min-h-12 rounded-xl border px-4 py-3 text-sm font-bold">{t("Après ces 14 jours : les 192 leçons détaillées →", "After these 14 days: 192 detailed lessons →", "بعد هذه الأيام الـ14: 192 درسًا مفصلًا ←")}</button>
+    <div className={styles.session}>
+      <label><input type="checkbox" data-training-attendance checked={trained} onChange={event => markTraining(event.target.checked)} /><span>{t("Je me suis entraîné aujourd’hui", "I trained today", "تدرّبت اليوم")}<small>{t("Pour cette leçon · chaque petite séance compte.", "For this lesson · every small session counts.", "لهذا الدرس · كل جلسة صغيرة لها قيمة.")}</small></span></label>
+      <p role="status" className={styles.sessionStatus}>{trained && !storageError ? t("✓ Séance enregistrée dans ce navigateur.", "✓ Session saved in this browser.", "✓ حُفظت الجلسة في هذا المتصفح.") : trainingDays.size + " " + t("jours d’entraînement enregistrés", "training days recorded", "أيام تدريب مسجلة")}</p>
+      <details className="mt-3 border-t border-neutral-100 pt-3"><summary className="min-h-11 cursor-pointer py-3 text-xs text-neutral-500">{t("Mon activité · les 7 derniers jours", "My activity · the last 7 days", "نشاطي · آخر 7 أيام")}</summary><div className={styles.week}>{days.map(day => <div key={day.date} data-trained={trainingDays.has(day.date)} data-today={day.date === today} aria-label={day.date + ": " + (trainingDays.has(day.date) ? t("entraînement enregistré", "training recorded", "تم تسجيل التدريب") : t("aucun entraînement enregistré", "no training recorded", "لم يسجّل تدريب"))}><span>{trainingDays.has(day.date) ? "✓" : Number(day.date.slice(-2))}</span>{day.label}</div>)}</div></details>
+    </div>
+
+    {sync === "saving" && <p role="status" className="text-sm text-neutral-600">{t("Enregistrement du test…", "Saving the test…", "جارٍ حفظ الاختبار…")}</p>}
+    {sync === "error" && <div role="alert" className="rounded-xl bg-amber-50 p-4 text-sm"><p>{t("Le résultat du test est conservé ici, mais sa synchronisation a échoué.", "The test result is kept here, but syncing failed.", "حُفظت نتيجة الاختبار هنا لكن فشلت المزامنة.")}</p><button onClick={() => entry.assessment && void syncValidation(entry.assessment.answers)} className="mt-2 min-h-11 font-semibold underline">{t("Réessayer", "Retry", "أعد المحاولة")}</button></div>}
+    {sync === "saved" && <p role="status" className="text-sm text-emerald-700">{t("✓ Test validé et synchronisé.", "✓ Test passed and synced.", "✓ نجحت وتمت مزامنة الاختبار.")}</p>}
+      </div>
+    </div>
+    <details className="rounded-2xl border border-neutral-200 bg-white p-4 sm:p-6"><summary className="cursor-pointer text-sm font-bold">{t("Mon parcours complet : de débutant à Next.js", "My full path: from beginner to Next.js", "مساري الكامل: من البداية إلى Next.js")}</summary>
+      <p className="mt-3 text-sm leading-6 text-neutral-600">{t("Ces 14 leçons sont le départ. Continue ensuite dans l’Académie, une leçon par séance, dans cet ordre :", "These 14 lessons are the starting point. Then continue in the Academy, one lesson per session, in this order:", "هذه الدروس الـ14 هي البداية. تابع بعدها في الأكاديمية، درسًا في كل جلسة، بهذا الترتيب:")}</p>
+      <ol className="mt-4 space-y-3 text-sm leading-6">{[
+        t("Les bases : fichiers, HTML, CSS, JavaScript et TypeScript.", "Foundations: files, HTML, CSS, JavaScript and TypeScript.", "الأساسيات: الملفات وHTML وCSS وJavaScript وTypeScript."),
+        t("React : composants, props, état (useState), événements et effets.", "React: components, props, state (useState), events and effects.", "React: المكونات وprops والحالة useState والأحداث والتأثيرات."),
+        t("Next.js : pages, layouts, routes dynamiques, serveur et navigateur.", "Next.js: pages, layouts, dynamic routes, server and browser.", "Next.js: الصفحات والتخطيطات والمسارات الديناميكية والخادم والمتصفح."),
+        t("Les données : API, Supabase, formulaires, connexion et permissions.", "Data: APIs, Supabase, forms, sign-in and permissions.", "البيانات: API وSupabase والنماذج وتسجيل الدخول والصلاحيات."),
+        t("Ta boutique : catalogue, panier, commandes, paiements et administration.", "Your shop: catalog, cart, orders, payments and administration.", "متجرك: الكتالوج والسلة والطلبات والدفع والإدارة."),
+        t("La mise en ligne : tests, erreurs, cache, performance, SEO et Vercel.", "Going live: tests, errors, caching, performance, SEO and Vercel.", "النشر: الاختبارات والأخطاء والتخزين المؤقت والأداء وSEO وVercel."),
+      ].map((item, index) => <li key={index} className="flex gap-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-xs font-bold text-emerald-800">{index + 1}</span><span>{item}</span></li>)}</ol>
+      <button onClick={onAcademy} className="mt-4 min-h-12 rounded-xl bg-emerald-800 px-4 text-sm font-semibold text-white">{t("Ouvrir les leçons détaillées →", "Open the detailed lessons →", "افتح الدروس المفصلة ←")}</button>
     </details>
-    <p className="text-xs leading-5 text-neutral-500">{t("Notes et résultats sauvegardés dans ce navigateur. Les notes restent sur ton appareil. Après réussite, le serveur vérifie les réponses du test et enregistre le jour d’apprentissage (heure de Paris).", "Notes and results are saved in this browser. Notes stay on your device. After a pass, the server checks test answers and records the learning day (Paris time).", "تُحفظ الملاحظات والنتائج في هذا المتصفح وتبقى الملاحظات على جهازك. بعد النجاح يتحقق الخادم من إجابات الاختبار ويسجّل يوم التعلم بتوقيت باريس.")}</p>
+    <p className="text-xs leading-5 text-neutral-500">{t("Entraînements et notes : enregistrés dans ce navigateur, dates à l’heure de Paris. Cocher une séance ne valide pas le quiz et ne synchronise pas les rappels. Les tests réussis restent synchronisés séparément.", "Training and notes: saved in this browser, with Paris dates. Checking a session does not pass the quiz or sync reminders. Passed tests still sync separately.", "التدريب والملاحظات محفوظة في هذا المتصفح بتوقيت باريس. تسجيل الجلسة لا يعني اجتياز الاختبار أو مزامنة التذكيرات. تستمر مزامنة الاختبارات الناجحة بشكل منفصل.")} {completed > 0 && `${completed} ${t("tests réussis conservés.", "passed tests preserved.", "اختبارات ناجحة محفوظة.")}`}</p>
   </section>;
 }

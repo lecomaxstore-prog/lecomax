@@ -73,7 +73,7 @@ body {
 
 /* Premium display headings */
 .h-display {
-  font-family: var(--font-display), var(--font-sans), "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-display, Sora), var(--font-sans, Inter), "Helvetica Neue", Arial, sans-serif;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: -0.03em;

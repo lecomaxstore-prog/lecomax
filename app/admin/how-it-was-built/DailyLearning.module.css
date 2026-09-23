@@ -1,0 +1,93 @@
+.workspace { --ink: #17372e; --muted: #63756d; min-width: 0; color: var(--ink); }
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 36px; padding: 36px; border-radius: 24px; background: radial-gradient(ellipse at 90% 0%, #285749, transparent 65%), #102e25; color: #fff; overflow: hidden; }
+.eyebrow { display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 700; letter-spacing: .16em; color: #b9d2c6; }
+.eyebrow > span:first-child { width: 7px; height: 7px; border-radius: 50%; background: #bce6a1; }
+.separator { color: #688c7a; }
+.hero h2 { white-space: pre-line; margin-top: 22px; font-size: clamp(24px, 2.5vw, 36px); line-height: 1.2; font-weight: 600; letter-spacing: -.045em; }
+.heroDescription { max-width: 440px; margin-top: 16px; color: #bbcec4; font-size: 13px; line-height: 1.8; }
+.heroMeta { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 24px; color: #d4e3da; font-size: 10px; }
+.heroMeta span + span::before { content: '·'; margin-inline-end: 14px; color: #a2c384; }
+.startButton { display: inline-flex; align-items: center; gap: 24px; min-height: 44px; border-radius: 9px; background: #d5e9b7; color: #183c2b; padding: 10px 16px; margin-top: 22px; font-size: 11px; font-weight: 700; }
+.startButton:hover { background: #e2f1ce; }
+.courseCard { align-self: center; padding: 22px; border: 1px solid #567366; border-radius: 16px; background: #ffffff08; }
+.courseCardTop { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: .13em; color: #c9d9d0; }
+.courseCard strong { display: block; font-size: 54px; letter-spacing: -.06em; font-weight: 500; line-height: 1.25; margin-top: 12px; }
+.courseCard small { font-size: 18px; color: #9bb7a7; letter-spacing: 0; }
+.courseCard p { font-size: 12px; margin-top: 4px; }
+.progressTrack { height: 4px; border-radius: 4px; background: #ffffff20; margin-top: 22px; overflow: hidden; }
+.progressTrack span { display: block; height: 100%; background: #c0e7a4; transition: width .2s; }
+.progressCaption { display: block; margin-top: 9px; font-size: 10px; color: #bacebf; }
+.layout { display: grid; grid-template-columns: 270px minmax(0, 1fr); gap: 24px; align-items: start; margin-top: 24px; }
+.outline { border: 1px solid #e0e7e2; border-radius: 18px; padding: 20px 12px; background: #fff; }
+.outlineHeading { display: flex; justify-content: space-between; padding: 0 8px 14px; font-size: 13px; font-weight: 700; border-bottom: 1px solid #edf0ed; }
+.outlineHeading span:last-child { font-size: 11px; font-weight: 500; color: var(--muted); }
+.mobileSelect { display: none; }
+.groupLabel { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 22px 8px 10px; }
+.lessonLink { display: flex; align-items: center; width: 100%; gap: 10px; text-align: start; padding: 11px 8px; border-radius: 9px; font-size: 11px; line-height: 1.45; min-height: 54px; }
+.lessonLink:hover { background: #f6f8f5; }
+.lessonLink[aria-current] { background: #edf4e9; color: #234b30; font-weight: 600; }
+.lessonLink small { display: block; font-size: 9px; color: #6a7e70; margin-top: 3px; font-weight: 400; }
+.lessonNumber, .studiedNumber { display: flex; align-items: center; justify-content: center; flex-shrink: 0; height: 27px; width: 27px; border: 1px solid #e2e8df; border-radius: 8px; font-size: 10px; color: #6c7e71; background: #fff; }
+.studiedNumber { background: #244d36; color: #fff; border-color: #244d36; }
+.activeDot { height: 5px; width: 5px; flex-shrink: 0; border-radius: 50%; background: #477846; margin-inline-start: auto; }
+.outlineFoot { font-size: 10px; line-height: 1.7; color: var(--muted); border-top: 1px solid #edf0ed; margin: 16px 8px 0; padding-top: 15px; }
+.reader { min-width: 0; }
+.article { min-width: 0; overflow: hidden; border: 1px solid #e0e7e2; border-radius: 20px; background: #fff; box-shadow: 0 5px 24px #1d3f2804; }
+.articleHeader { padding: 30px 32px 0; }
+.articleHeader h3 { font-size: clamp(23px, 2vw, 30px); line-height: 1.3; font-weight: 600; letter-spacing: -.035em; margin-top: 12px; scroll-margin-top: 250px; outline: none; }
+.lessonMeta { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 10px; color: #62806b; letter-spacing: .04em; }
+.phases { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid #e5ebe4; margin-top: 25px; }
+.phases button { position: relative; min-height: 52px; padding: 10px 3px; font-size: 12px; font-weight: 500; color: #748178; }
+.phases button[aria-current] { color: #285b3c; font-weight: 700; }
+.phases button[aria-current]::after { content: ''; position: absolute; bottom: -1px; inset-inline: 0; height: 3px; border-radius: 3px; background: #315f41; }
+.body { padding: 30px 32px; }
+.body h4 { font-size: 16px; font-weight: 600; letter-spacing: -.015em; }
+.conceptLabel { display: flex; align-items: center; gap: 9px; font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: #72916c; margin-bottom: 14px; }
+.conceptLabel span { width: 24px; height: 1px; background: #94ad89; }
+.example { position: relative; border: 1px solid #e4eadd; border-radius: 14px; background: #f8faf5; padding: 22px; }
+.example code { display: block; font-size: 10px; color: #627b5b; margin-bottom: 13px; overflow-wrap: anywhere; }
+.reflection { display: flex; gap: 13px; border-top: 1px solid #edf0e9; padding-top: 20px; font-size: 12px; line-height: 1.9; color: #6c7b6f; }
+.reflection > span { flex-shrink: 0; font-size: 20px; color: #61854e; }
+.session { margin-top: 16px; border: 1px solid #e0e7e2; border-radius: 16px; background: #fff; padding: 20px; }
+.session label { display: flex; align-items: center; gap: 12px; cursor: pointer; min-height: 44px; font-size: 12px; font-weight: 600; }
+.session input { width: 19px; height: 19px; accent-color: #315f41; }
+.session small { display: block; margin-top: 4px; color: #758175; font-size: 10px; font-weight: 400; }
+.sessionStatus { color: #60805d; font-size: 10px; margin-top: 10px; }
+.codePanel { min-width: 0; overflow: hidden; border: 1px solid #dce5dd; border-radius: 14px; }
+.codeLines { overflow-x: auto; padding: 14px 0; text-align: left; background: #142b24; }
+.codeLines button { color: #d9e9d7; }
+.codeLines button code { color: #d9e9d7; }
+.codeLines button > span { color: #90ad9b; }
+.codeLines button:hover, .codeLines button[aria-pressed=true] { background: #2e4a39; }
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.week > div { text-align: center; font-size: 10px; color: #748170; }
+.week span { display: flex; width: 30px; height: 30px; align-items: center; justify-content: center; margin: 0 auto 6px; border-radius: 9px; background: #f2f5ef; }
+.week [data-trained=true] span { background: #315f41; color: #fff; }
+.week [data-today=true] span { outline: 1px solid #749564; outline-offset: 2px; }
+.workspace button:focus-visible, .workspace select:focus-visible, .workspace summary:focus-visible { outline: 2px solid #518044; outline-offset: 3px; }
+@media (max-width: 1100px) {
+  .hero { grid-template-columns: minmax(0, 1fr) 210px; padding: 28px; gap: 22px; }
+  .layout { grid-template-columns: 230px minmax(0, 1fr); gap: 16px; }
+  .articleHeader { padding: 24px 22px 0; }
+  .body { padding: 24px 22px; }
+}
+@media (max-width: 760px) {
+  .hero { display: block; padding: 24px; border-radius: 18px; }
+  .hero h2 { margin-top: 16px; font-size: 27px; }
+  .heroDescription { font-size: 12px; margin-top: 12px; }
+  .heroMeta { margin-top: 16px; font-size: 9px; gap: 6px 10px; }
+  .heroMeta span + span::before { margin-inline-end: 8px; }
+  .courseCard { display: none; }
+  .layout { display: block; margin-top: 14px; }
+  .outline { padding: 14px; margin-bottom: 14px; border-radius: 14px; }
+  .outlineHeading { padding: 0 0 10px; border: 0; font-size: 11px; }
+  .lessonList, .outlineFoot { display: none; }
+  .mobileSelect { display: block; width: 100%; min-width: 0; min-height: 44px; border: 1px solid #e1e7dc; border-radius: 8px; padding: 8px; font-size: 12px; color: #294a32; background: #f8faf6; }
+  .article { border-radius: 16px; }
+  .articleHeader { padding: 22px 18px 0; }
+  .articleHeader h3 { font-size: 23px; }
+  .body { padding: 24px 18px; }
+  .phases { margin-top: 18px; }
+  .phases button { font-size: 11px; }
+  .example { padding: 17px; }
+}
