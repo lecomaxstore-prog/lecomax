@@ -4,13 +4,14 @@ import { sensitiveRateLimit } from "@/lib/sensitive-rate-limit";
 import { supabase } from "@/lib/supabase";
 import { extractIntent } from "@/lib/assistant-intent";
 import { processIntent } from "@/lib/assistant-tools";
-import type { AssistantMessage } from "@/lib/assistant-types";
+
 
 export async function POST(request: NextRequest) {
   const limited = await sensitiveRateLimit(request, "assistant");
   if (limited) return limited;
   try {
     const body = await readJsonLimited(request, 64 * 1024);
+    if (!body || typeof body !== "object") return NextResponse.json({ error: "Invalid request" }, { status: 400 });
     const { sessionId, messages, platform = "web" } = body as {
       sessionId?: string;
       messages: { role: "user" | "assistant"; content: string; recommendations?: any[] }[];
@@ -19,7 +20,8 @@ export async function POST(request: NextRequest) {
 
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > 30 ||
       messages.some(message => !message || !["user", "assistant"].includes(message.role) ||
-        typeof message.content !== "string" || !message.content.trim() || message.content.length > 4000) ||
+        typeof message.content !== "string" || !message.content.trim() || message.content.length > 4000 ||
+        (message.recommendations !== undefined && (!Array.isArray(message.recommendations) || message.recommendations.length > 20 || message.recommendations.some(r => !r || typeof r.productSlug !== "string" || r.productSlug.length > 200)))) ||
       messages[messages.length - 1].role !== "user" ||
       !["web", "mobile_app"].includes(platform) ||
       (sessionId !== undefined && (typeof sessionId !== "string" || !/^[0-9a-f-]{36}$/i.test(sessionId)))) {
@@ -89,10 +91,10 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Assistant API Error:", error);
+    console.error("Customer assistant request failed.");
     return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
+      { error: "L’assistant est temporairement indisponible. Réessayez dans quelques instants." },
+      { status: 503, headers: { "Cache-Control": "no-store" } }
     );
   }
 }

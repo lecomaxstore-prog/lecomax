@@ -2,11 +2,11 @@ import { ownsChat } from "@/lib/chat-ownership";
 import { readJsonLimited } from "@/lib/request-body";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import type OpenAI from "openai";
+import { generateSupportReply, type AIMessage } from "@/lib/openai-server";
 import { broadcastAdminPushNotification } from "@/lib/push-notifications";
 import { getStoreAssistantContext } from "@/lib/store-assistant-context";
 
-import { getGroqClient } from "@/lib/groq-client";
+
 import { checkChatSession } from "@/lib/chat-session-server";
 import { pendingChatQuestion } from "@/lib/chat-lifecycle";
 
@@ -358,10 +358,11 @@ export async function POST(req: Request) {
     .from("chat_messages")
     .select("direction, body, sent_by")
     .eq("session_id", session_id)
-    .order("timestamp", { ascending: true })
-    .limit(20);
+    .order("timestamp", { ascending: false })
+    .limit(16);
 
-  const chatHistory: OpenAI.ChatCompletionMessageParam[] = (history || [])
+  const chatHistory: AIMessage[] = (history || [])
+    .slice().reverse()
     .filter((m) => m.body !== "__AI_RESUMED__" && m.body !== "__AGENT_JOINED__")
     .slice(-16)
     .map((m) => ({
@@ -369,22 +370,14 @@ export async function POST(req: Request) {
       content: m.body,
     }));
 
-  // Call Groq AI
+  // Generate on the server with OpenAI; preserve customer support on provider outages.
   let aiReply = "";
   try {
     const systemPrompt = await buildSystemPrompt();
-    const completion = await getGroqClient().chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...chatHistory,
-        ...(aiTakeover ? [{ role: "system" as const, content: "No human agent replied within five minutes. Resume as Eco now, answer the customer's latest pending question directly using the conversation context, and do not escalate this response." }] : []),
-      ],
-      temperature: 0.35,
-      max_tokens: 650,
-      top_p: 0.9,
+    aiReply = await generateSupportReply({
+      instructions: systemPrompt + (aiTakeover ? "\nNo human agent replied within five minutes. Resume as Eco, answer the latest pending question using the conversation context, and do not escalate this response." : ""),
+      messages: chatHistory, maxOutputTokens: 650,
     });
-    aiReply = completion.choices[0]?.message?.content?.trim() || "";
   } catch {
     aiReply = aiTakeover
       ? "Je reprends la conversation. Je rencontre momentanément une difficulté pour générer la réponse complète ; vous pouvez reformuler votre question et je vous répondrai immédiatement."

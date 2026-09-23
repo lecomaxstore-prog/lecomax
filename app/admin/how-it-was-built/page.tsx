@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import DailyLearning from "./DailyLearning";
+import CodingTutor from "./CodingTutor";
 import { translate } from "./course/journey";
 import CodeLibrary from "./CodeLibrary";
 
@@ -61,7 +62,7 @@ const UI: Record<Lang, {
     loading: "Chargement…", loadingTree: "Chargement de l'arbre…",
     error: "Erreur de connexion à l'API", noResults: "Aucun résultat",
     noFile: "Aucun fichier trouvé",
-    tabs: { start: "Commencer ici", academy: "Académie 0→Héros", hero: "De 0 à Héros", arch: "Architecture", files: "Mes fichiers", tech: "Stack", env: "Variables", pages: "Toutes les Pages", search: "Recherche", guide: "Guide", debug: "Déboguer", supabase: "Supabase", deploy: "Déployer", cours: "Cours technique", mentor: "Mentor" },
+    tabs: { tutor: "Tuteur IA", start: "Commencer ici", academy: "Académie 0→Héros", hero: "De 0 à Héros", arch: "Architecture", files: "Mes fichiers", tech: "Stack", env: "Variables", pages: "Toutes les Pages", search: "Recherche", guide: "Guide", debug: "Déboguer", supabase: "Supabase", deploy: "Déployer", cours: "Cours technique", mentor: "Mentor" },
     heroTitle: "De 0 à Héros — Construction complète du site",
     heroSub: "Chaque phase : configuration → initialisation → Supabase → frontend → admin → APIs → GitHub → Vercel → Namecheap → outils de croissance → cycle commande → composants → variables env → flux de données.",
     archTitle: "Architecture complète", archSub: "Comment GitHub, Vercel, Supabase et les APIs externes s'articulent.",
@@ -87,7 +88,7 @@ const UI: Record<Lang, {
     loading: "Loading…", loadingTree: "Loading file tree…",
     error: "API connection error", noResults: "No results",
     noFile: "No files found",
-    tabs: { start: "Start here", academy: "Academy 0→Hero", hero: "0 to Hero", arch: "Architecture", files: "My files", tech: "Stack", env: "Variables", pages: "All Pages", search: "Search", guide: "Guide", debug: "Debug", supabase: "Supabase", deploy: "Deploy", cours: "Technical course", mentor: "Mentor" },
+    tabs: { tutor: "AI tutor", start: "Start here", academy: "Academy 0→Hero", hero: "0 to Hero", arch: "Architecture", files: "My files", tech: "Stack", env: "Variables", pages: "All Pages", search: "Search", guide: "Guide", debug: "Debug", supabase: "Supabase", deploy: "Deploy", cours: "Technical course", mentor: "Mentor" },
     heroTitle: "0 to Hero — Full Site Build",
     heroSub: "Every phase: setup → init → Supabase → frontend → admin → APIs → GitHub → Vercel → Namecheap → growth tools → order lifecycle → components → env vars → data flows.",
     archTitle: "Complete Architecture", archSub: "How GitHub, Vercel, Supabase, and external APIs connect together.",
@@ -113,7 +114,7 @@ const UI: Record<Lang, {
     loading: "جاري التحميل…", loadingTree: "تحميل شجرة الملفات…",
     error: "خطأ في الاتصال بالـ API", noResults: "لا توجد نتائج",
     noFile: "لا توجد ملفات",
-    tabs: { start: "ابدأ هنا", academy: "أكاديمية من الصفر", hero: "من الصفر", arch: "البنية", files: "المستكشف", tech: "التقنيات", env: "المتغيرات", pages: "جميع الصفحات", search: "بحث", guide: "دليل", debug: "تصحيح", supabase: "سوبابيس", deploy: "نشر", cours: "دورة تقنية", mentor: "معلم" },
+    tabs: { tutor: "معلّم ذكي", start: "ابدأ هنا", academy: "أكاديمية من الصفر", hero: "من الصفر", arch: "البنية", files: "المستكشف", tech: "التقنيات", env: "المتغيرات", pages: "جميع الصفحات", search: "بحث", guide: "دليل", debug: "تصحيح", supabase: "سوبابيس", deploy: "نشر", cours: "دورة تقنية", mentor: "معلم" },
     heroTitle: "من الصفر إلى الاحتراف — بناء الموقع بالكامل",
     heroSub: "كل مرحلة: الإعداد → التهيئة → Supabase → الواجهة → الإدارة → APIs → GitHub → Vercel → Namecheap → أدوات النمو → دورة الطلب → المكوّنات → متغيرات البيئة → تدفقات البيانات.",
     archTitle: "البنية الكاملة", archSub: "كيف تتصل GitHub وVercel وSupabase وواجهات التطبيقات الخارجية.",
@@ -5192,6 +5193,7 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6">
       <DailyLearning lang={lang} onAcademy={() => onNavigate("academy")} />
+      <CodingTutor lang={lang} />
       <details className="rounded-3xl border border-neutral-200 bg-white p-4">
         <summary className="min-h-12 cursor-pointer font-bold">{translate(lang, "Aller plus loin · ateliers et ressources", "Go deeper · workshops and resources", "تعمّق أكثر · ورش وموارد")}</summary>
         <div className="mt-4 space-y-6">
@@ -5372,11 +5374,11 @@ export default function ProductsPage() {
 }
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
-const TAB_IDS = ["start","game","academy","hero","cours","mentor","guide","debug","supabase","deploy","arch","files","tech","env","pages","search"] as const;
+const TAB_IDS = ["start","tutor","game","academy","hero","cours","mentor","guide","debug","supabase","deploy","arch","files","tech","env","pages","search"] as const;
 type TabId = typeof TAB_IDS[number];
 
 const TAB_GROUPS: { id: "learn" | "build" | "reference"; tabs: TabId[] }[] = [
-  { id: "learn", tabs: ["start", "game", "academy", "hero", "cours", "mentor", "guide", "debug"] },
+  { id: "learn", tabs: ["start", "tutor", "game", "academy", "hero", "cours", "mentor", "guide", "debug"] },
   { id: "build", tabs: ["supabase", "deploy", "arch"] },
   { id: "reference", tabs: ["files", "tech", "env", "pages", "search"] },
 ];
@@ -5390,7 +5392,7 @@ function TabIcon({ id, className = "h-4 w-4" }: { id: TabId; className?: string 
       {id === "academy" && <><path d="m3 10 9-5 9 5-9 5-9-5Z"/><path d="M7 12.5V17c2.7 2 7.3 2 10 0v-4.5M21 10v6"/></>}
       {id === "hero" && <><path d="M14.5 5.5c2.2-2.2 4.8-2.4 5.8-2.3.1 1-.1 3.6-2.3 5.8l-5.5 5.5-3-3 5-6Z"/><path d="m9.5 11.5-4.4.5-2 2 5 1M12.5 14.5l-.5 4.4-2 2-1-5M15.5 8.5h.01M5 19c1.4 0 2.5-1.1 2.5-2.5C6.1 16.5 5 17.6 5 19Z"/></>}
       {id === "cours" && <><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H11v16H6.5A2.5 2.5 0 0 0 4 21.5v-16Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H13v16h4.5a2.5 2.5 0 0 1 2.5 2.5v-16Z"/></>}
-      {id === "mentor" && <><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0M18.5 4.5 21 7l-2.5 2.5"/></>}
+      {(id === "mentor" || id === "tutor") && <><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0M18.5 4.5 21 7l-2.5 2.5"/></>}
       {id === "guide" && <><path d="M6 3h9l3 3v15H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v4h4M8 12h6M8 16h6"/></>}
       {id === "debug" && <><path d="M8 9h8v7a4 4 0 0 1-8 0V9ZM9 5.5a3 3 0 0 1 6 0V9M4 13h4M16 13h4M5 8l3 2M19 8l-3 2M5 19l3-2M19 19l-3-2"/></>}
       {id === "supabase" && <><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></>}
@@ -5419,6 +5421,7 @@ export default function HowItWasBuiltPage() {
     const openDeepLinkedCourse = () => {
       if (window.location.hash.startsWith("#academy/")) setTab("academy");
       else if (window.location.hash.startsWith("#files")) setTab("files");
+      else if (window.location.hash === "#tutor") setTab("tutor");
       else if (!window.location.hash) setTab("start");
     };
     openDeepLinkedCourse();
@@ -5433,6 +5436,8 @@ export default function HowItWasBuiltPage() {
 
   function selectTab(id: TabId) {
     setTab(id);
+    if (id === "tutor") window.history.replaceState(null, "", window.location.pathname + window.location.search + "#tutor");
+    else if (window.location.hash === "#tutor") window.history.replaceState(null, "", window.location.pathname + window.location.search);
     if ((id !== "academy" && window.location.hash.startsWith("#academy/")) || (id !== "files" && window.location.hash.startsWith("#files"))) {
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
@@ -5571,6 +5576,7 @@ export default function HowItWasBuiltPage() {
       >
         {tab === "hero"   && <HeroSection lang={lang} />}
         {tab === "start"  && <StartHereSection lang={lang} onNavigate={id => selectTab(id as TabId)} />}
+        {tab === "tutor" && <CodingTutor lang={lang} />}
         {tab === "game" && <CodeCoachGame lang={lang} />}
         {tab === "academy" && <AcademySection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}

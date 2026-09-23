@@ -15,6 +15,8 @@ type Row = Record<string, any>;
 function harness(seed: Record<string, Row[]> = {}) {
   const tables: Record<string, Row[]> = { chat_sessions: [], chat_messages: [], ...structuredClone(seed) };
   let failUpdates = false;
+  let aiReply: string | undefined;
+  const aiCalls: any[] = [];
   const db = {
     from(table: string) {
       tables[table] ||= [];
@@ -67,7 +69,7 @@ function harness(seed: Record<string, Row[]> = {}) {
       if (id === "@/lib/chat-ownership") return { chatVisitor: async () => visitor, chatVisitorToken: async () => "test-cookie", CHAT_VISITOR_COOKIE: "chat_visitor", ownsChat: async () => true };
       if (id === "@supabase/supabase-js") return { createClient: () => db };
       if (id === "@/lib/push-notifications") return { broadcastAdminPushNotification: async () => { throw new Error("Unexpected notification"); } };
-      if (id === "@/lib/groq-client") return { getGroqClient: () => { throw new Error("Unexpected AI request"); } };
+      if (id === "@/lib/openai-server") return { generateSupportReply: async (input: unknown) => { aiCalls.push(input); if (aiReply === undefined) throw new Error("Unexpected AI request"); return aiReply; } };
       if (id === "@/lib/store-assistant-context") return { getStoreAssistantContext: async () => "Test store" };
       if (id.startsWith("@/")) return load(id.slice(2) + ".ts");
       if (id.startsWith(".")) return load(path.relative(root, path.resolve(path.dirname(filename), id + ".ts")));
@@ -76,7 +78,7 @@ function harness(seed: Record<string, Row[]> = {}) {
     new Function("require", "module", "exports", compiled)(require, module, module.exports);
     return module.exports;
   }
-  return { tables, load, failUpdates: () => { failUpdates = true; } };
+  return { tables, load, aiCalls, answerWith: (text: string) => { aiReply = text; }, failUpdates: () => { failUpdates = true; } };
 }
 const visitor = "test-visitor-isolated";
 function session(age = 0, status = "ai") {
@@ -84,6 +86,20 @@ function session(age = 0, status = "ai") {
   return { id: crypto.randomUUID(), visitor_id: visitor, status, created_at: time, last_at: time, unread_count: 0 };
 }
 function post(data: unknown) { return new Request("http://localhost/api/chat", { method: "POST", body: JSON.stringify(data) }); }
+
+test("website customer chat uses the shared AI connection and keeps the latest question after long conversations", async () => {
+  const current = session();
+  const messages = Array.from({ length: 24 }, (_, index) => ({ session_id: current.id, direction: index % 2 ? "out" : "in", body: "Earlier message " + index, sent_by: index % 2 ? "ai" : "visitor", timestamp: new Date(Date.now() - (30 - index) * 20000).toISOString() }));
+  const h = harness({ chat_sessions: [current], chat_messages: messages });
+  h.answerWith("Here is help with your question.");
+  const response = await h.load("app/api/chat/message/route.ts").POST(post({ session_id: current.id, body: "What can you help me with today?" }));
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).reply, "Here is help with your question.");
+  assert.equal(h.aiCalls.length, 1);
+  assert.equal(h.aiCalls[0].messages.at(-1).content, "What can you help me with today?");
+  assert.equal(h.aiCalls[0].messages.length, 16);
+  assert.match(h.aiCalls[0].instructions, /Test store/);
+});
 
 test("start resumes an active session but fresh start closes it and creates an empty one", async () => {
   const previous = session();
