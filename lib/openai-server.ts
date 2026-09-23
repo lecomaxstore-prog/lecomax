@@ -15,8 +15,11 @@ type Generation = {
 export async function generateOpenAIReply(input: Generation): Promise<string> {
   if (!process.env.OPENAI_API_KEY?.trim()) throw new Error("OPENAI_NOT_CONFIGURED");
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: input.timeoutMs ?? 20_000, maxRetries: 0 });
+  const model = process.env.OPENAI_MODEL?.trim() || "gpt-6-sol";
   const response = await client.responses.create({
-    model: process.env.OPENAI_MODEL?.trim() || "gpt-4.1-mini",
+    model,
+    // Preserve the previous non-reasoning chat behavior and response-time budget.
+    ...(model === "gpt-6-sol" ? { reasoning: { effort: "none" as const } } : {}),
     instructions: input.instructions,
     input: input.messages,
     max_output_tokens: Math.min(input.maxOutputTokens ?? 800, 1600),

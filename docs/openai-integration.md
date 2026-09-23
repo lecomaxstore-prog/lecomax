@@ -4,7 +4,7 @@ Website customer chat (`/api/chat/message`) and the Expo shopping assistant (`/a
 
 The owner has a private **AI tutor / Tuteur IA** in **How it was built**, including on mobile browsers, at `/admin/how-it-was-built#tutor`. It explains coding and daily lessons in French, English or Arabic. Both the owner session and learning-section unlock are required. The public customer assistant does not grant access to this tutor.
 
-Set `OPENAI_API_KEY` in `.env.local` and Vercel Production. The default model is `gpt-4.1-mini`; `OPENAI_MODEL` can override it with a Responses-compatible text model. Never use `NEXT_PUBLIC_` or `EXPO_PUBLIC_` for a provider key. Model access does not imply an available credit balance: an actual generation must succeed.
+Set `OPENAI_API_KEY` in `.env.local` and Vercel Production. The default model is `gpt-6-sol`, using `reasoning.effort: "none"` to preserve responsive customer chat; `OPENAI_MODEL` can override it with a Responses-compatible text model. Never use `NEXT_PUBLIC_` or `EXPO_PUBLIC_` for a provider key. Model access does not imply an available credit balance: an actual generation must succeed.
 
 Customer assistance tries OpenAI first. If it fails and `GROQ_API_KEY` is configured, it uses the existing Groq service so shoppers can still get help. The tutor uses OpenAI only and reports configuration, billing or temporary availability failures. No billing changes or automatic top-ups are performed by the application.
 

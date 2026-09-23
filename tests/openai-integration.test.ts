@@ -37,6 +37,8 @@ test("OpenAI uses server credentials, bounded generation and disabled response s
   assert.equal(h.calls[0].timeout, 12000);
   assert.equal(h.calls[0].maxRetries, 0);
   assert.equal(h.calls[1].store, false);
+  assert.equal(h.calls[1].model, "gpt-6-sol");
+  assert.equal(h.calls[1].reasoning.effort, "none");
   assert.equal(h.calls[1].max_output_tokens, 500);
   assert.equal(h.calls[1].text.format.type, "json_object");
   assert.equal(h.fallbacks(), 0);
