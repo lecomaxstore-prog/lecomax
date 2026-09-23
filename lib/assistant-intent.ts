@@ -33,6 +33,10 @@ Respond ONLY with valid JSON matching this schema:
 }
 
 RULES:
+6. A product search that also mentions delivery, payment or warranty remains search (or gift_finder/bundle as appropriate); the answer stage handles the secondary service question too. Product compatibility, sizing and care are shopping questions, not unrelated general knowledge.
+3. Resolve brief follow-ups using conversation history: a city after a shipping question is customer_service, not product search. Orders, returns, refunds, damaged items, warranties, discounts and payment problems use customer_service. An explicit request for a human uses human_handoff.
+4. Ask for clarification only when essential. Preserve the budget and existing preferences. Do not emit factual directResponse text or promise actions; the answer stage retrieves store facts.
+5. Clarification hints must match the customer's language, including Moroccan Darija.
 1. Merge new constraints with the "Current Known Constraints".
 2. If the user asks for "cheaper", "different color", or "the first one", map their request to the slugs provided in the "Last Recommended Products" context.
 `;

@@ -29,6 +29,7 @@ const nextConfig = {
   skipTrailingSlashRedirect: true,
   // Include source files in the dev-docs serverless function bundle (needed on Vercel)
   outputFileTracingIncludes: {
+    "/api/admin/learning-assistant": ["./.source-library/catalog.json"],
     "/api/dev-docs/*": [
       "./.source-library/catalog.json",
     ],

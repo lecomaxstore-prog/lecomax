@@ -5,6 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { extractIntent } from "@/lib/assistant-intent";
 import { processIntent } from "@/lib/assistant-tools";
 
+export const maxDuration = 60;
+
 
 export async function POST(request: NextRequest) {
   const limited = await sensitiveRateLimit(request, "assistant");
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
     const intent = await extractIntent(messages, currentContext);
 
     // 3. Process Intent (Tools / Retrieval)
-    const result = await processIntent(intent, latestMessage.content);
+    const result = await processIntent(intent, latestMessage.content, messages);
 
     // Update context in session asynchronously
     if (currentSessionId && intent.constraints) {

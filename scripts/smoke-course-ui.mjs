@@ -211,6 +211,21 @@ async function main() {
     });
     assert(pinCookie.success, "The smoke-test course PIN cookie was rejected.");
 
+    if (process.argv.includes("--tutor-only")) {
+      await setViewport(pageClient, 390, 844);
+      await pageClient.send("Page.navigate", { url: baseUrl + "/admin/how-it-was-built/#files/app%2Fpage.tsx?line=2" });
+      await waitFor(pageClient, "!!document.querySelector('a[href^=\"#tutor?\"]')", "source-to-tutor link");
+      await evaluate(pageClient, "document.querySelector('a[href^=\"#tutor?\"]').click()");
+      await waitFor(pageClient, "document.querySelector('#tutor-source')?.value === 'app/page.tsx'", "selected source in tutor");
+      assert(await evaluate(pageClient, "document.querySelector('#admin-main').scrollWidth - document.querySelector('#admin-main').clientWidth <= 2"), "Tutor overflows on mobile");
+      const response = await evaluate(pageClient, `fetch('/api/admin/learning-assistant', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({lang:'en',replyLanguage:'en',sourcePath:'app/page.tsx',sourceLine:2,mode:'explain',messages:[{role:'user',content:'Explain the purpose of this file and one actual import. Cite its lines. Keep it short.'}]})}).then(async r => ({status:r.status, body:await r.json()}))`);
+      assert(response.status === 200 && response.body.sources?.[0]?.path === "app/page.tsx", "Tutor source-backed response failed: " + JSON.stringify(response));
+      console.log(JSON.stringify({tutor: "passed", reply:response.body.reply, sources:response.body.sources}));
+      const screenshot = await pageClient.send("Page.captureScreenshot", {format:"png",fromSurface:true});
+      await mkdir(path.join(root, ".source-library"),{recursive:true});
+      await writeFile(path.join(root, ".source-library", "tutor-check.png"), Buffer.from(screenshot.data,"base64"));
+      return;
+    }
     if (process.env.COURSE_SOURCE_ONLY === "1" || process.argv.includes("--source-only")) {
       await setViewport(pageClient, 390, 844);
       await pageClient.send("Page.navigate", { url: `${baseUrl}/admin/how-it-was-built/#files/app%2Fpage.tsx?line=2` });

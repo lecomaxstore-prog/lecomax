@@ -5,7 +5,8 @@ import { DAILY_LESSONS, dailyText } from "./course/daily-lessons";
 import { translate } from "./course/journey";
 import type { CourseLanguage } from "./course/types";
 
-type Message = { role: "user" | "assistant"; content: string };
+type Source = { path: string; startLine: number; endLine: number; generatedAt: string };
+type Message = { sources?: Source[]; role: "user" | "assistant"; content: string };
 
 export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
   const t = (fr: string, en: string, ar: string) => translate(lang, fr, en, ar);
@@ -13,6 +14,20 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
   const [draft, setDraft] = useState("");
   const [replyLanguage, setReplyLanguage] = useState("darija");
   const [lessonId, setLessonId] = useState("");
+  const [sourcePath, setSourcePath] = useState("");
+  const [sourceLine, setSourceLine] = useState(1);
+  const [mode, setMode] = useState("explain");
+  useEffect(() => {
+    function readSource() {
+      if (!window.location.hash.startsWith("#tutor?")) return;
+      const params = new URLSearchParams(window.location.hash.split("?")[1]);
+      setSourcePath(params.get("path") || "");
+      setSourceLine(Math.max(1, Math.floor(Number(params.get("line")) || 1)));
+      setMessages([]);
+    }
+    readSource(); window.addEventListener("hashchange", readSource);
+    return () => window.removeEventListener("hashchange", readSource);
+  }, []);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const request = useRef<AbortController | null>(null);
@@ -30,19 +45,21 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
     try {
       const response = await fetch("/api/admin/learning-assistant", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: next.slice(-9), lang, replyLanguage, ...(lessonId ? { lessonId } : {}) }),
+        body: JSON.stringify({ messages: next.slice(-9), lang, replyLanguage, mode, sourceLine, ...(sourcePath.trim() ? { sourcePath: sourcePath.trim() } : {}), ...(lessonId ? { lessonId } : {}) }),
         signal: controller.signal, cache: "no-store",
       });
       const data = await response.json();
       if (!response.ok) throw new Error(response.status === 403 ? "UNLOCK_REQUIRED" : response.status === 429 ? "RATE_LIMITED" : data.error);
       if (typeof data.reply !== "string" || !data.reply.trim()) throw new Error("AI_UNAVAILABLE");
-      setMessages([...next, { role: "assistant", content: data.reply }]); setDraft("");
+      setMessages([...next, { role: "assistant", content: data.reply, sources: data.sources }]); setDraft("");
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "AI_UNAVAILABLE");
     } finally { clearTimeout(timer); request.current = null; setPending(false); }
   }
 
-  const errorText = error === "AI_BILLING_REQUIRED"
+  const errorText = error === "SOURCE_UNAVAILABLE" || error === "INVALID_SOURCE"
+    ? t("Ce fichier est indisponible. Choisis un fichier dans Mes fichiers.", "This file is unavailable. Choose a file from My files.", "هذا الملف غير متاح. اختر ملفاً من ملفاتي.")
+    : error === "AI_BILLING_REQUIRED"
     ? t("Ajoute des crédits dans la facturation de ton compte OpenAI API, puis réessaie. Ta question est conservée.", "Add credits in your OpenAI API account billing, then retry. Your question is preserved.", "أضف رصيدًا في حساب OpenAI API ثم أعد المحاولة. سؤالك محفوظ.")
     : error === "AI_CONFIGURATION_REQUIRED"
     ? t("La clé OpenAI du serveur doit être configurée ou mise à jour.", "The server OpenAI key needs to be configured or updated.", "يجب إعداد مفتاح OpenAI على الخادم أو تحديثه.")
@@ -72,9 +89,25 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
       <option value="">{t("Une question de code", "A coding question", "سؤال برمجي")}</option>
       {DAILY_LESSONS.map(lesson => <option key={lesson.id} value={lesson.id}>{dailyText(lang, lesson.title)}</option>)}
     </select>
+    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <label className="text-sm font-bold">{t("Comment apprendre ?", "How would you like to learn?", "كيف تريد أن تتعلم؟")}
+        <select value={mode} disabled={pending} onChange={e => setMode(e.target.value)} className="mt-2 min-h-12 w-full rounded-xl border bg-white px-3">
+          <option value="explain">{t("Explique simplement", "Explain simply", "اشرح ببساطة")}</option>
+          <option value="debug">{t("Comprendre une erreur", "Understand an error", "افهم الخطأ")}</option>
+          <option value="practice">{t("Apprendre en pratiquant", "Learn by practicing", "تعلم بالتطبيق")}</option>
+        </select>
+      </label>
+      <label className="text-sm font-bold">{t("Ligne à expliquer", "Line to explain", "السطر المراد شرحه")}
+        <input type="number" min={1} max={100000} value={sourceLine} disabled={pending} onChange={e => setSourceLine(Math.max(1, Math.floor(Number(e.target.value) || 1)))} className="mt-2 min-h-12 w-full rounded-xl border px-3" />
+      </label>
+    </div>
+    <label htmlFor="tutor-source" className="mt-4 block text-sm font-bold">{t("Fichier de mon site ou de mon app", "File from my website or app", "ملف من موقعي أو تطبيقي")}</label>
+    <input id="tutor-source" dir="ltr" value={sourcePath} maxLength={600} disabled={pending} onChange={e => { setSourcePath(e.target.value); setMessages([]); }} placeholder="app/page.tsx" className="mt-2 min-h-12 w-full rounded-xl border px-3 text-sm" />
+    <p className="mt-2 text-xs leading-5 text-neutral-600">{t("Choisis un fichier dans Mes fichiers, puis clique sur Expliquer avec mon tuteur IA. Sans fichier, le tuteur utilise celui de la leçon choisie.", "Choose a file in My files, then select Explain with my AI tutor. Without a file, the tutor uses the selected lesson's file.", "اختر ملفاً من ملفاتي.")} <a href="#files" className="font-bold text-emerald-700 underline">{t("Mes fichiers", "My files", "ملفاتي")}</a></p>
     <div role="log" aria-live="polite" aria-label={t("Conversation avec le tuteur", "Tutor conversation", "محادثة المعلّم")} className="mt-4 max-h-[32rem] space-y-3 overflow-y-auto">
       {messages.map((message, index) => <div key={index} className={`rounded-2xl p-4 ${message.role === "user" ? "bg-neutral-100" : "bg-emerald-50"}`}>
         <p className="mb-2 text-xs font-bold">{message.role === "user" ? t("Moi", "Me", "أنا") : t("Tuteur IA", "AI tutor", "المعلّم الذكي")}</p>
+        {!!message.sources?.length && <div className="mb-3 flex flex-wrap gap-2">{message.sources.map(source => <a key={source.path} dir="ltr" href={`#files/${encodeURIComponent(source.path)}?line=${source.startLine}`} className="break-all text-xs font-semibold text-emerald-800 underline">{source.path}:{source.startLine}-{source.endLine}</a>)}</div>}
         <div dir={message.role === "user" ? "auto" : replyLanguage === "ar" || replyLanguage === "darija" ? "rtl" : "ltr"} className="space-y-3 text-sm leading-7">
           {message.content.split(/```(?:[\w+-]+)?\n?([\s\S]*?)```/g).map((part, i) => i % 2
             ? <pre key={i} dir="ltr" className="overflow-x-auto rounded-xl bg-neutral-900 p-3 text-left text-neutral-100"><code>{part}</code></pre>
@@ -85,7 +118,7 @@ export default function CodingTutor({ lang }: { lang: CourseLanguage }) {
     <form onSubmit={send} className="mt-4 space-y-3">
       <label htmlFor="tutor-question" className="block text-sm font-bold">{t("Ma question", "My question", "سؤالي")}</label>
       <textarea id="tutor-question" value={draft} onChange={e => setDraft(e.target.value)} maxLength={4000} rows={4} disabled={pending} required className="w-full rounded-xl border border-neutral-300 p-3 text-sm focus-visible:outline-emerald-600" placeholder={t("Explique-moi useState avec un exemple de ma boutique…", "Explain useState with a shop example…", "اشرح لي useState بمثال من المتجر…")} />
-      <p className="text-xs leading-5 text-neutral-500">{t("Ta question, les derniers échanges et la leçon choisie sont envoyés à OpenAI. Aucun fichier n’est partagé automatiquement. Ne colle pas de clé API, de mot de passe ou de données client. L’IA peut se tromper : teste les exemples localement.", "Your question, recent messages and selected lesson are sent to OpenAI. No files are shared automatically. Do not paste API keys, passwords or customer data. AI can make mistakes: test examples locally.", "يُرسل سؤالك وآخر الرسائل والدرس المختار إلى OpenAI. لا تُشارك الملفات تلقائيًا. لا ترسل مفاتيح API أو كلمات مرور أو بيانات العملاء. قد يخطئ الذكاء الاصطناعي؛ اختبر الأمثلة محليًا.")}</p>
+      <p className="text-xs leading-5 text-neutral-500">{t("Ta question, les derniers échanges et la leçon choisie sont envoyés à OpenAI. Un extrait du fichier choisi ou de la leçon est envoyé à OpenAI. Ne colle pas de clé API, de mot de passe ou de données client. L’IA peut se tromper : teste les exemples localement.", "Your question, recent messages and selected lesson are sent to OpenAI. An excerpt of the selected file or lesson file is shared with OpenAI to explain your actual code. Do not paste API keys, passwords or customer data. AI can make mistakes: test examples locally.", "يُرسل سؤالك وآخر الرسائل والدرس المختار إلى OpenAI. يُرسل مقتطف من الملف المختار إلى OpenAI. لا ترسل مفاتيح API أو كلمات مرور أو بيانات العملاء. قد يخطئ الذكاء الاصطناعي؛ اختبر الأمثلة محليًا.")}</p>
       {error && <p role="alert" className="rounded-xl bg-amber-50 p-3 text-sm text-amber-900">{errorText}</p>}
       <div className="flex flex-wrap gap-3">
         <button disabled={pending || !draft.trim()} className="min-h-12 rounded-xl bg-emerald-700 px-5 text-sm font-bold text-white disabled:opacity-50">{pending ? t("Le tuteur réfléchit…", "Tutor is thinking…", "المعلّم يفكّر…") : t("Demander au tuteur", "Ask the tutor", "اسأل المعلّم")}</button>

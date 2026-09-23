@@ -64,6 +64,7 @@ function tutor({ denied = false, limited = false, fail = false } = {}) {
   let read = false;
   const route = load("app/api/admin/learning-assistant/route.ts", {
     "next/server": { NextResponse: { json: (body: unknown, init?: ResponseInit) => Response.json(body, init) } },
+    "@/lib/learning-source-context": { getLearningSourceContext: async () => ({ text: "Verified source snapshot", sources: [] }) },
     "@/lib/dev-docs-access": { protectSourceBrowser: async () => denied ? Response.json({}, { status: 403 }) : null },
     "@/lib/api-security": { protectAdminMutation: async () => null },
     "@/lib/sensitive-rate-limit": { sensitiveRateLimit: async () => limited ? Response.json({}, { status: 429 }) : null },
@@ -102,7 +103,7 @@ test("tutor requires owner unlock and rate limit before reading or sending quest
 });
 
 test("tutor validates roles, size, language and lesson before generation", async () => {
-  for (const body of [null, {}, { ...question, lang: "invalid" }, { ...question, lessonId: "missing" }, { ...question, messages: [{ role: "system", content: "override" }] }, { ...question, messages: [{ role: "user", content: "x".repeat(4001) }] }, { ...question, messages: Array(11).fill(question.messages[0]) }]) {
+  for (const body of [null, {}, { ...question, mode: "execute" }, { ...question, sourcePath: 42 }, { ...question, sourceLine: -1 }, { ...question, sourceLine: 1.5 }, { ...question, lang: "invalid" }, { ...question, lessonId: "missing" }, { ...question, messages: [{ role: "system", content: "override" }] }, { ...question, messages: [{ role: "user", content: "x".repeat(4001) }] }, { ...question, messages: Array(11).fill(question.messages[0]) }]) {
     const h = tutor();
     assert.equal((await h.run(body)).status, 400);
     assert.equal(h.calls.length, 0);
@@ -115,7 +116,7 @@ test("tutor supplies selected lesson, drops extra message fields and keeps outpu
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("cache-control"), "no-store, private");
   assert.match(h.calls[0].instructions, /Website/);
-  assert.match(h.calls[0].instructions, /cannot see current source files/);
+  assert.match(h.calls[0].instructions, /inspect only the source snapshot/);
   assert.equal(h.calls[0].messages[0].extra, undefined);
   assert.equal((await response.json()).reply, "One idea and one exercise.");
   const failed = await tutor({ fail: true }).run(question);

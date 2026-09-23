@@ -5421,7 +5421,7 @@ export default function HowItWasBuiltPage() {
     const openDeepLinkedCourse = () => {
       if (window.location.hash.startsWith("#academy/")) setTab("academy");
       else if (window.location.hash.startsWith("#files")) setTab("files");
-      else if (window.location.hash === "#tutor") setTab("tutor");
+      else if (window.location.hash.startsWith("#tutor")) setTab("tutor");
       else if (!window.location.hash) setTab("start");
     };
     openDeepLinkedCourse();
