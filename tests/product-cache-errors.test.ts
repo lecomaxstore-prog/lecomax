@@ -31,6 +31,24 @@ test("storefront settings use the public cache and recover after a failed read",
   assert.equal(JSON.stringify(await settings.getStorefrontSettings()), JSON.stringify({ store_name: "Updated store", shipping_cost: "25" }));
 });
 
+test("review stats recover after an outage without a background cache exception", async () => {
+  let result: { data: unknown; error: unknown } = { data: null, error: new Error("offline") };
+  const query = { select: () => query, eq: async () => result };
+  const db = load("../lib/db-server.ts", {
+    react: { cache: (fn: unknown) => fn },
+    "next/cache": { unstable_cache: () => { throw new Error("unexpected background cache wrapper"); } },
+    "./supabase-server": {
+      createPublicSupabaseClient: (tags: string[]) => {
+        assert.deepEqual(Array.from(tags), ["storefront-reviews"]);
+        return { from: () => query };
+      },
+    },
+  });
+  assert.equal(JSON.stringify(await db.getReviewStats()), "{}");
+  result = { data: [{ product_slug: "shoe", rating: 4 }, { product_slug: "shoe", rating: 5 }], error: null };
+  assert.equal(JSON.stringify(await db.getReviewStats()), JSON.stringify({ shoe: { rating: 4.5, count: 2 } }));
+});
+
 test("database failures propagate through product metadata instead of becoming cacheable 404s", async () => {
   let result: { data: unknown; error: unknown } = { data: null, error: new Error("database unavailable") };
   const query = { select: () => query, eq: () => query, maybeSingle: async () => result };

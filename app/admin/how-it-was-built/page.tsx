@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
-import CodeLibrary from "./CodeLibrary";
+import DailyLearning from "./DailyLearning";
 import { translate } from "./course/journey";
+import CodeLibrary from "./CodeLibrary";
 
 const AcademySection = dynamic(() => import("./AcademySection"), {
   loading: () => (
@@ -5012,7 +5013,7 @@ function SearchSec({ lang }: { lang: Lang }) {
 }
 
 // ─── START HERE ────────────────────────────────────────────────────────────────
-function StartHereSection({ onNavigate }: { onNavigate: (tab: string) => void }) {
+function StartHereSection({ onNavigate, lang }: { onNavigate: (tab: string) => void; lang: Lang }) {
   const [copied, setCopied] = useState("");
   const [done, setDone] = useState<boolean[]>([false, false, false, false, false]);
   const [activeCodeLine, setActiveCodeLine] = useState(0);
@@ -5190,10 +5191,14 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6">
+      <DailyLearning lang={lang} onAcademy={() => onNavigate("academy")} />
+      <details className="rounded-3xl border border-neutral-200 bg-white p-4">
+        <summary className="min-h-12 cursor-pointer font-bold">{translate(lang, "Aller plus loin · ateliers et ressources", "Go deeper · workshops and resources", "تعمّق أكثر · ورش وموارد")}</summary>
+        <div className="mt-4 space-y-6">
       <section className="relative overflow-hidden rounded-3xl bg-[#0d0d0d] p-5 text-white sm:p-8">
         <div className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#3ecf4c]/20 blur-3xl" />
         <div className="relative max-w-3xl">
-          <span className="inline-flex rounded-full border border-[#3ecf4c]/30 bg-[#3ecf4c]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[.2em] text-[#3ecf4c]">Commence ici</span>
+          <span className="inline-flex rounded-full border border-[#3ecf4c]/30 bg-[#3ecf4c]/10 px-3 py-1 text-[10px] font-black uppercase tracking-[.2em] text-[#3ecf4c]">Ressources complémentaires</span>
           <h2 className="mt-4 text-2xl font-black leading-tight sm:text-4xl">Apprends à construire L&apos;ecomax,<br className="hidden sm:block" /> une petite victoire à la fois.</h2>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-white/55">Tu n&apos;as pas besoin de tout mémoriser. Les 192 leçons avancent du premier symbole de code jusqu&apos;à Next.js, Supabase, design, sourcing, import, vente, SEO et acquisition. Fais un petit changement, regarde la preuve, puis recommence.</p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -5360,6 +5365,8 @@ export default function ProductsPage() {
       <section className="grid gap-3 sm:grid-cols-3">
         {[['Tu es bloqué par une erreur ?','Ouvre la méthode de diagnostic : terminal, navigateur, réseau et base de données.','debug'],['Tu veux comprendre les données ?','Apprends tables, SQL, RLS, authentification et requêtes Supabase.','supabase'],['Tu veux explorer un vrai fichier ?','Cherche une page ou un composant et lis ses imports, son export et ses fonctions.','files']].map(([title, desc, target]) => <button key={target} onClick={() => onNavigate(target)} className="min-h-12 rounded-2xl border border-gray-100 bg-white p-4 text-start shadow-sm transition hover:border-[#3ecf4c]/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277]"><p className="text-sm font-black sm:text-xs">{title}</p><p className="mt-1 text-[13px] leading-relaxed text-gray-500 sm:text-[11px]">{desc}</p><span className="mt-3 inline-block text-xs font-black text-[#16b277] sm:text-[10px]">Ouvrir →</span></button>)}
       </section>
+        </div>
+      </details>
     </div>
   );
 }
@@ -5563,7 +5570,7 @@ export default function HowItWasBuiltPage() {
         className="mx-auto min-w-0 max-w-7xl scroll-mt-36 px-3 py-4 outline-none sm:px-6 sm:py-6 md:scroll-mt-40"
       >
         {tab === "hero"   && <HeroSection lang={lang} />}
-        {tab === "start"  && <StartHereSection onNavigate={id => selectTab(id as TabId)} />}
+        {tab === "start"  && <StartHereSection lang={lang} onNavigate={id => selectTab(id as TabId)} />}
         {tab === "game" && <CodeCoachGame lang={lang} />}
         {tab === "academy" && <AcademySection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}

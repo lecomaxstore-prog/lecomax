@@ -200,8 +200,19 @@ export async function GET(request: NextRequest) {
   const nextDateKey = addCalendarDays(todayKey, 1);
   const periodStart = casablancaMidnightToUtc(firstDateKey).toISOString();
   const periodEnd = casablancaMidnightToUtc(nextDateKey).toISOString();
+  // Bound the entire database read, including pagination and response bodies.
+  const databaseDeadline = AbortSignal.timeout(12_000);
   const supabase = createClient(supabaseUrl, serviceRoleKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    global: {
+      fetch: (input, init) => fetch(input, {
+        ...init,
+        cache: "no-store",
+        signal: init?.signal
+          ? AbortSignal.any([init.signal, databaseDeadline])
+          : databaseDeadline,
+      }),
+    },
   });
 
   try {

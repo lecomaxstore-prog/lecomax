@@ -36,3 +36,18 @@ test("changing pages or periods cancels outstanding retries", async () => {
   await assert.rejects(requestDashboard("/dashboard", controller.signal, fetcher, async () => { controller.abort(); }), { name: "AbortError" });
   assert.equal(calls, 1);
 });
+
+test("an unresponsive server times out instead of leaving the dashboard loading", async () => {
+  let calls = 0;
+  let requestSignal: AbortSignal | undefined;
+  const fetcher: typeof fetch = async (_url, init) => {
+    calls++;
+    requestSignal = init?.signal as AbortSignal;
+    return new Promise((_resolve, reject) => {
+      requestSignal!.addEventListener("abort", () => reject(requestSignal!.reason), { once: true });
+    });
+  };
+  await assert.rejects(requestDashboard("/dashboard", new AbortController().signal, fetcher, async () => {}, 20), { name: "TimeoutError" });
+  assert.equal(requestSignal?.aborted, true);
+  assert.equal(calls, 1);
+});

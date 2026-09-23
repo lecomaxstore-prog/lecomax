@@ -13,6 +13,28 @@ export async function requestDashboard(
   signal: AbortSignal,
   fetcher: typeof fetch = fetch,
   wait: (milliseconds: number, signal: AbortSignal) => Promise<void> = waitForRetry,
+  timeoutMs = 20_000,
+) {
+  const controller = new AbortController();
+  const cancel = () => controller.abort(signal.reason);
+  signal.addEventListener("abort", cancel, { once: true });
+  if (signal.aborted) cancel();
+  const timer = setTimeout(() => controller.abort(new DOMException(
+    "Le serveur met trop de temps à répondre. Réessayez dans quelques instants.", "TimeoutError",
+  )), timeoutMs);
+  try {
+    return await requestWithRetry(url, controller.signal, fetcher, wait);
+  } finally {
+    clearTimeout(timer);
+    signal.removeEventListener("abort", cancel);
+  }
+}
+
+async function requestWithRetry(
+  url: string,
+  signal: AbortSignal,
+  fetcher: typeof fetch,
+  wait: (milliseconds: number, signal: AbortSignal) => Promise<void>,
 ) {
   for (let attempt = 0; attempt < 3; attempt++) {
     signal.throwIfAborted();

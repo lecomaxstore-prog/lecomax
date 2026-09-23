@@ -55,14 +55,14 @@ function NotificationsEmpty() {
     <Animated.View entering={FadeInDown.duration(650).reduceMotion(ReduceMotion.System)} style={styles.emptyContainer}>
       <View className="overflow-hidden rounded-[28px] border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900" style={styles.emptyCard}>
         <View pointerEvents="none" style={styles.illustration} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-          <View style={styles.outerOrbit} />
-          <View style={styles.innerOrbit} />
-          <Animated.View entering={ZoomIn.delay(180).duration(650).reduceMotion(ReduceMotion.System)} style={styles.bellTile}>
-            <Ionicons name="notifications-outline" size={42} color="#214D37" />
-            <View style={styles.checkBadge}><Ionicons name="checkmark" size={15} color="#FFFFFF" /></View>
+          <Animated.View entering={ZoomIn.delay(180).duration(650).reduceMotion(ReduceMotion.System)} style={styles.illustrationImage}>
+            <Image
+              source={require("../../assets/images/illustrations/notifications-caught-up.png")}
+              style={styles.illustrationImage}
+              contentFit="contain"
+              accessible={false}
+            />
           </Animated.View>
-          <View style={[styles.orbitDot, { top: 29, right: 25 }]} />
-          <View style={[styles.orbitDot, { bottom: 32, left: 24, width: 5, height: 5, opacity: 0.5 }]} />
         </View>
         <Text accessibilityRole="header" className="text-ink dark:text-white" style={styles.emptyTitle}>{msg("notifications.youReAllCaughtUp")}</Text>
         <Text className="text-muted dark:text-neutral-400" style={styles.emptyDescription}>{msg("notifications.offersNewArrivalsAndImportantInformationWillAppearHere")}</Text>
@@ -72,16 +72,16 @@ function NotificationsEmpty() {
         </AnimatedPressable>
       </View>
       <View style={styles.updatesInfo}>
-        <Text className="text-muted dark:text-neutral-400" style={styles.infoEyebrow}>{msg("notifications.whatToExpect")}</Text>
+        <Text accessibilityRole="header" className="text-ink dark:text-white" style={styles.infoHeading}>{msg("notifications.whatToExpect")}</Text>
         {([
           ["pricetag-outline", "notifications.offersAndNewArrivals", "notifications.promotionsNewProductsAndLEcomaxBenefits"],
           ["cube-outline", "notifications.ordersAndAccount", "notifications.orderTrackingAndImportantAccountInformation"],
         ] as const).map(([icon, title, description]) => (
-          <View key={title} style={styles.infoRow}>
-            <View className="bg-white dark:bg-neutral-800" style={styles.infoIcon}><Ionicons name={icon} size={19} color="#6B8473" /></View>
-            <View style={{ flex: 1 }}>
+          <View key={title} className="border border-[#E4EBE6] bg-white dark:border-neutral-800 dark:bg-neutral-900" style={styles.infoRow}>
+            <View className="bg-[#EDF5EF] dark:bg-[#243D2E]" style={styles.infoIcon} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"><Ionicons name={icon} size={22} color="#4D8060" /></View>
+            <View style={styles.infoCopy}>
               <Text className="text-ink dark:text-neutral-200" style={styles.infoTitle}>{msg(title)}</Text>
-              <Text className="text-muted dark:text-neutral-400" style={styles.infoDescription}>{msg(description)}</Text>
+              <Text className="text-[#66736A] dark:text-neutral-400" style={styles.infoDescription}>{msg(description)}</Text>
             </View>
           </View>
         ))}
@@ -131,23 +131,20 @@ function NotificationsError({ onRetry, retrying }: { onRetry: () => void; retryi
 const styles = StyleSheet.create({
   emptyContainer: { width: "100%", maxWidth: 520, alignSelf: "center" },
   emptyCard: { alignItems: "center", paddingHorizontal: 24, paddingTop: 24, paddingBottom: 28 },
-  illustration: { width: 180, height: 172, alignItems: "center", justifyContent: "center", marginBottom: 14 },
-  outerOrbit: { position: "absolute", width: 160, height: 160, borderRadius: 80, backgroundColor: "#EDF6EE" },
-  innerOrbit: { position: "absolute", width: 124, height: 124, borderRadius: 62, borderWidth: 1, borderColor: "#D7E9DC" },
-  bellTile: { width: 88, height: 88, borderRadius: 28, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center", shadowColor: "#214D37", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 18, elevation: 3 },
-  checkBadge: { position: "absolute", bottom: -3, right: -3, width: 28, height: 28, borderRadius: 14, backgroundColor: "#279947", borderWidth: 3, borderColor: "#FFFFFF", alignItems: "center", justifyContent: "center" },
-  orbitDot: { position: "absolute", width: 8, height: 8, borderRadius: 4, backgroundColor: "#72AC80" },
+  illustration: { width: 220, height: 196, alignItems: "center", justifyContent: "center", marginBottom: 14 },
+  illustrationImage: { width: 220, height: 220 },
   emptyTitle: { fontFamily: "Inter_700Bold", fontSize: 23, lineHeight: 30, letterSpacing: -0.7, textAlign: "center" },
   emptyDescription: { maxWidth: 290, fontFamily: "Inter_400Regular", fontSize: 14, lineHeight: 22, textAlign: "center", marginTop: 10 },
   exploreButton: { marginTop: 26, minHeight: 54, width: "100%", maxWidth: 290, borderRadius: 27, backgroundColor: "#193D2B", paddingLeft: 24, paddingRight: 8, paddingVertical: 8, flexDirection: "row", gap: 16, alignItems: "center", justifyContent: "space-between" },
   exploreLabel: { flexShrink: 1, fontFamily: "Inter_600SemiBold", fontSize: 14, color: "#FFFFFF" },
   exploreArrow: { width: 36, height: 36, borderRadius: 18, backgroundColor: "#31533F", alignItems: "center", justifyContent: "center" },
-  updatesInfo: { paddingHorizontal: 12, paddingTop: 28 },
-  infoEyebrow: { fontFamily: "Inter_600SemiBold", fontSize: 10, letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 18 },
-  infoRow: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 20 },
-  infoIcon: { width: 42, height: 42, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  infoTitle: { fontFamily: "Inter_600SemiBold", fontSize: 13, lineHeight: 19 },
-  infoDescription: { fontFamily: "Inter_400Regular", fontSize: 12, lineHeight: 18, marginTop: 3 },
+  updatesInfo: { paddingTop: 26, gap: 10 },
+  infoHeading: { fontFamily: "Inter_600SemiBold", fontSize: 15, lineHeight: 22, letterSpacing: -0.3, marginBottom: 4, paddingHorizontal: 4 },
+  infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 14, padding: 16, borderRadius: 20 },
+  infoIcon: { width: 44, height: 44, flexShrink: 0, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  infoCopy: { flex: 1, minWidth: 0, paddingTop: 1 },
+  infoTitle: { fontFamily: "Inter_600SemiBold", fontSize: 14, lineHeight: 20, letterSpacing: -0.2 },
+  infoDescription: { fontFamily: "Inter_400Regular", fontSize: 13, lineHeight: 20, marginTop: 4 },
   retryButton: {
     width: "100%",
     minHeight: 52,

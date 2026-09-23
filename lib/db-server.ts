@@ -4,8 +4,7 @@
  */
 import { apiToCard, type CardProduct } from "./products";
 import { cache } from "react";
-import { unstable_cache } from "next/cache";
-import { createPublicSupabaseClient, createServerSupabaseClient } from "./supabase-server";
+import { createPublicSupabaseClient } from "./supabase-server";
 import { selectPromotionProducts } from "@/mobile/src/lib/store-promotions";
 
 function getClient() {
@@ -70,8 +69,8 @@ export async function getDbProducts(options?: {
 }
 
 /** Fetch average rating + count per product slug from the reviews table. */
-const loadReviewStats = unstable_cache(async (): Promise<Record<string, { rating: number; count: number }>> => {
-    const sb = createServerSupabaseClient();
+const loadReviewStats = async (): Promise<Record<string, { rating: number; count: number }>> => {
+    const sb = createPublicSupabaseClient(["storefront-reviews"]);
     const { data, error } = await sb.from("reviews").select("product_slug,rating").eq("verified_purchase", true);
     if (error) throw error;
     if (!data || data.length === 0) return {};
@@ -87,8 +86,10 @@ const loadReviewStats = unstable_cache(async (): Promise<Record<string, { rating
         { rating: Math.round((sum / count) * 10) / 10, count },
       ])
     );
-}, ["storefront-review-stats-v1"], { revalidate: 300, tags: ["storefront-reviews"] });
+};
 
+// Cache successful HTTP reads, keeping failures within the caller's fallback
+// instead of throwing from an unstable_cache background refresh.
 export const getReviewStats = cache(async () => {
   try { return await loadReviewStats(); } catch { return {}; }
 });
