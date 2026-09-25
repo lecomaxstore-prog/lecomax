@@ -1,3 +1,5 @@
+> Current status: see [25 September 2026 readiness report](../readiness-20260925.md). Older validation and build claims below are historical.
+
 # Informations de l’application
 
 - **Nom :** Lecomax

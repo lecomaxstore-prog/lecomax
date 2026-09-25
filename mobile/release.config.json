@@ -1,17 +1,13 @@
 {
-  "versionName": "1.0.8",
-  "versionCode": 28,
+  "versionName": "1.0.9",
+  "versionCode": 30,
   "minimumAndroidVersion": "8.0",
-  "apkFileName": "lecomax-v1.0.8.apk",
+  "apkFileName": "lecomax-v1.0.9.apk",
   "required": false,
   "releaseNotes": [
-    "Improved input visibility when the keyboard is open.",
-    "Correction du blocage après la vidéo d’introduction sur Android.",
-    "Correction du chargement de l’accueil et des compteurs en français et en anglais sur Android.",
-    "Nouvelle interface de la boutique, adaptée aux téléphones et tablettes.",
-    "Fiches produits, recherche, panier et parcours de commande améliorés.",
-    "Comptes clients, notifications et assistance avec pièces jointes améliorés.",
-    "Synchronisation des prix et des paramètres avec la boutique en ligne.",
-    "Corrections de navigation et de fiabilité du chargement."
+    "Amélioration du catalogue, de la recherche et des fiches produits.",
+    "Galerie photo et navigation améliorées.",
+    "Assistant shopping et saisie des messages améliorés.",
+    "Corrections de fiabilité du compte et du parcours de commande."
   ]
 }

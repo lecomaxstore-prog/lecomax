@@ -1,3 +1,5 @@
+> Current status: see [25 September 2026 readiness report](readiness-20260925.md). Older validation and build claims below are historical.
+
 # Lecomax — dossier de mise en production
 
 Ce dossier prépare la version mobile `1.0.3` pour Google Play et l’App Store. Il ne contient ni identifiant, ni secret, ni certificat, ni binaire factice. Aucun envoi aux stores n’a été effectué.
