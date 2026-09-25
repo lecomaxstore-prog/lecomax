@@ -1,4 +1,4 @@
-import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA } from "@/lib/social-image";
+import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA, SOCIAL_TITLE, SOCIAL_DESCRIPTION } from "@/lib/social-image";
 import { isBestsellerEligible, selectBestsellers } from "@/lib/bestseller-eligibility";
 import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata } from "next";
@@ -46,14 +46,14 @@ const defaultHomeMetadata: Metadata = {
     locale: "fr_MA",
     url: SITE_URL_PAGE,
     siteName: "L'ecomax",
-    title: STOREFRONT_TITLE,
-    description: STOREFRONT_DESCRIPTION,
+    title: SOCIAL_TITLE,
+    description: SOCIAL_DESCRIPTION,
     images: [SOCIAL_IMAGE_METADATA],
   },
   twitter: {
     card: "summary_large_image",
-    title: STOREFRONT_TITLE,
-    description: STOREFRONT_DESCRIPTION,
+    title: SOCIAL_TITLE,
+    description: SOCIAL_DESCRIPTION,
     images: [OFFICIAL_SOCIAL_IMAGE],
   },
 };

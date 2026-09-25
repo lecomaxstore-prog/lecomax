@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { enforceRateLimit } from "@/lib/api-security";
-import { generateProductTranslation, MAX_TRANSLATION_SOURCE, translationFingerprint } from "@/lib/product-translation";
-import { ProductTranslationCache } from "@/lib/product-translation-cache";
-
-const temporaryCache = new ProductTranslationCache();
+import { ensureProductTranslation } from "@/lib/product-translation-store";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -25,51 +22,15 @@ async function handle(req: NextRequest, generate: boolean) {
     const { data: product, error } = await db.from("products").select("id,name,brand,description").eq("slug", slug).eq("active", true).maybeSingle();
     if (error) return reply({ error: "Catalogue unavailable" }, 503);
     if (!product) return reply({ error: "Product not found" }, 404);
-    const source = (product.description || "").trim();
-    if (!source || source.length > MAX_TRANSLATION_SOURCE) return reply({ status: "unavailable" });
-    const hash = translationFingerprint(product.name, product.brand || "", source, locale);
-    const match = { product_id: product.id, locale, source_hash: hash };
-    const ready = (description: string) => reply({ status: "ready", locale, source_description: source, description });
-    const temporary = temporaryCache.get(hash);
-    if (temporary) return ready(temporary);
-    const { data: cached, error: cacheError } = await db.from("product_translations").select("status,description,retry_after").match(match).maybeSingle();
-    const missingTable = cacheError?.code === "PGRST205" || cacheError?.code === "42P01";
-    if (cacheError && !missingTable) return reply({ error: "Translation storage unavailable" }, 503);
-    if (cached?.status === "ready" && cached.description) {
-      await temporaryCache.generate(hash, async () => cached.description);
-      return ready(cached.description);
-    }
-    if (cached && Date.parse(cached.retry_after) > Date.now()) {
-      return reply({ status: cached.status === "pending" ? "pending" : "unavailable", retry_after: cached.retry_after }, 202);
-    }
-    if (!generate) return reply({ status: "missing" });
-    if (!process.env.GROQ_API_KEY) return reply({ error: "Translation unavailable" }, 503);
+    // Reads remain available even when the generation rate limit is reached.
+    const existing = await ensureProductTranslation(db, product, locale, false);
+    if (existing.status !== "missing" || !generate) return reply(existing, existing.status === "pending" ? 202 : 200);
     const limited = enforceRateLimit(req, "product-translations:generate", 8, 60000);
     if (limited) return limited;
-    const generateTemporary = () => temporaryCache.generate(hash, async () => {
-      const result = await generateProductTranslation({ name: product.name, brand: product.brand || "", description: source, locale });
-      return result.description;
-    });
-    if (missingTable) return ready(await generateTemporary());
-    const { data: claimed, error: claimError } = await db.rpc("claim_product_translation", { p_product_id: product.id, p_source_hash: hash, p_locale: locale });
-    if (claimError?.code === "PGRST202" || claimError?.code === "42883") return ready(await generateTemporary());
-    if (claimError) return reply({ error: "Translation unavailable" }, 503);
-    if (!claimed) return reply({ status: "pending" }, 202);
-    try {
-      const result = await generateProductTranslation({ name: product.name, brand: product.brand || "", description: source, locale });
-      await temporaryCache.generate(hash, async () => result.description);
-      const { error: saveError } = await db.from("product_translations").update({ ...result, status: "ready", updated_at: new Date().toISOString() }).match(match);
-      if (saveError) {
-        console.error("Product translation persistence failed", saveError.code);
-        await temporaryCache.generate(hash, async () => result.description);
-      }
-      return ready(result.description);
-    } catch (generationError) {
-      await db.from("product_translations").update({ status: "failed", retry_after: new Date(Date.now() + 30000).toISOString(), updated_at: new Date().toISOString() }).match(match);
-      console.error("Product translation failed", generationError instanceof Error ? generationError.message : "Unknown error");
-      return reply({ error: "Translation temporarily unavailable" }, 503);
-    }
-  } catch {
+    const result = await ensureProductTranslation(db, product, locale);
+    return reply(result, result.status === "pending" ? 202 : 200);
+  } catch (error) {
+    console.error("Product translation failed", error instanceof Error ? error.message : "Unknown error");
     return reply({ error: "Translation temporarily unavailable" }, 503);
   }
 }

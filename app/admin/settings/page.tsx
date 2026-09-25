@@ -74,7 +74,7 @@ const DEFAULT_SETTINGS: SettingsMap = {
   hero_image: "/images/hero secrtion/hero section web version.png",
   hero_image_mobile: "/images/hero secrtion/hero section mobile version.png",
   email_banner_image: "/images/email image/email image.png",
-  og_image: "/images/social/lecomax-premium-v1.jpg",
+  og_image: "/images/social/lecomax-share-v3.jpg",
   ...STORE_SETTING_DEFAULTS,
 };
 

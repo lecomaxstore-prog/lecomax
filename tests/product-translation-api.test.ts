@@ -4,7 +4,7 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
-import { ProductTranslationCache } from "../lib/product-translation-cache.ts";
+
 import { translationFingerprint, MAX_TRANSLATION_SOURCE } from "../lib/product-translation.ts";
 
 function setup(options: { missingTable?: boolean; missingRpc?: boolean; pending?: boolean; hidden?: boolean } = {}) {
@@ -30,17 +30,22 @@ function setup(options: { missingTable?: boolean; missingRpc?: boolean; pending?
     "next/server": { NextResponse: { json: (body: unknown, init: ResponseInit) => Response.json(body, init) } },
     "@supabase/supabase-js": { createClient: () => db },
     "@/lib/api-security": { enforceRateLimit: () => null },
-    "@/lib/product-translation-cache": { ProductTranslationCache },
-    "@/lib/product-translation": {
-      translationFingerprint, MAX_TRANSLATION_SOURCE,
-      generateProductTranslation: async (input: any) => { generated.push(input.locale); return { description: input.locale === "fr" ? "Une poche kangourou" : "A kangaroo pocket", model: "test" }; },
+
+    "@/lib/product-translation-store": {
+      ensureProductTranslation: async (_db: unknown, _product: unknown, locale: string, generate = true) => {
+        if (options.missingTable || options.missingRpc) throw new Error("Storage unavailable");
+        if (options.pending) return { status: "pending" };
+        if (!generate) return { status: "missing" };
+        generated.push(locale);
+        return { status: "ready", locale, description: locale === "fr" ? "Une poche kangourou" : "A kangaroo pocket" };
+      },
     },
   };
   const exports: any = {};
   vm.runInNewContext(ts.transpileModule(readFileSync("app/api/product-translations/route.ts", "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText, {
-    exports, console, process: { env: { NEXT_PUBLIC_SUPABASE_URL: "https://example.invalid", SUPABASE_SERVICE_ROLE_KEY: "test", GROQ_API_KEY: "test" } },
+    exports, console, process: { env: { NEXT_PUBLIC_SUPABASE_URL: "https://example.invalid", SUPABASE_SERVICE_ROLE_KEY: "test", OPENAI_API_KEY: "test" } },
     require: (name: string) => {
       const securityModule = securityIo(name); if (securityModule) return securityModule; if (!(name in mocks)) throw new Error(name); return mocks[name]; },
   });
@@ -50,19 +55,15 @@ function setup(options: { missingTable?: boolean; missingRpc?: boolean; pending?
   };
 }
 
-test("missing translation table no longer prevents translation, caching or source edits", async () => {
-  const api = setup({ missingTable: true });
-  assert.equal((await (await api.request("GET")).json()).status, "missing");
-  assert.equal((await (await api.request("POST")).json()).description, "A kangaroo pocket");
-  assert.equal((await (await api.request("GET")).json()).status, "ready");
-  assert.equal((await (await api.request("POST", "fr")).json()).locale, "fr");
-  assert.deepEqual(api.generated, ["en", "fr"]);
-  api.product.description = "Une nouvelle description";
-  assert.equal((await (await api.request("GET")).json()).status, "missing");
-  assert.equal(api.claims.length, 0);
+test("missing storage returns an error without generating", async () => {
+  for (const options of [{ missingTable: true }, { missingRpc: true }]) {
+    const api = setup(options);
+    assert.equal((await api.request("POST")).status, 503);
+    assert.equal(api.generated.length, 0);
+  }
 });
 
-test("pending requests poll without generating or claiming again", async () => {
+test("pending translations return 202 without generation", async () => {
   const api = setup({ pending: true });
   for (const method of ["GET", "POST"]) {
     const response = await api.request(method);
@@ -70,13 +71,14 @@ test("pending requests poll without generating or claiming again", async () => {
     assert.equal((await response.json()).status, "pending");
   }
   assert.equal(api.generated.length, 0);
-  assert.equal(api.claims.length, 0);
 });
 
-test("missing bilingual RPC uses fallback; invalid locales and unpublished products cannot generate", async () => {
-  const api = setup({ missingRpc: true });
-  assert.equal((await api.request("POST", "fr")).status, 200);
-  assert.equal(api.claims[0].p_locale, "fr");
+test("only POST generates; invalid languages and hidden products are rejected", async () => {
+  const api = setup();
+  assert.equal((await (await api.request("GET")).json()).status, "missing");
+  assert.equal(api.generated.length, 0);
+  assert.equal((await (await api.request("POST", "fr")).json()).locale, "fr");
+  assert.deepEqual(api.generated, ["fr"]);
   assert.equal((await api.request("POST", "de")).status, 400);
   const hidden = setup({ hidden: true });
   assert.equal((await hidden.request("POST")).status, 404);

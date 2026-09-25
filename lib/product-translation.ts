@@ -41,45 +41,33 @@ export async function generateProductTranslation(input: { name: string; brand: s
   if (!input.description.trim() || input.description.length > MAX_TRANSLATION_SOURCE) throw new Error("Invalid translation source");
   const locale = input.locale ?? "en";
   if (locale !== "en" && locale !== "fr") throw new Error("Unsupported translation language");
-  const apiKey = process.env.GROQ_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("Translation provider is not configured");
-  const models = [process.env.PRODUCT_TRANSLATION_MODEL || "openai/gpt-oss-120b", process.env.PRODUCT_TRANSLATION_FALLBACK_MODEL || "llama-3.3-70b-versatile"];
-  let lastError: unknown;
-  for (const model of models) {
-    try {
-      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-        signal: AbortSignal.timeout(20000),
-        body: JSON.stringify({
-          model,
-          temperature: 0.1,
-          max_completion_tokens: 7000,
-          messages: [
-            { role: "system", content: instructions + ` Target language: ${locale === "fr" ? "French" : "British English"}. Before returning, compare your translation with the source sentence by sentence and correct omissions, mistranslations and unsupported claims.` },
-            { role: "user", content: JSON.stringify(input) },
-          ],
-          response_format: { type: "json_object" },
-        }),
-      });
-      if (!response.ok) {
-        // Credentials failures cannot be repaired by trying another model.
-        if (response.status === 401 || response.status === 403) throw new TranslationConfigurationError();
-        throw new Error(`Translation provider status ${response.status}`);
-      }
-      const payload = await response.json();
-      const choice = payload.choices?.[0];
-      if (choice?.finish_reason !== "stop") throw new Error("Translation was not completed");
-      const parsed = JSON.parse(choice.message.content);
-      return { description: validateProductTranslation(input.description, parsed.description, input.brand), model };
-    } catch (error) {
-      if (error instanceof TranslationConfigurationError) throw error;
-      lastError = error;
-    }
-  }
-  throw lastError;
-}
-
-class TranslationConfigurationError extends Error {
-  constructor() { super("Translation provider credentials were rejected"); }
+  const model = process.env.OPENAI_TRANSLATION_MODEL || process.env.OPENAI_MODEL || "gpt-6-sol";
+  // One provider attempt. The database coordinates retries across visitors.
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: { Authorization: "Bearer " + apiKey, "Content-Type": "application/json" },
+    signal: AbortSignal.timeout(40000),
+    body: JSON.stringify({
+      model,
+      ...(model === "gpt-6-sol" ? { reasoning: { effort: "none" } } : {}),
+      store: false,
+      max_output_tokens: 7000,
+      instructions: instructions + " Target language: " + (locale === "fr" ? "French" : "British English") + ". Before returning, compare your translation with the source sentence by sentence and correct omissions, mistranslations and unsupported claims.",
+      input: [{ role: "user", content: JSON.stringify(input) }],
+      text: { format: {
+        type: "json_schema", name: "product_translation", strict: true,
+        schema: { type: "object", properties: { description: { type: "string" } }, required: ["description"], additionalProperties: false },
+      } },
+    }),
+  });
+  if (!response.ok) throw new Error("OpenAI translation status " + response.status);
+  const payload = await response.json();
+  if (payload.status !== "completed") throw new Error("Translation was not completed");
+  const output = (payload.output ?? []).flatMap((item: { type: string; content?: { type: string; text?: string }[] }) =>
+    item.type === "message" ? (item.content ?? []).filter(part => part.type === "output_text").map(part => part.text ?? "") : []
+  ).join("");
+  const parsed = JSON.parse(output);
+  return { description: validateProductTranslation(input.description, parsed.description, input.brand), model };
 }

@@ -314,11 +314,9 @@ export default function WishlistScreen() {
       </View>
 
       <View style={styles.intro}>
-        <View style={styles.introTop}><Text style={styles.introEyebrow}>{msg("wishlist.yourPersonalSelectionUppercase")}</Text><View style={styles.savedPill}><Ionicons name="heart-outline" size={12} color="#526B50" /><Text style={styles.savedPillText}>{savedCount}</Text></View></View>
-        <Text style={styles.title}>
+        <Text accessibilityRole="header" style={styles.title}>
           {!settings.app_wishlist_section_title?.trim() || settings.app_wishlist_section_title.trim().toUpperCase() === 'MES FAVORIS' ? msg("common.myFavorites") : settings.app_wishlist_section_title.trim()}
         </Text>
-        <Text style={styles.introDescription}>{msg("wishlist.keepYourFavoritesClose")}</Text>
         <Text accessibilityLiveRegion="polite" style={styles.subtitle}>
           {subtitle}
         </Text>
@@ -332,7 +330,8 @@ export default function WishlistScreen() {
         />
       ) : null}
 
-      <View accessibilityRole="tablist" style={styles.filters}>
+      <View style={styles.filters}>
+        <View accessibilityRole="tablist" style={styles.filterTabs}>
         <FilterButton
           active={!inStockOnly}
           label={msg("favorites.allCount", { count: savedCount })}
@@ -343,11 +342,17 @@ export default function WishlistScreen() {
           label={msg("productCard.inStock")}
           onPress={() => setInStockOnly(true)}
         />
-        <FilterButton
-          icon="swap-vertical"
-          label={msg("wishlist.sort")}
+        </View>
+        <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel={msg("wishlist.sort")}
+          accessibilityState={{ expanded: sortOpen }}
           onPress={() => setSortOpen(true)}
-        />
+          style={styles.sortTrigger}
+        >
+          <Ionicons name="options-outline" size={17} color="#38513D" />
+          <Text style={styles.sortTriggerText}>{msg("wishlist.sort")}</Text>
+        </AnimatedPressable>
       </View>
 
       {split.removed.length > 0 ? (
@@ -869,19 +874,14 @@ function VariantGroup({
 }
 
 const styles = StyleSheet.create({
-  introDescription: {fontFamily:typography.regular,fontSize:11,lineHeight:18,color:'#7E8973',marginTop:3},
-  savedPillText: {fontFamily:typography.medium,fontSize:10,color:'#526B50'},
-  savedPill: {flexDirection:'row',alignItems:'center',gap:5,paddingHorizontal:9,paddingVertical:5,borderRadius:12,backgroundColor:'#E4EBD9'},
-  introEyebrow: {fontFamily:typography.semibold,fontSize:7,letterSpacing:1.7,color:'#849175'},
-  introTop: {flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:8,marginBottom:9},
-  listContent: {flexGrow:1,paddingHorizontal:18,backgroundColor:'#FAFBF7'},
+  listContent: {flexGrow:1,paddingHorizontal:18,backgroundColor:'#FAFBF9'},
   header: {minHeight:70,flexDirection:'row',alignItems:'center',justifyContent:'space-between'},
   headerAction: {position:'relative',width:42,height:42,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'#E8EBE2',borderRadius:21,backgroundColor:'#FFFFFF'},
   cartBadge: {position:'absolute',right:-2,top:-2,minWidth:17,height:17,paddingHorizontal:4,alignItems:'center',justifyContent:'center',borderWidth:2,borderColor:'#FAFBF7',borderRadius:9,backgroundColor:'#244A34'},
   cartBadgeText: {color:palette.white,fontFamily:typography.semibold,fontSize:8},
-  intro: {paddingHorizontal:19,paddingTop:17,paddingBottom:19,marginTop:6,marginBottom:18,borderRadius:23,backgroundColor:'#EFF2E7'},
-  title: {color:'#263F2B',fontFamily:typography.medium,fontSize:32,lineHeight:38,letterSpacing:-1.1},
-  subtitle: {marginTop:10,color:'#9AA38E',fontFamily:typography.regular,fontSize:9},
+  intro: {paddingTop:12,paddingBottom:20},
+  title: {color:'#263F2B',fontFamily:typography.semibold,fontSize:28,lineHeight:35,letterSpacing:-.8},
+  subtitle: {marginTop:5,color:'#6E7A6B',fontFamily:typography.regular,fontSize:12,lineHeight:18},
   stateBanner: {
     minHeight: 58,
     marginBottom: 14,
@@ -908,11 +908,14 @@ const styles = StyleSheet.create({
     fontSize: 8,
     letterSpacing: 0.6,
   },
-  filters: {minHeight:44,marginBottom:17,flexDirection:'row',gap:6,padding:4,borderRadius:16,backgroundColor:'#EFF2EA'},
-  filter: {minHeight:38,paddingHorizontal:10,flex:1,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6,borderRadius:12},
+  filters: {marginBottom:18,flexDirection:'row',alignItems:'center',gap:10},
+  filterTabs: {flex:1,minWidth:0,flexDirection:'row',padding:3,borderRadius:13,backgroundColor:'#EDF1E9'},
+  filter: {minHeight:44,paddingHorizontal:8,flex:1,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6,borderRadius:10},
   filterActive: {backgroundColor:'#FFFFFF'},
-  filterText: {color:'#8A9480',fontFamily:typography.medium,fontSize:10,letterSpacing:.1},
-  filterTextActive: {color:'#304D34',fontFamily:typography.semibold},
+  filterText: {flexShrink:1,color:'#6A7765',fontFamily:typography.medium,fontSize:11,lineHeight:16,textAlign:'center'},
+  filterTextActive: {color:'#294B34',fontFamily:typography.semibold},
+  sortTrigger: {minHeight:48,paddingHorizontal:12,flexDirection:'row',alignItems:'center',justifyContent:'center',gap:6,borderWidth:1,borderColor:'#DDE5D8',borderRadius:12,backgroundColor:'#FFFFFF'},
+  sortTriggerText: {color:'#38513D',fontFamily:typography.medium,fontSize:11},
   removedState: {
     minHeight: 86,
     marginBottom: 16,

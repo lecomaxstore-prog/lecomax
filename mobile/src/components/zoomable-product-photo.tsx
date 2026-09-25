@@ -87,8 +87,8 @@ export function ZoomableProductPhoto({ uri, name }: { uri: string; name: string 
 const styles = StyleSheet.create({
   container: { flex: 1, minHeight: 0 },
   stage: { flex: 1, overflow: "hidden" },
-  controls: { flexDirection: "row", justifyContent: "center", gap: 8, padding: 8, borderTopWidth: 1, borderTopColor: "#EDF0E8", backgroundColor: "#FFFFFF" },
-  button: { minWidth: 44, height: 44, paddingHorizontal: 8, borderRadius: 22, alignItems: "center", justifyContent: "center", backgroundColor: "#F0F4EC" },
-  label: { fontSize: 13, fontWeight: "600", color: "#234735" },
+  controls: { alignSelf: "center", flexDirection: "row", justifyContent: "center", marginTop: 8, marginBottom: 4, padding: 3, borderRadius: 25, borderWidth: 1, borderColor: "#E5EAE2", backgroundColor: "#F6F8F3" },
+  button: { minWidth: 44, height: 44, paddingHorizontal: 10, borderRadius: 22, alignItems: "center", justifyContent: "center" },
+  label: { fontSize: 12, fontWeight: "600", fontVariant: ["tabular-nums"], color: "#234735" },
   disabled: { opacity: 0.35 },
 });

@@ -19,6 +19,7 @@ import {
   StyleSheet,
   Switch,
   Text,
+  useWindowDimensions,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -71,6 +72,7 @@ type NotificationState =
 export default function AccountScreen() {
   useLocale();
   const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
   const colorScheme = useColorScheme();
   const dark = colorScheme === "dark";
   const settingsQuery = useSettings();
@@ -691,10 +693,11 @@ export default function AccountScreen() {
             style={styles.sheetBackdrop}
           />
           <View
+            accessibilityViewIsModal
             style={[
               styles.sheet,
               dark && styles.sheetDark,
-              { paddingBottom: Math.max(insets.bottom, 16) },
+              { maxHeight: Math.min(windowHeight * 0.9, windowHeight - insets.top - 12) },
             ]}
           >
             <View style={styles.sheetHandle} />
@@ -723,9 +726,13 @@ export default function AccountScreen() {
             </View>
 
             <ScrollView
+              key={sheet}
+              nativeID="account-settings-scroll"
               style={styles.sheetScroll}
-              contentContainerStyle={styles.sheetScrollContent}
+              contentContainerStyle={[styles.sheetScrollContent, { paddingBottom: Math.max(insets.bottom, 16) + 12 }]}
               showsVerticalScrollIndicator={true}
+              keyboardShouldPersistTaps="handled"
+              bounces={false}
               nestedScrollEnabled
             >
             {sheet === "language" ? (
@@ -1491,14 +1498,16 @@ const styles = StyleSheet.create({
   },
   sheetBackdrop: { position: "absolute", inset: 0 },
   sheet: {
-    maxHeight: "86%",
-    paddingHorizontal: 20,
+    width: "100%",
+    flexShrink: 1,
+    overflow: "hidden",
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     backgroundColor: colors.white,
   },
   sheetDark: { backgroundColor: colors.dark },
   sheetHandle: {
+    flexShrink: 0,
     width: 42,
     height: 4,
     marginTop: 10,
@@ -1507,6 +1516,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#CCD1CD",
   },
   sheetHeader: {
+    flexShrink: 0,
+    paddingHorizontal: 20,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(125,140,128,0.18)",
     minHeight: 70,
     flexDirection: "row",
     alignItems: "center",
@@ -1567,9 +1580,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
   },
   settingsList: { paddingBottom: 8 },
-  // Explicit web overflow keeps the sheet wheel-scrollable with a mouse/trackpad.
-  sheetScroll: { flexShrink: 1, maxHeight: "78%", overflowY: "auto" } as ViewStyle & { overflowY: "auto" },
-  sheetScrollContent: { paddingBottom: 8 },
+  // A single bounded sheet lets the scroll area use all remaining header space.
+  sheetScroll: { flexGrow: 0, flexShrink: 1, minHeight: 0, overflowY: "auto" } as ViewStyle & { overflowY: "auto" },
+  sheetScrollContent: { paddingTop: 16, paddingHorizontal: 20 },
   settingsSectionLabel: {
     marginBottom: 8,
     marginLeft: 4,
@@ -1627,4 +1640,3 @@ const styles = StyleSheet.create({
   },
   darkBorder: { backgroundColor: "#343A35" },
 });
-

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, FlatList, KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View, type TextStyle } from "react-native";
 import { router } from "expo-router";
 import { Screen } from "@/components/screen";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -17,6 +17,7 @@ export default function SmartAssistantScreen() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [draft, setDraft] = useState("");
   const [inputFocused, setInputFocused] = useState(false);
+  const [inputHeight, setInputHeight] = useState(44);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
   const sessionId = useRef<string | undefined>(undefined);
@@ -78,11 +79,26 @@ export default function SmartAssistantScreen() {
   return (
     <Screen className="bg-[#F7F8F5]">
       <View style={styles.header}>
-        <AnimatedPressable accessibilityRole="button" accessibilityLabel="Retour" style={styles.back} onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)")}>
-          <Ionicons name="arrow-back" size={20} color="#203D2B" />
-        </AnimatedPressable>
-        <View style={{ flex: 1 }}><Text style={styles.brand}>L’ECOMAX</Text><Text style={styles.headerTitle}>Votre assistant shopping</Text></View>
-        <View style={styles.headerIcon}><Ionicons name="sparkles" size={19} color="#23843F" /></View>
+        <View style={styles.headerContent}>
+          <AnimatedPressable accessibilityRole="button" accessibilityLabel="Retour" style={styles.back} onPress={() => router.canGoBack() ? router.back() : router.replace("/(tabs)")}>
+            <Ionicons name="chevron-back" size={22} color="#28543E" />
+          </AnimatedPressable>
+          <View style={styles.headerText}>
+            <Text style={styles.brand}>L’ECOMAX</Text>
+            <Text accessibilityRole="header" style={styles.headerTitle}>Votre assistant shopping</Text>
+          </View>
+          <LinearGradient
+            accessible={false}
+            accessibilityElementsHidden
+            importantForAccessibility="no-hide-descendants"
+            colors={["#E8F4E4", "#F4F8EE"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.headerIcon}
+          >
+            <Ionicons name="sparkles" size={20} color="#287D45" />
+          </LinearGradient>
+        </View>
       </View>
       <KeyboardAvoidingView style={styles.body} behavior={Platform.OS === "ios" ? "padding" : Platform.OS === "android" ? "height" : undefined}>
         <FlatList
@@ -105,9 +121,28 @@ export default function SmartAssistantScreen() {
             </LinearGradient>
           </View>}
           renderItem={({ item }) => (
-            <View style={[styles.bubble, item.role === "user" && styles.userBubble]}>
-              {item.role !== "user" && <Text style={styles.messageLabel}>L’ECOMAX</Text>}
-              <Text selectable style={[styles.message, item.role === "user" && styles.userMessage]}>{item.content}</Text>
+            <View style={[styles.messageGroup, item.role === "user" && styles.userGroup]}>
+              {item.role !== "user" && (
+                <View style={styles.messageIdentity}>
+                  <LinearGradient
+                    accessible={false}
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    colors={["#EFF7E9", "#E1EEDC"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.messageAvatar}
+                  >
+                    <Ionicons name="sparkles-outline" size={18} color="#28543E" />
+                  </LinearGradient>
+                  <View style={styles.messageIdentityText}>
+                    <Text style={styles.messageLabel}>L’ecomax</Text>
+                    <Text style={styles.messageRole}>Assistant shopping</Text>
+                  </View>
+                </View>
+              )}
+              <View style={item.role === "user" ? styles.userBubble : styles.assistantReply}>
+              <Text selectable style={[styles.message, item.role === "user" ? styles.userMessage : styles.assistantMessage]}>{item.content}</Text>
               {item.recommendations?.map((product) => (
                 <AnimatedPressable
                   key={product.productSlug}
@@ -122,6 +157,7 @@ export default function SmartAssistantScreen() {
                   <Text style={styles.productLink}>Voir le produit →</Text>
                 </AnimatedPressable>
               ))}
+              </View>
             </View>
           )}
         />
@@ -140,19 +176,27 @@ export default function SmartAssistantScreen() {
             onBlur={() => setInputFocused(false)}
             accessibilityLabel="Votre message"
             placeholder="Une envie ? Parlons-en…"
-            placeholderTextColor="#8A948D"
+            placeholderTextColor="#718076"
             cursorColor="#23843F"
             selectionColor="#A9D8B7"
             selectionHandleColor="#23843F"
             underlineColorAndroid="transparent"
             multiline
+            numberOfLines={Platform.OS === "web" ? 1 : undefined}
+            onContentSizeChange={event => {
+              if (Platform.OS !== "web") {
+                setInputHeight(Math.min(132, Math.max(44, Math.ceil(event.nativeEvent.contentSize.height))));
+              }
+            }}
             maxLength={4000}
             value={draft}
             onChangeText={setDraft}
             editable={!pending}
-            style={styles.input}
+            style={[styles.input, Platform.OS === "web"
+              ? styles.webInput
+              : { height: draft ? inputHeight : 44 }]}
           />
-          <AnimatedPressable accessibilityRole="button" accessibilityLabel="Envoyer" disabled={pending || !draft.trim()} onPress={() => void send()} style={[styles.send, (pending || !draft.trim()) && styles.disabled]}>
+          <AnimatedPressable accessibilityRole="button" accessibilityLabel="Envoyer" accessibilityState={{ disabled: pending || !draft.trim(), busy: pending }} disabled={pending || !draft.trim()} onPress={() => void send()} style={[styles.send, (pending || !draft.trim()) && styles.disabled]}>
             {pending ? <ActivityIndicator color="#587760" size="small" /> : <Ionicons name="arrow-up" size={22} color={draft.trim() ? "#FFFFFF" : "#78917D"} />}
           </AnimatedPressable>
         </View>
@@ -164,12 +208,14 @@ export default function SmartAssistantScreen() {
 
 const styles = StyleSheet.create({
   body: { flex: 1, minHeight: 0, width: "100%", maxWidth: 760, alignSelf: "center" },
-  header: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 20, paddingVertical: 17, borderBottomWidth: 1, borderColor: "#E8EBE5", backgroundColor: "#FFFFFF" },
-  back: { width: 42, height: 42, borderRadius: 15, borderWidth: 1, borderColor: "#E8EBE5", alignItems: "center", justifyContent: "center" },
-  brand: { fontFamily: typography.bold, fontSize: 11, letterSpacing: 2, color: "#23843F", marginBottom: 5 },
-  headerTitle: { fontFamily: typography.semibold, fontSize: 14, color: "#1C3025" },
-  headerIcon: { width: 38, height: 38, borderRadius: 19, backgroundColor: "#EDF5E9", alignItems: "center", justifyContent: "center" },
-  messages: { padding: 20, gap: 18, flexGrow: 1 },
+  header: { borderBottomWidth: 1, borderColor: "#E6ECE3", backgroundColor: "#FFFFFF" },
+  headerContent: { flexDirection: "row", alignItems: "center", gap: 12, width: "100%", maxWidth: 760, alignSelf: "center", paddingHorizontal: 18, paddingVertical: 14 },
+  back: { flexShrink: 0, width: 44, height: 44, borderRadius: 22, borderWidth: 1, borderColor: "#E5EBE2", backgroundColor: "#F8FAF6", alignItems: "center", justifyContent: "center" },
+  headerText: { flex: 1, minWidth: 0, gap: 4 },
+  brand: { fontFamily: typography.bold, fontSize: 10, lineHeight: 14, letterSpacing: 1.8, color: "#4E7859" },
+  headerTitle: { fontFamily: typography.semibold, fontSize: 16, lineHeight: 22, letterSpacing: -0.35, color: "#203D2B" },
+  headerIcon: { flexShrink: 0, width: 42, height: 42, borderRadius: 15, borderWidth: 1, borderColor: "#DFEBD9", alignItems: "center", justifyContent: "center" },
+  messages: { padding: 20, gap: 26, flexGrow: 1 },
   hero: { borderRadius: 26, padding: 23 },
   heroTop: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 22 },
   sparkle: { backgroundColor: "#FFFFFFB3", width: 52, height: 52, borderRadius: 18, alignItems: "center", justifyContent: "center" },
@@ -177,10 +223,17 @@ const styles = StyleSheet.create({
   title: { fontFamily: typography.bold, fontSize: 29, lineHeight: 35, letterSpacing: -1.1, color: "#203D2B" },
   intro: { fontFamily: typography.regular, color: "#5B7160", fontSize: 13, lineHeight: 21, marginTop: 14 },
   heroFooter: { fontFamily: typography.medium, color: "#57745C", fontSize: 10, marginTop: 22 },
-  bubble: { backgroundColor: "#FFFFFF", padding: 17, borderRadius: 20, borderTopLeftRadius: 5, maxWidth: "88%", alignSelf: "flex-start", gap: 9, borderWidth: 1, borderColor: "#E6EAE2" },
-  userBubble: { backgroundColor: "#28543E", borderColor: "#28543E", alignSelf: "flex-end", maxWidth: "85%", minWidth: 64, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 22, borderTopLeftRadius: 22, borderBottomRightRadius: 7, gap: 0 },
+  messageGroup: { alignSelf: "flex-start", maxWidth: "100%", gap: 8, paddingVertical: 2 },
+  userGroup: { alignSelf: "flex-end", maxWidth: "85%", paddingVertical: 0 },
+  assistantReply: { gap: 14, paddingHorizontal: 16, paddingVertical: 14, backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E5EAE3", borderRadius: 18, borderTopLeftRadius: 6 },
+  userBubble: { backgroundColor: "#28543E", minWidth: 64, paddingHorizontal: 18, paddingVertical: 12, borderRadius: 22, borderBottomRightRadius: 7 },
   userMessage: { color: "#FFFFFF", fontSize: 15, lineHeight: 23 },
-  messageLabel: { fontFamily: typography.bold, fontSize: 9, letterSpacing: 1, color: "#468158" },
+  messageIdentity: { flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 2 },
+  messageAvatar: { flexShrink: 0, width: 36, height: 36, borderRadius: 12, borderWidth: 1, borderColor: "#DCE8D6", alignItems: "center", justifyContent: "center" },
+  messageIdentityText: { flexShrink: 1, gap: 1 },
+  messageLabel: { fontFamily: typography.semibold, fontSize: 13, lineHeight: 18, letterSpacing: -0.2, color: "#203D2B" },
+  messageRole: { fontFamily: typography.regular, fontSize: 10, lineHeight: 14, color: "#65766B" },
+  assistantMessage: { fontSize: 15, lineHeight: 23, color: "#26372D" },
   message: { fontFamily: typography.regular, color: "#344A3C", fontSize: 14, lineHeight: 22 },
   product: { padding: 14, borderRadius: 14, backgroundColor: "#F5F8F1", gap: 8 },
   productTitle: { fontFamily: typography.semibold, fontSize: 15, color: "#243B2B" },
@@ -190,9 +243,11 @@ const styles = StyleSheet.create({
   errorTitle: { fontFamily: typography.semibold, color: "#805721", fontSize: 11, marginBottom: 4 },
   errorText: { fontFamily: typography.regular, color: "#977A50", fontSize: 10, lineHeight: 16 },
   retry: { width: 40, height: 44, justifyContent: "center", alignItems: "center" },
-  composer: { flexDirection: "row", alignItems: "center", gap: 10, width: "100%", minWidth: 0, minHeight: 64, padding: 8, backgroundColor: "#FFFFFF", borderRadius: 24, borderWidth: 1, borderColor: "#DDE7DC", boxShadow: "0 2px 8px rgba(32, 61, 43, 0.04)" },
-  input: { flex: 1, minWidth: 0, minHeight: 46, maxHeight: 120, paddingVertical: 12, paddingHorizontal: 10, borderWidth: 0, outlineWidth: 0, backgroundColor: "transparent", textAlignVertical: "center", fontFamily: typography.regular, fontSize: 16, lineHeight: 22, color: "#243B2B" },
-  send: { flexShrink: 0, alignSelf: "flex-end", backgroundColor: "#23843F", width: 46, height: 46, alignItems: "center", justifyContent: "center", borderRadius: 17 },
-  disabled: { backgroundColor: "#EAF0E6" },
-  composerFocused: { borderColor: "#75A783", boxShadow: "0 0 0 3px rgba(35, 132, 63, 0.08)" },
+  composer: { flexDirection: "row", alignItems: "center", gap: 8, width: "100%", minWidth: 0, minHeight: 62, padding: 8, paddingLeft: 16, backgroundColor: "#FFFFFF", borderRadius: 28, borderWidth: 1, borderColor: "#D7E2D5", boxShadow: "0 3px 12px rgba(32, 61, 43, 0.06)" },
+  input: { flex: 1, minWidth: 0, minHeight: 44, maxHeight: 132, paddingVertical: 11, paddingHorizontal: 0, borderWidth: 0, outlineWidth: 0, backgroundColor: "transparent", textAlignVertical: "top", fontFamily: typography.regular, fontSize: 16, lineHeight: 22, color: "#243B2B" },
+  send: { flexShrink: 0, alignSelf: "flex-end", backgroundColor: "#23843F", width: 44, height: 44, alignItems: "center", justifyContent: "center", borderRadius: 22, boxShadow: "0 2px 5px rgba(35, 132, 63, 0.18)" },
+  // Let the browser grow and shrink the textarea without retaining its default two rows.
+  webInput: { fieldSizing: "content" } as TextStyle,
+  disabled: { backgroundColor: "#EAF0E6", boxShadow: "none" },
+  composerFocused: { borderColor: "#75A783", boxShadow: "0 0 0 3px rgba(35, 132, 63, 0.09), 0 3px 12px rgba(32, 61, 43, 0.05)" },
 });

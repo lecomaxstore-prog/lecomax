@@ -479,6 +479,10 @@ export default function ProductScreen() {
     }
   };
 
+  const [productTitle, ...productTitleDetails] = product.name
+    .replace(/\b(t|tee)[- ](?=shirts?\b)/gi, "$1\u2011")
+    .split(/\s+[–—]\s+/);
+
   return (
     <View ref={productViewportRef} collapsable={false} style={styles.screen}>
       <ScrollView
@@ -522,15 +526,19 @@ export default function ProductScreen() {
             <View style={styles.collectionLabel}>
               <Text numberOfLines={1} style={styles.category}>{product.brand || localizedContent(product.category)}</Text>
             </View>
-            <PreorderNotice item={preorder} />
-            {product.preorder_enabled && <Text>{msg("preorder.quantity")}</Text>}
-            <View style={styles.stockBadge}>
-              <Ionicons name={selectionUnavailable ? "remove-circle-outline" : "checkmark"} size={14} color={selectionUnavailable ? "#986353" : "#61765C"} />
-              <Text style={[styles.stockText, selectionUnavailable && styles.stockTextUnavailable]}>
+            <View style={[styles.stockBadge, selectionUnavailable && styles.stockBadgeUnavailable]}>
+              {selectionUnavailable ? (
+                <Ionicons name="remove-circle-outline" size={14} color="#8B5555" accessible={false} />
+              ) : (
+                <View style={[styles.stockDot, preorder.fulfillment_type === "PREORDER" && styles.stockDotPreorder]} />
+              )}
+              <Text style={[styles.stockText, selectionUnavailable ? styles.stockTextUnavailable : preorder.fulfillment_type === "PREORDER" && styles.stockTextPreorder]}>
                 {selectionUnavailable ? msg("wishlistProductCard.unavailable") : preorder.fulfillment_type === "PREORDER" ? msg("preorder.badge") : msg("productCard.inStock")}
               </Text>
             </View>
           </View>
+          <PreorderNotice item={preorder} />
+          {product.preorder_enabled && <Text>{msg("preorder.quantity")}</Text>}
           <Text
             accessibilityRole="header"
             maxFontSizeMultiplier={1.15}
@@ -540,8 +548,13 @@ export default function ProductScreen() {
               contentWidth <= 360 && styles.productNameCompact,
             ]}
           >
-            {product.name.replace(/\b(t|tee)[- ](?=shirts?\b)/gi, "$1\u2011")}
+            {productTitle}
           </Text>
+          {productTitleDetails.length > 0 && (
+            <Text selectable style={styles.productTitleDetails}>
+              {productTitleDetails.join(" · ")}
+            </Text>
+          )}
           <View style={styles.priceCard}>
             <View accessible accessibilityLabel={money(selectedPrice, currency)} style={styles.priceRow}>
               <Text style={[styles.price, saving > 0 && styles.promotionalPrice]}>
@@ -567,7 +580,8 @@ export default function ProductScreen() {
             {saving > 0 && selectedOriginalPrice ? (
               <View style={styles.savingsRow}>
                 <Text style={styles.savingsText}>
-                  {msg("homePromotionSection.youSave")}{money(selectedOriginalPrice - selectedPrice, currency)}
+                  {msg("homePromotionSection.youSave")}{" "}
+                  <Text style={styles.savingsAmount}>{money(selectedOriginalPrice - selectedPrice, currency)}</Text>
                 </Text>
               </View>
             ) : null}
@@ -660,8 +674,13 @@ export default function ProductScreen() {
                 onPress={() => setSizeOptionsOpen((open) => !open)}
                 style={({ pressed }) => [styles.sizeTrigger, (sizeOptionsOpen || pressed) && styles.sizeTriggerOpen]}
               >
-                <Text style={styles.sizeTriggerText}>{selectedSize ? msg("shoeSizeGuide.size") + " " + selectedSize : msg("product.chooseOne")}</Text>
-                <Ionicons name={sizeOptionsOpen ? "chevron-up" : "chevron-down"} size={18} color="#234735" />
+                <View style={styles.sizeTriggerValue}>
+                  {selectedSize ? <View style={styles.sizeValueBadge}><Text style={styles.sizeValueText}>{selectedSize}</Text></View> : null}
+                  <Text style={styles.sizeTriggerText}>{selectedSize ? msg("product.sizeOptionSelected") : msg("product.chooseOne")}</Text>
+                </View>
+                <View style={[styles.sizeChevron, sizeOptionsOpen && styles.sizeChevronOpen]}>
+                  <Ionicons name={sizeOptionsOpen ? "chevron-up" : "chevron-down"} size={16} color="#234735" />
+                </View>
               </Pressable>
               {sizeOptionsOpen ? <View ref={sizePanelRef} collapsable={false} onLayout={revealSizeOptions} style={styles.sizePanel}>
                 <View style={styles.sizePanelHeading}>
@@ -887,7 +906,7 @@ export default function ProductScreen() {
         exiting={FadeOutDown.duration(160).reduceMotion(ReduceMotion.System)}
         style={[
           styles.purchaseBar,
-          { paddingBottom: Math.max(insets.bottom, 9) },
+          { paddingBottom: Math.max(insets.bottom, 12) },
         ]}
       >
         <View style={styles.purchasePrice}>
@@ -900,10 +919,7 @@ export default function ProductScreen() {
             minimumFontScale={0.75}
             style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
           >
-            {displayAmount}
-          </Text>
-          <Text accessible={false} style={styles.purchasePriceCurrency}>
-            {displayCurrency}
+            {displayAmount}{" "}<Text style={styles.purchasePriceCurrency}>{displayCurrency}</Text>
           </Text>
         </View>
         <AnimatedPressable
@@ -1015,13 +1031,16 @@ const styles = StyleSheet.create({
   content: {
     alignSelf: "center",
     paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 14,
     paddingBottom: 30,
     backgroundColor: PRODUCT_BACKGROUND,
   },
   categoryRow: {
-    minHeight: 36,
-    gap: 14,
+    minHeight: 38,
+    gap: 12,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#DDE1DA",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1035,25 +1054,43 @@ const styles = StyleSheet.create({
   },
   category: {
     flexShrink: 1,
-    color: "#242923",
+    color: "#26342B",
     fontFamily: typography.semibold,
-    fontSize: 13,
-    letterSpacing: 0.4,
+    fontSize: 12,
+    lineHeight: 18,
+    letterSpacing: 1.8,
     textTransform: "uppercase",
   },
   stockBadge: {
-    flexShrink: 0,
+    flexShrink: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
-    paddingVertical: 4,
+    gap: 7,
+    paddingVertical: 3,
   },
+  stockDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#467454", flexShrink: 0 },
+  stockBadgeUnavailable: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    backgroundColor: "#F8F0EF",
+    gap: 6,
+  },
+  stockDotPreorder: { backgroundColor: "#866022" },
   stockText: {
-    color: "#697560",
-    fontFamily: typography.regular,
-    fontSize: 10,
+    flexShrink: 1,
+    color: "#52644F",
+    fontFamily: typography.medium,
+    fontSize: 12,
+    lineHeight: 18,
   },
-  stockTextUnavailable: { color: "#A83A3F" },
+  stockTextUnavailable: {
+    color: "#8B5555",
+    fontFamily: typography.semibold,
+    fontSize: 11,
+    lineHeight: 16,
+  },
+  stockTextPreorder: { color: "#866022" },
   shareButton: {
     minHeight: 44,
     paddingHorizontal: 12,
@@ -1072,14 +1109,23 @@ const styles = StyleSheet.create({
   },
   productName: {
     maxWidth: 680,
-    marginTop: 17,
-    color: "#26342B",
-    fontFamily: typography.medium,
-    fontSize: 24,
-    lineHeight: 32,
-    letterSpacing: -0.55,
+    marginTop: 16,
+    color: "#202A23",
+    fontFamily: typography.semibold,
+    fontSize: 22,
+    lineHeight: 28,
+    letterSpacing: -0.5,
   },
-  productNameCompact: { fontSize: 22, lineHeight: 29, letterSpacing: -0.4 },
+  productNameCompact: { fontSize: 20, lineHeight: 26, letterSpacing: -0.4 },
+  productTitleDetails: {
+    maxWidth: 680,
+    marginTop: 7,
+    color: "#697069",
+    fontFamily: typography.regular,
+    fontSize: 13,
+    lineHeight: 20,
+    letterSpacing: 0.1,
+  },
   ratingShareRow: {
     minHeight: 50,
     marginTop: 0,
@@ -1177,15 +1223,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     flexWrap: "wrap",
-    gap: 14,
+    gap: 10,
     marginTop: 8,
     marginBottom: 0,
   },
   price: {
-    color: "#252823",
-    fontFamily: typography.regular,
-    fontSize: 32,
-    lineHeight: 42,
+    color: "#203F2F",
+    fontFamily: typography.bold,
+    fontSize: 34,
+    lineHeight: 44,
     letterSpacing: -1.1,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
@@ -1199,7 +1245,7 @@ const styles = StyleSheet.create({
     includeFontPadding: false,
   },
   promotionalPrice: {
-    color: "#252823",
+    color: "#203F2F",
   },
   originalPriceGroup: {
     alignItems: "flex-start",
@@ -1220,16 +1266,17 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
   },
   discountBadge: {
-    minHeight: 18,
-    paddingLeft: 14,
+    minHeight: 26,
+    paddingHorizontal: 9,
+    paddingVertical: 4,
     alignItems: "center",
     justifyContent: "center",
-    borderLeftWidth: 1,
-    borderLeftColor: "#DEDCD5",
+    borderRadius: 8,
+    backgroundColor: "#EAF3E7",
   },
   discountText: {
-    color: "#8C4B46",
-    fontFamily: typography.medium,
+    color: "#245A35",
+    fontFamily: typography.bold,
     fontSize: 11,
     letterSpacing: 0.2,
   },
@@ -1241,10 +1288,11 @@ const styles = StyleSheet.create({
     gap: 7,
   },
   savingsText: {
-    color: "#777A72",
+    color: "#68756B",
     fontFamily: typography.regular,
     fontSize: 11,
   },
+  savingsAmount: { color: "#245A35", fontFamily: typography.semibold },
   variantSection: {
     paddingVertical: 20,
     borderBottomWidth: 1,
@@ -1324,17 +1372,22 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     textDecorationColor: "#B9BDB3",
   },
-  sizeTrigger: { marginTop: 8, minHeight: 58, paddingHorizontal: 18, paddingVertical: 14, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 14, borderWidth: 1, borderColor: "#D7DBD3", borderRadius: 14, backgroundColor: "#FFFFFF" },
-  sizeTriggerOpen: { borderColor: "#234735", backgroundColor: "#F8FAF6" },
-  sizeTriggerText: { flexShrink: 1, color: "#234735", fontFamily: typography.semibold, fontSize: 14 },
+  sizeTrigger: { marginTop: 8, minHeight: 60, paddingHorizontal: 12, paddingVertical: 10, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, borderWidth: 1, borderColor: "#DCE5DC", borderRadius: 16, backgroundColor: "#FFFFFF" },
+  sizeTriggerOpen: { borderColor: "#789B81", backgroundColor: "#FAFCF9" },
+  sizeTriggerValue: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
+  sizeValueBadge: { minWidth: 38, minHeight: 38, paddingHorizontal: 8, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "#EAF2E7" },
+  sizeValueText: { color: "#234735", fontFamily: typography.bold, fontSize: 15 },
+  sizeTriggerText: { flexShrink: 1, color: "#405447", fontFamily: typography.medium, fontSize: 13 },
+  sizeChevron: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "#F3F6F1" },
+  sizeChevronOpen: { backgroundColor: "#EAF2E7" },
   sizePanel: { marginTop: 8, borderWidth: 1, borderColor: "#E2E6DD", borderRadius: 16, overflow: "hidden", backgroundColor: "#FFFFFF", boxShadow: "0px 8px 24px rgba(35, 71, 53, 0.08)" },
-  sizePanelHeading: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, paddingHorizontal: 16, paddingVertical: 12, backgroundColor: "#F8F9F6", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E2E6DD" },
+  sizePanelHeading: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, paddingHorizontal: 14, paddingTop: 14, paddingBottom: 8 },
   sizePanelTitle: { color: "#39483D", fontFamily: typography.semibold, fontSize: 11, letterSpacing: 0.2 },
-  sizePanelCount: { color: "#70796E", fontFamily: typography.regular, fontSize: 10 },
+  sizePanelCount: { color: "#586A5D", fontFamily: typography.medium, fontSize: 10, backgroundColor: "#F1F5EF", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
   sizeList: { maxHeight: 260 },
-  sizeListContent: { padding: 6, gap: 3 },
+  sizeListContent: { padding: 8, gap: 5 },
   sizeOption: { minHeight: 48, paddingHorizontal: 12, paddingVertical: 10, flexDirection: "row", gap: 12, alignItems: "center", justifyContent: "space-between", borderRadius: 10, borderWidth: 1, borderColor: "transparent" },
-  sizeSelected: { backgroundColor: "#F0F5ED", borderColor: "#DCE7D7" },
+  sizeSelected: { backgroundColor: "#EAF3E7", borderColor: "#C9DDC7" },
   sizeOptionPressed: { backgroundColor: "#F6F8F3" },
   sizeText: { color: palette.ink, fontFamily: typography.medium, fontSize: 15, letterSpacing: 0.2 },
   sizeTextSelected: { color: "#234735", fontFamily: typography.semibold },
@@ -1507,15 +1560,17 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
     minHeight: 84,
-    paddingHorizontal: 18,
-    paddingTop: 12,
+    paddingHorizontal: 16,
+    paddingTop: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 14,
+    gap: 16,
     borderTopWidth: 1,
-    borderTopColor: "#E8E5DD",
-    backgroundColor: "#FFFEFA",
+    borderTopColor: "#E2E9DF",
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
+    backgroundColor: "#FFFFFF",
     shadowColor: "#171A18",
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.06,
@@ -1550,36 +1605,36 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   purchasePrice: {
-    width: "42%",
-    maxWidth: 160,
+    width: "36%",
+    maxWidth: 180,
     minWidth: 0,
     flexShrink: 0,
     justifyContent: "center",
   },
   purchasePriceLabel: {
-    color: "#777C76",
+    color: "#68756B",
     fontFamily: typography.medium,
-    fontSize: 8,
+    fontSize: 9,
     lineHeight: 12,
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
   purchasePriceValue: {
-    marginTop: 3,
-    color: "#202521",
-    fontFamily: typography.semibold,
-    fontSize: 18,
-    lineHeight: 24,
+    marginTop: 5,
+    color: "#203F2F",
+    fontFamily: typography.bold,
+    fontSize: 22,
+    lineHeight: 28,
     letterSpacing: -0.6,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
   },
   purchasePriceCurrency: {
-    color: "#777C76",
+    color: "#68756B",
     fontFamily: typography.medium,
     fontSize: 10,
     lineHeight: 14,
-    letterSpacing: 0.4,
+    letterSpacing: 0,
   },
   addButton: {
     minWidth: 0,
@@ -1592,13 +1647,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    borderRadius: 18,
+    borderRadius: 16,
     borderWidth: 1,
     borderColor: "#31533F",
     backgroundColor: "#203F2F",
     shadowColor: "#173424",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.14,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 2,
   },
@@ -1614,14 +1669,14 @@ const styles = StyleSheet.create({
     height: 30,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 10,
-    backgroundColor: "rgba(255,255,255,0.09)",
+    borderRadius: 15,
+    backgroundColor: "rgba(255,255,255,0.12)",
   },
   addButtonIconCompact: { width: 24, height: 28, borderRadius: 8 },
   addButtonText: {
     color: "#FFFEF8",
     fontFamily: typography.semibold,
-    fontSize: 12.5,
+    fontSize: 13,
     flexShrink: 1,
     letterSpacing: 0.1,
   },

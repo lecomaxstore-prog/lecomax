@@ -35,7 +35,9 @@ export const HomePromotionSection = memo(function HomePromotionSection({
       <View style={styles.heading}>
         <View style={styles.headingCopy}>
           <View style={styles.eyebrowBadge}>
-            <View style={styles.eyebrowDot} />
+            <View style={styles.eyebrowIcon}>
+              <Ionicons name="sparkles" size={12} color="#176B3A" accessible={false} />
+            </View>
             <Text style={styles.eyebrow}>{msg("homePromotionSection.lEcomaxPricesUppercase")}</Text>
           </View>
           <Text accessibilityRole="header" style={styles.title}>
@@ -187,20 +189,31 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     flexDirection: "row",
     alignItems: "center",
-    gap: 7,
-    paddingHorizontal: 10,
+    gap: 8,
+    paddingLeft: 6,
+    paddingRight: 13,
     paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: "#EEF6EB",
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: "#DCE9DF",
+    backgroundColor: "#F4F8F3",
     maxWidth: "100%",
   },
-  eyebrowDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: "#168526" },
+  eyebrowIcon: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    flexShrink: 0,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E3EFE2",
+  },
   eyebrow: {
-    color: "#276334",
-    fontFamily: typography.semibold,
+    color: "#245337",
+    fontFamily: typography.bold,
     fontSize: 10,
     lineHeight: 14,
-    letterSpacing: 1.2,
+    letterSpacing: 1,
     flexShrink: 1,
   },
   title: {

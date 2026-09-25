@@ -71,6 +71,8 @@ lib/Attached Element Context from Integrated.txt
 
 # Local design and verification screenshots taken while iterating on mobile UI
 mobile/*.png
+release/*.tar
+release/
 
 # Private source snapshot generated at build time
 .source-library/

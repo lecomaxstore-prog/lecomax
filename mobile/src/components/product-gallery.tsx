@@ -340,9 +340,9 @@ export const ProductGallery = memo(function ProductGallery({
           </>
         ) : null}
 
-        <View style={styles.counter}>
+        <View pointerEvents="none" style={styles.counter}>
           <Text style={styles.counterText}>
-            {activeIndex + 1} / {media.length}
+            {activeIndex + 1}<Text style={styles.counterDivider}>{" / "}</Text><Text style={styles.counterTotal}>{media.length}</Text>
           </Text>
         </View>
       </View>
@@ -360,7 +360,6 @@ export const ProductGallery = memo(function ProductGallery({
           >
             <View style={styles.zoomHeader}>
               <View style={styles.zoomHeading}>
-                <Text style={styles.zoomBrand}>L’ECOMAX</Text>
                 <Text numberOfLines={2} style={styles.zoomTitle}>{productName}</Text>
               </View>
             <AnimatedPressable
@@ -387,9 +386,6 @@ export const ProductGallery = memo(function ProductGallery({
               <Text accessibilityLiveRegion="polite" style={styles.zoomCount}>
                 {String(zoomIndex + 1).padStart(2, "0")}<Text style={styles.zoomCountTotal}> / {String(photos.length).padStart(2, "0")}</Text>
               </Text>
-              <View style={styles.zoomProgressTrack}>
-                <View style={[styles.zoomProgressFill, { width: `${((zoomIndex + 1) / Math.max(1, photos.length)) * 100}%` }]} />
-              </View>
               </View>
               <AnimatedPressable
                 accessibilityRole="button"
@@ -526,22 +522,28 @@ const styles = StyleSheet.create({
   counter: {
     position: "absolute",
     right: 16,
-    bottom: 12,
-    minWidth: 46,
-    height: 28,
-    paddingHorizontal: 10,
+    bottom: 16,
+    minWidth: 58,
+    minHeight: 32,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 14,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(23,26,24,0.08)",
-    backgroundColor: "rgba(255,255,255,0.9)",
+    borderColor: "rgba(35,71,53,0.12)",
+    backgroundColor: "rgba(255,255,255,0.96)",
+    boxShadow: "0px 2px 8px rgba(17,24,19,0.08)",
   },
   counterText: {
-    color: "#5C605D",
-    fontFamily: typography.semibold,
-    fontSize: 11.5,
+    color: "#234735",
+    fontFamily: typography.bold,
+    fontSize: 12,
+    lineHeight: 18,
+    fontVariant: ["tabular-nums"],
   },
+  counterDivider: { color: "#A3ADA5", fontFamily: typography.regular },
+  counterTotal: { color: "#66746A", fontFamily: typography.medium },
   galleryArrow: {
     position: "absolute",
     top: "50%",
@@ -571,26 +573,22 @@ const styles = StyleSheet.create({
     // viewer's explicit window height with a zero basis on React Native Web.
     flexGrow: 0,
     flexShrink: 0,
-    paddingHorizontal: 18,
-    backgroundColor: "#F4F3EE",
+    paddingHorizontal: 16,
+    backgroundColor: "#FFFFFF",
   },
-  zoomHeader: { flexDirection: "row", alignItems: "center", gap: 22, paddingTop: 6, paddingBottom: 22, paddingHorizontal: 4, flexShrink: 0 },
-  zoomHeading: { flex: 1, gap: 9 },
-  zoomBrand: { color: "#54715F", fontFamily: typography.semibold, fontSize: 9, letterSpacing: 3.5 },
-  zoomTitle: { color: "#233D31", fontFamily: typography.medium, fontSize: 14, lineHeight: 21, letterSpacing: -0.2 },
-  zoomStage: { flex: 1, minHeight: 0, borderRadius: 20, overflow: "hidden", backgroundColor: "#FFFFFF", borderWidth: 1, borderColor: "#E6E8E0" },
-  zoomPhoto: { position: "absolute", top: 12, right: 8, bottom: 12, left: 8 },
-  zoomNavigation: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingVertical: 18, paddingHorizontal: 4, flexShrink: 0 },
-  zoomPagination: { alignItems: "center", gap: 9 },
-  zoomProgressTrack: { width: 48, height: 2, borderRadius: 1, backgroundColor: "#DDDFD5", overflow: "hidden" },
-  zoomProgressFill: { height: 2, backgroundColor: "#345740" },
-  zoomCount: { color: "#233D31", fontFamily: typography.semibold, fontSize: 12, letterSpacing: 2 },
+  zoomHeader: { flexDirection: "row", alignItems: "center", gap: 16, paddingTop: 4, paddingBottom: 16, flexShrink: 0, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E8ECE7" },
+  zoomHeading: { flex: 1, minWidth: 0 },
+  zoomTitle: { color: "#233D31", fontFamily: typography.semibold, fontSize: 14, lineHeight: 20, letterSpacing: -0.25 },
+  zoomStage: { flex: 1, minHeight: 0, overflow: "hidden", backgroundColor: "#FFFFFF" },
+  zoomNavigation: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 24, paddingVertical: 12, flexShrink: 0 },
+  zoomPagination: { alignItems: "center", minWidth: 64 },
+  zoomCount: { color: "#233D31", fontFamily: typography.semibold, fontSize: 12, letterSpacing: 0.5, fontVariant: ["tabular-nums"] },
   zoomCountTotal: { color: "#818B7E", fontFamily: typography.regular },
   zoomDisabled: { opacity: 0.28 },
-  zoomThumbnails: { flexGrow: 0, flexShrink: 0, height: 76 },
-  zoomThumbnailRow: { flexGrow: 1, justifyContent: "center", gap: 12, paddingBottom: 4 },
-  zoomThumbnail: { width: 68, height: 68, borderRadius: 14, padding: 5, borderWidth: 1, borderColor: "#E1E4DB", backgroundColor: "#FFFFFF", opacity: 0.65 },
-  zoomThumbnailSelected: { borderColor: "#345740", backgroundColor: "#E9EDE3", opacity: 1 },
+  zoomThumbnails: { flexGrow: 0, flexShrink: 0, height: 64 },
+  zoomThumbnailRow: { flexGrow: 1, justifyContent: "center", gap: 10, paddingBottom: 4 },
+  zoomThumbnail: { width: 58, height: 58, borderRadius: 10, padding: 4, borderWidth: 2, borderColor: "#F0F2EE", backgroundColor: "#FFFFFF" },
+  zoomThumbnailSelected: { borderColor: "#345740", backgroundColor: "#F1F5EE" },
   zoomThumbnailImage: { width: "100%", height: "100%", borderRadius: 8, backgroundColor: "#FFFFFF" },
   zoomClose: {
     width: 44,
@@ -598,8 +596,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "#DDE2D7",
-    backgroundColor: "#FCFCF9",
+    backgroundColor: "#F3F5F1",
   },
 });

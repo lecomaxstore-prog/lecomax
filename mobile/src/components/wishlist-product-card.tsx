@@ -199,8 +199,8 @@ const styles = StyleSheet.create({
   oldPrice: {fontFamily:typography.regular,fontSize:10,color:'#A4AA9E',textDecorationLine:'line-through',marginTop:3},
   price: {fontFamily:typography.semibold,fontSize:21,letterSpacing:-.6,color:'#244A34'},
   purchaseRow: {flexDirection:'row',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:12,marginTop:16,paddingTop:14,borderTopWidth:1,borderTopColor:'#EDF0E8'},
-  card: { overflow:'hidden', padding:7, borderWidth:1, borderColor:'#E5E9DF', borderRadius:25, backgroundColor:'#FFFFFF' },
-  imageFrame: { aspectRatio:1.45, overflow:'hidden', borderRadius:19, backgroundColor:'#ECEEE7' },
+  card: { overflow:'hidden', borderWidth:1, borderColor:'#E5E9DF', borderRadius:18, backgroundColor:'#FFFFFF' },
+  imageFrame: { aspectRatio:1.6, overflow:'hidden', backgroundColor:'#ECEEE7' },
   imageAction: { flex: 1 },
   imageFallback: {
     position: "absolute",
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
   heart: {position:'absolute',right:11,top:11,width:42,height:42,alignItems:'center',justifyContent:'center',borderWidth:1,borderColor:'rgba(255,255,255,.8)',borderRadius:21,backgroundColor:'rgba(255,255,255,.96)'},
-  body: { paddingHorizontal:11, paddingTop:16, paddingBottom:11 },
+  body: { paddingHorizontal:16, paddingTop:14, paddingBottom:16 },
   meta: {
     minWidth: 0,
     flexDirection: "row",

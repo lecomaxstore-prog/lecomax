@@ -1,4 +1,4 @@
-import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA } from "@/lib/social-image";
+import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA, SOCIAL_TITLE, SOCIAL_DESCRIPTION, resolveSocialImage } from "@/lib/social-image";
 import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
@@ -42,9 +42,6 @@ const sora = Sora({
 const SITE_URL = "https://lecomax.com";
 export const viewport: Viewport = { width: "device-width", initialScale: 1, viewportFit: "cover", interactiveWidget: "resizes-content" };
 const BING_SITE_VERIFICATION = process.env.BING_SITE_VERIFICATION?.trim();
-
-const SOCIAL_TITLE = STOREFRONT_TITLE;
-const SOCIAL_DESCRIPTION = STOREFRONT_DESCRIPTION;
 
 const defaultMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -135,8 +132,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const seoTitle = settings.seo_title?.trim();
     const seoDescription = settings.seo_description?.trim();
     const configuredOgImage = settings.og_image?.trim();
-    const ogImage = !configuredOgImage || configuredOgImage === "/images/lecomax logo.png" || configuredOgImage.includes("ecomax-hero-banner")
-      ? OFFICIAL_SOCIAL_IMAGE : configuredOgImage;
+    const ogImage = resolveSocialImage(configuredOgImage);
     const shippingConfig = shippingConfigFromSettings(settings);
     const replaceShipping = (value: unknown) => typeof value === "string"
       ? value.replace(/\{\{shipping\}\}/g, `${formatShippingAmount(shippingConfig.cost)} MAD`)

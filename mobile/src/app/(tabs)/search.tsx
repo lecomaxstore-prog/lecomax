@@ -342,13 +342,15 @@ export default function SearchScreen() {
             {filtersOpen ? (
               <View style={styles.filterPanel}>
                 <View style={styles.filterPanelHeader}>
-                  <Text style={styles.filterPanelTitle}>{msg("search.filtersUppercase")}</Text>
+                  <Text accessibilityRole="header" style={styles.filterPanelTitle}>{msg("search.filtersUppercase").toLocaleLowerCase()}</Text>
                   <Pressable
                     accessibilityLabel={msg("search.resetFilters")}
                     accessibilityRole="button"
                     onPress={resetFilters}
+                    style={styles.resetButton}
                   >
-                    <Text style={styles.resetText}>{msg("search.resetUppercase")}</Text>
+                    <Ionicons name="refresh-outline" size={14} color="#49634D" />
+                    <Text style={styles.resetText}>{msg("search.resetUppercase").toLocaleLowerCase()}</Text>
                   </Pressable>
                 </View>
                 <Text style={styles.filterLabel}>{msg("search.sortByUppercase")}</Text>
@@ -366,6 +368,7 @@ export default function SearchScreen() {
                       <AnimatedPressable
                         key={value}
                         accessibilityLabel={label}
+                        accessibilityRole="button"
                         accessibilityState={{ selected }}
                         onPress={() => setSort(value)}
                         style={[
@@ -373,6 +376,9 @@ export default function SearchScreen() {
                           selected && styles.sortOptionSelected,
                         ]}
                       >
+                        <View style={[styles.sortIndicator, selected && styles.sortIndicatorSelected]}>
+                          {selected && <Ionicons name="checkmark" size={12} color="#FFFFFF" />}
+                        </View>
                         <Text
                           style={[
                             styles.sortText,
@@ -392,8 +398,8 @@ export default function SearchScreen() {
                   onPress={() => setStockOnly((value) => !value)}
                   style={styles.stockOption}
                 >
-                  <View>
-                    <Text style={styles.stockTitle}>{msg("search.inStockOnlyUppercase")}</Text>
+                  <View style={styles.stockCopy}>
+                    <Text style={styles.stockTitle}>{msg("search.inStockOnly")}</Text>
                     <Text style={styles.stockDescription}>
                       {msg("search.hideUnavailableProducts")}</Text>
                   </View>
@@ -452,11 +458,15 @@ export default function SearchScreen() {
 
                 {editorialCategories.length ? (
                   <View style={styles.section}>
-                    <SectionHeading eyebrow={msg("search.categoriesUppercase")} title={msg("search.exploreUppercase")} />
+                    <View style={styles.categoryHeading}>
+                      <Text style={styles.categoryEyebrow}>{msg("search.categoriesUppercase")}</Text>
+                      <Text accessibilityRole="header" style={styles.categoryTitle}>{msg("search.exploreUppercase").toLocaleLowerCase()}</Text>
+                    </View>
                     <View style={styles.categoryGrid}>
-                      {editorialCategories.map((item, index) => (
+                      {editorialCategories.map((item) => (
                         <AnimatedPressable
                           key={item.id}
+                          accessibilityRole="button"
                           accessibilityLabel={msg("categories.exploreNamed", { name: localizedContent(item.label) })}
                           onPress={() => openCategory(item.slug)}
                           pressedScale={0.97}
@@ -478,32 +488,22 @@ export default function SearchScreen() {
                             transition={180}
                           />
                           <LinearGradient
-                            colors={["transparent", "rgba(0,0,0,0.12)", "rgba(0,0,0,0.72)"]}
-                            locations={[0.25, 0.62, 1]}
+                            colors={["transparent", "rgba(10,22,15,0.08)", "rgba(10,22,15,0.82)"]}
+                            locations={[0.35, 0.6, 1]}
                             pointerEvents="none"
                             style={StyleSheet.absoluteFill}
                           />
-                          <View
-                            style={[
-                              styles.categoryStrip,
-                              index === 0 && styles.categoryStripFeatured,
-                            ]}
-                          >
-                            <Text
-                              style={[
-                                styles.categoryLabel,
-                                index === 0 && styles.categoryLabelFeatured,
-                              ]}
-                            >
-                              {localizedContent(item.label).toUpperCase()}
+                          <View style={styles.categoryStrip}>
+                            <Text style={styles.categoryLabel}>
+                              {localizedContent(item.label)}
                             </Text>
+                            <View style={styles.categoryArrow}>
                             <Ionicons
                               name="arrow-forward"
-                              size={15}
-                              color={
-                                index === 0 ? colors.text : colors.background
-                              }
+                              size={16}
+                              color="#FFFFFF"
                             />
+                            </View>
                           </View>
                         </AnimatedPressable>
                       ))}
@@ -723,8 +723,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     padding: 16,
     borderWidth: 1,
-    borderColor: colors.text,
-    backgroundColor: colors.surface,
+    borderColor: "#E1E7DD",
+    borderRadius: 18,
+    backgroundColor: "#FAFBF8",
   },
   filterPanelHeader: {
     flexDirection: "row",
@@ -732,49 +733,61 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   filterPanelTitle: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 18,
+    color: "#263D2D",
+    fontFamily: typography.semibold,
+    fontSize: 20,
+    letterSpacing: -0.4,
+    textTransform: "capitalize",
   },
+  resetButton: { minHeight: 44, paddingHorizontal: 8, flexDirection: "row", alignItems: "center", gap: 5 },
   resetText: {
-    color: colors.primaryDark,
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 0.7,
+    color: "#49634D",
+    fontFamily: typography.medium,
+    fontSize: 11,
+    textTransform: "capitalize",
   },
   filterLabel: {
-    marginTop: 18,
-    color: colors.secondaryText,
-    fontFamily: typography.black,
-    fontSize: 8,
+    marginTop: 12,
+    color: "#737E6D",
+    fontFamily: typography.semibold,
+    fontSize: 9,
     letterSpacing: 1,
   },
   sortGrid: {
     marginTop: 8,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    justifyContent: "space-between",
+    rowGap: 8,
   },
   sortOption: {
-    width: "48.8%",
-    minHeight: 44,
-    paddingHorizontal: 11,
+    width: "48.5%",
+    minHeight: 48,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    flexDirection: "row",
+    gap: 7,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "#E1E6DC",
+    borderRadius: 11,
     backgroundColor: colors.background,
   },
   sortOptionSelected: {
-    borderColor: colors.text,
-    backgroundColor: colors.text,
+    borderColor: "#7B9879",
+    backgroundColor: "#EDF3E8",
   },
+  sortIndicator: { width: 17, height: 17, flexShrink: 0, borderRadius: 9, borderWidth: 1, borderColor: "#CED7C9", alignItems: "center", justifyContent: "center" },
+  sortIndicatorSelected: { backgroundColor: "#345A3D", borderColor: "#345A3D" },
   sortText: {
-    color: colors.secondaryText,
-    fontFamily: typography.bold,
-    fontSize: 9,
+    flex: 1,
+    color: "#5B6657",
+    fontFamily: typography.medium,
+    fontSize: 11,
+    lineHeight: 16,
   },
-  sortTextSelected: { color: colors.background },
+  sortTextSelected: { color: "#294A32", fontFamily: typography.semibold },
   stockOption: {
     minHeight: 62,
     marginTop: 16,
@@ -783,29 +796,33 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: "#E3E8DF",
+    gap: 14,
   },
+  stockCopy: { flex: 1, minWidth: 0 },
   stockTitle: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 9,
-    letterSpacing: 0.5,
+    color: "#2E4333",
+    fontFamily: typography.semibold,
+    fontSize: 12,
+    lineHeight: 18,
   },
   stockDescription: {
     marginTop: 4,
     color: colors.secondaryText,
     fontFamily: typography.regular,
-    fontSize: 8,
+    fontSize: 10,
+    lineHeight: 15,
   },
   switchTrack: {
     width: 42,
+    flexShrink: 0,
     height: 24,
     padding: 3,
     justifyContent: "center",
     borderRadius: 12,
     backgroundColor: "#CACECB",
   },
-  switchTrackActive: { backgroundColor: colors.primary },
+  switchTrackActive: { backgroundColor: "#345A3D" },
   switchThumb: {
     width: 18,
     height: 18,
@@ -860,48 +877,44 @@ const styles = StyleSheet.create({
     fontFamily: typography.bold,
     fontSize: 10,
   },
+  categoryHeading: { gap: 5 },
+  categoryEyebrow: { color: "#69766A", fontFamily: typography.semibold, fontSize: 9, lineHeight: 14, letterSpacing: 1.8 },
+  categoryTitle: { color: "#243C2D", fontFamily: typography.semibold, fontSize: 26, lineHeight: 32, letterSpacing: -0.7, textTransform: "capitalize" },
   categoryGrid: {
-    marginTop: 14,
+    marginTop: 18,
     paddingBottom: 24,
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    justifyContent: "space-between",
+    rowGap: 12,
   },
   categoryTile: {
-    width: "48.5%",
-    height: 168,
+    width: "48.4%",
+    aspectRatio: 0.88,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "rgba(11,11,11,0.08)",
-    borderRadius: 16,
+    borderRadius: 14,
     backgroundColor: colors.surface,
-    shadowColor: "#000000",
-    shadowOffset: { width: 0, height: 7 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
-    elevation: 3,
   },
   categoryStrip: {
     position: "absolute",
-    left: 8,
-    right: 8,
-    bottom: 8,
-    minHeight: 38,
-    paddingHorizontal: 12,
+    left: 12,
+    right: 12,
+    bottom: 14,
+    minHeight: 32,
+    gap: 6,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.text,
-    borderRadius: 10,
   },
-  categoryStripFeatured: { backgroundColor: colors.primary },
+  categoryArrow: { width: 28, height: 28, flexShrink: 0, borderRadius: 14, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(255,255,255,0.14)" },
   categoryLabel: {
     color: colors.background,
-    fontFamily: typography.black,
-    fontSize: 11,
-    letterSpacing: 0.7,
+    flex: 1,
+    fontFamily: typography.semibold,
+    fontSize: 14,
+    lineHeight: 20,
+    letterSpacing: -0.2,
   },
-  categoryLabelFeatured: { color: colors.text },
   productsHeading: {
     marginTop: 24,
     marginBottom: 14,

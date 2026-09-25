@@ -1,30 +1,44 @@
-# Product description translations
+# Saved OpenAI product descriptions
 
-The mobile product description requests the shopper's selected language (`en` or `fr`). Existing and future published products use the same on-demand flow, including descriptions containing both languages. Already translated text is returned unchanged. Originals remain available through the description toggle.
+The mobile app requests English or French for the selected product. The server translates only published catalogue descriptions, using OpenAI Responses with strict JSON output. The source description is preserved. Shoppers see the description without translation labels, loading notices or translation controls; the source text is displayed until a saved result is available.
 
-The server reads the published product itself; clients cannot submit arbitrary text. Cache keys include language, name, brand, description and translation version, so catalogue edits cannot reuse an old translation. Output validation rejects incomplete responses, HTML, removed brands and changed numeric values. Translation is contextual, not a finite word dictionary; automated validation does not guarantee every linguistic choice is correct.
+## Translate once and reuse
 
-## Configuration and rollout
+The database stores each successful result permanently by product ID, language and source fingerprint. Page reloads, other visitors, process restarts and deployments reuse it without another AI request. New products use the same flow on their first description request. Changes to name, brand or description create a new fingerprint; price, stock and images do not. Existing successful translations are retained when changing provider.
 
-Keep `GROQ_API_KEY`, `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` configured on the server. Optional `PRODUCT_TRANSLATION_MODEL` and `PRODUCT_TRANSLATION_FALLBACK_MODEL` override `openai/gpt-oss-120b` and `llama-3.3-70b-versatile`. Never expose provider or service-role credentials in the app.
+An atomic database lease prevents concurrent visitors from generating the same result. AI calls have a 40-second timeout; leases last 90 seconds. Failed generations can retry after five minutes. Saving retries the same output up to three times. Missing storage or locking functions cause an explicit service error, never an ephemeral paid translation. As with any external API plus database, a process crash or persistent write outage after generation can require a later retry; this is not an absolute exactly-once billing guarantee.
 
-Apply these SQL migrations in order in Supabase:
+## Configuration
 
-1. `supabase/migrations/20260906180000_product_translations.sql`
-2. `supabase/migrations/20260906200000_bilingual_product_translations.sql`
+Server only: OPENAI_API_KEY, NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Optional OPENAI_TRANSLATION_MODEL overrides OPENAI_MODEL (default gpt-6-sol). Provider credentials never enter the mobile bundle. Groq is no longer used for product translations.
 
-Deploy the API and release the updated mobile/web client. Older clients continue requesting English by default. New descriptions translate on first view; there is no manual per-product translation step.
+Storage migrations, in order:
+1. supabase/migrations/20260906180000_product_translations.sql
+2. supabase/migrations/20260906200000_bilingual_product_translations.sql
 
-The API middleware must include `product-translations` in its mobile CORS allowlist. Without this, browser requests from the app origin fail even when server-side tests succeed.
+On Windows, scripts/setup-product-translations.ps1 -Apply uses the existing Supabase CLI login, verifies the linked project matches the app, then installs these two migrations in a transaction. Without -Apply it only checks availability.
 
-For a local browser preview before API deployment, set `EXPO_PUBLIC_TRANSLATION_API_URL=http://127.0.0.1:3002` in `mobile/.env.local` and run the local API on that port. Restart Expo after changing the environment. This override applies only to development web previews on localhost; native and production builds continue using the main API URL. The public endpoint must be deployed for installed apps and hosted previews; a 404 there means the API route is not deployed.
+## Existing catalogue
 
-If the table or bilingual RPC is absent, the API uses a bounded temporary cache (100 results for one hour, at most 8 concurrent generations per process). This fallback keeps descriptions working during migration rollout, but does not persist across server restarts or coordinate across server instances. The database supplies durable caching and atomic generation leases once migrated. Pending leases expire after 90 seconds; failed generations can retry after 30 seconds.
+Run a read-only coverage check:
+
+    node --env-file=.env.local scripts/backfill-product-translations.mjs
+
+Fill missing English and French descriptions:
+
+    node --env-file=.env.local scripts/backfill-product-translations.mjs --apply
+
+The script is resumable, skips saved results and stops at the first provider/storage failure. It does not change original product data.
+
+## Local preview and deployment
+
+The local Expo web preview uses EXPO_PUBLIC_TRANSLATION_API_URL=http://127.0.0.1:3002. Run the Next.js API on port 3002 with outbound network access. Native and release builds use the main API, so the updated route and its server modules must be deployed there for future products to use OpenAI. The middleware CORS allowlist includes product-translations.
 
 ## Verification
 
-Run `node --test tests/product-translation.test.ts tests/product-translation-api.test.ts` and `node scripts/test-product-translation-sql.mjs`. The SQL test runs in an isolated PostgreSQL runtime.
+    node --test tests/product-translation.test.ts tests/product-translation-store.test.ts tests/product-translation-api.test.ts tests/product-translation-browser.test.ts
+    node scripts/test-product-translation-sql.mjs
 
-`node --env-file=.env.local scripts/check-product-translations.mjs --provider` checks storage access and makes two small live translation requests, without changing catalogue data. The September 6 check found the translation table and SQL execution RPC missing; both live French and English provider samples succeeded. Database migrations have not been applied by this change.
+Tests cover numeric and brand preservation, strict provider output, simultaneous requests, durable reuse, missing storage, persistence retries, source edits, endpoint access and CORS.
 
-Provider JSON mode reference: https://console.groq.com/docs/structured-outputs
+OpenAI reference: https://developers.openai.com/api/docs/guides/structured-outputs

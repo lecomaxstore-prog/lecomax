@@ -101,20 +101,20 @@ export const SearchProductCard = memo(function SearchProductCard({
           <Text numberOfLines={2} style={styles.name}>{product.name}</Text>
 
           <View style={styles.ratingRow}>
+            {reviews > 0 && (product.rating ?? 0) > 0 && <View style={styles.rating}>
             <Ionicons
-              name={reviews > 0 && (product.rating ?? 0) > 0 ? "star" : "star-outline"}
+              name="star"
               size={13}
               color={colors.gold}
             />
             <Text style={styles.ratingText}>
-              {reviews > 0 && (product.rating ?? 0) > 0
-                ? `${formatNumber(product.rating ?? 0, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} (${reviews})`
-                : msg("rating.new")}
+              {`${formatNumber(product.rating ?? 0, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} (${reviews})`}
             </Text>
+            </View>}
             {(product.stock > 0 || product.preorder_enabled) ? (
               <View style={styles.stock}>
                 <View style={styles.stockDot} />
-                <Text style={styles.stockText}>{product.stock <= 0 && product.preorder_enabled ? msg("preorder.badge") : msg("homePromotionSection.inStockUppercase")}</Text>
+                <Text style={styles.stockText}>{product.stock <= 0 && product.preorder_enabled ? msg("preorder.badge") : msg("productCard.inStock")}</Text>
               </View>
             ) : null}
           </View>
@@ -131,6 +131,7 @@ export const SearchProductCard = memo(function SearchProductCard({
       <AnimatedPressable
         accessibilityLabel={favorite ? msg("productCard.removeFromFavorites") : msg("productCard.addToFavorites")}
         accessibilityRole="button"
+        accessibilityState={{ selected: favorite }}
         onPress={() => toggleWishlist(product.id)}
         style={styles.favorite}
       >
@@ -149,13 +150,13 @@ const styles = StyleSheet.create({
     width: "48.8%",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 5,
+    borderColor: "#E5E9E2",
+    borderRadius: 16,
     backgroundColor: colors.background,
   },
   productLink: { flex: 1 },
   imageSurface: {
-    height: 182,
+    aspectRatio: 1,
     overflow: "hidden",
     backgroundColor: colors.surface,
   },
@@ -180,11 +181,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.primary,
+    borderRadius: 7,
   },
   newBadgeText: {
     color: colors.text,
     fontFamily: typography.black,
-    fontSize: 7,
+    fontSize: 9,
     letterSpacing: 0.7,
   },
   discountBadge: {
@@ -196,11 +198,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.notification,
+    borderRadius: 7,
   },
   discountBadgeText: {
     color: colors.background,
-    fontFamily: typography.black,
-    fontSize: 8,
+    fontFamily: typography.semibold,
+    fontSize: 10,
   },
   favorite: {
     position: "absolute",
@@ -211,7 +214,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: "rgba(35,61,44,0.08)",
     borderRadius: 22,
     backgroundColor: "rgba(255,255,255,0.96)",
   },
@@ -224,6 +227,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: colors.text,
+    borderRadius: 7,
   },
   outOfStockText: {
     color: colors.background,
@@ -232,75 +236,83 @@ const styles = StyleSheet.create({
     letterSpacing: 0.7,
   },
   body: {
-    minHeight: 137,
-    padding: 10,
+    flex: 1,
+    padding: 12,
   },
   category: {
-    color: colors.primaryDark,
-    fontFamily: typography.black,
-    fontSize: 7,
-    letterSpacing: 0.8,
+    color: "#75816F",
+    fontFamily: typography.semibold,
+    fontSize: 8,
+    lineHeight: 12,
+    letterSpacing: 1,
   },
   name: {
-    minHeight: 38,
+    minHeight: 36,
     marginTop: 6,
-    color: colors.text,
-    fontFamily: typography.bold,
-    fontSize: 12,
-    lineHeight: 17,
+    color: "#27382B",
+    fontFamily: typography.semibold,
+    fontSize: 13,
+    lineHeight: 18,
+    letterSpacing: -0.2,
   },
   ratingRow: {
     minHeight: 24,
-    marginTop: 5,
+    marginTop: 8,
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
-    gap: 4,
+    gap: 8,
   },
+  rating: { flexDirection: "row", alignItems: "center", gap: 4 },
   ratingText: {
     color: colors.secondaryText,
     fontFamily: typography.medium,
     fontSize: 9,
   },
   stock: {
-    marginLeft: "auto",
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
+    gap: 5,
   },
   stockDot: {
     width: 5,
     height: 5,
     borderRadius: 3,
-    backgroundColor: colors.primary,
+    backgroundColor: "#648567",
   },
   stockText: {
-    color: colors.secondaryText,
-    fontFamily: typography.black,
-    fontSize: 6,
-    letterSpacing: 0.45,
+    flexShrink: 1,
+    color: "#62725E",
+    fontFamily: typography.medium,
+    fontSize: 9,
+    lineHeight: 14,
   },
   priceRow: {
     minHeight: 31,
-    marginTop: 7,
-    paddingTop: 8,
+    marginTop: 10,
+    paddingTop: 10,
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "baseline",
-    gap: 5,
+    columnGap: 7,
+    rowGap: 3,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: "#EDF0EA",
   },
   price: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 14,
+    color: "#234735",
+    fontFamily: typography.semibold,
+    fontSize: 16,
+    lineHeight: 22,
+    letterSpacing: -0.4,
   },
-  salePrice: { color: colors.notification },
+  salePrice: { color: "#B3443D" },
   oldPrice: {
     minWidth: 0,
     flexShrink: 1,
     color: "#8D928E",
     fontFamily: typography.medium,
-    fontSize: 8,
+    fontSize: 10,
     textDecorationLine: "line-through",
   },
 });

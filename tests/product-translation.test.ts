@@ -17,21 +17,23 @@ test("validation preserves numeric facts and brands, accepts localized decimals"
   assert.throws(() => validateProductTranslation("Une longue description avec plusieurs détails", "Yes"), /incomplete/);
 });
 
-test("provider translates both directions and falls back on invalid output", async (t) => {
-  const originalKey = process.env.GROQ_API_KEY;
-  process.env.GROQ_API_KEY = "test-key";
-  t.after(() => { if (originalKey === undefined) delete process.env.GROQ_API_KEY; else process.env.GROQ_API_KEY = originalKey; });
+test("OpenAI translates both directions with strict output and one attempt", async (t) => {
+  const originalKey = process.env.OPENAI_API_KEY;
+  process.env.OPENAI_API_KEY = "test-key";
+  t.after(() => { if (originalKey === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = originalKey; });
   const requests: any[] = [];
-  t.mock.method(globalThis, "fetch", async (_url: unknown, options: RequestInit) => {
+  t.mock.method(globalThis, "fetch", async (url: unknown, options: RequestInit) => {
+    assert.equal(url, "https://api.openai.com/v1/responses");
     const body = JSON.parse(String(options.body));
     requests.push(body);
-    const description = requests.length === 1 ? "Changed 99 facts" : body.messages[0].content.includes("Target language: French") ? "Jordan : 2 poches" : "Jordan: 2 pockets";
-    return Response.json({ choices: [{ finish_reason: "stop", message: { content: JSON.stringify({ description }) } }] });
+    assert.equal(body.store, false);
+    assert.equal(body.text.format.strict, true);
+    const description = body.instructions.includes("Target language: French") ? "Jordan : 2 poches" : "Jordan: 2 pockets";
+    return Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ description }) }] }] });
   });
   assert.equal((await generateProductTranslation({ name: "Hoodie", brand: "Jordan", description: "Jordan : 2 poches", locale: "en" })).description, "Jordan: 2 pockets");
-  assert.equal(requests.length, 2);
   assert.equal((await generateProductTranslation({ name: "Hoodie", brand: "Jordan", description: "Jordan: 2 pockets", locale: "fr" })).description, "Jordan : 2 poches");
-  assert.match(requests[2].messages[0].content, /Target language: French/);
+  assert.equal(requests.length, 2);
 });
 
 test("temporary cache shares concurrent work, stores successes and retries failures", async () => {

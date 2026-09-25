@@ -3,6 +3,8 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { isSizeMenuOpen, sizeMenuServerSnapshot, subscribeSizeMenu } from "@/lib/size-menu-state";
 import { usePathname } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import styles from "./ChatWidget.module.css";
+import { createChatDictation, type DictationState, type RecognitionConstructor } from "@/lib/chat-dictation";
 
 type ChatMsg = { id: string; direction: "in" | "out"; body: string; sent_by: "visitor" | "ai" | "agent"; timestamp: string };
 type Snapshot = { status: "ai" | "escalated" | "resolved"; messages: ChatMsg[]; expires_at: string | null; expired?: boolean; ai_takeover_required?: boolean };
@@ -88,6 +90,57 @@ export default function ChatWidget() {
   const panelRef = useRef<HTMLElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const dictationRef = useRef<ReturnType<typeof createChatDictation> | null>(null);
+  const [voiceState, setVoiceState] = useState<DictationState>("idle");
+  const [voiceError, setVoiceError] = useState("");
+  const voiceActive = voiceState !== "idle";
+
+  const cancelDictation = useCallback(() => {
+    const dictation = dictationRef.current;
+    dictationRef.current = null;
+    dictation?.cancel();
+  }, []);
+
+  useEffect(() => {
+    if (!open || busy || starting || confirmEnd || snapshot.status === "resolved") cancelDictation();
+  }, [open, busy, starting, confirmEnd, snapshot.status, cancelDictation]);
+
+  useEffect(() => {
+    const onVisibility = () => { if (document.hidden) cancelDictation(); };
+    document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("pagehide", cancelDictation);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("pagehide", cancelDictation);
+      cancelDictation();
+    };
+  }, [cancelDictation]);
+
+  function toggleDictation() {
+    if (dictationRef.current) { dictationRef.current.stop(); return; }
+    setVoiceError("");
+    const speechWindow = window as Window & { SpeechRecognition?: RecognitionConstructor; webkitSpeechRecognition?: RecognitionConstructor };
+    const Recognition = speechWindow.SpeechRecognition || speechWindow.webkitSpeechRecognition;
+    if (!Recognition || !window.isSecureContext) {
+      setVoiceError("La dictée vocale n’est pas disponible ici. Essayez un navigateur compatible sur HTTPS ou utilisez le micro du clavier de votre téléphone.");
+      return;
+    }
+    if (input.length >= 2000) { setVoiceError("Votre message atteint la limite de 2 000 caractères. Raccourcissez-le avant de dicter."); return; }
+    signalClientTyping(false);
+    try {
+      const dictation = createChatDictation({
+        Recognition, draft: input,
+        onText: setInput,
+        onError: setVoiceError,
+        onState: state => {
+          setVoiceState(state);
+          if (state === "idle") dictationRef.current = null;
+        },
+      });
+      dictationRef.current = dictation;
+      dictation.start();
+    } catch { setVoiceError("Le microphone n’a pas pu démarrer. Vous pouvez saisir votre message."); }
+  }
   useEffect(() => {
     const textarea = inputRef.current;
     if (!textarea) return;
@@ -260,6 +313,8 @@ export default function ChatWidget() {
   }
 
   async function send(text = input) {
+    if (dictationRef.current) return;
+    setVoiceError("");
     text = text.trim();
     const id = sessionRef.current;
     if (!text || !id || busyRef.current || snapshotRef.current.status === "resolved") return;
@@ -334,14 +389,28 @@ export default function ChatWidget() {
           <div className="mt-7 divide-y divide-neutral-100 overflow-hidden rounded-xl border border-neutral-200/80 bg-white">{TOPICS.map(([label, message]) => <button key={label} type="button" disabled={disabled} onClick={() => void send(message)} className={control + " flex min-h-12 w-full items-center justify-between gap-3 rounded-none px-4 py-3 text-left text-[13px] font-medium hover:bg-neutral-50"}><span>{label}</span><span aria-hidden="true" className="text-lg font-normal text-neutral-400">›</span></button>)}</div>
           <button type="button" disabled={disabled} onClick={() => void send("Je souhaite parler à un conseiller humain")} className={control + " mt-4 min-h-11 w-full text-xs font-medium text-emerald-900 hover:bg-emerald-50"}>Parler à un conseiller <span aria-hidden="true">↗</span></button>
         </div> : <div role="log" aria-label="Messages de la conversation" aria-live="polite" aria-relevant="additions" className="space-y-5">{visibleMessages.map(message => <div key={message.id} className={"flex flex-col " + (message.direction === "in" ? "items-end" : "items-start")}>
-          <p className="mb-1.5 px-1 text-[10px] font-medium text-neutral-400">{message.sent_by === "visitor" ? "Vous" : message.sent_by === "agent" ? "Conseiller L’ecomax" : "Eco · IA"}</p>
-          <div dir="auto" className={"max-w-[92%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-[13px] leading-[1.7] " + (message.direction === "in" ? "rounded-tr-md bg-[#183c30] text-white" : "rounded-tl-md border border-neutral-200/70 bg-white text-neutral-700")}><MessageBody text={message.body} /></div>
+          {message.sent_by === "ai" ? <div className="mb-2 flex items-center gap-2 px-0.5">
+            <span aria-hidden="true" className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#183c30] text-white shadow-sm [&_svg]:h-3.5 [&_svg]:w-3.5"><Icon kind="chat" /></span>
+            <span className="text-xs font-semibold tracking-tight text-[#183c30]">Eco</span>
+            <span className="rounded-full border border-[#dce7df] bg-[#edf3ee] px-1.5 py-0.5 text-[9px] font-semibold leading-3 tracking-wide text-[#42624f]" aria-label="Intelligence artificielle">IA</span>
+          </div> : <p className="mb-1.5 px-1 text-[10px] font-medium text-neutral-500">{message.sent_by === "visitor" ? "Vous" : "Conseiller L’ecomax"}</p>}
+          <div dir="auto" className={"max-w-[92%] whitespace-pre-wrap break-words rounded-2xl px-4 py-3 text-[13px] leading-[1.7] " + (message.direction === "in" ? "rounded-tr-md bg-[#183c30] text-white" : "rounded-tl-md border border-neutral-200/70 bg-white text-neutral-700")}>
+            <MessageBody text={message.body} />
+          </div>
           <time dateTime={message.timestamp} className="mt-1 px-1 text-[10px] text-neutral-400">{message.id === "pending" ? "Envoi…" : new Date(message.timestamp).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</time>
         </div>)}</div>}
-        {((busy && !resolved) || starting || agentTyping) && <p role="status" className="mt-5 text-xs text-neutral-500">{starting ? "Connexion à l’assistance…" : agentTyping ? "Le conseiller écrit…" : snapshot.status === "escalated" ? "Envoi du message…" : "Eco prépare une réponse…"}</p>}
+        {!resolved && (busy || starting || agentTyping) && <div role="status" aria-live="polite" className="mt-5 text-xs text-neutral-500">
+          {starting ? <p>Connexion à l’assistance…</p> : agentTyping || snapshot.status === "ai" ? <>
+            <p className="sr-only">{agentTyping ? "Le conseiller écrit…" : "Réponse en cours"}</p>
+            <div aria-hidden="true" className="inline-flex items-center gap-1.5 rounded-2xl rounded-tl-sm border border-[#e0e7dd] bg-white px-4 py-3.5 text-[#183c30] shadow-sm">
+              <span className={styles.typingDot} /><span className={styles.typingDot} /><span className={styles.typingDot} />
+            </div>
+          </> : <p>Envoi du message…</p>}
+        </div>}
         {snapshot.status === "escalated" && !agentActive && !busy && <p className="mt-5 rounded-lg border border-neutral-200 bg-white p-3 text-xs leading-5 text-neutral-500">Votre demande a été transmise. Vous pouvez réduire cette fenêtre pendant l’attente.</p>}
       </div>
       <footer className="shrink-0 border-t border-neutral-100 bg-white p-4 pb-[max(16px,env(safe-area-inset-bottom))]">
+        {voiceError && <p role="alert" className="mb-3 rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900">{voiceError}</p>}
         {error && <div role="alert" className="mb-3 rounded-lg bg-amber-50 p-3 text-xs leading-5 text-amber-900">{error}{!sessionId && <button onClick={() => void start()} disabled={starting} className={control + " ml-2 underline"}>Réessayer</button>}</div>}
         {resolved ? <div>
           <p className="text-sm font-semibold">{snapshot.expired ? "Cet échange a été fermé" : "Merci pour votre visite"}</p><p className="mt-1 text-xs leading-5 text-neutral-500">{snapshot.expired ? "Sans réponse de votre part pendant 3 minutes, la conversation se termine automatiquement." : "La conversation est terminée. Nous restons à votre écoute."}</p>
@@ -356,9 +425,13 @@ export default function ChatWidget() {
           <button type="button" onClick={() => void restart()} disabled={starting} className={control + " mt-4 min-h-11 w-full bg-[#183c30] text-sm font-medium text-white hover:bg-[#224e3e]"}>Nouvelle conversation</button>
         </div> : <>
           {secondsLeft !== null && secondsLeft <= 30 && !busy && <p role="status" className="mb-2 text-xs text-neutral-500">L’échange se termine bientôt sans nouvelle réponse.</p>}
-          <form onSubmit={event => { event.preventDefault(); void send(); }} className="flex items-end gap-3 rounded-[22px] border border-[#dfe5df] bg-[#fafbf8] p-2 shadow-[0_2px_8px_rgba(24,60,48,0.04),inset_0_1px_0_rgba(255,255,255,0.9)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-[#87a394] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(24,60,48,0.06),0_4px_16px_rgba(24,60,48,0.05)]">
-            <label htmlFor="eco-chat-message" className="sr-only">Votre message</label><textarea id="eco-chat-message" ref={inputRef} onBlur={() => signalClientTyping(false)} value={input} onChange={event => typing(event.target.value)} maxLength={2000} disabled={disabled} rows={1} placeholder="Écrivez votre message…" onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(); } }} className="eco-chat-scroll max-h-36 min-h-11 min-w-0 flex-1 resize-none border-0 bg-transparent py-2.5 pl-3 pr-0 text-base leading-6 text-[#243c31] outline-none placeholder:text-[#8a968e] disabled:cursor-not-allowed sm:text-sm" />
-            <button type="submit" aria-label="Envoyer le message" disabled={disabled || !input.trim()} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-[#285442] to-[#183c30] text-white shadow-[0_3px_8px_rgba(24,60,48,0.18),inset_0_1px_0_rgba(255,255,255,0.12)] transition-[transform,box-shadow,opacity] duration-200 enabled:hover:shadow-[0_4px_12px_rgba(24,60,48,0.28)] enabled:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none motion-reduce:transition-none"><Icon kind="arrow" /></button>
+          {voiceActive && <div id="eco-voice-status" role="status" className="mb-2 flex items-center gap-2 px-2 text-xs font-medium text-[#183c30]"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-red-500 motion-safe:animate-pulse" />{voiceState === "starting" ? "Autorisez le micro pour commencer…" : voiceState === "stopping" ? "Fin de la dictée…" : "Je vous écoute… Appuyez sur stop pour terminer."}</div>}
+          <form onSubmit={event => { event.preventDefault(); void send(); }} className="flex items-end gap-1.5 rounded-[22px] border border-[#dfe5df] bg-[#fafbf8] p-2 shadow-[0_2px_8px_rgba(24,60,48,0.04),inset_0_1px_0_rgba(255,255,255,0.9)] transition-[border-color,box-shadow,background-color] duration-200 focus-within:border-[#87a394] focus-within:bg-white focus-within:shadow-[0_0_0_3px_rgba(24,60,48,0.06),0_4px_16px_rgba(24,60,48,0.05)]">
+            <label htmlFor="eco-chat-message" className="sr-only">Votre message</label><textarea id="eco-chat-message" ref={inputRef} onBlur={() => signalClientTyping(false)} value={input} onChange={event => typing(event.target.value)} maxLength={2000} disabled={disabled} readOnly={voiceActive} aria-describedby={voiceActive ? "eco-voice-status" : undefined} rows={1} placeholder="Écrivez votre message…" onKeyDown={event => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); void send(); } }} className="eco-chat-scroll max-h-36 min-h-11 min-w-0 flex-1 resize-none border-0 bg-transparent py-2.5 pl-3 pr-0 text-base leading-6 text-[#243c31] outline-none placeholder:text-[#8a968e] disabled:cursor-not-allowed sm:text-sm" />
+            <button type="button" onClick={toggleDictation} disabled={disabled || voiceState === "stopping"} aria-label={voiceActive ? "Arrêter la dictée" : "Dicter un message"} aria-pressed={voiceActive} title={voiceActive ? "Arrêter la dictée" : "Dicter un message"} className={control + " flex h-11 w-11 shrink-0 items-center justify-center rounded-full " + (voiceActive ? "bg-red-50 text-red-600 ring-1 ring-red-200" : "text-[#42624f] hover:bg-[#e8eee8]")}>
+              {voiceActive ? <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="3" /></svg> : <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8" /></svg>}
+            </button>
+            <button type="submit" aria-label="Envoyer le message" disabled={disabled || voiceActive || !input.trim()} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-[#285442] to-[#183c30] text-white shadow-[0_3px_8px_rgba(24,60,48,0.18),inset_0_1px_0_rgba(255,255,255,0.12)] transition-[transform,box-shadow,opacity] duration-200 enabled:hover:shadow-[0_4px_12px_rgba(24,60,48,0.28)] enabled:active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-30 disabled:shadow-none motion-reduce:transition-none"><Icon kind="arrow" /></button>
           </form>
           <div className="mt-2.5 flex items-center justify-between gap-2 text-[10px] text-neutral-400"><span>Fermeture après 3 min sans réponse</span>{visibleMessages.length > 0 && snapshot.status === "ai" && <button disabled={disabled} onClick={() => void send("Je souhaite parler à un conseiller humain")} className={control + " py-1 text-neutral-600 underline underline-offset-2"}>Un conseiller</button>}</div>
         </>}

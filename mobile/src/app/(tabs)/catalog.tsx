@@ -144,24 +144,17 @@ function CatalogContent({
     [columns],
   );
 
-  return (
-    <Screen>
+  const catalogHeader = (
+    <View style={styles.scrollHeader}>
       <Animated.View entering={FadeInDown.duration(350)} style={styles.header}>
         <View style={styles.headingRow}>
-          <View style={styles.headingCopy}>
-            <View style={styles.eyebrowRow}>
-              <View style={styles.eyebrowLine} />
-              <Text style={styles.eyebrow}>{msg("catalog.lecomaxShopUppercase")}</Text>
-            </View>
-            <Text style={styles.title}>{promotionOnly ? msg("homePromotionSection.promotions") : t.shopTitle}</Text>
-            <View style={styles.titleAccent} />
-          </View>
-          <View style={styles.inventoryCard}>
-            <View style={styles.inventoryCountBadge}>
+          <Text accessibilityRole="header" style={styles.title}>
+            {promotionOnly ? msg("homePromotionSection.promotions") : t.shopTitle}
+          </Text>
+          <View style={styles.inventoryBadge}>
+            <Text style={styles.inventoryLabel}>
               <Text style={styles.inventoryCount}>{products.length}</Text>
-            </View>
-            <Text numberOfLines={2} style={styles.inventoryLabel}>
-              {t.articlesAvailable}
+              {" "}{t.articlesAvailable}
             </Text>
           </View>
         </View>
@@ -368,11 +361,17 @@ function CatalogContent({
         </Animated.View>
       ) : null}
 
+    </View>
+  );
+
+  return (
+    <Screen>
       <FlatList
         ref={listRef}
         {...scrollReturn}
         key={`catalog-${columns}`}
         data={isLoading ? [] : products}
+        ListHeaderComponent={catalogHeader}
         numColumns={columns}
         keyExtractor={(item) => item.id}
         renderItem={renderProduct}
@@ -426,81 +425,51 @@ function CatalogContent({
 }
 
 const styles = StyleSheet.create({
+  scrollHeader: {
+    marginHorizontal: -12,
+  },
   header: {
     paddingHorizontal: 18,
-    paddingTop: 17,
-    paddingBottom: 14,
+    paddingTop: 18,
+    paddingBottom: 18,
     backgroundColor: palette.white,
   },
   headingRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
     alignItems: "center",
     justifyContent: "space-between",
-  },
-  headingCopy: { flex: 1, paddingRight: 18 },
-  eyebrowRow: { flexDirection: "row", alignItems: "center" },
-  eyebrowLine: {
-    width: 18,
-    height: 2,
-    marginRight: 8,
-    borderRadius: 1,
-    backgroundColor: palette.green,
-  },
-  eyebrow: {
-    color: palette.greenDark,
-    fontFamily: typography.black,
-    fontSize: 7.5,
-    letterSpacing: 1.8,
+    columnGap: 16,
+    rowGap: 10,
+    minHeight: 38,
   },
   title: {
-    marginTop: 7,
-    color: palette.ink,
-    fontFamily: typography.black,
-    fontSize: 34,
-    lineHeight: 38,
-    letterSpacing: -1.35,
+    flexShrink: 1,
+    color: "#203D2D",
+    fontFamily: typography.semibold,
+    fontSize: 28,
+    lineHeight: 34,
+    letterSpacing: -0.8,
   },
-  titleAccent: {
-    width: 34,
-    height: 3,
-    marginTop: 9,
-    borderRadius: 2,
-    backgroundColor: palette.green,
-  },
-  inventoryCard: {
-    width: 112,
-    minHeight: 54,
-    padding: 7,
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#DDEBE1",
-    borderRadius: 16,
-    backgroundColor: "#F4FAF5",
-  },
-  inventoryCountBadge: {
-    width: 38,
-    height: 38,
-    marginRight: 9,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 12,
-    backgroundColor: palette.green,
+  inventoryBadge: {
+    maxWidth: "100%",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 8,
+    backgroundColor: "#F1F4EF",
   },
   inventoryCount: {
-    color: palette.white,
-    fontFamily: typography.black,
-    fontSize: 16,
-    lineHeight: 19,
+    color: "#46564A",
+    fontFamily: typography.semibold,
+    fontVariant: ["tabular-nums"],
   },
   inventoryLabel: {
-    flex: 1,
-    color: palette.ink,
-    fontFamily: typography.bold,
-    fontSize: 7,
-    lineHeight: 10,
+    color: "#63705F",
+    fontFamily: typography.regular,
+    fontSize: 11,
+    lineHeight: 16,
   },
-  toolsRow: { marginTop: 15, flexDirection: "row", gap: 8 },
+  toolsRow: { marginTop: 16, flexDirection: "row", gap: 8 },
   searchShell: {
     height: 54,
     paddingHorizontal: 14,
@@ -750,7 +719,7 @@ const styles = StyleSheet.create({
   switchThumbActive: { transform: [{ translateX: 18 }] },
   productsContent: {
     paddingHorizontal: 12,
-    paddingTop: 12,
+    paddingTop: 0,
     paddingBottom: 125,
     rowGap: 22,
     flexGrow: 1,
