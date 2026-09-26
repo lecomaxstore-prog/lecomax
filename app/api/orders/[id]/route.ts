@@ -221,7 +221,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) return NextResponse.json({ error: "Identifiant invalide." }, { status: 400 });
-  const { error } = await supabase.from("orders").delete().eq("id", id);
+  const { data, error } = await supabase.from("orders").delete().eq("id", id).select("id");
   if (error) return NextResponse.json({ error: publicDatabaseError(error) }, { status: 500 });
+  if (!data?.length) return NextResponse.json({ error: "Commande introuvable ou déjà supprimée." }, { status: 404 });
   return NextResponse.json({ success: true });
 }

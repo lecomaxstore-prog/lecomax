@@ -9,6 +9,8 @@ import { translate } from "./course/journey";
 import { parisLearningDay } from "@/lib/learning-reminder-time";
 import type { ContentBlock, CourseLanguage, Lesson } from "./course/types";
 import DailyCodeExample from "./DailyCodeExample";
+import HourWorkshop, { HourPlan } from "./HourWorkshop";
+import { readWorkbook, workbookReady, type Workbook } from "./course/hour-workshop";
 import DailySessionQuiz, { type SessionQuestion } from "./DailySessionQuiz";
 import styles from "./DailySession.module.css";
 const KEY = "lecomax-daily-sessions-v2";
@@ -38,6 +40,9 @@ export default function DailySession({ lang, onAcademy }: { lang: CourseLanguage
   const path = DAILY_PATH[selected];
   const basic = DAILY_LESSONS.find(item => item.id === path.id);
   const entry = progress[path.id] ?? emptySession;
+  const book = readWorkbook(entry.workbook);
+  const workReady = workbookReady(book);
+  const activeStage = entry.stage === "quiz" && !entry.completedOn && !workReady ? "practice" : entry.stage;
   const lesson = advanced?.id === path.id && advanced.lang === lang ? advanced.lesson : null;
   const questions: SessionQuestion[] = basic ? DAILY_TESTS[basic.id].map(item => ({ question: dailyText(lang, item.question), options: item.options.map(option => dailyText(lang, option)), correctIndex: item.correctIndex, explanation: dailyText(lang, item.explanation) })) : lesson?.quiz ?? [];
   const correct = questions.map(item => item.correctIndex);
@@ -75,6 +80,7 @@ export default function DailySession({ lang, onAcademy }: { lang: CourseLanguage
     return () => { cancelled = true; };
   }, [lang, path.id, path.moduleId, path.lessonId, retry]);
   function save(next: SessionProgress) { setProgress(next); try { localStorage.setItem(KEY, JSON.stringify(next)); setStorageError(false); } catch { setStorageError(true); } }
+  function saveWorkbook(workbook: Workbook) { save({ ...progress, [path.id]: { ...entry, workbook, practiced: workbookReady(workbook) && entry.practiced } }); }
   function focus() { requestAnimationFrame(() => { heading.current?.focus({ preventScroll: true }); heading.current?.scrollIntoView({ block: "start", behavior: "instant" }); }); }
   function go(stage: SessionStage) { save({ ...progress, [path.id]: { ...entry, stage } }); focus(); }
   async function syncResult(answers: number[]) {
@@ -86,12 +92,13 @@ export default function DailySession({ lang, onAcademy }: { lang: CourseLanguage
     } catch { setSync("error"); }
   }
   function submit(answers: number[]) {
+    if (!entry.completedOn && !workReady) { go("practice"); return; }
     const next = finishSession(entry, answers, correct, parisLearningDay().date);
     save({ ...progress, [path.id]: next });
     if (gradeSession(answers, correct).passed) { setReview(false); void syncResult(answers); } focus();
   }
   if (!ready) return <p role="status">{t("Préparation de ta séance…", "Preparing your session…", "جارٍ تجهيز جلستك…")}</p>;
-  const stageIndex = ["welcome", "learn", "practice", "quiz"].indexOf(entry.stage);
+  const stageIndex = ["welcome", "learn", "practice", "quiz"].indexOf(activeStage);
   const nextPath = DAILY_PATH[selected + 1];
   const nextBasic = DAILY_LESSONS.find(item => item.id === nextPath?.id);
   return <section data-daily-session dir={lang === "ar" ? "rtl" : "ltr"} className={styles.shell} aria-label={t("Ma séance du jour", "My daily session", "جلستي اليومية")}>
@@ -108,21 +115,23 @@ export default function DailySession({ lang, onAcademy }: { lang: CourseLanguage
         {!nextPath && <button className={styles.primary} onClick={onAcademy}>{t("Continuer mes projets", "Continue my projects", "تابع مشاريعي")}</button>}
       </div> : <>
         <p className={styles.kicker}>{t("JOUR", "DAY", "اليوم")} {selected + 1} · {basic ? t("MES PREMIERS PAS", "MY FIRST STEPS", "خطواتي الأولى") : t("JE CONSTRUIS MES COMPÉTENCES", "BUILDING MY SKILLS", "أطوّر مهاراتي")}</p>
-        <h2 ref={heading} tabIndex={-1}>{entry.stage === "welcome" ? t("Aujourd’hui, tu vas apprendre…", "Today, you’ll learn…", "اليوم ستتعلم…") : entry.stage === "quiz" ? t("Voyons ce que tu as compris.", "Let’s see what you understood.", "لنرَ ما فهمته.") : title}</h2>
-        {entry.stage !== "welcome" && <ol className={styles.steps} aria-label={t("Étapes de la séance", "Session steps", "خطوات الجلسة")}>{[t("Apprendre", "Learn", "تعلّم"), t("Essayer", "Try", "جرّب"), t("Petit test", "Short test", "اختبار قصير")].map((label, index) => <li key={label} aria-current={stageIndex === index + 1 ? "step" : undefined}><span>{index + 1}</span>{label}</li>)}</ol>}
+        <h2 ref={heading} tabIndex={-1}>{activeStage === "welcome" ? t("Aujourd’hui, tu vas apprendre…", "Today, you’ll learn…", "اليوم ستتعلم…") : activeStage === "quiz" ? t("Voyons ce que tu as compris.", "Let’s see what you understood.", "لنرَ ما فهمته.") : title}</h2>
+        {activeStage !== "welcome" && <ol className={styles.steps} aria-label={t("Étapes de la séance", "Session steps", "خطوات الجلسة")}>{[t("Apprendre · 20 min", "Learn · 20 min", "تعلّم · 20 دقيقة"), t("Atelier · 30 min", "Workshop · 30 min", "تطبيق · 30 دقيقة"), t("Bilan · 10 min", "Review · 10 min", "مراجعة · 10 دقائق")].map((label, index) => <li key={label} aria-current={stageIndex === index + 1 ? "step" : undefined}><span>{index + 1}</span>{label}</li>)}</ol>}
         <div className={styles.content}>
-          {entry.stage === "welcome" && <div className={styles.stack}><h3>{title}</h3><p>{basic ? dailyText(lang, basic.idea) : lesson?.objectives[0]}</p><div className={styles.plan}><span>01 <strong>{t("Je t’explique", "I’ll explain", "أشرح لك")}</strong></span><span>02 <strong>{t("Tu essaies", "You try", "تجرّب")}</strong></span><span>03 <strong>{t("Tu passes le test", "You take the test", "تجتاز الاختبار")}</strong></span></div><p className={styles.muted}>{basic ? "10–15" : lesson?.estimatedMinutes} min · {t("Pas besoin de choisir une leçon. Je te guide, depuis le début.", "No need to choose a lesson. I’ll guide you from the beginning.", "لا تحتاج لاختيار درس. سأرشدك من البداية.")}</p><button data-session-start className={styles.primary} onClick={() => go("learn")}>{t("Commencer ma séance", "Start today’s session", "ابدأ جلسة اليوم")}</button></div>}
-          {entry.stage === "learn" && <div className={styles.stack}>
+          {activeStage === "welcome" && <div className={styles.stack}><h3>{title}</h3><p>{basic ? dailyText(lang, basic.idea) : lesson?.objectives[0]}</p><HourPlan lang={lang} /><button data-session-start className={styles.primary} onClick={() => go("learn")}>{t("Commencer ma séance", "Start today’s session", "ابدأ جلسة اليوم")}</button></div>}
+          {activeStage === "learn" && <div className={styles.stack}>
+            <HourWorkshop mode="learn" lang={lang} basic={basic} lesson={lesson} book={book} onChange={saveWorkbook} />
             {basic ? <><h3>{t("L’idée à comprendre", "The idea to understand", "الفكرة التي نفهمها")}</h3><p>{dailyText(lang, basic.idea)}</p><div className={styles.explanation}><strong>{t("Un exemple dans ta boutique", "An example from your shop", "مثال من متجرك")}</strong><p>{dailyText(lang, basic.example)}</p></div><details className={styles.details}><summary>{t("Voir le vrai code de mon site", "See my website’s real code", "شاهد الكود الحقيقي لموقعي")}</summary><DailyCodeExample lesson={basic} lang={lang} /></details></> : lesson && <><p className={styles.muted}>{t("Partie", "Part", "الجزء")} {section + 1}/{lesson.sections.length}</p><h3>{lesson.sections[section]?.title}</h3>{lesson.sections[section]?.blocks.map(block => <LessonBlock key={block.id} block={block} />)}</>}
-            {lesson && section < lesson.sections.length - 1 ? <button className={styles.primary} onClick={() => { setSection(value => value + 1); focus(); }}>{t("J’ai lu, continuer →", "I’ve read this, continue →", "قرأت، تابع ←")}</button> : <button data-session-practice className={styles.primary} onClick={() => go("practice")}>{t("J’ai compris l’idée. À moi d’essayer →", "I understand the idea. Let me try →", "فهمت الفكرة. سأجرّب الآن ←")}</button>}
+            {lesson && section < lesson.sections.length - 1 ? <button className={styles.primary} onClick={() => { setSection(value => value + 1); focus(); }}>{t("J’ai lu, continuer →", "I’ve read this, continue →", "قرأت، تابع ←")}</button> : <button data-session-practice disabled={book.recall.trim().length < 40} className={styles.primary} onClick={() => go("practice")}>{t("J’ai compris l’idée. À moi d’essayer →", "I understand the idea. Let me try →", "فهمت الفكرة. سأجرّب الآن ←")}</button>}
             {section > 0 && <button className={styles.textButton} onClick={() => { setSection(value => value - 1); focus(); }}>{t("Partie précédente", "Previous part", "الجزء السابق")}</button>}
           </div>}
-          {entry.stage === "practice" && <div className={styles.stack}><h3>{t("Un petit exercice, maintenant.", "One small exercise, now.", "تمرين صغير الآن.")}</h3><p>{basic ? dailyText(lang, basic.task) : lesson?.exercise.task}</p>{lesson && <ol>{lesson.exercise.steps.map((item, index) => <li key={index}>{item}</li>)}</ol>}{lesson && <details className={styles.details}><summary>{t("J’ai besoin d’un indice", "I need a hint", "أحتاج تلميحًا")}</summary>{lesson.exercise.hints.map((hint, index) => <p key={index}>{hint}</p>)}</details>}
-            <label className={styles.check}><input data-session-practiced type="checkbox" checked={entry.practiced} onChange={event => save({ ...progress, [path.id]: { ...entry, practiced: event.target.checked } })} />{t("J’ai essayé l’exercice", "I tried the exercise", "جرّبت التمرين")}</label>
+          {activeStage === "practice" && <div className={styles.stack}><h3>{t("Ton atelier du jour", "Your daily workshop", "تطبيق اليوم")}</h3>
+            <HourWorkshop mode="practice" lang={lang} basic={basic} lesson={lesson} book={book} onChange={saveWorkbook} />
+            <label className={styles.check}><input data-session-practiced disabled={!workReady} type="checkbox" checked={entry.practiced} onChange={event => save({ ...progress, [path.id]: { ...entry, practiced: event.target.checked } })} />{t("J’ai réalisé le défi et vérifié mes résultats", "I completed the challenge and checked my results", "أنجزت التحدّي وفحصت نتائجي")}</label>
             <details className={styles.details}><summary>{t("Garder une note (facultatif)", "Keep a note (optional)", "احفظ ملاحظة (اختياري)")}</summary><label htmlFor="daily-note">{t("Ce que j’ai compris", "What I understood", "ما فهمته")}</label><textarea id="daily-note" maxLength={1500} rows={3} value={entry.note} onChange={event => save({ ...progress, [path.id]: { ...entry, note: event.target.value } })} /></details>
-            <button data-session-test className={styles.primary} disabled={!entry.practiced} onClick={() => go("quiz")}>{t("Je suis prêt pour le petit test →", "I’m ready for the short test →", "أنا مستعد للاختبار القصير ←")}</button>{!entry.practiced && <p className={styles.muted}>{t("Essaie l’exercice, puis coche la case pour continuer.", "Try the exercise, then check the box to continue.", "جرّب التمرين ثم حدّد المربع للمتابعة.")}</p>}<button className={styles.textButton} onClick={() => go("learn")}>{t("Revoir l’explication", "Review the explanation", "راجع الشرح")}</button>
+            <button data-session-test className={styles.primary} disabled={!entry.practiced || !workReady} onClick={() => go("quiz")}>{t("Vérifier mes connaissances →", "Check my understanding →", "اختبر فهمي ←")}</button>{(!entry.practiced || !workReady) && <p className={styles.muted}>{t("Complète les quatre réponses du carnet, puis confirme que tu as réalisé et vérifié ton travail.", "Complete all four workbook answers, then confirm that you performed and checked your work.", "أكمل إجابات الدفتر الأربع ثم أكّد أنك أنجزت العمل وفحصته.")}</p>}<button className={styles.textButton} onClick={() => go("learn")}>{t("Revoir l’explication", "Review the explanation", "راجع الشرح")}</button>
           </div>}
-          {entry.stage === "quiz" && <DailySessionQuiz key={path.id + lang} questions={questions} lang={lang} onSubmit={submit} onReview={() => go("learn")} />}
+          {activeStage === "quiz" && <DailySessionQuiz key={path.id + lang} questions={questions} lang={lang} onSubmit={submit} onReview={() => go("learn")} />}
           {review && <button className={styles.textButton} onClick={() => { setReview(false); focus(); }}>{t("Retour à ma séance terminée", "Back to my completed session", "عد إلى جلستي المكتملة")}</button>}
         </div>
       </>}

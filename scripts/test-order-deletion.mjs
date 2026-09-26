@@ -1,0 +1,17 @@
+import { PGlite } from '@electric-sql/pglite';
+import { readFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
+const db = new PGlite();
+await db.exec(`create role anon; create role authenticated;
+create table orders(id uuid primary key);
+create table loyalty_transactions(order_id uuid references orders(id) on delete restrict,status text, reversed_at timestamptz,points int);
+insert into orders values ('00000000-0000-0000-0000-000000000001');
+insert into loyalty_transactions values ('00000000-0000-0000-0000-000000000001','pending',null,14),('00000000-0000-0000-0000-000000000001','earned',null,20);`);
+await db.exec(readFileSync('supabase/migrations/20260926120000_order_delete_loyalty_history.sql','utf8'));
+await db.exec('begin; delete from orders; rollback;');
+assert.equal((await db.query('select count(*)::int n from loyalty_transactions where order_id is not null')).rows[0].n,2);
+await db.exec('delete from orders');
+assert.equal((await db.query('select count(*)::int n from orders')).rows[0].n,0);
+assert.deepEqual((await db.query('select order_id,status,points from loyalty_transactions order by points')).rows,[{order_id:null,status:'reversed',points:14},{order_id:null,status:'earned',points:20}]);
+await db.close();
+console.log('PASS: deletion, preserved history, pending reversal, transaction rollback');

@@ -50,3 +50,17 @@
 .code { max-width: 100%; overflow-x: auto; background: #173529; color: #e3edd9; padding: 20px; border-radius: 12px; font-size: 12px; line-height: 1.9; text-align: left; white-space: pre; }
 .warning { padding: 16px; background: #fff5da; color: #715713; border-radius: 12px; margin-bottom: 16px; font-size: 12px; }
 @media(max-width:600px) { .card { padding: 24px 20px; border-radius: 18px; } .topline { font-size: 9px; margin-bottom: 14px; } .stack { gap: 20px; } .card .steps { gap: 12px; } .steps li { font-size: 10px; } .primary { font-size: 13px; } }
+.hourPlan { border: 1px solid #dbe7d7; border-radius: 18px; background: #f5f8f1; padding: 20px; }
+.hourHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; font-size: 16px; line-height: 1.5; }
+.hourHeading > span { flex-shrink: 0; border-radius: 999px; background: #244d36; color: white; padding: 5px 10px; font-size: 12px; }
+.card .hourPlan ol { list-style: none; padding: 0; margin: 18px 0; }
+.card .hourPlan li { display: flex; justify-content: space-between; gap: 16px; border-top: 1px solid #dfe8da; padding-top: 10px; font-size: 13px; }
+.hourPlan li strong { white-space: nowrap; }
+.writing { border: 1px solid #dce5d6; border-radius: 16px; padding: 18px; background: #fcfdfb; }
+.writing label { display: block; font-size: 15px; font-weight: 700; }
+.writing p { margin: 10px 0 14px; }
+.writing textarea { display: block; width: 100%; min-height: 150px; resize: vertical; border: 1px solid #bacdb2; border-radius: 10px; background: white; padding: 14px; color: #233d32; font-size: 16px; line-height: 1.7; }
+.writing textarea:focus-visible { outline: 2px solid #57874b; outline-offset: 3px; }
+.writing small { display: block; margin-top: 8px; color: #65796b; line-height: 1.6; font-size: 12px; }
+.explanation dd { font-size: 14px; line-height: 1.8; margin: 4px 0 14px; }
+@media(max-width:600px) { .hourPlan, .writing { padding: 16px; } .hourHeading { flex-wrap: wrap; } .card .steps { flex-wrap: wrap; } .card h2 { scroll-margin-top: 180px; } }

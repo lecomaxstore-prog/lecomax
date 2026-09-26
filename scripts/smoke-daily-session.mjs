@@ -6,6 +6,7 @@ export async function checkDailySession({ client, evaluate, waitFor, setViewport
   const run = expression => evaluate(client, expression);
   const wait = (expression, label) => waitFor(client, expression, label);
   const click = selector => run(`document.querySelector(${JSON.stringify(selector)}).click()`);
+  const write = selector => run(`(() => { const field = document.querySelector(${JSON.stringify(selector)}); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(field, 'I traced the input, predicted the output, compared the result and corrected my example.'); field.dispatchEvent(new Event('input', { bubbles: true })); })()`);
   const assert = (value, message) => { if (!value) throw new Error(message); };
   const shot = async name => {
     await mkdir(path.join(root, ".source-library"), { recursive: true });
@@ -25,9 +26,13 @@ export async function checkDailySession({ client, evaluate, waitFor, setViewport
   await click('button[aria-label="English"]');
   // Keep the browser test isolated from the reminder database.
   await run(`(() => { const original = window.fetch; window.fetch = (url, options) => String(url).includes('/api/admin/learning-completion') ? Promise.resolve(new Response('{}', { status: 200 })) : original(url, options); })()`);
+  await write("#workbook-recall");
+  await wait("!document.querySelector('[data-session-practice]').disabled", "written preparation enables workshop");
   await click("[data-session-practice]");
   await wait("Boolean(document.querySelector('[data-session-test]'))", "practice step");
   assert(await run("document.querySelector('[data-session-test]').disabled"), "Quiz must wait for practice.");
+  for (const field of ["guided", "challenge", "reflection"]) await write(`#workbook-${field}`);
+  await wait("!document.querySelector('[data-session-practiced]').disabled", "completed workbook enables practice confirmation");
   await click("[data-session-practiced]");
   await click("[data-session-test]");
   const answers = async choices => {

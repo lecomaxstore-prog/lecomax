@@ -50,6 +50,7 @@ export default function OrdersPage() {
   const [selected, setSelected]   = useState<Set<string>>(new Set());
   const [bulkStatus, setBulkStatus]   = useState("");
   const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [sending, setSending] = useState<string | null>(null);
   const [pendingAction, setPendingAction] = useState<"confirmed" | "shipped" | "delivered" | "cancelled" | null>(null);
   const [reviewModal, setReviewModal] = useState<Order | null>(null);
@@ -125,6 +126,46 @@ export default function OrdersPage() {
     await load();
     showToast("Statut mis à jour ✓");
     } catch { showToast('Erreur réseau. Vérifiez le statut avant de réessayer.', false); }
+  }
+
+  async function removeOrder(order: Order) {
+    if (deletingId) return;
+    setDeletingId(order.id);
+    try {
+      const confirmed = await confirmAction(`Supprimer définitivement la commande #${order.order_number} de ${order.customer?.name ?? "ce client"} ? Cette action est irréversible. Elle ne rembourse pas le paiement et ne remet pas les articles en stock.`);
+      if (!confirmed) return;
+      const response = await fetch(`/api/orders/${order.id}`, { method: "DELETE" });
+      const result = await response.json().catch(() => null);
+      if (!response.ok || result?.success !== true) {
+        showToast(result?.error ?? "Impossible de supprimer la commande.", false);
+        return;
+      }
+      setOrders(current => current.filter(item => item.id !== order.id));
+      setSelected(current => {
+        const next = new Set(current);
+        next.delete(order.id);
+        return next;
+      });
+      if (detailId === order.id) router.replace("/admin/orders");
+      if (reviewModal?.id === order.id) setReviewModal(null);
+      showToast("Commande supprimée ✓");
+    } catch {
+      showToast("Erreur réseau. Actualisez les commandes avant de réessayer.", false);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
+  function removeButton(order: Order) {
+    return (
+      <button type="button" disabled={deletingId !== null}
+        aria-label={`Supprimer la commande ${order.order_number}`}
+        onClick={event => { event.stopPropagation(); void removeOrder(order); }}
+        className="inline-flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50">
+        <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6" /></svg>
+        {deletingId === order.id ? "Suppression…" : "Supprimer"}
+      </button>
+    );
   }
 
   async function saveTracking(id: string) {
@@ -364,6 +405,12 @@ export default function OrdersPage() {
   return (
     <div className="flex flex-col lg:flex-row gap-5 h-full">
       {confirmationDialog}
+      {toast && !detail && (
+        <div role={toast.ok ? "status" : "alert"} className={`fixed left-1/2 top-4 z-[60] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-xl border p-4 text-sm shadow-lg ${toast.ok ? "border-emerald-200 bg-emerald-50 text-emerald-900" : "border-red-200 bg-red-50 text-red-900"}`}>
+          {toast.msg}
+          <button type="button" aria-label="Fermer le message" onClick={() => setToast(null)} className="ml-3 inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg border border-current">×</button>
+        </div>
+      )}
 
       {/* LEFT: List */}
       <div className={`flex flex-col min-w-0 transition-all ${detail ? "hidden lg:flex lg:w-[52%] lg:flex-shrink-0" : "flex-1"}`}>
@@ -466,6 +513,7 @@ export default function OrdersPage() {
                         </div>
                         <p className="text-[11px] text-neutral-500 mt-0.5">{o.customer?.city} · {new Date(o.created_at).toLocaleString("fr-FR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</p>
                         <p className="text-[11px] text-neutral-500">{(o.payment_method ?? "").toLowerCase().startsWith("paypal") ? "PayPal" : "Paiement à la livraison"}</p>
+                        {removeButton(o)}
                       </div>
                       {o.status === "delivered" && (
                         <button
@@ -495,6 +543,7 @@ export default function OrdersPage() {
                     <th className="text-center px-3 py-3">Statut</th>
                     <th className="text-center px-2 py-3">Avis</th>
                     <th className="text-right px-3 py-3">Date</th>
+                    <th className="text-right px-3 py-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-50">
@@ -544,6 +593,7 @@ export default function OrdersPage() {
                       <td className={`px-3 py-3 text-right text-xs ${detailId === o.id ? "text-white/60" : "text-neutral-400"}`}>
                         {new Date(o.created_at).toLocaleDateString("fr-FR")}
                       </td>
+                      <td className="px-3 py-3 text-right">{removeButton(o)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -978,30 +1028,26 @@ export default function OrdersPage() {
 
       {/* Bulk action bar */}
       {selected.size > 0 && (
-        <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] lg:bottom-6 left-1/2 lg:left-[calc(50%+8rem)] -translate-x-1/2 z-50 flex items-center gap-2 bg-neutral-900 text-white pl-4 pr-3 py-2.5 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-white/10 max-w-[calc(100vw-2rem)]">
-          <div className="flex items-center gap-2 pr-3 border-r border-white/15 shrink-0">
+        <div role="region" aria-label="Actions sur les commandes sélectionnées" aria-busy={bulkUpdating} className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] lg:bottom-6 left-1/2 lg:left-[calc(50%+8rem)] -translate-x-1/2 z-50 grid w-[calc(100%-2rem)] max-w-lg grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 bg-neutral-900 text-white p-3 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.35)] border border-white/10">
+          <div className="col-start-1 row-start-1 flex min-w-0 items-center gap-2">
             <div className="w-5 h-5 rounded-full bg-white text-black text-[10px] font-black flex items-center justify-center">{selected.size}</div>
             <span className="text-sm font-semibold text-white/80 whitespace-nowrap">sélectionnée{selected.size > 1 ? "s" : ""}</span>
           </div>
-          <div className="flex items-center gap-1 px-1 overflow-x-auto">
-            {STATUS_OPTIONS.map((s) => (
-              <button key={s.value} onClick={() => setBulkStatus(bulkStatus === s.value ? "" : s.value)}
-                className={`text-[11px] font-bold px-2.5 py-1 rounded-lg whitespace-nowrap transition-all shrink-0
-                  ${bulkStatus === s.value ? "bg-white text-black" : "text-white/50 hover:text-white hover:bg-white/10"}`}>
-                {s.label}
-              </button>
-            ))}
-          </div>
-          <div className="w-px h-5 bg-white/15 mx-1 shrink-0" />
-          <button onClick={applyBulkStatus} disabled={!bulkStatus || bulkUpdating}
-            className="flex items-center gap-1.5 px-4 py-1.5 bg-white text-black text-sm font-black rounded-xl hover:bg-neutral-100 transition-colors disabled:opacity-30 whitespace-nowrap shrink-0">
+          <select aria-label="Nouveau statut des commandes sélectionnées" value={bulkStatus}
+            disabled={bulkUpdating} onChange={event => setBulkStatus(event.target.value)}
+            className="col-start-1 row-start-2 h-11 w-full min-w-0 rounded-xl border border-white/20 bg-neutral-800 px-3 text-base text-white disabled:opacity-50">
+            <option value="">Choisir un statut</option>
+            {STATUS_OPTIONS.map(status => <option key={status.value} value={status.value}>{status.label}</option>)}
+          </select>
+          <button type="button" onClick={applyBulkStatus} disabled={!bulkStatus || bulkUpdating}
+            className="col-start-2 row-start-2 flex min-h-11 items-center justify-center gap-1.5 px-3 bg-white text-black text-sm font-bold rounded-xl hover:bg-neutral-100 transition-colors disabled:opacity-40 whitespace-nowrap">
             {bulkUpdating
               ? <svg className="animate-spin" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12a9 9 0 11-18 0"/></svg>
               : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
-            Appliquer
+            {bulkUpdating ? "En cours…" : "Appliquer"}
           </button>
-          <button onClick={() => { setSelected(new Set()); setBulkStatus(""); }}
-            className="ml-1 p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-colors shrink-0">
+          <button type="button" aria-label="Effacer la sélection" disabled={bulkUpdating} onClick={() => { setSelected(new Set()); setBulkStatus(""); }}
+            className="col-start-2 row-start-1 flex h-11 w-11 items-center justify-center justify-self-end rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-40">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
           </button>
         </div>
