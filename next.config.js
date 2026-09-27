@@ -4,7 +4,7 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
-  "frame-ancestors 'none'",
+  process.env.NODE_ENV === "development" ? "frame-ancestors 'self'" : "frame-ancestors 'none'",
   "form-action 'self'",
   "script-src 'self' 'unsafe-inline' https://www.paypal.com https://www.sandbox.paypal.com https://www.paypalobjects.com https://va.vercel-scripts.com https://www.googletagmanager.com https://widget.trustpilot.com https://www.clarity.ms",
   "style-src 'self' 'unsafe-inline'",
@@ -12,7 +12,7 @@ const contentSecurityPolicy = [
   "media-src 'self' blob: https:",
   "font-src 'self' data:",
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api-m.paypal.com https://api-m.sandbox.paypal.com https://www.paypal.com https://vitals.vercel-insights.com https://www.google-analytics.com https://*.google-analytics.com https://*.clarity.ms https://*.trustpilot.com",
-  "frame-src https://www.paypal.com https://www.sandbox.paypal.com https://*.trustpilot.com https://www.youtube.com https://www.youtube-nocookie.com",
+  (process.env.NODE_ENV === "development" ? "frame-src 'self' " : "frame-src ") + "https://www.paypal.com https://www.sandbox.paypal.com https://*.trustpilot.com https://www.youtube.com https://www.youtube-nocookie.com",
   "worker-src 'self' blob:",
   "manifest-src 'self'",
   "upgrade-insecure-requests",
@@ -211,7 +211,7 @@ const nextConfig = {
         source: "/(.*)",
         headers: [
           { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Frame-Options", value: process.env.NODE_ENV === "development" ? "SAMEORIGIN" : "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=(self)" },
@@ -224,6 +224,16 @@ const nextConfig = {
 };
 
 module.exports = (phase) => ({
+  webpack(config, { dev }) {
+    if (dev) config.module.rules.push({
+      test: /\.tsx$/,
+      include: [require("node:path").join(__dirname, "app"), require("node:path").join(__dirname, "components")],
+      enforce: "pre",
+      use: [require.resolve("./scripts/source-inspector-loader.cjs")],
+    });
+    return config;
+  },
+
   ...nextConfig,
   // Keep production builds from overwriting a running preview's chunks.
   distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",

@@ -5,6 +5,7 @@ import DailyLearning from "./DailySession";
 import CodingTutor from "./CodingTutor";
 import { translate } from "./course/journey";
 import CodeLibrary from "./CodeLibrary";
+import SiteExplorer from "./SiteExplorer";
 
 const AcademySection = dynamic(() => import("./AcademySection"), {
   loading: () => (
@@ -5192,6 +5193,10 @@ export default function ProductsPage() {
 
   return (
     <div className="space-y-6">
+      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+        <button type="button" onClick={() => onNavigate("site")} className="min-h-12 w-full rounded-xl bg-emerald-950 px-4 py-3 text-left font-bold text-white">{translate(lang, "Mon site → mon code · cliquer pour apprendre", "My site → my code · click to learn", "موقعي ← الكود · انقر لتتعلم")}</button>
+        <a href="#files" className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-emerald-900 underline">{translate(lang, "Parcourir tous mes fichiers", "Browse all my files", "تصفح كل ملفاتي")}</a>
+      </div>
       <DailyLearning lang={lang} onAcademy={() => onNavigate("academy")} />
       <CodingTutor lang={lang} />
       <details className="rounded-3xl border border-neutral-200 bg-white p-4">
@@ -5374,13 +5379,13 @@ export default function ProductsPage() {
 }
 
 // ─── TABS ─────────────────────────────────────────────────────────────────────
-const TAB_IDS = ["start","tutor","game","academy","hero","cours","mentor","guide","debug","supabase","deploy","arch","files","tech","env","pages","search"] as const;
+const TAB_IDS = ["start","site","tutor","game","academy","hero","cours","mentor","guide","debug","supabase","deploy","arch","files","tech","env","pages","search"] as const;
 type TabId = typeof TAB_IDS[number];
 
 const TAB_GROUPS: { id: "learn" | "build" | "reference"; tabs: TabId[] }[] = [
   { id: "learn", tabs: ["start", "tutor", "game", "academy", "hero", "cours", "mentor", "guide", "debug"] },
   { id: "build", tabs: ["supabase", "deploy", "arch"] },
-  { id: "reference", tabs: ["files", "tech", "env", "pages", "search"] },
+  { id: "reference", tabs: ["site", "files", "tech", "env", "pages", "search"] },
 ];
 
 function TabIcon({ id, className = "h-4 w-4" }: { id: TabId; className?: string }) {
@@ -5421,6 +5426,7 @@ export default function HowItWasBuiltPage() {
     const openDeepLinkedCourse = () => {
       if (window.location.hash.startsWith("#academy/")) setTab("academy");
       else if (window.location.hash.startsWith("#files")) setTab("files");
+      else if (window.location.hash === "#site") setTab("site");
       else if (window.location.hash.startsWith("#tutor")) setTab("tutor");
       else if (!window.location.hash) setTab("start");
     };
@@ -5469,7 +5475,7 @@ export default function HowItWasBuiltPage() {
     : lang === "ar"
       ? { learn: "التعلّم", build: "بناء L'ecomax", reference: "استكشاف المشروع" }
       : { learn: "Apprendre", build: "Construire L'ecomax", reference: "Explorer le projet" };
-  const tabLabel = (id: TabId) => id === "game"
+  const tabLabel = (id: TabId) => id === "site" ? translate(lang, "Mon site → mon code", "My site → my code", "موقعي ← الكود") : id === "game"
     ? (lang === "en" ? "Code Game" : lang === "ar" ? "لعبة البرمجة" : "Jeu de code")
     : u.tabs[id];
   const previousLabel = lang === "en" ? "Previous section" : lang === "ar" ? "القسم السابق" : "Section précédente";
@@ -5478,7 +5484,7 @@ export default function HowItWasBuiltPage() {
   return (
     <div lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} className="-m-4 mb-0 min-h-full bg-[#f4f4f2] sm:m-0">
       {/* Header */}
-      <div id="course-page-header" className="sticky -top-4 z-40 border-b border-gray-200/80 bg-white/95 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl md:-top-6 lg:-top-8">
+      <div id="course-page-header" className="relative top-0 md:sticky z-40 border-b border-gray-200/80 bg-white/95 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl md:-top-6 lg:-top-8">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 sm:py-4">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0d0d0d] shadow-sm sm:h-9 sm:w-9">
@@ -5506,7 +5512,8 @@ export default function HowItWasBuiltPage() {
           </div>
         </div>
         {/* Mobile course navigator */}
-        <div id="mobile-course-navigator" className={tab === "start" ? "hidden" : "border-t border-gray-100 px-4 pb-3 pt-2 md:hidden"}>
+        {tab === "site" && <div className="border-t px-4 py-1 md:hidden"><label className="flex items-center gap-2 text-xs font-semibold"><span>{translate(lang, "Atelier", "Workshop", "الورشة")}</span><select aria-label={translate(lang, "Changer d’atelier", "Change workshop", "تغيير الورشة")} value={tab} onChange={event => selectTab(event.target.value as TabId)} className="min-h-11 min-w-0 flex-1 bg-transparent px-2 text-sm font-bold">{TAB_IDS.map(id => <option key={id} value={id}>{tabLabel(id)}</option>)}</select></label></div>}
+        <div id="mobile-course-navigator" className={tab === "start" || tab === "site" ? "hidden" : "border-t border-gray-100 px-4 pb-3 pt-2 md:hidden"}>
           <div className="mx-auto max-w-xl">
             <div className="mb-1.5 flex items-center justify-between gap-3 text-[11px] font-bold text-gray-500">
               <span>{lang === "en" ? "Current section" : lang === "ar" ? "القسم الحالي" : "Section actuelle"}</span>
@@ -5581,6 +5588,7 @@ export default function HowItWasBuiltPage() {
         {tab === "academy" && <AcademySection lang={lang} />}
         {tab === "arch"   && <ArchSection lang={lang} />}
         {tab === "files"  && <CodeLibrary lang={lang} />}
+        {tab === "site" && <SiteExplorer lang={lang} />}
         {tab === "tech"   && <TechSec lang={lang} />}
         {tab === "env"    && <EnvSec lang={lang} />}
         {tab === "pages"  && <PagesSection lang={lang} />}
