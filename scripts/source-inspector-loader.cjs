@@ -1,7 +1,8 @@
 const ts = require("typescript");
 const path = require("node:path");
 
-// Development only. Attribute values point to original files, never generated code.
+// Source locations support the private learning workshop in every build.
+// Only relative paths and line numbers are exposed, never file contents.
 module.exports = function sourceInspectorLoader(source) {
   this.cacheable?.();
   const filename = path.relative(this.rootContext, this.resourcePath).replace(/\\/g, "/");

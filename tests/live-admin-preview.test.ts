@@ -1,0 +1,20 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createRequire } from "node:module";
+import { readFileSync } from "node:fs";
+const require = createRequire(import.meta.url);
+test("production supports same-origin learning previews and bundles private source", async () => {
+  const config = require("../next.config.js")("phase-production-build");
+  const rules = await config.headers();
+  const headers = rules.find(rule => rule.source === "/(.*)").headers;
+  assert.equal(headers.find(h => h.key === "X-Frame-Options").value, "SAMEORIGIN");
+  const csp = headers.find(h => h.key === "Content-Security-Policy").value;
+  assert.ok(csp.includes("frame-ancestors 'self'"));
+  assert.ok(csp.includes("frame-src 'self'"));
+  const webpack = config.webpack({module: {rules: []}}, {dev: false});
+  assert.ok(webpack.module.rules.some(rule => rule.enforce === "pre"));
+  assert.ok(config.outputFileTracingIncludes["/api/dev-docs/*"].includes("./.source-library/catalog.json"));
+  const component = readFileSync(new URL("../app/admin/how-it-was-built/SiteExplorer.tsx", import.meta.url), "utf8");
+  assert.ok(component.includes("<iframe"));
+  assert.ok(!component.includes('process.env.NODE_ENV === "development"'));
+});
