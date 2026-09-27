@@ -5416,7 +5416,7 @@ function TabIcon({ id, className = "h-4 w-4" }: { id: TabId; className?: string 
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function HowItWasBuiltPage() {
-  const [tab, setTab] = useState<TabId>("start");
+  const [tab, setTab] = useState<TabId>("site");
   const [lang, setLang] = useState<Lang>("fr");
   const u = UI[lang];
   const tabListRef = useRef<HTMLDivElement | null>(null);
@@ -5430,7 +5430,7 @@ export default function HowItWasBuiltPage() {
       else if (window.location.hash.startsWith("#files")) setTab("files");
       else if (window.location.hash === "#site") setTab("site");
       else if (window.location.hash.startsWith("#tutor")) setTab("tutor");
-      else if (!window.location.hash) setTab("start");
+      else if (!window.location.hash) setTab("site");
     };
     openDeepLinkedCourse();
     window.addEventListener("hashchange", openDeepLinkedCourse);
@@ -5444,6 +5444,8 @@ export default function HowItWasBuiltPage() {
 
   function selectTab(id: TabId) {
     setTab(id);
+    if (id === "site") window.history.replaceState(null, "", "#site");
+    else if (window.location.hash === "#site") window.history.replaceState(null, "", window.location.pathname + window.location.search);
     if (id === "tutor") window.history.replaceState(null, "", window.location.pathname + window.location.search + "#tutor");
     else if (window.location.hash === "#tutor") window.history.replaceState(null, "", window.location.pathname + window.location.search);
     if ((id !== "academy" && window.location.hash.startsWith("#academy/")) || (id !== "files" && window.location.hash.startsWith("#files"))) {
@@ -5493,7 +5495,7 @@ export default function HowItWasBuiltPage() {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
             <div className="min-w-0">
-              <h1 className="truncate text-sm font-black text-gray-950 sm:text-[15px]"><span className="sm:hidden">{shortTitle}</span><span className="hidden sm:inline">{tab === "start" ? shortTitle : u.title}</span></h1>
+              <h1 className="text-sm font-black leading-tight text-gray-950 sm:text-[15px]"><span className="sm:hidden">{tab === "site" ? translate(lang, "Atelier code", "Code workshop", "ورشة الكود") : shortTitle}</span><span className="hidden sm:inline">{tab === "start" ? shortTitle : u.title}</span></h1>
               {tab !== "start" && <p className="text-[10px] sm:text-[11px] text-gray-400 hidden sm:block truncate">{u.subtitle}</p>}
             </div>
           </div>
@@ -5502,7 +5504,7 @@ export default function HowItWasBuiltPage() {
             <div className="flex gap-0.5 rounded-xl bg-gray-100 p-0.5" role="group" aria-label={lang === "ar" ? "اللغة" : lang === "en" ? "Language" : "Langue"}>
               {(["fr","en","ar"] as Lang[]).map(l => (
                 <button key={l} aria-label={l === "fr" ? "Français" : l === "en" ? "English" : "العربية"} aria-pressed={lang === l} onClick={() => setLang(l)}
-                  className={`flex min-h-10 min-w-10 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277] sm:min-h-9 sm:min-w-0 ${lang === l ? "bg-white text-gray-950 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
+                  className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277] sm:min-h-9 sm:min-w-0 ${lang === l ? "bg-white text-gray-950 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
                   <span className="hidden sm:inline" aria-hidden="true">{LANG_FLAGS[l]}</span>
                   <span className={l === "ar" ? "" : "uppercase"}>{l === "ar" ? "ع" : l}</span>
                 </button>

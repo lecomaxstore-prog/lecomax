@@ -6,7 +6,7 @@ type Chapter = { title: GuideText; paragraphs: GuideText[]; code?: string; filen
 export type BackendGuide = { id: string; title: GuideText; summary: GuideText; chapters: Chapter[] };
 export const backendGuides: BackendGuide[] = [
   {
-    id: "apis", title: ["Connecter une API", "Connect an API", "ربط واجهة API"],
+    id: "apis", title: ["Créer l’API de ton site", "Build your site’s API", "أنشئ API لموقعك"],
     summary: ["Du bouton à la réponse : requêtes, clés, routes serveur et erreurs.", "From a button to a response: requests, keys, server routes and errors.", "من الزر إلى الاستجابة: الطلبات والمفاتيح ومسارات الخادم والأخطاء."],
     chapters: [
       { title: ["1. Comprendre le trajet", "1. Understand the journey", "1. افهم مسار الطلب"], paragraphs: [
@@ -28,7 +28,7 @@ export const backendGuides: BackendGuide[] = [
     ],
   },
   {
-    id: "database", title: ["Base de données & backend", "Database & backend", "قاعدة البيانات والخادم"],
+    id: "database", title: ["Utiliser Supabase", "Use Supabase", "استخدم Supabase"],
     summary: ["Supabase, stockage des fichiers, sécurité, sauvegardes et choix des services.", "Supabase, file storage, security, backups and choosing services.", "Supabase وتخزين الملفات والحماية والنسخ الاحتياطية واختيار الخدمات."],
     chapters: [
       { title: ["1. Où va chaque chose ?", "1. Where does everything go?", "1. أين تُحفظ الأشياء؟"], paragraphs: [
@@ -59,7 +59,7 @@ export const backendGuides: BackendGuide[] = [
     ],
   },
   {
-    id: "deploy", title: ["GitHub → Vercel : publier ton projet", "GitHub → Vercel: publish your project", "GitHub ← Vercel: نشر مشروعك"],
+    id: "deploy", title: ["Publier avec GitHub et Vercel", "Deploy with GitHub and Vercel", "انشر باستخدام GitHub وVercel"],
     summary: ["Premier push, aperçu, variables, domaine et mises à jour en production.", "First push, previews, variables, domains and production updates.", "أول رفع ومعاينة ومتغيرات ونطاق وتحديثات الإنتاج."],
     chapters: [
       { title: ["1. Préparer un nouveau projet", "1. Prepare a new project", "1. تجهيز مشروع جديد"], paragraphs: [

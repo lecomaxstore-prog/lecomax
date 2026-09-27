@@ -5,6 +5,7 @@ import { learningPages } from "@/lib/site-learning";
 import { translate } from "./course/journey";
 import type { CourseLanguage } from "./course/types";
 import SiteLesson from "./SiteLesson";
+import BackendGuides from "./BackendGuides";
 import styles from "./SiteExplorer.module.css";
 
 export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
@@ -42,6 +43,13 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     const timer = setTimeout(() => setPreviewError(true), 25000);
     return () => clearTimeout(timer);
   }, [page, ready, revision]);
+  const lessonOpen = selection !== null;
+  useEffect(() => {
+    if (!lessonOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previous; };
+  }, [lessonOpen]);
   useEffect(() => {
     if (!selection) { dialog.current?.close(); return; }
     if (!dialog.current?.open) dialog.current?.showModal();
@@ -100,6 +108,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   }
   function closeLesson() { setSelection(null); dialog.current?.close(); }
   return <section className={`${styles.workspace} space-y-3`}>
+    <BackendGuides lang={lang} compact />
     <div className={styles.welcome} data-expanded={showGuide}>
       <div className={styles.eyebrow}>{t("L’atelier de ton site", "Your site workshop", "ورشة موقعك")} <span>· {t("5 min pour commencer", "Start in 5 minutes", "ابدأ في 5 دقائق")}</span></div>
       <h2>{t("Ton site devient ton professeur.", "Your site becomes your teacher.", "موقعك يصبح معلّمك.")}</h2>
