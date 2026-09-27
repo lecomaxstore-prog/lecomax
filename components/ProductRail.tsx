@@ -119,7 +119,7 @@ export default function ProductRail({
   }, [maxIndex]);
 
   return (
-    <section ref={sectionRef} className={`${refined ? styles.refined : ""} max-w-7xl mx-auto px-4 md:px-6 py-10`}>
+    <section data-source-file="components/ProductRail.tsx" ref={sectionRef} className={`${refined ? styles.refined : ""} max-w-7xl mx-auto px-4 md:px-6 py-10`}>
       {/* Header */}
       <div className="rail-header sr sr-up flex items-center justify-between mb-8">
         <div>

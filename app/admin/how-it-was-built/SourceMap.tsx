@@ -23,18 +23,18 @@ export default function SourceMap({ path, connections, lang, onOpen, onLine }: {
       <h3>{t("Où est ce fichier ?", "Where is this file?", "أين يوجد هذا الملف؟")}</h3>
       <code dir="ltr">{path}</code>
       <p>{describeSourceFile(path, lang)}</p>
-      <p>{t("Ce chemin est relatif à la racine du projet. GitHub conserve le code ; Vercel construit le site. Le lecteur montre la copie de code de cette version du site.", "This path starts at the project root. GitHub keeps the code; Vercel builds the site. This reader shows the source snapshot for this site version.", "يبدأ المسار من جذر المشروع. يحفظ GitHub الكود ويبني Vercel الموقع. يعرض القارئ نسخة الكود الخاصة بإصدار الموقع هذا.")}</p>
+      <details className={styles.fileHelp}><summary>{t("Comprendre ce chemin", "Understand this path", "افهم هذا المسار")}</summary><p>{t("Ce chemin est relatif à la racine du projet. GitHub conserve le code ; Vercel construit le site. Le lecteur montre la copie de code de cette version du site.", "This path starts at the project root. GitHub keeps the code; Vercel builds the site. This reader shows the source snapshot for this site version.", "يبدأ المسار من جذر المشروع. يحفظ GitHub الكود ويبني Vercel الموقع. يعرض القارئ نسخة الكود الخاصة بإصدار الموقع هذا.")}</p></details>
     </section>
     <p className={styles.evidenceNote}>{t("Repères trouvés dans tout ce fichier. Ils ne prouvent pas que chaque appel sert à l’élément touché. Touche « Voir la ligne » pour vérifier le code.", "References found across this file. They do not prove that every call serves the tapped element. Tap “View line” to check the code.", "مراجع موجودة في الملف كله. لا تثبت أن كل استدعاء يخدم العنصر المحدد. اضغط «عرض السطر» للتحقق من الكود.")}</p>
     {!connections?.items.length && <p>{t("Aucune connexion reconnue automatiquement ici. Les données peuvent venir d’un composant parent ou d’un chemin calculé : lis les paramètres et les imports du fichier.", "No connections were automatically recognized here. Data may come from a parent component or a computed path: inspect the file’s parameters and imports.", "لم تُتعرف اتصالات تلقائيًا هنا. قد تأتي البيانات من مكون أب أو مسار محسوب؛ افحص معاملات الملف واستيراداته.")}</p>}
     {groups.map(group => {
       const items = connections?.items.filter(item => item.kind === group.kind) ?? [];
       if (!items.length) return null;
-      return <section key={group.kind}><h3>{group.title}</h3><p>{group.explanation}</p><ul>{items.map(item => <li key={`${item.kind}:${item.name}`}>
+      return <details key={group.kind} className={styles.connectionGroup} data-connection-kind={group.kind}><summary>{group.title}<span>{items.length}</span></summary><p>{group.explanation}</p><ul>{items.map(item => <li key={`${item.kind}:${item.name}`}>
         <code dir="ltr">{item.target ?? item.name}</code>
         {item.target && <p>{describeSourceFile(item.target, lang)}</p>}
         <div className={styles.evidenceActions}><button type="button" onClick={() => item.origin ? onOpen(item.origin, item.line) : onLine(item.line)}>{t("Voir la ligne", "View line", "عرض السطر")} {item.line}</button>{item.target && <button type="button" onClick={() => onOpen(item.target!)}>{t("Comprendre ce fichier →", "Understand this file →", "افهم هذا الملف ←")}</button>}</div>
-      </li>)}</ul></section>;
+      </li>)}</ul></details>;
     })}
     {connections?.truncated && <p>{t("Liste limitée aux 36 premiers repères. Le fichier complet reste accessible.", "Showing the first 36 references. The full file remains available.", "تُعرض أول 36 مرجعًا. يبقى الملف الكامل متاحًا.")}</p>}
   </div>;

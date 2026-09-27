@@ -6,6 +6,7 @@ import { publicRelease } from "@/lib/app-releases";
 export const dynamic = "force-dynamic";
 
 function origin(req: NextRequest) {
+  if (process.env.NODE_ENV === "development") return req.nextUrl.origin;
   return (process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin).replace(/\/$/, "");
 }
 

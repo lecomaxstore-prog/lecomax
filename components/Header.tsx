@@ -70,7 +70,7 @@ export default function Header() {
 
   return (
     <>
-    <header className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md transition-shadow duration-200 ${scrolled ? "shadow-[0_1px_12px_0_rgba(0,0,0,0.08)]" : "shadow-[0_1px_0_0_#e5e5e5]"}`}>
+    <header data-source-file="components/Header.tsx" className={`sticky top-0 z-40 bg-white/95 backdrop-blur-md transition-shadow duration-200 ${scrolled ? "shadow-[0_1px_12px_0_rgba(0,0,0,0.08)]" : "shadow-[0_1px_0_0_#e5e5e5]"}`}>
       {/* ── Top utility bar ─────────────────────────────────────── */}
       <div className="hidden lg:block bg-neutral-950">
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between h-9">
@@ -576,5 +576,4 @@ function ChevronIcon() {
     </svg>
   );
 }
-
 

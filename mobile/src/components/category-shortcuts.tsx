@@ -75,9 +75,9 @@ export const CategoryShortcuts = memo(function CategoryShortcuts({
                 <Ionicons name={categoryIcon(category)} size={22} color={colors.text} />
               )}
             </View>
-            <Text maxFontSizeMultiplier={1.15} numberOfLines={1} style={styles.label}>
-              {localizedContent(category.label)}
-            </Text>
+              <Text maxFontSizeMultiplier={1.15} numberOfLines={1} style={styles.label}>
+                {localizedContent(category.label)}
+              </Text>
           </AnimatedPressable>
         );
       })}
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 16,
     flexDirection: "row",
-    gap: 10,
+    gap: 12,
   },
   tile: {
     minWidth: 0,
@@ -101,9 +101,9 @@ const styles = StyleSheet.create({
   },
   imageWrap: {
     width: "100%",
-    aspectRatio: 0.8,
+    aspectRatio: 0.9,
     maxHeight: 160,
-    borderRadius: 18,
+    borderRadius: 8,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: "rgba(24,42,32,0.16)",
     overflow: "hidden",
@@ -112,9 +112,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   label: {
-    marginTop: 11,
-    color: "#26362C",
-    fontFamily: typography.semibold,
+    marginTop: 10,
+    color: "#3E473E",
+    fontFamily: typography.medium,
     fontSize: 10,
     lineHeight: 16,
     letterSpacing: 0.15,

@@ -840,14 +840,7 @@ function stockProblemFromError(error: unknown, cart: CartLine[]) {
 
 export default function CheckoutScreen() {
   useLocale();
-  const {
-    scrollRef: keyboardScrollRef,
-    onScroll: handleKeyboardScroll,
-    reveal: revealFocusedInput,
-    register: registerKeyboardInput,
-    focus: focusKeyboardInput,
-    blur: blurKeyboardInput,
-  } = useFormKeyboardScroll();
+  const keyboardScroll = useFormKeyboardScroll();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 380;
@@ -1375,11 +1368,11 @@ export default function CheckoutScreen() {
       />
 
       <ScrollView
-        ref={keyboardScrollRef}
-        onScroll={handleKeyboardScroll}
+        ref={keyboardScroll.scrollRef}
+        onScroll={keyboardScroll.onScroll}
         scrollEventThrottle={16}
-        onLayout={revealFocusedInput}
-        onContentSizeChange={revealFocusedInput}
+        onLayout={keyboardScroll.reveal}
+        onContentSizeChange={keyboardScroll.reveal}
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -1449,7 +1442,7 @@ export default function CheckoutScreen() {
                               color={error ? C.red : "#809078"}
                             />
                             <TextInput
-                              ref={(input) => registerKeyboardInput(item.name, input)}
+                              ref={(input) => keyboardScroll.register(item.name, input)}
                               accessibilityLabel={item.label}
                               autoCapitalize={
                                 item.name === "email" ? "none" : "sentences"
@@ -1471,7 +1464,7 @@ export default function CheckoutScreen() {
                               cursorColor={C.green}
                               keyboardType={item.keyboardType ?? "default"}
                               onBlur={() => {
-                                blurKeyboardInput(item.name);
+                                keyboardScroll.blur(item.name);
                                 onBlur();
                                 setFocusedField(undefined);
                               }}
@@ -1481,7 +1474,7 @@ export default function CheckoutScreen() {
                               }}
                               onFocus={() => {
                                 setFocusedField(item.name);
-                                focusKeyboardInput(item.name);
+                                keyboardScroll.focus(item.name);
                               }}
                               placeholder={item.placeholder}
                               placeholderTextColor="#9B9F9B"
@@ -1618,9 +1611,9 @@ export default function CheckoutScreen() {
                       size={18}
                     />
                     <TextInput
-                      ref={(input) => registerKeyboardInput("coupon", input)}
-                      onFocus={() => focusKeyboardInput("coupon")}
-                      onBlur={() => blurKeyboardInput("coupon")}
+                      ref={(input) => keyboardScroll.register("coupon", input)}
+                      onFocus={() => keyboardScroll.focus("coupon")}
+                      onBlur={() => keyboardScroll.blur("coupon")}
                       accessibilityLabel={msg("checkoutScreen.promotionCode")}
                       autoCapitalize="characters"
                       autoCorrect={false}

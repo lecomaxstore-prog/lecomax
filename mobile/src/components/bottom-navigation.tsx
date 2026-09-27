@@ -12,7 +12,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 import { AnimatedPressable } from "@/components/animated-pressable";
-import { palette, typography } from "@/constants/theme";
+import { typography } from "@/constants/theme";
 import { useT } from "@/lib/i18n";
 import { useCartFeedbackStore } from "@/stores/cart-feedback";
 import { useCommerceStore } from "@/stores/commerce";
@@ -70,6 +70,7 @@ const TabItem = memo(function TabItem({
   }, [focused, activeOpacity, reduceMotion]);
   const activeStyle = useAnimatedStyle(() => ({
     opacity: activeOpacity.value,
+    transform: [{ scale: 0.92 + activeOpacity.value * 0.08 }],
   }));
   useEffect(() => {
     if (!feedbackToken || reduceMotion) return;
@@ -89,22 +90,26 @@ const TabItem = memo(function TabItem({
       accessibilityRole="tab"
       accessibilityState={{ selected: focused }}
       aria-selected={focused}
-      accessibilityLabel={label}
+      accessibilityLabel={badge && badge > 0 ? `${label}, ${badge}` : label}
       onPress={onPress}
       onLongPress={onLongPress}
       pressedScale={reduceMotion ? 1 : 0.98}
       style={[styles.item, tablet && styles.tabletItem]}
     >
       <Animated.View
-          pointerEvents="none"
-          style={[styles.activeIconWrap, activeStyle]}
-        />
+        pointerEvents="none"
+        style={[styles.activeIconWrap, activeStyle]}
+      />
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.activeIndicator, activeStyle]}
+      />
       <Animated.View style={[styles.iconWrap, animatedStyle]}>
         <View style={styles.iconBadgeAnchor}>
           <Ionicons
             name={focused ? activeIcon : icon}
             size={22}
-            color={focused ? "#246B40" : "#7C8780"}
+            color={focused ? "#204E39" : "#88908C"}
             style={styles.icon}
           />
           {badge && badge > 0 ? (
@@ -167,8 +172,8 @@ export function BottomNavigation({ state, navigation }: BottomTabBarProps) {
             ]
           : {
               marginBottom: Math.max(insets.bottom, 10),
-              marginLeft: 10 + insets.left,
-              marginRight: 10 + insets.right,
+              marginLeft: 12 + insets.left,
+              marginRight: 12 + insets.right,
             },
       ]}
     >
@@ -221,18 +226,18 @@ const styles = StyleSheet.create({
   shell: {
     flexShrink: 0,
     marginTop: 6,
-    paddingVertical: 7,
-    paddingHorizontal: 6,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
     flexDirection: "row",
     alignItems: "stretch",
     borderWidth: 1,
-    borderColor: "#E5EBE3",
-    borderRadius: 26,
-    backgroundColor: palette.white,
-    shadowColor: "#23452D",
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
+    borderColor: "#EBEEEC",
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    shadowColor: "#192B22",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 16,
     elevation: 4,
   },
   item: {
@@ -241,8 +246,10 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     alignItems: "center",
     justifyContent: "center",
+    minWidth: 0,
     minHeight: 62,
-    paddingVertical: 7,
+    paddingTop: 7,
+    paddingBottom: 4,
     borderRadius: 18,
   },
   tabletShell: {
@@ -271,8 +278,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   iconWrap: {
-    width: 40,
-    height: 28,
+    width: 44,
+    height: 32,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -282,8 +289,17 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 2,
     right: 2,
-    borderRadius: 18,
-    backgroundColor: "#EAF3E5",
+    borderRadius: 16,
+    backgroundColor: "#F0F5F1",
+  },
+  activeIndicator: {
+    position: "absolute",
+    top: 0,
+    width: 18,
+    height: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    backgroundColor: "#28563E",
   },
   icon: {
     width: 26,
@@ -300,37 +316,38 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   label: {
-    marginTop: 6,
-    color: "#758078",
+    marginTop: 2,
+    maxWidth: "100%",
+    color: "#747D77",
     fontFamily: typography.medium,
     fontSize: 10,
     lineHeight: 14,
-    letterSpacing: 0,
+    letterSpacing: -0.15,
     textAlign: "center",
     includeFontPadding: false,
   },
   activeLabel: {
-    color: "#246B40",
+    color: "#204E39",
     fontFamily: typography.semibold,
   },
   badge: {
     position: "absolute",
-    top: -4,
-    left: 19,
-    minWidth: 17,
-    height: 17,
+    top: -2,
+    left: 20,
+    minWidth: 16,
+    height: 16,
     paddingHorizontal: 3,
     borderRadius: 10,
-    borderWidth: 2,
-    borderColor: palette.white,
-    backgroundColor: "#B85A45",
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
+    backgroundColor: "#28563E",
     alignItems: "center",
     justifyContent: "center",
   },
   badgeText: {
-    color: palette.white,
-    fontFamily: typography.bold,
-    fontSize: 9,
+    color: "#FFFFFF",
+    fontFamily: typography.semibold,
+    fontSize: 8,
     lineHeight: 11,
     includeFontPadding: false,
   },

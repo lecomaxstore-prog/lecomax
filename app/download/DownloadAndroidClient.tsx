@@ -91,7 +91,7 @@ export default function DownloadAndroidClient() {
           </div>
           <div className="min-w-0 border border-white/15 bg-white/[.06] p-6 backdrop-blur sm:p-8">
             <div className="flex items-center gap-4">
-              <Image src="/icons/icon-192.png?v=5" alt="Icône de l’application L’ecomax" width={76} height={76} className="rounded-[20px]" priority />
+              <Image src="/icons/premium-v12-192.png" alt="Icône de l’application L’ecomax" width={76} height={76} className="rounded-[20px]" priority />
               <div>
                 <p className="text-2xl font-black tracking-tight">L’ecomax</p>
                 <p className="mt-1 text-sm text-white/50">Shopping officiel Android</p>

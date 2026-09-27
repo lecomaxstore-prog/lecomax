@@ -57,7 +57,7 @@ export default function MobileHome({ products, heroImage }: Props) {
   ];
 
   return (
-    <div className="bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:hidden">
+    <div data-source-file="components/MobileHome.tsx" className="bg-white pb-[calc(5.5rem+env(safe-area-inset-bottom))] md:hidden">
       <div className="mx-auto max-w-xl px-4 pt-4">
         <div className="flex gap-2">
           <button type="button" onClick={() => setSearchOpen(true)} className="flex min-h-12 min-w-0 flex-1 items-center gap-3 rounded-xl border border-[#E6E8E5] bg-[#F6F7F5] px-4 text-left text-sm text-[#5E625F] transition active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#32CD57]" aria-label="Ouvrir la recherche">

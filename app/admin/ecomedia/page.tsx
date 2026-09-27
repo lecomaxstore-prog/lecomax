@@ -205,30 +205,30 @@ export default function EcomediaManagerPage() {
   const totalComments = posts.reduce((s, p) => s + p.comments_count, 0);
 
   return (
-    <div className="max-w-5xl space-y-5">
+    <div className="w-full min-w-0 max-w-5xl space-y-4 pb-4 sm:space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
-        <div>
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+        <div className="col-span-2 mb-2 min-w-0 sm:mb-0 sm:mr-auto sm:w-full lg:w-auto">
           <h1 className="text-xl font-black">Ecomedia Manager</h1>
-          <p className="text-xs text-neutral-400 mt-0.5">Gérez votre contenu social — posts, vidéos, offres et interactions</p>
+          <p className="mt-1 max-w-md text-xs leading-5 text-neutral-500">Gérez vos publications, vidéos et interactions.</p>
         </div>
         <button
           onClick={() => { resetForm(); setTab("new"); }}
-          className="flex items-center gap-2 bg-black text-white px-4 py-2.5 rounded-xl text-sm font-bold hover:bg-neutral-800 transition-colors active:scale-95"
+          className="flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl bg-black px-2 py-2.5 text-xs font-bold text-white transition-colors hover:bg-neutral-800 active:scale-95 sm:px-4 sm:text-sm"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Nouveau post
         </button>
         {/* Live preview link */}
         <a href="/ecomedia" target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-2 border border-neutral-200 text-neutral-600 px-4 py-2.5 rounded-xl text-sm font-bold hover:border-neutral-400 hover:text-black transition-colors active:scale-95">
+          className="flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl border border-neutral-200 px-2 py-2.5 text-xs font-bold text-neutral-600 transition-colors hover:border-neutral-400 hover:text-black active:scale-95 sm:px-4 sm:text-sm">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           Voir Ecomedia
         </a>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+      <div className="grid grid-cols-2 gap-2.5 md:grid-cols-5 md:gap-3">
         {[
           { label: "Posts total", val: posts.length, icon: "📱" },
           { label: "Publiés", val: publishedCount, icon: "✅" },
@@ -236,19 +236,21 @@ export default function EcomediaManagerPage() {
           { label: "Likes total", val: totalLikes, icon: "❤️" },
           { label: "Commentaires", val: totalComments, icon: "💬" },
         ].map(s => (
-          <div key={s.label} className="bg-white border border-neutral-100 rounded-2xl p-4 text-center">
-            <div className="text-2xl mb-1">{s.icon}</div>
-            <div className="text-2xl font-black">{s.val}</div>
-            <div className="text-[11px] text-neutral-400 mt-0.5">{s.label}</div>
+          <div key={s.label} className="flex min-w-0 items-center gap-3 rounded-2xl border border-neutral-100 bg-white p-3 last:col-span-2 md:block md:p-4 md:text-center md:last:col-span-1">
+            <div aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-neutral-50 text-lg md:mx-auto md:mb-2">{s.icon}</div>
+            <div className="min-w-0">
+              <div className="break-words text-xl font-black leading-tight tabular-nums md:text-2xl">{s.val.toLocaleString("fr-FR")}</div>
+              <div className="mt-0.5 text-[11px] leading-4 text-neutral-500">{s.label}</div>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-neutral-100 rounded-xl p-1 w-fit">
+      <div aria-label="Sections Ecomedia" className="grid w-full grid-cols-2 gap-1 rounded-xl bg-neutral-100 p-1 sm:flex sm:w-fit">
         {([["posts", "Posts"], ["moderation", `Validation (${pendingPosts.length})`], ["new", editId ? "Modifier" : "Nouveau post"], ["comments", "Commentaires"]] as [Tab, string][]).map(([t, label]) => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${tab === t ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+          <button key={t} onClick={() => setTab(t)} aria-pressed={tab === t}
+            className={`min-h-11 min-w-0 rounded-lg px-2 py-2 text-xs font-bold transition-colors sm:px-4 ${tab === t ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
             {label}
           </button>
         ))}
@@ -303,7 +305,7 @@ export default function EcomediaManagerPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <ResponsiveTable className="w-full text-sm min-w-[700px]">
+              <ResponsiveTable className="w-full min-w-0 text-sm lg:min-w-[700px]">
                 <thead>
                   <tr className="border-b border-neutral-100">
                     {["Post", "Type", "Statut", "❤️ Likes", "💬 Comm.", "Date", "Actions"].map(h => (

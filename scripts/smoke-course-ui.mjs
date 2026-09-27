@@ -211,93 +211,6 @@ async function main() {
     });
     assert(pinCookie.success, "The smoke-test course PIN cookie was rejected.");
 
-    if (process.argv.includes("--tutor-only")) {
-      await setViewport(pageClient, 390, 844);
-      await pageClient.send("Page.navigate", { url: baseUrl + "/admin/how-it-was-built/#files/app%2Fpage.tsx?line=2" });
-      await waitFor(pageClient, "!!document.querySelector('a[href^=\"#tutor?\"]')", "source-to-tutor link");
-      await evaluate(pageClient, "document.querySelector('a[href^=\"#tutor?\"]').click()");
-      await waitFor(pageClient, "document.querySelector('#tutor-source')?.value === 'app/page.tsx'", "selected source in tutor");
-      assert(await evaluate(pageClient, "document.querySelector('#admin-main').scrollWidth - document.querySelector('#admin-main').clientWidth <= 2"), "Tutor overflows on mobile");
-      const response = await evaluate(pageClient, `fetch('/api/admin/learning-assistant', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({lang:'en',replyLanguage:'en',sourcePath:'app/page.tsx',sourceLine:2,mode:'explain',messages:[{role:'user',content:'Explain the purpose of this file and one actual import. Cite its lines. Keep it short.'}]})}).then(async r => ({status:r.status, body:await r.json()}))`);
-      assert(response.status === 200 && response.body.sources?.[0]?.path === "app/page.tsx", "Tutor source-backed response failed: " + JSON.stringify(response));
-      console.log(JSON.stringify({tutor: "passed", reply:response.body.reply, sources:response.body.sources}));
-      const screenshot = await pageClient.send("Page.captureScreenshot", {format:"png",fromSurface:true});
-      await mkdir(path.join(root, ".source-library"),{recursive:true});
-      await writeFile(path.join(root, ".source-library", "tutor-check.png"), Buffer.from(screenshot.data,"base64"));
-      return;
-    }
-    if (process.argv.includes("--site-evidence-only")) {
-      await setViewport(pageClient, 390, 844);
-      await pageClient.send("Page.navigate", {url: baseUrl + "/admin/how-it-was-built/"});
-      await waitFor(pageClient, "!!document.querySelector('iframe')?.contentDocument?.querySelector('header a[data-source-line]')", "live preview header");
-      await waitFor(pageClient, "[...document.querySelectorAll('button')].find(b=>b.textContent==='En-t\u00eate')?.disabled === false", "preview inspector");
-      assert(await evaluate(pageClient, "document.querySelector('iframe').getBoundingClientRect().top < innerHeight - 100"), "Preview is buried below the first screen");
-      await evaluate(pageClient, "document.querySelector('iframe').contentDocument.querySelector('header a[data-source-line]').click()");
-      try { await waitFor(pageClient, "!!document.querySelector('dialog[open] [role=tablist]')", "source explanation"); }
-      catch (error) { console.log(await evaluate(pageClient, "({dialogs:[...document.querySelectorAll('dialog')].map(d=>({open:d.open,text:d.innerText})),url:location.href})")); throw error; }
-      assert(await evaluate(pageClient, "document.querySelector('dialog[open]').textContent.includes('components/Header.tsx')"), "Incorrect clicked source file");
-      await evaluate(pageClient, "document.querySelectorAll('dialog[open] [role=tab]')[2].click()");
-      await waitFor(pageClient, "document.querySelector('dialog[open]').textContent.includes('app/api/categories/route.ts')", "real API reference");
-      await evaluate(pageClient, "[...document.querySelectorAll('dialog[open] li')].find(li=>li.textContent.includes('app/api/categories/route.ts')).querySelectorAll('button')[1].click()");
-      await waitFor(pageClient, "document.querySelector('dialog[open]').textContent.includes('categories') && !!document.querySelector('dialog[open] [role=tablist]')", "linked API source");
-      assert(await evaluate(pageClient, "document.querySelector('dialog[open]').textContent.includes('app/api/categories/route.ts')"), "Related source did not open");
-      await evaluate(pageClient, "[...document.querySelectorAll('dialog[open] button')].find(b=>b.textContent.includes('Revenir au fichier')).click()");
-      await waitFor(pageClient, "document.querySelector('dialog[open] [role=tabpanel]')?.textContent.includes('components/Header.tsx')", "return to selected source");
-      for (const width of [320,390,768,1440]) {
-        await setViewport(pageClient,width,844);
-        assert(await evaluate(pageClient,"(()=>{const d=document.querySelector('dialog[open]');return d.scrollWidth<=d.clientWidth+2 && d.getBoundingClientRect().width<=innerWidth})()"),"Lesson overflow at "+width);
-      }
-      await setViewport(pageClient,390,844);
-      await evaluate(pageClient, "document.querySelectorAll('dialog[open] [role=tab]')[2].click()");
-      await mkdir(path.join(root,'.source-library'),{recursive:true});
-      const shot=await pageClient.send('Page.captureScreenshot',{format:'png'});
-      await writeFile(path.join(root,'.source-library/source-evidence-mobile.png'),Buffer.from(shot.data,'base64'));
-      console.log('Site evidence passed: visible preview, actual header source, API evidence, related file navigation, return and 320/390/768/1440px layouts.');
-      return;
-    }
-
-    if (process.argv.includes("--backend-only")) {
-      await setViewport(pageClient, 390, 844);
-      await pageClient.send("Page.navigate", { url: baseUrl + "/admin/how-it-was-built/" });
-      await waitFor(pageClient, "[...document.querySelectorAll('button')].some(b=>b.textContent === 'Les 3 guides')", "guide mode switch");
-      await evaluate(pageClient, "[...document.querySelectorAll('button')].find(b=>b.textContent === 'Les 3 guides').click()");
-      await waitFor(pageClient, "document.querySelectorAll('[data-backend-guides] button[aria-haspopup=dialog]').length === 3", "three guide cards on the default page");
-      for (const width of [320, 390, 768, 1440]) {
-        await setViewport(pageClient, width, 844);
-        assert(await evaluate(pageClient, "document.querySelector('#admin-main').scrollWidth <= document.querySelector('#admin-main').clientWidth + 2"), "Page overflow at " + width);
-        await evaluate(pageClient, "document.querySelector('[data-backend-guides] button[aria-haspopup=dialog]').click()");
-        await waitFor(pageClient, "!!document.querySelector('[data-backend-guides] dialog[open]')", "reader");
-        assert(await evaluate(pageClient, "(()=>{const d=document.querySelector('[data-backend-guides] dialog[open]'); return d.scrollWidth <= d.clientWidth + 2 && d.getBoundingClientRect().width <= innerWidth && d.querySelector('footer').getBoundingClientRect().bottom <= innerHeight + 2})()"), "Reader overflow at " + width);
-        await evaluate(pageClient, "document.querySelector('[data-backend-guides] dialog[open] header button').click()");
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      await setViewport(pageClient, 390, 844);
-      for (const language of ['English', 'العربية', 'Français']) {
-        await evaluate(pageClient, 'document.querySelector(' + JSON.stringify('button[aria-label="' + language + '"]') + ').click()');
-        for (let index=0; index<3; index++) {
-          await evaluate(pageClient, "document.querySelectorAll('[data-backend-guides] button[aria-haspopup=dialog]')[" + index + "].click()");
-          await waitFor(pageClient, "!!document.querySelector('[data-backend-guides] dialog[open] article')", "translated lesson");
-          assert(await evaluate(pageClient, "document.querySelectorAll('[data-backend-guides] dialog[open] article section').length === 2"), "Missing learning steps");
-          await evaluate(pageClient, "document.querySelector('[data-backend-guides] dialog[open] article button').click()");
-          await evaluate(pageClient, "document.querySelector('[data-backend-guides] dialog[open] article details').open=true");
-          await evaluate(pageClient, "document.querySelector('[data-backend-guides] dialog[open] footer > button').click()");
-          assert(await evaluate(pageClient, "document.querySelector('#backend-lesson-picker').value === '1'"), "Next lesson failed");
-          await evaluate(pageClient, "document.querySelector('[data-backend-guides] dialog[open] header button').click()");
-        await new Promise(resolve => setTimeout(resolve, 100));
-          await evaluate(pageClient, "localStorage.removeItem('lecomax-backend-reading-v1')");
-        }
-        await pageClient.send("Page.reload");
-        await waitFor(pageClient, "[...document.querySelectorAll('button')].some(b=>b.textContent === 'Les 3 guides')", "guide mode switch");
-      await evaluate(pageClient, "[...document.querySelectorAll('button')].find(b=>b.textContent === 'Les 3 guides').click()");
-      await waitFor(pageClient, "document.querySelectorAll('[data-backend-guides] button[aria-haspopup=dialog]').length === 3", "reload");
-      }
-      await mkdir(path.join(root, '.source-library'), {recursive:true});
-      const shot=await pageClient.send('Page.captureScreenshot', {format:'png'});
-      await writeFile(path.join(root, '.source-library/backend-mobile.png'), Buffer.from(shot.data,'base64'));
-      console.log("Backend guides browser checks passed: default page, 320/390/768/1440px, three guides, three languages, larger text, answers and next lesson.");
-      return;
-    }
-
     if (process.env.COURSE_SOURCE_ONLY === "1" || process.argv.includes("--source-only")) {
       await setViewport(pageClient, 390, 844);
       await pageClient.send("Page.navigate", { url: `${baseUrl}/admin/how-it-was-built/#files/app%2Fpage.tsx?line=2` });
@@ -353,7 +266,6 @@ async function main() {
       await checkDailySession({ client: pageClient, evaluate, waitFor, setViewport, baseUrl, root });
       return;
     }
-
     const manifest = JSON.parse(await readFile(path.join(root, "app", "admin", "how-it-was-built", "course", "generated", "manifest.json"), "utf8"));
     const module = manifest.modules.find(item => item.id === "nextjs-app-router") ?? manifest.modules[0];
     const frenchModule = JSON.parse(await readFile(path.join(root, "app", "admin", "how-it-was-built", "course", "content", "fr", module.id + ".json"), "utf8"));

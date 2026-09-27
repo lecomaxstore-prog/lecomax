@@ -130,7 +130,7 @@ export default function Footer() {
     }
   };
   return (
-    <footer className="bg-neutral-950 text-white mt-20">
+    <footer data-source-file="components/Footer.tsx" className="bg-neutral-950 text-white mt-20">
       <div data-nosnippet>
       {/* Green accent bar */}
       <div className="h-[3px] bg-gradient-to-r from-[#3ecf4c] via-[#6bdd6b] to-[#3ecf4c]" />

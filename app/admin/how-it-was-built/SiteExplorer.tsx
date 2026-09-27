@@ -12,6 +12,7 @@ import type { SourceConnections } from "@/lib/source-connections";
 export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   const t = useCallback((fr: string, en: string, ar: string) => translate(lang, fr, en, ar), [lang]);
   const frame = useRef<HTMLIFrameElement>(null);
+  const previewCard = useRef<HTMLDivElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
   const cleanup = useRef<() => void>(() => {});
   const [page, setPage] = useState({ url: "/", file: "app/page.tsx" });
@@ -124,6 +125,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
       <h2>{t("Touche un élément. Comprends son code.", "Tap an element. Understand its code.", "المس عنصرًا وافهم الكود الخاص به.")}</h2>
       <p className={styles.tapHint}>{t("Une image, un texte, un bouton : retrouve le fichier, son rôle et les données qu’il utilise.", "An image, text or a button: find its file, its purpose and the data it uses.", "صورة أو نص أو زر: اعرف ملفه ودوره والبيانات التي يستخدمها.")}</p>
       <button type="button" className={styles.guideToggle} aria-expanded={showGuide} aria-controls="site-workshop-guide" onClick={() => setShowGuide(value => !value)}>{showGuide ? t("Masquer le guide −", "Hide guide −", "إخفاء الدليل −") : t("Comment apprendre ? +", "How do I learn? +", "كيف أتعلّم؟ +")}</button>
+      <button type="button" className={styles.jumpToSite} onClick={() => { previewCard.current?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); frame.current?.focus({ preventScroll: true }); }}>{t("Voir mon site ↓", "Go to my site ↓", "انتقل إلى موقعي ↓")}</button>
       <div id="site-workshop-guide" className={styles.guideBody}>
       <p>{t("Pars de ce que tu vois. Comprends le code qui le crée. Retiens une idée à la fois.", "Start with what you see. Understand the code behind it. Learn one idea at a time.", "ابدأ بما تراه. افهم الكود الذي يصنعه. تعلّم فكرة واحدة كل مرة.")}</p>
       <ol className={styles.steps}>{[t("Je choisis", "Choose", "اختر"), t("Je comprends", "Understand", "افهم"), t("Je pratique", "Practice", "تدرّب")].map((label, index) => <li key={label}><span>{index + 1}</span>{label}</li>)}</ol>
@@ -134,7 +136,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
       <div><h2 className="text-lg font-bold text-emerald-950">{t("Touche ton site. Découvre son code.", "Tap your site. Discover its code.", "المس موقعك واكتشف الكود.")}</h2><p className="mt-1 text-xs leading-5 text-neutral-600">{t("Un texte, une image, un bouton… choisis ce que tu veux comprendre.", "Text, an image, a button… choose what you want to understand.", "نص أو صورة أو زر… اختر ما تريد فهمه.")}</p></div>
       <a href="#files" className="inline-flex min-h-11 shrink-0 items-center rounded-xl border bg-white px-3 text-xs font-bold">{t("Fichiers", "Files", "الملفات")}</a>
     </div>
-    <div className={`${styles.previewCard} overflow-hidden rounded-2xl border bg-white`}>
+    <div ref={previewCard} className={`${styles.previewCard} overflow-hidden rounded-2xl border bg-white`}>
       <div className={`${styles.toolbar} flex gap-2 border-b p-2`}>
         <label className="min-w-0 flex-1"><span className="sr-only">{t("Page à explorer", "Page to explore", "الصفحة للاستكشاف")}</span><select value={page.url} onChange={event => { const item = learningPages.find(([url]) => url === event.target.value); if (item) navigate(item[0], item[2]); }} className="min-h-11 w-full rounded-xl border bg-white px-2 text-sm font-semibold">{!learningPages.some(([url]) => url === page.url) && <option value={page.url}>{page.url}</option>}{learningPages.map(([url, label]) => <option key={url} value={url}>{label}</option>)}</select></label>
         <span className={styles.liveLabel}><span aria-hidden="true" />{t("Ton site", "Your site", "موقعك")}</span>

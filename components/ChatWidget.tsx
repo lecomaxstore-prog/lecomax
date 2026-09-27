@@ -39,7 +39,9 @@ function MessageBody({ text }: { text: string }) {
   return <>{text.split(/(https?:\/\/[^\s]+|(?:www\.)?lecomax\.com\/[^\s]*)/gi).map((part, i) =>
     /^(https?:\/\/|(?:www\.)?lecomax\.com\/)/i.test(part)
       ? <a key={i} className="break-all underline underline-offset-4" href={part.startsWith("http") ? part : "https://" + part} target="_blank" rel="noopener noreferrer">{part}</a>
-      : part
+      : part.split(/(\*\*[^*\n]+\*\*)/g).map((segment, index) => segment.startsWith("**") && segment.endsWith("**")
+        ? <strong key={`${i}-${index}`} className="font-semibold">{segment.slice(2, -2)}</strong>
+        : segment)
   )}</>;
 }
 

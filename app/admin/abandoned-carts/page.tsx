@@ -108,13 +108,13 @@ export default function AbandonedCartsPage() {
   const totalValue = filtered.reduce((s, c) => s + (c.total ?? 0), 0);
 
   return (
-    <div className="space-y-5">
+    <div className="w-full min-w-0 max-w-6xl space-y-4 pb-4 sm:space-y-5">
       {/* Header */}
       <div>
         <h1 className="text-xl font-black flex items-center gap-2">
           🛒 Paniers abandonnés
         </h1>
-        <p className="text-neutral-500 text-xs mt-0.5">
+        <p className="mt-1 text-xs leading-5 text-neutral-500">
           Clients ayant commencé une commande sans la finaliser
         </p>
       </div>
@@ -137,33 +137,33 @@ export default function AbandonedCartsPage() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3">
         {[
           { label: "Total", value: carts.length, color: "text-neutral-900" },
           { label: "À contacter", value: carts.filter((c) => !c.reminded).length, color: "text-amber-600" },
-          { label: "Valeur", value: `${totalValue.toFixed(0)} MAD`, color: "text-emerald-600" },
+          { label: "Valeur des paniers affichés", value: `${totalValue.toLocaleString("fr-FR", { maximumFractionDigits: 2 })} MAD`, color: "text-emerald-600" },
         ].map((s) => (
-          <div key={s.label} className="bg-white border border-neutral-100 rounded-2xl p-4">
-            <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400">{s.label}</p>
-            <p className={`text-2xl font-black mt-1 ${s.color}`}>{s.value}</p>
+          <div key={s.label} className="min-w-0 rounded-2xl border border-neutral-100 bg-white px-4 py-3 last:col-span-2 sm:p-4 sm:last:col-span-1">
+            <p className="text-[11px] font-semibold leading-4 text-neutral-500">{s.label}</p>
+            <p className={`mt-1 break-words text-2xl font-black tabular-nums ${s.color}`}>{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 flex-wrap items-center">
-        <div className="flex gap-1 bg-neutral-100 p-1 rounded-xl">
+      <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <div className="grid w-full grid-cols-3 gap-1 rounded-xl bg-neutral-100 p-1 sm:w-auto">
           {(["all", "pending", "reminded"] as const).map((f) => (
-            <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === f ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
+            <button key={f} onClick={() => setFilter(f)} aria-pressed={filter === f}
+              className={`min-h-11 rounded-lg px-2 py-2 text-xs font-bold transition-colors ${filter === f ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}>
               {f === "all" ? "Tous" : f === "pending" ? "À contacter" : "Contactés"}
             </button>
           ))}
         </div>
-        <div className="relative flex-1 min-w-48">
+        <div className="relative w-full min-w-0 flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nom, téléphone, email…"
-            className="w-full pl-9 pr-4 py-2 border border-neutral-200 rounded-xl text-sm focus:outline-none focus:border-black" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Nom, téléphone, email…" aria-label="Rechercher un panier"
+            className="min-h-12 w-full min-w-0 rounded-xl border border-neutral-200 py-2 pl-9 pr-4 text-base focus:border-black focus:outline-none sm:text-sm" />
         </div>
       </div>
 
@@ -185,22 +185,24 @@ export default function AbandonedCartsPage() {
                 {/* Left: info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <p className="font-bold text-sm">{cart.name ?? "Client inconnu"}</p>
+                    <p className="break-words text-sm font-bold">{cart.name ?? "Client inconnu"}</p>
                     {cart.reminded
                       ? <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-400">Contacté</span>
                       : <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">À contacter</span>}
                     <span className="text-[10px] text-neutral-400">{timeAgo(cart.updated_at)}</span>
                   </div>
-                  <div className="flex items-center gap-3 text-xs text-neutral-500 flex-wrap">
-                    {cart.phone && <span>📱 {cart.phone}</span>}
-                    {cart.email && <span>✉ {cart.email}</span>}
-                    <span className="font-bold text-neutral-800">{cart.total} MAD</span>
-                    <span>{cart.items?.length ?? 0} article{(cart.items?.length ?? 0) > 1 ? "s" : ""}</span>
+                  <div className="mt-2 flex min-w-0 flex-col gap-1.5 text-xs text-neutral-500 sm:flex-row sm:flex-wrap sm:gap-3">
+                    {cart.phone && <span className="break-words">📱 {cart.phone}</span>}
+                    {cart.email && <span className="break-all">✉ {cart.email}</span>}
+                  </div>
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-neutral-100 pt-3">
+                    <span className="text-xs text-neutral-500">{cart.items?.length ?? 0} article{(cart.items?.length ?? 0) > 1 ? "s" : ""}</span>
+                    <span className="text-base font-black tabular-nums text-neutral-900">{cart.total.toLocaleString("fr-FR")} <span className="text-xs font-medium text-neutral-500">MAD</span></span>
                   </div>
                   {/* Items list */}
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {(cart.items ?? []).slice(0, 4).map((item, i) => (
-                      <span key={i} className="text-[10px] bg-neutral-100 px-2 py-1 rounded-lg font-medium text-neutral-700">
+                      <span key={i} className="min-w-0 break-words rounded-lg bg-neutral-100 px-2.5 py-2 text-[11px] font-medium leading-5 text-neutral-700">
                         {item.name}{item.size ? ` · ${item.size}` : ""} ×{item.quantity}
                       </span>
                     ))}
@@ -211,26 +213,26 @@ export default function AbandonedCartsPage() {
                 </div>
 
                 {/* Right: actions */}
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex w-full flex-wrap items-center gap-2 border-t border-neutral-100 pt-3">
                   {cart.phone && (
                     <a
                       href={buildWaReminder(cart)}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => markReminded(cart.id)}
-                      className="flex items-center gap-1.5 px-3 py-2 bg-[#25D366] hover:bg-[#1db954] text-white text-xs font-bold rounded-xl transition-colors">
+                      className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-[#128c46] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#10783c] sm:w-auto">
                       <WaIcon />
                       Rappel WhatsApp
                     </a>
                   )}
                   {!cart.reminded && (
                     <button onClick={() => markReminded(cart.id)}
-                      className="px-3 py-2 border border-neutral-200 text-xs font-semibold rounded-xl hover:border-neutral-400 transition-colors text-neutral-600">
-                      ✓ Marqué contacté
+                      className="min-h-11 flex-1 rounded-xl border border-neutral-200 px-3 py-2 text-xs font-semibold text-neutral-600 transition-colors hover:border-neutral-400 sm:flex-none">
+                      ✓ Marquer comme contacté
                     </button>
                   )}
-                  <button onClick={() => deleteCart(cart.id)} disabled={deletingId === cart.id}
-                    className="p-2 border border-neutral-200 rounded-xl hover:border-red-300 hover:text-red-500 transition-colors text-neutral-400 disabled:opacity-50">
+                  <button onClick={() => deleteCart(cart.id)} disabled={deletingId === cart.id} aria-label="Supprimer ce panier"
+                    className="ml-auto flex min-h-11 min-w-11 items-center justify-center rounded-xl border border-neutral-200 p-2 text-neutral-400 transition-colors hover:border-red-300 hover:text-red-500 disabled:opacity-50">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                       <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>
                     </svg>

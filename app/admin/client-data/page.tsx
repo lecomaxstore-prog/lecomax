@@ -185,19 +185,19 @@ export default function ClientDataPage() {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
+    <div className="mx-auto w-full min-w-0 max-w-7xl px-3 py-4 sm:p-6">
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-[1.4rem] font-black tracking-tight">Données clients</h1>
-          <p className="text-neutral-400 text-sm mt-0.5">Collectées uniquement après consentement explicite</p>
+      <div className="mb-4 flex flex-col gap-4 sm:mb-6 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-black tracking-tight sm:text-[1.4rem]">Données clients</h1>
+          <p className="mt-1 max-w-sm text-xs leading-5 text-neutral-500 sm:text-sm">Collectées uniquement après consentement explicite</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
           <button
             onClick={downloadEvents}
             disabled={events.length === 0}
-            className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-neutral-200 bg-white px-2.5 py-2 text-[11px] font-bold transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Événements CSV
@@ -205,12 +205,12 @@ export default function ClientDataPage() {
           <button
             onClick={downloadSessions}
             disabled={consents.length === 0}
-            className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full border border-neutral-200 bg-white hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            className="flex min-h-11 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-neutral-200 bg-white px-2.5 py-2 text-[11px] font-bold transition-colors hover:bg-neutral-50 focus-visible:outline-2 focus-visible:outline-emerald-600 disabled:cursor-not-allowed disabled:opacity-40 sm:px-3"
           >
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Sessions CSV
           </button>
-          <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-100 px-3 py-1.5 rounded-full">
+          <span className="col-span-2 flex w-fit items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold text-emerald-700 sm:text-[11px]">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Conforme RGPD
           </span>
@@ -218,39 +218,41 @@ export default function ClientDataPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="mb-4 grid grid-cols-2 gap-2.5 sm:mb-6 sm:gap-4 lg:grid-cols-4">
         {[
           { label: "Sessions consenties", value: totalConsents, icon: "✅" },
           { label: "Pages vues", value: pageViews, icon: "👁️" },
           { label: "Produits consultés", value: productViews, icon: "🛍️" },
           { label: "Ajouts panier", value: cartAdds, icon: "🛒" },
         ].map(({ label, value, icon }) => (
-          <div key={label} className="bg-white border border-neutral-100 rounded-2xl p-5">
-            <div className="text-2xl mb-2">{icon}</div>
-            <p className="text-[1.6rem] font-black">{(value ?? 0).toLocaleString("fr-FR")}</p>
-            <p className="text-[11px] text-neutral-400 uppercase tracking-widest mt-0.5">{label}</p>
+          <div key={label} className="min-w-0 rounded-2xl border border-neutral-100 bg-white p-3.5 sm:p-5">
+            <div aria-hidden="true" className="mb-1 text-lg sm:mb-2 sm:text-2xl">{icon}</div>
+            <p className="break-words text-2xl font-black leading-tight tabular-nums sm:text-[1.6rem]">{(value ?? 0).toLocaleString("fr-FR")}</p>
+            <p className="mt-1 text-[11px] font-medium leading-4 text-neutral-500">{label}</p>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-5 bg-neutral-100 rounded-xl p-1 w-fit">
+      <div aria-label="Sections des données clients" className="mb-4 grid w-full grid-cols-3 gap-1 rounded-xl bg-neutral-100 p-1 sm:mb-5 sm:flex sm:w-fit">
         {(["overview", "events", "sessions"] as const).map(t => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all ${tab === t ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}
+            aria-pressed={tab === t}
+            className={`min-h-11 min-w-0 rounded-lg px-1 py-2 text-[11px] font-bold transition-colors sm:px-4 sm:text-[12px] ${tab === t ? "bg-white shadow-sm text-black" : "text-neutral-500 hover:text-black"}`}
           >
-            {t === "overview" ? "Aperçu" : t === "events" ? `Événements (${totalEvents})` : `Sessions (${totalConsents})`}
+            <span className="block sm:inline">{t === "overview" ? "Aperçu" : t === "events" ? "Événements" : "Sessions"}</span>
+            {t !== "overview" && <span className="mt-0.5 block text-[10px] font-medium tabular-nums text-neutral-500 sm:ml-1 sm:mt-0 sm:inline">({(t === "events" ? totalEvents : totalConsents).toLocaleString("fr-FR")})</span>}
           </button>
         ))}
       </div>
 
       {/* Tab: Overview */}
       {tab === "overview" && (
-        <div className="grid lg:grid-cols-2 gap-5">
+        <div className="grid w-full min-w-0 grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-2">
           {/* Top Countries */}
-          <div className="bg-white border border-neutral-100 rounded-2xl p-5">
+          <div className="min-w-0 rounded-2xl border border-neutral-100 bg-white p-3.5 sm:p-5">
             <p className="font-black text-[13px] uppercase tracking-widest mb-4">Pays visiteurs</p>
             {topCountries.length === 0 ? (
               <p className="text-neutral-400 text-sm">Aucune donn\u00e9e</p>
@@ -260,12 +262,12 @@ export default function ClientDataPage() {
                   const maxSessions = topCountries[0].sessions;
                   return (
                     <div key={country}>
-                      <div className="flex justify-between text-[12px] mb-1">
-                        <span className="flex items-center gap-1.5 text-neutral-700 font-medium">
+                      <div className="mb-1 flex min-w-0 items-center justify-between gap-3 text-[12px]">
+                        <span className="flex min-w-0 items-center gap-1.5 font-medium text-neutral-700">
                           <span>{countryFlag(country)}</span>
-                          <span>{countryName(country)}</span>
+                          <span className="truncate">{countryName(country)}</span>
                         </span>
-                        <span className="font-black text-neutral-900">{sessions}</span>
+                        <span className="shrink-0 rounded-md bg-neutral-100 px-2 py-0.5 font-black tabular-nums text-neutral-900">{sessions.toLocaleString("fr-FR")}</span>
                       </div>
                       <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                         <div
@@ -281,7 +283,7 @@ export default function ClientDataPage() {
           </div>
 
           {/* Top Pages */}
-          <div className="bg-white border border-neutral-100 rounded-2xl p-5">
+          <div className="min-w-0 rounded-2xl border border-neutral-100 bg-white p-3.5 sm:p-5">
             <p className="font-black text-[13px] uppercase tracking-widest mb-4">Pages les plus visitées</p>
             {topPages.length === 0 ? (
               <p className="text-neutral-400 text-sm">Aucune donnée</p>
@@ -291,9 +293,9 @@ export default function ClientDataPage() {
                   const max = topPages[0].views;
                   return (
                     <div key={path}>
-                      <div className="flex justify-between text-[12px] mb-1">
-                        <span className="text-neutral-700 font-medium truncate max-w-[70%]">{path}</span>
-                        <span className="font-black text-neutral-900">{views}</span>
+                      <div className="mb-1 flex min-w-0 items-center justify-between gap-3 text-[12px]">
+                        <span className="min-w-0 flex-1 truncate font-medium text-neutral-700" title={path}>{path}</span>
+                        <span className="shrink-0 rounded-md bg-neutral-100 px-2 py-0.5 font-black tabular-nums text-neutral-900">{views.toLocaleString("fr-FR")}</span>
                       </div>
                       <div className="h-1.5 bg-neutral-100 rounded-full overflow-hidden">
                         <div
@@ -309,7 +311,7 @@ export default function ClientDataPage() {
           </div>
 
           {/* Top Products */}
-          <div className="bg-white border border-neutral-100 rounded-2xl p-5">
+          <div className="min-w-0 rounded-2xl border border-neutral-100 bg-white p-3.5 sm:p-5">
             <p className="font-black text-[13px] uppercase tracking-widest mb-4">Produits les plus consultés</p>
             {topProducts.length === 0 ? (
               <p className="text-neutral-400 text-sm">Aucune donnée</p>
@@ -319,7 +321,7 @@ export default function ClientDataPage() {
                   <div key={id} className="flex items-center justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-bold text-neutral-800 truncate">{name}</p>
-                      <p className="text-[10px] text-neutral-400 uppercase tracking-wider">{category}</p>
+                      <p className="break-words text-[10px] text-neutral-400 uppercase tracking-wider">{category}</p>
                     </div>
                     <span className="text-[12px] font-black bg-neutral-100 px-2.5 py-1 rounded-lg shrink-0">
                       {views} vues
@@ -331,7 +333,7 @@ export default function ClientDataPage() {
           </div>
 
           {/* Event breakdown */}
-          <div className="bg-white border border-neutral-100 rounded-2xl p-5 lg:col-span-2">
+          <div className="min-w-0 rounded-2xl border border-neutral-100 bg-white p-3.5 sm:p-5 lg:col-span-2">
             <p className="font-black text-[13px] uppercase tracking-widest mb-4">Répartition des événements</p>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
               {Object.entries(EVENT_LABELS).map(([type, { label, color }]) => {
@@ -355,8 +357,9 @@ export default function ClientDataPage() {
           <div className="p-4 border-b border-neutral-100 flex flex-wrap gap-3">
             <select
               value={filterType}
+              aria-label="Type d’événement"
               onChange={e => setFilterType(e.target.value)}
-              className="border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black bg-neutral-50"
+              className="min-h-11 w-full min-w-0 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-base focus:border-black focus:outline-none sm:w-auto sm:text-xs"
             >
               <option value="all">Tous les événements</option>
               {Object.entries(EVENT_LABELS).map(([v, { label }]) => (
@@ -365,10 +368,11 @@ export default function ClientDataPage() {
             </select>
             <input
               type="text"
+              aria-label="Rechercher un événement"
               placeholder="Rechercher (URL, produit, session…)"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black bg-neutral-50 flex-1 min-w-[180px]"
+              className="min-h-11 w-full min-w-0 flex-1 rounded-lg border border-neutral-200 bg-neutral-50 px-3 py-2 text-base focus:border-black focus:outline-none sm:text-xs"
             />
           </div>
 

@@ -77,83 +77,83 @@ export default function CouponsPage() {
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="w-full min-w-0 max-w-4xl pb-4">
       <div className="mb-6">
         <h1 className="text-xl font-black">Codes promo</h1>
         <p className="text-xs text-neutral-400 mt-0.5">Créez et gérez vos codes de réduction</p>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-5">
+      <div className="mb-4 grid grid-cols-3 gap-2 sm:mb-5 sm:gap-4">
         {[
           { label: "Total codes", value: coupons.length },
           { label: "Actifs", value: coupons.filter((c) => c.active).length },
           { label: "Utilisations", value: coupons.reduce((a, c) => a + c.used_count, 0) },
         ].map((s) => (
-          <div key={s.label} className="bg-white border border-neutral-100 rounded-2xl p-5">
-            <p className="text-2xl font-black">{s.value}</p>
-            <p className="text-xs text-neutral-400 mt-1">{s.label}</p>
+          <div key={s.label} className="min-w-0 rounded-2xl border border-neutral-100 bg-white px-3 py-4 sm:p-5">
+            <p className="break-words text-2xl font-black tabular-nums">{s.value}</p>
+            <p className="mt-1 text-[10px] leading-4 text-neutral-500 sm:text-xs">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Create form */}
-      <div className="bg-white border border-neutral-100 rounded-2xl p-6 mb-5">
+      <div className="mb-5 min-w-0 rounded-2xl border border-neutral-100 bg-white p-4 sm:p-6">
         <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Créer un code</h2>
         <form onSubmit={handleCreate} className="space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+          <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Code</label>
-              <div className="flex gap-1">
-                <input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
+              <label htmlFor="coupon-code" className="mb-1.5 block text-xs font-semibold leading-5 text-neutral-600">Code</label>
+              <div className="flex min-w-0 gap-2">
+                <input id="coupon-code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   placeholder="Généré auto"
-                  className="flex-1 border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all uppercase" />
+                  className="min-h-12 min-w-0 w-full flex-1 border border-neutral-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all uppercase" />
                 <button type="button" onClick={() => setForm({ ...form, code: generateCode() })}
-                  className="px-3 py-2.5 border border-neutral-200 rounded-xl text-neutral-400 hover:text-black hover:border-neutral-400 transition-colors text-xs" title="Générer un code">
+                  aria-label="Generate promo code" className="min-h-12 min-w-12 shrink-0 flex items-center justify-center px-3 py-2.5 border border-neutral-200 rounded-xl text-neutral-400 hover:text-black hover:border-neutral-400 transition-colors text-xs" title="Générer un code">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
                 </button>
               </div>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Type</label>
-              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as "percent" | "fixed" })}
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all">
+              <label htmlFor="coupon-type" className="mb-1.5 block text-xs font-semibold leading-5 text-neutral-600">Type</label>
+              <select id="coupon-type" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as "percent" | "fixed" })}
+                className="min-h-12 min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all">
                 <option value="percent">Pourcentage (%)</option>
                 <option value="fixed">Montant fixe (MAD)</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">
+              <label htmlFor="coupon-value" className="mb-1.5 block text-xs font-semibold leading-5 text-neutral-600">
                 Valeur {form.type === "percent" ? "(%)" : "(MAD)"} *
               </label>
-              <input type="number" min="0" step="0.01" required value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })}
+              <input type="number" min="0" step="0.01" required id="coupon-value" value={form.value} onChange={(e) => setForm({ ...form, value: e.target.value })}
                 placeholder={form.type === "percent" ? "ex: 15" : "ex: 50"}
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
+                className="min-h-12 min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Commande min. (MAD)</label>
-              <input type="number" min="0" value={form.min_order} onChange={(e) => setForm({ ...form, min_order: e.target.value })}
+              <label htmlFor="coupon-min_order" className="mb-1.5 block text-xs font-semibold leading-5 text-neutral-600">Commande min. (MAD)</label>
+              <input type="number" min="0" id="coupon-min_order" value={form.min_order} onChange={(e) => setForm({ ...form, min_order: e.target.value })}
                 placeholder="Pas de minimum"
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
+                className="min-h-12 min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Max utilisations</label>
-              <input type="number" min="1" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: e.target.value })}
+              <label htmlFor="coupon-max_uses" className="mb-1.5 block text-xs font-semibold leading-5 text-neutral-600">Max utilisations</label>
+              <input type="number" min="1" id="coupon-max_uses" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: e.target.value })}
                 placeholder="Illimité"
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
+                className="min-h-12 min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="decimal" />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">Expiration</label>
-              <input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
-                className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+              <label htmlFor="coupon-expires_at" className="mb-1.5 block text-xs font-semibold leading-5 text-neutral-600">Expiration</label>
+              <input type="date" id="coupon-expires_at" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })}
+                className="min-h-12 min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col items-stretch gap-3 border-t border-neutral-100 pt-4 sm:flex-row sm:items-center">
             <button type="submit" disabled={saving}
-              className="bg-black text-white px-6 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 hover:bg-neutral-800 transition-colors">
+              className="min-h-12 w-full bg-black text-white px-6 py-3 sm:w-auto rounded-xl text-sm font-bold disabled:opacity-50 hover:bg-neutral-800 transition-colors">
               {saving ? "…" : "Créer le code"}
             </button>
-            {msg && <p className={`text-xs font-semibold ${msg.type === "ok" ? "text-green-600" : "text-red-600"}`}>{msg.text}</p>}
+            {msg && <p role="status" className={`text-xs font-semibold ${msg.type === "ok" ? "text-green-600" : "text-red-600"}`}>{msg.text}</p>}
           </div>
         </form>
       </div>
@@ -172,7 +172,7 @@ export default function CouponsPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-          <ResponsiveTable className="w-full text-sm min-w-[680px]">
+          <ResponsiveTable className="w-full text-sm min-w-0 lg:min-w-[680px]">
             <thead>
               <tr className="border-b border-neutral-100 text-[11px] text-neutral-400 uppercase tracking-wider">
                 <th className="px-5 py-3 text-left font-semibold">Code</th>

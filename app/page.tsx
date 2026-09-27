@@ -404,49 +404,13 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute inset-0 opacity-[.035]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
           <div className="pointer-events-none absolute -left-48 top-0 h-[500px] w-[500px] rounded-full bg-[#3ecf4c]/10 blur-[120px]" />
 
-          <div className={`relative grid ${latestPost ? "lg:grid-cols-[1.05fr_.95fr]" : ""}`}>
-            <div className="flex flex-col justify-between p-6 sm:p-10 lg:p-14">
-              <div>
-                <div className="mb-7 flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-5">
-                  <span className="flex items-center gap-2 text-[9px] font-black uppercase tracking-[.3em] text-[#3ecf4c]"><span className="h-1.5 w-1.5 rounded-full bg-[#3ecf4c] shadow-[0_0_12px_#3ecf4c]"/>En direct de la communauté</span>
-                  <span className="font-mono text-[10px] text-white/60">ECOMEDIA</span>
-                </div>
-                <h3 className="max-w-xl text-[1.9rem] font-semibold leading-[1.18] tracking-[-.035em] sm:text-4xl lg:text-5xl">
-                  L&apos;actualité L&apos;ecomax,<br/><span className="text-[#3ecf4c]">en avant-première.</span>
-                </h3>
-                <p className="mt-5 max-w-lg text-sm leading-7 text-[#becbc0]">Nouveautés, inspirations et coulisses : découvrez ce qui anime L’ECOMAX et partagez vos envies avec la communauté.</p>
-
-                <div className="mt-7 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-3">
-                  {[
-                    { label: "Découvrir", sub: "Les nouveautés", path: "M4 12h16M12 4v16" },
-                    { label: "Échanger", sub: "Avec la marque", path: "M21 15a2 2 0 01-2 2H8l-5 4V5a2 2 0 012-2h14a2 2 0 012 2v10Z" },
-                    { label: "Profiter", sub: "Des offres privées", path: "M20 12v8H4v-8M2 7h20v5H2zM12 7v13M12 7H7.5a2.5 2.5 0 110-5C11 2 12 7 12 7Zm0 0h4.5a2.5 2.5 0 100-5C13 2 12 7 12 7Z" },
-                  ].map(item => (
-                    <div key={item.label} className="flex items-center gap-4 rounded-xl border border-white/10 bg-white/[.04] p-4 sm:flex-col sm:items-start sm:gap-3">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#3ecf4c]/10">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8cde91" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={item.path}/></svg>
-                      </span>
-                      <div><p className="text-[13px] font-semibold text-white">{item.label}</p><p className="mt-1 text-xs leading-5 text-[#becbc0]">{item.sub}</p></div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-7 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:gap-6">
-                <Link href="/ecomedia" className="group inline-flex min-h-12 w-full items-center justify-between gap-6 rounded-xl bg-[#c4e8b4] px-5 py-3 text-sm font-semibold text-[#173c28] transition-colors hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c4e8b4] sm:w-auto">
-                  Explorer le fil
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="transition-transform group-hover:translate-x-1" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-                </Link>
-                <span className="flex items-center gap-2 text-xs text-[#becbc0]"><span className="h-1.5 w-1.5 rounded-full bg-[#8cde91]"/>Toute l’actualité, au même endroit</span>
-              </div>
-            </div>
-
+          <div className="relative">
             {latestPost ? (
-              <div className="relative flex items-center justify-center border-t border-white/10 bg-white/[.025] p-6 sm:p-10 lg:border-l lg:border-t-0 lg:p-12">
+              <div className="relative flex items-center justify-center bg-white/[.025] p-6 sm:p-10 lg:p-12">
                 <Link href={`/ecomedia/${latestPost.slug}`} className="group block w-full max-w-[430px]" aria-label={`Voir la publication : ${latestPost.title}`}>
                   <div className="overflow-hidden rounded-[1.4rem] border border-white/15 bg-[#111512] shadow-[0_28px_70px_rgba(0,0,0,.5)] transition duration-500 group-hover:-translate-y-1 group-hover:border-[#3ecf4c]/60">
                     <div className="flex items-center gap-3 border-b border-white/10 px-4 py-3.5">
-                      <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-[#3ecf4c]/60 bg-black p-1"><img src="/brand/lecomax-premium-icon.png" alt="" className="h-full w-full object-cover" /></div>
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-black"><img src="/icons/premium-v12-192.png" alt="L’ecomax" className="h-full w-full object-contain" /></div>
                       <div><p className="text-[11px] font-black">L&apos;ecomax</p><p className="mt-0.5 text-[9px] text-white/35">Publication officielle</p></div>
                       <span className="ml-auto flex items-center gap-1.5 rounded-full border border-[#3ecf4c]/25 bg-[#3ecf4c]/10 px-2.5 py-1 text-[8px] font-black uppercase tracking-wider text-[#3ecf4c]"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#3ecf4c]"/>Nouveau</span>
                     </div>

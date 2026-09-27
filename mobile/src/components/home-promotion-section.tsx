@@ -9,7 +9,8 @@ import { AnimatedPressable } from "@/components/animated-pressable";
 import { HorizontalRail } from "@/components/horizontal-rail";
 import { useAppViewport } from "@/components/app-viewport";
 import { palette, typography } from "@/constants/theme";
-import { discount, imageUrl, money } from "@/lib/format";
+import { discount, money } from "@/lib/format";
+import { useProductImage } from "@/hooks/use-product-image";
 import type { Product } from "@/types/commerce";
 
 const colors = {
@@ -35,9 +36,7 @@ export const HomePromotionSection = memo(function HomePromotionSection({
       <View style={styles.heading}>
         <View style={styles.headingCopy}>
           <View style={styles.eyebrowBadge}>
-            <View style={styles.eyebrowIcon}>
-              <Ionicons name="sparkles" size={12} color="#176B3A" accessible={false} />
-            </View>
+            <View style={styles.eyebrowRule} />
             <Text style={styles.eyebrow}>{msg("homePromotionSection.lEcomaxPricesUppercase")}</Text>
           </View>
           <Text accessibilityRole="header" style={styles.title}>
@@ -89,6 +88,7 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
   width: number;
 }) {
   useLocale();
+  const { source, imageFailed, onError } = useProductImage(product);
   const saving = discount(product.price, product.original_price);
   const savedAmount = Math.max(
     0,
@@ -118,14 +118,22 @@ const PromotionFeatureCard = memo(function PromotionFeatureCard({
             {saving ? `-${saving}%` : msg("homePromotionSection.offerUppercase")}
           </Text>
         </View>
-        <Image
+        {imageFailed ? (
+          <View style={[styles.productImage, styles.imageFallback]}>
+            <Ionicons name="image-outline" size={28} color="#7A857D" />
+            <Text style={styles.imageFallbackText}>{msg("productCard.imageUnavailableUppercase")}</Text>
+          </View>
+        ) : <Image
           accessibilityLabel={product.name}
           cachePolicy="memory-disk"
+          loading="eager"
           contentFit="contain"
-          source={imageUrl(product.thumbnail || product.images[0])}
+          source={source}
+          onError={onError}
+          recyclingKey={`${product.id}:${source}`}
           style={styles.productImage}
           transition={180}
-        />
+        />}
         <View style={styles.imageFooter}>
           <View
             style={[
@@ -189,31 +197,17 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    paddingLeft: 6,
-    paddingRight: 13,
-    paddingVertical: 6,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: "#DCE9DF",
-    backgroundColor: "#F4F8F3",
+    gap: 10,
+    paddingVertical: 2,
     maxWidth: "100%",
   },
-  eyebrowIcon: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    flexShrink: 0,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#E3EFE2",
-  },
+  eyebrowRule: { width: 22, height: 2, borderRadius: 1, backgroundColor: "#28543E", flexShrink: 0 },
   eyebrow: {
-    color: "#245337",
-    fontFamily: typography.bold,
+    color: "#435947",
+    fontFamily: typography.medium,
     fontSize: 10,
     lineHeight: 14,
-    letterSpacing: 1,
+    letterSpacing: 1.1,
     flexShrink: 1,
   },
   title: {
@@ -267,6 +261,8 @@ const styles = StyleSheet.create({
     bottom: 20,
     left: 10,
   },
+  imageFallback: { alignItems: "center", justifyContent: "center", gap: 8, backgroundColor: "#F4F6F2", borderRadius: 12 },
+  imageFallbackText: { color: "#626B60", fontFamily: typography.medium, fontSize: 10, textAlign: "center" },
   offerBadge: {
     position: "absolute",
     zIndex: 1,

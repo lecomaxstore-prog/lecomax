@@ -200,7 +200,7 @@ export default function AdsPage() {
   };
 
   if (showForm) return (
-    <div className="max-w-5xl">
+    <div className="w-full min-w-0 max-w-5xl pb-4">
       <div className="flex items-center gap-3 mb-6">
         <button onClick={() => router.replace("/admin/ads")} className="p-2 hover:bg-neutral-100 rounded-lg">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -208,13 +208,13 @@ export default function AdsPage() {
         <h1 className="text-xl font-black">{editId ? "Modifier la publicité" : "Nouvelle publicité"}</h1>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-2 sm:gap-6">
         {/* Left: Form */}
         <form onSubmit={handleSave} className="space-y-5">
           {/* Type selector */}
-          <div className="bg-white rounded-2xl border border-neutral-100 p-6">
+          <div className="bg-white rounded-2xl border border-neutral-100 min-w-0 p-4 sm:p-6">
             <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-4">Type d&apos;affichage</h2>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
               {AD_TYPES.map((t) => (
                 <button key={t.value} type="button" onClick={() => setForm((f) => ({ ...f, type: t.value as Ad["type"] }))}
                   className={`text-left p-4 rounded-xl border-2 transition-all ${f.type === t.value ? "border-black bg-neutral-50" : "border-neutral-100 hover:border-neutral-300"}`}>
@@ -227,7 +227,7 @@ export default function AdsPage() {
           </div>
 
           {/* Content */}
-          <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-neutral-100 min-w-0 p-4 sm:p-6 space-y-4">
             <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Contenu</h2>
             <F label="Nom interne *" value={f.title} onChange={(v) => setForm((x) => ({ ...x, title: v }))} required placeholder="ex: Promo Été 2026" />
             <F label="Titre / Accroche" value={f.heading} onChange={(v) => setForm((x) => ({ ...x, heading: v }))} placeholder="ex: -30% sur tout !" />
@@ -235,10 +235,10 @@ export default function AdsPage() {
               <div>
                 <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Description</label>
                 <textarea value={f.body} onChange={(e) => setForm((x) => ({ ...x, body: e.target.value }))} rows={2}
-                  placeholder="ex: Offre valable jusqu'au 30 juin" className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black resize-none" />
+                  placeholder="ex: Offre valable jusqu'au 30 juin" className="min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-3 text-base sm:text-sm focus:outline-none focus:border-black resize-none" />
               </div>
             )}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
               <F label="Bouton — texte" value={f.button_label} onChange={(v) => setForm((x) => ({ ...x, button_label: v }))} placeholder="Voir l'offre" />
               <F label="Bouton — lien" value={f.button_href} onChange={(v) => setForm((x) => ({ ...x, button_href: v }))} placeholder="/promotions" />
             </div>
@@ -269,9 +269,9 @@ export default function AdsPage() {
           </div>
 
           {/* Colors */}
-          <div className="bg-white rounded-2xl border border-neutral-100 p-6">
+          <div className="bg-white rounded-2xl border border-neutral-100 min-w-0 p-4 sm:p-6">
             <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-4">Couleurs</h2>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3">
               {[
                 { label: "Fond", key: "bg_color" as const },
                 { label: "Texte", key: "text_color" as const },
@@ -289,7 +289,7 @@ export default function AdsPage() {
           </div>
 
           {/* Timing & Frequency */}
-          <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-neutral-100 min-w-0 p-4 sm:p-6 space-y-4">
             <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Déclenchement</h2>
             {f.type !== "topbar" && (
               <F label={`Délai avant affichage (secondes)`} type="number" value={f.delay_seconds}
@@ -317,28 +317,28 @@ export default function AdsPage() {
           </div>
 
           {/* Pages & Scheduling */}
-          <div className="bg-white rounded-2xl border border-neutral-100 p-6 space-y-4">
+          <div className="bg-white rounded-2xl border border-neutral-100 min-w-0 p-4 sm:p-6 space-y-4">
             <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-wider">Ciblage & Planification</h2>
             <div>
               <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Pages cibles</label>
               <select value={f.target_pages} onChange={(e) => setForm((x) => ({ ...x, target_pages: e.target.value }))}
-                className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-white">
+                className="min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-3 text-base sm:text-sm focus:outline-none focus:border-black bg-white">
                 {PAGE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Date de début</label>
                 <input type="datetime-local" value={f.start_at} onChange={(e) => setForm((x) => ({ ...x, start_at: e.target.value }))}
-                  className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
+                  className="min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-3 text-base sm:text-sm focus:outline-none focus:border-black" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Date de fin</label>
                 <input type="datetime-local" value={f.end_at} onChange={(e) => setForm((x) => ({ ...x, end_at: e.target.value }))}
-                  className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
+                  className="min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-3 text-base sm:text-sm focus:outline-none focus:border-black" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 items-end">
+            <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 items-end">
               <F label="Ordre d'affichage" type="number" value={f.sort_order} onChange={(v) => setForm((x) => ({ ...x, sort_order: v }))} />
               <label className="flex items-center gap-2 cursor-pointer select-none pb-1">
                 <div onClick={() => setForm((x) => ({ ...x, active: !x.active }))} className={`w-10 h-6 rounded-full transition-colors relative ${f.active ? "bg-black" : "bg-neutral-200"}`}>
@@ -360,7 +360,7 @@ export default function AdsPage() {
 
         {/* Right: Live preview */}
         <div className="xl:sticky xl:top-4 h-fit">
-          <div className="bg-white rounded-2xl border border-neutral-100 p-6">
+          <div className="bg-white rounded-2xl border border-neutral-100 min-w-0 p-4 sm:p-6">
             <h2 className="text-xs font-bold text-neutral-500 uppercase tracking-wider mb-4">Aperçu en temps réel</h2>
             <div className="bg-neutral-50 rounded-xl p-4 min-h-40">
               <Preview />
@@ -390,24 +390,24 @@ export default function AdsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
+      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h1 className="text-2xl font-black">Publicités</h1>
-          <p className="text-sm text-neutral-500 mt-0.5">Créez des popups, barres, notifications et bannières pour vos visiteurs</p>
+          <p className="mt-1 max-w-md text-xs leading-5 text-neutral-500 sm:text-sm">Créez des popups, barres, notifications et bannières pour vos visiteurs</p>
         </div>
-        <button onClick={() => router.replace("/admin/ads?new=1")} className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 flex items-center gap-2">
+        <button onClick={() => router.replace("/admin/ads?new=1")} className="flex min-h-12 w-full shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-black px-5 py-3 text-sm font-bold text-white hover:bg-neutral-800 sm:w-auto">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Nouvelle pub
+          Nouvelle publicité
         </button>
       </div>
 
       {/* Type legend */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className="mb-5 grid min-w-0 grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-3">
         {AD_TYPES.map((t) => (
-          <div key={t.value} className="bg-white rounded-xl border border-neutral-100 p-3">
-            <p className="text-lg mb-1">{t.icon}</p>
-            <p className="text-xs font-bold">{t.label}</p>
-            <p className="text-[10px] text-neutral-400 mt-0.5">{t.desc}</p>
+          <div key={t.value} className="min-w-0 rounded-2xl border border-neutral-100 bg-white p-4">
+            <span aria-hidden="true" className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-lg text-emerald-800">{t.icon}</span>
+            <p className="text-xs font-bold leading-5">{t.label}</p>
+            <p className="mt-1 text-[11px] leading-4 text-neutral-500">{t.desc}</p>
           </div>
         ))}
       </div>
@@ -415,40 +415,40 @@ export default function AdsPage() {
       {loading ? (
         <AdminLoading />
       ) : ads.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-neutral-100 px-6 py-16 text-center">
+        <div className="rounded-2xl border border-neutral-100 bg-white px-5 py-8 text-center sm:py-12">
           <div className="text-4xl mb-3">📢</div>
-          <p className="text-neutral-400 text-sm font-medium">Aucune publicité créée.</p>
-          <p className="text-neutral-300 text-xs mt-1">Créez votre première popup ou bannière.</p>
+          <p className="text-sm font-semibold text-neutral-700">Aucune publicité créée.</p>
+          <p className="mt-2 text-xs leading-5 text-neutral-500">Commencez avec une popup ou une bannière.</p>
         </div>
       ) : (
         <div className="grid gap-3">
           {ads.map((a) => {
             const st = statusNow(a);
             return (
-              <div key={a.id} className="bg-white rounded-2xl border border-neutral-100 flex items-center gap-4 px-5 py-4">
+              <div key={a.id} className="flex min-w-0 flex-wrap items-center gap-3 rounded-2xl border border-neutral-100 bg-white px-4 py-4 sm:flex-nowrap sm:gap-4 sm:px-5">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0" style={{ background: a.bg_color + "22", border: `2px solid ${a.bg_color}44` }}>
                   {typeIcon[a.type]}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <p className="font-bold truncate">{a.title}</p>
                     <span className="text-[10px] font-semibold text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full capitalize">{AD_TYPES.find(t => t.value === a.type)?.label}</span>
                   </div>
-                  <div className="flex items-center gap-3 mt-0.5">
+                  <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
                     <p className="text-xs text-neutral-400 truncate">{a.heading || a.body || "Sans contenu"}</p>
                     {a.start_at && <p className="text-[10px] text-neutral-300 flex-shrink-0">Début: {new Date(a.start_at).toLocaleDateString("fr-FR")}</p>}
                     {a.end_at && <p className="text-[10px] text-neutral-300 flex-shrink-0">Fin: {new Date(a.end_at).toLocaleDateString("fr-FR")}</p>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex w-full shrink-0 items-center justify-end gap-2 border-t border-neutral-100 pt-3 sm:w-auto sm:border-0 sm:pt-0">
                   <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-full ${st.color}`}>{st.label}</span>
-                  <button onClick={() => toggleActive(a)} className={`text-[10px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer transition-colors ${a.active ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"}`}>
+                  <button onClick={() => toggleActive(a)} className={`min-h-11 min-w-11 text-[10px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer transition-colors ${a.active ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"}`}>
                     {a.active ? "ON" : "OFF"}
                   </button>
-                  <button onClick={() => router.replace(`/admin/ads?id=${a.id}`)} className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg">
+                  <button onClick={() => router.replace(`/admin/ads?id=${a.id}`)} aria-label="Modifier la publicité" className="flex min-h-11 min-w-11 items-center justify-center p-2 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </button>
-                  <button onClick={() => handleDelete(a.id)} className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
+                  <button onClick={() => handleDelete(a.id)} aria-label="Supprimer la publicité" className="flex min-h-11 min-w-11 items-center justify-center p-2 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
                   </button>
                 </div>
@@ -466,7 +466,7 @@ function F({ label, value, onChange, type = "text", placeholder, required }: { l
     <div>
       <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">{label}</label>
       <input type={type} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} required={required}
-        className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black" />
+        className="min-w-0 max-w-full w-full border border-neutral-200 rounded-xl px-3 py-3 text-base sm:text-sm focus:outline-none focus:border-black" />
     </div>
   );
 }

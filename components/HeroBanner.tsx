@@ -79,7 +79,7 @@ export default function HeroBanner({ banners = [], heroImage, heroImageMobile, s
   }
 
   return (
-    <section
+    <section data-source-file="components/HeroBanner.tsx"
       ref={heroRef}
       aria-roledescription="carrousel"
       aria-label="Sélection L'ecomax"

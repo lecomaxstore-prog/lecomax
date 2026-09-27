@@ -337,9 +337,9 @@ export async function POST(req: NextRequest) {
     p_zones: commerce.config.zones, p_coupon: commerce.coupon });
   if (error) {
     console.error("Order creation RPC failed:", error);
-
+    require("fs").writeFileSync("supabase_error.json", JSON.stringify(error, null, 2));
     const conflict = /STOCK|UNAVAILABLE|VARIANT|FULFILLMENT_CHANGED|PRICE_CHANGED|CONFIGURATION_CHANGED|COUPON/.test(error.message);
-    return NextResponse.json({ error: conflict ? preorderCopy.fr.changed : "La création sécurisée de la commande est indisponible.", code: conflict ? error.message : "ORDER_TRANSACTION_UNAVAILABLE" }, { status: conflict ? 409 : 503 });
+    return NextResponse.json({ error: conflict ? preorderCopy.fr.changed : "La création sécurisée de la commande est indisponible.", code: conflict ? error.message : "ORDER_TRANSACTION_UNAVAILABLE", details: error }, { status: conflict ? 409 : 503 });
   }
   if (!data) {
     console.error("Order creation RPC returned no data");

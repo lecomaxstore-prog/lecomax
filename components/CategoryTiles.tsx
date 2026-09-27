@@ -87,7 +87,7 @@ export default function CategoryTiles() {
   const total = categories.reduce((sum, category) => sum + category.count, 0);
 
   return (
-    <section hidden={!categories.length} className="mx-auto max-w-7xl px-4 pb-7 pt-10 sm:pb-10 md:px-6 md:pt-14" ref={ref}>
+    <section data-source-file="components/CategoryTiles.tsx" hidden={!categories.length} className="mx-auto max-w-7xl px-4 pb-7 pt-10 sm:pb-10 md:px-6 md:pt-14" ref={ref}>
       <div className="mb-8 flex items-end justify-between border-b border-neutral-100 pb-6" style={{ opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(18px)", transition: "all .6s ease" }}>
         <div><p className="mb-2 text-[10px] font-black uppercase tracking-[.28em] text-[#22a936]">Collections</p><h2 className="h-display text-3xl md:text-[2.6rem]">Acheter par catégorie</h2></div>
         <span className="hidden text-[11px] font-bold uppercase tracking-[.2em] text-neutral-400 md:block">{total} articles</span>

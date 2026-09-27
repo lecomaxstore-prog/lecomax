@@ -27,7 +27,7 @@ No JSX design, image dimensions, crop, typography, OG URLs, product URLs, login,
 
 ## OG verification
 
-Run `node scripts/benchmark-product-og.mjs` from the repository root. It compares the pre-optimization renderer at commit `c70b3b3` with the current renderer using a local photo and synthetic product, without database access. The baseline commit must be available in the local Git history.
+Run `node scripts/benchmark-product-og.mjs` from the repository root. It compares the original HEAD renderer with the current renderer using a local photo and synthetic product, without database access.
 
 Measured locally: original cold render approximately 1.2–1.3 CPU seconds; warm renderer approximately 0.8 CPU seconds. Output was byte-identical (377,911-byte PNG). Price changes reused the converted source. Final-PNG cache hit took about 1 ms elapsed, with CPU below this run's measurement resolution.
 
@@ -44,8 +44,6 @@ Cache regression tests cover concurrent requests sharing a render, positive stoc
 - No production database mutations, checkout payments or deployment were performed. Admin mutation invalidation was reviewed in code and tested through mocked regression tests, not exercised by changing live products.
 
 ## Files changed during this audit
-
-Publication validation: changes were applied onto current production `main` in an isolated checkout, preserving newer production fixes. All 300 tests passed there; the earlier assistant-loader failure described above was specific to the original working branch. Unrelated order-debugging edits and database repair scripts were excluded from publication.
 
 - `lib/storefront-settings-server.ts` — new shared public-settings cache.
 - `app/layout.tsx`, `app/page.tsx`, `lib/shipping-config-server.ts` — use shared settings.

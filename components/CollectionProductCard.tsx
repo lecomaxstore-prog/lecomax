@@ -14,7 +14,7 @@ export default function CollectionProductCard({ product, index = 0, visibilityCl
     : null;
 
   return (
-    <div
+    <div data-source-file="components/CollectionProductCard.tsx"
       className={`h-full ${visibilityClass}`}
       style={{
         animation: `cardFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both`,

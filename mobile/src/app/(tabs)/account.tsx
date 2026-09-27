@@ -9,7 +9,6 @@ import * as WebBrowser from "expo-web-browser";
 import type { Session } from "@supabase/supabase-js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  type ViewStyle,
   ActivityIndicator,
   Alert,
   Linking,
@@ -1581,7 +1580,7 @@ const styles = StyleSheet.create({
   },
   settingsList: { paddingBottom: 8 },
   // A single bounded sheet lets the scroll area use all remaining header space.
-  sheetScroll: { flexGrow: 0, flexShrink: 1, minHeight: 0, overflowY: "auto" } as ViewStyle & { overflowY: "auto" },
+  sheetScroll: { flexGrow: 0, flexShrink: 1, minHeight: 0, overflowY: "auto" },
   sheetScrollContent: { paddingTop: 16, paddingHorizontal: 20 },
   settingsSectionLabel: {
     marginBottom: 8,

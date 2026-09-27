@@ -39,7 +39,7 @@ export default function ProductCard({ product, recommendation = false }: { produ
   const discount = onSale ? Math.round((1 - product.price / product.oldPrice!) * 100) : 0;
 
   return (
-    <article
+    <article data-source-file="components/ProductCard.tsx"
       className={`${styles.card} product-card group relative isolate flex h-full flex-col overflow-hidden bg-white focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2`}
     >
       {/* Image */}
