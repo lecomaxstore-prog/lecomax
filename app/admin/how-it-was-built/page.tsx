@@ -6,6 +6,7 @@ import CodingTutor from "./CodingTutor";
 import { translate } from "./course/journey";
 import CodeLibrary from "./CodeLibrary";
 import SiteExplorer from "./SiteExplorer";
+import BackendGuides from "./BackendGuides";
 
 const AcademySection = dynamic(() => import("./AcademySection"), {
   loading: () => (
@@ -5197,6 +5198,7 @@ export default function ProductsPage() {
         <button type="button" onClick={() => onNavigate("site")} className="min-h-12 w-full rounded-xl bg-emerald-950 px-4 py-3 text-left font-bold text-white">{translate(lang, "Mon site → mon code · cliquer pour apprendre", "My site → my code · click to learn", "موقعي ← الكود · انقر لتتعلم")}</button>
         <a href="#files" className="mt-2 inline-flex min-h-11 items-center text-sm font-semibold text-emerald-900 underline">{translate(lang, "Parcourir tous mes fichiers", "Browse all my files", "تصفح كل ملفاتي")}</a>
       </div>
+      <BackendGuides lang={lang} />
       <DailyLearning lang={lang} onAcademy={() => onNavigate("academy")} />
       <CodingTutor lang={lang} />
       <details className="rounded-3xl border border-neutral-200 bg-white p-4">

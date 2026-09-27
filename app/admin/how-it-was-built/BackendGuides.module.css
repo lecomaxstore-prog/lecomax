@@ -1,0 +1,38 @@
+.shell { min-width: 0; border: 1px solid #d8e5dc; border-radius: 24px; padding: 22px; background: #f7faf7; color: #153d2c; overflow-wrap: anywhere; }
+.heading h2 { margin: 6px 0 10px; font-size: clamp(22px, 4vw, 30px); font-weight: 800; line-height: 1.2; letter-spacing: -.025em; }
+.heading > p:last-child { font-size: 14px; line-height: 1.7; color: #52675b; }
+.kicker { font-size: 10px; font-weight: 800; letter-spacing: .09em; }
+.map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 20px 0; padding: 0; list-style: none; }
+.map li { display: flex; flex-direction: column; gap: 4px; padding: 12px 8px; border: 1px solid #d9e5dc; border-radius: 12px; background: white; text-align: center; }
+.map strong { font-size: 13px; }
+.map span { font-size: 11px; color: #52675b; }
+.guides { display: grid; gap: 10px; }
+.guide { min-width: 0; border: 1px solid #d6e4d9; border-radius: 16px; background: white; overflow: hidden; }
+.guide > summary { display: flex; align-items: flex-start; gap: 12px; min-height: 64px; padding: 16px; cursor: pointer; list-style: none; }
+.guide > summary::-webkit-details-marker { display: none; }
+.guide > summary > span:nth-child(2) { flex: 1; min-width: 0; }
+.guide > summary strong { display: block; font-size: 16px; line-height: 1.5; }
+.description { display: block; margin-top: 4px; font-size: 12px; line-height: 1.6; color: #52675b; }
+.number { flex: none; display: grid; place-items: center; height: 30px; width: 30px; border-radius: 9px; background: #e8f4ec; font-size: 11px; font-weight: 800; }
+.plus { flex: none; font-size: 24px; line-height: 30px; }
+.guide[open] > summary { background: #edf7f0; border-bottom: 1px solid #d6e4d9; }
+.guide[open] > summary .plus { transform: rotate(45deg); }
+.content { padding: 16px; }
+.exerciseNote { padding: 12px; background: #f3f6fa; color: #42556b; font-size: 12px; line-height: 1.7; border-radius: 10px; margin-bottom: 10px; }
+.chapter { border-bottom: 1px solid #e3e9e5; }
+.chapter > summary { min-height: 52px; padding: 14px 0; cursor: pointer; font-size: 14px; font-weight: 750; line-height: 1.6; }
+.lesson { min-width: 0; padding: 0 0 18px; }
+.lesson > p { font-size: 14px; line-height: 1.9; color: #314b3c; margin: 0 0 14px; }
+.example { min-width: 0; margin: 16px 0; overflow: hidden; border: 1px solid #d6e4d9; border-radius: 12px; background: #102c22; color: #e9f6ed; }
+.codeHeading { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 12px; font-size: 11px; border-bottom: 1px solid #365346; }
+.codeHeading button { min-height: 44px; padding: 8px; text-decoration: underline; }
+.example pre { max-width: 100%; overflow-x: auto; padding: 14px; font-size: 12px; line-height: 1.9; text-align: left; }
+.copyStatus { font-size: 12px; padding: 0 12px; }
+.copyStatus:not(:empty) { padding-bottom: 12px; }
+.references { margin-top: 16px; }
+.references h3 { margin: 0 0 6px; font-size: 12px; font-weight: 750; }
+.references a { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; padding: 8px 10px; margin: 4px 0; border: 1px solid #dce8df; border-radius: 9px; color: #185e3d; font-size: 12px; text-decoration: underline; }
+.references a span:first-child { min-width: 0; }
+.footer { margin-top: 14px; color: #607266; font-size: 11px; line-height: 1.7; }
+.shell summary:focus-visible, .shell a:focus-visible, .shell button:focus-visible, .shell pre:focus-visible { outline: 2px solid #218653; outline-offset: -2px; }
+@media (max-width: 639px) { .shell { padding: 16px 12px; border-radius: 20px; } .guide > summary { padding: 14px 10px; gap: 8px; } .content { padding: 12px 10px; } .guide > summary strong { font-size: 15px; } .lesson > p { font-size: 15px; } }
