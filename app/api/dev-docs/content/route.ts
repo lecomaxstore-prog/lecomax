@@ -2,6 +2,7 @@
 import { protectSourceBrowser } from "@/lib/dev-docs-access";
 import { getSourceLibrary } from "@/lib/source-library";
 import { isLibraryPath } from "@/scripts/source-library.mjs";
+import { inspectSourceConnections } from "@/lib/source-connections";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
@@ -13,7 +14,10 @@ export async function GET(req: NextRequest) {
     const library = await getSourceLibrary();
     const file = library.files.find(item => item.path === requested);
     if (!file) return NextResponse.json({ error: "File unavailable in this source library" }, { status: 404 });
-    return NextResponse.json({ ...file, generatedAt: library.generatedAt }, { headers: { "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
+    const requestedLine = Number(req.nextUrl.searchParams.get("line"));
+    const line = Number.isInteger(requestedLine) && requestedLine > 0 ? Math.min(requestedLine, file.lines) : 1;
+    const connections = req.nextUrl.searchParams.get("connections") === "1" ? inspectSourceConnections(file, library.files, line) : undefined;
+    return NextResponse.json({ ...file, generatedAt: library.generatedAt, connections }, { headers: { "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" } });
   } catch {
     return NextResponse.json({ error: "Source library unavailable" }, { status: 503 });
   }

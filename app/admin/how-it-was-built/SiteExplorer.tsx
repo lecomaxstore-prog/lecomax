@@ -7,6 +7,7 @@ import type { CourseLanguage } from "./course/types";
 import SiteLesson from "./SiteLesson";
 import BackendGuides from "./BackendGuides";
 import styles from "./SiteExplorer.module.css";
+import type { SourceConnections } from "@/lib/source-connections";
 
 export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   const t = useCallback((fr: string, en: string, ar: string) => translate(lang, fr, en, ar), [lang]);
@@ -29,6 +30,9 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   const [showNotices, setShowNotices] = useState(false);
   const [hint, setHint] = useState("");
   const [showGuide, setShowGuide] = useState(false);
+  const [workshop, setWorkshop] = useState<"site" | "guides">("site");
+  const [connections, setConnections] = useState<SourceConnections>();
+  const [sourceTrail, setSourceTrail] = useState<SourceSelection[]>([]);
 
   useEffect(() => {
     frame.current?.contentDocument?.documentElement.toggleAttribute("data-learning-hide-notices", !showNotices);
@@ -55,15 +59,16 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     if (!dialog.current?.open) dialog.current?.showModal();
     dialog.current?.scrollTo(0, 0);
     const controller = new AbortController();
-    setLoading(true); setError(""); setContent("");
+    setLoading(true); setError(""); setContent(""); setConnections(undefined);
     void (async () => {
       try {
-        const response = await fetch(`/api/dev-docs/content?path=${encodeURIComponent(selection.path)}`, { cache: "no-store", signal: controller.signal });
+        const response = await fetch(`/api/dev-docs/content?path=${encodeURIComponent(selection.path)}&connections=1&line=${selection.line ?? 1}`, { cache: "no-store", signal: controller.signal });
         if (!response.ok) throw new Error(response.status === 403 ? t("Déverrouille l’espace de code pour lire ce fichier.", "Unlock the code area to read this file.", "افتح مساحة الكود لقراءة الملف.") : t("Le fichier n’a pas pu être chargé. Réessaie.", "The file could not be loaded. Try again.", "تعذر تحميل الملف. حاول مجددًا."));
         const data = await response.json();
         if (controller.signal.aborted) return;
         const lines = data.content.split("\n");
         setContent(data.content);
+        setConnections(data.connections);
         setLine(Math.min(lines.length, Math.max(1, selection.line || lines.findIndex((value: string) => value.includes(selection.anchor)) + 1)));
       } catch (err) { if (!controller.signal.aborted) setError(err instanceof Error ? err.message : "Erreur"); }
       finally { if (!controller.signal.aborted) setLoading(false); }
@@ -77,6 +82,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   }, []);
 
   function select(value: SourceSelection) {
+    setSourceTrail([]);
     setSelection(value);
     setHistory(items => [value, ...items.filter(item => item.path !== value.path || item.line !== value.line)].slice(0, 6));
   }
@@ -108,10 +114,15 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   }
   function closeLesson() { setSelection(null); dialog.current?.close(); }
   return <section className={`${styles.workspace} space-y-3`}>
-    <BackendGuides lang={lang} compact />
+    <nav className={styles.workshopSwitch} aria-label={t("Choisir comment apprendre", "Choose how to learn", "اختر طريقة التعلم")}>
+      <button type="button" aria-pressed={workshop === "site"} onClick={() => setWorkshop("site")}>{t("Explorer mon site", "Explore my site", "استكشف موقعي")}</button>
+      <button type="button" aria-pressed={workshop === "guides"} onClick={() => setWorkshop("guides")}>{t("Les 3 guides", "The 3 guides", "الأدلة الثلاثة")}</button>
+    </nav>
+    {workshop === "guides" ? <BackendGuides lang={lang} compact /> : <>
     <div className={styles.welcome} data-expanded={showGuide}>
       <div className={styles.eyebrow}>{t("L’atelier de ton site", "Your site workshop", "ورشة موقعك")} <span>· {t("5 min pour commencer", "Start in 5 minutes", "ابدأ في 5 دقائق")}</span></div>
-      <h2>{t("Ton site devient ton professeur.", "Your site becomes your teacher.", "موقعك يصبح معلّمك.")}</h2>
+      <h2>{t("Touche un élément. Comprends son code.", "Tap an element. Understand its code.", "المس عنصرًا وافهم الكود الخاص به.")}</h2>
+      <p className={styles.tapHint}>{t("Une image, un texte, un bouton : retrouve le fichier, son rôle et les données qu’il utilise.", "An image, text or a button: find its file, its purpose and the data it uses.", "صورة أو نص أو زر: اعرف ملفه ودوره والبيانات التي يستخدمها.")}</p>
       <button type="button" className={styles.guideToggle} aria-expanded={showGuide} aria-controls="site-workshop-guide" onClick={() => setShowGuide(value => !value)}>{showGuide ? t("Masquer le guide −", "Hide guide −", "إخفاء الدليل −") : t("Comment apprendre ? +", "How do I learn? +", "كيف أتعلّم؟ +")}</button>
       <div id="site-workshop-guide" className={styles.guideBody}>
       <p>{t("Pars de ce que tu vois. Comprends le code qui le crée. Retiens une idée à la fois.", "Start with what you see. Understand the code behind it. Learn one idea at a time.", "ابدأ بما تراه. افهم الكود الذي يصنعه. تعلّم فكرة واحدة كل مرة.")}</p>
@@ -142,7 +153,9 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     {history.length > 0 && <details className="rounded-xl border bg-white p-3"><summary className="cursor-pointer text-sm font-bold">{t("Revoir mes dernières découvertes", "Review recent discoveries", "راجع اكتشافاتك الأخيرة")}</summary><div className="mt-2 space-y-1">{history.map((item, index) => <button key={`${item.path}:${item.line}:${index}`} type="button" onClick={() => select(item)} className="block min-h-11 w-full truncate rounded-lg px-2 text-left text-xs hover:bg-emerald-50">{item.label || item.path} · {item.path.split("/").pop()}:{item.line || 1}</button>)}</div></details>}
     <dialog ref={dialog} onCancel={event => { event.preventDefault(); closeLesson(); }} onClose={() => { if (!dialog.current?.open) frame.current?.focus(); }} aria-labelledby="site-lesson-title" className={styles.dialog}>
       <div className={styles.dialogHeader}><div className="flex items-center justify-between gap-3"><h2 id="site-lesson-title" className="min-w-0 truncate text-sm font-bold">{selection?.label || t("Comprendre cet élément", "Understand this element", "افهم هذا العنصر")}</h2><button type="button" autoFocus onClick={closeLesson} className="min-h-11 shrink-0 rounded-xl bg-emerald-950 px-3 text-xs font-bold text-white">{t("← Mon site", "← My site", "موقعي ←")}</button></div></div>
-      {loading ? <p role="status" className="p-6">{t("Je retrouve le code de cet élément…", "Finding this element’s code…", "جارٍ العثور على كود هذا العنصر…")}</p> : error ? <div role="alert" className="p-5"><p>{error}</p><button type="button" onClick={() => setReload(value => value + 1)} className="mt-3 min-h-11 rounded-xl border px-4">{t("Réessayer", "Retry", "أعد المحاولة")}</button></div> : selection && content && <SiteLesson key={`${selection.path}:${line}:${reload}`} selection={selection} content={content} initialLine={line} lang={lang} onNavigate={navigate} onLearned={markLearned} />}
+      {sourceTrail.length > 0 && <button type="button" className={styles.sourceBack} onClick={() => { setSelection(sourceTrail[sourceTrail.length - 1]); setSourceTrail(items => items.slice(0, -1)); }}>{t("← Revenir au fichier précédent", "← Back to the previous file", "العودة إلى الملف السابق →")}</button>}
+      {loading ? <p role="status" className="p-6">{t("Je retrouve le code de cet élément…", "Finding this element’s code…", "جارٍ العثور على كود هذا العنصر…")}</p> : error ? <div role="alert" className="p-5"><p>{error}</p><button type="button" onClick={() => setReload(value => value + 1)} className="mt-3 min-h-11 rounded-xl border px-4">{t("Réessayer", "Retry", "أعد المحاولة")}</button></div> : selection && content && <SiteLesson key={`${selection.path}:${line}:${reload}`} selection={selection} content={content} connections={connections} initialLine={line} lang={lang} onNavigate={navigate} onLearned={markLearned} onOpenSource={(path, sourceLine = 1) => { setSourceTrail(items => [...items, selection].slice(-12)); setSelection({ path, line: sourceLine, anchor: "", label: path.split("/").pop(), fileOnly: true }); }} />}
     </dialog>
+    </>}
   </section>;
 }

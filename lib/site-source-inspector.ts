@@ -1,4 +1,14 @@
-export type SourceSelection = { path: string; anchor: string; line?: number; tag?: string; label?: string; href?: string; exact?: boolean };
+export type SourceSelection = { path: string; anchor: string; line?: number; tag?: string; label?: string; href?: string; exact?: boolean; fileOnly?: boolean; imagePath?: string };
+
+export function visibleImagePath(value: string, base: string): string | undefined {
+  try {
+    let url = new URL(value, base);
+    if (url.pathname === "/_next/image") url = new URL(url.searchParams.get("url") || "", base);
+    if (!["http:", "https:"].includes(url.protocol)) return;
+    // Exclude signed query tokens and credentials; show only the visible resource path.
+    return url.pathname.slice(0, 500);
+  } catch { return; }
+}
 
 /** Attach only inside the same-origin learning preview, never the normal storefront. */
 export function attachSourceInspector(doc: Document, fallback: string, onSelect: (selection: SourceSelection) => void) {
@@ -8,8 +18,8 @@ export function attachSourceInspector(doc: Document, fallback: string, onSelect:
   let highlighted: Element | null = null;
   const region = (event: Event) => {
     const target = event.target as Element | null;
-    // SVG strokes belong to their visible icon/control, not a useful first lesson.
-    const visible = target?.closest?.("svg") ?? target;
+    // Explain the actionable control when its icon or nested text is tapped.
+    const visible = target?.closest?.("button, a, input, select, textarea") ?? target?.closest?.("svg") ?? target;
     return visible?.closest?.("[data-source-file]") ?? visible?.closest?.("main") ?? null;
   };
   const hover = (event: Event) => {
@@ -24,10 +34,12 @@ export function attachSourceInspector(doc: Document, fallback: string, onSelect:
     const line = Number(element?.getAttribute("data-source-line")) || undefined;
     const link = element?.closest("a");
     const target = event.target as Element | null;
+    const img = target?.closest?.("img");
     onSelect({ path: path || fallback, anchor: path ? `data-source-file="${path}"` : "return (", line,
       tag: element?.tagName.toLowerCase(),
       label: (element?.getAttribute("aria-label") || element?.getAttribute("alt") || element?.textContent || element?.tagName || "").trim().replace(/\s+/g, " ").slice(0, 80),
       href: link?.getAttribute("href") || undefined, exact: !!line && (target === element || target?.closest?.("svg") === element),
+      imagePath: img ? visibleImagePath(img.getAttribute("src") || "", doc.baseURI) : undefined,
     });
   };
   // Capture before React handlers so selecting a cart button cannot add an item.

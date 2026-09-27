@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import { isLibraryPath, searchLibrary } from "../scripts/source-library.mjs";
+import { inspectSourceConnections } from "../lib/source-connections.ts";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
 function route(name: string, denied = false) {
@@ -16,6 +17,7 @@ function route(name: string, denied = false) {
       if (id === "next/server") return { NextResponse: { json: (body: unknown, init?: ResponseInit) => Response.json(body, init) } };
       if (id === "@/lib/dev-docs-access") return { protectSourceBrowser: async () => denied ? Response.json({}, { status: 403 }) : null };
       if (id === "@/scripts/source-library.mjs") return { isLibraryPath, searchLibrary };
+      if (id === "@/lib/source-connections") return { inspectSourceConnections };
       if (id === "@/lib/source-library") return { getSourceLibrary: async () => { reads++; return { version: 1, generatedAt: "2026-09-23", omitted: 0, files: [{ path: "app/page.tsx", content: "first\nconst cart = 1;", lines: 2, size: 21 }] }; } };
       throw new Error(id);
     },
@@ -39,6 +41,8 @@ test("content endpoint rejects secrets and traversal and serves source without p
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("cache-control"), "private, no-store");
   assert.equal((await response.json()).content, "first\nconst cart = 1;");
+  const evidence = await route("content").run("?path=app/page.tsx&connections=1&line=2");
+  assert.deepEqual((await evidence.json()).connections, { items: [], attributes: [], truncated: false });
   assert.equal((await route("content").run("?path=app/missing.tsx")).status, 404);
 });
 test("full-text search returns matching line and tree uses the same snapshot", async () => {

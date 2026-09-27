@@ -6,7 +6,7 @@ import ts from "typescript";
 const executable = process.env.AGENT_BROWSER_BINARY || "agent-browser";
 const inspector = ts.transpileModule(readFileSync("lib/site-source-inspector.ts", "utf8"), {
   compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
-}).outputText.replace("export function", "function");
+}).outputText.replaceAll("export function", "function");
 const code = `(async () => {
   if (location.origin !== 'http://localhost:3000') throw new Error('Open the local storefront first');
   ${inspector}

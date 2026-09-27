@@ -1,4 +1,20 @@
 .workspace { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.workshopSwitch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid #dce6df; border-radius: 16px; background: #eaf0eb; }
+.workshopSwitch button { min-height: 48px; padding: 10px; border-radius: 12px; color: #516659; font-size: 13px; font-weight: 700; }
+.workshopSwitch button[aria-pressed="true"] { background: white; color: #163f2c; box-shadow: 0 2px 6px #143b2410; }
+.sourceBack { flex: none; min-height: 44px; padding: 8px 16px; border-bottom: 1px solid #dce6df; background: #f3f8f2; text-align: start; font-size: 12px; font-weight: 650; }
+.fileCard { padding: 16px; border: 1px solid #d7e5dc; border-radius: 16px; background: #f3f8f4; }
+.fileCard h3, .fileCard h4, .sourceMap h3 { margin-bottom: 8px; color: #18452d; font-size: 15px; font-weight: 750; }
+.fileCard p, .sourceMap p { margin-top: 8px; color: #4e6255; font-size: 14px; line-height: 1.8; }
+.fileCard code, .sourceMap li > code { display: block; margin-top: 8px; padding: 10px; border-radius: 8px; background: #e8efe9; color: #21452c; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; text-align: start; }
+.sourceMap > section { margin-bottom: 24px; }
+.sourceMap ul { list-style: none; padding: 0; display: grid; gap: 10px; margin-top: 12px; }
+.sourceMap li { min-width: 0; padding: 12px; border: 1px solid #e0e7e1; border-radius: 14px; background: white; }
+.sourceMap li > strong { font-size: 13px; }
+.sourceMap button { min-height: 44px; padding: 8px 10px; border: 1px solid #c9dccc; border-radius: 10px; font-size: 12px; font-weight: 650; color: #205232; text-align: start; }
+.sourceMap li > button { margin-top: 10px; }
+.evidenceActions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.sourceMap .evidenceNote { margin-block: 16px; padding-inline-start: 12px; border-inline-start: 3px solid #b4cbb7; font-size: 12px; }
 :global(#admin-main):has(.dialog[open]) { overflow: hidden; }
 .guideToggle { display: none; }
 .toolbar { align-items: center; }
@@ -61,7 +77,7 @@
   .dialogHeader h2 { white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-height: 1.5; }
   .lesson { display: flex; flex: 1; flex-direction: column; min-height: 0; overflow: hidden; }
   .lessonTabs { flex: none; padding-inline: 8px; }
-  .lessonTabs button { min-width: 0; min-height: 48px; font-size: 12px; }
+  .lessonTabs button { min-width: 0; min-height: 52px; font-size: 11px; line-height: 1.4; }
   .lessonContent { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior-y: contain; padding: 16px 14px 24px; scroll-padding-block: 16px; }
   .lessonContent textarea { scroll-margin-block: 20px; }
   .code { max-height: 34dvh; font-size: 13px; overscroll-behavior: contain; }

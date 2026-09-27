@@ -53,7 +53,7 @@ console.log(run(["eval", "--stdin"], `(async()=>{
   check(dialog.querySelector('code').innerText.includes('<header'), 'Actual clicked header source missing');
   dialog.querySelectorAll('[role=tab]')[1].click();
   await wait(()=>dialog.innerText.includes('Comprendre mon code'));
-  dialog.querySelectorAll('[role=tab]')[2].click();
+  dialog.querySelectorAll('[role=tab]')[3].click();
   await wait(()=>dialog.innerText.includes('Une petite question'));
   [...dialog.querySelectorAll('button')].find(b=>b.textContent==='Voir l’explication').click();
   await wait(()=>dialog.innerText.includes('J’ai compris cette partie'));

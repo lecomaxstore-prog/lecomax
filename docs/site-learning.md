@@ -1,10 +1,12 @@
-# Learn from the local site
+# Learn from your actual site
 
-Open `http://localhost:3000/admin/how-it-was-built#site` with the normal owner login and learning-area unlock.
+Open `/admin/how-it-was-built/#site` on localhost or the deployed site with the normal owner login and learning-area unlock. The site preview is the default; the three backend guides are available in their own mode.
 
 - Tap a visible element to open a lesson with its original source file and line.
 - **Comprendre** explains what the element does and why that pattern is useful.
 - **Le code** shows the actual source; tap a line for the existing line-by-line guide.
+- **Fichiers & données** explains the file's role and lists recognized imports, importing files, API paths, database tables, Storage buckets and browser-storage keys. Every entry links to its source line. Related files open in the same reader; a back button returns to the previous file.
+- Tapping an image also shows its rendered resource path, with query strings and credentials removed. The path alone does not establish physical storage.
 - **À toi** offers a short question. Mark understood to keep progress in this browser.
 - **Mon site** closes the lesson and returns to the preview. The native dialog supports Escape and keeps keyboard focus inside the lesson.
 - Choose another page, or use **Explorer la page de ce lien** inside a link lesson. Inspection intercepts clicks and form submissions instead of performing store actions.
@@ -12,11 +14,13 @@ Open `http://localhost:3000/admin/how-it-was-built#site` with the normal owner l
 
 ## How the mapping works
 
-`scripts/source-inspector-loader.cjs` runs only in the Next.js development webpack pipeline. It adds file and original-line attributes to JSX DOM elements and Next.js Link/Image elements while compiling. It does not edit the source files or add this automatic instrumentation to production builds. Admin and API files are excluded.
+`scripts/source-inspector-loader.cjs` runs in the Next.js webpack pipeline for development and production. It adds relative file and original-line attributes to JSX DOM elements and Next.js Link/Image elements while compiling. It does not expose file contents or edit source files. Admin and API files are excluded.
 
 `lib/site-source-inspector.ts` reads those markers only inside the preview. Text, icons, links, fields, and sections can therefore map to their own lines, rather than all pointing to a section's opening tag. External widgets may only map to a containing component; lessons label that fallback.
 
 `lib/site-learning.ts` supplies beginner explanations for the observed element type and specific header/hero patterns. These are reading guides, not an automated proof of all application behavior. The source library retains its existing owner/PIN checks and secret filtering. Progress stores only file/line identifiers, with no account data.
+
+`lib/source-connections.ts` parses the requested source with the TypeScript parser. It ignores comments and string examples, resolves links only to files already in the filtered private library, and never executes the source or queries the database. References describe the entire file, not a proven data-flow trace for the selected element. Computed paths and unrecognized calling patterns remain explicitly unresolved. Results are bounded to 36 references, including at most six importing files.
 
 ## Verification
 
