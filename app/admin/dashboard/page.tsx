@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { requestDashboard } from "@/lib/dashboard-request";
+import AdminWorkspaceDirectory from "@/components/admin/AdminWorkspaceDirectory";
 
 type DashboardStats = {
   products: number;
@@ -384,7 +385,7 @@ export default function DashboardPage() {
   const quickActions = payload ? [
     can("promotions.edit") ? { label: "Promotions", helper: "Gérer vos offres", href: "/admin/promotions", icon: "plus" as IconName, accent: "bg-emerald-50 text-emerald-700" } : null,
     can("banners.edit") ? { label: "Bannières", helper: "Animer l’accueil", href: "/admin/banners", icon: "box" as IconName, accent: "bg-neutral-100 text-neutral-700" } : null,
-    can("products.view") ? { label: "Nouveau produit", helper: "Ajouter au catalogue", href: "/admin/products?new=1", icon: "plus" as IconName, accent: "bg-black text-white" } : null,
+    can("products.view") && can("products.create") ? { label: "Nouveau produit", helper: "Ajouter au catalogue", href: "/admin/products?new=1", icon: "plus" as IconName, accent: "bg-black text-white" } : null,
     can("orders.view") ? { label: "Commandes", helper: "Traiter et expédier", href: "/admin/orders", icon: "orders" as IconName, accent: "bg-orange-50 text-orange-700" } : null,
     can("stock.edit") ? { label: "Gérer le stock", helper: `${stats?.lowStock ?? 0} alerte${(stats?.lowStock ?? 0) > 1 ? "s" : ""}`, href: "/admin/stock", icon: "stock" as IconName, accent: "bg-violet-50 text-violet-700" } : null,
     can("messages.view") ? { label: "Messages", helper: "Répondre aux clients", href: "/admin/messages", icon: "message" as IconName, accent: "bg-blue-50 text-blue-700" } : null,
@@ -443,6 +444,7 @@ export default function DashboardPage() {
         <div className="rounded-3xl border border-neutral-200 bg-white px-5 py-16 text-center"><p className="font-black text-neutral-800">Aucune donnée disponible</p><p className="mt-2 text-sm text-neutral-500">Utilisez le bouton Réessayer pour relancer le chargement.</p></div>
       ) : (
         <div aria-busy={refreshing} className={`space-y-5 transition-opacity sm:space-y-6 ${refreshing ? "opacity-70" : "opacity-100"}`}>
+          <AdminWorkspaceDirectory permissions={payload.permissions} />
           <section aria-labelledby="attention-title" className="overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm">
             <div className="flex items-center justify-between gap-3 border-b border-neutral-100 px-4 py-4 sm:px-5">
               <div><p className="text-[10px] font-extrabold uppercase tracking-[0.16em] text-neutral-400">Priorités</p><h2 id="attention-title" className="mt-0.5 text-base font-black text-neutral-950">À traiter maintenant</h2></div>

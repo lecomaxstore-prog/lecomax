@@ -8,6 +8,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import AdminPushNotifications from "@/components/AdminPushNotifications";
 import AdminCommandPalette from "@/components/AdminCommandPalette";
+import AdminConnectionNotice from "@/components/admin/AdminConnectionNotice";
 
 const nav = [
   {
@@ -407,7 +408,7 @@ const navSections: { title: string; hrefs: string[] }[] = [
   { title: "CATALOGUE",   hrefs: ["/admin/products", "/admin/categories", "/admin/stock", "/admin/pages", "/admin/banners", "/admin/media", "/admin/studio"] },
   { title: "CLIENTS",     hrefs: ["/admin/customers", "/admin/client-data", "/admin/loyalty", "/admin/abandoned-carts"] },
   { title: "MARKETING",   hrefs: ["/admin/ecomedia", "/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
-  { title: "SAV",         hrefs: ["/admin/messages", "/admin/chat-kb", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
+  { title: "SAV",         hrefs: ["/admin/messages", "/admin/support", "/admin/chat-kb", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
   { title: "LOGISTIQUE",  hrefs: ["/admin/checkout", "/admin/shipping", "/admin/size-guide"] },
   { title: "CONFIG",      hrefs: ["/admin/mobile-app", "/admin/app-releases", "/admin/settings", "/admin/activity"] },
   { title: "ÉQUIPE",      hrefs: ["/admin/roles", "/admin/staff", "/admin/approvals"] },
@@ -450,6 +451,8 @@ const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
   "/admin/coupons":        "promotions.edit",
   "/admin/messages":       "messages.view",
   "/admin/chat-kb":        undefined,
+  "/admin/support":        undefined,
+  "/admin/activity":       undefined,
   "/admin/returns":        "returns.edit",
   "/admin/settings":       "settings.edit",
   "/admin/roles":          "roles.manage",
@@ -467,6 +470,7 @@ const pageLabels: Record<string, string> = {
   stock: "Stock", promotions: "Promotions", newsletter: "Newsletter",
   coupons: "Codes promo", announcement: "Annonce", messages: "Messages",
   "chat-kb": "Base de connaissance bot",
+  support: "Assistance mobile", activity: "Historique des modifications",
   reviews: "Avis", returns: "Retours", trustpilot: "Trustpilot", shipping: "Livraison", checkout: "Checkout",
   "size-guide": "Guide tailles", settings: "Paramètres",
   "abandoned-carts": "Paniers abandonnés", loyalty: "Fidélité", broadcast: "Broadcast",
@@ -568,6 +572,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       "/admin/broadcast":          "Broadcast",
       "/admin/how-it-was-built":   "Comment c'est construit",
       "/admin/chat-kb":            "Base de connaissances",
+      "/admin/support":            "Assistance mobile",
+      "/admin/activity":           "Historique des modifications",
       "/admin/abandoned-carts":    "Paniers abandonnés",
       "/admin/ecoclub":            "Écoclub",
       "/admin/trustpilot":         "Trustpilot",
@@ -1053,6 +1059,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* ──────────────── MAIN ──────────────── */}
       <div className="flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <AdminConnectionNotice />
 
         {/* Top bar */}
         <header className="admin-topbar sticky top-0 z-20 flex h-[calc(3.5rem+env(safe-area-inset-top))] min-h-14 shrink-0 items-center gap-2 border-b border-neutral-100 bg-white px-3 pt-[env(safe-area-inset-top)] shadow-[0_1px_3px_rgba(0,0,0,0.05)] md:gap-3 md:px-6 lg:h-14 lg:pt-0">

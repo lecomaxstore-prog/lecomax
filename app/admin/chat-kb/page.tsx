@@ -1,6 +1,6 @@
 "use client";
 import AdminLoading from "@/components/admin/AdminLoading";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./ChatKb.module.css";
 
 type Lang = "all" | "fr" | "ar" | "en";
@@ -32,6 +32,10 @@ const EMPTY: Omit<KbEntry, "id" | "created_at"> = {
 export default function ChatKbPage() {
   const [entries, setEntries] = useState<KbEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const mutationBusy = useRef(false);
+  const loadVersion = useRef(0);
   const [saving, setSaving] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<Omit<KbEntry, "id" | "created_at">>(EMPTY);
@@ -47,10 +51,18 @@ export default function ChatKbPage() {
   }
 
   async function load() {
+    const version = ++loadVersion.current;
     setLoading(true);
-    const r = await fetch("/api/chat-kb");
-    if (r.ok) setEntries(await r.json());
-    setLoading(false);
+    setLoadError("");
+    try {
+      const r = await fetch("/api/chat-kb", { cache: "no-store", signal: AbortSignal.timeout(15000) });
+      if (!r.ok) throw new Error("La base de connaissance n’a pas pu être chargée. Réessayez.");
+      const data = await r.json();
+      if (!Array.isArray(data) || !data.every(e => e && typeof e.id === "string" && typeof e.question === "string" && typeof e.answer === "string" && typeof e.category === "string" && ["all", "fr", "ar", "en"].includes(e.language) && typeof e.active === "boolean")) throw new Error("Les données reçues sont incomplètes. Réessayez.");
+      if (version === loadVersion.current) setEntries(data);
+    } catch (error) {
+      if (version === loadVersion.current) setLoadError(error instanceof Error && error.name !== "TimeoutError" ? error.message : "Le serveur ne répond pas. Vérifiez votre connexion et réessayez.");
+    } finally { if (version === loadVersion.current) setLoading(false); }
   }
 
   useEffect(() => { load(); }, []);
@@ -68,36 +80,52 @@ export default function ChatKbPage() {
   }
 
   async function save() {
-    if (!form.question.trim() || !form.answer.trim()) return;
+    if (mutationBusy.current || !form.question.trim() || !form.answer.trim()) return;
+    mutationBusy.current = true;
     setSaving(true);
     try {
       const url = editId ? `/api/chat-kb/${editId}` : "/api/chat-kb";
       const method = editId ? "PUT" : "POST";
-      const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
+      const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form), signal: AbortSignal.timeout(15000) });
       if (r.ok) {
         showToast(editId ? "Entrée mise à jour ✓" : "Entrée ajoutée ✓");
         setShowForm(false);
         setEditId(null);
-        load();
+        await load();
       } else {
         showToast("Erreur lors de la sauvegarde", false);
       }
-    } finally { setSaving(false); }
+    } catch {
+      showToast("Sauvegarde non confirmée. Vérifiez la liste avant de réessayer.", false);
+    } finally { mutationBusy.current = false; setSaving(false); }
   }
 
   async function remove(id: string) {
+    if (mutationBusy.current) return;
     if (!confirm("Supprimer cette entrée ?")) return;
-    const r = await fetch(`/api/chat-kb/${id}`, { method: "DELETE" });
-    if (r.ok) { showToast("Supprimé ✓"); load(); }
+    mutationBusy.current = true; setPendingId(id);
+    try {
+      const r = await fetch(`/api/chat-kb/${id}`, { method: "DELETE", signal: AbortSignal.timeout(15000) });
+      if (!r.ok) throw new Error("Suppression refusée.");
+      setEntries(current => current.filter(entry => entry.id !== id));
+      showToast("Supprimé ✓");
+    } catch { showToast("Suppression non confirmée. Actualisez avant de réessayer.", false); }
+    finally { mutationBusy.current = false; setPendingId(null); }
   }
 
   async function toggleActive(e: KbEntry) {
-    await fetch(`/api/chat-kb/${e.id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...e, active: !e.active }),
-    });
-    load();
+    if (mutationBusy.current) return;
+    mutationBusy.current = true; setPendingId(e.id);
+    try {
+      const r = await fetch(`/api/chat-kb/${e.id}`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...e, active: !e.active }), signal: AbortSignal.timeout(15000),
+      });
+      if (!r.ok) throw new Error("Mise à jour refusée.");
+      setEntries(current => current.map(entry => entry.id === e.id ? { ...entry, active: !e.active } : entry));
+      showToast(e.active ? "Réponse désactivée ✓" : "Réponse activée ✓");
+    } catch { showToast("Modification non confirmée. Actualisez avant de réessayer.", false); }
+    finally { mutationBusy.current = false; setPendingId(null); }
   }
 
   const categories = [...new Set([...DEFAULT_CATEGORIES, ...entries.map(e => e.category)])];
@@ -117,7 +145,7 @@ export default function ChatKbPage() {
     <div className={`${styles.page} max-w-5xl mx-auto`}>
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-[13px] font-bold transition-all ${toast.ok ? "bg-emerald-600 text-white" : "bg-red-500 text-white"}`}>
+        <div role={toast.ok ? "status" : "alert"} className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-[13px] font-bold transition-all ${toast.ok ? "bg-emerald-600 text-white" : "bg-red-500 text-white"}`}>
           {toast.msg}
         </div>
       )}
@@ -127,16 +155,20 @@ export default function ChatKbPage() {
         <div>
           <h1 className="text-[1.4rem] font-black tracking-tight">Base de connaissance du bot</h1>
           <p className="text-neutral-400 text-sm mt-0.5">
-            {activeCount} réponse{activeCount !== 1 ? "s" : ""} active{activeCount !== 1 ? "s" : ""} — le bot Eco les utilise pour répondre aux clients
+            {entries.length === 0 && (loading || loadError) ? "Les réponses sont en cours de vérification." : `${activeCount} réponse${activeCount !== 1 ? "s" : ""} active${activeCount !== 1 ? "s" : ""} — le bot Eco les utilise pour répondre aux clients`}
           </p>
         </div>
         <button
           onClick={openNew}
+          disabled={saving || pendingId !== null}
           className={`${styles.addButton} flex items-center gap-2 bg-black text-white text-[12px] font-bold px-4 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors`}
         >
           <span className="text-lg leading-none">+</span> Ajouter une réponse
         </button>
       </div>
+
+      {loadError && <div role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><p>{loadError}</p>{entries.length > 0 && <p className="mt-1 text-xs">Les réponses affichées peuvent ne plus être à jour.</p>}<button type="button" onClick={() => void load()} disabled={loading || saving || pendingId !== null} className="mt-3 min-h-11 rounded-lg border border-red-200 bg-white px-4 font-semibold disabled:opacity-50">Réessayer</button></div>}
+      <div className="mb-3 flex items-center justify-between gap-3 text-xs text-neutral-500"><span role="status">{filtered.length} réponse{filtered.length !== 1 ? "s" : ""} affichée{filtered.length !== 1 ? "s" : ""}</span><button type="button" onClick={() => void load()} disabled={loading || saving || pendingId !== null} className="min-h-11 rounded-lg border border-neutral-200 bg-white px-3 font-semibold disabled:opacity-50">Actualiser</button></div>
 
       {/* Stats bar */}
       <div className={`${styles.stats} grid grid-cols-4 mb-6`}>
@@ -149,7 +181,7 @@ export default function ChatKbPage() {
               onClick={() => setFilterLang(lang)}
               className={`rounded-xl p-3 text-center border transition-all ${filterLang === lang ? "border-black bg-black text-white" : "border-neutral-100 bg-white hover:border-neutral-300"}`}
             >
-              <p className="text-[1.4rem] font-black">{count}</p>
+              <p className="text-[1.4rem] font-black">{entries.length === 0 && (loading || loadError) ? "—" : count}</p>
               <p className="text-[10px] uppercase tracking-widest mt-0.5 font-bold">{LANG_LABELS[lang]}</p>
             </button>
           );
@@ -279,13 +311,13 @@ export default function ChatKbPage() {
       {/* List */}
       {loading ? (
         <AdminLoading />
-      ) : filtered.length === 0 ? (
+      ) : loadError && entries.length === 0 ? null : filtered.length === 0 ? (
         <div className="bg-white border border-neutral-100 rounded-2xl p-12 text-center">
           <p className="text-4xl mb-3">🤖</p>
-          <p className="font-bold text-neutral-700">Aucune réponse configurée</p>
-          <p className="text-sm text-neutral-400 mt-1">Ajoutez des Q&amp;R pour améliorer les réponses du bot Eco</p>
-          <button onClick={openNew} className="mt-4 bg-black text-white text-[12px] font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors">
-            Ajouter la première réponse
+          <p className="font-bold text-neutral-700">{entries.length ? "Aucune réponse ne correspond aux filtres" : "Aucune réponse configurée"}</p>
+          <p className="text-sm text-neutral-400 mt-1">{entries.length ? "Essayez un autre mot ou réinitialisez les filtres." : "Ajoutez des Q&R pour améliorer les réponses du bot Eco."}</p>
+          <button onClick={entries.length ? () => { setSearch(""); setFilterLang("all"); setFilterCat("all"); } : openNew} className="mt-4 bg-black text-white text-[12px] font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors">
+            {entries.length ? "Réinitialiser les filtres" : "Ajouter la première réponse"}
           </button>
         </div>
       ) : (
@@ -311,6 +343,8 @@ export default function ChatKbPage() {
                 <div className={styles.actions}>
                   <button
                     onClick={() => toggleActive(e)}
+                    disabled={pendingId !== null || saving || Boolean(loadError)}
+                    aria-busy={pendingId === e.id}
                     type="button"
                     role="switch"
                     aria-checked={e.active}
@@ -321,10 +355,10 @@ export default function ChatKbPage() {
                     <span className={styles.track} data-active={e.active}><span className={styles.thumb} /></span>
                     <span className={styles.status}>{e.active ? "Active" : "Inactive"}</span>
                   </button>
-                  <button onClick={() => openEdit(e)} aria-label={`Modifier : ${e.question}`} className="px-3 py-1.5 text-[11px] font-bold border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
+                  <button onClick={() => openEdit(e)} disabled={pendingId !== null || saving || Boolean(loadError)} aria-label={`Modifier : ${e.question}`} className="px-3 py-1.5 text-[11px] font-bold border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors disabled:opacity-50">
                     Modifier
                   </button>
-                  <button onClick={() => remove(e.id)} aria-label={`Supprimer : ${e.question}`} className="px-3 py-1.5 text-[11px] font-bold border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                  <button onClick={() => remove(e.id)} disabled={pendingId !== null || saving || Boolean(loadError)} aria-label={`Supprimer : ${e.question}`} className="px-3 py-1.5 text-[11px] font-bold border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors disabled:opacity-50">
                     Supprimer
                   </button>
                 </div>

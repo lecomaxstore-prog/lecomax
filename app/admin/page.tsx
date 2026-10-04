@@ -40,11 +40,11 @@ export default function AdminLoginPage() {
       if (err) {
         setError(err.status === 400 || err.code === "invalid_credentials"
           ? "Email ou mot de passe incorrect."
-          : "Connexion indisponible pour le moment. V?rifiez votre connexion et r?essayez.");
+          : "Connexion indisponible pour le moment. Vérifiez votre connexion et réessayez.");
         return;
       }
       if (!authData.session?.access_token || !authData.user?.email) {
-        setError("Session introuvable. R?essayez de vous connecter.");
+        setError("Session introuvable. Réessayez de vous connecter.");
         return;
       }
 
@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
         }
         setError(typeof body?.error === "string"
           ? body.error
-          : "Erreur lors de la cr?ation de la session. R?essayez.");
+          : "Erreur lors de la création de la session. Réessayez.");
         return;
       }
 
@@ -79,7 +79,7 @@ export default function AdminLoginPage() {
       // A prefetched dashboard may still contain the unauthenticated redirect.
       window.location.replace("/admin/dashboard/");
     } catch {
-      setError("Impossible de contacter le serveur. V?rifiez votre connexion et r?essayez.");
+      setError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
     } finally {
       setLoading(false);
     }
