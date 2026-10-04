@@ -1,6 +1,7 @@
 "use client";
 import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState } from "react";
+import styles from "./ChatKb.module.css";
 
 type Lang = "all" | "fr" | "ar" | "en";
 type KbEntry = {
@@ -113,7 +114,7 @@ export default function ChatKbPage() {
   const activeCount = entries.filter(e => e.active).length;
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className={`${styles.page} max-w-5xl mx-auto`}>
       {/* Toast */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-lg text-[13px] font-bold transition-all ${toast.ok ? "bg-emerald-600 text-white" : "bg-red-500 text-white"}`}>
@@ -122,7 +123,7 @@ export default function ChatKbPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className={styles.header}>
         <div>
           <h1 className="text-[1.4rem] font-black tracking-tight">Base de connaissance du bot</h1>
           <p className="text-neutral-400 text-sm mt-0.5">
@@ -131,19 +132,20 @@ export default function ChatKbPage() {
         </div>
         <button
           onClick={openNew}
-          className="flex items-center gap-2 bg-black text-white text-[12px] font-bold px-4 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors"
+          className={`${styles.addButton} flex items-center gap-2 bg-black text-white text-[12px] font-bold px-4 py-2.5 rounded-xl hover:bg-neutral-800 transition-colors`}
         >
           <span className="text-lg leading-none">+</span> Ajouter une réponse
         </button>
       </div>
 
       {/* Stats bar */}
-      <div className="grid grid-cols-4 gap-3 mb-6">
+      <div className={`${styles.stats} grid grid-cols-4 mb-6`}>
         {(["all", "fr", "ar", "en"] as Lang[]).map(lang => {
           const count = lang === "all" ? entries.filter(e => e.active).length : entries.filter(e => e.language === lang && e.active).length;
           return (
             <button
               key={lang}
+              aria-pressed={filterLang === lang}
               onClick={() => setFilterLang(lang)}
               className={`rounded-xl p-3 text-center border transition-all ${filterLang === lang ? "border-black bg-black text-white" : "border-neutral-100 bg-white hover:border-neutral-300"}`}
             >
@@ -155,16 +157,18 @@ export default function ChatKbPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 mb-5 flex-wrap">
+      <div className={styles.filters}>
         <input
           type="text"
+          aria-label="Rechercher une question ou une réponse"
           placeholder="Rechercher une question ou réponse…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black bg-white flex-1 min-w-[200px]"
+          className="border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black bg-white"
         />
         <select
           value={filterCat}
+          aria-label="Filtrer par catégorie"
           onChange={e => setFilterCat(e.target.value)}
           className="border border-neutral-200 rounded-lg px-3 py-2 text-[12px] focus:outline-none focus:border-black bg-white"
         >
@@ -212,7 +216,7 @@ export default function ChatKbPage() {
               </div>
 
               {/* Row: Category + Language */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className={`${styles.formFields} grid gap-4`}>
                 <div>
                   <label className="block text-[11px] font-bold uppercase tracking-widest text-neutral-500 mb-1.5">Catégorie</label>
                   <input
@@ -244,9 +248,13 @@ export default function ChatKbPage() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setForm(f => ({ ...f, active: !f.active }))}
-                  className={`w-10 h-6 rounded-full transition-colors relative ${form.active ? "bg-emerald-500" : "bg-neutral-200"}`}
+                  type="button"
+                  role="switch"
+                  aria-checked={form.active}
+                  aria-label="Activer cette réponse"
+                  className={styles.toggle}
                 >
-                  <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${form.active ? "left-5" : "left-1"}`} />
+                  <span className={styles.track} data-active={form.active}><span className={styles.thumb} /></span>
                 </button>
                 <span className="text-[13px] font-medium">{form.active ? "Active — le bot utilisera cette réponse" : "Inactive — ignorée par le bot"}</span>
               </div>
@@ -283,9 +291,9 @@ export default function ChatKbPage() {
       ) : (
         <div className="space-y-3">
           {filtered.map(e => (
-            <div key={e.id} className={`bg-white border rounded-2xl p-5 transition-all ${e.active ? "border-neutral-100" : "border-neutral-100 opacity-50"}`}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1 min-w-0">
+            <div key={e.id} className={`${styles.card} bg-white border border-neutral-100 rounded-2xl transition-all`}>
+              <div className={styles.cardLayout}>
+                <div className={styles.content}>
                   <div className="flex items-center gap-2 mb-2 flex-wrap">
                     <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${LANG_COLORS[e.language]}`}>
                       {LANG_LABELS[e.language]}
@@ -297,22 +305,27 @@ export default function ChatKbPage() {
                       <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-red-50 text-red-500">Inactive</span>
                     )}
                   </div>
-                  <p className="font-bold text-[14px] text-neutral-800 mb-1.5">❓ {e.question}</p>
-                  <p className="text-[13px] text-neutral-500 leading-relaxed">💬 {e.answer}</p>
+                  <p dir="auto" className={`${styles.question} font-bold text-neutral-800`}>{e.question}</p>
+                  <p dir="auto" className={`${styles.answer} text-neutral-600`}>{e.answer}</p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className={styles.actions}>
                   <button
                     onClick={() => toggleActive(e)}
-                    className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${e.active ? "bg-emerald-500" : "bg-neutral-200"}`}
+                    type="button"
+                    role="switch"
+                    aria-checked={e.active}
+                    aria-label={`${e.active ? "Désactiver" : "Activer"} : ${e.question}`}
+                    className={styles.toggle}
                     title={e.active ? "Désactiver" : "Activer"}
                   >
-                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${e.active ? "left-4" : "left-0.5"}`} />
+                    <span className={styles.track} data-active={e.active}><span className={styles.thumb} /></span>
+                    <span className={styles.status}>{e.active ? "Active" : "Inactive"}</span>
                   </button>
-                  <button onClick={() => openEdit(e)} className="px-3 py-1.5 text-[11px] font-bold border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
+                  <button onClick={() => openEdit(e)} aria-label={`Modifier : ${e.question}`} className="px-3 py-1.5 text-[11px] font-bold border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
                     Modifier
                   </button>
-                  <button onClick={() => remove(e.id)} className="px-3 py-1.5 text-[11px] font-bold border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors">
-                    Suppr.
+                  <button onClick={() => remove(e.id)} aria-label={`Supprimer : ${e.question}`} className="px-3 py-1.5 text-[11px] font-bold border border-red-100 text-red-500 rounded-lg hover:bg-red-50 transition-colors">
+                    Supprimer
                   </button>
                 </div>
               </div>
