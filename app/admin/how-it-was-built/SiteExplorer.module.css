@@ -1,5 +1,5 @@
 .workspace { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
-.workshopSwitch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; padding: 4px; border: 1px solid #dce6df; border-radius: 16px; background: #eaf0eb; }
+.workshopSwitch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid #dce6df; border-radius: 16px; background: #eaf0eb; }
 .workshopSwitch button { min-height: 48px; padding: 10px; border-radius: 12px; color: #516659; font-size: 13px; font-weight: 700; }
 .workshopSwitch button[aria-pressed="true"] { background: white; color: #163f2c; box-shadow: 0 2px 6px #143b2410; }
 .sourceBack { flex: none; min-height: 44px; padding: 8px 16px; border-bottom: 1px solid #dce6df; background: #f3f8f2; text-align: start; font-size: 12px; font-weight: 650; }
@@ -107,3 +107,5 @@
 @media(max-height: 500px) and (max-width: 900px) {
   .dialog { max-height: 100dvh; border-radius: 0; }
 }
+
+@media(max-width:480px){.workshopSwitch button{padding:10px 5px;font-size:12px;overflow-wrap:anywhere}}

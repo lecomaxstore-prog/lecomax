@@ -5,7 +5,7 @@ import { learningDestination, learningPages } from "@/lib/site-learning";
 import { translate } from "./course/journey";
 import type { CourseLanguage } from "./course/types";
 import SiteLesson from "./SiteLesson";
-import BackendGuides from "./BackendGuides";
+import LearningStudio from "./learning/LearningStudio";
 import styles from "./SiteExplorer.module.css";
 import type { SourceConnections } from "@/lib/source-connections";
 
@@ -31,7 +31,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   const [showNotices, setShowNotices] = useState(false);
   const [hint, setHint] = useState("");
   const [showGuide, setShowGuide] = useState(false);
-  const [workshop, setWorkshop] = useState<"site" | "guides">("guides");
+  const [workshop, setWorkshop] = useState<"site" | "guides" | "build">("guides");
   const [connections, setConnections] = useState<SourceConnections>();
   const [sourceTrail, setSourceTrail] = useState<SourceSelection[]>([]);
 
@@ -119,7 +119,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     try { localStorage.setItem("site-learning-progress-v1", JSON.stringify(value)); } catch { /* Keep session progress. */ }
   }
   function closeLesson() { setSelection(null); dialog.current?.close(); }
-  function switchWorkshop(value: "site" | "guides") {
+  function switchWorkshop(value: "site" | "guides" | "build") {
     if (value === workshop) return;
     cleanup.current();
     closeLesson();
@@ -129,8 +129,9 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     <nav className={styles.workshopSwitch} aria-label={t("Choisir comment apprendre", "Choose how to learn", "اختر طريقة التعلم")}>
       <button type="button" aria-pressed={workshop === "guides"} onClick={() => switchWorkshop("guides")}>{t("Apprendre pas à pas", "Learn step by step", "تعلم خطوة بخطوة")}</button>
       <button type="button" aria-pressed={workshop === "site"} onClick={() => switchWorkshop("site")}>{t("Explorer mon site", "Explore my site", "استكشف موقعي")}</button>
+      <button type="button" aria-pressed={workshop === "build"} onClick={() => switchWorkshop("build")}>{t("Construire", "Build", "ابنِ بنفسك")}</button>
     </nav>
-    {workshop === "guides" ? <BackendGuides lang={lang} compact /> : <>
+    {workshop !== "site" ? <LearningStudio key={workshop} lang={lang} buildOnly={workshop === "build"} onExplore={() => switchWorkshop("site")} /> : <>
     <div className={styles.welcome} data-expanded={showGuide}>
       <div className={styles.eyebrow}>{t("L’atelier de ton site", "Your site workshop", "ورشة موقعك")} <span>· {t("5 min pour commencer", "Start in 5 minutes", "ابدأ في 5 دقائق")}</span></div>
       <h2>{t("Touche un élément. Comprends son code.", "Tap an element. Understand its code.", "المس عنصرًا وافهم الكود الخاص به.")}</h2>

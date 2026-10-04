@@ -1,0 +1,76 @@
+import type { Text } from './types';
+export const roadmap: {title:Text; module:string}[] = [
+  {title:['Avant de coder','Before coding','قبل البرمجة'],module:'module-01-internet-web'},
+  {title:['Comprendre mon projet','Understand my project','افهم مشروعي'],module:'ecommerce-architecture'},
+  {title:['HTML et JSX','HTML and JSX','HTML وJSX'],module:'module-03-html-accessibility'},
+  {title:['CSS et Tailwind','CSS and Tailwind','CSS وTailwind'],module:'module-05-responsive-tailwind'},
+  {title:['JavaScript','JavaScript','JavaScript'],module:'module-06-javascript-foundations'},
+  {title:['React','React','React'],module:'react-fundamentals'},
+  {title:['Next.js','Next.js','Next.js'],module:'nextjs-app-router'},
+  {title:['Comprendre ma boutique','Understand my shop','افهم متجري'],module:'ecommerce-architecture'},
+  {title:['Backend et base de données','Backend and database','الخادم وقاعدة البيانات'],module:'supabase-build-lab'},
+  {title:['Construire des fonctionnalités','Build features','بناء الميزات'],module:'ui-build-lab'},
+  {title:['Je construis mon site tout seul','Build my own website','أبني موقعي بنفسي'],module:'final-store-capstone'},
+];
+export const glossary: [string,Text][] = [
+ ['Component',['Un morceau réutilisable de ton interface.','A reusable piece of your interface.','جزء واجهة قابل لإعادة الاستخدام.']],
+ ['Function',['Une suite d’instructions que tu peux appeler par son nom.','Instructions you can run by calling their name.','تعليمات تشغّلها باستدعاء اسمها.']],
+ ['Variable',['Un nom donné à une valeur.','A name given to a value.','اسم نعطيه لقيمة.']],
+ ['Array',['Une liste de valeurs.','A list of values.','قائمة قيم.']],
+ ['Object',['Des informations regroupées avec des noms, comme nom et prix.','Named information grouped together, such as name and price.','معلومات مجمعة بأسماء مثل الاسم والسعر.']],
+ ['Props',['Les données qu’un parent donne à un composant.','Data a parent passes to a component.','بيانات يمررها الأب إلى مكون.']],
+ ['State',['Une valeur que React garde pour mettre l’écran à jour.','A value React remembers to update the screen.','قيمة يتذكرها React لتحديث الشاشة.']],
+ ['Route',['Une adresse de page ou d’API dans ton application.','A page or API address in your application.','عنوان صفحة أو API في تطبيقك.']],
+ ['API',['Un point d’entrée pour demander des données ou une action.','An entry point for requesting data or an action.','مدخل لطلب بيانات أو إجراء.']],
+ ['Database',['Un endroit organisé pour conserver les données.','An organized place to store data.','مكان منظم لحفظ البيانات.']],
+ ['Server',['L’ordinateur qui répond aux demandes et vérifie les règles.','The computer that answers requests and checks rules.','حاسوب يرد على الطلبات ويتحقق من القواعد.']],
+ ['Client',['Le programme de la personne qui utilise le site, souvent son navigateur.','The visitor’s program, usually their browser.','برنامج الزائر وغالبا متصفحه.']],
+ ['Import',['Utiliser du code défini dans un autre fichier.','Use code defined in another file.','استخدام كود من ملف آخر.']],
+ ['Export',['Rendre une valeur ou fonction utilisable depuis un autre fichier.','Make a value or function available to another file.','إتاحة قيمة أو دالة لملف آخر.']],
+ ['Async',['Indique qu’une fonction produit une promesse de résultat.','Marks a function that returns a promise of a result.','يحدد دالة ترجع وعدا بنتيجة.']],
+ ['Await',['Attend le résultat d’une promesse dans une fonction async.','Wait for a promise result inside an async function.','انتظار نتيجة وعد داخل دالة async.']],
+ ['Promise',['Une valeur qui représentera un résultat ou un échec plus tard.','A value representing a future result or failure.','قيمة تمثل نتيجة أو فشلا لاحقا.']],
+ ['Environment variable',['Un réglage fourni au programme ; certains doivent rester secrets sur le serveur.','A setting supplied to a program; some must stay secret on the server.','إعداد للبرنامج؛ يجب إبقاء بعضه سريا على الخادم.']],
+ ['Repository',['Le dossier de code suivi avec son historique Git.','The code folder tracked with its Git history.','مجلد الكود مع تاريخ Git.']],
+ ['GitHub',['Un service qui héberge le dépôt et facilite le travail sur le code.','A service hosting repositories and collaboration.','خدمة لاستضافة المستودعات والتعاون.']],
+ ['Vercel',['Le service qui construit et héberge ce site en ligne.','The service that builds and hosts this site online.','الخدمة التي تبني وتستضيف هذا الموقع.']],
+ ['Localhost',['L’adresse du serveur de développement sur ton ordinateur.','The address of a development server on your computer.','عنوان خادم التطوير في حاسوبك.']],
+ ['Production',['La version publiée que les vrais visiteurs utilisent.','The published version real visitors use.','النسخة المنشورة للزوار الحقيقيين.']],
+ ['Domain',['Le nom lisible d’un site, comme lecomax.com.','A readable site name, such as lecomax.com.','اسم الموقع المقروء مثل lecomax.com.']],
+ ['Deploy',['Mettre une version vérifiée à disposition en ligne.','Make a checked version available online.','نشر نسخة تم التحقق منها على الإنترنت.']],
+ ['Build',['Préparer et vérifier le programme pour sa publication.','Prepare and check a program for publication.','إعداد البرنامج وفحصه للنشر.']],
+];
+export const flows: {title:Text; steps:{label:Text;file:string;anchor:string}[]}[] = [
+ {title:['Comment mon panier se met à jour','How my cart updates','كيف تتحدث سلتي'],steps:[
+ {label:['1 · Le panier partage add et setQty','1 · The cart shares add and setQty','1 · تشارك السلة add وsetQty'],file:'components/CartContext.tsx',anchor:'type CartCtx'},
+ {label:['2 · React garde les articles dans items','2 · React stores the items','2 · يحتفظ React بالعناصر'],file:'components/CartContext.tsx',anchor:'export function CartProvider'},
+ {label:['3 · Le navigateur conserve le panier','3 · The browser preserves the cart','3 · يحفظ المتصفح السلة'],file:'components/CartContext.tsx',anchor:'if (hydrated) localStorage'},
+ {label:['4 · Le header utilise useCart','4 · The header uses useCart','4 · تستخدم الترويسة useCart'],file:'components/Header.tsx',anchor:'useCart'},
+ {label:['5 · La page panier affiche le résultat','5 · The cart page displays the result','5 · تعرض صفحة السلة النتيجة'],file:'app/panier/page.tsx',anchor:'useCart'}]},
+ {title:['Comment une commande est créée','How an order is created','كيف ينشأ الطلب'],steps:[
+ {label:['1 · Le formulaire garde les informations','1 · The form stores the input','1 · يحفظ النموذج المدخلات'],file:'app/checkout/page.tsx',anchor:'export default function CheckoutPage'},
+ {label:['2 · fetch envoie une demande','2 · fetch sends a request','2 · ترسل fetch طلبا'],file:'app/checkout/page.tsx',anchor:'fetch("/api/orders/"'},
+ {label:['3 · POST vérifie la demande','3 · POST validates the request','3 · يتحقق POST من الطلب'],file:'app/api/orders/route.ts',anchor:'export async function POST'},
+ {label:['4 · Le serveur traite les données de commande','4 · The server processes order data','4 · يعالج الخادم بيانات الطلب'],file:'app/api/orders/route.ts',anchor:'orders'},
+ {label:['5 · L’administration consulte les commandes','5 · Admin displays orders','5 · تعرض الإدارة الطلبات'],file:'app/admin/orders/page.tsx',anchor:'export default'}]},
+];
+export const errors: {name:string; meaning:Text;fix:Text;file:string}[] = [
+ {name:'Module not found / import',meaning:['Le programme ne trouve pas le fichier demandé.','The program cannot find the requested file.','لم يجد البرنامج الملف المطلوب.'],fix:['Lis le chemin de l’import, puis vérifie le nom, la casse et l’export du fichier. Teste à nouveau le build.','Check the import path, filename case and export, then build again.','تحقق من المسار وحالة الأحرف والتصدير ثم أعد البناء.'],file:'components/Header.tsx'},
+ {name:'undefined',meaning:['Tu lis une valeur qui n’existe pas encore.','You are reading a value that does not exist yet.','تقرأ قيمة غير موجودة بعد.'],fix:['Regarde les données reçues. Prévois un état de chargement ou une valeur de secours, sans masquer une erreur de données.','Inspect incoming data. Add loading or fallback handling without hiding data errors.','افحص المدخلات وأضف حالة تحميل أو قيمة بديلة دون إخفاء أخطاء البيانات.'],file:'components/ProductCard.tsx'},
+ {name:'Hydration mismatch',meaning:['Le HTML préparé par le serveur diffère du premier affichage React dans le navigateur.','Server HTML differs from the browser’s first React render.','يختلف HTML الخادم عن أول عرض React في المتصفح.'],fix:['Compare le premier rendu. Lis localStorage après le montage ; garde le premier affichage stable des deux côtés.','Compare initial renders. Read localStorage after mounting and keep initial output stable.','قارن العرض الأول واقرأ localStorage بعد التركيب مع إبقاء البداية متطابقة.'],file:'components/CartContext.tsx'},
+ {name:'TypeScript error',meaning:['Une valeur ne correspond pas au type attendu.','A value does not match the expected type.','القيمة لا تطابق النوع المتوقع.'],fix:['Lis le type et la ligne signalée. Corrige la donnée au lieu de supprimer la vérification avec any.','Read the type and reported line. Fix the value instead of bypassing checks with any.','اقرأ النوع والسطر وصحح القيمة بدل تجاوز الفحص بـ any.'],file:'lib/products.ts'},
+ {name:'Environment variable missing',meaning:['Un réglage requis manque au programme.','A required program setting is missing.','ينقص البرنامج إعداد مطلوب.'],fix:['Compare les noms à .env.example et configure la variable dans le bon environnement. Ne colle jamais sa valeur dans un cours ou dans Git.','Compare names with .env.example and configure the correct environment. Never paste secrets into lessons or Git.','قارن الأسماء بـ .env.example واضبط البيئة الصحيحة ولا تنسخ الأسرار للدروس أو Git.'],file:'lib/supabase-server.ts'},
+ {name:'API 400 / 401 / 403 / 500',meaning:['Le serveur signale une demande invalide, une identité absente, un accès refusé ou une erreur interne.','The server reports invalid input, missing identity, denied access or an internal error.','يشير الخادم لمدخلات غير صالحة أو هوية مفقودة أو منع وصول أو خطأ داخلي.'],fix:['Lis le statut et la réponse dans Network. Vérifie les champs pour 400, la session pour 401/403 et les journaux serveur pour 500.','Read status and response in Network. Check input for 400, session for 401/403 and server logs for 500.','اقرأ الحالة في Network وافحص المدخلات لـ400 والجلسة لـ401/403 وسجل الخادم لـ500.'],file:'app/api/orders/route.ts'},
+ {name:'Database error',meaning:['La lecture ou l’écriture de données a été refusée ou a échoué.','A database read or write was denied or failed.','رُفضت قراءة أو كتابة البيانات أو فشلت.'],fix:['Vérifie le nom de table, les colonnes, les migrations et les droits dans une base de test. Garde les protections d’accès.','Check table names, columns, migrations and permissions in a test database. Keep access protections.','افحص الجداول والأعمدة والترحيلات والصلاحيات في قاعدة تجريبية مع الحفاظ على الحماية.'],file:'lib/db-server.ts'},
+ {name:'Build failed',meaning:['La version à publier n’a pas pu être préparée.','The publishable version could not be prepared.','تعذر إعداد نسخة النشر.'],fix:['Lis la première erreur utile de npm run build, ouvre son fichier et corrige une cause à la fois. Relance le build avant de publier.','Read the first useful npm run build error, fix one cause at a time, and rebuild before publishing.','اقرأ أول خطأ مفيد في npm run build وأصلح سببا واحدا ثم أعد البناء قبل النشر.'],file:'package.json'},
+];
+export const projects: {id:string;title:Text;goal:Text;files:string[];module:string;lesson:string}[] = [
+ {id:'landing',title:['Une landing page','A landing page','صفحة تعريفية'],goal:['Présente une offre avec un titre, une preuve et un bouton clair, lisibles sur téléphone.','Present an offer with a title, evidence and one clear mobile-friendly action.','قدم عرضا بعنوان ودليل وزر واضح مناسب للهاتف.'],files:['app/page.tsx','app/globals.css'],module:'ui-build-lab',lesson:'wireframe-to-html'},
+ {id:'business',title:['Un site professionnel','A business website','موقع شركة'],goal:['Crée accueil, services et contact avec une navigation et un cadre communs.','Create home, services and contact pages with shared navigation and layout.','أنشئ الرئيسية والخدمات والتواصل بإطار وتنقل مشترك.'],files:['app/layout.tsx','app/services/page.tsx','app/contact/page.tsx','components/Header.tsx'],module:'next-routing-lab',lesson:'shared-layout-metadata'},
+ {id:'catalog',title:['Un catalogue de produits','A product catalog','كتالوج منتجات'],goal:['Affiche des cartes réutilisables, une recherche et une page par produit.','Build reusable cards, search and a page per product.','أنشئ بطاقات وبحثا وصفحة لكل منتج.'],files:['components/ProductCard.tsx','app/products/page.tsx','app/products/[slug]/page.tsx'],module:'final-store-capstone',lesson:'capstone-catalog'},
+ {id:'shop',title:['Une petite boutique','A small shop','متجر صغير'],goal:['Assemble panier, formulaire et commande de test avec des montants vérifiés côté serveur.','Combine a cart, form and test order with server-verified amounts.','اجمع السلة والنموذج وطلبا تجريبيا بمبالغ يتحقق منها الخادم.'],files:['components/CartProvider.tsx','app/checkout/page.tsx','app/api/orders/route.ts'],module:'final-store-capstone',lesson:'capstone-purchase'},
+ {id:'independent',title:['Je construis mon site tout seul','Build my website independently','أبني موقعي بنفسي'],goal:['Pars d’un projet séparé et explique chaque choix, du premier fichier au déploiement.','Start a separate project and explain each decision from first file to deployment.','ابدأ مشروعا منفصلا واشرح كل اختيار حتى النشر.'],files:['app/layout.tsx','app/page.tsx','app/api/items/route.ts','lib/database.ts'],module:'final-store-capstone',lesson:'capstone-production'},
+];
+export const finalSteps: [Text,string][] = [
+ [['Initialiser le projet','Initialize the project','تهيئة المشروع'],'module-00-learning-tools'],[['Comprendre les dossiers','Understand folders','فهم المجلدات'],'ecommerce-architecture'],[['Créer le layout','Create the layout','إنشاء layout'],'nextjs-app-router'],[['Créer la navigation','Create navigation','إنشاء التنقل'],'next-routing-lab'],[['Créer la page d’accueil','Create the homepage','إنشاء الرئيسية'],'ui-build-lab'],[['Réutiliser des composants','Reuse components','إعادة استخدام المكونات'],'react-fundamentals'],[['Adapter au téléphone','Make it responsive','التكيف مع الهاتف'],'module-05-responsive-tailwind'],[['Afficher les produits','Display products','عرض المنتجات'],'final-store-capstone'],[['Créer les pages dynamiques','Create dynamic pages','إنشاء الصفحات الديناميكية'],'next-routing-lab'],[['Traiter les formulaires','Handle forms','معالجة النماذج'],'react-state-forms-hooks'],[['Créer une API','Create an API','إنشاء API'],'nextjs-server-data'],[['Relier la base de données','Connect the database','ربط قاعدة البيانات'],'supabase-build-lab'],[['Identifier les utilisateurs','Authenticate users','التحقق من المستخدمين'],'authentication-security-privacy'],[['Protéger l’administration','Protect administration','حماية الإدارة'],'authentication-security-privacy'],[['Préparer le SEO','Prepare SEO','إعداد SEO'],'ecommerce-seo'],[['Traiter les erreurs','Handle errors','معالجة الأخطاء'],'async-fetch-errors'],[['Tester et déployer','Test and deploy','الاختبار والنشر'],'deployment-operations'],
+];
