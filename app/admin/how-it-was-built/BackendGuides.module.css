@@ -18,6 +18,22 @@
 .icon { display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 14px; background: #e7f3e9; color: #277348; }
 .guideCard[data-tone="1"] .icon { background: #eaf0fb; color: #466eae; }
 .guideCard[data-tone="2"] .icon { background: #f7efdf; color: #936925; }
+.guideCard[data-tone="3"] .icon { background: #eee8ff; color: #69509f; }
+.startPath { margin-bottom: 16px; padding: 22px; border-radius: 20px; background: #174b36; color: #fff; }
+.startPath h3 { margin-top: 10px; font-size: 24px; font-weight: 750; line-height: 1.25; letter-spacing: -.025em; }
+.startPath p { margin-block: 12px 18px; color: #d6e9dc; font-size: 14px; line-height: 1.75; max-width: 580px; }
+.startPath button { display: flex; width: 100%; max-width: 360px; align-items: center; justify-content: space-between; gap: 12px; min-height: 50px; border-radius: 12px; padding: 12px 16px; background: #e6f7bf; color: #173e2c; text-align: start; font-weight: 750; font-size: 14px; }
+.pathProgress { display: block; margin-top: 12px; font-size: 12px; color: #d6e9dc; }
+.routine { margin-bottom: 20px; padding: 0 14px; border: 1px solid #d8e3d2; border-radius: 14px; background: white; }
+.routine summary { min-height: 48px; padding-block: 14px; cursor: pointer; font-size: 13px; font-weight: 700; }
+.routine ol { padding-inline-start: 22px; list-style: decimal; }
+.routine li, .routine p { padding-bottom: 12px; font-size: 13px; line-height: 1.75; }
+.guidesLabel { margin-bottom: 12px; font-size: 15px; font-weight: 750; }
+.glossary { margin-bottom: 20px; border-bottom: 1px solid #dce6dd; }
+.glossary summary { padding-block: 12px; min-height: 44px; cursor: pointer; color: #45654f; font-size: 13px; font-weight: 650; }
+.glossary dl { display: grid; gap: 12px; padding-bottom: 16px; }
+.glossary dt { font-size: 13px; font-weight: 750; text-align: start; }
+.glossary dd { margin-top: 3px; font-size: 13px; line-height: 1.65; color: #546b5a; }
 .cardBody { flex: 1; min-width: 0; }
 .cardMeta { display: flex; align-items: center; gap: 7px; margin: 0 0 6px; font-size: 10px; font-weight: 650; color: #667d6b; }
 .cardBody > strong { display: block; font-size: 17px; font-weight: 750; line-height: 1.4; letter-spacing: -.015em; }
@@ -37,7 +53,7 @@
 .compact .heading h2 { margin-block: 8px; font-size: 23px; white-space: normal; }
 .compact .heading > p { font-size: 13px; }
 .compact .overall { margin-top: 10px; }
-.compact .guides { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.compact .guides { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .compact .guideCard { padding: 14px; gap: 10px; }
 .compact .description, .compact .architecture, .compact .arrow { display: none; }
 .compact .cardBody > strong { font-size: 14px; }

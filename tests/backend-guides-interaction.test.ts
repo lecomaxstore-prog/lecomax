@@ -17,6 +17,8 @@ function mount(saved = "{}", unavailable = false) {
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/admin/how-it-was-built/course/backend-guides.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { module: data, exports: data.exports });
   const practice = { exports: {} as any };
   runInNewContext(ts.transpileModule(readFileSync(new URL("../app/admin/how-it-was-built/course/backend-practice.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { module: practice, exports: practice.exports });
+  const beginner = { exports: {} as any };
+  runInNewContext(ts.transpileModule(readFileSync(new URL("../app/admin/how-it-was-built/course/beginner-guides.ts", import.meta.url), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { module: beginner, exports: beginner.exports });
   for (const guide of data.exports.backendGuides) {
     assert.equal(practice.exports.backendPractice[guide.id].length, guide.chapters.length);
     for (const lesson of practice.exports.backendPractice[guide.id]) {
@@ -41,6 +43,7 @@ function mount(saved = "{}", unavailable = false) {
       if (name === "react/jsx-runtime") return require(name);
       if (name === "./course/backend-guides") return data.exports;
       if (name === "./course/backend-practice") return practice.exports;
+      if (name === "./course/beginner-guides") return beginner.exports;
       if (name.endsWith(".css")) return { default: new Proxy({}, { get: (_target, key) => key }) };
       throw Error(name);
     },
@@ -55,7 +58,7 @@ function mount(saved = "{}", unavailable = false) {
 
 test("reader moves one lesson at a time and only marks lessons read explicitly", () => {
   const ui = mount();
-  assert.equal(ui.all().filter(item => item.props.className === "guideCard").length, 3);
+  assert.equal(ui.all().filter(item => item.props.className === "guideCard").length, 4);
   ui.click("guideCard");
   assert.equal(ui.all().filter(item => item.type === "article").length, 1);
   assert.equal(ui.all().find(item => item.type === "select")?.props.value, 0);
@@ -73,6 +76,35 @@ test("reader moves one lesson at a time and only marks lessons read explicitly",
   assert.equal(resumed.all().find(item => item.type === "select")?.props.value, 2);
   resumed.language("ar");
   assert.equal(resumed.all().find(item => item.type === "dialog")?.props.dir, "rtl");
+});
+
+test("Python is guide four, resumes independently and supports all languages", () => {
+  const ui = mount();
+  const python = ui.all().filter(item => item.props.className === "guideCard")[3];
+  python.props.onClick({ currentTarget: { focus() {} } }); ui.render();
+  assert.equal(ui.all().find(item => item.type === "select")?.props.children.length, 16);
+  ui.click("primary");
+  assert.deepEqual(ui.saved().python.read, [0]);
+  assert.equal(ui.saved().python.position, 1);
+  for (const language of ["fr", "en", "ar"]) {
+    ui.language(language);
+    assert.ok(ui.all().some(item => item.props.className === "takeaway"));
+  }
+  const resumed = mount(JSON.stringify(ui.saved()));
+  resumed.all().filter(item => item.props.className === "guideCard")[3].props.onClick({ currentTarget: { focus() {} } });
+  resumed.render();
+  assert.equal(resumed.all().find(item => item.type === "select")?.props.value, 1);
+});
+
+test("beginner path starts before the four guides and saves separate progress", () => {
+  const ui = mount();
+  const start = ui.all().find(item => item.type === "button" && item.props.children?.[0] === "Write my first line")!;
+  assert.ok(start);
+  start.props.onClick({ currentTarget: { focus() {} } }); ui.render();
+  assert.equal(ui.all().find(item => item.type === "select")?.props.children.length, 10);
+  ui.click("primary");
+  assert.deepEqual(ui.saved()["nextjs-start"].read, [0]);
+  assert.equal(ui.saved().apis, undefined);
 });
 
 test("invalid saved progress is bounded and storage failures do not prevent reading", () => {

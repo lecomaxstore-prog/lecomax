@@ -41,6 +41,8 @@ console.log(run(["eval", "--stdin"], `(async()=>{
   const check=(value,label)=>{if(!value) throw new Error(label)};
   const wait=async(fn)=>{const end=Date.now()+25000;while(Date.now()<end){if(fn())return;await new Promise(r=>setTimeout(r,100));}throw new Error('UI did not settle')};
   const root=document.getElementById('learning-test-root');
+  await wait(()=>[...root.querySelectorAll('button')].some(button=>button.textContent==='Explorer mon site'));
+  [...root.querySelectorAll('button')].find(button=>button.textContent==='Explorer mon site').click();
   await wait(()=>root.querySelector('iframe')?.contentDocument?.querySelector('header'));
   await wait(()=>!root.querySelector('button[disabled]'));
   check(root.querySelector('iframe').getBoundingClientRect().top < innerHeight,'Preview below first screen');

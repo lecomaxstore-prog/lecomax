@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { attachSourceInspector, type SourceSelection } from "@/lib/site-source-inspector";
-import { learningPages } from "@/lib/site-learning";
+import { learningDestination, learningPages } from "@/lib/site-learning";
 import { translate } from "./course/journey";
 import type { CourseLanguage } from "./course/types";
 import SiteLesson from "./SiteLesson";
@@ -31,7 +31,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   const [showNotices, setShowNotices] = useState(false);
   const [hint, setHint] = useState("");
   const [showGuide, setShowGuide] = useState(false);
-  const [workshop, setWorkshop] = useState<"site" | "guides">("site");
+  const [workshop, setWorkshop] = useState<"site" | "guides">("guides");
   const [connections, setConnections] = useState<SourceConnections>();
   const [sourceTrail, setSourceTrail] = useState<SourceSelection[]>([]);
 
@@ -44,10 +44,10 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     return () => cleanup.current();
   }, []);
   useEffect(() => {
-    if (ready) return;
+    if (workshop !== "site" || ready) return;
     const timer = setTimeout(() => setPreviewError(true), 25000);
     return () => clearTimeout(timer);
-  }, [page, ready, revision]);
+  }, [page, ready, revision, workshop]);
   const lessonOpen = selection !== null;
   useEffect(() => {
     if (!lessonOpen) return;
@@ -96,7 +96,12 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     try {
       const doc = frame.current?.contentDocument;
       if (!doc?.body || !doc.querySelector("main")) { setPreviewError(true); return; }
-      cleanup.current = attachSourceInspector(doc, page.file, select);
+      cleanup.current = attachSourceInspector(doc, page.file, select, href => {
+        const destination = learningDestination(href);
+        if (!destination) return false;
+        navigate(destination.url, destination.file);
+        return true;
+      });
       doc.documentElement.toggleAttribute("data-learning-hide-notices", !showNotices);
       setReady(true); setPreviewError(false);
     } catch { setPreviewError(true); }
@@ -114,10 +119,16 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     try { localStorage.setItem("site-learning-progress-v1", JSON.stringify(value)); } catch { /* Keep session progress. */ }
   }
   function closeLesson() { setSelection(null); dialog.current?.close(); }
+  function switchWorkshop(value: "site" | "guides") {
+    if (value === workshop) return;
+    cleanup.current();
+    closeLesson();
+    setReady(false); setPreviewError(false); setWorkshop(value);
+  }
   return <section className={`${styles.workspace} space-y-3`}>
     <nav className={styles.workshopSwitch} aria-label={t("Choisir comment apprendre", "Choose how to learn", "اختر طريقة التعلم")}>
-      <button type="button" aria-pressed={workshop === "site"} onClick={() => setWorkshop("site")}>{t("Explorer mon site", "Explore my site", "استكشف موقعي")}</button>
-      <button type="button" aria-pressed={workshop === "guides"} onClick={() => setWorkshop("guides")}>{t("Les 3 guides", "The 3 guides", "الأدلة الثلاثة")}</button>
+      <button type="button" aria-pressed={workshop === "guides"} onClick={() => switchWorkshop("guides")}>{t("Apprendre pas à pas", "Learn step by step", "تعلم خطوة بخطوة")}</button>
+      <button type="button" aria-pressed={workshop === "site"} onClick={() => switchWorkshop("site")}>{t("Explorer mon site", "Explore my site", "استكشف موقعي")}</button>
     </nav>
     {workshop === "guides" ? <BackendGuides lang={lang} compact /> : <>
     <div className={styles.welcome} data-expanded={showGuide}>
@@ -148,7 +159,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
         {previewError && <div role="alert" className="space-y-2 bg-amber-50 p-4 text-sm"><p>{t("L’aperçu ne répond pas. Recharge-le pour continuer.", "The preview is not responding. Reload to continue.", "المعاينة لا تستجيب. أعد تحميلها للمتابعة.")}</p><button type="button" onClick={() => { setPreviewError(false); setReady(false); setRevision(value => value + 1); }} className="min-h-11 rounded-lg border px-3 font-bold">{t("Recharger le site", "Reload site", "إعادة تحميل الموقع")}</button></div>}
         <iframe ref={frame} key={`${page.url}:${revision}`} src={page.url} title={t("Ton site : touche un élément pour apprendre", "Your site: tap an element to learn", "موقعك: المس عنصرًا للتعلم")} onLoad={connect} className={styles.preview} style={desktop ? { width: 1100 } : undefined} />
       </div>
-      <p className="border-t bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-950">{t("Mode apprentissage : toucher ouvre une leçon, sans acheter ni modifier ton site.", "Learning mode: tapping opens a lesson without purchasing or changing your site.", "وضع التعلم: اللمس يفتح درسًا دون شراء أو تعديل موقعك.")}</p>
+      <p className="border-t bg-emerald-50 px-3 py-2 text-xs leading-5 text-emerald-950">{t("Un clic : comprendre le code. Deux clics rapides sur un lien : ouvrir sa page dans l’aperçu. Sur téléphone, touche le lien deux fois rapidement.", "One click: understand the code. Double-click a link to open its page in the preview. On a phone, tap the link twice quickly.", "نقرة واحدة لفهم الكود. انقر مرتين بسرعة على رابط لفتح صفحته في المعاينة. على الهاتف المس الرابط مرتين بسرعة.")}</p>
       <details className={styles.options}><summary>{t("Options de l’aperçu", "Preview options", "خيارات المعاينة")}</summary><div className={styles.optionButtons}><button type="button" aria-pressed={desktop} onClick={() => setDesktop(value => !value)}>{desktop ? t("Revenir à la taille de mon écran", "Fit to my screen", "ملاءمة شاشتي") : t("Voir la version ordinateur", "View desktop version", "عرض نسخة الحاسوب")}</button><button type="button" aria-pressed={showNotices} onClick={() => setShowNotices(value => !value)}>{showNotices ? t("Masquer les fenêtres", "Hide notices", "إخفاء النوافذ") : t("Explorer les fenêtres", "Explore notices", "استكشف النوافذ")}</button></div></details>
     </div>
     <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-neutral-600"><span>{learned.length} {t("éléments compris", "elements understood", "عناصر فهمتها")}</span><a href="#files" className="min-h-11 content-center font-bold text-emerald-800 underline">{t("Tous les fichiers du projet", "All project files", "كل ملفات المشروع")}</a></div>
