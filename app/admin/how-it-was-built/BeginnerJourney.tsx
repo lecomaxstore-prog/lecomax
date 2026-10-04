@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CourseLanguage } from './course/types';
 import { STARTER_KEY, STARTER_LESSONS, readStarterProgress, words, type StarterProgress, type Words } from './course/beginner-path';
 import styles from './BeginnerJourney.module.css';
+import { STARTER_PRACTICE, checkStarterCode } from './course/beginner-practice';
 
 export default function BeginnerJourney({ lang, onNavigate }: { lang: CourseLanguage; onNavigate: (tab: string) => void }) {
   const t = (value: Words) => words(value, lang);
@@ -13,6 +14,9 @@ export default function BeginnerJourney({ lang, onNavigate }: { lang: CourseLang
   const [answer, setAnswer] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [interacted, setInteracted] = useState(false);
+  const [codeInput, setCodeInput] = useState('');
+  const [codeChecked, setCodeChecked] = useState(false);
+  const [showSolution, setShowSolution] = useState(false);
   const [name, setName] = useState('L’ecomax');
   const [color, setColor] = useState('#ecfdf5');
   const [padding, setPadding] = useState(24);
@@ -23,8 +27,11 @@ export default function BeginnerJourney({ lang, onNavigate }: { lang: CourseLang
   const heading = useRef<HTMLHeadingElement>(null);
   const syllabus = useRef<HTMLDetailsElement>(null);
   const lesson = STARTER_LESSONS[progress.selected];
+  const practice = STARTER_PRACTICE[lesson.id];
+  const codePassed = codeChecked && checkStarterCode(practice, codeInput);
   const passed = checked && answer === lesson.correct;
   const done = progress.completed.includes(lesson.id);
+  const canCheck = done || (interacted && codePassed);
   const allDone = progress.completed.length === STARTER_LESSONS.length;
 
   useEffect(() => {
@@ -41,7 +48,7 @@ export default function BeginnerJourney({ lang, onNavigate }: { lang: CourseLang
   }, []);
   useEffect(() => {
     if (request !== 'loading') return;
-    const timer = setTimeout(() => setRequest(offline ? 'error' : 'success'), 650);
+    const timer = setTimeout(() => { setRequest(offline ? 'error' : 'success'); setInteracted(true); }, 650);
     return () => clearTimeout(timer);
   }, [request, offline]);
   function save(next: StarterProgress) {
@@ -52,11 +59,12 @@ export default function BeginnerJourney({ lang, onNavigate }: { lang: CourseLang
   function focusLesson() { requestAnimationFrame(() => { heading.current?.focus({ preventScroll: true }); heading.current?.scrollIntoView({ block: 'start', behavior: 'instant' }); }); }
   function select(index: number) {
     save({ ...progress, selected: index }); setStage(0); setAnswer(null); setChecked(false); setInteracted(false); setRequest('idle');
+    setCodeInput(''); setCodeChecked(false); setShowSolution(false);
     setName('L’ecomax'); setColor('#ecfdf5'); setPadding(24); setQuantity(1); setRoute(''); setOffline(false); focusLesson();
   }
-  function go(index: number) { setStage(index); focusLesson(); }
+  function go(index: number) { if (index === 2 && !canCheck) return; setStage(index); focusLesson(); }
   function complete() {
-    if (!passed) return;
+    if (!passed || !canCheck) return;
     save({ ...progress, completed: [...new Set([...progress.completed, lesson.id])] });
   }
   const title = t(lesson.title);
@@ -85,7 +93,7 @@ export default function BeginnerJourney({ lang, onNavigate }: { lang: CourseLang
       </aside>
       <section className={styles.reader} aria-busy={!ready}>
         <div className={styles.lessonHeader}><p>{t(['LEÇON', 'LESSON', 'الدرس'])} {String(progress.selected + 1).padStart(2, '0')} <span> / 10 · {t(['LES FONDATIONS', 'FOUNDATIONS', 'الأساسيات'])}</span></p><h2 ref={heading} tabIndex={-1}>{title}</h2><p className={styles.goal}>{t(lesson.goal)}</p></div>
-        <nav className={styles.stages} aria-label={t(['Étapes de cette leçon', 'Steps in this lesson', 'خطوات هذا الدرس'])}>{([['Comprendre', 'Understand', 'افهم'], ['Essayer', 'Try', 'جرب'], ['Vérifier', 'Check', 'تحقق']] as Words[]).map((label, index) => <button type="button" key={index} disabled={!ready || (index === 2 && !interacted && !done)} aria-current={stage === index ? 'step' : undefined} onClick={() => go(index)}><span>{index + 1}</span>{t(label)}</button>)}</nav>
+        <nav className={styles.stages} aria-label={t(['Étapes de cette leçon', 'Steps in this lesson', 'خطوات هذا الدرس'])}>{([['Comprendre', 'Understand', 'افهم'], ['Essayer', 'Try', 'جرب'], ['Vérifier', 'Check', 'تحقق']] as Words[]).map((label, index) => <button type="button" key={index} disabled={!ready || (index === 2 && !canCheck)} aria-current={stage === index ? 'step' : undefined} onClick={() => go(index)}><span>{index + 1}</span>{t(label)}</button>)}</nav>
         <div className={styles.body}>
           {stage === 0 && <div className={styles.flow}>
             <p className={styles.idea}>{t(lesson.idea)}</p><div className={styles.analogy}><span>{t(['IMAGINE…', 'IMAGINE…', 'تخيل…'])}</span><p>{t(lesson.analogy)}</p></div>
@@ -101,18 +109,34 @@ export default function BeginnerJourney({ lang, onNavigate }: { lang: CourseLang
                 <div className={styles.preview}><span>{t(['RÉSULTAT VISIBLE', 'VISIBLE RESULT', 'النتيجة المرئية'])}</span><div className={styles.product} style={{ background: color, padding }}><div className={styles.productArt} aria-hidden="true">L.</div><h3>{lesson.experiment === 'text' ? name || '…' : t(['Mon produit', 'My product', 'منتجي'])}</h3><p>100 MAD</p></div></div>
               </>}
               {lesson.experiment === 'quantity' && <div className={styles.counter}><span>{t(['Prix par article', 'Price per item', 'سعر القطعة'])}: 100 MAD</span><div><button type="button" disabled={quantity <= 1} aria-label={t(['Diminuer la quantité', 'Decrease quantity', 'تقليل الكمية'])} onClick={() => { setQuantity(value => value - 1); setInteracted(true); }}>−</button><output aria-live="polite">{quantity}</output><button type="button" disabled={quantity >= 9} aria-label={t(['Augmenter la quantité', 'Increase quantity', 'زيادة الكمية'])} onClick={() => { setQuantity(value => value + 1); setInteracted(true); }}>+</button></div><strong aria-live="polite">100 × {quantity} = {100 * quantity} MAD</strong></div>}
-              {lesson.experiment === 'request' && <div className={styles.request}><ol><li>{t(['Navigateur', 'Browser', 'المتصفح'])}</li><li>API</li><li>{t(['Serveur', 'Server', 'الخادم'])}</li></ol><label><input type="checkbox" checked={offline} disabled={request === 'loading'} onChange={event => { setOffline(event.target.checked); setRequest('idle'); }} />{t(['Simuler un serveur indisponible', 'Simulate an unavailable server', 'محاكاة خادم غير متاح'])}</label><button type="button" className={styles.secondary} disabled={request === 'loading'} onClick={() => { setInteracted(true); setRequest('loading'); }}>{t(['Envoyer la demande', 'Send request', 'أرسل الطلب'])}</button><p role="status" data-state={request}>{request === 'loading' ? t(['Chargement : on attend la réponse…', 'Loading: waiting for a response…', 'التحميل: ننتظر الرد…']) : request === 'success' ? t(['Réponse reçue : 1 produit, prix 100 MAD.', 'Response received: 1 product, price 100 MAD.', 'وصل الرد: منتج واحد بسعر 100 درهم.']) : request === 'error' ? t(['Le serveur est indisponible. Décoche la simulation et réessaie.', 'The server is unavailable. Uncheck the simulation and retry.', 'الخادم غير متاح. ألغِ المحاكاة وأعد المحاولة.']) : t(['Prêt à envoyer une demande.', 'Ready to send a request.', 'جاهز لإرسال الطلب.'])}</p></div>}
+              {lesson.experiment === 'request' && <div className={styles.request}><ol><li>{t(['Navigateur', 'Browser', 'المتصفح'])}</li><li>API</li><li>{t(['Serveur', 'Server', 'الخادم'])}</li></ol><label><input type="checkbox" checked={offline} disabled={request === 'loading'} onChange={event => { setOffline(event.target.checked); setRequest('idle'); }} />{t(['Simuler un serveur indisponible', 'Simulate an unavailable server', 'محاكاة خادم غير متاح'])}</label><button type="button" className={styles.secondary} disabled={request === 'loading'} onClick={() => { setRequest('loading'); }}>{t(['Envoyer la demande', 'Send request', 'أرسل الطلب'])}</button><p role="status" data-state={request}>{request === 'loading' ? t(['Chargement : on attend la réponse…', 'Loading: waiting for a response…', 'التحميل: ننتظر الرد…']) : request === 'success' ? t(['Réponse reçue : 1 produit, prix 100 MAD.', 'Response received: 1 product, price 100 MAD.', 'وصل الرد: منتج واحد بسعر 100 درهم.']) : request === 'error' ? t(['Le serveur est indisponible. Décoche la simulation et réessaie.', 'The server is unavailable. Uncheck the simulation and retry.', 'الخادم غير متاح. ألغِ المحاكاة وأعد المحاولة.']) : t(['Prêt à envoyer une demande.', 'Ready to send a request.', 'جاهز لإرسال الطلب.'])}</p></div>}
               {lesson.experiment === 'route' && <div className={styles.route}><label htmlFor="starter-route">{t(['Choisis une page', 'Choose a page', 'اختر صفحة'])}<select id="starter-route" value={route} onChange={event => { setRoute(event.target.value); setInteracted(true); }}><option value="">{t(['Accueil', 'Home', 'الرئيسية'])}</option><option value="boutique">{t(['Boutique', 'Shop', 'المتجر'])}</option><option value="nouveautes">{t(['Nouveautés', 'New arrivals', 'الجديد'])}</option></select></label><div><span>{t(['Adresse', 'Address', 'العنوان'])}</span><code dir="ltr">/{route}</code><span>{t(['Fichier', 'File', 'الملف'])}</span><code dir="ltr">app/{route ? `${route}/` : ''}page.tsx</code></div></div>}
             </div>
             <div className={styles.observation}><h3>{t(['Ce qui se passe', 'What happens', 'ماذا يحدث'])}</h3><p>{t(lesson.observe)}</p></div>
             <details className={styles.code}><summary>{t(['Comprendre chaque ligne du code', 'Understand each line of code', 'فهم كل سطر في الكود'])}</summary><p>{t(['Extrait pédagogique : il montre une idée, pas une page complète à copier.', 'Learning excerpt: it shows one idea, rather than a complete page to copy.', 'مقتطف تعليمي يوضح فكرة وليس صفحة كاملة للنسخ.'])}</p><pre dir="ltr" tabIndex={0}><code>{dynamicCode}</code></pre><ol>{lesson.lines.map((line, index) => <li key={index}><span>{index + 1}</span><p>{t(line)}</p></li>)}</ol></details>
-            {!interacted && <p className={styles.muted}>{t(['Change une valeur ou utilise la démonstration pour passer à la question.', 'Change a value or use the demo to move to the question.', 'غير قيمة أو استخدم المثال للانتقال إلى السؤال.'])}</p>}
-            <button type="button" className={styles.primary} disabled={!interacted && !done} onClick={() => go(2)}>{t(['Vérifier ma compréhension', 'Check my understanding', 'تحقق من فهمي'])}</button>
+            <section className={styles.codingTask} aria-labelledby="starter-code-title">
+              <p className={styles.eyebrow}>{t(['PETIT DÉFI DE CODE', 'SMALL CODING CHALLENGE', 'تحدي برمجة صغير'])}</p>
+              <h3 id="starter-code-title">{t(['Complète le morceau manquant', 'Fill in the missing piece', 'أكمل الجزء الناقص'])}</h3>
+              <label htmlFor="starter-code-input">{t(practice.prompt)}</label>
+              <p id="starter-code-help" className={styles.muted}>{t(['Remplace ___ par ta réponse dans le champ ci-dessous. Majuscules et minuscules comptent.', 'Replace ___ with your answer in the field below. Uppercase and lowercase letters matter.', 'استبدل ___ بإجابتك في الحقل أدناه. الأحرف الكبيرة والصغيرة مهمة.'])}</p>
+              <pre dir="ltr" tabIndex={0}><code>{practice.before}<mark>{codeInput || '___'}</mark>{practice.after}</code></pre>
+              <form onSubmit={event => { event.preventDefault(); if (codeInput.trim()) setCodeChecked(true); }}>
+                <input id="starter-code-input" dir="ltr" type="text" maxLength={40} value={codeInput} autoComplete="off" autoCapitalize="none" spellCheck={false} aria-describedby="starter-code-help starter-code-feedback" aria-invalid={codeChecked && !codePassed ? true : undefined} onChange={event => { setCodeInput(event.target.value); setCodeChecked(false); setChecked(false); }} />
+                <button type="submit" className={styles.secondary} disabled={!codeInput.trim()}>{t(['Vérifier mon code', 'Check my code', 'تحقق من كودي'])}</button>
+              </form>
+              <div id="starter-code-feedback" role="status" aria-live="polite">{codeChecked && <div className={styles.feedback} data-correct={codePassed}><strong>{codePassed ? t(['Le code est correct.', 'The code is correct.', 'الكود صحيح.']) : t(['Encore un petit ajustement.', 'One small adjustment to make.', 'نحتاج إلى تعديل بسيط.'])}</strong><p>{t(codePassed ? practice.explanation : practice.hint)}</p></div>}</div>
+              <details key={lesson.id} className={styles.codingHint}><summary>{t(['J’ai besoin d’un indice', 'I need a hint', 'أحتاج إلى تلميح'])}</summary><p>{t(practice.hint)}</p>{!showSolution ? <button type="button" className={styles.textButton} onClick={() => setShowSolution(true)}>{t(['Voir la solution expliquée', 'See the explained solution', 'شاهد الحل مع الشرح'])}</button> : <div><code dir="ltr">{practice.answer}</code><p>{t(practice.explanation)}</p><p className={styles.muted}>{t(['Retape la réponse pour t’entraîner, puis vérifie ton code.', 'Type the answer yourself to practice, then check your code.', 'اكتب الإجابة بنفسك للتدرب ثم تحقق من كودك.'])}</p></div>}</details>
+            </section>
+            <ul className={styles.practiceChecklist} aria-label={t(['Avant la question', 'Before the question', 'قبل السؤال'])}>
+              <li data-ready={interacted}><span aria-hidden="true">{interacted ? '✓' : '○'}</span>{t(interacted ? ['Exemple essayé', 'Example tried', 'جربت المثال'] : ['Essaie l’exemple ci-dessus', 'Try the example above', 'جرب المثال أعلاه'])}</li>
+              <li data-ready={codePassed}><span aria-hidden="true">{codePassed ? '✓' : '○'}</span>{t(codePassed ? ['Code vérifié', 'Code checked', 'تحققت من الكود'] : ['Complète et vérifie ton code', 'Complete and check your code', 'أكمل كودك وتحقق منه'])}</li>
+            </ul>
+            <button type="button" className={styles.primary} disabled={!canCheck} onClick={() => go(2)}>{t(['Vérifier ma compréhension', 'Check my understanding', 'تحقق من فهمي'])}</button>
           </div>}
           {stage === 2 && <div className={styles.flow}>
             <fieldset className={styles.quiz}><legend>{t(lesson.question)}</legend>{lesson.options.map((option, index) => <label key={index} data-selected={answer === index}><input type="radio" name={`starter-${lesson.id}`} checked={answer === index} onChange={() => { setAnswer(index); setChecked(false); }} /><span>{t(option)}</span></label>)}</fieldset>
             <button type="button" className={styles.primary} disabled={answer === null} onClick={() => setChecked(true)}>{t(['Vérifier ma réponse', 'Check my answer', 'تحقق من إجابتي'])}</button>
-            {checked && <div className={styles.feedback} role="status" data-correct={passed}><strong>{passed ? t(['Oui, tu as compris cette idée.', 'Yes, you understood this idea.', 'نعم، فهمت هذه الفكرة.']) : t(['Pas encore. Reprenons ensemble.', 'Not yet. Let’s work through it.', 'ليس بعد. لنراجع معًا.'])}</strong><p>{t(lesson.feedback)}</p>{!passed && <button type="button" className={styles.secondary} onClick={() => go(1)}>{t(['Revoir l’exemple', 'Review the example', 'مراجعة المثال'])}</button>}</div>}
+            {checked && <div className={styles.feedback} role="status" data-correct={passed}><strong>{passed ? t(['Oui, tu as compris cette idée.', 'Yes, you understood this idea.', 'نعم، فهمت هذه الفكرة.']) : t(['Pas encore. Reprenons ensemble.', 'Not yet. Let’s work through it.', 'ليس بعد. لنراجع معًا.'])}</strong><p>{t(practice.answerFeedback[answer!])}</p><p>{t(lesson.feedback)}</p>{!passed && <button type="button" className={styles.secondary} onClick={() => go(1)}>{t(['Revoir l’exemple', 'Review the example', 'مراجعة المثال'])}</button>}</div>}
             {passed && <><label className={styles.note} htmlFor="starter-note">{t(['Avec mes mots (facultatif)', 'In my own words (optional)', 'بكلماتي (اختياري)'])}<span>{t(['Explique ce que tu viens de comprendre. Tes notes restent dans ce navigateur.', 'Explain what you just understood. Your notes stay in this browser.', 'اشرح ما فهمته للتو. تبقى ملاحظاتك في هذا المتصفح.'])}</span><textarea id="starter-note" maxLength={2000} rows={3} value={progress.notes[lesson.id] || ''} onChange={event => save({ ...progress, notes: { ...progress.notes, [lesson.id]: event.target.value } })} /></label>{!done ? <button type="button" className={styles.primary} onClick={complete}>{t(['Valider cette leçon', 'Complete this lesson', 'إكمال الدرس'])} ✓</button> : <div className={styles.success} role="status"><strong>{allDone ? t(['Tes premières bases sont en place.', 'Your first foundations are in place.', 'أصبحت أساسياتك الأولى جاهزة.']) : t(['Leçon validée. Bien joué !', 'Lesson completed. Well done!', 'أكملت الدرس. أحسنت!'])}</strong><p>{t(['Tu peux continuer maintenant ou revenir plus tard. Pratique pour renforcer ce que tu comprends.', 'Continue now or come back later. Practice to strengthen what you understand.', 'تابع الآن أو عد لاحقًا وتدرب لترسيخ ما فهمته.'])}</p>{progress.selected < STARTER_LESSONS.length - 1 ? <button type="button" className={styles.primary} onClick={() => select(progress.selected + 1)}>{t(['Leçon suivante', 'Next lesson', 'الدرس التالي'])} <span aria-hidden="true">{lang === 'ar' ? '←' : '→'}</span></button> : <button type="button" className={styles.primary} onClick={() => onNavigate('academy')}>{t(['Continuer dans l’Académie', 'Continue in the Academy', 'تابع في الأكاديمية'])}</button>}</div>}</>}
           </div>}
         </div>
