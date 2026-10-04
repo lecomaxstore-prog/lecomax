@@ -6,6 +6,7 @@ import { translate } from "./course/journey";
 import CodeLibrary from "./CodeLibrary";
 import SiteExplorer from "./SiteExplorer";
 import BackendGuides from "./BackendGuides";
+import BeginnerJourney from "./BeginnerJourney";
 
 const AcademySection = dynamic(() => import("./AcademySection"), {
   loading: () => (
@@ -5016,6 +5017,16 @@ function SearchSec({ lang }: { lang: Lang }) {
 
 // ─── START HERE ────────────────────────────────────────────────────────────────
 function StartHereSection({ onNavigate, lang }: { onNavigate: (tab: string) => void; lang: Lang }) {
+  return <div className="space-y-6">
+    <BeginnerJourney lang={lang} onNavigate={onNavigate} />
+    <details className="rounded-2xl border border-stone-200 bg-white p-5 sm:p-7">
+      <summary className="min-h-11 cursor-pointer text-base font-semibold text-emerald-950">{translate(lang, "Mes ateliers complets · Next.js, Python et séances guidées", "My full workshops · Next.js, Python and guided sessions", "ورشي الكاملة · Next.js وPython والجلسات الموجهة")}</summary>
+      <div className="mt-6"><LearningResourcesSection lang={lang} onNavigate={onNavigate} /></div>
+    </details>
+  </div>;
+}
+
+function LearningResourcesSection({ onNavigate, lang }: { onNavigate: (tab: string) => void; lang: Lang }) {
   const [copied, setCopied] = useState("");
   const [done, setDone] = useState<boolean[]>([false, false, false, false, false]);
   const [activeCodeLine, setActiveCodeLine] = useState(0);

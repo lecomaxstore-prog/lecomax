@@ -1,0 +1,9 @@
+# Beginner learning experience — October 4, 2026
+
+The learning area's Start here screen now opens a ten-lesson foundation path rather than a collection of workshops. Each lesson follows Understand → Try → Check. Lessons explain the browser/server model, HTML/JSX, CSS, calculations, React components and state, Next.js routing, APIs, databases, and publishing. French, English and Arabic share the same content structure, with RTL support for Arabic.
+
+The examples run entirely in component state: editable text and card styling, a quantity calculator, simulated request success/error, and route-to-file mapping. They never send product/order mutations. Expandable code excerpts include one explanation per line. Learners must use the example and answer the check correctly before marking a lesson complete. Incorrect answers explain the concept and allow retry. This checks a single concept; it does not claim mastery of the whole subject.
+
+Progress and optional notes use `lecomax-beginner-path-v1` in this browser. Stored input is bounded and validated. Unsupported storage keeps the experience usable for the current visit and displays a notice. Switching lessons resets the temporary exercise and answer. Existing daily sessions, Next.js/Python guides and other workshops remain under My full workshops; the Academy, website explorer and source library remain accessible.
+
+Validation: 13 foundation/guide/reader tests pass, root TypeScript check passes, and the isolated production build passes (including type checking and course validation). Tests cover translations, source references, annotation counts, malformed storage, exercise gating, incorrect/correct answers, completion, notes, restored selection, language switching and unavailable storage. Browser visual verification was unavailable because the computer-use session exposes no browsers. The temporary local preview route was removed before building and publishing.
