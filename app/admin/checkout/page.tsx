@@ -71,9 +71,9 @@ export default function CheckoutAdminPage() {
   if (loading) return <div className="py-20 text-center text-sm text-neutral-400">Chargement du checkout…</div>;
 
   return <div className="mx-auto max-w-[1400px] pb-16">
-    <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <header className="admin-mobile-heading mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div><p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">Commerce control</p><h1 className="mt-1 text-2xl font-black">Checkout</h1><p className="mt-1 max-w-2xl text-sm text-neutral-400">Pilotez l&apos;expérience de commande, les paiements et les messages de confiance sans modifier le code.</p></div>
-      <div className="flex gap-2"><Link href="/admin/shipping" className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-xs font-black hover:border-neutral-400">Zones de livraison</Link><Link href="/checkout" target="_blank" className="rounded-lg bg-black px-4 py-2.5 text-xs font-black text-white">Ouvrir le checkout</Link></div>
+      <div className="admin-mobile-actions flex gap-2"><Link href="/admin/shipping" className="rounded-lg border border-neutral-200 bg-white px-4 py-2.5 text-xs font-black hover:border-neutral-400">Zones de livraison</Link><Link href="/checkout" target="_blank" className="rounded-lg bg-black px-4 py-2.5 text-xs font-black text-white">Ouvrir le checkout</Link></div>
     </header>
 
     <div className="mb-5 grid gap-3 sm:grid-cols-4">

@@ -188,7 +188,7 @@ export default function ClientDataPage() {
     <div className="mx-auto w-full min-w-0 max-w-7xl px-3 py-4 sm:p-6">
 
       {/* Header */}
-      <div className="mb-4 flex flex-col gap-4 sm:mb-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="admin-mobile-heading admin-mobile-card-layout mb-4 flex flex-col gap-4 sm:mb-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
           <h1 className="text-xl font-black tracking-tight sm:text-[1.4rem]">Données clients</h1>
           <p className="mt-1 max-w-sm text-xs leading-5 text-neutral-500 sm:text-sm">Collectées uniquement après consentement explicite</p>

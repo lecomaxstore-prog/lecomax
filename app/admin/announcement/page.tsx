@@ -95,7 +95,7 @@ export default function AnnouncementPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 pb-24">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <header className="admin-mobile-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-[#24a936]">
             <span className="h-2 w-2 rounded-full bg-[#3ecf4c]" /> Communication boutique

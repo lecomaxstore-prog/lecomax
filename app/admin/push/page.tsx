@@ -1,4 +1,5 @@
 "use client";
+import AdminToggle from "@/components/admin/AdminToggle";
 import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -231,7 +232,7 @@ export default function PushPage() {
                 </div>
 
                 {/* Language */}
-                <div className="flex gap-2">
+                <div className="admin-mobile-actions flex gap-2">
                   <button type="button" onClick={() => setAiLang("fr")}
                     className={`flex-1 min-h-11 py-2 rounded-xl text-xs font-bold transition-all ${aiLang === "fr" ? "bg-white text-black" : "bg-white/10 text-white/60 hover:bg-white/20"}`}>
                     🇫🇷 Français
@@ -358,11 +359,7 @@ export default function PushPage() {
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer">
-                <div
-                  onClick={() => setForm(f => ({ ...f, requireInteraction: !f.requireInteraction }))}
-                  className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${form.requireInteraction ? "bg-black" : "bg-neutral-200"}`}>
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.requireInteraction ? "translate-x-5" : "translate-x-1"}`} />
-                </div>
+                <AdminToggle checked={form.requireInteraction} label="Notification persistante" tone="black" onClick={() => setForm(f => ({ ...f, requireInteraction: !f.requireInteraction }))} />
                 <div>
                   <p className="text-sm font-semibold">Notification persistante</p>
                   <p className="text-[11px] leading-4 text-neutral-500">Reste affichée jusqu&apos;à ce que l&apos;utilisateur la ferme manuellement</p>

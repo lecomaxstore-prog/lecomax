@@ -1,4 +1,5 @@
 "use client";
+import AdminToggle from "@/components/admin/AdminToggle";
 import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -216,10 +217,7 @@ export default function ShippingPage() {
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer select-none pt-1">
-            <div onClick={() => setForm({ ...form, active: !form.active })}
-              className={`w-10 h-6 rounded-full transition-colors flex items-center ${form.active ? "bg-black" : "bg-neutral-200"}`}>
-              <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${form.active ? "translate-x-4" : ""}`} />
-            </div>
+            <AdminToggle checked={form.active} label="Activer cette zone de livraison" tone="black" onClick={() => setForm({ ...form, active: !form.active })} />
             <span className="text-sm font-medium">Zone active</span>
           </label>
         </div>
@@ -253,7 +251,7 @@ export default function ShippingPage() {
         </div>
       )}
 
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <div className="admin-mobile-heading mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-black">Livraison</h1>
           <p className="text-neutral-500 text-sm mt-0.5">Zones de livraison et tarifs pour le Maroc</p>
@@ -338,7 +336,7 @@ export default function ShippingPage() {
                   </div>
                 </div>
 
-                <div className="flex w-full items-center justify-end gap-2 border-t border-neutral-100 pt-3 sm:w-auto sm:border-0 sm:pt-0 shrink-0">
+                <div className="admin-mobile-actions flex w-full items-center justify-end gap-2 border-t border-neutral-100 pt-3 sm:w-auto sm:border-0 sm:pt-0 shrink-0">
                   <button onClick={() => toggleActive(zone)}
                     className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors ${zone.active ? "bg-neutral-100 text-neutral-600 hover:bg-neutral-200" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>
                     {zone.active ? "Désactiver" : "Activer"}

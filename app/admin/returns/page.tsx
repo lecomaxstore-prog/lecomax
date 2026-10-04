@@ -88,7 +88,7 @@ export default function ReturnsPage() {
 
   return (
     <div className="max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-xl font-black">Retours</h1>
@@ -117,7 +117,7 @@ export default function ReturnsPage() {
       {showForm && (
         <div className="bg-white border border-neutral-100 rounded-2xl p-6 mb-5">
           <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Créer une demande manuellement</h2>
-          <form onSubmit={handleCreate} className="grid grid-cols-2 gap-4">
+          <form onSubmit={handleCreate} className="admin-mobile-fields grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1.5">N° Commande *</label>
               <input required value={form.order_number} onChange={(e) => setForm({ ...form, order_number: e.target.value })}
@@ -144,7 +144,7 @@ export default function ReturnsPage() {
                 placeholder="Produit défectueux, mauvaise taille, etc."
                 className="w-full border border-neutral-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all resize-none" />
             </div>
-            <div className="col-span-2 flex gap-3">
+            <div className="admin-mobile-actions col-span-2 flex gap-3">
               <button type="submit" disabled={saving} className="bg-black text-white px-5 py-2.5 rounded-xl text-sm font-bold disabled:opacity-50 hover:bg-neutral-800 transition-colors">
                 {saving ? "…" : "Créer"}
               </button>

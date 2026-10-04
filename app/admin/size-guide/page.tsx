@@ -73,7 +73,7 @@ function TableEditor<T extends Record<string, string>>({
                   </td>
                 ))}
                 <td className="px-4 py-2">
-                  <div className="flex items-center justify-end gap-1">
+                  <div className="admin-mobile-actions flex items-center justify-end gap-1">
                     <button type="button" onClick={() => moveUp(i)} title="Monter"
                       className="p-1.5 hover:bg-neutral-100 rounded-lg text-neutral-400 hover:text-black transition-colors">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 15l-6-6-6 6"/></svg>
@@ -137,7 +137,7 @@ export default function SizeGuidePage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black">Guide des tailles</h1>
           <p className="text-neutral-500 text-sm mt-0.5">Gérez les tableaux de tailles affichés sur le site</p>
@@ -191,7 +191,7 @@ export default function SizeGuidePage() {
           />
 
           {/* Save */}
-          <div className="flex items-center gap-4">
+          <div className="admin-mobile-actions flex items-center gap-4">
             <button type="submit" disabled={saving}
               className="bg-black text-white font-bold px-6 py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center gap-2">
               {saving

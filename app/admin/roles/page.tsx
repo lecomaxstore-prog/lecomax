@@ -130,7 +130,7 @@ export default function RolesPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-black text-neutral-900">Rôles & Permissions</h1>
           <p className="text-sm text-neutral-400 mt-0.5">Définissez qui peut faire quoi sur votre panel admin</p>
@@ -144,7 +144,7 @@ export default function RolesPage() {
         </button>
       </div>
 
-      <div className="flex gap-5 items-start">
+      <div className="admin-mobile-master-detail flex gap-5 items-start">
         {/* Roles list */}
         <div className="w-72 flex-shrink-0 space-y-2">
           {loading ? (
@@ -189,7 +189,7 @@ export default function RolesPage() {
         {selected ? (
           <div className="flex-1 bg-white rounded-3xl border border-neutral-100 overflow-hidden">
             {/* Editor header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100">
+            <div className="flex flex-wrap gap-3 items-center justify-between px-6 py-4 border-b border-neutral-100">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ background: editColor + "22" }}>
@@ -229,7 +229,7 @@ export default function RolesPage() {
             <div className="p-6 space-y-6">
               {/* Basic info */}
               {!selected.is_system && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="admin-mobile-fields grid grid-cols-2 gap-4">
                   <div>
                     <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide block mb-1.5">Nom du rôle</label>
                     <input
@@ -415,7 +415,7 @@ export default function RolesPage() {
                   ))}
                 </div>
               </div>
-              <div className="flex gap-3 pt-1">
+              <div className="admin-mobile-actions flex gap-3 pt-1">
                 <button onClick={() => setShowCreate(false)}
                   className="flex-1 py-2.5 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors">
                   Annuler
@@ -439,7 +439,7 @@ export default function RolesPage() {
             </div>
             <h3 className="text-base font-black mb-2">Supprimer ce rôle ?</h3>
             <p className="text-sm text-neutral-400 mb-5">Les membres assignés à ce rôle n&apos;auront plus de rôle défini.</p>
-            <div className="flex gap-3">
+            <div className="admin-mobile-actions flex gap-3">
               <button onClick={() => setDeleteConfirm(null)}
                 className="flex-1 py-2.5 rounded-xl border border-neutral-200 text-sm font-medium hover:bg-neutral-50 transition-colors">
                 Annuler

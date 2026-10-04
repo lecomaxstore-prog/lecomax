@@ -81,7 +81,7 @@ export default function CustomersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black">Clients</h1>
           <p className="text-neutral-500 text-sm mt-0.5">

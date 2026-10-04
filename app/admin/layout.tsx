@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import AdminPushNotifications from "@/components/AdminPushNotifications";
 import AdminCommandPalette from "@/components/AdminCommandPalette";
 import AdminConnectionNotice from "@/components/admin/AdminConnectionNotice";
+import AdminMobileViewport from "@/components/admin/AdminMobileViewport";
 
 const nav = [
   {
@@ -859,6 +860,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="admin-shell flex h-dvh min-h-0 overflow-hidden bg-[#f4f4f2]">
+      <AdminMobileViewport />
       {/* ──────────────── SIDEBAR ──────────────── */}
       <aside
         id="admin-sidebar"

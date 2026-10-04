@@ -69,7 +69,7 @@ export default function RecordingsPage() {
   return (
     <div className="flex flex-col bg-[#f4f4f2] min-h-full">
       {/* Header */}
-      <div className="shrink-0 bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between gap-4">
+      <div className="admin-mobile-heading shrink-0 bg-white border-b border-neutral-200 px-6 py-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, #0078d4, #50d9ff)" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z"/></svg>

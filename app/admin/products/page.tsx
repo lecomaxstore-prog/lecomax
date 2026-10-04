@@ -1,4 +1,5 @@
 "use client";
+import AdminToggle from "@/components/admin/AdminToggle";
 import AdminLoading from "@/components/admin/AdminLoading";
 import ProductSizeGuideEditor from "@/components/admin/ProductSizeGuideEditor";
 import { productSizeGuideFromTags, withProductSizeGuide, PRODUCT_SIZE_GUIDE_PREFIX, type ProductSizeGuide } from "@/mobile/src/lib/product-size-guide";
@@ -810,7 +811,7 @@ export default function ProductsPage() {
                 <p className="text-[11px] text-violet-600">Collez un lien produit — l&apos;IA génère automatiquement nom, description, catégorie, tags <strong>et importe les images</strong></p>
               </div>
             </div>
-            <div className="relative flex flex-col gap-2 sm:flex-row">
+            <div className="admin-mobile-toolbar relative flex flex-col gap-2 sm:flex-row">
               <input
                 type="url"
                 value={aiUrl}
@@ -992,7 +993,7 @@ export default function ProductsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Stock</label>
-                  <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
+                  <div className="admin-mobile-actions flex items-center border border-neutral-200 rounded-xl overflow-hidden focus-within:border-black bg-neutral-50 focus-within:bg-white transition-all">
                     <button type="button" onClick={() => setForm({ ...form, stock: String(Math.max(0, parseInt(form.stock || "0") - 1)) })}
                       className="px-3 py-3 text-neutral-400 hover:text-black transition-colors">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1132,7 +1133,7 @@ export default function ProductsPage() {
                 <>
                   {/* Custom size input (shown for "custom" guide type) */}
                   {(
-                    <div className="flex gap-2 mb-4">
+                    <div className="admin-mobile-toolbar flex gap-2 mb-4">
                       <input
                         type="text"
                         value={customSizeInput}
@@ -1152,7 +1153,7 @@ export default function ProductsPage() {
 
                   {/* Select all / clear all */}
                   {sizeSet.length > 0 && (
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="admin-mobile-actions flex items-center gap-2 mb-3">
                       <button type="button" onClick={() => setSelectedSizes([...sizeSet])}
                         className="text-[11px] font-semibold text-neutral-500 hover:text-black underline underline-offset-2 transition-colors">
                         Tout sélectionner
@@ -1250,7 +1251,7 @@ export default function ProductsPage() {
                           {selectedColors.map((color) => (
                             <div key={color} className="rounded-2xl border border-neutral-200 bg-neutral-50/70 p-3">
                               <div className="mb-2 flex items-center justify-between"><span className="text-xs font-black text-neutral-800">{color}</span><span className="text-[10px] font-bold text-neutral-400">{sizeStockTotal(Object.fromEntries(selectedSizes.map((size) => [size, colorSizeStocks[color]?.[size] ?? 0])))} unités</span></div>
-                              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                              <div className="admin-mobile-fields grid grid-cols-2 gap-2 sm:grid-cols-3">
                                 {selectedSizes.map((size) => (
                                   <label key={`${color}-${size}`} className="flex min-h-10 items-center gap-2 rounded-xl border border-neutral-200 bg-white px-3">
                                     <span className="w-8 shrink-0 text-[11px] font-black text-neutral-600">{size}</span>
@@ -1471,10 +1472,7 @@ export default function ProductsPage() {
                   <p className="text-sm font-semibold">Actif</p>
                   <p className="text-[11px] text-neutral-400">{form.active ? "Visible sur le site après enregistrement" : "Brouillon : masqué sur le site"}</p>
                 </div>
-                <button type="button" role="switch" aria-checked={form.active} aria-label="Actif" onClick={() => setForm({ ...form, active: !form.active })}
-                  className={`w-10 h-6 rounded-full transition-colors flex items-center ${form.active ? "bg-black" : "bg-neutral-200"}`}>
-                  <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${form.active ? "translate-x-4" : ""}`} />
-                </button>
+                <AdminToggle checked={form.active} label="Actif" tone="black" onClick={() => setForm({ ...form, active: !form.active })} />
               </label>
               <div className="h-px bg-neutral-100" />
               <label className="flex items-center justify-between cursor-pointer select-none">
@@ -1482,10 +1480,7 @@ export default function ProductsPage() {
                   <p className="text-sm font-semibold flex items-center gap-1.5"><span className="text-yellow-400">★</span> Mis en avant</p>
                   <p className="text-[11px] text-neutral-400">Affiché dans les bestsellers</p>
                 </div>
-                <button type="button" role="switch" aria-checked={form.featured} aria-label="Mis en avant" onClick={() => setForm({ ...form, featured: !form.featured })}
-                  className={`w-10 h-6 rounded-full transition-colors flex items-center ${form.featured ? "bg-yellow-400" : "bg-neutral-200"}`}>
-                  <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${form.featured ? "translate-x-4" : ""}`} />
-                </button>
+                <AdminToggle checked={form.featured} label="Mis en avant" tone="yellow" onClick={() => setForm({ ...form, featured: !form.featured })} />
               </label>
             </div></MobileSection>
 
@@ -1498,7 +1493,7 @@ export default function ProductsPage() {
         </div>
         <div className="mt-5 lg:hidden"><MobileSection title="Aperçu de la fiche">{editorPreview}</MobileSection></div>
         <div className="admin-editor-actions fixed inset-x-0 bottom-[var(--admin-nav-height)] z-20 border-t border-neutral-200 bg-white/95 p-3 shadow-[0_-12px_35px_rgba(0,0,0,.1)] backdrop-blur-xl lg:hidden">
-          <div className="mx-auto flex max-w-lg gap-2">
+          <div className="admin-mobile-actions mx-auto flex max-w-lg gap-2">
             <button type="button" onClick={closeEditor} className="min-h-12 rounded-xl border border-neutral-200 px-4 text-xs font-semibold text-neutral-600">Annuler</button>
             <button type="submit" disabled={saving} className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-xl bg-[#173c2c] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#20533d] disabled:opacity-50">
               {saving ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />Enregistrement…</> : editId ? "Enregistrer les modifications" : "Créer le produit"}
@@ -1528,7 +1523,7 @@ export default function ProductsPage() {
     <div className="mx-auto w-full max-w-7xl pb-28 md:pb-12">
       <div className="relative mb-5 overflow-hidden rounded-3xl border border-neutral-200 bg-white px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:px-7 lg:px-8">
         <div className="pointer-events-none absolute -right-12 -top-24 h-52 w-52 rounded-full bg-[#3ecf4c]/10 blur-3xl" />
-        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="admin-mobile-heading relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-4">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black text-[#3ecf4c] shadow-lg shadow-black/10">
             <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/></svg>
@@ -1755,7 +1750,7 @@ export default function ProductsPage() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
+                    <div className="admin-mobile-actions flex items-center justify-end gap-1">
                       <Link href={`/produit/${p.slug}`} target="_blank"
                         aria-label={`Voir ${p.name}`} className="flex h-8 w-8 items-center justify-center rounded-lg border border-transparent text-neutral-400 transition-colors hover:border-neutral-200 hover:bg-white hover:text-black">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -1805,7 +1800,7 @@ export default function ProductsPage() {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap items-center gap-2 border-t border-neutral-100 bg-neutral-50/70 p-2.5">
+              <div className="admin-mobile-actions flex flex-wrap items-center gap-2 border-t border-neutral-100 bg-neutral-50/70 p-2.5">
                 <span className="mr-auto rounded-lg bg-white px-2.5 py-1.5 text-[9px] font-black uppercase tracking-wide text-neutral-500 ring-1 ring-neutral-200">{p.category}</span>
                 <Link href={`/produit/${p.slug}`} target="_blank" className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-neutral-500 shadow-sm ring-1 ring-neutral-200" aria-label={`Voir ${p.name}`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><path d="M15 3h6v6M10 14 21 3"/></svg></Link>
                 <button onClick={() => router.push(`/admin/products?id=${p.id}`)} className="flex h-10 items-center gap-2 rounded-xl bg-black px-4 text-[10px] font-black text-white shadow-sm"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="m18.5 2.5 3 3L12 15l-4 1 1-4z"/></svg>Modifier</button>

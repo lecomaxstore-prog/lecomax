@@ -155,7 +155,7 @@ export default function ReviewsPage() {
 
   return (
     <div className="min-w-0 pb-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-black">Avis Clients</h1>
           <p className="text-neutral-500 text-sm mt-0.5">
@@ -221,7 +221,7 @@ export default function ReviewsPage() {
         <div className="space-y-3">
           {filtered.map((r) => (
             <div key={r.id} className="min-w-0 bg-white border border-neutral-200/70 rounded-2xl p-4 sm:p-5">
-              <div className="flex flex-col items-stretch gap-4 lg:flex-row lg:items-start lg:justify-between">
+              <div className="admin-mobile-card-layout flex flex-col items-stretch gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="min-w-0 w-full flex-1">
                   <div className="flex items-center gap-3 flex-wrap mb-2">
                     <StarRow rating={r.rating} />
@@ -273,7 +273,7 @@ export default function ReviewsPage() {
                         placeholder="Réponse (ou cliquez IA pour générer)…"
                         className="w-full min-h-32 border border-neutral-200 rounded-xl px-4 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all resize-y"
                       />
-                      <div className="flex flex-wrap gap-2 [&>button]:min-h-11">
+                      <div className="admin-mobile-actions flex flex-wrap gap-2 [&>button]:min-h-11">
                         <button
                           onClick={() => saveReply(r.id)}
                           disabled={savingReply}

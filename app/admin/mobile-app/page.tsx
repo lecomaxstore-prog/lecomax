@@ -213,13 +213,13 @@ export default function MobileApplicationPage() {
   return (
     <div className="mx-auto w-full max-w-[1500px] space-y-6 pb-16">
       <header className="overflow-hidden rounded-[28px] bg-[#080808] p-6 text-white sm:p-8">
-        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+        <div className="admin-mobile-heading flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
           <div className="max-w-3xl">
             <p className="text-[10px] font-black uppercase tracking-[.22em] text-[#42df68]">Mobile operations</p>
             <h1 className="mt-3 text-3xl font-black tracking-[-.04em] sm:text-5xl">Centre de contrôle application</h1>
             <p className="mt-3 text-sm leading-6 text-white/60">Campagnes push natives, ciblage, programmation, expérience d’accueil, maintenance, versions et merchandising depuis une seule console.</p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="admin-mobile-actions flex flex-wrap gap-2">
             <Link href="/admin/app-releases" className="inline-flex min-h-11 items-center bg-[#42df68] px-4 text-xs font-black text-black">PUBLIER UNE VERSION</Link>
             <button type="button" onClick={() => void load()} disabled={loading} className="min-h-11 border border-white/20 px-4 text-xs font-black disabled:opacity-50">{loading ? "CHARGEMENT…" : "ACTUALISER"}</button>
           </div>
@@ -273,7 +273,7 @@ export default function MobileApplicationPage() {
             <p className="text-[10px] font-black uppercase tracking-wider text-white/40">Aperçu client</p>
             <p className="mt-3 font-black">{form.title || "Titre de la notification"}</p><p className="mt-1 text-sm leading-5 text-white/65">{form.body || "Votre message apparaîtra ici sur Android, iOS et dans la boîte de réception de l’application."}</p>
           </div>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="admin-mobile-actions mt-5 flex flex-wrap gap-2">
             <button type="button" disabled={sending} onClick={() => void submitCampaign("send")} className="min-h-12 bg-[#12B83F] px-5 text-xs font-black text-black disabled:opacity-40">ENVOYER MAINTENANT</button>
             <button type="button" disabled={sending || !form.scheduledAt} onClick={() => void submitCampaign("schedule")} className="min-h-12 border border-black px-5 text-xs font-black disabled:opacity-30">PROGRAMMER</button>
             <button type="button" disabled={sending} onClick={() => void submitCampaign("draft")} className="min-h-12 border border-neutral-200 px-5 text-xs font-black disabled:opacity-40">ENREGISTRER BROUILLON</button>

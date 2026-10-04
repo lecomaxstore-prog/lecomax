@@ -224,7 +224,7 @@ export default function StockPage() {
     <div className="mx-auto w-full max-w-[1500px] space-y-5 sm:space-y-6">
       <header className="relative overflow-hidden rounded-[28px] bg-neutral-950 px-5 py-6 text-white shadow-xl sm:px-7 sm:py-7">
         <div aria-hidden="true" className="absolute -right-16 -top-20 h-56 w-56 rounded-full bg-[#3ecf4c]/15 blur-3xl" />
-        <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="admin-mobile-heading admin-mobile-card-layout relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[10px] font-extrabold uppercase tracking-[0.18em] text-[#65df70]"><span className="h-2 w-2 rounded-full bg-[#3ecf4c]" />Inventaire en direct</div>
             <h1 className="text-2xl font-black tracking-[-0.035em] sm:text-3xl">Gestion du stock</h1>
@@ -256,7 +256,7 @@ export default function StockPage() {
 
       {restockOpen && (
         <section aria-labelledby="restock-title" className="rounded-[26px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 shadow-sm sm:p-5">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-end">
+          <div className="admin-mobile-toolbar flex flex-col gap-4 xl:flex-row xl:items-end">
             <div className="min-w-0 flex-1">
               <h2 id="restock-title" className="text-base font-black text-neutral-950">Réapprovisionner un produit</h2>
               <p className="mt-1 text-xs leading-5 text-neutral-500">Choisissez n’importe quel produit du catalogue et indiquez combien d’unités viennent d’arriver.</p>
@@ -311,7 +311,7 @@ export default function StockPage() {
                 <button key={item.id} type="button" onClick={() => setFilter(item.id)} className={`flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-xs font-black transition sm:px-4 ${filter === item.id ? "bg-black text-white shadow-sm" : "text-neutral-500 hover:text-black"}`}>{item.label}<span className={`rounded-full px-1.5 py-0.5 text-[9px] ${filter === item.id ? "bg-white/15" : "bg-white"}`}>{item.count}</span></button>
               ))}
             </div>
-            <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="admin-mobile-toolbar flex flex-col gap-2 sm:flex-row">
               <label className="relative min-w-0 flex-1 sm:min-w-[280px]"><span className="sr-only">Rechercher un produit</span><svg aria-hidden="true" className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un produit…" className="min-h-11 w-full rounded-xl border border-neutral-200 bg-white pl-10 pr-4 text-sm outline-none transition focus:border-black focus:ring-2 focus:ring-black/5" /></label>
               <Link href="/admin/products" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-neutral-200 px-4 text-xs font-bold text-neutral-600 transition hover:border-black hover:text-black">Catalogue complet</Link>
             </div>
@@ -357,7 +357,7 @@ function StockRow({ p, stockInputs, setStockInputs, colorInputs, setColorInputs,
         <div className="min-w-0 flex-1"><div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"><div className="min-w-0"><h3 className="line-clamp-2 text-sm font-black leading-5 text-neutral-950 sm:text-[15px]">{p.name}</h3><p className="mt-1 truncate text-xs font-medium text-neutral-400">{p.price} MAD · {p.category || "Sans catégorie"}{!p.active ? " · Inactif" : ""}</p></div><span className={`w-fit shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black ${severity.classes}`}>{severity.label}</span></div>
 
           <div className="mt-4 flex flex-col gap-2 lg:flex-row lg:items-center">
-            <div className="flex min-w-0 flex-1 items-center rounded-xl border border-neutral-200 bg-white p-1 focus-within:border-neutral-400 focus-within:ring-2 focus-within:ring-black/5">
+            <div className="admin-mobile-actions flex min-w-0 flex-1 items-center rounded-xl border border-neutral-200 bg-white p-1 focus-within:border-neutral-400 focus-within:ring-2 focus-within:ring-black/5">
               <button type="button" onClick={() => setDraft((draft === "" ? stock : Number(draft)) - 1)} aria-label="Retirer une unité" className="flex h-9 w-10 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-neutral-500 hover:bg-neutral-100 hover:text-black">−</button>
               <input type="number" min={0} inputMode="numeric" aria-label={`Nouveau stock total pour ${p.name}`} placeholder={String(stock)} value={draft} onChange={(event) => setStockInputs((current) => ({ ...current, [p.id]: event.target.value }))} onKeyDown={(event) => event.key === "Enter" && draft !== "" && updateStock(p.id)} className="h-9 min-w-0 flex-1 bg-transparent px-2 text-center text-sm font-black tabular-nums outline-none" />
               <button type="button" onClick={() => setDraft((draft === "" ? stock : Number(draft)) + 1)} aria-label="Ajouter une unité" className="flex h-9 w-10 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-neutral-500 hover:bg-neutral-100 hover:text-black">+</button>
@@ -385,7 +385,7 @@ function StockRow({ p, stockInputs, setStockInputs, colorInputs, setColorInputs,
                     <p className="truncate text-xs font-black text-neutral-800">{color}</p>
                     <p className="mt-0.5 text-[10px] font-semibold text-neutral-400">{saved} unité{saved > 1 ? "s" : ""} actuellement</p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="admin-mobile-toolbar flex items-center gap-2">
                     <input type="number" min={0} inputMode="numeric" aria-label={`Nouveau stock ${color} pour ${p.name}`} placeholder={`Nouveau : ${saved}`} value={draft} onChange={(event) => setColorInputs((current) => ({ ...current, [p.id]: { ...current[p.id], [color]: event.target.value } }))} className="min-h-11 min-w-0 flex-1 rounded-xl border border-neutral-200 bg-white px-3 text-center text-sm font-black outline-none focus:border-black sm:w-32" />
                     <button type="button" onClick={() => void addVariantStock(p, color, 1)} disabled={updating === quickKey} className="inline-flex min-h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-emerald-100 px-3 text-xs font-black text-emerald-800 transition hover:bg-[#3ecf4c] hover:text-black disabled:opacity-50">
                       {updating === quickKey ? <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-emerald-800/30 border-t-emerald-800" /> : <span className="text-base leading-none">+</span>}

@@ -415,7 +415,7 @@ export default function OrdersPage() {
       {/* LEFT: List */}
       <div className={`flex flex-col min-w-0 transition-all ${detail ? "hidden lg:flex lg:w-[52%] lg:flex-shrink-0" : "flex-1"}`}>
         <label className="flex gap-2 text-xs mb-3"><input type="checkbox" checked={preordersOnly} onChange={e=>setPreordersOnly(e.target.checked)}/>{preorderCopy.fr.filter}</label>
-        <div className="flex items-center justify-between mb-4">
+        <div className="admin-mobile-heading flex items-center justify-between mb-4">
           <div>
             <h1 className="text-xl font-black">Commandes</h1>
             <p className="text-neutral-500 text-xs mt-0.5">
@@ -609,7 +609,7 @@ export default function OrdersPage() {
       {detail && (
         <div className="fixed inset-0 z-50 h-[100dvh] overflow-y-auto bg-neutral-50 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:relative lg:inset-auto lg:z-auto lg:h-auto lg:max-h-[calc(100vh-7rem)] lg:min-w-0 lg:flex-1 lg:bg-white lg:pb-0">
           {/* Mobile back header */}
-          <div className="sticky top-0 z-20 mb-3 flex items-center gap-3 border-b border-neutral-200/80 bg-white/95 px-3 py-3 backdrop-blur-xl lg:hidden">
+          <div className="admin-mobile-actions sticky top-0 z-20 mb-3 flex items-center gap-3 border-b border-neutral-200/80 bg-white/95 px-3 py-3 backdrop-blur-xl lg:hidden">
             <button onClick={() => router.replace("/admin/orders")}
               aria-label="Retour aux commandes"
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-neutral-200 text-neutral-600 transition-colors hover:bg-neutral-100 active:bg-neutral-100">
@@ -637,7 +637,7 @@ export default function OrdersPage() {
               </div>
               <p className="text-xs text-neutral-400 mt-0.5">{new Date(detail.created_at).toLocaleString("fr-FR")}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="admin-mobile-actions flex items-center gap-2">
               <button onClick={() => window.open(`/admin/orders/print?id=${detail.id}`, "_blank")}
                 className="p-2 border border-neutral-200 rounded-xl hover:border-black transition-colors" title="Imprimer">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
@@ -870,7 +870,7 @@ export default function OrdersPage() {
                   <span className="text-sm font-black text-purple-700 tracking-widest">{detail.tracking_number}</span>
                 </div>
               )}
-              <div className="flex flex-col gap-2 min-[380px]:flex-row">
+              <div className="admin-mobile-toolbar flex flex-col gap-2 min-[380px]:flex-row">
                 <input value={trackingInput} onChange={(e) => setTrackingInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && saveTracking(detail.id)}
                   placeholder="Ex: MA123456789FR"

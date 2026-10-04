@@ -1,4 +1,5 @@
 "use client";
+import AdminSwitch from "@/components/admin/AdminToggle";
 import { STORE_SETTING_DEFAULTS, validateStoreSettings } from "@/lib/store-settings";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
@@ -410,7 +411,7 @@ export default function SettingsPage() {
       {/* Page header */}
       <div className="relative mb-6 overflow-hidden rounded-3xl border border-neutral-200 bg-white px-5 py-6 shadow-[0_1px_2px_rgba(0,0,0,.03)] sm:px-7 lg:px-8">
         <div className="pointer-events-none absolute -right-16 -top-24 h-52 w-52 rounded-full bg-[#3ecf4c]/10 blur-3xl" />
-        <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="admin-mobile-heading relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-black text-[#3ecf4c] shadow-lg shadow-black/10">
               <svg
@@ -1088,22 +1089,7 @@ export default function SettingsPage() {
                         : "🟢 Inactif — le site est en ligne"}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    disabled={maintenanceSaving}
-                    onClick={toggleMaintenance}
-                    className={`relative w-12 h-6 rounded-full transition-colors disabled:opacity-60 ${settings.maintenance_mode === "true" ? "bg-red-500" : "bg-neutral-300"}`}
-                  >
-                    {maintenanceSaving ? (
-                      <span className="absolute inset-0 flex items-center justify-center">
-                        <span className="w-3 h-3 border-2 border-white/60 border-t-white rounded-full animate-spin" />
-                      </span>
-                    ) : (
-                      <span
-                        className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${settings.maintenance_mode === "true" ? "translate-x-7" : "translate-x-1"}`}
-                      />
-                    )}
-                  </button>
+                  <AdminSwitch checked={settings.maintenance_mode === "true"} label="Mode maintenance" tone="red" onClick={toggleMaintenance} disabled={maintenanceSaving} busy={maintenanceSaving} />
                 </div>
               </Section>
 
@@ -1213,9 +1199,7 @@ export default function SettingsPage() {
                       Bloque les versions inférieures à la version minimale.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() =>
+                  <AdminSwitch checked={settings.app_force_update === "true"} label="Mise à jour obligatoire" tone="green" onClick={() =>
                       setSettings((current) => ({
                         ...current,
                         app_force_update:
@@ -1223,13 +1207,7 @@ export default function SettingsPage() {
                             ? "false"
                             : "true",
                       }))
-                    }
-                    className={`relative h-6 w-12 rounded-full ${settings.app_force_update === "true" ? "bg-emerald-600" : "bg-neutral-300"}`}
-                  >
-                    <span
-                      className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${settings.app_force_update === "true" ? "translate-x-7" : "translate-x-1"}`}
-                    />
-                  </button>
+                    } />
                 </div>
               </Section>
 
@@ -1333,21 +1311,13 @@ export default function SettingsPage() {
                         {item.desc}
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() =>
+                    <AdminSwitch checked={settings[item.key] !== "false"} label={item.label} tone="green" onClick={() =>
                         setSettings((s) => ({
                           ...s,
                           [item.key]:
                             s[item.key] === "false" ? "true" : "false",
                         }))
-                      }
-                      className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ml-4 ${settings[item.key] !== "false" ? "bg-[#3ecf4c]" : "bg-neutral-300"}`}
-                    >
-                      <span
-                        className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${settings[item.key] !== "false" ? "translate-x-7" : "translate-x-1"}`}
-                      />
-                    </button>
+                      } />
                   </div>
                 ))}
               </Section>
@@ -2361,7 +2331,7 @@ function AppIntroSettingsPanel({
               <span className="mb-1.5 block text-xs font-bold uppercase tracking-widest text-neutral-500">
                 Arrière-plan
               </span>
-              <div className="flex gap-2">
+              <div className="admin-mobile-toolbar flex gap-2">
                 <input
                   type="color"
                   value={settings.app_intro_background || "#080808"}
@@ -2452,11 +2422,11 @@ function AppIntroSettingsPanel({
                   key={slide.id}
                   className="rounded-2xl border border-neutral-200 bg-white p-4"
                 >
-                  <div className="mb-3 flex items-center justify-between">
+                  <div className="admin-mobile-card-layout mb-3 flex items-center justify-between">
                     <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">
                       Écran {index + 1}
                     </p>
-                    <div className="flex gap-1">
+                    <div className="admin-mobile-actions flex gap-1">
                       <button
                         type="button"
                         disabled={index === 0}
@@ -2527,7 +2497,7 @@ function AppIntroSettingsPanel({
             </div>
           </div>
 
-          <div className="flex flex-wrap justify-end gap-2">
+          <div className="admin-mobile-actions flex flex-wrap justify-end gap-2">
             <button
               type="button"
               onClick={() => setPreview((value) => !value)}
@@ -2590,17 +2560,7 @@ function AdminToggle({
           {description}
         </p>
       </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={onToggle}
-        className={`relative h-6 w-12 shrink-0 rounded-full ${checked ? "bg-[#12B83F]" : "bg-neutral-300"}`}
-      >
-        <span
-          className={`absolute top-1 h-4 w-4 rounded-full bg-white shadow transition-transform ${checked ? "translate-x-7" : "translate-x-1"}`}
-        />
-      </button>
+      <AdminSwitch checked={checked} label={label} tone="green" onClick={onToggle} />
     </div>
   );
 }

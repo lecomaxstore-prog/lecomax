@@ -292,7 +292,7 @@ export default function ChatKbPage() {
               </div>
             </div>
 
-            <div className="p-6 border-t border-neutral-100 flex gap-3 justify-end">
+            <div className="admin-mobile-actions p-6 border-t border-neutral-100 flex gap-3 justify-end">
               <button onClick={() => setShowForm(false)} className="px-5 py-2.5 text-[13px] font-bold text-neutral-600 hover:text-black transition-colors">
                 Annuler
               </button>

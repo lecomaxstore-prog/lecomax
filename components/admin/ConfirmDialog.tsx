@@ -22,7 +22,7 @@ function ConfirmDialog({ message, onAnswer }: { message: string; onAnswer: (conf
     dialog?.showModal();
     return () => { dialog?.close(); if (previous instanceof HTMLElement) previous.focus(); };
   }, []);
-  return <dialog ref={ref} aria-labelledby={title} aria-describedby={description} onCancel={event => { event.preventDefault(); onAnswer(false); }} className="m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-5 text-neutral-900 shadow-xl backdrop:bg-black/50">
+  return <dialog ref={ref} aria-labelledby={title} aria-describedby={description} onCancel={event => { event.preventDefault(); onAnswer(false); }} className="admin-confirm-dialog m-auto max-h-[85dvh] w-[calc(100%_-_2rem)] max-w-md overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-5 text-neutral-900 shadow-xl backdrop:bg-black/50">
     <h2 id={title} className="text-lg font-bold">Confirmer l’action</h2>
     <p id={description} className="my-4 whitespace-pre-line break-words text-sm">{message}</p>
     <div className="flex flex-wrap justify-end gap-3">

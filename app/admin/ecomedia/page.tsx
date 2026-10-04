@@ -1,4 +1,5 @@
 "use client";
+import AdminToggle from "@/components/admin/AdminToggle";
 import ResponsiveTable from "@/components/admin/ResponsiveTable";
 import { useState, useEffect, useCallback, useRef } from "react";
 import type { EcomediaPost, EcomediaComment, PostType } from "@/lib/ecomedia";
@@ -341,7 +342,7 @@ export default function EcomediaManagerPage() {
                       <td className="px-4 py-3 text-center font-semibold">{p.comments_count}</td>
                       <td className="px-4 py-3 text-[11px] text-neutral-400">{formatRelativeTime(p.created_at)}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-1">
+                        <div className="admin-mobile-actions flex items-center gap-1">
                           <button onClick={() => startEdit(p)}
                             className="p-1.5 text-neutral-400 hover:text-black rounded-lg hover:bg-neutral-100 transition-colors" title="Modifier">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -389,7 +390,7 @@ export default function EcomediaManagerPage() {
                     <p className="text-[11px] text-violet-600">Décrivez votre idée, l&apos;IA génère titre + description + CTA</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="admin-mobile-toolbar flex gap-2">
                   <input
                     type="text"
                     value={aiTopic}
@@ -590,22 +591,14 @@ export default function EcomediaManagerPage() {
                     <p className="text-sm font-semibold">Publié</p>
                     <p className="text-[11px] text-neutral-400">Visible sur /ecomedia</p>
                   </div>
-                  <div
-                    onClick={() => setForm(f => ({ ...f, is_published: !f.is_published }))}
-                    className={`w-10 h-6 rounded-full transition-colors flex items-center cursor-pointer ${form.is_published ? "bg-black" : "bg-neutral-200"}`}>
-                    <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${form.is_published ? "translate-x-4" : ""}`} />
-                  </div>
+                  <AdminToggle checked={form.is_published} label="Publier cet article" tone="black" onClick={() => setForm(f => ({ ...f, is_published: !f.is_published }))} />
                 </label>
                 <label className="flex items-center justify-between cursor-pointer select-none">
                   <div>
                     <p className="text-sm font-semibold flex items-center gap-1">📌 Épinglé</p>
                     <p className="text-[11px] text-neutral-400">Affiché en premier</p>
                   </div>
-                  <div
-                    onClick={() => setForm(f => ({ ...f, is_featured: !f.is_featured }))}
-                    className={`w-10 h-6 rounded-full transition-colors flex items-center cursor-pointer ${form.is_featured ? "bg-black" : "bg-neutral-200"}`}>
-                    <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${form.is_featured ? "translate-x-4" : ""}`} />
-                  </div>
+                  <AdminToggle checked={form.is_featured} label="Épingler cet article" tone="black" onClick={() => setForm(f => ({ ...f, is_featured: !f.is_featured }))} />
                 </label>
                 {editId && (
                   <div>
@@ -634,7 +627,7 @@ export default function EcomediaManagerPage() {
       {tab === "comments" && (
         <div className="space-y-4">
           {/* Filter by post */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="admin-mobile-toolbar flex items-center gap-3 flex-wrap">
             <select
               value={commentPostFilter}
               onChange={e => { setCommentPostFilter(e.target.value); }}
@@ -674,7 +667,7 @@ export default function EcomediaManagerPage() {
                       </div>
                       <p className="text-sm text-neutral-700 mt-1 break-words">{c.content}</p>
                     </div>
-                    <div className="flex gap-1 shrink-0">
+                    <div className="admin-mobile-actions flex gap-1 shrink-0">
                       <button onClick={() => toggleCommentApproval(c)}
                         className={`p-1.5 rounded-lg text-xs transition-colors ${c.is_approved ? "text-neutral-400 hover:text-amber-500 hover:bg-amber-50" : "text-neutral-400 hover:text-green-500 hover:bg-green-50"}`}
                         title={c.is_approved ? "Masquer" : "Approuver"}>

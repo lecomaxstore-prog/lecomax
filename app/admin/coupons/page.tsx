@@ -104,7 +104,7 @@ export default function CouponsPage() {
           <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div>
               <label htmlFor="coupon-code" className="mb-1.5 block text-xs font-semibold leading-5 text-neutral-600">Code</label>
-              <div className="flex min-w-0 gap-2">
+              <div className="admin-mobile-toolbar flex min-w-0 gap-2">
                 <input id="coupon-code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
                   placeholder="Généré auto"
                   className="min-h-12 min-w-0 w-full flex-1 border border-neutral-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all uppercase" />

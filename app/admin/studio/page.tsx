@@ -319,7 +319,7 @@ function PhotoEditor() {
           <p className="hidden flex-1 truncate text-center text-xs text-neutral-400 md:block">
             {tool === "text" ? "✏️  Cliquez sur l'image pour placer le texte" : "Studio Photo — L'ecomax"}
           </p>
-          <div className="flex w-full gap-1.5 md:w-auto">
+          <div className="admin-mobile-actions flex w-full gap-1.5 md:w-auto">
             <button onClick={() => doExport("jpeg")} disabled={saving}
               className="min-h-10 flex-1 rounded-lg bg-neutral-700 px-3 text-xs font-semibold text-white transition-colors hover:bg-neutral-600 disabled:opacity-40 md:flex-none">
               ↓ JPG
@@ -441,7 +441,7 @@ function PhotoEditor() {
                 onChange={e => updateLayer({ text: e.target.value })}
                 className="w-full border border-neutral-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-black"
               />
-              <div className="grid grid-cols-2 gap-2">
+              <div className="admin-mobile-fields grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs text-neutral-400 mb-1">Taille</label>
                   <input
@@ -472,7 +472,7 @@ function PhotoEditor() {
                 <option value="Brush Script MT, cursive">Script — Manuscrit</option>
               </select>
               {/* Style toggles */}
-              <div className="flex gap-1.5">
+              <div className="admin-mobile-actions flex gap-1.5">
                 <button onClick={() => updateLayer({ bold: !selectedLayer.bold })}
                   className={`flex-1 py-1.5 rounded-lg text-sm font-black transition-all ${selectedLayer.bold ? "bg-black text-white" : "border border-neutral-200 hover:border-black"}`}>
                   G
@@ -754,7 +754,7 @@ function VideoEditor() {
           </div>
 
           {/* Playback controls */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="admin-mobile-actions flex flex-wrap items-center gap-2">
             <button onClick={() => seek(trimStart)} title="Retour au début" className="p-2 hover:bg-neutral-100 rounded-lg transition-colors">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <polygon points="19,20 9,12 19,4"/><line x1="5" y1="4" x2="5" y2="20"/>
@@ -880,7 +880,7 @@ export default function StudioPage() {
           <p className="mt-1 text-xs text-white/45">Retouche photo & préparation vidéo professionnelle</p>
         </div>
         {/* Mode tabs */}
-        <div className="relative flex w-full gap-1 rounded-2xl bg-white/10 p-1 sm:ml-auto sm:w-auto">
+        <div className="admin-mobile-actions relative flex w-full gap-1 rounded-2xl bg-white/10 p-1 sm:ml-auto sm:w-auto">
           <button
             onClick={() => setMode("photo")}
             className={`flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl px-5 text-sm font-bold transition-all sm:flex-none ${mode === "photo" ? "bg-white text-black shadow-sm" : "text-white/50 hover:bg-white/10 hover:text-white"}`}>

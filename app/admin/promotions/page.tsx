@@ -1,4 +1,5 @@
 "use client";
+import AdminToggle from "@/components/admin/AdminToggle";
 import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -84,13 +85,11 @@ export default function PromotionsPage() {
         </div>
         <Field label="Date d'expiration" type="date" value={form.expires_at} onChange={(v) => setForm({ ...form, expires_at: v })} />
         <label className="flex items-center gap-2 cursor-pointer select-none">
-          <button type="button" role="switch" aria-checked={form.active} aria-label="Actif" onClick={() => setForm({ ...form, active: !form.active })} className={`w-10 h-6 rounded-full transition-colors ${form.active ? "bg-black" : "bg-neutral-200"} relative`}>
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.active ? "translate-x-5" : "translate-x-1"}`} />
-          </button>
+          <AdminToggle checked={form.active} label="Actif" tone="black" onClick={() => setForm({ ...form, active: !form.active })} />
           <span className="text-sm font-medium">Promotion active</span>
         </label>
         {msg && <div className={`text-sm px-4 py-3 rounded-xl ${msg.type === "ok" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>{msg.text}</div>}
-        <div className="flex gap-3 pt-2">
+        <div className="admin-mobile-actions flex gap-3 pt-2">
           <button type="submit" disabled={saving} className="flex-1 bg-black text-white font-bold py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center justify-center gap-2">
             {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enregistrement…</> : "Enregistrer"}
           </button>
@@ -102,7 +101,7 @@ export default function PromotionsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <h1 className="text-2xl font-black">Promotions</h1>
         <button onClick={() => router.replace("/admin/promotions?new=1")} className="bg-black text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-neutral-800 flex items-center gap-2">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -125,7 +124,7 @@ export default function PromotionsPage() {
                   </p>
                 </div>
                 <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${p.active ? "bg-emerald-100 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}>{p.active ? "Active" : "Inactive"}</span>
-                <div className="flex gap-1">
+                <div className="admin-mobile-actions flex gap-1">
                   <button onClick={() => router.replace(`/admin/promotions?id=${p.id}`)} className="p-1.5 text-neutral-400 hover:text-black hover:bg-neutral-100 rounded-lg">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </button>

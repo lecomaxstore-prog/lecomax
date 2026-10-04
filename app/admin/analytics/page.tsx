@@ -325,13 +325,13 @@ export default function AnalyticsPage() {
   return (
     <div className="mx-auto w-full max-w-[1600px] pb-16">
       {/* Header */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="admin-mobile-heading admin-mobile-card-layout mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="mb-2 flex items-center gap-2 text-[10px] font-black uppercase tracking-[.2em] text-emerald-600"><span className="h-2 w-2 rounded-full bg-[#3ecf4c] shadow-[0_0_0_4px_rgba(62,207,76,.12)]"/>Intelligence boutique</div>
           <h1 className="text-3xl font-black tracking-[-.035em] sm:text-4xl">Centre analytique</h1>
           <p className="mt-1.5 text-sm text-neutral-500">Comprenez vos visiteurs, leurs parcours et la performance de L&apos;ecomax.</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="admin-mobile-actions flex items-center gap-2 flex-wrap">
           <div className="flex items-center gap-0.5 rounded-2xl border border-neutral-200 bg-white p-1.5 shadow-sm">
             {([7, 30, 90] as const).map((p) => (
               <button key={p} onClick={() => setPeriod(p)}

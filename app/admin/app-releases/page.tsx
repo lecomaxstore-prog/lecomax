@@ -147,7 +147,7 @@ export default function AdminAppReleasesPage() {
   return (
     <div className="mx-auto w-full max-w-[1450px] space-y-6">
       <header className="overflow-hidden rounded-[28px] bg-[#080808] p-6 text-white sm:p-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="admin-mobile-heading flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[.2em] text-[#42df68]">Distribution Android sécurisée</p>
             <h1 className="mt-3 text-3xl font-black tracking-[-.04em] sm:text-4xl">Versions de l’application</h1>
@@ -216,7 +216,7 @@ export default function AdminAppReleasesPage() {
             <div className="grid gap-3">
               {releases.map((release, index) => (
                 <article key={release.id} className={`border bg-white p-5 ${release.published ? "border-emerald-400 ring-1 ring-emerald-200" : "border-neutral-200"}`}>
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="admin-mobile-card-layout flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="text-xl font-black">v{release.version_name}</h3>
@@ -232,7 +232,7 @@ export default function AdminAppReleasesPage() {
                       </div>
                       <code className="mt-3 block max-w-xl break-all text-[10px] leading-4 text-neutral-400">SHA-256 {release.sha256}</code>
                     </div>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="admin-mobile-actions flex flex-wrap gap-2">
                       <button type="button" onClick={() => void navigator.clipboard.writeText(`${window.location.origin}/downloads/${release.file_name}`)} className="min-h-10 border border-neutral-200 px-3 text-[10px] font-black">COPIER URL</button>
                       <button type="button" onClick={() => void action(release.id, "set-required", !release.required)} disabled={working} className="min-h-10 border border-neutral-200 px-3 text-[10px] font-black">{release.required ? "RENDRE OPTIONNELLE" : "RENDRE OBLIGATOIRE"}</button>
                       {release.published ? (

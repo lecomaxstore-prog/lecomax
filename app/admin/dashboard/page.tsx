@@ -393,7 +393,7 @@ export default function DashboardPage() {
 
   return (
     <div className="admin-dashboard mx-auto w-full max-w-[1500px] space-y-4 sm:space-y-6">
-      <header className="admin-dashboard-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <header className="admin-mobile-heading admin-dashboard-heading flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
           <p className="text-[11px] font-extrabold uppercase tracking-[0.16em] text-emerald-700">{todayLabel}</p>
           <h1 className="mt-1 text-2xl font-black tracking-[-0.035em] text-neutral-950 sm:text-3xl">Vue d’ensemble</h1>

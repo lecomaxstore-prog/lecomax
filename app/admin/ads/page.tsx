@@ -1,4 +1,5 @@
 "use client";
+import AdminToggle from "@/components/admin/AdminToggle";
 import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -341,16 +342,14 @@ export default function AdsPage() {
             <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 items-end">
               <F label="Ordre d'affichage" type="number" value={f.sort_order} onChange={(v) => setForm((x) => ({ ...x, sort_order: v }))} />
               <label className="flex items-center gap-2 cursor-pointer select-none pb-1">
-                <div onClick={() => setForm((x) => ({ ...x, active: !x.active }))} className={`w-10 h-6 rounded-full transition-colors relative ${f.active ? "bg-black" : "bg-neutral-200"}`}>
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${f.active ? "translate-x-5" : "translate-x-1"}`} />
-                </div>
+                <AdminToggle checked={f.active} label="Activer cette publicité" tone="black" onClick={() => setForm((x) => ({ ...x, active: !x.active }))} />
                 <span className="text-sm font-medium">Publicité active</span>
               </label>
             </div>
           </div>
 
           {msg && <div className={`text-sm px-4 py-3 rounded-xl ${msg.type === "ok" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-red-50 text-red-700 border border-red-200"}`}>{msg.text}</div>}
-          <div className="flex gap-3">
+          <div className="admin-mobile-actions flex gap-3">
             <button type="submit" disabled={saving} className="flex-1 bg-black text-white font-bold py-3 rounded-xl hover:bg-neutral-800 disabled:opacity-50 flex items-center justify-center gap-2">
               {saving ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />Enregistrement…</> : "Enregistrer"}
             </button>
@@ -390,7 +389,7 @@ export default function AdsPage() {
 
   return (
     <div>
-      <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="admin-mobile-heading mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-2xl font-black">Publicités</h1>
           <p className="mt-1 max-w-md text-xs leading-5 text-neutral-500 sm:text-sm">Créez des popups, barres, notifications et bannières pour vos visiteurs</p>
@@ -440,7 +439,7 @@ export default function AdsPage() {
                     {a.end_at && <p className="text-[10px] text-neutral-300 flex-shrink-0">Fin: {new Date(a.end_at).toLocaleDateString("fr-FR")}</p>}
                   </div>
                 </div>
-                <div className="flex w-full shrink-0 items-center justify-end gap-2 border-t border-neutral-100 pt-3 sm:w-auto sm:border-0 sm:pt-0">
+                <div className="admin-mobile-actions flex w-full shrink-0 items-center justify-end gap-2 border-t border-neutral-100 pt-3 sm:w-auto sm:border-0 sm:pt-0">
                   <span className={`text-[10px] font-bold px-2.5 py-1.5 rounded-full ${st.color}`}>{st.label}</span>
                   <button onClick={() => toggleActive(a)} className={`min-h-11 min-w-11 text-[10px] font-bold px-2.5 py-1.5 rounded-full cursor-pointer transition-colors ${a.active ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"}`}>
                     {a.active ? "ON" : "OFF"}

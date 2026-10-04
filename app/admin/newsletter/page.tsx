@@ -120,7 +120,7 @@ export default function NewsletterPage() {
       {/* Add subscriber */}
       <div className="bg-white border border-neutral-100 rounded-2xl p-6 mb-5">
         <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest mb-4">Ajouter manuellement</h2>
-        <form onSubmit={handleAdd} className="flex gap-3 flex-wrap">
+        <form onSubmit={handleAdd} className="admin-mobile-toolbar flex gap-3 flex-wrap">
           <input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} type="email" required placeholder="email@exemple.com"
             className="flex-1 min-w-[200px] border border-neutral-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" inputMode="email" />
           <input value={newName} onChange={(e) => setNewName(e.target.value)} type="text" placeholder="Nom (optionnel)"
@@ -188,7 +188,7 @@ export default function NewsletterPage() {
       <div className="bg-white border border-neutral-100 rounded-2xl overflow-hidden">
         <div className="flex items-center justify-between p-5 border-b border-neutral-100">
           <h2 className="text-xs font-bold text-neutral-400 uppercase tracking-widest">Abonnés</h2>
-          <div className="flex items-center gap-2">
+          <div className="admin-mobile-toolbar flex items-center gap-2">
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher…"
               className="border border-neutral-200 rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-black bg-neutral-50 w-40 transition-all" />
             <button onClick={exportCSV}

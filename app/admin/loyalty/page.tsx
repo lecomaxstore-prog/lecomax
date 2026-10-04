@@ -167,7 +167,7 @@ export default function LoyaltyPage() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       {adjustId === m.id ? (
-                        <div className="flex items-center gap-2 justify-end">
+                        <div className="admin-mobile-toolbar admin-mobile-actions flex items-center gap-2 justify-end">
                           <input
                             value={adjustAmount}
                             onChange={(e) => setAdjustAmount(e.target.value)}

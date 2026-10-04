@@ -335,7 +335,7 @@ export default function ApprovalsPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-black text-neutral-900">Approbations</h1>
           <p className="text-sm text-neutral-400 mt-0.5">
@@ -372,7 +372,7 @@ export default function ApprovalsPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-2xl mb-5 w-fit">
+      <div className="admin-mobile-tabs flex items-center gap-1 bg-neutral-100 p-1 rounded-2xl mb-5 w-fit">
         {TABS.map(t => (
           <button
             key={t.key}
@@ -633,7 +633,7 @@ export default function ApprovalsPage() {
             </div>
 
             {/* Tab bar */}
-            <div className="flex items-center gap-1 px-6 py-3 border-b border-neutral-100 shrink-0">
+            <div className="admin-mobile-actions flex items-center gap-1 px-6 py-3 border-b border-neutral-100 shrink-0">
               <button
                 onClick={() => setDrawerTab("details")}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
@@ -709,7 +709,7 @@ export default function ApprovalsPage() {
 
             {/* Footer action buttons */}
             {detailChange.status === "pending" && (
-              <div className="shrink-0 px-6 py-4 border-t border-neutral-100 flex gap-3">
+              <div className="admin-mobile-actions shrink-0 px-6 py-4 border-t border-neutral-100 flex gap-3">
                 <button
                   onClick={async () => { await handleApprove(detailChange.id); setExpandedId(null); }}
                   disabled={!!approvingId}
@@ -762,7 +762,7 @@ export default function ApprovalsPage() {
               autoFocus
             />
 
-            <div className="flex gap-3">
+            <div className="admin-mobile-actions flex gap-3">
               <button
                 onClick={() => { setRejectTarget(null); setRejectReason(""); }}
                 className="flex-1 py-2.5 border border-neutral-200 rounded-2xl text-sm font-bold hover:bg-neutral-50 transition-colors"

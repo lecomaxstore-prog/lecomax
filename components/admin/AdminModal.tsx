@@ -2,7 +2,7 @@
 import { useEffect, useId, useRef, type HTMLAttributes } from "react";
 
 /** Adds keyboard containment to existing dismissible overlays without changing their actions. */
-export default function AdminModal({ children, ...props }: HTMLAttributes<HTMLDivElement>) {
+export default function AdminModal({ children, className = "", ...props }: HTMLAttributes<HTMLDivElement>) {
   const ref = useRef<HTMLDivElement>(null);
   const titleId = useId();
   useEffect(() => {
@@ -26,5 +26,5 @@ export default function AdminModal({ children, ...props }: HTMLAttributes<HTMLDi
     root.addEventListener('keydown', keydown);
     return () => { root.removeEventListener('keydown', keydown); if (previous instanceof HTMLElement && previous.isConnected) previous.focus({ preventScroll: true }); };
   }, [titleId]);
-  return <div {...props} ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={props['aria-label'] ?? 'Fenêtre d’administration'}>{children}</div>;
+  return <div {...props} className={`admin-dialog-overlay ${className}`} ref={ref} tabIndex={-1} role="dialog" aria-modal="true" aria-label={props['aria-label'] ?? 'Fenêtre d’administration'}>{children}</div>;
 }

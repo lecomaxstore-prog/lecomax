@@ -190,7 +190,7 @@ export default function StaffPage() {
       )}
 
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="admin-mobile-heading flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-black text-neutral-900">Équipe & Accès</h1>
           <p className="text-sm text-neutral-400 mt-0.5">Gérez les membres de votre équipe et leurs accès</p>
@@ -306,7 +306,7 @@ export default function StaffPage() {
                     <td className="px-5 py-3.5 text-[12px] text-neutral-400">{formatDate(m.last_login)}</td>
                     <td className="px-5 py-3.5 text-[12px] text-neutral-400">{formatDate(m.created_at)}</td>
                     <td className="px-5 py-3.5">
-                      <div className="flex items-center gap-1 justify-end">
+                      <div className="admin-mobile-actions flex items-center gap-1 justify-end">
                         {m.status === "invited" && (
                           <button
                             onClick={() => resendInvite(m)}
@@ -389,7 +389,7 @@ export default function StaffPage() {
                   </button>
                 </div>
               </div>
-              <div className="flex gap-3 pt-1">
+              <div className="admin-mobile-actions flex gap-3 pt-1">
                 <button onClick={() => setShowInvite(false)}
                   className="flex-1 py-2.5 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors">
                   Annuler
@@ -448,7 +448,7 @@ export default function StaffPage() {
                   })}
                 </div>
               </div>
-              <div className="flex gap-3 pt-1">
+              <div className="admin-mobile-actions flex gap-3 pt-1">
                 <button onClick={() => setEditMember(null)}
                   className="flex-1 py-2.5 rounded-xl border border-neutral-200 text-sm font-medium text-neutral-600 hover:bg-neutral-50 transition-colors">
                   Annuler
@@ -470,7 +470,7 @@ export default function StaffPage() {
             <Avatar name={deleteConfirm.name} url={deleteConfirm.avatar_url} color={deleteConfirm.admin_roles?.color} />
             <h3 className="text-base font-black mt-3 mb-1">Supprimer {deleteConfirm.name} ?</h3>
             <p className="text-sm text-neutral-400 mb-5">Cette action est irréversible.</p>
-            <div className="flex gap-3">
+            <div className="admin-mobile-actions flex gap-3">
               <button onClick={() => setDeleteConfirm(null)}
                 className="flex-1 py-2.5 rounded-xl border border-neutral-200 text-sm font-medium hover:bg-neutral-50 transition-colors">
                 Annuler
