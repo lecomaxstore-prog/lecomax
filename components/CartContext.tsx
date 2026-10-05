@@ -14,6 +14,7 @@ import type { Product } from "@/lib/products";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 import { colorPricesFromTags } from "@/lib/product-variant-pricing";
 import { preorderCopy } from "@/lib/preorder-copy";
+import { safeLocalStorage } from "@/lib/browser-storage";
 
 export type CartItem = PreorderSnapshot & PreorderFields & {
   preorder_details?: PreorderFields;
@@ -49,15 +50,24 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [inventoryNotice, setInventoryNotice] = useState("");
   const itemsRef = useRef<CartItem[]>([]);
   const inventoryRequestRef = useRef<Promise<void> | null>(null);
+  const updateItems = useCallback((update: (current: CartItem[]) => CartItem[]) => {
+    const next = update(itemsRef.current);
+    itemsRef.current = next;
+    setItems(next);
+  }, []);
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(KEY);
+      const raw = safeLocalStorage.getItem(KEY);
       if (raw) {
         const stored = JSON.parse(raw) as CartItem[];
         if (Array.isArray(stored)) {
-          setItems(stored.map((item) => ({
+          updateItems(() => stored.filter(item => item && typeof item.slug === "string" && typeof item.name === "string" &&
+            typeof item.color === "string" && typeof item.size === "string" && typeof item.image === "string" &&
+            Number.isFinite(item.price) && item.price > 0 && Number.isInteger(item.quantity) && item.quantity > 0)
+            .slice(0, 50).map((item) => ({
             ...item,
+            quantity: Math.min(20, item.quantity),
             image: resolveProductVariantImage({
               slug: item.slug,
               color: item.color,
@@ -68,11 +78,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     } catch {}
     setHydrated(true);
-  }, []);
+  }, [updateItems]);
 
   useEffect(() => {
-    itemsRef.current = items;
-    if (hydrated) localStorage.setItem(KEY, JSON.stringify(items));
+    if (hydrated) safeLocalStorage.setItem(KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
   const reconcileInventory = useCallback(() => {
@@ -104,6 +113,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         const next = itemsRef.current.flatMap((item) => {
           const live = inventory.get(item.slug);
+          // An item added while this request was in flight was not queried.
+          if (!live && !slugs.includes(item.slug)) return [item];
           if (!live) { changed = true; removed.push(item.name); return []; }
 
           const physical = selectedInventory({...live, stock:Number(live.stock)},item.color,item.size);
@@ -171,7 +182,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       count: items.reduce((s, i) => s + i.quantity, 0),
       total: items.reduce((s, i) => s + i.quantity * i.price, 0),
       add: (p, size, qty = 1, color = "", image) =>
-        setItems((prev) => {
+        updateItems((prev) => {
+          const physical = selectedInventory(p, color, size);
+          const limit = physical < 0 ? 0 : p.preorder_enabled ? 20 : Math.min(20, physical);
+          if (!Number.isInteger(qty) || qty < 1 || limit <= 0) return prev;
+          const price = p.colorPrices?.[color]?.price ?? p.price;
+          if (!Number.isFinite(price) || price <= 0) return prev;
           const variantImage = resolveProductVariantImage({
             slug: p.slug,
             color,
@@ -186,10 +202,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             const next = [...prev];
             next[idx] = {
               ...next[idx],
-              ...preorderSnapshot(p,selectedInventory(p,color,size), Math.min(20,next[idx].quantity + qty)),
+              ...preorderSnapshot(p,physical, Math.min(limit,next[idx].quantity + qty)),
               preorder_enabled:p.preorder_enabled, available_stock:selectedInventory(p,color,size),
               preorder_details: { preorder_enabled: p.preorder_enabled, preorder_estimated_at: p.preorder_estimated_at, preorder_message: p.preorder_message },
-              quantity: Math.min(20,next[idx].quantity + qty),
+              quantity: Math.min(limit,next[idx].quantity + qty),
+              price,
               image: variantImage,
             };
             return next;
@@ -200,33 +217,39 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               slug: p.slug,
               name: p.name,
               image: variantImage,
-              price: p.price,
+              price,
               size,
               color,
-              ...preorderSnapshot(p,selectedInventory(p,color,size),qty),
+              ...preorderSnapshot(p,physical,Math.min(limit,qty)),
               preorder_enabled:p.preorder_enabled, available_stock:selectedInventory(p,color,size),
               preorder_details: { preorder_enabled: p.preorder_enabled, preorder_estimated_at: p.preorder_estimated_at, preorder_message: p.preorder_message },
-              quantity: qty,
+              quantity: Math.min(limit,qty),
             },
           ];
         }),
       remove: (slug, size, color) =>
-        setItems((prev) =>
+        updateItems((prev) =>
           prev.filter((i) => !(i.slug === slug && i.size === size && i.color === color))
         ),
       setQty: (slug, size, color, qty) =>
-        setItems((prev) =>
+        updateItems((prev) =>
           prev.map((i) =>
             i.slug === slug && i.size === size && i.color === color
-              ? { ...i, ...preorderSnapshot(i.preorder_details ?? i,i.available_stock ?? 20,Math.min(20,Math.max(1,qty))), quantity: Math.min(20,Math.max(1, qty)) }
+              ? (() => {
+                if (!Number.isInteger(qty)) return i;
+                const limit = i.preorder_enabled ? 20 : Math.min(20, i.available_stock ?? i.quantity);
+                if (limit <= 0) return i;
+                const quantity = Math.min(limit, Math.max(1, qty));
+                return { ...i, ...preorderSnapshot(i.preorder_details ?? i, i.available_stock ?? 0, quantity), quantity };
+              })()
               : i
           )
         ),
-      clear: () => setItems([]),
+      clear: () => updateItems(() => []),
       inventoryNotice,
       dismissInventoryNotice: () => setInventoryNotice(""),
     }),
-    [inventoryNotice, items]
+    [inventoryNotice, items, updateItems]
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

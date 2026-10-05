@@ -22,20 +22,29 @@ export function useCartCalculation(input: { items: CartRequestItem[]; city?: str
     const [payload] = JSON.parse(key) as [typeof input];
     if (!payload.items.length) return;
     const controller = new AbortController();
+    let deadline: ReturnType<typeof setTimeout> | undefined;
     const timer = setTimeout(async () => {
+      let message = "Le calcul du panier est momentanément indisponible. Réessayez.";
+      deadline = setTimeout(() => {
+        setResult({ key, error: message });
+        controller.abort();
+      }, 15_000);
       try {
         const { data } = await supabase.auth.getSession();
         if (controller.signal.aborted) return;
         const response = await fetch("/api/checkout/quote", { method: "POST", cache: "no-store", signal: controller.signal,
           headers: { "Content-Type": "application/json", ...(data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {}) }, body: JSON.stringify(payload) });
         const body = await response.json();
-        if (!response.ok) throw new Error(body.error || "Calcul indisponible.");
+        if (!response.ok) {
+          if (typeof body.error === "string") message = body.error;
+          throw new Error("Quote unavailable");
+        }
         if (!controller.signal.aborted) setResult({ key, quote: body });
-      } catch (error) {
-        if (!controller.signal.aborted) setResult({ key, error: error instanceof Error ? error.message : "Calcul indisponible." });
-      }
+      } catch {
+        if (!controller.signal.aborted) setResult({ key, error: message });
+      } finally { clearTimeout(deadline); }
     }, 200);
-    return () => { clearTimeout(timer); controller.abort(); };
+    return () => { clearTimeout(timer); clearTimeout(deadline); controller.abort(); };
   }, [key, revision]);
   return { quote: result.key === key ? result.quote : undefined, error: result.key === key ? result.error : undefined,
     loading: result.key !== key, refresh: () => setRevision(value => value + 1) };

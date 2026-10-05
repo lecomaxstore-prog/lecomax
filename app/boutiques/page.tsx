@@ -1,5 +1,6 @@
 ﻿import Link from "next/link";
 import Image from "next/image";
+import { getStorefrontSettings } from "@/lib/storefront-settings-server";
 
 export const metadata = {
   title: "Notre Boutique — Sidi Bennour | L'ecomax",
@@ -7,7 +8,9 @@ export const metadata = {
   alternates: { canonical: "/boutiques/" },
 };
 
-export default function BoutiquesPage() {
+export default async function BoutiquesPage() {
+  const settings = await getStorefrontSettings().catch(() => ({} as Record<string, string>));
+  const businessHours = settings.business_hours?.trim() || "Contactez-nous pour confirmer les horaires.";
   return (
     <div className="min-h-screen bg-white">
 
@@ -69,8 +72,8 @@ export default function BoutiquesPage() {
         <div className="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4">
           {[
             { value: "Sidi Bennour", label: "Localisation", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> },
-            { value: "Lun – Dim", label: "7j / 7", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
-            { value: "9h – 21h", label: "Horaires", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+            { value: "Nous contacter", label: "Avant votre visite", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="4" width="18" height="18"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> },
+            { value: businessHours, label: "Horaires", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
             { value: "+212 699 289 568", label: "WhatsApp", icon: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg> },
           ].map((s, i, arr) => (
             <div key={s.label} className={`flex items-center gap-3 px-6 py-4 ${i < arr.length - 1 ? "border-r border-neutral-100" : ""}`}>
@@ -150,9 +153,7 @@ export default function BoutiquesPage() {
                 <div>
                   <p className="font-black text-[10px] uppercase tracking-[0.15em] text-neutral-500">Horaires</p>
                   <div className="text-[13px] mt-0.5 space-y-0.5">
-                    <p className="text-neutral-500">Lun – Ven : <span className="text-black font-bold">9h00 – 21h00</span></p>
-                    <p className="text-neutral-500">Samedi : <span className="text-black font-bold">9h00 – 22h00</span></p>
-                    <p className="text-neutral-500">Dimanche : <span className="text-black font-bold">10h00 – 20h00</span></p>
+                    <p className="whitespace-pre-line text-neutral-500">{businessHours}</p>
                   </div>
                 </div>
               </div>

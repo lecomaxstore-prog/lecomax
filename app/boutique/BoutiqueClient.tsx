@@ -1,4 +1,6 @@
 "use client";
+import { useSettings } from "@/lib/use-settings";
+import { shippingConfigFromSettings, shippingSummary } from "@/lib/shipping-config";
 import { useStoreRefresh } from "@/lib/use-store-refresh";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -33,6 +35,7 @@ export default function BoutiquePage({ initialProducts }: { initialProducts: Car
 
 function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }) {
   const router = useRouter();
+  const settings = useSettings();
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
   const [activeSort, setActiveSort] = useState<SortId>("default");
   const [currentPage, setCurrentPage] = useState(1);
@@ -166,7 +169,7 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
               </h1>
               <p className="text-white/50 text-sm mt-4 max-w-md">
                 Découvrez tous nos articles — chaussures, accessoires et plus encore.
-                Livraison offerte au Maroc.
+                {shippingSummary(shippingConfigFromSettings(settings))}
               </p>
             </div>
 

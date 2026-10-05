@@ -1,8 +1,9 @@
 "use client";
+import { safeLocalStorage } from "@/lib/browser-storage";
 import PreorderNotice from "@/components/PreorderNotice";
 import { preorderCopy } from "@/lib/preorder-copy";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { CartItem } from "@/components/CartContext";
@@ -16,6 +17,7 @@ type Order = {
   items: CartItem[];
   total: number;
   shipping: number;
+  estimatedDays?: string;
   customer: { prenom: string; nom: string; email: string; ville: string };
   payment: string;
   date: string;
@@ -27,16 +29,6 @@ const ORDER_STEPS = [
   { title: "Expédition", detail: "Vous recevrez les informations de livraison", active: false },
   { title: "Livraison", detail: "Votre colis arrive à l’adresse indiquée", active: false },
 ];
-
-function addBusinessDays(start: Date, businessDays: number) {
-  const date = new Date(start);
-  let added = 0;
-  while (added < businessDays) {
-    date.setDate(date.getDate() + 1);
-    if (date.getDay() !== 0) added += 1;
-  }
-  return date;
-}
 
 function IconCheck({ className = "" }: { className?: string }) {
   return (
@@ -58,7 +50,7 @@ export default function MerciPage() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     try {
-      const raw = localStorage.getItem("lecomax_last_order");
+      const raw = safeLocalStorage.getItem("lecomax_last_order");
       if (raw) setOrder(JSON.parse(raw) as Order);
     } catch {
       setOrder(null);
@@ -94,16 +86,7 @@ export default function MerciPage() {
     }
   }, [order]);
 
-  const deliveryDate = useMemo(() => {
-    const orderDate = order?.date ? new Date(order.date) : new Date();
-    const safeDate = Number.isNaN(orderDate.getTime()) ? new Date() : orderDate;
-    const format = (date: Date) => date.toLocaleDateString("fr-MA", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-    });
-    return `${format(addBusinessDays(safeDate, 2))} – ${format(addBusinessDays(safeDate, 5))}`;
-  }, [order?.date]);
+  const deliveryDate = order?.estimatedDays || shippingConfig.estimatedDays;
 
   const paymentLabel = order?.payment === "livraison" ? "Paiement à la livraison" : "PayPal";
   const itemCount = order?.items.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
@@ -452,7 +435,7 @@ export default function MerciPage() {
                   <p className="text-[9px] font-black uppercase tracking-[0.17em] text-emerald-600">Livraison estimée</p>
                   <p className="mt-1 capitalize text-[17px] font-black tracking-[-0.02em]">{order.items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : deliveryDate}</p>
                 </div>
-                <span className="journey-badge relative z-10 shrink-0 rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">{order.items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.badge : shippingConfig.estimatedDays}</span>
+                <span className="journey-badge relative z-10 shrink-0 rounded-full border border-emerald-100 bg-white px-2.5 py-1 text-[9px] font-black uppercase tracking-wide text-emerald-700 shadow-sm">{order.items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.badge : deliveryDate}</span>
               </div>
 
               <div className="px-5 py-6 sm:px-6">

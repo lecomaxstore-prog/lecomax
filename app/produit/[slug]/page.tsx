@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!shareProduct) notFound();
 
   const price = formatMAD(shareProduct.price);
-  const availability = shareProduct.stock === 0 ? "Rupture de stock" : "En stock";
+  const availability = (shareProduct.stock ?? 0) > 0 ? "En stock" : shareProduct.preorderEnabled ? "Précommande" : "Rupture de stock";
   const canonicalUrl = `${PRODUCT_SITE_URL}/produit/${encodeURIComponent(slug)}/`;
   const socialImageUrl = `${PRODUCT_SITE_URL}/api/og/product/${encodeURIComponent(slug)}`;
   const title = `${shareProduct.name} — ${price} | L'ecomax`;
@@ -65,7 +65,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     other: {
       "product:price:amount": String(shareProduct.price),
       "product:price:currency": "MAD",
-      "product:availability": shareProduct.stock === 0 ? "out of stock" : "in stock",
+      "product:availability": (shareProduct.stock ?? 0) > 0 ? "in stock" : shareProduct.preorderEnabled ? "preorder" : "out of stock",
       "product:condition": "new",
       "product:retailer_item_id": shareProduct.slug,
       "twitter:label1": "Prix",
@@ -252,7 +252,7 @@ export default async function ProductPage({
       "price": product.price,
       "priceCurrency": "MAD",
       "itemCondition": "https://schema.org/NewCondition",
-      "availability": realStock === 0 ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      "availability": (realStock ?? 0) > 0 ? "https://schema.org/InStock" : product.preorder_enabled ? "https://schema.org/PreOrder" : "https://schema.org/OutOfStock",
       "url": `${SITE_URL}/produit/${product.slug}/`,
       "seller": { "@type": "Organization", "name": "L'ecomax", "url": SITE_URL },
       "shippingDetails": {

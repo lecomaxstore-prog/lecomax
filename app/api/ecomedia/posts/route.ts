@@ -61,7 +61,8 @@ export async function POST(req: NextRequest) {
   if (!user) return NextResponse.json({ error: "Connectez-vous pour publier." }, { status: 401 });
   let body: { content?: string; mediaUrl?: string | null };
   try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
-  const content = body.content?.trim() ?? "";
+  const content = typeof body?.content === "string" ? body.content.trim() : "";
+  if (!body || (body.content !== undefined && typeof body.content !== "string") || (body.mediaUrl != null && typeof body.mediaUrl !== "string")) return NextResponse.json({ error: "Requête invalide" }, { status: 400 });
   const mediaUrl = body.mediaUrl?.trim() || null;
   if (content.length < 2 && !mediaUrl) return NextResponse.json({ error: "Ajoutez un message ou une photo." }, { status: 400 });
   if (content.length > 2000) return NextResponse.json({ error: "Votre publication ne peut pas dépasser 2 000 caractères." }, { status: 400 });

@@ -1,6 +1,6 @@
 ﻿"use client";
 import Link from "next/link";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { EcomediaPost } from "@/lib/ecomedia";
 import PostCard from "./PostCard";
 import EcomediaStories from "./EcomediaStories";
@@ -43,6 +43,10 @@ export default function EcomediaFeed({ initialPosts }: Props) {
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [error, setError] = useState("");
+  const [revision, setRevision] = useState(0);
+  const generation = useRef(0);
+  const morePending = useRef(false);
 
   useEffect(() => {
     const t = setTimeout(() => setDebouncedSearch(search), 400);
@@ -50,36 +54,57 @@ export default function EcomediaFeed({ initialPosts }: Props) {
   }, [search]);
 
   useEffect(() => {
+    const version = ++generation.current;
+    const controller = new AbortController();
+    morePending.current = false;
+    setLoadingMore(false);
     async function reload() {
       setRefreshing(true);
+      setError("");
       try {
         const params = new URLSearchParams({ type: filter, limit: String(LIMIT), offset: "0" });
         if (debouncedSearch) params.set("search", debouncedSearch);
-        const res = await fetch(`/api/ecomedia/posts?${params}`);
+        const res = await fetch(`/api/ecomedia/posts?${params}`, { signal: controller.signal });
+        if (!res.ok) throw new Error("Feed unavailable");
         const data = await res.json();
-        const arr = Array.isArray(data) ? data : [];
+        if (!Array.isArray(data)) throw new Error("Invalid feed");
+        if (version !== generation.current || controller.signal.aborted) return;
+        const arr = data;
         setPosts(arr);
         setOffset(arr.length);
         setHasMore(arr.length >= LIMIT);
-      } finally { setRefreshing(false); }
+      } catch {
+        if (!controller.signal.aborted) setError("Le fil est momentanément indisponible. Réessayez.");
+      } finally { if (!controller.signal.aborted) setRefreshing(false); }
     }
-    reload();
-  }, [filter, debouncedSearch]);
+    void reload();
+    return () => { controller.abort(); generation.current++; };
+  }, [filter, debouncedSearch, revision]);
 
   const loadMore = useCallback(async () => {
-    if (loadingMore || !hasMore) return;
+    if (morePending.current || refreshing || !hasMore) return;
+    morePending.current = true;
+    const version = generation.current;
     setLoadingMore(true);
+    setError("");
     try {
       const params = new URLSearchParams({ type: filter, limit: String(LIMIT), offset: String(offset) });
       if (debouncedSearch) params.set("search", debouncedSearch);
       const res = await fetch(`/api/ecomedia/posts?${params}`);
+      if (!res.ok) throw new Error("Feed unavailable");
       const data = await res.json();
-      const arr = Array.isArray(data) ? data : [];
-      setPosts(prev => [...prev, ...arr]);
+      if (!Array.isArray(data)) throw new Error("Invalid feed");
+      if (version !== generation.current) return;
+      const arr = data;
+      setPosts(prev => [...prev, ...arr.filter(post => !prev.some(existing => existing.id === post.id))]);
       setOffset(o => o + arr.length);
       setHasMore(arr.length >= LIMIT);
-    } finally { setLoadingMore(false); }
-  }, [filter, offset, debouncedSearch, loadingMore, hasMore]);
+    } catch {
+      if (version === generation.current) setError("Impossible de charger la suite. Réessayez.");
+    } finally {
+      if (version === generation.current) { morePending.current = false; setLoadingMore(false); }
+    }
+  }, [filter, offset, debouncedSearch, refreshing, hasMore]);
 
   return (
     <div className="mx-auto w-full max-w-[1040px] sm:px-6 sm:py-6">
@@ -92,6 +117,7 @@ export default function EcomediaFeed({ initialPosts }: Props) {
           </div>
 
           {/* Feed */}
+          {error && <div role="alert" className="m-3 rounded-xl border border-neutral-200 p-4 text-sm"><p>{error}</p><button type="button" onClick={() => setRevision(value => value + 1)} className="mt-2 min-h-11 font-bold underline">Réessayer</button></div>}
           <div className="lg:mt-5 lg:space-y-5">
           {refreshing ? (
             <div>{[...Array(3)].map((_, i) => <SkeletonPost key={i} />)}</div>
@@ -103,7 +129,7 @@ export default function EcomediaFeed({ initialPosts }: Props) {
             </svg>
           </div>
           <p className="font-black text-xl text-black mb-2">Aucune publication</p>
-          <p className="text-sm text-neutral-400">{debouncedSearch ? "Aucun rÃ©sultat pour cette recherche." : "Revenez bientÃ´t pour du nouveau contenu."}</p>
+          <p className="text-sm text-neutral-400">{debouncedSearch ? "Aucun résultat pour cette recherche." : "Revenez bientôt pour du nouveau contenu."}</p>
             </div>
           ) : (
             <>
@@ -117,7 +143,7 @@ export default function EcomediaFeed({ initialPosts }: Props) {
                 ) : (
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                 )}
-                {loadingMore ? "Chargementâ€¦" : "Voir plus"}
+                {loadingMore ? "Chargement…" : "Voir plus"}
               </button>
             </div>
               )}

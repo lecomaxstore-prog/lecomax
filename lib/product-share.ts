@@ -13,6 +13,7 @@ export type ProductShareData = {
   price: number;
   oldPrice?: number;
   stock?: number;
+  preorderEnabled?: boolean;
   image: string;
   imageUrl: string;
   discount?: number;
@@ -51,6 +52,7 @@ export async function getProductShareData(slug: string): Promise<ProductShareDat
     price,
     oldPrice,
     stock,
+    preorderEnabled: databaseProduct.preorder_enabled === true,
     image,
     imageUrl: absoluteImageUrl(image),
     discount,

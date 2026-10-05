@@ -44,7 +44,7 @@ export const flows: {title:Text; steps:{label:Text;file:string;anchor:string}[]}
  {title:['Comment mon panier se met à jour','How my cart updates','كيف تتحدث سلتي'],steps:[
  {label:['1 · Le panier partage add et setQty','1 · The cart shares add and setQty','1 · تشارك السلة add وsetQty'],file:'components/CartContext.tsx',anchor:'type CartCtx'},
  {label:['2 · React garde les articles dans items','2 · React stores the items','2 · يحتفظ React بالعناصر'],file:'components/CartContext.tsx',anchor:'export function CartProvider'},
- {label:['3 · Le navigateur conserve le panier','3 · The browser preserves the cart','3 · يحفظ المتصفح السلة'],file:'components/CartContext.tsx',anchor:'if (hydrated) localStorage'},
+ {label:['3 · Le navigateur conserve le panier','3 · The browser preserves the cart','3 · يحفظ المتصفح السلة'],file:'components/CartContext.tsx',anchor:'if (hydrated) safeLocalStorage'},
  {label:['4 · Le header utilise useCart','4 · The header uses useCart','4 · تستخدم الترويسة useCart'],file:'components/Header.tsx',anchor:'useCart'},
  {label:['5 · La page panier affiche le résultat','5 · The cart page displays the result','5 · تعرض صفحة السلة النتيجة'],file:'app/panier/page.tsx',anchor:'useCart'}]},
  {title:['Comment une commande est créée','How an order is created','كيف ينشأ الطلب'],steps:[

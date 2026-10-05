@@ -343,8 +343,6 @@ export default function Header() {
                 style={{ animationDelay: `${140 + i * 55}ms` }}>
                 {/* Category photo */}
                 <div className="hidden">
-                  {c.img && <img src={c.img} alt={c.label}
-                    className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[18px] font-black uppercase leading-none tracking-[-0.02em] text-neutral-950">{c.label}</p>
@@ -363,8 +361,6 @@ export default function Header() {
             {/* Nouveautés */}
             <Link href="/nouveautes" onClick={() => setOpen(false)}
               className="group relative h-[124px] overflow-hidden rounded-[20px] border border-white/70 shadow-[0_10px_24px_rgba(0,0,0,.10)] transition active:scale-[.98]">
-              <img src="/images/menu%20category/nouveautes.png"
-                alt="Nouveautés" className="absolute inset-0 h-full w-full object-cover object-top transition duration-500 group-active:scale-105" />
               {/* gradient overlay */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%)" }} />
               <div className="absolute bottom-0 left-0 right-0 p-3">
@@ -376,8 +372,6 @@ export default function Header() {
             {/* Promotions */}
             <Link href="/promotions" onClick={() => setOpen(false)}
               className="group relative h-[124px] overflow-hidden rounded-[20px] border border-white/70 shadow-[0_10px_24px_rgba(0,0,0,.10)] transition active:scale-[.98]">
-              <img src="/images/menu%20category/promotions.png"
-                alt="Promotions" className="absolute inset-0 h-full w-full object-cover object-center transition duration-500 group-active:scale-105" />
               {/* gradient overlay */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.1) 60%)" }} />
               {/* live badge */}

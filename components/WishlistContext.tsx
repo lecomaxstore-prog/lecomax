@@ -12,6 +12,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { customerApiFetch } from "@/lib/customer-api";
 import { collectEvent } from "@/lib/collect";
+import { safeLocalStorage } from "@/lib/browser-storage";
 
 const STORAGE_KEY = "lecomax_wishlist_v1";
 
@@ -28,7 +29,7 @@ const WishlistContext = createContext<WishlistContextValue | null>(null);
 
 function readLocalWishlist(): string[] {
   try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+    const parsed = JSON.parse(safeLocalStorage.getItem(STORAGE_KEY) ?? "[]");
     return Array.isArray(parsed)
       ? parsed
           .filter((slug): slug is string => typeof slug === "string")
@@ -45,8 +46,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const mutationQueue = useRef<Promise<void>>(Promise.resolve());
+  const sessionVersion = useRef(0);
+  const pendingSlugs = useRef(new Set<string>());
 
   const hydrate = useCallback(async (signedIn: boolean) => {
+    const version = ++sessionVersion.current;
+    pendingSlugs.current.clear();
+    setPending(new Set());
     const local = readLocalWishlist();
     setReady(false);
     if (!signedIn) {
@@ -61,6 +67,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       const response = await customerApiFetch("/api/wishlist/");
       if (!response.ok) throw new Error("Wishlist unavailable");
       const data = await response.json();
+      if (version !== sessionVersion.current) return;
       const server = Array.isArray(data.slugs)
         ? data.slugs.filter(
             (slug: unknown): slug is string => typeof slug === "string",
@@ -85,12 +92,13 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             )
           : server;
       }
+      if (version !== sessionVersion.current) return;
       setSlugs(new Set(resolved));
-      localStorage.removeItem(STORAGE_KEY);
+      safeLocalStorage.removeItem(STORAGE_KEY);
     } catch {
-      setSlugs(new Set(local));
+      if (version === sessionVersion.current) setSlugs(new Set(local));
     } finally {
-      setReady(true);
+      if (version === sessionVersion.current) setReady(true);
     }
   }, []);
 
@@ -110,18 +118,21 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     });
     return () => {
       active = false;
+      sessionVersion.current++;
       subscription.unsubscribe();
     };
   }, [hydrate]);
 
   useEffect(() => {
     if (!ready || authenticated) return;
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify([...slugs])); } catch { /* Storage may be unavailable in private browsing. */ }
+    safeLocalStorage.setItem(STORAGE_KEY, JSON.stringify([...slugs]));
   }, [authenticated, ready, slugs]);
 
   const toggle = useCallback(
     async (slug: string) => {
-      if (!slug || pending.has(slug)) return;
+      if (!ready || !slug || pendingSlugs.current.has(slug)) return;
+      const version = sessionVersion.current;
+      pendingSlugs.current.add(slug);
       const wasSaved = slugs.has(slug);
       setPending((current) => new Set(current).add(slug));
       setSlugs((current) => {
@@ -135,6 +146,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
       if (authenticated) {
         try {
           const mutate = async () => {
+            if (version !== sessionVersion.current) return;
             const response = await customerApiFetch("/api/wishlist/", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -150,6 +162,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
           await queued;
         } catch {
           succeeded = false;
+          if (version !== sessionVersion.current) return;
           setSlugs((current) => {
             const rollback = new Set(current);
             if (wasSaved) rollback.add(slug);
@@ -158,19 +171,21 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
           });
         }
       }
+      if (version !== sessionVersion.current) return;
       if (succeeded) {
         collectEvent(wasSaved ? "favorite_remove" : "favorite_add", {
           path: "/wishlist",
           product_id: slug,
         });
       }
+      pendingSlugs.current.delete(slug);
       setPending((current) => {
         const next = new Set(current);
         next.delete(slug);
         return next;
       });
     },
-    [authenticated, pending, slugs],
+    [authenticated, ready, slugs],
   );
 
   const value = useMemo(

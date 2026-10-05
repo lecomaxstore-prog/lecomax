@@ -16,7 +16,7 @@ const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
-import { type CardProduct, products as catalogProducts, isNewArrivalEligible } from "@/lib/products";
+import { type CardProduct, isNewArrivalEligible } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
@@ -132,8 +132,15 @@ export default async function HomePage() {
     if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }
   } catch { /* silent */ }
 
-  // Keep the storefront populated while the live catalogue is unavailable.
-  const sourceProducts = dbProducts.length > 0 ? dbProducts : catalogProducts;
+  // An empty live catalogue must never resurrect removed bundled products.
+  const sourceProducts = dbProducts;
+  const categoryCounts = sourceProducts.reduce<Record<string, number>>((counts, product) => {
+    const category = product.category.toLowerCase();
+    counts[category] = (counts[category] ?? 0) + 1;
+    return counts;
+  }, {});
+  const maximumDiscount = Math.max(0, ...promotionProducts.map(product =>
+    product.oldPrice && product.oldPrice > product.price ? Math.round((1 - product.price / product.oldPrice) * 100) : 0));
   const allProducts: CardProduct[] = sourceProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,
@@ -267,7 +274,7 @@ export default async function HomePage() {
         cta={{ label: "Tout voir", href: "/nouveautes" }}
       />
 
-      <CategoryTiles />
+      <CategoryTiles initialCounts={categoryCounts} />
 
       <OurProductsGrid products={allProducts} />
 
@@ -296,8 +303,8 @@ export default async function HomePage() {
               Offre limitée
             </p>
             <h2 className="h-display text-4xl md:text-[5.5rem] max-w-xl leading-[0.88]">
-              Jusqu&apos;à&nbsp;
-              <span className="text-[#3ecf4c]">−40%</span>
+              {maximumDiscount > 0 ? "Jusqu’à " : "Découvrez "}
+              <span className="text-[#3ecf4c]">{maximumDiscount > 0 ? `−${maximumDiscount}%` : "nos offres"}</span>
               <br />sur une sélection
             </h2>
           </div>
@@ -335,12 +342,11 @@ export default async function HomePage() {
             Plus que des<br/>récompenses
           </h2>
           <p className="mt-5 text-neutral-500 max-w-lg text-[14px] leading-relaxed">
-            Adhérez gratuitement et profitez d&apos;avantages exclusifs : accès
-            anticipé aux nouveautés, livraison gratuite, et invitations à des
-            événements.
+            Adhérez gratuitement, cumulez des points sur vos achats et retrouvez
+            les avantages de votre niveau dans votre compte.
           </p>
           <ul className="mt-6 space-y-3">
-            {["Accès anticipé aux nouveautés", "Livraison gratuite permanente", "Offres membres exclusives"].map(b => (
+            {["Points sur vos achats", "Remises selon votre niveau", "Suivi dans votre compte"].map(b => (
               <li key={b} className="flex items-center gap-3 text-[13px] text-neutral-600">
                 <span className="w-5 h-5 shrink-0 bg-black text-white flex items-center justify-center">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>

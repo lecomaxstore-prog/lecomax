@@ -423,7 +423,7 @@ export default function PostCard({ post, priority = false, onDeleted }: PostCard
                   <>
                     {(post.content ?? post.title).slice(0, 100)}
                     <button onClick={() => setCaptionExpanded(true)} className="text-neutral-400 ml-1">
-                      â€¦ plus
+                      … plus
                     </button>
                   </>
                 )}

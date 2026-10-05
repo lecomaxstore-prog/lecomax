@@ -1,4 +1,5 @@
 "use client";
+import { safeLocalStorage, safeSessionStorage } from "@/lib/browser-storage";
 import PreorderNotice from "@/components/PreorderNotice";
 import { preorderCopy } from "@/lib/preorder-copy";
 
@@ -81,15 +82,15 @@ const ABANDONED_CART_TOKEN_KEY = "lecomax_abandoned_cart_token";
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function getAbandonedCartToken() {
-  const stored = localStorage.getItem(ABANDONED_CART_TOKEN_KEY);
+  const stored = safeLocalStorage.getItem(ABANDONED_CART_TOKEN_KEY);
   if (stored && UUID_PATTERN.test(stored)) return stored;
   const token = crypto.randomUUID();
-  localStorage.setItem(ABANDONED_CART_TOKEN_KEY, token);
+  safeLocalStorage.setItem(ABANDONED_CART_TOKEN_KEY, token);
   return token;
 }
 
 function clearAbandonedCartToken() {
-  localStorage.removeItem(ABANDONED_CART_TOKEN_KEY);
+  safeLocalStorage.removeItem(ABANDONED_CART_TOKEN_KEY);
 }
 
 
@@ -400,11 +401,12 @@ export default function CheckoutPage() {
   const [paypalFailureOpen, setPaypalFailureOpen] = useState(false);
   const [paypalServerReady, setPaypalServerReady] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const submittingOrder = useRef(false);
   const orderKey = (current = { items, form, payment }) => {
     const fingerprint = JSON.stringify({ items: current.items.map(({slug, color, size, quantity}) => ({slug, color, size, quantity})), form: current.form, payment: current.payment });
-    try { const saved = JSON.parse(sessionStorage.getItem("lecomax_checkout_request") || "null"); if (saved?.fingerprint === fingerprint && saved?.key) return String(saved.key); } catch {}
+    try { const saved = JSON.parse(safeSessionStorage.getItem("lecomax_checkout_request") || "null"); if (saved?.fingerprint === fingerprint && saved?.key) return String(saved.key); } catch {}
     const key = crypto.randomUUID();
-    sessionStorage.setItem("lecomax_checkout_request", JSON.stringify({ fingerprint, key }));
+    safeSessionStorage.setItem("lecomax_checkout_request", JSON.stringify({ fingerprint, key }));
     return key;
   };
   const [orderError, setOrderError] = useState("");
@@ -433,7 +435,7 @@ export default function CheckoutPage() {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const paypalRendered = useRef(false);
   // Always-fresh ref for PayPal callbacks (prevents stale closure bug)
-  const paypalDataRef = useRef({ form, items, subtotal: 0, minimumOrder: 0, shippingReady: false, grandTotal: 0, shipping: 0, paymentFee: 0, couponApplied, discount: 0 });
+  const paypalDataRef = useRef({ form, items, subtotal: 0, minimumOrder: 0, shippingReady: false, grandTotal: 0, shipping: 0, estimatedDays: "", paymentFee: 0, couponApplied, discount: 0 });
   // Track if error originated from form validation (not from PayPal itself)
   const paypalFormErrorRef = useRef(false);
 
@@ -640,7 +642,7 @@ export default function CheckoutPage() {
   }, [calculation, serverPricing.loading, serverPricing.error]);
 
   // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
-  paypalDataRef.current = { form, items: items.map(item => ({ ...item, price: calculation?.items.find(line => line.slug === item.slug && line.color === item.color && line.size === item.size)?.price ?? item.price })), subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, paymentFee, couponApplied, discount };
+  paypalDataRef.current = { form, items: items.map(item => ({ ...item, price: calculation?.items.find(line => line.slug === item.slug && line.color === item.color && line.size === item.size)?.price ?? item.price })), subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, estimatedDays: calculation?.estimatedDays ?? "", paymentFee, couponApplied, discount };
 
   useEffect(() => {
     if (payment === "livraison" && !codEnabled && paypalEnabled) setPayment("paypal");
@@ -737,16 +739,16 @@ export default function CheckoutPage() {
                payment_provider: "paypal",
                paypal_order_id: details.id,
                paypal_capture_id: captureId,
-               abandoned_cart_token: localStorage.getItem(ABANDONED_CART_TOKEN_KEY),
+               abandoned_cart_token: safeLocalStorage.getItem(ABANDONED_CART_TOKEN_KEY),
              }),
           });
           const data = await res.json().catch(() => ({ error: "Réponse serveur invalide." }));
           if (!res.ok) {
             throw new Error(data.error || "La commande n'a pas pu être enregistrée après le paiement PayPal.");
           }
-          localStorage.setItem("lecomax_last_order", JSON.stringify({ number:data.order_number,items:data.items?.map((item: { qty: number })=>({...item,quantity:item.qty})) ?? its,total:gt,shipping:sh,customer:f,payment:"paypal",date:new Date().toISOString() }));
+          safeLocalStorage.setItem("lecomax_last_order", JSON.stringify({ number:data.order_number,items:data.items?.map((item: { qty: number })=>({...item,quantity:item.qty})) ?? its,total:data.total ?? gt,shipping:sh,estimatedDays:paypalDataRef.current.estimatedDays,customer:f,payment:"paypal",date:new Date().toISOString() }));
           clearAbandonedCartToken();
-          sessionStorage.removeItem("lecomax_checkout_request");
+          safeSessionStorage.removeItem("lecomax_checkout_request");
           clear();
           router.push("/merci");
         },
@@ -880,7 +882,7 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (payment === "paypal") return; // PayPal uses its own button flow
-    if (loading) return;
+    if (loading || submittingOrder.current) return;
     if (!codEnabled) { setOrderError("Le paiement à la livraison est temporairement indisponible."); return; }
     if (!minimumOrderMet) { setOrderError(`Le montant minimum de commande est de ${formatMAD(minimumOrder)}.`); return; }
     if (!shippingReady) { setOrderError("Veuillez patienter pendant le calcul des frais de livraison."); return; }
@@ -888,11 +890,13 @@ export default function CheckoutPage() {
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
     setOrderError("");
+    submittingOrder.current = true;
     setLoading(true);
 
     try {
       const res = await fetch("/api/orders/", {
         method: "POST",
+        signal: AbortSignal.timeout(30_000),
         headers: { "Content-Type": "application/json", Accept: "application/json", ...await commerceAuthHeaders(), "Idempotency-Key": orderKey() },
         credentials: "same-origin",
         cache: "no-store",
@@ -919,7 +923,7 @@ export default function CheckoutPage() {
           coupon_id: couponApplied?.id ?? null,
           discount,
            payment_provider: "cod",
-           abandoned_cart_token: localStorage.getItem(ABANDONED_CART_TOKEN_KEY),
+           abandoned_cart_token: safeLocalStorage.getItem(ABANDONED_CART_TOKEN_KEY),
          }),
       });
 
@@ -932,9 +936,9 @@ export default function CheckoutPage() {
       }
 
       const number = data.order_number;
-      localStorage.setItem(
+      safeLocalStorage.setItem(
         "lecomax_last_order",
-        JSON.stringify({ number, items: data.items?.map((item: { qty: number })=>({...item,quantity:item.qty})) ?? items, total: grandTotal, shipping, customer: form, payment, date: new Date().toISOString() })
+        JSON.stringify({ number, items: data.items?.map((item: { qty: number })=>({...item,quantity:item.qty})) ?? items, total: data.total ?? grandTotal, shipping, estimatedDays: calculation?.estimatedDays, customer: form, payment, date: new Date().toISOString() })
       );
 
       // Fire GA4 purchase conversion event
@@ -965,7 +969,7 @@ export default function CheckoutPage() {
       });
 
       clearAbandonedCartToken();
-      sessionStorage.removeItem("lecomax_checkout_request");
+      safeSessionStorage.removeItem("lecomax_checkout_request");
       clear();
       router.push("/merci");
     } catch {
@@ -975,6 +979,8 @@ export default function CheckoutPage() {
           : "Vous êtes hors ligne. Reconnectez-vous à Internet, puis réessayez."
       );
       setLoading(false);
+    } finally {
+      submittingOrder.current = false;
     }
   };
 

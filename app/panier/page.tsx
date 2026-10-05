@@ -442,9 +442,9 @@ export default function CartPage() {
                       {/* Mobile: qty stepper + price + remove */}
                       <div className="flex items-center gap-3 mt-2.5 md:hidden">
                         <div className="inline-flex border border-neutral-200 rounded-lg overflow-hidden">
-                          <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
-                          <span className="w-9 h-8 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
-                          <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
+                          <button aria-label={`Réduire la quantité de ${i.name}`} disabled={i.quantity <= 1} onClick={() => setQty(i.slug, i.size, i.color, i.quantity - 1)} className="w-11 h-11 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors disabled:opacity-40">−</button>
+                          <span className="w-9 h-11 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
+                          <button aria-label={`Augmenter la quantité de ${i.name}`} disabled={i.quantity >= (i.preorder_enabled ? 20 : Math.min(20, i.available_stock ?? i.quantity))} onClick={() => setQty(i.slug, i.size, i.color, i.quantity + 1)} className="w-11 h-11 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors disabled:opacity-40">+</button>
                         </div>
                         <span className="text-[13px] font-black">{formatMAD(i.price * i.quantity)}</span>
                         <button onClick={() => remove(i.slug, i.size, i.color)} className="ml-auto text-neutral-300 hover:text-red-400 transition-colors" aria-label="Retirer">
@@ -457,9 +457,9 @@ export default function CartPage() {
                     {/* Qty stepper */}
                     <div className="hidden md:flex items-center justify-center">
                       <div className="inline-flex border border-neutral-200 rounded-lg overflow-hidden">
-                        <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity - 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">−</button>
-                        <span className="w-9 h-8 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
-                        <button onClick={() => setQty(i.slug, i.size, i.color, i.quantity + 1)} className="w-8 h-8 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors">+</button>
+                        <button aria-label={`Réduire la quantité de ${i.name}`} disabled={i.quantity <= 1} onClick={() => setQty(i.slug, i.size, i.color, i.quantity - 1)} className="w-11 h-11 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors disabled:opacity-40">−</button>
+                        <span className="w-9 h-11 flex items-center justify-center text-[13px] font-black border-x border-neutral-200">{i.quantity}</span>
+                        <button aria-label={`Augmenter la quantité de ${i.name}`} disabled={i.quantity >= (i.preorder_enabled ? 20 : Math.min(20, i.available_stock ?? i.quantity))} onClick={() => setQty(i.slug, i.size, i.color, i.quantity + 1)} className="w-11 h-11 flex items-center justify-center text-base font-light hover:bg-neutral-50 transition-colors disabled:opacity-40">+</button>
                       </div>
                     </div>
                     {/* Row total + remove (desktop) */}

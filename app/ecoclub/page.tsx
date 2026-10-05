@@ -1,9 +1,10 @@
 ﻿import Link from "next/link";
+import { LOYALTY_TIERS, LOYALTY_POINTS_DIVISOR } from "@/lib/loyalty";
 
 const perks = [
   {
-    title: "Livraison gratuite permanente",
-    desc: "Plus de minimum d'achat pour les membres ecoClub.",
+    title: "Remises fidélité",
+    desc: "Les remises dépendent de votre niveau et sont calculées au paiement. Les conditions de livraison habituelles restent applicables.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
@@ -12,7 +13,7 @@ const perks = [
   },
   {
     title: "Points sur chaque achat",
-    desc: "Gagnez 1 point pour chaque 10 MAD dépensés. Les points s'accumulent automatiquement.",
+    desc: `Gagnez 1 point pour ${LOYALTY_POINTS_DIVISOR} MAD dépensés sur les commandes éligibles.`,
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -20,8 +21,8 @@ const perks = [
     ),
   },
   {
-    title: "Offres membres exclusives",
-    desc: "Accédez à des ventes privées et réductions réservées aux membres ecoClub.",
+    title: "Avantages selon votre niveau",
+    desc: "Consultez les remises de votre niveau ci-dessous et leur application au paiement.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
@@ -29,8 +30,8 @@ const perks = [
     ),
   },
   {
-    title: "Accès anticipé",
-    desc: "Soyez les premiers informés des nouvelles collections et des drops limités.",
+    title: "Vos produits favoris",
+    desc: "Connectez-vous pour enregistrer vos favoris et les retrouver plus tard.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
@@ -38,8 +39,8 @@ const perks = [
     ),
   },
   {
-    title: "Cadeau d'anniversaire",
-    desc: "Un bon de réduction surprise le jour de votre anniversaire.",
+    title: "Votre espace personnel",
+    desc: "Retrouvez vos points, votre niveau et vos commandes dans votre compte.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="8" width="20" height="14" rx="1"/><line x1="12" y1="8" x2="12" y2="22"/><path d="M12 8H7.5a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8z"/><path d="M12 8h4.5a2.5 2.5 0 0 0 0-5C13 3 12 8 12 8z"/><line x1="2" y1="12" x2="22" y2="12"/>
@@ -47,8 +48,8 @@ const perks = [
     ),
   },
   {
-    title: "Support prioritaire",
-    desc: "Vos demandes sont traitées en priorité avec un délai de réponse garanti de 1h.",
+    title: "Une équipe à votre écoute",
+    desc: "Contactez notre équipe depuis votre compte pour toute question sur une commande.",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -57,30 +58,15 @@ const perks = [
   },
 ];
 
-const tiers = [
-  {
-    name: "Eco",
-    points: "0 – 499 pts",
-    color: "border-neutral-200",
-    badge: "bg-neutral-100 text-neutral-700",
-    perks: ["Points sur achats", "Offres membres", "Newsletter exclusive"],
-  },
-  {
-    name: "Premium",
-    points: "500 – 1999 pts",
-    color: "border-black",
-    badge: "bg-black text-white",
-    featured: true,
-    perks: ["Tout Eco +", "Livraison gratuite", "Accès anticipé", "Cadeau anniversaire"],
-  },
-  {
-    name: "Elite",
-    points: "2000+ pts",
-    color: "border-neutral-800",
-    badge: "bg-neutral-900 text-white",
-    perks: ["Tout Premium +", "Support prioritaire", "Invitations événements", "Retours express"],
-  },
-];
+const tiers = [...LOYALTY_TIERS].reverse().map((tier, index) => ({
+  name: tier.name,
+  points: tier.next === null ? `${tier.min}+ pts` : `${tier.min} – ${tier.next - 1} pts`,
+  color: index === 1 ? "border-black" : "border-neutral-200",
+  badge: index === 0 ? "bg-neutral-100 text-neutral-700" : "bg-black text-white",
+  featured: index === 1,
+  perks: ["Points sur achats", tier.discountPercent ? `Remise fidélité de ${tier.discountPercent}%` : "Compte et favoris", "Suivi des commandes"],
+}));
+
 
 export default function EcoClubPage() {
   return (
@@ -136,7 +122,7 @@ export default function EcoClubPage() {
             >
               {t.featured && (
                 <p className="text-[10px] uppercase tracking-widest text-center bg-black text-white py-1 -mx-6 -mt-6 mb-5 font-bold">
-                  Le plus populaire
+                  Niveau Silver
                 </p>
               )}
               <span className={`inline-block text-[11px] font-black uppercase px-3 py-1 tracking-wider ${t.badge}`}>

@@ -395,12 +395,7 @@ export default function NousContacterPage() {
                     Horaires
                   </p>
                   <div className="space-y-1.5">
-                    {[{ day: "Lun – Ven", h: "9h – 19h" }, { day: "Samedi", h: "9h – 17h" }, { day: "Dimanche", h: "Fermé", green: true }].map((r) => (
-                      <div key={r.day} className="flex justify-between">
-                        <span className="text-white/50 text-[13px]">{r.day}</span>
-                        <span className={`text-[13px] font-semibold ${r.green ? "text-[#3ecf4c]" : "text-white"}`}>{r.h}</span>
-                      </div>
-                    ))}
+                    <p className="whitespace-pre-line text-[13px] text-white">{siteSettings.business_hours?.trim() || "Contactez-nous pour confirmer les horaires."}</p>
                   </div>
                 </div>
               </div>

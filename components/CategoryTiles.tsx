@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useStoreRefresh } from "@/lib/use-store-refresh";
-import { products as catalogProducts } from "@/lib/products";
 
 type StoreCategory = {
   id?: string;
@@ -47,9 +46,9 @@ function useInView() {
   return { ref, visible };
 }
 
-export default function CategoryTiles() {
-  const [dbCategories, setDbCategories] = useState<StoreCategory[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+export default function CategoryTiles({ initialCounts = {} }: { initialCounts?: Record<string, number> }) {
+  const [dbCategories, setDbCategories] = useState<StoreCategory[] | null>(null);
+  const [counts, setCounts] = useState<Record<string, number>>(initialCounts);
   const { ref, visible } = useInView();
 
   useStoreRefresh(async (signal) => {
@@ -75,11 +74,8 @@ export default function CategoryTiles() {
     { slug: "chaussures", label: "Chaussures", image: null, sort_order: 3 },
     { slug: "accessoires", label: "Accessoires", image: null, sort_order: 4 },
   ];
-  const sourceCategories = dbCategories.length ? dbCategories : fallbackCategories;
-  const sourceCounts = Object.keys(counts).length ? counts : catalogProducts.reduce<Record<string, number>>((result, product) => {
-    result[product.category] = (result[product.category] || 0) + 1;
-    return result;
-  }, {});
+  const sourceCategories = dbCategories ?? fallbackCategories;
+  const sourceCounts = counts;
   const categories = [...sourceCategories].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
     ...category,
     count: sourceCounts[category.slug] ?? 0,

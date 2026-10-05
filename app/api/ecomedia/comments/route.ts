@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
 
   let body: { postId?: string; content?: string; parentId?: string | null };
   try { body = await readJsonLimited(req); } catch { return NextResponse.json({ error: "Requête invalide" }, { status: 400 }); }
-  const postId = body.postId?.trim();
+  if (!body || typeof body.postId !== "string" || typeof body.content !== "string" || (body.parentId != null && typeof body.parentId !== "string")) return NextResponse.json({ error: "Requête invalide" }, { status: 400 });
+  const postId = body.postId.trim();
   const content = body.content?.trim();
   const parentId = body.parentId?.trim() || null;
   if (!postId) return NextResponse.json({ error: "Publication requise" }, { status: 400 });
