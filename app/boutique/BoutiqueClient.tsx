@@ -3,11 +3,12 @@ import { useSettings } from "@/lib/use-settings";
 import { shippingConfigFromSettings, shippingSummary } from "@/lib/shipping-config";
 import { useStoreRefresh } from "@/lib/use-store-refresh";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
 import { apiToCard, type CardProduct } from "@/lib/products";
+import { filterCategoryProducts, normalizeCategory } from "@/lib/storefront-catalogue";
 
 const CATEGORIES = [
   { id: "all", label: "Tout voir" },
@@ -34,24 +35,17 @@ export default function BoutiquePage({ initialProducts }: { initialProducts: Car
 }
 
 function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }) {
-  const router = useRouter();
+  const searchParams = useSearchParams();
   const settings = useSettings();
-  const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
-  const [activeSort, setActiveSort] = useState<SortId>("default");
-  const [currentPage, setCurrentPage] = useState(1);
+  const category = normalizeCategory(searchParams.get("cat"));
+  const activeCategory: CategoryId = CATEGORIES.some(item => item.id === category) ? category as CategoryId : "all";
+  const sort = searchParams.get("sort");
+  const activeSort: SortId = SORTS.some(item => item.id === sort) ? sort as SortId : "default";
+  const page = Number(searchParams.get("page") ?? "1");
+  const currentPage = Number.isSafeInteger(page) && page > 0 ? page : 1;
   const [productsPerPage, setProductsPerPage] = useState(DESKTOP_PRODUCTS_PER_PAGE);
   const [dbProducts, setDbProducts] = useState<CardProduct[]>(initialProducts);
   const resultsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const category = params.get("cat");
-    const sort = params.get("sort");
-    const page = Number.parseInt(params.get("page") ?? "1", 10);
-    if (CATEGORIES.some((item) => item.id === category)) setActiveCategory(category as CategoryId);
-    if (SORTS.some((item) => item.id === sort)) setActiveSort(sort as SortId);
-    if (Number.isFinite(page) && page > 1) setCurrentPage(page);
-  }, []);
 
   useEffect(() => {
     const mobileQuery = window.matchMedia("(max-width: 639px)");
@@ -64,22 +58,19 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
   }, []);
 
   const updateURL = (cat: CategoryId, sort: SortId, page = 1) => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString());
+    for (const key of ["cat", "sort", "page"]) params.delete(key);
     if (cat !== "all") params.set("cat", cat);
     if (sort !== "default") params.set("sort", sort);
     if (page > 1) params.set("page", String(page));
     const qs = params.toString();
-    router.replace(`/boutique${qs ? `?${qs}` : ""}`, { scroll: false });
+    window.history.pushState(null, "", `/boutique${qs ? `?${qs}` : ""}`);
   };
 
   const setCategory = (cat: CategoryId) => {
-    setActiveCategory(cat);
-    setCurrentPage(1);
     updateURL(cat, activeSort, 1);
   };
   const setSort = (sort: SortId) => {
-    setActiveSort(sort);
-    setCurrentPage(1);
     updateURL(activeCategory, sort, 1);
   };
 
@@ -105,9 +96,7 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
   const allProducts: CardProduct[] = dbProducts;
 
   const filtered = useMemo(() => {
-    let list = activeCategory === "all"
-      ? allProducts
-      : allProducts.filter((p) => p.category === activeCategory);
+    let list = filterCategoryProducts(allProducts, activeCategory);
 
     if (activeSort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     else if (activeSort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
@@ -126,7 +115,6 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
   const goToPage = (page: number) => {
     const nextPage = Math.min(Math.max(page, 1), totalPages);
     if (nextPage === visiblePage) return;
-    setCurrentPage(nextPage);
     updateURL(activeCategory, activeSort, nextPage);
     requestAnimationFrame(() => {
       const top = (resultsRef.current?.getBoundingClientRect().top ?? 0) + window.scrollY - 132;
@@ -176,12 +164,12 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
             {/* Stats inline strip */}
             <div className="flex items-center gap-0 w-fit rounded-2xl overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <div className="flex items-center gap-3 px-5 py-3.5" style={{ background: "rgba(255,255,255,0.05)" }}>
-                <p className="font-black text-2xl leading-none" style={{ color: "#3ecf4c" }}>{allProducts.length}</p>
+                <p className="font-black text-2xl leading-none" style={{ color: "#3ecf4c" }}>{filtered.length}</p>
                 <p className="text-white/50 text-[11px] uppercase tracking-wider font-bold leading-tight">Articles<br/>en vente</p>
               </div>
               <div className="w-px self-stretch" style={{ background: "rgba(255,255,255,0.1)" }} />
               <div className="flex items-center gap-3 px-5 py-3.5" style={{ background: "rgba(255,255,255,0.05)" }}>
-                <p className="font-black text-2xl leading-none" style={{ color: "#3ecf4c" }}>{allProducts.filter(p => p.oldPrice).length}</p>
+                <p className="font-black text-2xl leading-none" style={{ color: "#3ecf4c" }}>{filtered.filter(p => p.oldPrice && p.oldPrice > p.price).length}</p>
                 <p className="text-white/50 text-[11px] uppercase tracking-wider font-bold leading-tight">Articles<br/>en promo</p>
               </div>
               <div className="w-px self-stretch" style={{ background: "rgba(255,255,255,0.1)" }} />
@@ -260,9 +248,6 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
             <p className="text-neutral-400 text-sm mb-6">Essayez une autre catégorie ou un autre filtre.</p>
             <button
               onClick={() => {
-                setActiveCategory("all");
-                setActiveSort("default");
-                setCurrentPage(1);
                 updateURL("all", "default", 1);
               }}
               className="px-6 py-3 bg-black text-white font-black uppercase text-[11px] tracking-[0.12em] rounded-xl hover:opacity-80 transition-opacity"

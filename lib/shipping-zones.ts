@@ -1,4 +1,4 @@
-import { calculateShipping, type ShippingConfig } from "./shipping-config.ts";
+import { calculateShipping, DEFAULT_SHIPPING_CONFIG, type ShippingConfig } from "./shipping-config.ts";
 
 export type ShippingZoneRule = {
   id: string;
@@ -103,14 +103,14 @@ export function resolveShippingQuote(
         freeThreshold: zone.free_threshold === null
           ? fallback.freeThreshold
           : validNumber(zone.free_threshold, fallback.freeThreshold),
-        estimatedDays: zone.estimated_days?.trim() || fallback.estimatedDays,
+        estimatedDays: DEFAULT_SHIPPING_CONFIG.estimatedDays,
       }
     : fallback;
 
   return {
     cost: calculateShipping(subtotal, fallback.freeShippingEnabled === false ? { ...config, freeThreshold: 0 } : config),
     freeThreshold: fallback.freeShippingEnabled === false ? 0 : config.freeThreshold,
-    estimatedDays: config.estimatedDays,
+    estimatedDays: DEFAULT_SHIPPING_CONFIG.estimatedDays,
     zoneId: zone?.id ?? null,
     zoneName: zone?.name ?? "Tarif national",
   };

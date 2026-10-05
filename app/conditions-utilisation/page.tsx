@@ -47,7 +47,7 @@ const sections = [
     num: "05",
     title: "Livraison",
     items: [
-      "Délai de livraison estimé : 3 à 5 jours ouvrables sur l'ensemble du territoire marocain",
+      <ShippingTermsItem key="shipping-estimate" estimate />,
       <ShippingTermsItem key="shipping-terms" />,
       "L'ecomax ne saurait être tenu responsable des retards imputables aux transporteurs",
       "Service disponible dans toutes les régions du Maroc",

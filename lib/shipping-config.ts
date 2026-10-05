@@ -16,16 +16,6 @@ export const DEFAULT_SHIPPING_CONFIG: ShippingConfig = {
 // 499 MAD against a displayed 500 MAD free-shipping threshold.
 export const FREE_SHIPPING_GRACE_AMOUNT = 1;
 
-function deliveryEstimate(value: unknown) {
-  if (typeof value !== "string" || !value.trim()) return DEFAULT_SHIPPING_CONFIG.estimatedDays;
-  const configured = value.trim();
-
-  // Retire the former 24–48h promise while preserving deliberate custom values.
-  return /^(?:24\s*[–-]\s*48\s*h(?:eures?)?|48\s*h)$/i.test(configured)
-    ? DEFAULT_SHIPPING_CONFIG.estimatedDays
-    : configured;
-}
-
 function nonNegativeNumber(value: unknown, fallback: number) {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
@@ -36,7 +26,8 @@ export function shippingConfigFromSettings(settings: Record<string, unknown> | n
     cost: nonNegativeNumber(settings?.shipping_cost, DEFAULT_SHIPPING_CONFIG.cost),
     freeShippingEnabled: String(settings?.free_shipping_enabled) !== "false",
     freeThreshold: String(settings?.free_shipping_enabled) === "false" ? 0 : nonNegativeNumber(settings?.free_shipping_threshold, DEFAULT_SHIPPING_CONFIG.freeThreshold),
-    estimatedDays: deliveryEstimate(settings?.shipping_estimated_days),
+    // The published national policy takes precedence over legacy saved estimates.
+    estimatedDays: DEFAULT_SHIPPING_CONFIG.estimatedDays,
   };
 }
 
@@ -63,4 +54,19 @@ export function shippingSummary(config: ShippingConfig) {
   return config.freeThreshold > 0
     ? `Livraison ${cost} MAD partout au Maroc, offerte dès ${threshold} MAD d'achats.`
     : `Livraison ${cost} MAD partout au Maroc.`;
+}
+
+/** Do not invent structured delivery promises when an admin uses free-form text. */
+export function shippingDeliveryTime(config: ShippingConfig) {
+  const range = config.estimatedDays.match(/^(\d+)\s*(?:[–—-]|à)\s*(\d+)\s+jours?\s+ouvr(?:ables|és)$/i);
+  if (!range || Number(range[1]) > Number(range[2])) return undefined;
+  return {
+    "@type": "ShippingDeliveryTime",
+    transitTime: {
+      "@type": "QuantitativeValue",
+      minValue: Number(range[1]),
+      maxValue: Number(range[2]),
+      unitCode: "DAY",
+    },
+  };
 }

@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { assistantShippingFacts } from "../lib/assistant-shipping-facts.ts";
 import type { ShippingZoneRule } from "../lib/shipping-zones.ts";
+import { DEFAULT_SHIPPING_CONFIG } from "../lib/shipping-config.ts";
 
 const settings = { currency: "MAD", shipping_cost: "40", free_shipping_enabled: "true", free_shipping_threshold: "500", shipping_estimated_days: "1 à 5 jours" };
 const zones: ShippingZoneRule[] = [
@@ -11,8 +12,8 @@ const zones: ShippingZoneRule[] = [
 
 test("assistant uses checkout national rules instead of stale catch-all zone values", () => {
   const facts = assistantShippingFacts(settings, zones);
-  assert.deepEqual(facts.national, { price: 40, freeThreshold: 500, estimatedDays: "1 à 5 jours" });
-  assert.deepEqual(facts.cities[0], { city: "Casablanca", price: 25, freeThreshold: 300, estimatedDays: "1 à 2 jours" });
+  assert.deepEqual(facts.national, { price: 40, freeThreshold: 500, estimatedDays: DEFAULT_SHIPPING_CONFIG.estimatedDays });
+  assert.deepEqual(facts.cities[0], { city: "Casablanca", price: 25, freeThreshold: 300, estimatedDays: DEFAULT_SHIPPING_CONFIG.estimatedDays });
 });
 
 test("disabled free shipping cannot leak zone thresholds into assistant facts", () => {

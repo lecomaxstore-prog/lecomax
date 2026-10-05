@@ -3,7 +3,7 @@ export const STORE_SETTING_DEFAULTS = {
   store_name: "L’ECOMAX", store_email: "contact@lecomax.com", store_phone: "+212699289568",
   whatsapp_number: "212699289568", store_address: "", store_city: "", currency: "MAD",
   shipping_cost: "40", free_shipping_threshold: "500", free_shipping_enabled: "true",
-  shipping_estimated_days: "2–5 jours ouvrables", checkout_minimum_order: "0",
+  shipping_estimated_days: "3 à 5 jours ouvrables", checkout_minimum_order: "0",
   checkout_maximum_order: "0", maintenance_mode: "false", preorder_enabled: "true",
   tax_enabled: "false", tax_rate: "0", tax_included: "true", low_stock_threshold: "5",
   default_country: "MA", business_hours: "",
