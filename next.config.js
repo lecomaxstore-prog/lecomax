@@ -1,4 +1,4 @@
-const { PHASE_DEVELOPMENT_SERVER } = require("next/constants");
+const { PHASE_DEVELOPMENT_SERVER, PHASE_PRODUCTION_BUILD } = require("next/constants");
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -223,7 +223,18 @@ const nextConfig = {
   },
 };
 
-module.exports = (phase) => ({
+module.exports = async (phase) => {
+  // Vercel may run `next build` directly, bypassing npm's prebuild hook.
+  // Generate the private snapshot before tracing the source API functions.
+  if (phase === PHASE_PRODUCTION_BUILD) {
+    const { writeSourceLibrary } = await import("./scripts/source-library.mjs");
+    const library = await writeSourceLibrary(__dirname);
+    if (!library.files.some(file => file.path === "app/page.tsx")) {
+      throw new Error("The production source library is missing app/page.tsx.");
+    }
+    console.log(`Private source library ready for deployment: ${library.files.length} files.`);
+  }
+  return {
   webpack(config) {
     config.module.rules.push({
       test: /\.tsx$/,
@@ -237,4 +248,5 @@ module.exports = (phase) => ({
   ...nextConfig,
   // Keep production builds from overwriting a running preview's chunks.
   distDir: phase === PHASE_DEVELOPMENT_SERVER ? ".next-dev" : ".next",
-});
+  };
+};

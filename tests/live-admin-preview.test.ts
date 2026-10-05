@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
 const require = createRequire(import.meta.url);
 test("production supports same-origin learning previews and bundles private source", async () => {
-  const config = require("../next.config.js")("phase-production-build");
+  const config = await require("../next.config.js")("phase-production-build");
   const rules = await config.headers();
   const headers = rules.find(rule => rule.source === "/(.*)").headers;
   assert.equal(headers.find(h => h.key === "X-Frame-Options").value, "SAMEORIGIN");
