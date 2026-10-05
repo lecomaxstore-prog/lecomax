@@ -18,6 +18,7 @@ export default function GuidedLesson({ lesson, lang, renderBlock, completed, onC
   const [checks, setChecks] = useState<number[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [note, setNote] = useState("");
+  const [draft, setDraft] = useState("");
   const [ready, setReady] = useState(false);
   const [storageError, setStorageError] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -31,15 +32,16 @@ export default function GuidedLesson({ lesson, lang, renderBlock, completed, onC
         if (Array.isArray(saved.checks)) setChecks(saved.checks.filter((n: unknown) => Number.isInteger(n) && Number(n) >= 0 && Number(n) < lesson.exercise.steps.length));
         if (saved.answers && typeof saved.answers === "object") setAnswers(Object.fromEntries(lesson.quiz.filter(q => Number.isInteger(saved.answers[q.id]) && saved.answers[q.id] >= 0 && saved.answers[q.id] < q.options.length).map(q => [q.id, saved.answers[q.id]])));
         if (typeof saved.note === "string") setNote(saved.note.slice(0, 1500));
+        if (typeof saved.draft === "string") setDraft(saved.draft.slice(0, 6000));
       }
     } catch { setStorageError(true); }
     setReady(true);
   }, [storageKey, finishStep, lesson]);
   useEffect(() => {
     if (!ready) return;
-    try { localStorage.setItem(storageKey, JSON.stringify({ step, checks, answers, note })); }
+    try { localStorage.setItem(storageKey, JSON.stringify({ step, checks, answers, note, draft })); }
     catch { setStorageError(true); }
-  }, [ready, storageKey, step, checks, answers, note]);
+  }, [ready, storageKey, step, checks, answers, note, draft]);
   const go = (next: number) => {
     setStep(next);
     requestAnimationFrame(() => {
@@ -56,7 +58,7 @@ export default function GuidedLesson({ lesson, lang, renderBlock, completed, onC
   const phase = step === 0 ? 0 : card ? 1 : step === practiceStep ? 2 : question ? 3 : 4;
   const phases = [t("Mission", "Mission", "المهمة"), t("Comprendre", "Understand", "افهم"), t("Essayer", "Try", "جرّب"), t("Vérifier", "Check", "تحقّق"), t("Expliquer", "Explain", "اشرح")];
   const title = step === 0 ? t("Ta mission", "Your mission", "مهمتك") : card?.title ?? (step === practiceStep ? t("À toi de construire", "Your turn to build", "حان دورك للبناء") : question ? t("Petit défi", "Quick challenge", "تحدٍّ صغير") : t("Ta victoire du jour", "Your win today", "إنجازك اليوم"));
-  return <section className="min-w-0 space-y-4">
+  return <section data-lesson-id={lesson.id} className="min-w-0 space-y-4">
     <div className="rounded-3xl border border-emerald-200 bg-white p-5 shadow-sm sm:p-7">
       <p className="text-xs font-bold text-emerald-700">{t("MODE GUIDÉ", "GUIDED MODE", "التعلّم الموجّه")} · {step + 1}/{finishStep + 1}</p>
       <h2 id="academy-lesson-title" ref={heading} tabIndex={-1} className="mt-2 scroll-mt-36 text-2xl font-black outline-none">{lesson.title}</h2>
@@ -81,10 +83,12 @@ export default function GuidedLesson({ lesson, lang, renderBlock, completed, onC
       </div>}
       {step === practiceStep && <div className="space-y-5">
         <p className="text-sm leading-7">{lesson.exercise.task}</p>
+        <label className="block text-sm font-bold">{t("Ton essai : écris ton code ou explique ton approche avant de comparer.", "Your attempt: write your code or explain your approach before comparing.", "محاولتك: اكتب الكود أو اشرح طريقتك قبل المقارنة.")}<textarea value={draft} maxLength={6000} onChange={event => setDraft(event.target.value)} rows={6} dir="auto" className="mt-3 w-full min-w-0 rounded-xl border border-neutral-300 p-3 font-mono text-base font-normal" /></label>
+        <p className="text-xs text-neutral-500">{t("Brouillon personnel enregistré dans ce navigateur. Ce code n’est pas exécuté.", "Personal draft saved in this browser. This code is not executed.", "مسودة شخصية محفوظة في هذا المتصفح. لا يتم تشغيل هذا الكود.")}</p>
         <p className="rounded-xl bg-blue-50 p-3 text-sm text-blue-950">{t("Utilise ton projet d’entraînement. Coche chaque étape après l’avoir essayée.", "Use your practice project. Check each step after trying it.", "استخدم مشروع التدريب. علّم كل خطوة بعد تجربتها.")}</p>
         {lesson.exercise.steps.map((item, i) => <label key={i} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm leading-6"><input type="checkbox" checked={checks.includes(i)} onChange={event => setChecks(previous => event.target.checked ? [...previous, i] : previous.filter(n => n !== i))} className="mt-1 h-5 w-5 shrink-0 accent-emerald-600" />{item}</label>)}
         <details className="rounded-xl border p-4"><summary className="cursor-pointer font-bold">{t("Un coup de pouce ?", "Need a hint?", "تحتاج تلميحًا؟")}</summary><ol className="mt-3 list-decimal space-y-2 ps-5 text-sm leading-6">{lesson.exercise.hints.map(hint => <li key={hint}>{hint}</li>)}</ol></details>
-        <details className="rounded-xl border p-4"><summary className="cursor-pointer font-bold">{t("Comparer avec la solution", "Compare with the solution", "قارن مع الحل")}</summary><div className="mt-4 space-y-4"><p className="text-sm leading-6">{lesson.exercise.solution.explanation}</p>{renderBlock({ id: "guided-solution", type: "code", title: t("Solution", "Solution", "الحل"), code: { filename: lesson.exercise.solution.filename, language: lesson.exercise.solution.language, source: lesson.exercise.solution.code, annotations: [] } }, lesson.id)}</div></details>
+        {draft.trim() ? <details className="rounded-xl border p-4"><summary className="cursor-pointer font-bold">{t("Comparer avec la solution", "Compare with the solution", "قارن مع الحل")}</summary><div className="mt-4 space-y-4"><p className="text-sm leading-6">{lesson.exercise.solution.explanation}</p>{renderBlock({ id: "guided-solution", type: "code", title: t("Solution", "Solution", "الحل"), code: { filename: lesson.exercise.solution.filename, language: lesson.exercise.solution.language, source: lesson.exercise.solution.code, annotations: [] } }, lesson.id)}</div></details> : <p className="rounded-xl bg-violet-50 p-4 text-sm text-violet-950">{t("Écris une première tentative pour débloquer la comparaison. Une idée ou une difficulté suffit pour commencer.", "Write a first attempt to unlock comparison. An idea or a difficulty is enough to start.", "اكتب محاولة أولى لفتح المقارنة. فكرة أو صعوبة واجهتك تكفي للبداية.")}</p>}
         <details className="rounded-xl border p-4"><summary className="cursor-pointer font-bold">{t("Commandes et dépannage", "Commands and troubleshooting", "الأوامر وحل الأخطاء")}</summary><div className="mt-4 space-y-4">{lesson.commands.length > 0 && renderBlock({ id: "guided-commands", type: "code", title: "Terminal", code: { filename: "Terminal", language: "shell", source: lesson.commands.join("\n"), annotations: [] } }, lesson.id)}{lesson.commonErrors.map(error => <div key={error.symptom} className="rounded-xl bg-amber-50 p-4 text-sm leading-6"><p className="font-bold">{error.symptom}</p><p>{error.cause}</p><p className="mt-2 text-emerald-800">→ {error.fix}</p></div>)}</div></details>
       </div>}
       {question && <fieldset><legend className="text-lg font-bold leading-7">{question.question}</legend><div className="mt-4 space-y-3">{question.options.map((option, i) => <label key={i} className={"flex min-h-12 cursor-pointer items-start gap-3 rounded-xl border p-4 text-sm leading-6 " + (answers[question.id] === i ? "border-emerald-400 bg-emerald-50" : "border-neutral-200")}><input type="radio" name={question.id} checked={answers[question.id] === i} onChange={() => setAnswers(previous => ({ ...previous, [question.id]: i }))} className="mt-1 h-4 w-4 shrink-0 accent-emerald-600" />{option}</label>)}</div>{answers[question.id] !== undefined && <p role="status" className="mt-4 rounded-xl bg-amber-50 p-4 text-sm leading-7"><strong>{answers[question.id] === question.correctIndex ? t("Bien joué ! ", "Nice work! ", "أحسنت! ") : t("Essaie encore, tu peux y arriver. ", "Try again, you can work this out. ", "حاول مجدداً، يمكنك فهمها. ")}</strong>{question.answerExplanations[answers[question.id]]}</p>}</fieldset>}

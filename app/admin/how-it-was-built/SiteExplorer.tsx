@@ -130,6 +130,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
       <button type="button" aria-pressed={workshop === "guides"} onClick={() => switchWorkshop("guides")}>{t("Apprendre pas à pas", "Learn step by step", "تعلم خطوة بخطوة")}</button>
       <button type="button" aria-pressed={workshop === "site"} onClick={() => switchWorkshop("site")}>{t("Explorer mon site", "Explore my site", "استكشف موقعي")}</button>
       <button type="button" aria-pressed={workshop === "build"} onClick={() => switchWorkshop("build")}>{t("Construire", "Build", "ابنِ بنفسك")}</button>
+      <a href="#files">{t("Mes fichiers", "My files", "ملفاتي")}</a>
     </nav>
     {workshop !== "site" ? <LearningStudio key={workshop} lang={lang} buildOnly={workshop === "build"} onExplore={() => switchWorkshop("site")} /> : <>
     <div className={styles.welcome} data-expanded={showGuide}>

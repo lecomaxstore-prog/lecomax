@@ -197,7 +197,8 @@ async function main() {
     }
   }
   const readerSource = await readFile(path.join(root, "app", "admin", "how-it-was-built", "AcademySection.tsx"), "utf8");
-  assert(!readerSource.includes("localStorage") && !readerSource.includes("sessionStorage"), "Academy reader must not persist progress in browser storage");
+  // Reading steps, practice drafts and completion marks now persist locally.
+  // Browser interaction checks verify restoration; content stays lazy-loaded.
   assert(!/from\s+["'][^"']*course\/content\//.test(readerSource), "Academy reader must not statically import localized course content");
 
   const canonical = [];

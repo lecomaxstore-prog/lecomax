@@ -5,6 +5,7 @@ import DailyLearning from "./DailySession";
 import { translate } from "./course/journey";
 import CodeLibrary from "./CodeLibrary";
 import SiteExplorer from "./SiteExplorer";
+import workshopStyles from "./WorkshopPage.module.css";
 import BackendGuides from "./BackendGuides";
 import BeginnerJourney from "./BeginnerJourney";
 
@@ -5426,7 +5427,9 @@ function TabIcon({ id, className = "h-4 w-4" }: { id: TabId; className?: string 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function HowItWasBuiltPage() {
   const [tab, setTab] = useState<TabId>("site");
-  const [lang, setLang] = useState<Lang>("fr");
+  const [lang, setLang] = useState<Lang>("ar");
+  useEffect(() => { try { const saved = localStorage.getItem('lecomax-learning-language'); if (saved === 'ar' || saved === 'fr' || saved === 'en') setLang(saved); } catch {} }, []);
+  function chooseLanguage(value: Lang) { setLang(value); try { localStorage.setItem('lecomax-learning-language', value); } catch {} }
   const u = UI[lang];
   const tabListRef = useRef<HTMLDivElement | null>(null);
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -5496,11 +5499,11 @@ export default function HowItWasBuiltPage() {
   const nextLabel = lang === "en" ? "Next section" : lang === "ar" ? "القسم التالي" : "Section suivante";
 
   return (
-    <div lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} className="-m-4 mb-0 min-h-full bg-[#f4f4f2] sm:m-0">
+    <div lang={lang} dir={lang === "ar" ? "rtl" : "ltr"} data-workshop={tab === "site"} className={`${workshopStyles.page} -m-4 mb-0 min-h-full bg-[#f4f4f2] sm:m-0`}>
       {/* Header */}
       <div id="course-page-header" className="relative top-0 md:sticky z-40 border-b border-gray-200/80 bg-white/95 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl md:-top-6 lg:-top-8">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 sm:py-4">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <div className={`${workshopStyles.headerRow} mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2.5 sm:px-6 sm:py-4`}>
+          <div className={`${workshopStyles.brand} flex items-center gap-2 sm:gap-3 min-w-0`}>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#0d0d0d] shadow-sm sm:h-9 sm:w-9">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             </div>
@@ -5509,11 +5512,11 @@ export default function HowItWasBuiltPage() {
               {tab !== "start" && <p className="text-[10px] sm:text-[11px] text-gray-400 hidden sm:block truncate">{u.subtitle}</p>}
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className={`${workshopStyles.languages} flex items-center gap-2 shrink-0`}>
             {/* Language switcher */}
             <div className="flex gap-0.5 rounded-xl bg-gray-100 p-0.5" role="group" aria-label={lang === "ar" ? "اللغة" : lang === "en" ? "Language" : "Langue"}>
               {(["fr","en","ar"] as Lang[]).map(l => (
-                <button key={l} aria-label={l === "fr" ? "Français" : l === "en" ? "English" : "العربية"} aria-pressed={lang === l} onClick={() => setLang(l)}
+                <button key={l} aria-label={l === "fr" ? "Français" : l === "en" ? "English" : "العربية"} aria-pressed={lang === l} onClick={() => chooseLanguage(l)}
                   className={`flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-lg px-2 text-xs font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#16b277] sm:min-h-9 sm:min-w-0 ${lang === l ? "bg-white text-gray-950 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}>
                   <span className="hidden sm:inline" aria-hidden="true">{LANG_FLAGS[l]}</span>
                   <span className={l === "ar" ? "" : "uppercase"}>{l === "ar" ? "ع" : l}</span>
@@ -5526,7 +5529,7 @@ export default function HowItWasBuiltPage() {
           </div>
         </div>
         {/* Mobile course navigator */}
-        {tab === "site" && <div className="border-t px-4 py-1 md:hidden"><label className="flex items-center gap-2 text-xs font-semibold"><span>{translate(lang, "Atelier", "Workshop", "الورشة")}</span><select aria-label={translate(lang, "Changer d’atelier", "Change workshop", "تغيير الورشة")} value={tab} onChange={event => selectTab(event.target.value as TabId)} className="min-h-11 min-w-0 flex-1 bg-transparent px-2 text-sm font-bold">{TAB_IDS.map(id => <option key={id} value={id}>{tabLabel(id)}</option>)}</select></label></div>}
+        {tab === "site" && <div className={`${workshopStyles.mobileNavigator} border-t px-4 py-1 md:hidden`}><label className="flex items-center gap-2 text-xs font-semibold"><span>{translate(lang, "Atelier", "Workshop", "الورشة")}</span><select aria-label={translate(lang, "Changer d’atelier", "Change workshop", "تغيير الورشة")} value={tab} onChange={event => selectTab(event.target.value as TabId)} className="min-h-11 min-w-0 flex-1 bg-transparent px-2 text-sm font-bold">{TAB_IDS.map(id => <option key={id} value={id}>{tabLabel(id)}</option>)}</select></label></div>}
         <div id="mobile-course-navigator" className={tab === "start" || tab === "site" ? "hidden" : "border-t border-gray-100 px-4 pb-3 pt-2 md:hidden"}>
           <div className="mx-auto max-w-xl">
             <div className="mb-1.5 flex items-center justify-between gap-3 text-[11px] font-bold text-gray-500">

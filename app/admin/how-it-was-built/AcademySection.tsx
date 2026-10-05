@@ -239,12 +239,28 @@ export default function AcademySection({ lang }: Props) {
   const [solutionOpen, setSolutionOpen] = useState(false);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [completedLessons, setCompletedLessons] = useState<Set<string>>(new Set());
+  const [completionReady, setCompletionReady] = useState(false);
   const [completionError, setCompletionError] = useState("");
   const [guided, setGuided] = useState(true);
   const savingCompletion = useRef(false);
   const lastNavigationHash = useRef("");
   const pendingLessonNavigation = useRef<{ lessonId: string; behavior: ScrollBehavior } | null>(null);
   const activeManifest = manifest.modules.find(item => item.id === moduleId) ?? firstModule;
+
+  useEffect(() => {
+    try {
+      const saved: unknown = JSON.parse(localStorage.getItem("lecomax-academy-completed-v1") ?? "[]");
+      const validIds = new Set(manifest.modules.flatMap(item => item.lessonIds));
+      if (Array.isArray(saved)) setCompletedLessons(new Set(saved.filter((id): id is string => typeof id === "string" && validIds.has(id))));
+    } catch { /* Learning remains available without browser storage. */ }
+    setCompletionReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!completionReady) return;
+    try { localStorage.setItem("lecomax-academy-completed-v1", JSON.stringify([...completedLessons])); }
+    catch { /* Learning remains available without browser storage. */ }
+  }, [completionReady, completedLessons]);
 
   async function toggleLessonComplete(id: string) {
     if (savingCompletion.current) return;

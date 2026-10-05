@@ -278,6 +278,7 @@ async function main() {
     const searchHash = `#academy/${searchModule.id}/${searchModule.lessonIds[0]}`;
     const expectedHash = `#academy/${module.id}/${module.lessonIds[0]}`;
     const targetUrl = `${baseUrl}/admin/how-it-was-built/${expectedHash}`;
+    await pageClient.send("Page.addScriptToEvaluateOnNewDocument", { source: "if (!localStorage.getItem('lecomax-learning-language')) localStorage.setItem('lecomax-learning-language', 'fr');" });
     await setViewport(pageClient, 1440, 1000);
     await pageClient.send("Page.navigate", { url: targetUrl });
     await waitFor(pageClient, `document.querySelector('#academy-lesson-title')?.textContent?.trim() === ${JSON.stringify(directLesson.title)}`, "the exact deep-linked Academy lesson");
@@ -311,6 +312,16 @@ async function main() {
     await waitFor(pageClient, `performance.timeOrigin !== ${previousPageTime}`, "new page after reload");
     await waitFor(pageClient, "document.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow') === '2'", "saved guided step after reload");
     await waitFor(pageClient, "document.querySelector('[data-workshop-score]')?.textContent.startsWith('1/5') && document.querySelector('[data-shop-mission=link]')?.getAttribute('aria-current') === 'step'", "workshop progress and next mission after reload");
+    const practicePosition = directLesson.sections.reduce((sum, section) => sum + section.blocks.length, 0) + 2;
+    for (let position = 2; position < practicePosition; position++) {
+      await evaluate(pageClient, `([...document.querySelectorAll('button')].find(button => button.textContent.trim().startsWith('Continuer'))).click()`);
+      await waitFor(pageClient, `document.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow') === '${position + 1}'`, "next reading card");
+    }
+    assert(await evaluate(pageClient, `![...document.querySelectorAll('summary')].some(node => node.textContent.includes('Comparer avec la solution'))`), "Solution comparison must wait for a practice attempt.");
+    await evaluate(pageClient, `(() => { const input = document.querySelector('textarea[maxlength="6000"]'); Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value').set.call(input, 'My practice draft: explain the route before writing code.'); input.dispatchEvent(new Event('input', { bubbles: true })); })()`);
+    await waitFor(pageClient, `[...document.querySelectorAll('summary')].some(node => node.textContent.includes('Comparer avec la solution'))`, "solution unlocked after attempt");
+    await pageClient.send("Page.reload");
+    await waitFor(pageClient, `document.querySelector('textarea[maxlength="6000"]')?.value === 'My practice draft: explain the route before writing code.'`, "practice draft restored after reload");
     await evaluate(pageClient, `document.querySelector('[data-reading-mode=full]').click()`);
     await waitFor(pageClient, "Boolean(document.querySelector('[data-lesson-id]'))", "full lesson reading mode");
 
@@ -475,8 +486,7 @@ async function main() {
       };
     })()`);
     assert(mobileShell.navigatorVisible && !mobileShell.desktopTabsVisible, "The professional mobile section navigator is not rendered correctly.");
-    assert(mobileShell.courseHeaderPosition === "sticky", "The course page header should remain sticky while the content scrolls.");
-    assert(Math.abs(mobileShell.courseHeaderTop - mobileShell.adminMainTop) <= 2, `The sticky course page header moved away from the top of the admin scroll area (${JSON.stringify(mobileShell)}).`);
+    assert(mobileShell.courseHeaderPosition === "relative", "The mobile header should scroll away to leave room for the lesson.");
     assert(mobileShell.selectedSection === "academy", "The mobile section navigator lost the active Academy section.");
     assert(mobileShell.controlHeights.length >= 3 && mobileShell.controlHeights.every(height => height >= 44), "A mobile course navigation control is smaller than 44px.");
     assert(mobileShell.languageHeights.length >= 3 && mobileShell.languageHeights.every(height => height >= 40), "A mobile language control is undersized.");

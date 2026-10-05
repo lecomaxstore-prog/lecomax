@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import CodeExplanation from "./CodeExplanation";
+import SourceLearningPaths from "./SourceLearningPaths";
 import { describeSourceFile } from "@/lib/source-code-guide";
 import { translate } from "./course/journey";
 import type { CourseLanguage } from "./course/types";
@@ -132,9 +133,9 @@ export default function CodeLibrary({ lang }: { lang: CourseLanguage }) {
     <header className="rounded-3xl bg-neutral-950 p-5 text-white">
       <p className="text-xs font-bold uppercase tracking-wider text-green-400">{t("Bibliothèque privée", "Private code library", "مكتبة الكود الخاصة")}</p>
       <h2 className="mt-2 text-2xl font-black">{t("Mes fichiers et leur code", "My files and their code", "ملفاتي والكود الخاص بها")}</h2>
-      <p className="mt-2 text-sm leading-6 text-white/75">{t("Recherche un nom de fichier ou un mot dans le code. Ouvre un résultat pour lire le vrai fichier du projet, puis ajoute-le à tes favoris.", "Search a filename or a word inside the code. Open a result to read the actual project file and save it to your favourites.", "ابحث عن اسم ملف أو كلمة داخل الكود. افتح النتيجة لقراءة ملف المشروع الحقيقي ثم احفظه في المفضلة.")}</p>
+      <p className="mt-2 text-sm leading-6 text-white/75">{t("Choisis un fichier ci-dessous pour lire et comprendre son code.", "Choose a file below to read and understand its code.", "اختر ملفًا أدناه لقراءة كوده وفهمه.")}</p>
       {listing && <p className="mt-3 text-xs text-white/60">{listing.fileCount} {t("fichiers", "files", "ملفًا")} · {t("Version du", "Snapshot from", "نسخة بتاريخ")} {new Date(listing.generatedAt).toLocaleString(lang === "ar" ? "ar" : lang)}</p>}
-      <p className="mt-2 text-xs leading-5 text-white/60">{t("En ligne : copie de la dernière version déployée. Sur localhost : fichiers enregistrés dans VS Code, actualisés après quelques secondes. Les secrets, dépendances et fichiers générés sont exclus.", "Online: a copy from the latest deployment. On localhost: saved VS Code files, refreshed after a few seconds. Secret files, dependencies and generated files are excluded.", "عبر الإنترنت: نسخة من آخر نشر. محليًا: ملفات VS Code المحفوظة وتُحدّث بعد ثوانٍ. تُستبعد الملفات السرية والتبعيات والملفات المولدة.")}</p>
+      <details className="mt-2 text-xs leading-5 text-white/60"><summary className="min-h-8 cursor-pointer py-1">{t("Quelle version des fichiers ?", "Which version of the files?", "ما نسخة الملفات؟")}</summary><p className="mt-2">{t("En ligne : copie de la dernière version déployée. Sur localhost : fichiers enregistrés dans VS Code, actualisés après quelques secondes. Les secrets, dépendances et fichiers générés sont exclus.", "Online: a copy from the latest deployment. On localhost: saved VS Code files, refreshed after a few seconds. Secret files, dependencies and generated files are excluded.", "عبر الإنترنت: نسخة من آخر نشر. محليًا: ملفات VS Code المحفوظة وتُحدّث بعد ثوانٍ. تُستبعد الملفات السرية والتبعيات والملفات المولدة.")}</p></details>
     </header>
     <div className="space-y-3 rounded-2xl border bg-white p-4">
       <label htmlFor="source-query" className="block text-sm font-bold">{t("Rechercher dans mes fichiers et mon code", "Search my files and code", "ابحث في ملفاتي والكود")}</label>
@@ -146,9 +147,10 @@ export default function CodeLibrary({ lang }: { lang: CourseLanguage }) {
       </div>
       {storageError && <p role="alert" className="text-sm text-amber-800">{t("Les favoris ne peuvent pas être sauvegardés dans ce navigateur.", "Favourites cannot be saved in this browser.", "تعذّر حفظ المفضلة في هذا المتصفح.")}</p>}
     </div>
+    <SourceLearningPaths lang={lang} onOpen={openFile} />
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.5fr)]">
       <div className="min-w-0 rounded-2xl border bg-white p-3">
-        <p role="status" className="p-2 text-sm font-bold">{savedOnly ? `${visibleSaved.length} ${t("favoris", "favourites", "ملفات مفضلة")}` : loading ? t("Recherche…", "Searching…", "جارٍ البحث…") : `${listing?.total ?? 0} ${t("résultats", "results", "نتائج")}`}</p>
+        <p role="status" className="p-2 text-sm font-bold">{savedOnly ? `${visibleSaved.length} ${t("favoris", "favourites", "ملفات مفضلة")}` : loading ? t("Chargement des fichiers…", "Loading files…", "جارٍ تحميل الملفات…") : error ? t("Les fichiers n’ont pas pu être chargés", "Files could not be loaded", "تعذر تحميل الملفات") : `${listing?.total ?? 0} ${t("résultats", "results", "نتائج")}`}</p>
         {error && !savedOnly && <div role="alert" className="p-3 text-sm text-red-800">{error === "403" ? <Link href="/admin/how-it-was-built/unlock" className="underline">{t("Déverrouille à nouveau la section propriétaire.", "Unlock the owner section again.", "افتح قسم المالك من جديد.")}</Link> : t("Bibliothèque indisponible. Réessaie avec Actualiser. Une version en ligne doit être reconstruite avec sa bibliothèque.", "Library unavailable. Try Refresh. An online deployment must be built with its library.", "المكتبة غير متاحة. جرّب التحديث. يجب بناء النسخة المنشورة مع مكتبتها.")}</div>}
         <div className="max-h-[45dvh] space-y-2 overflow-y-auto lg:max-h-[70dvh]">{(savedOnly ? visibleSaved.map(path => ({ path, line: 1, snippet: "", size: 0, lines: 0 })) : loading ? [] : listing?.results ?? []).map(item => <div key={item.path} className={"rounded-xl border p-3 " + (selected === item.path ? "border-green-500 bg-green-50" : "border-neutral-100")}>
           <button onClick={() => openFile(item.path, item.line)} className="min-h-11 w-full text-start"><span dir="ltr" className="block break-all font-mono text-sm font-semibold">{item.path}</span>{item.snippet && <span dir="ltr" className="mt-2 block break-all text-xs leading-5 text-neutral-600">L{item.line}: {item.snippet}</span>}</button>

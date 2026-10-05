@@ -1,0 +1,26 @@
+@media (max-width: 767px) {
+  :global(.admin-shell) :global(#admin-main):has(.page) {
+    padding-inline: max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-right));
+    padding-top: 10px;
+  }
+  .page.page { margin: 0; width: 100%; min-width: 0; background: transparent; }
+  .page :global(#course-tab-panel) { padding: 12px 0; }
+  .page[data-workshop=true] :global(#course-page-header) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid #dce5dd;
+    border-radius: 14px;
+    box-shadow: none;
+  }
+  .page[data-workshop=true] .headerRow { display: contents; }
+  .page[data-workshop=true] .brand { display: none; }
+  .page[data-workshop=true] .languages { grid-column: 2; grid-row: 1; }
+  .page[data-workshop=true] .languages button { min-width: 36px; min-height: 44px; padding-inline: 6px; }
+  .page .mobileNavigator { grid-column: 1; grid-row: 1; border: 0; padding: 0; min-width: 0; }
+  .mobileNavigator label { display: block; }
+  .mobileNavigator label > span { display: none; }
+  .page .mobileNavigator select { width: 100%; min-height: 44px; padding-inline: 6px; font-size: 14px; color: #173d32; text-overflow: ellipsis; }
+}
