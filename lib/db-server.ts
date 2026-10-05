@@ -1,3 +1,4 @@
+import { selectNewArrivals, selectStoreBestsellers } from "./store-collections";
 /**
  * Server-only Supabase helper.
  * Uses the service role key — NEVER import this from client components.
@@ -52,6 +53,7 @@ export async function getDbProducts(options?: {
   featured?: boolean;
   activeOnly?: boolean;
   promotionOnly?: boolean;
+  throwOnError?: boolean;
   limit?: number;
 }): Promise<CardProduct[]> {
   try {
@@ -60,10 +62,11 @@ export async function getDbProducts(options?: {
       // Keep this schema tolerant: older deployments do not expose product_ids.
       options?.promotionOnly ? createPublicSupabaseClient(["storefront-promotions"]).from("promotions").select("*") : Promise.resolve(null),
     ]);
-    if (promotions?.error) return [];
+    if (promotions?.error) throw promotions.error;
     const selected = options?.promotionOnly ? selectPromotionProducts(products, promotions?.data ?? []) : products;
     return (options?.limit ? selected.slice(0, options.limit) : selected).map(apiToCard);
-  } catch {
+  } catch (error) {
+    if (options?.throwOnError) throw error;
     return [];
   }
 }
@@ -113,3 +116,9 @@ export const getDbProductRaw = cache(async (slug: string): Promise<ApiProduct | 
   if (error) throw error;
   return (data as ApiProduct) ?? null;
 });
+
+/** Shared server source; failures must not masquerade as empty collections. */
+export async function getStoreCollection(kind: "promotions" | "nouveautes" | "bestsellers") {
+  const products = await getDbProducts({ activeOnly: true, promotionOnly: kind === "promotions", throwOnError: true });
+  return kind === "nouveautes" ? selectNewArrivals(products) : kind === "bestsellers" ? selectStoreBestsellers(products) : products;
+}

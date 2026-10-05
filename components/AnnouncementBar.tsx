@@ -1,8 +1,9 @@
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { freeShippingLabel } from "@/lib/shipping-config";
 import type { CSSProperties } from "react";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const DEFAULT_MESSAGES = [
-  "LIVRAISON GRATUITE DÈS 500 MAD AU MAROC",
   "Retours sous conditions SOUS 30 JOURS",
   "PAIEMENT À LA LIVRAISON DISPONIBLE",
 ];
@@ -53,7 +54,9 @@ export default async function AnnouncementBar() {
   const configured = [1, 2, 3, 4, 5]
     .map((index) => settings[`announcement_${index}`]?.trim())
     .filter((value): value is string => Boolean(value));
-  const messages = configured.length > 0 ? configured : DEFAULT_MESSAGES;
+  const shippingLabel = freeShippingLabel(await getServerShippingConfig());
+  const messages = (configured.length > 0 ? configured : [shippingLabel, ...DEFAULT_MESSAGES]).map(message =>
+    message.replace(/livraison\s+(?:gratuite|offerte)(?:\s+(?:dès|à partir de)\s+[\d\s.,]+\s*(?:MAD|DH))?(?:\s+au maroc)?/gi, shippingLabel));
   const repeats = Array.from({ length: Math.max(12, messages.length * 4) }, (_, index) => messages[index % messages.length]);
 
   const background = safeColor(settings.announcement_background, "#09090b");

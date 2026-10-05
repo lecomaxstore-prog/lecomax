@@ -1,3 +1,6 @@
+import { latestAndroidRelease } from "@/lib/app-release-server";
+import { publicRelease } from "@/lib/app-releases";
+export const dynamic = "force-dynamic";
 import type { Metadata } from "next";
 import DownloadAndroidClient from "./DownloadAndroidClient";
 
@@ -7,6 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://lecomax.com/download" },
 };
 
-export default function DownloadPage() {
-  return <DownloadAndroidClient />;
+export default async function DownloadPage() {
+  const row = await latestAndroidRelease().catch(() => null);
+  return <DownloadAndroidClient initialRelease={row ? publicRelease(row, "") : null} />;
 }

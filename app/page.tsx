@@ -1,5 +1,5 @@
 import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA, SOCIAL_TITLE, SOCIAL_DESCRIPTION } from "@/lib/social-image";
-import { isBestsellerEligible, selectBestsellers } from "@/lib/bestseller-eligibility";
+import { selectNewArrivals, selectStoreBestsellers } from "@/lib/store-collections";
 import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
@@ -16,7 +16,7 @@ const OurProductsGrid = dynamic(() => import("@/components/OurProductsGrid"));
 const ScrollReveal = dynamic(() => import("@/components/ScrollReveal"));
 const Testimonials = dynamic(() => import("@/components/Testimonials"));
 const NewsletterForm = dynamic(() => import("@/components/NewsletterForm"));
-import { type CardProduct, isNewArrivalEligible } from "@/lib/products";
+import { type CardProduct } from "@/lib/products";
 import { getDbProducts, getReviewStats } from "@/lib/db-server";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
 import { shippingConfigFromSettings, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
@@ -101,11 +101,11 @@ async function getHeroBanners(): Promise<HeroBannerRecord[]> {
 export default async function HomePage() {
   // Read the same live catalogue used by the app.
   const [dbProducts, heroImages, heroBanners, reviewStats, promotionProducts] = await Promise.all([
-    getDbProducts({ activeOnly: true }),
+    getDbProducts({ activeOnly: true, throwOnError: true }),
     getHeroImages(),
     getHeroBanners(),
     getReviewStats(),
-    getDbProducts({ activeOnly: true, promotionOnly: true }),
+    getDbProducts({ activeOnly: true, promotionOnly: true, throwOnError: true }),
   ]);
   const shippingConfig = shippingConfigFromSettings(heroImages);
 
@@ -147,26 +147,8 @@ export default async function HomePage() {
     reviewCount: reviewStats[p.slug]?.count,
   }));
 
-  // Preserve the original selection; automatically include products created
-  // after this feature was enabled. The live catalogue is newest first.
-  const automaticNewArrivalsSince = Date.parse("2026-09-15T10:14:41Z");
-  const newArrivalCandidates = allProducts.filter(isNewArrivalEligible);
-  const originalNewArrivals = newArrivalCandidates.filter((product) => product.badge === "Nouveau");
-  const existingSelection = originalNewArrivals.length > 0 ? originalNewArrivals : newArrivalCandidates;
-  const futureNewArrivals = newArrivalCandidates.filter((product) =>
-    product.createdAt && Date.parse(product.createdAt) >= automaticNewArrivalsSince
-  );
-  const futureSlugs = new Set(futureNewArrivals.map((product) => product.slug));
-  const newArrivals: CardProduct[] = [
-    ...futureNewArrivals,
-    ...existingSelection.filter((product) => !futureSlugs.has(product.slug)),
-  ].slice(0, 8).map((product) => ({
-    ...product,
-    badge: "Nouveau",
-  }));
-  const bestsellerCandidates = allProducts.filter(isBestsellerEligible);
-  const bestSellers = bestsellerCandidates.filter((p) => p.badge === "Bestseller");
-  const bestSellersForRail = selectBestsellers(allProducts, bestSellers.length > 0 ? bestSellers : bestsellerCandidates).slice(0, 8);
+  const newArrivals = selectNewArrivals(allProducts).slice(0, 8);
+  const bestSellersForRail = selectStoreBestsellers(allProducts).slice(0, 8);
 
   const SITE_URL = "https://lecomax.com";
   const itemListSchema = {
@@ -327,7 +309,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="En promotion"
-        products={(promotionProducts.length > 0 ? promotionProducts : allProducts.filter(p => (p.oldPrice ?? 0) > p.price)).slice(0, 8).map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
+        products={promotionProducts.slice(0, 8).map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
         cta={{ label: "Voir les promos", href: "/promotions" }}
       />
 

@@ -70,3 +70,10 @@ export function shippingDeliveryTime(config: ShippingConfig) {
     },
   };
 }
+
+/** Public shipping reassurance, including the condition whenever delivery is offered. */
+export function freeShippingLabel(config: ShippingConfig) {
+  return config.freeShippingEnabled !== false && config.freeThreshold > 0
+    ? `Livraison gratuite dès ${formatShippingAmount(config.freeThreshold)} MAD`
+    : `Livraison ${formatShippingAmount(config.cost)} MAD`;
+}

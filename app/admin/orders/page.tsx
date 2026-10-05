@@ -1,4 +1,5 @@
 ﻿"use client";
+import { STORE_SETTING_DEFAULTS } from "@/lib/store-settings";
 import AdminLoading from "@/components/admin/AdminLoading";
 import AdminModal from "@/components/admin/AdminModal";
 import FilterPanel from "@/components/admin/FilterPanel";
@@ -200,7 +201,7 @@ export default function OrdersPage() {
     const tracking = order.tracking_number ?? "";
     const msgs: Record<string, string> = {
       confirmed:   `Bonjour ${name},\n\n✅ *Commande confirmée*\nVotre commande *#${num}* a bien été enregistrée. Notre équipe commence sa préparation avec soin.\n\nVous recevrez un nouveau message dès son expédition.\n\nSuivre la commande :\nhttps://lecomax.com/suivre-commande\n\nMerci pour votre confiance,\nL'équipe *L'ecomax*`,
-      shipped:     `Bonjour ${name},\n\n🚚 *Votre colis est en route*\nLa commande *#${num}* vient de quitter nos locaux.${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nLivraison estimée : 2 à 5 jours ouvrables.\nSuivre la commande :\nhttps://lecomax.com/suivre-commande\n\nL'équipe *L'ecomax*`,
+      shipped:     `Bonjour ${name},\n\n🚚 *Votre colis est en route*\nLa commande *#${num}* vient de quitter nos locaux.${tracking ? `\n\nNuméro de suivi : *${tracking}*` : ""}\n\nLivraison estimée : ${STORE_SETTING_DEFAULTS.shipping_estimated_days}.\nSuivre la commande :\nhttps://lecomax.com/suivre-commande\n\nL'équipe *L'ecomax*`,
       delivered:   `Bonjour ${name},\n\n✅ *Commande livrée*\nLa commande *#${num}* est indiquée comme livrée. Nous espérons que tout est conforme à vos attentes.\n\nVotre facture :\nhttps://lecomax.com/facture/${order.id}\n\nVous recevrez également un lien sécurisé pour partager votre avis sur les produits reçus.\n\nMerci pour votre confiance,\nL'équipe *L'ecomax*`,
       cancelled:   `Bonjour ${name},\n\nVotre commande *#${num}* a été annulée.\n\nSi cette annulation vous surprend ou si vous souhaitez être accompagné(e), répondez simplement à ce message.\n\nL'équipe *L'ecomax*`,
       productReview: `Bonjour ${name.split(" ")[0] || "Client"},\n\nVotre commande *#${num}* a bien été livrée. Nous espérons que vos articles vous plaisent.\n\n*Partagez votre avis sur les produits achetés :*\n\n${(order.items ?? []).slice(0, 5).map((item, index) => `${index + 1}. ${item.name}\nhttps://lecomax.com/produit/${encodeURIComponent(item.slug || "")}?review=1&email=${encodeURIComponent(order.customer?.email || "")}#avis`).join("\n\n") || "https://lecomax.com/boutique"}\n\nVotre retour aide les autres clients à choisir et nous permet de mieux vous servir. Merci pour votre confiance.\n\nL'équipe *L'ecomax*`,

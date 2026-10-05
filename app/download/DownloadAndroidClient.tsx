@@ -13,22 +13,22 @@ function releaseDate(value: string) {
   return new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date(value));
 }
 
-export default function DownloadAndroidClient() {
-  const [release, setRelease] = useState<PublicAndroidRelease | null>(null);
-  const [loading, setLoading] = useState(true);
+export default function DownloadAndroidClient({ initialRelease }: { initialRelease: PublicAndroidRelease | null }) {
+  const [release, setRelease] = useState<PublicAndroidRelease | null>(initialRelease);
+  const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(initialRelease ? "" : "Les informations de version sont indisponibles pour le moment.");
   const [copied, setCopied] = useState(false);
   const [device, setDevice] = useState<"android" | "ios" | "other">("other");
 
   async function load() {
-    setLoading(true);
+    setLoading(!release);
     setError("");
     try {
       const response = await fetch("/api/app-releases/android/latest", { cache: "no-store" });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Aucune version n’est disponible.");
-      setRelease(data);
+      setRelease({ ...data, downloadUrl: new URL(data.downloadUrl, window.location.origin).pathname });
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Le service de téléchargement est indisponible.");
     } finally {
@@ -104,16 +104,16 @@ export default function DownloadAndroidClient() {
               </div>
             ) : release ? (
               <>
-                <button
-                  type="button"
-                  onClick={() => void download()}
-                  disabled={downloading}
+                <a
+                  href={release.downloadUrl}
+                  onClick={(event) => { event.preventDefault(); download(); }}
+                  aria-disabled={downloading}
                   aria-label={`Télécharger L’ecomax ${release.versionName} pour Android`}
                   className="mt-7 flex min-h-14 w-full items-center justify-center gap-3 bg-[#43e06b] px-5 text-sm font-black text-black transition hover:bg-[#65eb84] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/70 disabled:cursor-wait disabled:opacity-70"
                 >
                   <span aria-hidden>↓</span>
                   {downloading ? "PRÉPARATION…" : "TÉLÉCHARGER L’APK ANDROID"}
-                </button>
+                </a>
                 <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-xs text-white/55">
                   <span>Version {release.versionName}</span>
                   <span>{bytes(release.fileSize)}</span>
@@ -174,7 +174,7 @@ export default function DownloadAndroidClient() {
               <p className="text-[10px] font-black uppercase tracking-[.18em] text-emerald-700">Authenticité</p>
               <h2 className="mt-2 text-2xl font-black">Vérifiez votre APK</h2>
               <p className="mt-3 text-sm leading-6 text-emerald-950/70">
-                Chaque version est signée et vérifiée avant publication. Un utilisateur technique peut comparer le SHA-256 du fichier avec celui-ci.
+                Chaque version est signée et vérifiée avant publication. {release ? "Un utilisateur technique peut comparer le SHA-256 du fichier avec celui-ci." : "Les informations de vérification seront affichées lorsqu’une version sera disponible."}
               </p>
               {release && (
                 <>

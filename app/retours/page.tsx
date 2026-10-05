@@ -1,3 +1,5 @@
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { freeShippingLabel } from "@/lib/shipping-config";
 ﻿import Link from "next/link";
 import WhatsAppLink from "@/components/WhatsAppLink";
 
@@ -30,7 +32,8 @@ const steps = [
   },
 ];
 
-export default function RetoursPage() {
+export default async function RetoursPage() {
+  const shippingConfig = await getServerShippingConfig();
   return (
     <div className="min-h-screen bg-white">
 
@@ -193,7 +196,7 @@ export default function RetoursPage() {
             <h2 className="font-black text-[17px] text-black leading-tight tracking-tight">Échanges</h2>
           </div>
           <p className="text-[14px] text-neutral-500 leading-[1.8] pl-[calc(2.75rem)] max-w-2xl">
-            Vous souhaitez échanger votre article contre une autre taille ou couleur ? Effectuez un retour standard et passez une nouvelle commande. La livraison de votre nouvel achat est offerte.
+            Vous souhaitez échanger votre article contre une autre taille ou couleur ? Effectuez un retour standard et passez une nouvelle commande. {freeShippingLabel(shippingConfig)} pour votre nouvel achat.
           </p>
         </section>
 

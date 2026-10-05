@@ -1,3 +1,4 @@
+import { STORE_SETTING_DEFAULTS } from "../lib/store-settings";
 import fr from "./locales/fr.json";
 import en from "./locales/en.json";
 import type { Language } from "../lib/language-policy";
@@ -18,6 +19,8 @@ export function pluralCategory(language: Language, count: number): Intl.LDMLPlur
 }
 
 export function translate(language: Language, key: TranslationKey, params: TranslationParams = {}): string {
+  const officialEstimate = STORE_SETTING_DEFAULTS.shipping_estimated_days;
+  params = { deliveryEstimate: language === "en" ? officialEstimate.replace(" à ", "–").replace("jours ouvrables", "business days") : officialEstimate, ...params };
   const pluralKey = typeof params.count === "number"
     ? `${key}_${pluralCategory(language, params.count)}`
     : key;

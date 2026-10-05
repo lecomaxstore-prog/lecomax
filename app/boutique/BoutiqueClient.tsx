@@ -1,6 +1,7 @@
 "use client";
 import { useSettings } from "@/lib/use-settings";
 import { shippingConfigFromSettings, shippingSummary } from "@/lib/shipping-config";
+import { selectPromotionProducts } from "@/mobile/src/lib/store-promotions";
 import { useStoreRefresh } from "@/lib/use-store-refresh";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
@@ -30,13 +31,13 @@ type SortId = (typeof SORTS)[number]["id"];
 const MOBILE_PRODUCTS_PER_PAGE = 12;
 const DESKTOP_PRODUCTS_PER_PAGE = 16;
 
-export default function BoutiquePage({ initialProducts }: { initialProducts: CardProduct[] }) {
-  return <BoutiqueContent initialProducts={initialProducts} />;
+export default function BoutiquePage({ initialProducts, initialSettings, initialPromotionSlugs }: { initialProducts: CardProduct[]; initialSettings: Record<string, string>; initialPromotionSlugs: string[] }) {
+  return <BoutiqueContent initialProducts={initialProducts} initialSettings={initialSettings} initialPromotionSlugs={initialPromotionSlugs} />;
 }
 
-function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }) {
+function BoutiqueContent({ initialProducts, initialSettings, initialPromotionSlugs }: { initialProducts: CardProduct[]; initialSettings: Record<string, string>; initialPromotionSlugs: string[] }) {
   const searchParams = useSearchParams();
-  const settings = useSettings();
+  const settings = { ...initialSettings, ...useSettings() };
   const category = normalizeCategory(searchParams.get("cat"));
   const activeCategory: CategoryId = CATEGORIES.some(item => item.id === category) ? category as CategoryId : "all";
   const sort = searchParams.get("sort");
@@ -45,6 +46,7 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
   const currentPage = Number.isSafeInteger(page) && page > 0 ? page : 1;
   const [productsPerPage, setProductsPerPage] = useState(DESKTOP_PRODUCTS_PER_PAGE);
   const [dbProducts, setDbProducts] = useState<CardProduct[]>(initialProducts);
+  const [promotionSlugs, setPromotionSlugs] = useState(initialPromotionSlugs);
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,9 +79,11 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
   useStoreRefresh(async (signal) => {
     await Promise.all([
       fetch("/api/products?active=true", { signal, cache: "no-store" }).then((r) => r.json()),
+      fetch("/api/promotions", { signal, cache: "no-store" }).then(async r => { if (!r.ok) throw new Error("Promotions unavailable"); return r.json(); }),
       fetch("/api/reviews/stats", { signal, cache: "no-store" }).then((r) => r.json()).catch(() => ({})),
-    ]).then(([data, reviewStats]) => {
-      if (Array.isArray(data)) {
+    ]).then(([data, promotions, reviewStats]) => {
+      if (Array.isArray(data) && Array.isArray(promotions)) {
+        setPromotionSlugs(selectPromotionProducts(data, promotions).map(p => p.slug));
         const cards = data.map(apiToCard).map((p: CardProduct) => ({
           ...p,
           rating: (reviewStats as Record<string, { rating: number; count: number }>)[p.slug]?.rating,
@@ -100,10 +104,10 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
 
     if (activeSort === "price-asc") list = [...list].sort((a, b) => a.price - b.price);
     else if (activeSort === "price-desc") list = [...list].sort((a, b) => b.price - a.price);
-    else if (activeSort === "promo") list = list.filter((p) => p.oldPrice);
+    else if (activeSort === "promo") list = list.filter((p) => promotionSlugs.includes(p.slug));
 
     return list;
-  }, [activeCategory, activeSort, allProducts]);
+  }, [activeCategory, activeSort, allProducts, promotionSlugs]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / productsPerPage));
   const visiblePage = Math.min(currentPage, totalPages);
@@ -177,7 +181,7 @@ function BoutiqueContent({ initialProducts }: { initialProducts: CardProduct[] }
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3ecf4c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
                 </svg>
-                <p className="text-[11px] uppercase tracking-wider font-black leading-tight" style={{ color: "#3ecf4c" }}>Livraison<br/>gratuite</p>
+                <p className="text-[11px] uppercase tracking-wider font-black leading-tight" style={{ color: "#3ecf4c" }}>Livraison<br/>au Maroc</p>
               </div>
             </div>
           </div>

@@ -1,4 +1,5 @@
 "use client";
+import { STORE_SETTING_DEFAULTS } from "@/lib/store-settings";
 import AdminLoading from "@/components/admin/AdminLoading";
 import { useEffect, useRef, useState } from "react";
 import styles from "./ChatKb.module.css";
@@ -240,7 +241,7 @@ export default function ChatKbPage() {
                 <textarea
                   value={form.answer}
                   onChange={e => setForm(f => ({ ...f, answer: e.target.value }))}
-                  placeholder="Ex: La livraison prend 2 à 5 jours ouvrables partout au Maroc, pour un tarif fixe de 40 MAD."
+                  placeholder={`Ex: La livraison prend ${STORE_SETTING_DEFAULTS.shipping_estimated_days} partout au Maroc.`}
                   rows={5}
                   className="w-full border border-neutral-200 rounded-xl px-4 py-2.5 text-[13px] focus:outline-none focus:border-black resize-none"
                 />
@@ -391,7 +392,7 @@ CREATE TABLE IF NOT EXISTS chat_knowledge_base (
 
 -- Seed with common Q&As
 INSERT INTO chat_knowledge_base (question, answer, category, language) VALUES
-('Quel est le délai de livraison ?', 'La livraison prend 2 à 5 jours ouvrables partout au Maroc. Le tarif est fixe : 40 MAD quelle que soit votre commande.', 'livraison', 'fr'),
+('Quel est le délai de livraison ?', 'La livraison prend ${STORE_SETTING_DEFAULTS.shipping_estimated_days} partout au Maroc. Le tarif est fixe : 40 MAD quelle que soit votre commande.', 'livraison', 'fr'),
 ('كم يستغرق التوصيل؟', 'التوصيل يستغرق من 2 إلى 5 أيام عمل في جميع أنحاء المغرب. التكلفة ثابتة: 35 درهم فقط.', 'livraison', 'ar'),
 ('Comment suivre ma commande ?', 'Rendez-vous sur lecomax.com/suivre-commande, entrez votre numéro de commande et votre numéro de téléphone.', 'commande', 'fr'),
 ('Comment retourner un produit ?', 'Vous avez 30 jours pour retourner tout article. Visitez lecomax.com/retours pour démarrer votre retour gratuitement.', 'retours', 'fr'),

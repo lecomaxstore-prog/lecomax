@@ -1,3 +1,4 @@
+import { STORE_SETTING_DEFAULTS } from "../mobile/src/lib/store-settings.ts";
 import fs from 'fs';
 import https from 'https';
 
@@ -27,7 +28,7 @@ const statements = [
   `ALTER TABLE data_collection_consents ADD COLUMN IF NOT EXISTS longitude numeric`,
   // 3. Seed starter Q&As
   `INSERT INTO chat_knowledge_base (question, answer, category, language, sort_order) VALUES
-    ('Quel est le délai de livraison ?', 'La livraison prend 2 à 5 jours ouvrables partout au Maroc. Le tarif est fixe : 35 MAD quelle que soit votre commande.', 'livraison', 'fr', 1),
+    ('Quel est le délai de livraison ?', 'La livraison prend ${STORE_SETTING_DEFAULTS.shipping_estimated_days} partout au Maroc. Le tarif est fixe : 35 MAD quelle que soit votre commande.', 'livraison', 'fr', 1),
     ('كم يستغرق التوصيل؟', 'التوصيل يستغرق من 2 إلى 5 أيام عمل في جميع أنحاء المغرب. التكلفة ثابتة: 35 درهم فقط.', 'livraison', 'ar', 2),
     ('Comment suivre ma commande ?', 'Rendez-vous sur lecomax.com/suivre-commande, entrez votre numéro de commande et votre numéro de téléphone. Vous verrez le statut en temps réel.', 'commande', 'fr', 3),
     ('كيف أتتبع طلبيتي؟', 'يمكنك تتبع طلبيتك على lecomax.com/suivre-commande عن طريق إدخال رقم الطلب ورقم هاتفك.', 'commande', 'ar', 4),

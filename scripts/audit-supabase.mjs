@@ -1,3 +1,4 @@
+import { STORE_SETTING_DEFAULTS } from "../mobile/src/lib/store-settings.ts";
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -80,7 +81,7 @@ const requiredFunctions = [
 const requiredSettings = {
   shipping_cost: "40",
   free_shipping_threshold: "500",
-  shipping_estimated_days: "2-5 jours ouvrables",
+  shipping_estimated_days: STORE_SETTING_DEFAULTS.shipping_estimated_days,
   app_minimum_version: "1.0.0",
   app_latest_version: "1.0.0",
   app_force_update: "false",

@@ -1,9 +1,13 @@
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
+import { freeShippingLabel } from "@/lib/shipping-config";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const shipping = freeShippingLabel(await getServerShippingConfig());
+  return {
   title: "ecoClub — Programme de Fidélité | L'ecomax",
   description:
-    "Rejoignez ecoClub, le programme de fidélité L'ecomax. Gagnez des points sur chaque achat, obtenez la livraison gratuite permanente et profitez d'avantages exclusifs.",
+    `Rejoignez ecoClub, le programme de fidélité L’ecomax. Gagnez des points sur chaque achat. ${shipping}.`,
   keywords: [
     "programme fidélité Maroc",
     "ecoClub lecomax",
@@ -15,10 +19,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "ecoClub — Programme de Fidélité | L'ecomax",
     description:
-      "Gagnez des points, obtenez la livraison gratuite et des réductions exclusives avec ecoClub.",
+      `Gagnez des points et profitez de réductions avec ecoClub. ${shipping}.`,
     url: "https://lecomax.com/ecoclub/",
   },
-};
+  };
+}
 
 export default function EcoclubLayout({
   children,

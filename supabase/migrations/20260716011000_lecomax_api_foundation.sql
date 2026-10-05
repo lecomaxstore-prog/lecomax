@@ -13,7 +13,6 @@ insert into public.settings (key, value, updated_at)
 values
   ('shipping_cost', '35', now()),
   ('free_shipping_threshold', '500', now()),
-  ('shipping_estimated_days', '2-5 jours ouvrables', now()),
   ('announcement_1', 'LIVRAISON GRATUITE DÈS 500 MAD AU MAROC', now())
 on conflict (key) do update
 set value = excluded.value,

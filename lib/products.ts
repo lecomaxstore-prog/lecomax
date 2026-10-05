@@ -500,6 +500,7 @@ export const formatMAD = (n: number) =>
 
 // ─── Normalised card type accepted by ProductCard / ProductRail ───────────────
 export type CardProduct = {
+  active?: boolean;
   preorder_enabled?: boolean;
   preorder_estimated_at?: string | null;
   preorder_message?: string | null;
@@ -522,6 +523,7 @@ export type CardProduct = {
 
 /** Convert an API/Supabase product to the CardProduct format */
 export function apiToCard(p: {
+  active?: boolean;
   preorder_enabled?: boolean;
   preorder_estimated_at?: string | null;
   preorder_message?: string | null;
@@ -539,6 +541,7 @@ export function apiToCard(p: {
   stock?: number | null;
 }): CardProduct {
   return {
+    active: p.active,
     slug: p.slug,
     name: p.name,
     category: p.category,

@@ -846,7 +846,7 @@ export default function SettingsPage() {
                   </label>
                   <input
                     value={
-                      settings.shipping_estimated_days ?? "2-5 jours ouvrables"
+                      settings.shipping_estimated_days ?? STORE_SETTING_DEFAULTS.shipping_estimated_days
                     }
                     onChange={(e) =>
                       setSettings((s) => ({
@@ -854,7 +854,7 @@ export default function SettingsPage() {
                         shipping_estimated_days: e.target.value,
                       }))
                     }
-                    placeholder="Ex. 2-5 jours ouvrables"
+                    placeholder={STORE_SETTING_DEFAULTS.shipping_estimated_days}
                     className="w-full rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm outline-none transition focus:border-black focus:bg-white"
                   />
                 </div>
