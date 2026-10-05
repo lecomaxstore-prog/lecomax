@@ -1,4 +1,5 @@
 "use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 import PreorderNotice from "@/components/PreorderNotice";
 import { preorderCopy } from "@/lib/preorder-copy";
 
@@ -276,7 +277,7 @@ export default function CartPage() {
 
                 <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 border-t border-neutral-100 pt-5 text-[10px] font-bold text-neutral-500">
                   <span className="inline-flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#239f37" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Paiement sécurisé</span>
-                  <span className="inline-flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#239f37" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>Retours sous 30 jours</span>
+                  <span className="inline-flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#239f37" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v6h6"/></svg>{RETURN_POLICY.summary}</span>
                 </div>
               </div>
 
@@ -663,7 +664,7 @@ export default function CartPage() {
               {/* Trust badges card */}
               <div className="bg-white rounded-xl border border-neutral-200 px-5 py-4 space-y-3">
                 {[
-                  { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: "Retours sous 30 jours, selon conditions" },
+                  { icon: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6", label: RETURN_POLICY.summary },
                   { icon: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8z", label: items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : `Livraison sous ${shippingConfig.estimatedDays}` },
                   { icon: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", label: "Paiement à réception" },
                 ].map(t => (

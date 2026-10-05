@@ -64,3 +64,18 @@ export function shippingSummary(config: ShippingConfig) {
     ? `Livraison ${cost} MAD partout au Maroc, offerte dès ${threshold} MAD d'achats.`
     : `Livraison ${cost} MAD partout au Maroc.`;
 }
+
+/** Do not invent structured delivery promises when an admin uses free-form text. */
+export function shippingDeliveryTime(config: ShippingConfig) {
+  const range = config.estimatedDays.match(/^(\d+)\s*(?:[–—-]|à)\s*(\d+)\s+jours?\s+ouvr(?:ables|és)$/i);
+  if (!range || Number(range[1]) > Number(range[2])) return undefined;
+  return {
+    "@type": "ShippingDeliveryTime",
+    transitTime: {
+      "@type": "QuantitativeValue",
+      minValue: Number(range[1]),
+      maxValue: Number(range[2]),
+      unitCode: "DAY",
+    },
+  };
+}

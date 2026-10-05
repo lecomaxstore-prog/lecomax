@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 ﻿import Link from "next/link";
 
 import ShippingTermsItem from "@/components/ShippingTermsItem";
@@ -47,7 +48,7 @@ const sections = [
     num: "05",
     title: "Livraison",
     items: [
-      "Délai de livraison estimé : 3 à 5 jours ouvrables sur l'ensemble du territoire marocain",
+      <ShippingTermsItem key="shipping-estimate" estimate />,
       <ShippingTermsItem key="shipping-terms" />,
       "L'ecomax ne saurait être tenu responsable des retards imputables aux transporteurs",
       "Service disponible dans toutes les régions du Maroc",
@@ -59,9 +60,9 @@ const sections = [
     num: "06",
     title: "Retours et remboursements",
     items: [
-      "Délai de retour : 30 jours à compter de la réception, article non utilisé dans son emballage d'origine",
+      `${RETURN_POLICY.description} Article non utilisé dans son emballage d’origine.`,
       "Remboursement effectué sous 5 à 7 jours ouvrables après validation du retour",
-      "Les frais de retour sont à la charge du client, sauf en cas de défaut imputable à L'ecomax",
+      RETURN_POLICY.fees,
       "Échange possible contre une autre taille ou coloris sous réserve de disponibilité",
     ],
     body: null,

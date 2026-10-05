@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { useStoreRefresh } from "@/lib/use-store-refresh";
-import { products as catalogProducts } from "@/lib/products";
+import { categoryProductCounts, normalizeCategory } from "@/lib/storefront-catalogue";
+import { categories as catalogueCategories } from "@/lib/products";
 
 type StoreCategory = {
   id?: string;
@@ -47,9 +48,9 @@ function useInView() {
   return { ref, visible };
 }
 
-export default function CategoryTiles() {
+export default function CategoryTiles({ initialCounts }: { initialCounts: Record<string, number> }) {
   const [dbCategories, setDbCategories] = useState<StoreCategory[]>([]);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+  const [counts, setCounts] = useState(initialCounts);
   const { ref, visible } = useInView();
 
   useStoreRefresh(async (signal) => {
@@ -59,30 +60,18 @@ export default function CategoryTiles() {
     ]).then(([categoryData, productData]) => {
       if (Array.isArray(categoryData)) setDbCategories(categoryData.filter((category) => category.active !== false));
       if (Array.isArray(productData)) {
-        const nextCounts: Record<string, number> = {};
-        for (const product of productData as { category?: string }[]) {
-          const category = product.category?.toLowerCase();
-          if (category) nextCounts[category] = (nextCounts[category] || 0) + 1;
-        }
-        setCounts(nextCounts);
+        setCounts(categoryProductCounts(productData));
       }
     }).catch(() => {});
   });
 
-  const fallbackCategories: StoreCategory[] = [
-    { slug: "homme", label: "Homme", image: null, sort_order: 1 },
-    { slug: "femme", label: "Femme", image: null, sort_order: 2 },
-    { slug: "chaussures", label: "Chaussures", image: null, sort_order: 3 },
-    { slug: "accessoires", label: "Accessoires", image: null, sort_order: 4 },
-  ];
+  const fallbackCategories: StoreCategory[] = catalogueCategories.map(({ slug, label }, index) => ({
+    slug, label, image: null, sort_order: index + 1,
+  }));
   const sourceCategories = dbCategories.length ? dbCategories : fallbackCategories;
-  const sourceCounts = Object.keys(counts).length ? counts : catalogProducts.reduce<Record<string, number>>((result, product) => {
-    result[product.category] = (result[product.category] || 0) + 1;
-    return result;
-  }, {});
   const categories = [...sourceCategories].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
     ...category,
-    count: sourceCounts[category.slug] ?? 0,
+    count: counts[normalizeCategory(category.slug)] ?? 0,
   }));
   const total = categories.reduce((sum, category) => sum + category.count, 0);
 

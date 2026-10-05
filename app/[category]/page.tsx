@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 ﻿import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { cache } from "react";
@@ -65,19 +66,19 @@ const categoryMeta: Record<string, { title: string; description: string; keyword
 const categorySeoContent: Record<string, { heading: string; body: string }> = {
   homme: {
     heading: "Vêtements Homme au Maroc — Style & Confort",
-    body: "Découvrez notre collection de vêtements homme soigneusement sélectionnés pour le style et la performance. Vestes de sport, bombers tendance, sweats et hoodies disponibles dans des coupes modernes adaptées à toutes les morphologies. Chaque article est choisi pour son rapport qualité-prix exceptionnel. Livraison rapide à {{shipping}} partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir et toutes les villes. Paiement à la livraison disponible. Retours sous 30 jours, selon conditions.",
+    body: "Découvrez notre collection de vêtements homme soigneusement sélectionnés pour le style et la performance. Vestes de sport, bombers tendance, sweats et hoodies disponibles dans des coupes modernes adaptées à toutes les morphologies. Chaque article est choisi pour son rapport qualité-prix exceptionnel. Livraison rapide à {{shipping}} partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir et toutes les villes. Paiement à la livraison disponible. {{returns}}.",
   },
   femme: {
     heading: "Vêtements & Chaussons Femme au Maroc — Confort & Tendance",
-    body: "Retrouvez notre sélection de chaussons et vêtements pour femme adaptés à toutes les saisons. Chaussons d'intérieur en peluche chauds et moelleux, chaussons à fleurs tendance, chaussons extérieur antidérapants — des modèles confortables pour la maison et les courtes sorties. Également vestes et hoodies féminins pour compléter votre garde-robe. Articles en promotion régulièrement. Livraison {{shipping}} partout au Maroc, paiement à la livraison, Retours sous conditions 30 jours.",
+    body: "Retrouvez notre sélection de chaussons et vêtements pour femme adaptés à toutes les saisons. Chaussons d'intérieur en peluche chauds et moelleux, chaussons à fleurs tendance, chaussons extérieur antidérapants — des modèles confortables pour la maison et les courtes sorties. Également vestes et hoodies féminins pour compléter votre garde-robe. Articles en promotion régulièrement. Livraison {{shipping}} partout au Maroc, paiement à la livraison, {{returns}}.",
   },
   chaussures: {
     heading: "Chaussures de Sport & Running au Maroc",
-    body: "Trouvez la chaussure idéale parmi notre sélection de baskets et chaussures de sport au Maroc. Modèles respirants ultra-légers pour la course à pied et la marche quotidienne, avec semelles souples pour un confort toute la journée. Disponibles en plusieurs couleurs et pointures (38 à 45). Idéales pour le running, le tennis et les activités sportives. Livraison estimée sous 2 à 5 jours ouvrables à {{shipping}} partout au Maroc avec paiement à la livraison. Retours sous 30 jours, selon conditions.",
+    body: "Trouvez la chaussure idéale parmi notre sélection de baskets et chaussures de sport au Maroc. Modèles respirants ultra-légers pour la course à pied et la marche quotidienne, avec semelles souples pour un confort toute la journée. Disponibles en plusieurs couleurs et pointures (38 à 45). Idéales pour le running, le tennis et les activités sportives. Livraison estimée sous {{delivery}} à {{shipping}} partout au Maroc avec paiement à la livraison. {{returns}}.",
   },
   accessoires: {
     heading: "Accessoires Tech & Gaming au Maroc — Qualité Premium",
-    body: "Explorez notre gamme d'accessoires tech sélectionnés pour leur qualité et innovation. Enceintes Bluetooth HiFi son stéréo cinéma, écouteurs sans fil TWS avec microphone intégré, manettes gaming sans fil compatibles iOS/PC/Switch/Android, sacs à dos anti-vol pour le voyage et le quotidien. Tous nos produits sont testés et garantis. Livraison à {{shipping}} partout au Maroc — Casablanca, Rabat, Marrakech et toutes les villes. Paiement à la livraison, Retours sous conditions 30 jours.",
+    body: "Explorez notre gamme d'accessoires tech sélectionnés pour leur qualité et innovation. Enceintes Bluetooth HiFi son stéréo cinéma, écouteurs sans fil TWS avec microphone intégré, manettes gaming sans fil compatibles iOS/PC/Switch/Android, sacs à dos anti-vol pour le voyage et le quotidien. Tous nos produits sont testés et garantis. Livraison à {{shipping}} partout au Maroc — Casablanca, Rabat, Marrakech et toutes les villes. Paiement à la livraison, {{returns}}.",
   },
 };
 
@@ -290,7 +291,7 @@ export default async function CategoryPage({
             {categorySeoContent[category].heading}
           </h2>
           <p className="text-neutral-500 text-[14px] leading-relaxed">
-            {categorySeoContent[category].body.replace(/\{\{shipping\}\}/g, shippingAmount)}
+            {categorySeoContent[category].body.replace(/\{\{shipping\}\}/g, shippingAmount).replace("{{delivery}}", shippingConfig.estimatedDays).replace("{{returns}}", RETURN_POLICY.summary)}
           </p>
         </section>
       )}

@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 ﻿import { notFound } from "next/navigation";
 import Link from "next/link";
 import { formatMAD, products, type CardProduct, type Product } from "@/lib/products";
@@ -16,7 +17,7 @@ import ProductAccordion from "@/components/ProductAccordion";
 import ShareButtons from "@/components/ShareButtons";
 import NewsletterSection from "@/components/NewsletterSection";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
-import { calculateShipping, formatShippingAmount, shippingSummary } from "@/lib/shipping-config";
+import { calculateShipping, formatShippingAmount, shippingSummary, shippingDeliveryTime } from "@/lib/shipping-config";
 import { colorSizeStockFromTags } from "@/lib/product-inventory";
 import { catalogAvailability } from "@/mobile/src/lib/catalog-availability";
 import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
@@ -280,27 +281,13 @@ export default async function ProductPage({
           "@type": "DefinedRegion",
           "addressCountry": "MA",
         },
-        "deliveryTime": {
-          "@type": "ShippingDeliveryTime",
-          "handlingTime": {
-            "@type": "QuantitativeValue",
-            "minValue": 0,
-            "maxValue": 1,
-            "unitCode": "DAY",
-          },
-          "transitTime": {
-            "@type": "QuantitativeValue",
-            "minValue": 2,
-            "maxValue": 4,
-            "unitCode": "DAY",
-          },
-        },
+        "deliveryTime": shippingDeliveryTime(shippingConfig),
       },
       "hasMerchantReturnPolicy": {
         "@type": "MerchantReturnPolicy",
         "applicableCountry": "MA",
         "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
-        "merchantReturnDays": 30,
+        "merchantReturnDays": RETURN_POLICY.days,
         "returnMethod": "https://schema.org/ReturnByMail",
       },
     },
@@ -502,8 +489,8 @@ export default async function ProductPage({
                 <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/>
               </svg>
               <div>
-                <p className="font-black text-[12px] uppercase">Retours 30 jours</p>
-                <p className="text-neutral-400 text-[11px] mt-0.5">Retours simples et gratuits</p>
+                <p className="font-black text-[12px] uppercase">Retours {RETURN_POLICY.window}</p>
+                <p className="text-neutral-400 text-[11px] mt-0.5">{RETURN_POLICY.summary}</p>
               </div>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
+import { getServerShippingConfig } from "@/lib/shipping-config-server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { name: storeName, email: storeEmail, banner: emailBannerUrl } = await getStoreSettings();
+  const shippingConfig = await getServerShippingConfig();
 
   const itemsHtml = order_items
     .split("\n")
@@ -151,7 +153,7 @@ export async function POST(req: NextRequest) {
 
             <!-- Delivery estimate -->
             <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px 16px;margin-bottom:28px;text-align:center;">
-              <p style="margin:0;font-size:13px;color:#1d4ed8;font-weight:600;">Livraison estimée : 2 – 5 jours ouvrables</p>
+              <p style="margin:0;font-size:13px;color:#1d4ed8;font-weight:600;">Livraison estimée : ${escapeHtml(shippingConfig.estimatedDays)}</p>
             </div>
 
             <p style="margin:0;font-size:13px;color:#6b7280;line-height:1.6;">

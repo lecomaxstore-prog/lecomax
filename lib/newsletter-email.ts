@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "./return-policy.ts";
 export type NewsletterProduct = {
   slug: string;
   name: string;
@@ -74,7 +75,7 @@ export function buildNewsletterEmail(campaign: NewsletterCampaign, products: New
         </td></tr>
         <tr><td class="pad" style="padding:18px 34px 24px"><a href="${absoluteUrl(campaign.ctaUrl, SITE_URL)}" style="display:block;padding:15px 22px;background:${campaign.ctaBackground};color:${campaign.ctaTextColor};text-align:center;text-decoration:none;font-size:14px;font-weight:900;border-radius:${campaign.ctaRadius}px">${escapeHtml(campaign.ctaLabel)}</a></td></tr>
         ${productRows}
-        <tr><td style="padding:26px 24px;background:#0b0d0b;color:#fff;text-align:center"><p style="margin:0 0 7px;font-size:13px;font-weight:800">L'ECOMAX · MARKETPLACE LIFESTYLE</p><p style="margin:0;color:#9ca3af;font-size:11px;line-height:1.6">Livraison partout au Maroc · Retours sous 30 jours<br>Vous recevez cet email car vous êtes inscrit(e) à notre newsletter.</p></td></tr>
+        <tr><td style="padding:26px 24px;background:#0b0d0b;color:#fff;text-align:center"><p style="margin:0 0 7px;font-size:13px;font-weight:800">L'ECOMAX · MARKETPLACE LIFESTYLE</p><p style="margin:0;color:#9ca3af;font-size:11px;line-height:1.6">Livraison partout au Maroc · ${RETURN_POLICY.summary}<br>Vous recevez cet email car vous êtes inscrit(e) à notre newsletter.</p></td></tr>
       </table>
     </td></tr></table>
   </body></html>`;

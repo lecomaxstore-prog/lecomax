@@ -1,4 +1,5 @@
 "use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 import PreorderNotice from "@/components/PreorderNotice";
 import { preorderCopy } from "@/lib/preorder-copy";
 
@@ -560,7 +561,7 @@ export default function MerciPage() {
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3 5 6v5c0 4.8 2.8 8 7 10 4.2-2 7-5.2 7-10V6l-7-3Z"/><path d="m9 12 2 2 4-5"/></svg>,
               },
               {
-                title: "Retours sous 30 jours",
+                title: RETURN_POLICY.summary,
                 detail: "Une procédure claire, rapide et sans complication",
                 label: "Retour simplifié",
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 7v6h6"/><path d="M5.6 17A8 8 0 1 0 5 7l-2 6"/></svg>,

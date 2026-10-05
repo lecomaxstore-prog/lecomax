@@ -1,4 +1,5 @@
 "use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 
 import { BRAND_COPY } from "@/mobile/src/lib/brand-copy";
 import { useState } from "react";
@@ -91,7 +92,7 @@ const DEFAULT_SOCIALS = [
 
 const trustBadges = [
   { label: "", sub: "Partout au Maroc", path: "M1 3h15v13H1zM16 8h4l3 3v5h-7V8zM5.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM18.5 21a2.5 2.5 0 100-5 2.5 2.5 0 000 5z", dynamicLabel: "shipping" },
-  { label: "Retours sous conditions", sub: "Sous 30 jours", path: "M3 2v6h6M3 8C4.5 4.5 8 2 12 2a10 10 0 0110 10 10 10 0 01-10 10c-4.1 0-7.6-2.5-9.2-6" },
+  { label: RETURN_POLICY.label, sub: `Sous ${RETURN_POLICY.window}`, path: "M3 2v6h6M3 8C4.5 4.5 8 2 12 2a10 10 0 0110 10 10 10 0 01-10 10c-4.1 0-7.6-2.5-9.2-6" },
   { label: "Paiement sécurisé", sub: "Options au paiement", path: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" },
   { label: "Service client", sub: "Contactez-nous", path: "M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" },
 ];

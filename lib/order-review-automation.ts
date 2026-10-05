@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "./return-policy.ts";
 import "server-only";
 
 export const REVIEW_AUTOMATION_KEY_PREFIX = "order_review_automation:";
@@ -69,7 +70,7 @@ function emailShell(content: string, preview: string) {
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="card" style="max-width:600px;background:#fff;border:1px solid #e5e7eb;border-radius:22px;overflow:hidden">
   <tr><td class="brand-pad" style="background:#0b0d0b;padding:24px 30px"><span style="font-size:23px;font-weight:900;color:#fff">L'eco<span style="color:#3ecf4c">max</span></span><span style="float:right;padding-top:7px;font-size:9px;font-weight:700;letter-spacing:1.6px;color:#a1a7a2">MAROC</span></td></tr>
   ${content}
-  <tr><td style="border-top:1px solid #edf0ed;padding:20px 28px;text-align:center;font-size:11px;line-height:1.7;color:#8b918c">Une question ? Répondez simplement à cet e-mail.<br><a href="${siteUrl}" style="color:#239f37;text-decoration:none;font-weight:700">lecomax.com</a> · Retours sous 30 jours</td></tr>
+  <tr><td style="border-top:1px solid #edf0ed;padding:20px 28px;text-align:center;font-size:11px;line-height:1.7;color:#8b918c">Une question ? Répondez simplement à cet e-mail.<br><a href="${siteUrl}" style="color:#239f37;text-decoration:none;font-weight:700">lecomax.com</a> · ${RETURN_POLICY.summary}</td></tr>
   </table></td></tr></table></body></html>`;
 }
 

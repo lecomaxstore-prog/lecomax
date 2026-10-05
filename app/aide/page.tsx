@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 import { useState } from "react";
 import Link from "next/link";
 import { useSettings, getWhatsAppHref } from "@/lib/use-settings";
@@ -72,9 +73,9 @@ const faqGroups = [
     id: "retours",
     label: "Retours",
     faqs: [
-      { q: "Comment retourner un article ?", a: "Vous disposez de 30 jours après réception pour retourner un article dans son état d'origine avec ses étiquettes. Connectez-vous à votre compte pour initier le retour." },
+      { q: "Comment retourner un article ?", a: `${RETURN_POLICY.description} L’article doit être dans son état d’origine avec ses étiquettes. Connectez-vous à votre compte pour initier le retour.` },
       { q: "Quand serai-je remboursé ?", a: "Une fois le retour reçu et validé, votre remboursement est traité sous 5 à 7 jours ouvrés sur le moyen de paiement d'origine." },
-      { q: "Les frais de retour sont-ils à ma charge ?", a: "Les frais de retour sont à votre charge sauf en cas d'erreur de notre part ou de produit défectueux, auquel cas nous prenons tout en charge." },
+      { q: "Les frais de retour sont-ils à ma charge ?", a: RETURN_POLICY.fees },
     ],
   },
   {

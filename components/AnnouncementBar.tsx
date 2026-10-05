@@ -1,9 +1,10 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 import type { CSSProperties } from "react";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const DEFAULT_MESSAGES = [
   "LIVRAISON GRATUITE DÈS 500 MAD AU MAROC",
-  "Retours sous conditions SOUS 30 JOURS",
+  RETURN_POLICY.summary,
   "PAIEMENT À LA LIVRAISON DISPONIBLE",
 ];
 

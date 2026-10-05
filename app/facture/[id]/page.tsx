@@ -1,4 +1,5 @@
 "use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 import { useEffect, useState } from "react";
 import type { Order } from "@/lib/supabase";
 
@@ -286,7 +287,7 @@ export default function PublicFacturePage({ params }: { params: Promise<{ id: st
             <div style={{ height: 1, background: "#e5e7eb", marginBottom: 12 }} />
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
               <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-                {["Retours sous 30 jours", delivery === 0 ? "Livraison gratuite" : `Livraison ${delivery.toFixed(0)} MAD au Maroc`, "Paiement sécurisé"].map(t => (
+                {[RETURN_POLICY.summary, delivery === 0 ? "Livraison gratuite" : `Livraison ${delivery.toFixed(0)} MAD au Maroc`, "Paiement sécurisé"].map(t => (
                   <span key={t} style={{ fontSize: 10, color: "#9ca3af", fontWeight: 500 }}>✓ {t}</span>
                 ))}
               </div>
