@@ -8,15 +8,12 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "@/components/ProductCard";
-import { apiToCard, type CardProduct } from "@/lib/products";
+import { apiToCard, categories, type CardProduct } from "@/lib/products";
 import { filterCategoryProducts, normalizeCategory } from "@/lib/storefront-catalogue";
 
 const CATEGORIES = [
   { id: "all", label: "Tout voir" },
-  { id: "chaussures", label: "Chaussures" },
-  { id: "accessoires", label: "Accessoires" },
-  { id: "homme", label: "Homme" },
-  { id: "femme", label: "Femme" },
+  ...[...categories.slice(2), ...categories.slice(0, 2)].map(({ slug, label }) => ({ id: slug, label })),
 ] as const;
 
 const SORTS = [

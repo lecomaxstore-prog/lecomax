@@ -1,4 +1,5 @@
-﻿"use client";
+"use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
@@ -177,7 +178,7 @@ export default function CategoryFilters({
       <div className="border-t border-neutral-100 bg-neutral-50 py-10 text-center">
         <p className="text-[12px] uppercase tracking-[0.3em] text-neutral-400 mb-2">Livraison & retours</p>
         <p className="text-[14px] text-neutral-600">
-          Livraison {siteSettings.shipping_cost} {siteSettings.currency} &nbsp;·&nbsp; Retours sous 30 jours, selon conditions
+          Livraison {siteSettings.shipping_cost} {siteSettings.currency} &nbsp;·&nbsp; {RETURN_POLICY.summary}
         </p>
         <div className="flex items-center justify-center gap-6 mt-5">
           <Link href="/aide" className="text-[12px] font-black uppercase tracking-wide underline underline-offset-4 hover:no-underline">

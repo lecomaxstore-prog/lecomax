@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import Link from "next/link";
+import { categoryProductCounts, normalizeCategory } from "@/lib/storefront-catalogue";
+import { categories as catalogueCategories } from "@/lib/products";
 import { useStoreRefresh } from "@/lib/use-store-refresh";
 
 type StoreCategory = {
@@ -58,27 +60,19 @@ export default function CategoryTiles({ initialCounts = {} }: { initialCounts?: 
     ]).then(([categoryData, productData]) => {
       if (Array.isArray(categoryData)) setDbCategories(categoryData.filter((category) => category.active !== false));
       if (Array.isArray(productData)) {
-        const nextCounts: Record<string, number> = {};
-        for (const product of productData as { category?: string }[]) {
-          const category = product.category?.toLowerCase();
-          if (category) nextCounts[category] = (nextCounts[category] || 0) + 1;
-        }
-        setCounts(nextCounts);
+        setCounts(categoryProductCounts(productData));
       }
     }).catch(() => {});
   });
 
-  const fallbackCategories: StoreCategory[] = [
-    { slug: "homme", label: "Homme", image: null, sort_order: 1 },
-    { slug: "femme", label: "Femme", image: null, sort_order: 2 },
-    { slug: "chaussures", label: "Chaussures", image: null, sort_order: 3 },
-    { slug: "accessoires", label: "Accessoires", image: null, sort_order: 4 },
-  ];
+  const fallbackCategories: StoreCategory[] = catalogueCategories.map(({ slug, label }, index) => ({
+    slug, label, image: null, sort_order: index + 1,
+  }));
   const sourceCategories = dbCategories ?? fallbackCategories;
   const sourceCounts = counts;
   const categories = [...sourceCategories].sort((a, b) => Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0)).map((category) => ({
     ...category,
-    count: sourceCounts[category.slug] ?? 0,
+    count: sourceCounts[normalizeCategory(category.slug)] ?? 0,
   }));
   const total = categories.reduce((sum, category) => sum + category.count, 0);
 

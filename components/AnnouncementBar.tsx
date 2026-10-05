@@ -1,10 +1,11 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { freeShippingLabel } from "@/lib/shipping-config";
 import type { CSSProperties } from "react";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 
 const DEFAULT_MESSAGES = [
-  "Retours sous conditions SOUS 30 JOURS",
+  RETURN_POLICY.summary,
   "PAIEMENT À LA LIVRAISON DISPONIBLE",
 ];
 

@@ -1,4 +1,5 @@
 "use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 import { safeLocalStorage, safeSessionStorage } from "@/lib/browser-storage";
 import PreorderNotice from "@/components/PreorderNotice";
 import { preorderCopy } from "@/lib/preorder-copy";
@@ -615,7 +616,7 @@ export default function CheckoutPage() {
     trustTitle: siteSettings.checkout_trust_title || "Commande Paiement à réceptione",
     trustDelivery: items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : siteSettings.checkout_trust_delivery || `Livraison ${shippingEstimate}`,
     trustPayment: siteSettings.checkout_trust_payment || "Paiement sûr",
-    trustReturns: siteSettings.checkout_trust_returns || "Retours 30j",
+    trustReturns: RETURN_POLICY.summary,
     termsNote: siteSettings.checkout_terms_note || (codEnabled ? "Paiement à la livraison disponible." : "Paiement en ligne sécurisé."),
     showReassurance: siteSettings.checkout_show_reassurance !== "false",
   };
@@ -1551,7 +1552,7 @@ export default function CheckoutPage() {
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
                   <span>Livraison {shippingEstimate}</span>
                   <span className="w-1 h-1 rounded-full bg-neutral-300" />
-                  <span>Retours 30j</span>
+                  <span>{RETURN_POLICY.summary}</span>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 "use client";
+import { RETURN_POLICY } from "@/lib/return-policy";
 
 import { BRAND_COPY, marketplaceHeadline } from "@/mobile/src/lib/brand-copy";
 import Image from "next/image";
@@ -21,7 +22,7 @@ export default function HeroBanner({ banners = [], heroImage, heroImageMobile, s
   const fallback: HeroBannerRecord = {
     id: "fallback",
     title: BRAND_COPY.fr.tagline,
-    subtitle: `${shippingLabel} · Retours sous conditions 30 j · Paiement à la livraison`,
+    subtitle: `${shippingLabel} · ${RETURN_POLICY.summary} · Paiement à la livraison`,
     badge: "Marketplace lifestyle · Maroc",
     button_label: "Découvrir la collection",
     button_href: "/boutique",

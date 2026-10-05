@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 export const metadata = {
   title: "Conditions Générales de Vente | L'ecomax",
   description: "Conditions générales de vente de L'ecomax : commandes, prix, livraison, paiement et retours au Maroc.",
@@ -50,7 +51,7 @@ export default function ConditionsPage() {
         <section>
           <h2 className="font-black text-[13px] uppercase tracking-widest text-black mb-3">6. Retours et Remboursements</h2>
           <p>
-            Conformément à notre politique de retour, vous disposez de 30 jours à compter de la réception de votre commande pour retourner tout article non utilisé dans son emballage d&apos;origine. Les frais de retour sont à la charge du client, sauf en cas de produit défectueux.
+            {RETURN_POLICY.description} Les articles doivent être non utilisés dans leur emballage d&apos;origine. {RETURN_POLICY.fees}
           </p>
         </section>
 

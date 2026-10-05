@@ -1,9 +1,11 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 import { OFFICIAL_SOCIAL_IMAGE, SOCIAL_IMAGE_METADATA, SOCIAL_TITLE, SOCIAL_DESCRIPTION } from "@/lib/social-image";
 import { selectNewArrivals, selectStoreBestsellers } from "@/lib/store-collections";
 import { STOREFRONT_TITLE, STOREFRONT_DESCRIPTION } from "@/lib/storefront-metadata";
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import HeroBanner from "@/components/HeroBanner";
+import { categoryProductCounts, maximumProductDiscount } from "@/lib/storefront-catalogue";
 import CategoryTiles from "@/components/CategoryTiles";
 import ProductRail from "@/components/ProductRail";
 import Image from "next/image";
@@ -134,13 +136,8 @@ export default async function HomePage() {
 
   // An empty live catalogue must never resurrect removed bundled products.
   const sourceProducts = dbProducts;
-  const categoryCounts = sourceProducts.reduce<Record<string, number>>((counts, product) => {
-    const category = product.category.toLowerCase();
-    counts[category] = (counts[category] ?? 0) + 1;
-    return counts;
-  }, {});
-  const maximumDiscount = Math.max(0, ...promotionProducts.map(product =>
-    product.oldPrice && product.oldPrice > product.price ? Math.round((1 - product.price / product.oldPrice) * 100) : 0));
+  const categoryCounts = categoryProductCounts(sourceProducts);
+  const maximumDiscount = maximumProductDiscount(promotionProducts);
   const allProducts: CardProduct[] = sourceProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,
@@ -190,7 +187,7 @@ export default async function HomePage() {
         "name": "Quelle est la politique de retour de L'ecomax ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Vous disposez de 30 jours après réception pour demander un retour, sous réserve des conditions de notre politique de retour. Consultez la page Retours pour les modalités et délais de remboursement."
+          "text": `${RETURN_POLICY.description} Consultez la page Retours pour les modalités et délais de remboursement.`
         }
       },
       {
@@ -285,7 +282,7 @@ export default async function HomePage() {
               Offre limitée
             </p>
             <h2 className="h-display text-4xl md:text-[5.5rem] max-w-xl leading-[0.88]">
-              {maximumDiscount > 0 ? "Jusqu’à " : "Découvrez "}
+              {maximumDiscount > 0 ? <>Jusqu&apos;à&nbsp;</> : <>Découvrez&nbsp;</>}
               <span className="text-[#3ecf4c]">{maximumDiscount > 0 ? `−${maximumDiscount}%` : "nos offres"}</span>
               <br />sur une sélection
             </h2>
@@ -529,7 +526,7 @@ export default async function HomePage() {
           </div>
           <div>
             <p>
-              Nous livrons partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda et toutes les villes — à seulement {formatShippingAmount(shippingConfig.cost)} MAD. {shippingConfig.freeThreshold > 0 && <>Livraison offerte dès {formatShippingAmount(shippingConfig.freeThreshold)} MAD d&apos;achats. </>}Paiement à la livraison disponible sur toutes les commandes. Retours sous 30 jours, selon conditions. Commandez en toute confiance sur lecomax.com.
+              Nous livrons partout au Maroc — Casablanca, Rabat, Marrakech, Fès, Tanger, Agadir, Meknès, Oujda et toutes les villes — à seulement {formatShippingAmount(shippingConfig.cost)} MAD. {shippingConfig.freeThreshold > 0 && <>Livraison offerte dès {formatShippingAmount(shippingConfig.freeThreshold)} MAD d&apos;achats. </>}Paiement à la livraison disponible sur toutes les commandes. {RETURN_POLICY.summary}. Commandez en toute confiance sur lecomax.com.
             </p>
           </div>
         </div>

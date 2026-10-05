@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { freeShippingLabel } from "@/lib/shipping-config";
 ﻿import Link from "next/link";
@@ -58,7 +59,7 @@ export default async function RetoursPage() {
                 Retours &amp;<br />Échanges
               </h1>
               <p className="text-white/45 text-[15px] max-w-sm leading-relaxed">
-                Votre satisfaction est notre priorité. Si un article ne vous convient pas, retournez-le facilement sous 30 jours.
+                Votre satisfaction est notre priorité. {RETURN_POLICY.description}
               </p>
             </div>
 
@@ -68,7 +69,7 @@ export default async function RetoursPage() {
               <div className="space-y-2.5">
                 <div className="flex justify-between gap-8 text-[12px]">
                   <span className="text-white/40">Délai de retour</span>
-                  <span className="text-[#3ecf4c] font-bold">30 jours</span>
+                  <span className="text-[#3ecf4c] font-bold">{RETURN_POLICY.window}</span>
                 </div>
                 <div className="flex justify-between gap-8 text-[12px]">
                   <span className="text-white/40">Remboursement</span>
@@ -174,7 +175,7 @@ export default async function RetoursPage() {
         <section>
           <div className="grid sm:grid-cols-3 gap-px bg-neutral-200">
             {[
-              { value: "30", unit: " jours", label: "Pour initier un retour", accent: true },
+              { value: String(RETURN_POLICY.days), unit: " jours", label: "Pour initier un retour", accent: true },
               { value: "5–7", unit: " jours", label: "Pour être remboursé", accent: false },
               { value: "Retour", unit: "", label: "Selon les conditions", accent: false },
             ].map((stat) => (

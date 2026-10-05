@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "@/lib/return-policy";
 import { publicDatabaseError } from "@/lib/public-error";
 import { readJsonLimited } from "@/lib/request-body";
 import { revalidateTag } from "next/cache";
@@ -662,7 +663,7 @@ export async function POST(req: NextRequest) {
       </td>
     </tr></table>
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:14px;border-top:1px solid #e5e7eb;padding-top:14px;"><tr>
-      <td class="trust-cell" style="font-size:10px;color:#9ca3af;">&#10003; Retours accept&#233;s sous 30 jours</td>
+      <td class="trust-cell" style="font-size:10px;color:#9ca3af;">&#10003; ${RETURN_POLICY.summary}</td>
       <td class="trust-cell" style="font-size:10px;color:#9ca3af;text-align:center;">&#10003; Livraison ${shippingRate.toFixed(0)} MAD</td>
       <td class="trust-cell" style="font-size:10px;color:#9ca3af;text-align:right;">&#10003; Paiement s&#233;curis&#233;</td>
     </tr></table>

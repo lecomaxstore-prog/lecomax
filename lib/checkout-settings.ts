@@ -1,3 +1,4 @@
+import { RETURN_POLICY } from "./return-policy.ts";
 export const CHECKOUT_SETTINGS_DEFAULTS = {
   checkout_contact_title: "Vos coordonnées",
   checkout_contact_subtitle: "Pour vous contacter au sujet de votre commande",
@@ -11,7 +12,7 @@ export const CHECKOUT_SETTINGS_DEFAULTS = {
   checkout_trust_title: "Commande 100% sécurisée",
   checkout_trust_delivery: "Livraison rapide",
   checkout_trust_payment: "Paiement sûr",
-  checkout_trust_returns: "Retours 30j",
+  checkout_trust_returns: RETURN_POLICY.summary,
   checkout_terms_note: "Paiement à la livraison disponible.",
   checkout_show_reassurance: "true",
   enable_cod: "true",
