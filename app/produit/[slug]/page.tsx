@@ -246,7 +246,7 @@ export default async function ProductPage({
     "description": product.description ?? `Achetez ${product.name} sur L'ecomax.`,
     "url": `${SITE_URL}/produit/${product.slug}/`,
     ...(productImages.length > 0 ? { "image": productImages } : {}),
-    "sku": product.slug,
+    "sku": dbProd.id,
     ...(productBrand ? { "brand": { "@type": "Brand", "name": productBrand } } : {}),
     "offers": {
       "@type": "Offer",
@@ -275,6 +275,7 @@ export default async function ProductPage({
         "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
         "merchantReturnDays": RETURN_POLICY.days,
         "returnMethod": "https://schema.org/ReturnByMail",
+        "returnFees": "https://schema.org/ReturnFeesCustomerResponsibility",
       },
     },
     ...(reviewCount > 0 ? {

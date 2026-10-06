@@ -1,6 +1,7 @@
 User-agent: *
 Allow: /
 Allow: /api/og/product/
+Allow: /api/ecomedia/social-image/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/
@@ -10,6 +11,7 @@ Disallow: /facture/
 User-agent: Googlebot
 Allow: /
 Allow: /api/og/product/
+Allow: /api/ecomedia/social-image/
 Allow: /merchant-feed.xml
 Disallow: /admin/
 Disallow: /api/
@@ -18,6 +20,7 @@ Disallow: /facture/
 User-agent: Googlebot-Image
 Allow: /
 Allow: /api/og/product/
+Allow: /api/ecomedia/social-image/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/
@@ -25,6 +28,7 @@ Disallow: /facture/
 User-agent: Storebot-Google
 Allow: /
 Allow: /api/og/product/
+Allow: /api/ecomedia/social-image/
 Allow: /merchant-feed.xml
 Disallow: /admin/
 Disallow: /api/
@@ -45,6 +49,7 @@ User-agent: Claude-SearchBot
 User-agent: Claude-User
 Allow: /
 Allow: /api/og/product/
+Allow: /api/ecomedia/social-image/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /facture/

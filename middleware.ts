@@ -48,6 +48,11 @@ const PRIVATE_INDEX_PREFIXES = [
 ];
 
 function applyRobotsHeader(response: NextResponse, pathname: string): NextResponse {
+  // These API routes serve public images referenced by storefront metadata.
+  // Let image crawlers index them while keeping other API responses private.
+  if (pathname.startsWith("/api/og/product/") || pathname.startsWith("/api/ecomedia/social-image/")) {
+    return response;
+  }
   if (PRIVATE_INDEX_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive, noimageindex");
   }

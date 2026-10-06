@@ -91,6 +91,7 @@ export default async function EcomediaPostPage({ params }: { params: Promise<{ s
         </div>
 
         {/* Post */}
+        <h1 className="sr-only">{post.title}</h1>
         <PostCard post={post} priority />
 
         {/* Schema.org */}
