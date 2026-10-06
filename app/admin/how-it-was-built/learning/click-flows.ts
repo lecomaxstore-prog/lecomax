@@ -2,7 +2,7 @@ import type { Text } from './types';
 export type ClickFlow = { id: string; title: Text; steps: { label: Text; file: string; anchor: string }[] };
 export const clickFlows: ClickFlow[] = [
   { id: 'catalog', title: ['Afficher les produits', 'Display products', 'عرض المنتجات'], steps: [
-    { label: ['Le serveur demande les produits actifs.', 'The server requests active products.', 'Server كيطلب المنتجات النشطة.'], file: 'app/boutique/page.tsx', anchor: 'await getDbProducts' },
+    { label: ['Le serveur demande les produits actifs.', 'The server requests active products.', 'Server كيطلب المنتجات النشطة.'], file: 'app/boutique/page.tsx', anchor: 'getDbProducts({ activeOnly: true })' },
     { label: ['getDbProducts lit les données et les transforme en données de carte.', 'getDbProducts reads data and converts it to card data.', 'getDbProducts كتقرا البيانات وكتوجدها لبطاقات المنتجات.'], file: 'lib/db-server.ts', anchor: 'export async function getDbProducts' },
     { label: ['La page transmet initialProducts à la partie interactive.', 'The page passes initialProducts to the interactive part.', 'Page كتدوز initialProducts للجزء التفاعلي.'], file: 'app/boutique/page.tsx', anchor: 'return <BoutiqueClient' },
     { label: ['Une ProductCard reçoit chaque produit à afficher.', 'A ProductCard receives each product to display.', 'كل ProductCard كتستقبل منتج باش تعرضو.'], file: 'app/boutique/BoutiqueClient.tsx', anchor: '<ProductCard key={product.slug}' },

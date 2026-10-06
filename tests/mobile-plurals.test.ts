@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { STORE_SETTING_DEFAULTS } from "../mobile/src/lib/store-settings.ts";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
@@ -14,7 +15,7 @@ test("Android without Intl.PluralRules can render home counts in both languages"
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true },
   }).outputText, {
     exports, Intl: {},
-    require: (name: string) => JSON.parse(readFileSync(new URL(name, root), "utf8")),
+    require: (name: string) => name === "../lib/store-settings" ? { STORE_SETTING_DEFAULTS } : JSON.parse(readFileSync(new URL(name, root), "utf8")),
   });
   for (const language of ["en", "fr"]) {
     for (const count of [0, 1, 2, 5, 1.5, 100, 1_000_000, -1, NaN]) {

@@ -37,6 +37,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install dependencies used by mobile regression tests
+        run: npm ci
+        working-directory: mobile
+
       - name: Typecheck
         run: npx tsc --noEmit
 

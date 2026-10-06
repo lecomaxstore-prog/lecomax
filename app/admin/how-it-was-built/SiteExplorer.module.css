@@ -1,7 +1,8 @@
 .workspace { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
-.workshopSwitch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid #dce6df; border-radius: 16px; background: #eaf0eb; }
+.workshopSwitch { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid #dce6df; border-radius: 16px; background: #eaf0eb; }
 .workshopSwitch button, .workshopSwitch a { display: flex; align-items: center; justify-content: center; text-align: center; min-height: 48px; padding: 10px; border-radius: 12px; color: #516659; font-size: 13px; font-weight: 700; }
 .workshopSwitch button[aria-pressed="true"] { background: white; color: #163f2c; box-shadow: 0 2px 6px #143b2410; }
+@media(max-width:700px){.workshopSwitch{grid-template-columns:repeat(3,minmax(0,1fr))}.workshopSwitch a:last-child{grid-column:span 2}}
 .sourceBack { flex: none; min-height: 44px; padding: 8px 16px; border-bottom: 1px solid #dce6df; background: #f3f8f2; text-align: start; font-size: 12px; font-weight: 650; }
 .fileCard { padding: 16px; border: 1px solid #d7e5dc; border-radius: 16px; background: #f3f8f4; }
 .fileCard h3, .fileCard h4, .sourceMap h3 { margin-bottom: 8px; color: #18452d; font-size: 15px; font-weight: 750; }

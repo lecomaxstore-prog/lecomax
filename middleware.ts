@@ -225,7 +225,9 @@ export async function middleware(req: NextRequest) {
       !pathname.startsWith("/admin/how-it-was-built/unlock") &&
       !(await hasHowBuiltPin(req))
     ) {
-      return NextResponse.redirect(new URL("/admin/how-it-was-built/unlock", req.url));
+      const unlockUrl = new URL("/admin/how-it-was-built/unlock", req.url);
+      unlockUrl.searchParams.set("from", pathname);
+      return NextResponse.redirect(unlockUrl);
     }
   }
 

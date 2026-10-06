@@ -19,8 +19,9 @@ export async function GET(req: NextRequest) {
   if (!claimed) return NextResponse.json({ skipped: "completed-or-already-reminded" });
   try {
     const result = await broadcastAdminPushNotification({
-      title: "Votre cours vous attend 📚",
-      body: "Vous n’avez pas encore terminé de leçon aujourd’hui. Prenez un moment pour continuer votre cours.",
+      title: "📚 درسك ينتظرك",
+      body: "لم تكمل درسًا اليوم بعد. خذ دقائق قليلة وتعلم فكرة جديدة من موقعك.",
+      lang: "ar", dir: "rtl",
       url: "/admin/how-it-was-built/#academy", tag: `learning-${day.date}`, eventKey: `learning-${day.date}`,
     }, undefined, owner);
     return NextResponse.json(result, { status: result.failed ? 502 : 200 });

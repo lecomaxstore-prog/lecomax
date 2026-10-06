@@ -1,0 +1,30 @@
+.root { max-width: 960px; margin-inline: auto; color: #184d3b; }
+.root * { box-sizing: border-box; }
+.card { background: #fff; border: 1px solid #dae5dd; border-radius: 24px; padding: clamp(18px, 4vw, 30px); margin-block: 16px; }
+.hero { background: linear-gradient(125deg, #f3f7ee, #eaf3ee); }
+.root h1 { font-size: clamp(23px, 5vw, 32px); line-height: 1.6; font-weight: 800; }
+.root h2 { font-size: 20px; font-weight: 750; margin-bottom: 12px; }
+.root p { line-height: 1.9; }
+.muted { font-size: 14px; color: #63776c; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-block: 14px; }
+.button, .secondary { min-height: 46px; border-radius: 14px; padding: 10px 18px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-align: center; }
+.button { color: white; background: #184d3b; }
+.secondary { background: #f0f5f1; border: 1px solid #dae5dd; color: #184d3b; }
+.root button:disabled { opacity: .55; cursor: wait; }
+.root :is(button, a, input, select):focus-visible { outline: 3px solid #35a47c; outline-offset: 3px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+.metric { background: #f0f5f1; border-radius: 16px; padding: 14px; }
+.metric strong { font-size: 24px; display: block; }
+.root progress { width: 100%; height: 10px; accent-color: #184d3b; margin-top: 16px; }
+.field { display: grid; gap: 8px; margin-block: 14px; font-size: 14px; }
+.root input:not([type=checkbox]), .root select { min-width: 0; width: 100%; min-height: 46px; border: 1px solid #ccd9d0; border-radius: 12px; padding: 10px; background: white; color: #184d3b; }
+.root input[type=checkbox] { width: 20px; height: 20px; accent-color: #184d3b; }
+.check { display: flex; gap: 10px; align-items: center; min-height: 46px; }
+.content { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 2; color: #243b30; margin-block: 16px; unicode-bidi: plaintext; }
+.code { background: #112b22; color: #edfaf1; border-radius: 14px; padding: 16px; overflow-x: auto; font-size: 13px; direction: ltr; text-align: left; }
+.notice { background: #f1f6ed; border-radius: 14px; padding: 14px; line-height: 1.8; margin-block: 12px; }
+.error { background: #fff0ed; color: #9e3023; border: 1px solid #edc8bf; border-radius: 14px; padding: 14px; margin-block: 12px; }
+.list { display: grid; gap: 12px; margin-top: 18px; }
+.lesson { border: 1px solid #dce7df; border-radius: 16px; padding: 16px; }
+.lesson a { font-weight: 750; display: block; padding-block: 8px; line-height: 1.8; }
+.tag { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #eef4ee; font-size: 12px; margin-inline-end: 6px; }

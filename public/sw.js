@@ -14,12 +14,14 @@ self.addEventListener('push', event => {
   }
 
   const options = {
+    lang: payload.lang || undefined,
+    dir: payload.dir || 'auto',
     body: payload.body,
     icon: !payload.icon || payload.icon === '/favicon.png' ? '/favicon.png?v=4' : payload.icon,
     badge: payload.badge || '/icons/icon-192.png?v=4',
     image: payload.image || undefined,
     tag: payload.tag || 'lecomax-push',
-    renotify: true,
+    renotify: !String(payload.tag || '').startsWith('learning-tip-'),
     requireInteraction: payload.requireInteraction || false,
     data: { url: payload.url || '/' },
     actions: payload.actions || [],

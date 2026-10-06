@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { STORE_SETTING_DEFAULTS } from '../mobile/src/lib/store-settings.ts';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -19,6 +20,7 @@ async function mount(path: string, fetcher: (...args: any[]) => Promise<any>, en
         useRef(initial: any) { const i = cursor++; return values[i] ??= { current: initial }; },
         useEffect(effect: () => void, deps: any[]) { const i = cursor++; if (!values[i] || deps.some((value, j) => value !== values[i][j])) { values[i] = deps; effects.push(effect); } },
       };
+      if (name === '@/lib/store-settings') return { STORE_SETTING_DEFAULTS };
       if (name === 'react/jsx-runtime') return require(name);
       if (name.endsWith('.css')) return { default: new Proxy({}, { get: (_target, key) => key }) };
       if (name.includes('AdminLoading')) return { default: () => null };

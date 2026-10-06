@@ -5,6 +5,8 @@ import webpush from "web-push";
 import { validPushEndpoint } from "./push-endpoint";
 
 export type PushPayload = {
+  lang?: string;
+  dir?: "rtl" | "ltr" | "auto";
   title: string;
   body?: string;
   icon?: string;
@@ -36,6 +38,17 @@ function configureWebPush() {
   webpush.setVapidDetails(subject, publicKey.replace(/\s+/g, ""), privateKey.replace(/\s+/g, ""));
 }
 
+/** Learning deliveries are claimed in the database; never retry an ambiguous send. */
+export async function sendLearningPush(subscription: { endpoint: string; p256dh: string; auth: string }, payload: PushPayload) {
+  configureWebPush();
+  if (!validPushEndpoint(subscription.endpoint)) throw new Error("INVALID_PUSH_ENDPOINT");
+  await webpush.sendNotification(
+    { endpoint: subscription.endpoint, keys: { p256dh: subscription.p256dh, auth: subscription.auth } },
+    JSON.stringify({ ...payload, lang: "ar", dir: "rtl", icon: DEFAULT_PUSH_ICON, badge: "/icons/icon-192.png?v=4" }),
+    { urgency: "normal", TTL: 600, timeout: 10_000 },
+  );
+}
+
 async function sendAdminAlert(subscription: { endpoint: string; p256dh: string; auth: string }, message: string) {
   if (!validPushEndpoint(subscription.endpoint)) throw new Error("INVALID_PUSH_ENDPOINT");
   for (let attempt = 0; attempt < 2; attempt += 1) {
@@ -64,6 +77,8 @@ export async function broadcastPushNotification(payload: PushPayload): Promise<P
   if (subscriptions.length === 0) return { sent: 0, failed: 0, total: 0 };
 
   const message = JSON.stringify({
+    lang: payload.lang,
+    dir: payload.dir,
     title: payload.title,
     body: payload.body ?? "",
     icon: pushIcon(payload.icon),
@@ -124,6 +139,8 @@ export async function broadcastAdminPushNotification(payload: PushPayload, endpo
   if (subscriptions.length === 0) return { sent: 0, failed: 0, total: 0 };
 
   const message = JSON.stringify({
+    lang: payload.lang,
+    dir: payload.dir,
     title: payload.title,
     body: payload.body ?? "",
     icon: pushIcon(payload.icon),

@@ -77,7 +77,9 @@ export default function AdminLoginPage() {
 
       // Read the newly issued HttpOnly cookie on a fresh document request.
       // A prefetched dashboard may still contain the unauthenticated redirect.
-      window.location.replace("/admin/dashboard/");
+      const from = new URLSearchParams(window.location.search).get("from") ?? "";
+      const learningDestination = /^\/admin\/how-it-was-built\/learn(?:\/tip\/\d+)?\/?$/.test(from);
+      window.location.replace(learningDestination ? from : "/admin/dashboard/");
     } catch {
       setError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
     } finally {

@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { attachSourceInspector, type SourceSelection } from "@/lib/site-source-inspector";
 import { learningDestination, learningPages } from "@/lib/site-learning";
 import { translate } from "./course/journey";
@@ -34,6 +35,17 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   const [workshop, setWorkshop] = useState<"site" | "guides" | "build">("guides");
   const [connections, setConnections] = useState<SourceConnections>();
   const [sourceTrail, setSourceTrail] = useState<SourceSelection[]>([]);
+
+  useEffect(() => {
+    const restoreWorkshop = () => {
+      if (window.location.hash === "#explore") setWorkshop("site");
+      else if (window.location.hash === "#build") setWorkshop("build");
+      else if (window.location.hash === "#site") setWorkshop("guides");
+    };
+    restoreWorkshop();
+    window.addEventListener("hashchange", restoreWorkshop);
+    return () => window.removeEventListener("hashchange", restoreWorkshop);
+  }, []);
 
   useEffect(() => {
     frame.current?.contentDocument?.documentElement.toggleAttribute("data-learning-hide-notices", !showNotices);
@@ -131,6 +143,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
       <button type="button" aria-pressed={workshop === "site"} onClick={() => switchWorkshop("site")}>{t("Explorer mon site", "Explore my site", "استكشف موقعي")}</button>
       <button type="button" aria-pressed={workshop === "build"} onClick={() => switchWorkshop("build")}>{t("Construire", "Build", "ابنِ بنفسك")}</button>
       <a href="#files">{t("Mes fichiers", "My files", "ملفاتي")}</a>
+      <Link href="/admin/how-it-was-built/ai-tutor/" lang="ar" dir="rtl">✨ تعلّم مع الذكاء الاصطناعي</Link>
     </nav>
     {workshop !== "site" ? <LearningStudio key={workshop} lang={lang} buildOnly={workshop === "build"} onExplore={() => switchWorkshop("site")} /> : <>
     <div className={styles.welcome} data-expanded={showGuide}>

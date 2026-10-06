@@ -11,13 +11,17 @@ export default function HowBuiltUnlockPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [blocked, setBlocked] = useState(false);
+  function returnPath() {
+    const from = new URLSearchParams(window.location.search).get("from") ?? "";
+    return /^\/admin\/how-it-was-built\/learn(?:\/tip\/\d+)?\/?$/.test(from) ? from : "/admin/how-it-was-built";
+  }
 
   useEffect(() => {
     const controller = new AbortController();
     async function checkAccess() {
       try {
         const response = await fetch("/api/admin/how-built-pin", { cache: "no-store", signal: controller.signal });
-        if (response.ok) { router.replace("/admin/how-it-was-built"); return; }
+        if (response.ok) { router.replace(returnPath()); return; }
         if (response.status !== 401) {
           const result = await response.json().catch(() => ({}));
           if (!controller.signal.aborted) {
@@ -47,7 +51,7 @@ export default function HowBuiltUnlockPage() {
         if (response.status === 503 || response.status === 403) setBlocked(true);
         throw new Error(result.error || "Impossible de vérifier le code.");
       }
-      router.replace("/admin/how-it-was-built"); router.refresh();
+      router.replace(returnPath()); router.refresh();
     } catch (unlockError) { setError(unlockError instanceof Error ? unlockError.message : "Code incorrect."); setPin(""); inputRef.current?.focus(); }
     finally { setSubmitting(false); }
   }

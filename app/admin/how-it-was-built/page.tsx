@@ -8,6 +8,7 @@ import SiteExplorer from "./SiteExplorer";
 import workshopStyles from "./WorkshopPage.module.css";
 import BackendGuides from "./BackendGuides";
 import BeginnerJourney from "./BeginnerJourney";
+import Link from "next/link";
 
 const AcademySection = dynamic(() => import("./AcademySection"), {
   loading: () => (
@@ -5440,7 +5441,7 @@ export default function HowItWasBuiltPage() {
     const openDeepLinkedCourse = () => {
       if (window.location.hash.startsWith("#academy/")) setTab("academy");
       else if (window.location.hash.startsWith("#files")) setTab("files");
-      else if (window.location.hash === "#site") setTab("site");
+      else if (["#site", "#explore", "#build"].includes(window.location.hash)) setTab("site");
       else if (window.location.hash === "#tutor") {
         window.history.replaceState(null, "", window.location.pathname + window.location.search);
         setTab("start");
@@ -5589,6 +5590,11 @@ export default function HowItWasBuiltPage() {
         </div>
       </div>
 
+      <div dir="rtl" lang="ar" className="mx-auto max-w-7xl px-3 pt-4 sm:px-6">
+        <Link href="/admin/how-it-was-built/learn/" className="flex min-h-16 items-center justify-between gap-3 rounded-2xl border border-[#dae5dd] bg-[#edf4ee] px-5 py-4 text-[#184d3b] focus-visible:outline focus-visible:outline-2">
+          <span><strong className="block">💡 تعلم Next.js كل 10 دقائق</strong><span className="text-sm">معلومات قصيرة بالعربية · إشعاراتي وتقدمي</span></span><span aria-hidden="true">←</span>
+        </Link>
+      </div>
       {/* Content */}
       <div
         ref={panelRef}
