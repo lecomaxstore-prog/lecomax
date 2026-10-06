@@ -5,9 +5,41 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import { PGlite } from "@electric-sql/pglite";
 import { randomUUID } from "node:crypto";
-import { tutorHistory, TUTOR_MODES, isTutorId, isTutorMode } from "../lib/ai-tutor.ts";
+import { tutorHistory, TUTOR_MODES, TUTOR_EXAMPLES, tutorExampleForTopic, isTutorId, isTutorMode } from "../lib/ai-tutor.ts";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
+test("guided examples refer to real project functions, with relevant topic defaults", () => {
+  for (const example of TUTOR_EXAMPLES) {
+    const content = readFileSync(example.path, "utf8");
+    assert.ok(content.includes(example.anchor), `${example.path} must contain ${example.anchor}`);
+  }
+  assert.equal(tutorExampleForTopic("api").path, "app/api/products/route.ts");
+  assert.equal(tutorExampleForTopic("react").path, "components/ProductCard.tsx");
+});
+test("source previews enforce access, allow only catalog examples and retain real line numbers", async () => {
+  for (const scenario of ["denied", "unknown", "valid", "sensitive"] as const) {
+    let sourceReads = 0;
+    const route = load("app/api/admin/ai-tutor/source/route.ts", {
+      "next/server": {}, "@/lib/ai-tutor": { TUTOR_EXAMPLES },
+      "@/lib/ai-tutor-server": {
+        tutorAccess: async () => scenario === "denied" ? { denied: Response.json({}, { status: 403 }) } : {},
+        tutorJson: (body: unknown, status = 200) => Response.json(body, { status }),
+        tutorFailure: () => Response.json({ error: "unavailable" }, { status: 400 }),
+      },
+      "@/lib/ai-tutor-security": { assertTutorContentSafe: () => { if (scenario === "sensitive") throw Error("SENSITIVE_CONTENT"); } },
+      "@/lib/learning-source-context": { getLearningSourceContext: async () => {
+        sourceReads++;
+        return { text: JSON.stringify({ startLine: 25, excerpt: "25: // context\n26: export default function ProductCard() {\n27: return null;" }), sources: [{ path: "components/ProductCard.tsx", startLine: 25, endLine: 27, generatedAt: "2026-10-06" }] };
+      } },
+    });
+    const response = await route.GET({ nextUrl: new URL(`https://example.test/?example=${scenario === "unknown" ? "../../.env" : "product-card"}`) });
+    assert.equal(response.status, scenario === "denied" ? 403 : scenario === "valid" ? 200 : 400);
+    assert.equal(sourceReads, scenario === "denied" || scenario === "unknown" ? 0 : 1);
+    const body = await response.json();
+    if (scenario === "valid") { assert.equal(body.focusLine, 26); assert.ok(body.excerpt.startsWith("26: export default")); }
+    else assert.equal(body.excerpt, undefined);
+  }
+});
 function load(file: string, deps: Record<string,unknown> = {}, env: Record<string,string> = {}) {
   const module = { exports: {} as any };
   runInNewContext(ts.transpileModule(readFileSync(file,"utf8"),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,{
@@ -79,12 +111,21 @@ function messageHarness({denied=false,fail=false,missing=false,limit=false,saveF
     "@/lib/ai-tutor-security":{assertTutorContentSafe:(text:string)=>{if(text.includes("secret-value"))throw Error("SENSITIVE_CONTENT");}},
     "@/lib/ai-tutor-prompt":{tutorInstructions:()=>"instructions"},
     "@/lib/ai-tutor-provider":{streamTutorReply:async(_instructions:string,messages:any[])=>{providerCalled=true;calls.push(["provider",messages]);return(async function*(){yield{type:"response.output_text.delta",delta:"شرح عربي"};if(fail)throw Error("private provider details");yield{type:"response.completed",response:{status:"completed",usage:{input_tokens:10,output_tokens:20}}};})();}},
-    "@/lib/learning-source-context":{getLearningSourceContext:async()=>({text:"safe source",sources:[]})},
+    "@/lib/learning-source-context":{getLearningSourceContext:async(...args:unknown[])=>{calls.push(["source", ...args]);return {text:"safe source",sources:[]};}},
     "@/lib/request-body":{readJsonLimited:(req:Request)=>req.json()},
   },{OPENAI_API_KEY:"configured"});
   return{calls,providerCalled:()=>providerCalled,run:(body:any)=>route.POST(new Request("https://example.test/api/admin/ai-tutor/message",{method:"POST",body:JSON.stringify(body)}))};
 }
 const question=()=>({conversationId:randomUUID(),requestId:randomUUID(),mode:"explain",topic:"api",text:"What is await?",attempt:false});
+
+test("questions receive real topic source by default; explicit file and line take precedence", async () => {
+  const automatic = messageHarness();
+  await (await automatic.run(question())).text();
+  assert.deepEqual(automatic.calls.find(call => call[0] === "source"), ["source", "app/api/products/route.ts", 1, "export async function GET"]);
+  const selected = messageHarness();
+  await (await selected.run({ ...question(), sourcePath: "components/ProductCard.tsx", sourceLine: 27 })).text();
+  assert.deepEqual(selected.calls.find(call => call[0] === "source"), ["source", "components/ProductCard.tsx", 27, undefined]);
+});
 test("message endpoint denies unauthorized, oversized and cross-owner turns before provider calls",async()=>{
   for(const [options,body,status] of [[{denied:true},question(),403],[{missing:true},question(),404],[{}, {...question(),code:"a".repeat(8001)},400],[{}, {...question(),mode:"constructor"},400],[{limit:true},question(),429]] as const){
     const h=messageHarness(options);assert.equal((await h.run(body)).status,status);assert.equal(h.providerCalled(),false);

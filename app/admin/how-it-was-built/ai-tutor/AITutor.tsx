@@ -1,8 +1,10 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { TUTOR_MODES, TUTOR_TOPICS, TUTOR_ACTIONS, TUTOR_ERROR, type TutorMode, type TutorTopic, type TutorAction, type TutorConversation, type TutorMessage, type TutorProgress } from "@/lib/ai-tutor";
+import { useRouter } from "next/navigation";
+import { TUTOR_MODES, TUTOR_TOPICS, TUTOR_ACTIONS, TUTOR_ERROR, tutorExampleForTopic, type TutorExample, type TutorMode, type TutorTopic, type TutorAction, type TutorConversation, type TutorMessage, type TutorProgress } from "@/lib/ai-tutor";
 import TutorMarkdown from "./TutorMarkdown";
+import SiteExamples from "./SiteExamples";
 import styles from "./Tutor.module.css";
 
 const endpoint = "/api/admin/ai-tutor";
@@ -17,6 +19,7 @@ async function jsonRequest(url: string, init?: RequestInit) {
 const jsonInit = (method: string, body: unknown) => ({ method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 
 export default function AITutor() {
+  const router = useRouter();
   const [overview, setOverview] = useState<Overview>(empty);
   const [conversation, setConversation] = useState<TutorConversation | null>(null);
   const [messages, setMessages] = useState<TutorMessage[]>([]);
@@ -139,7 +142,25 @@ export default function AITutor() {
     void send(`${TUTOR_ACTIONS[action]}${action === "easier" ? " — استعمل تشبيهًا مختلفًا ومثالًا أصغر." : ""}`, selectedCode, action, message.id);
   }
   const currentProgress = overview.progress.find(item => item.topic === topic);
+  function chooseExample(example: TutorExample, line: number, lessonMode: TutorMode) {
+    if (busy || loading) return;
+    newLesson(); setSourcePath(example.path); setSourceLine(line); setTopic(example.topic); setMode(lessonMode);
+    setDraft(lessonMode === "practice"
+      ? `درّبني على ${example.title} من ملف ${example.path}. ${example.challenge} أعطني تلميحًا واحدًا إذا احتجت، ولا تكشف الحل قبل محاولتي.`
+      : `علّمني ${example.title} من ملف ${example.path}. هدفنا: ${example.goal} ابدأ بمقطع صغير حقيقي مع أرقام الأسطر، ثم اشرح السبب والنتيجة واتركني أجرب خطوة واحدة.`);
+    input.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
   return <div className={styles.shell} lang="ar" dir="rtl" data-ai-tutor>
+    <label className={styles.mobileNavigation}>
+      <span>مساحة التعلّم</span>
+      <select aria-label="اختر طريقة التعلم" value="/admin/how-it-was-built/ai-tutor/" onChange={event => router.push(event.target.value)}>
+        <option value="/admin/how-it-was-built/ai-tutor/">✨ تعلّم مع الذكاء الاصطناعي</option>
+        <option value="/admin/how-it-was-built/#site">تعلم خطوة بخطوة</option>
+        <option value="/admin/how-it-was-built/#explore">استكشف موقعي</option>
+        <option value="/admin/how-it-was-built/#build">ابنِ بنفسك</option>
+        <option value="/admin/how-it-was-built/#files">ملفاتي</option>
+      </select>
+    </label>
     <nav className={styles.navigation} aria-label="اختر طريقة التعلم">
       <Link href="/admin/how-it-was-built/#site">تعلم خطوة بخطوة</Link><Link href="/admin/how-it-was-built/#explore">استكشف موقعي</Link><Link href="/admin/how-it-was-built/#build">ابنِ بنفسك</Link><Link href="/admin/how-it-was-built/#files">ملفاتي</Link><Link href="/admin/how-it-was-built/ai-tutor/" aria-current="page">✨ تعلّم مع الذكاء الاصطناعي</Link>
     </nav>
@@ -162,14 +183,15 @@ export default function AITutor() {
     </section>}
     <section className={styles.workspace} aria-label="درس الذكاء الاصطناعي">
       <div className={styles.sessionHeader}><div><span className={styles.eyebrow}>فكرة واحدة. خطوة واضحة.</span><h2>{conversation?.title || "ماذا تريد أن تفهم اليوم؟"}</h2></div><label>موضوع الدرس<select disabled={busy} value={topic} onChange={event => setTopic(event.target.value as TutorTopic)}>{Object.entries(TUTOR_TOPICS).map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></label></div>
-      <details className={styles.modePicker} open={!messages.length}><summary>طريقة التعلم · {TUTOR_MODES[mode].label}</summary><div className={styles.modeGrid}>{(Object.entries(TUTOR_MODES) as [TutorMode,typeof TUTOR_MODES[TutorMode]][]).map(([key,value]) => <button disabled={busy} aria-pressed={mode === key} key={key} onClick={() => { setMode(key); setDraft(value.starter); if (key === "api") setTopic("api"); if (key === "debug") setTopic("debugging"); if (key === "project" && !sourcePath) setSourcePath("app/produit/[slug]/page.tsx"); input.current?.focus(); }}><span aria-hidden="true">{value.icon}</span>{value.label}</button>)}</div></details>
-      {!messages.length && <div className={styles.welcome}><span aria-hidden="true">✧</span><h3>من «لماذا؟» إلى «فهمت، أقدر أكتبها»</h3><p>اختر طريقة التعلم، أو اكتب سؤالك بكلماتك. سنبدأ بمثال صغير، ثم يأتي دورك.</p><div className={styles.actions}>{["ما الفرق بين Server وClient Component؟", "علاش استعملنا await هنا؟", "ما تعطينيش الجواب، خليني نجرب"].map(text => <button disabled={busy || loading} key={text} onClick={() => setDraft(text)}>{text}</button>)}</div></div>}
+      <details className={styles.modePicker}><summary>طريقة التعلم · {TUTOR_MODES[mode].label}</summary><div className={styles.modeGrid}>{(Object.entries(TUTOR_MODES) as [TutorMode,typeof TUTOR_MODES[TutorMode]][]).map(([key,value]) => <button disabled={busy} aria-pressed={mode === key} key={key} onClick={() => { setMode(key); setDraft(value.starter); if (key === "api") setTopic("api"); if (key === "debug") setTopic("debugging"); if (key === "project" && !sourcePath) setSourcePath("app/produit/[slug]/page.tsx"); input.current?.focus(); }}><span aria-hidden="true">{value.icon}</span>{value.label}</button>)}</div></details>
+      {!messages.length && <SiteExamples disabled={busy || loading} onChoose={chooseExample} />}
       {loading && <p role="status" className={styles.status}>جارٍ تحميل دروسك…</p>}
       <div className={styles.messages} aria-label="المحادثة" aria-busy={busy}>{messages.map(message => <article key={message.id} className={message.role === "assistant" ? styles.teacher : styles.student}>
         <div className={styles.messageLabel}>{message.role === "assistant" ? "✦ أستاذك" : "أنت"}{message.status === "failed" && <span> · شرح غير مكتمل</span>}{message.status === "pending" && !busy && <span> · قيد المعالجة أو انقطع؛ أعد فتح الجلسة بعد قليل</span>}</div>
         <TutorMarkdown text={message.content.split("\n\nFollow-up action:")[0]} disabled={busy || message.status !== "complete"} onAction={message.role === "assistant" && message.status === "complete" ? (action,selectedCode) => quickAction(action,message,selectedCode) : undefined}/>
-        {message.sources?.length > 0 && <details className={styles.sources}><summary>من كود موقعك</summary>{message.sources.map(source => <p key={source.path}><Link href={`/admin/how-it-was-built/#files/${encodeURIComponent(source.path)}?line=${source.startLine}`}><bdi>{source.path}:{source.startLine}–{source.endLine}</bdi></Link><small>لقطة الكود: {new Date(source.generatedAt).toLocaleDateString("ar")}</small></p>)}</details>}
+        {message.sources?.length > 0 && <details className={styles.sources}><summary>ملفات أُرسلت للأستاذ · {message.sources.length}</summary>{message.sources.map(source => <p key={source.path}><Link href={`/admin/how-it-was-built/#files/${encodeURIComponent(source.path)}?line=${source.startLine}`}><bdi>{source.path}:{source.startLine}–{source.endLine}</bdi></Link><small>لقطة الكود: {new Date(source.generatedAt).toLocaleDateString("ar")}</small></p>)}</details>}
         {message.role === "assistant" && message.status === "complete" && <div className={styles.actions}><button disabled={busy} onClick={() => quickAction("easier",message)}>شرح أبسط</button><button disabled={busy} onClick={() => quickAction("deeper",message)}>شرح أعمق</button><button disabled={busy} onClick={() => quickAction("why",message)}>لماذا؟</button><button disabled={busy} onClick={() => quickAction("practice",message)}>خلّيني نجرب</button><button aria-pressed={message.bookmarked} onClick={() => void bookmark(message)}>{message.bookmarked ? "★ شرح محفوظ" : "☆ حفظ الشرح"}</button><button onClick={() => setProgressOpen(true)}>سجّل فهمي</button></div>}
+        {message.role === "assistant" && message.status === "complete" && <details className={styles.followUp}><summary>تابع التعلّم · تلميح، اختبار، أو خطوة جديدة</summary><div className={styles.actions}><button disabled={busy} onClick={() => quickAction("hint", message)}>تلميح بدون حل</button><button disabled={busy} onClick={() => quickAction("quiz", message)}>اختبر فهمي</button><button disabled={busy} onClick={() => quickAction("next", message)}>الخطوة التالية ←</button></div></details>}
       </article>)}</div>
       {busy && <p className={styles.status} role="status">✦ الأستاذ يفكر ويكتب…</p>}
       <div ref={end}/>
@@ -178,7 +200,7 @@ export default function AITutor() {
     {notice && <p role="status" className={styles.notice}>{notice}</p>}
     {!overview.configured && <p className={styles.error}>الأستاذ غير متاح حاليًا. يلزم إكمال إعداد الخدمة على الخادم.</p>}
     <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}>
-      {sourcePath && <p className={styles.muted}>من كود موقعي: <bdi>{sourcePath}:{sourceLine}</bdi></p>}
+      <p className={styles.sourceSelection}>مثال الشرح من: <bdi>{sourcePath ? `${sourcePath}:${sourceLine}` : tutorExampleForTopic(topic).path}</bdi>{!sourcePath && <small>اختيار تلقائي حسب الموضوع · يمكنك تغييره أدناه</small>}</p>
       <details><summary>أرفق كودًا أو اختر ملفًا من موقعي</summary><div className={styles.contextFields}>
         <label>الكود أو رسالة الخطأ<textarea dir="ltr" value={code} onChange={event => setCode(event.target.value)} disabled={busy} rows={5} maxLength={8000} placeholder="Paste code or an error here…" /></label>
         <div className={styles.fileFields}><label>ملف من L’ÉCOMAX (اختياري)<input dir="ltr" list="tutor-source-files" value={sourcePath} onChange={event => setSourcePath(event.target.value)} disabled={busy} maxLength={600} placeholder="app/produit/[slug]/page.tsx" /></label><label>السطر<input dir="ltr" type="number" min={1} max={100000} value={sourceLine} onChange={event => setSourceLine(Math.max(1, Number(event.target.value) || 1))} disabled={busy}/></label></div>

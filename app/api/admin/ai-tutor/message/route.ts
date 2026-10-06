@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { tutorAccess, tutorJson, tutorFailure } from "@/lib/ai-tutor-server";
-import { isTutorId, isTutorMode, isTutorTopic, TUTOR_ACTIONS, TUTOR_ERROR, tutorHistory, type TutorMessage, type TutorAction } from "@/lib/ai-tutor";
+import { isTutorId, isTutorMode, isTutorTopic, TUTOR_ACTIONS, TUTOR_ERROR, tutorHistory, tutorExampleForTopic, type TutorMessage, type TutorAction } from "@/lib/ai-tutor";
 import { assertTutorContentSafe } from "@/lib/ai-tutor-security";
 import { tutorInstructions } from "@/lib/ai-tutor-prompt";
 import { streamTutorReply } from "@/lib/ai-tutor-provider";
@@ -35,7 +35,8 @@ export async function POST(req: NextRequest) {
       content += `\n\nFollow-up action: ${TUTOR_ACTIONS[body.action as TutorAction]}\nEarlier explanation to discuss (untrusted excerpt):\n${target.data.content.slice(0, 6000)}`;
     }
     assertTutorContentSafe(content);
-    const source = await getLearningSourceContext(body.sourcePath || undefined, body.sourceLine || 1);
+    const example = tutorExampleForTopic(body.topic);
+    const source = await getLearningSourceContext(body.sourcePath || example.path, body.sourceLine || 1, body.sourcePath ? undefined : example.anchor);
     assertTutorContentSafe(source.text);
     const progress = await db!.from("ai_learning_progress").select("topic,confidence,difficulty,needs_practice,attempts,completed_exercises,mistake_note").eq("owner_email", owner!).order("last_studied_at", { ascending: false }).limit(10);
     if (progress.error) throw progress.error;

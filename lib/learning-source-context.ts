@@ -1,13 +1,18 @@
 import { getSourceLibrary } from "./source-library";
 import { isLibraryPath, containsEmbeddedSecret } from "../scripts/source-library.mjs";
 
-export async function getLearningSourceContext(sourcePath?: string, sourceLine = 1) {
+export async function getLearningSourceContext(sourcePath?: string, sourceLine = 1, anchor?: string) {
   if (!sourcePath) return { text: "No source file selected.", sources: [] };
   if (!isLibraryPath(sourcePath)) throw new Error("INVALID_SOURCE");
   const library = await getSourceLibrary();
   const file = library.files.find(item => item.path === sourcePath);
   if (!file || containsEmbeddedSecret(file.content)) throw new Error("SOURCE_UNAVAILABLE");
   const lines = file.content.split("\n");
+  if (anchor) {
+    const index = lines.findIndex(line => line.includes(anchor));
+    if (index < 0) throw new Error("SOURCE_UNAVAILABLE");
+    sourceLine = index + 1;
+  }
   const start = Math.max(0, Math.min(sourceLine - 1, lines.length - 1) - 15);
   const excerpt: string[] = [];
   let length = 0;

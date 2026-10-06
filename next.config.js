@@ -30,6 +30,7 @@ const nextConfig = {
   // Include source files in the dev-docs serverless function bundle (needed on Vercel)
   outputFileTracingIncludes: {
     "/api/admin/ai-tutor/message": ["./.source-library/catalog.json"],
+    "/api/admin/ai-tutor/source": ["./.source-library/catalog.json"],
     "/api/admin/learning-assistant": ["./.source-library/catalog.json"],
     "/api/dev-docs/*": [
       "./.source-library/catalog.json",
