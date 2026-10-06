@@ -150,6 +150,17 @@ export default function AITutor() {
       : `علّمني ${example.title} من ملف ${example.path}. هدفنا: ${example.goal} ابدأ بمقطع صغير حقيقي مع أرقام الأسطر، ثم اشرح السبب والنتيجة واتركني أجرب خطوة واحدة.`);
     input.current?.scrollIntoView({ block: "center", behavior: "smooth" });
   }
+  const composer = (<form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}>
+      <label className={styles.inputLabel} htmlFor="tutor-question">سؤالك للأستاذ · {TUTOR_MODES[mode].label}</label><div className={styles.inputRow}><textarea id="tutor-question" ref={input} dir="auto" rows={2} value={draft} onChange={event => setDraft(event.target.value)} maxLength={6000} disabled={busy} placeholder="اشرح لي… لماذا… أو هذه محاولتي…" onKeyDown={event => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); } }}/>{busy ? <button type="button" onClick={() => request.current?.abort()}>إيقاف</button> : <button className={styles.primary} disabled={loading || !draft.trim() || !overview.configured} type="submit">أرسل ←</button>}</div>
+      <details><summary>أرفق كودًا أو اختر ملفًا من موقعي</summary><div className={styles.contextFields}>
+      <p className={styles.sourceSelection}>مثال الشرح من: <bdi>{sourcePath ? `${sourcePath}:${sourceLine}` : tutorExampleForTopic(topic).path}</bdi>{!sourcePath && <small>اختيار تلقائي حسب الموضوع · يمكنك تغييره أدناه</small>}</p>
+        <label>الكود أو رسالة الخطأ<textarea dir="ltr" value={code} onChange={event => setCode(event.target.value)} disabled={busy} rows={5} maxLength={8000} placeholder="Paste code or an error here…" /></label>
+        <div className={styles.fileFields}><label>ملف من L’ÉCOMAX (اختياري)<input dir="ltr" list="tutor-source-files" value={sourcePath} onChange={event => setSourcePath(event.target.value)} disabled={busy} maxLength={600} placeholder="app/produit/[slug]/page.tsx" /></label><label>السطر<input dir="ltr" type="number" min={1} max={100000} value={sourceLine} onChange={event => setSourceLine(Math.max(1, Number(event.target.value) || 1))} disabled={busy}/></label></div>
+        <datalist id="tutor-source-files">{["app/produit/[slug]/page.tsx","components/ProductCard.tsx","app/api/products/route.ts","app/api/orders/route.ts","app/checkout/page.tsx","lib/supabase-server.ts","middleware.ts"].map(path => <option key={path} value={path}/>)}</datalist>
+        <label className={styles.checkbox}><input type="checkbox" checked={attempt} onChange={event => setAttempt(event.target.checked)} disabled={busy}/> هذه محاولتي في التمرين؛ راجعها معي</label><p className={styles.muted}>أرسل فقط الكود اللازم. استبدل المفاتيح وكلمات المرور بعبارات مثل YOUR_API_KEY.</p>
+      </div></details>
+      <p className={styles.composerNote}>الكود الذي تشاركه يُرسل إلى OpenAI للشرح. راجع الأمثلة وجرّبها في بيئة التعلم.</p>
+    </form>);
   return <div className={styles.shell} lang="ar" dir="rtl" data-ai-tutor>
     <label className={styles.mobileNavigation}>
       <span>مساحة التعلّم</span>
@@ -181,6 +192,7 @@ export default function AITutor() {
         return <button className={styles.progressCard} key={key} onClick={() => { setTopic(key); setProgressOpen(true); }}><strong>{label}</strong><span>{progress?.confidence ?? 0}% · ثقتي بالفهم</span><progress value={progress?.confidence ?? 0} max={100}/><small>{progress?.attempts ?? 0} محاولات · {progress?.completed_exercises ?? 0} تمارين أنجزتها</small></button>;
       })}</div><h3>نقاط قوتك حسب تقييمك</h3><p>{overview.progress.filter(item => item.confidence >= 75 && !item.needs_practice).map(item => TUTOR_TOPICS[item.topic]).join("، ") || "تتضح مع التعلم والتجربة."}</p><h3>يحتاج مراجعة</h3><p>{overview.progress.filter(item => item.needs_practice).map(item => TUTOR_TOPICS[item.topic]).join("، ") || "لم تحدد موضوعًا للمراجعة بعد."}</p><h3>آخر ما تعلمته</h3><p>{overview.progress[0] ? TUTOR_TOPICS[overview.progress[0].topic] : "ابدأ أول درس."}</p></>}
     </section>}
+    {!messages.length && composer}
     <section className={styles.workspace} aria-label="درس الذكاء الاصطناعي">
       <div className={styles.sessionHeader}><div><span className={styles.eyebrow}>فكرة واحدة. خطوة واضحة.</span><h2>{conversation?.title || "ماذا تريد أن تفهم اليوم؟"}</h2></div><label>موضوع الدرس<select disabled={busy} value={topic} onChange={event => setTopic(event.target.value as TutorTopic)}>{Object.entries(TUTOR_TOPICS).map(([key,label]) => <option key={key} value={key}>{label}</option>)}</select></label></div>
       <details className={styles.modePicker}><summary>طريقة التعلم · {TUTOR_MODES[mode].label}</summary><div className={styles.modeGrid}>{(Object.entries(TUTOR_MODES) as [TutorMode,typeof TUTOR_MODES[TutorMode]][]).map(([key,value]) => <button disabled={busy} aria-pressed={mode === key} key={key} onClick={() => { setMode(key); setDraft(value.starter); if (key === "api") setTopic("api"); if (key === "debug") setTopic("debugging"); if (key === "project" && !sourcePath) setSourcePath("app/produit/[slug]/page.tsx"); input.current?.focus(); }}><span aria-hidden="true">{value.icon}</span>{value.label}</button>)}</div></details>
@@ -199,17 +211,7 @@ export default function AITutor() {
     {error && <div className={styles.error} role="alert"><p>{error}</p><div className={styles.actions}>{retry ? <button disabled={busy} onClick={() => void send(retry.text,retry.code,retry.action,retry.targetId)}>حاول مجددًا</button> : <button disabled={busy || loading} onClick={() => { setError(""); void refresh().catch(err => setError(err.message)); }}>أعد التحميل</button>}<Link href="/admin/how-it-was-built/">افتح مساحة التعلم</Link></div></div>}
     {notice && <p role="status" className={styles.notice}>{notice}</p>}
     {!overview.configured && <p className={styles.error}>الأستاذ غير متاح حاليًا. يلزم إكمال إعداد الخدمة على الخادم.</p>}
-    <form className={styles.composer} onSubmit={event => { event.preventDefault(); void send(); }}>
-      <p className={styles.sourceSelection}>مثال الشرح من: <bdi>{sourcePath ? `${sourcePath}:${sourceLine}` : tutorExampleForTopic(topic).path}</bdi>{!sourcePath && <small>اختيار تلقائي حسب الموضوع · يمكنك تغييره أدناه</small>}</p>
-      <details><summary>أرفق كودًا أو اختر ملفًا من موقعي</summary><div className={styles.contextFields}>
-        <label>الكود أو رسالة الخطأ<textarea dir="ltr" value={code} onChange={event => setCode(event.target.value)} disabled={busy} rows={5} maxLength={8000} placeholder="Paste code or an error here…" /></label>
-        <div className={styles.fileFields}><label>ملف من L’ÉCOMAX (اختياري)<input dir="ltr" list="tutor-source-files" value={sourcePath} onChange={event => setSourcePath(event.target.value)} disabled={busy} maxLength={600} placeholder="app/produit/[slug]/page.tsx" /></label><label>السطر<input dir="ltr" type="number" min={1} max={100000} value={sourceLine} onChange={event => setSourceLine(Math.max(1, Number(event.target.value) || 1))} disabled={busy}/></label></div>
-        <datalist id="tutor-source-files">{["app/produit/[slug]/page.tsx","components/ProductCard.tsx","app/api/products/route.ts","app/api/orders/route.ts","app/checkout/page.tsx","lib/supabase-server.ts","middleware.ts"].map(path => <option key={path} value={path}/>)}</datalist>
-        <label className={styles.checkbox}><input type="checkbox" checked={attempt} onChange={event => setAttempt(event.target.checked)} disabled={busy}/> هذه محاولتي في التمرين؛ راجعها معي</label><p className={styles.muted}>أرسل فقط الكود اللازم. استبدل المفاتيح وكلمات المرور بعبارات مثل YOUR_API_KEY.</p>
-      </div></details>
-      <label className={styles.inputLabel} htmlFor="tutor-question">سؤالك للأستاذ · {TUTOR_MODES[mode].label}</label><div className={styles.inputRow}><textarea id="tutor-question" ref={input} dir="auto" rows={2} value={draft} onChange={event => setDraft(event.target.value)} maxLength={6000} disabled={busy} placeholder="اشرح لي… لماذا… أو هذه محاولتي…" onKeyDown={event => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); } }}/>{busy ? <button type="button" onClick={() => request.current?.abort()}>إيقاف</button> : <button className={styles.primary} disabled={loading || !draft.trim() || !overview.configured} type="submit">أرسل ←</button>}</div>
-      <p className={styles.composerNote}>الكود الذي تشاركه يُرسل إلى OpenAI للشرح. راجع الأمثلة وجرّبها في بيئة التعلم.</p>
-    </form>
+    {messages.length > 0 && composer}
     {progressOpen && <ProgressDialog key={topic} topic={topic} progress={currentProgress} onClose={() => setProgressOpen(false)} onSaved={async () => { await refresh(); setProgressOpen(false); setNotice("تم حفظ تقدمك ✓"); }}/>}
   </div>;
 }

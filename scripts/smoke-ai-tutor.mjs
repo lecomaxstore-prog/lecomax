@@ -79,8 +79,8 @@ try {
   await evaluate(client, "document.querySelector('#tutor-question').scrollIntoView({block:'center'})");
   const inputMobile=await client.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
   await writeFile('.source-library/ai-tutor-mobile-input.png',Buffer.from(inputMobile.data,'base64'));
-  const initialLayout=await evaluate(client,`(()=>{const s=document.querySelector('[data-ai-tutor]');return {workspace:s.querySelector('section[aria-label]').getBoundingClientRect().bottom,composer:s.querySelector('form').getBoundingClientRect().top};})()`);
-  assert(initialLayout.composer>=initialLayout.workspace,'mobile composer does not obscure lesson setup');
+  const initialLayout=await evaluate(client,`(()=>{const s=document.querySelector('[data-ai-tutor]');return {workspace:s.querySelector('section[aria-label]').getBoundingClientRect().bottom,workspaceTop:s.querySelector('section[aria-label]').getBoundingClientRect().top,composerBottom:s.querySelector('form').getBoundingClientRect().bottom,composer:s.querySelector('form').getBoundingClientRect().top};})()`);
+  assert(initialLayout.composerBottom<=initialLayout.workspaceTop,'mobile composer does not obscure lesson setup');
   await setViewport(client,390,520);
   await evaluate(client,"document.querySelector('#tutor-question').focus(); document.querySelector('#tutor-question').scrollIntoView({block:'center'})");
   const inputBounds=await evaluate(client,`(()=>{const input=document.querySelector('#tutor-question').getBoundingClientRect();const nav=document.querySelector('.admin-bottom-nav').getBoundingClientRect();return {top:input.top,bottom:input.bottom,navTop:nav.top};})()`);
@@ -96,7 +96,7 @@ try {
     const overflow=await evaluate(client,`({page:document.documentElement.scrollWidth-innerWidth,main:document.querySelector('#admin-main').scrollWidth-document.querySelector('#admin-main').clientWidth})`);
     assert(overflow.page<=2&&overflow.main<=2,`overflow at ${width}: ${JSON.stringify(overflow)}`);
     if(width<=700){
-      const layout=await evaluate(client,`(()=>{const s=document.querySelector('[data-ai-tutor]');return {workspace:s.querySelector('section[aria-label]').getBoundingClientRect().bottom,composer:s.querySelector('form').getBoundingClientRect().top};})()`);
+      const layout=await evaluate(client,`(()=>{const s=document.querySelector('[data-ai-tutor]');return {workspace:s.querySelector('section[aria-label]').getBoundingClientRect().bottom,workspaceTop:s.querySelector('section[aria-label]').getBoundingClientRect().top,composerBottom:s.querySelector('form').getBoundingClientRect().bottom,composer:s.querySelector('form').getBoundingClientRect().top};})()`);
       assert(layout.composer>=layout.workspace,'reply box does not overlap messages at '+width);
     }
   }

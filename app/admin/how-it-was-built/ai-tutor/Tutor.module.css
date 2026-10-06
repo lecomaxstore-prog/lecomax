@@ -78,4 +78,31 @@
   .toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sessionHeader label { grid-template-columns: minmax(0, 1fr); gap: 0; }
 }
+/* A phone opens directly onto the question, with optional setup below it. */
+@media (max-width: 700px) {
+  :global(.admin-shell) :global(#admin-main):has(.shell) { padding-top: 12px; padding-inline: 12px; }
+  .shell .mobileNavigation { margin-bottom: 8px; }
+  .mobileNavigation > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .shell .mobileNavigation select { min-height: 44px; padding-block: 8px; background: #fff; }
+  .hero { padding: 10px 4px; border-radius: 0; background: none; color: var(--ink); overflow: visible; }
+  .hero .eyebrow { display: none; }
+  .heroBody { padding: 0; }
+  .hero h1 { font-size: 22px; line-height: 1.5; }
+  .hero p { color: #526c5b; font-size: 14px; margin-top: 2px; }
+  .toolbar { gap: 5px; margin: 8px 0 10px; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .toolbar button { min-height: 44px; padding: 8px 4px; font-size: 12px; border-radius: 10px; }
+  .composer { margin-top: 0; margin-bottom: 12px; padding: 14px; border-color: #afcdb8; box-shadow: 0 3px 16px #173e3007; }
+  .shell .inputLabel { font-size: 14px !important; }
+  .inputRow textarea { min-height: 96px; background: #fafcf9; }
+  .inputRow > button { min-height: 44px; }
+  .composer > details { margin: 8px 0 0; border-bottom: 0; }
+  .composer > details > summary { font-size: 13px; color: #526c5b; }
+  .composerNote { font-size: 10px; margin-top: 0 !important; }
+  .workspace { padding: 12px; }
+  .workspace:has(.messages:empty) .sessionHeader > div { display: none; }
+  .workspace:has(.messages:empty) .sessionHeader { padding-bottom: 10px; }
+  .modePicker { margin: 4px 0 8px; }
+  .siteExamples { padding: 12px; }
+  .exampleHeading p { font-size: 13px; }
+}
 @media(prefers-reduced-motion:reduce){.shell *{scroll-behavior:auto!important}}
