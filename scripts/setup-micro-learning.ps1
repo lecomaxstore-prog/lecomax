@@ -44,7 +44,10 @@ if (([Uri]$configuredUrl).Host -ne "$projectRef.supabase.co") { throw 'Linked pr
 $queryEndpoint = "https://api.supabase.com/v1/projects/$projectRef/database/query"
 $headers = @{ Authorization = "Bearer $token" }
 if ($Apply) {
-  $sql = [IO.File]::ReadAllText((Join-Path $projectRoot 'supabase/migrations/20261006120000_micro_learning.sql')) + [Environment]::NewLine + [IO.File]::ReadAllText((Join-Path $projectRoot 'supabase/migrations/20261006121000_micro_learning_content.sql'))
+  $sql = @('20261006120000_micro_learning.sql', '20261006121000_micro_learning_content.sql', '20261006190000_learning_cadence.sql') | ForEach-Object {
+    [IO.File]::ReadAllText((Join-Path $projectRoot "supabase/migrations/$_"))
+  }
+  $sql = $sql -join [Environment]::NewLine
   $payload = @{ query = "begin;
 $sql
 commit;" } | ConvertTo-Json

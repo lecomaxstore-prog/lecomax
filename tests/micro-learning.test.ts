@@ -40,6 +40,7 @@ test("database scheduling is idempotent, preserves timers, scopes devices and ob
   try {
     await db.exec("create role anon; create role authenticated; create role service_role; create table push_subscriptions(endpoint text primary key, admin_email text, user_agent text);");
     await db.exec(readFileSync("supabase/migrations/20261006120000_micro_learning.sql", "utf8"));
+    await db.exec(readFileSync("supabase/migrations/20261006190000_learning_cadence.sql", "utf8"));
     await db.exec(readFileSync("supabase/migrations/20261006121000_micro_learning_content.sql", "utf8"));
     const settings = { ...DEFAULT_LEARNING_SETTINGS, enabled: true, quiet_enabled: false };
     const save = async (value = settings) => db.query("select save_micro_learning_settings('owner', $1::jsonb)", [JSON.stringify(value)]);
@@ -54,6 +55,8 @@ test("database scheduling is idempotent, preserves timers, scopes devices and ob
     assert.equal(results.filter(Boolean).length, 1);
     assert.equal((await db.query<{ count: number }>("select count(*)::integer as count from learning_notification_deliveries")).rows[0].count, 2);
     const timer = (await db.query("select next_due_at from learning_notification_settings")).rows[0];
+    const remaining = async () => Number((await db.query<{ seconds: number }>("select extract(epoch from (next_due_at-now()))::float as seconds from learning_notification_settings")).rows[0].seconds);
+    assert.ok(await remaining() > 530 && await remaining() <= 540, "a tick one minute late keeps the original ten-minute schedule");
     await save();
     assert.deepEqual((await db.query("select next_due_at from learning_notification_settings")).rows[0], timer, "saving unchanged settings cannot reset the timer");
     await due(); await save({ ...settings, paused: true }); assert.equal(await claim(), null);
@@ -62,6 +65,10 @@ test("database scheduling is idempotent, preserves timers, scopes devices and ob
     await save(); await due();
     assert.ok(await claim());
     assert.deepEqual((await db.query("select tip_id from learning_notification_history order by tip_id")).rows, [{ tip_id: 1 }, { tip_id: 2 }]);
+    await db.exec("update learning_notification_settings set next_due_at=now()-interval '27 minutes';");
+    assert.ok(await claim());
+    assert.ok(await remaining() > 170 && await remaining() <= 180, "missed slots advance to the next future deadline");
+    assert.equal(await claim(), null, "late ticks never produce a catch-up burst");
     // A whole-day window around the current instant, tested in a real PostgreSQL timezone.
     await db.exec("update learning_notification_settings set quiet_enabled=true, time_zone='Europe/Paris', quiet_start=((now() at time zone 'Europe/Paris')-interval '1 hour')::time, quiet_end=((now() at time zone 'Europe/Paris')+interval '1 hour')::time, next_due_at=now()-interval '1 minute';");
     assert.equal(await claim(), null);

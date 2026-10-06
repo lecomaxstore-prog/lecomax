@@ -9,3 +9,5 @@ Run `scripts/check-learning-delivery.ps1` from the configured local checkout for
 Validation on the release source: 527 tests passed, one skipped, plus the Android back-controller and scroll-return scenarios. The original local source also passed its 516 runnable tests.
 
 The course contains 102 distinct Arabic lessons and stops after the last one. Manage the interval, quiet hours, pause, or register another device at `/admin/how-it-was-built/learn/`.
+
+The first automated lesson was accepted at 21:06:02 Europe/Paris by one owner device, with zero failed or unknown attempts. The cadence migration fixes the observed extra-minute drift by preserving interval phase and aligning existing future deadlines to scheduler minute boundaries. All 33 focused learning and notification tests pass, including late-tick and missed-slot behavior.

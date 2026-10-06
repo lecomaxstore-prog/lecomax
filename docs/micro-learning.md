@@ -15,8 +15,9 @@ Apply these additive migrations in order to the linked project:
 
 1. `supabase/migrations/20261006120000_micro_learning.sql`
 2. `supabase/migrations/20261006121000_micro_learning_content.sql`
+3. `supabase/migrations/20261006190000_learning_cadence.sql`
 
-`scripts/setup-micro-learning.ps1 -Apply` uses the existing Supabase CLI credential, verifies that the linked project matches `.env.local`, and applies both inside a transaction. Without `-Apply` it only checks readiness. The tables use RLS with no browser-role grants. Only authenticated owner API handlers and the service-role scheduler access them. No existing store rows are modified. The schema depends on the existing `push_subscriptions.admin_email` migration.
+`scripts/setup-micro-learning.ps1 -Apply` uses the existing Supabase CLI credential, verifies that the linked project matches `.env.local`, and applies all three inside a transaction. Without `-Apply` it only checks readiness. The tables use RLS with no browser-role grants. Only authenticated owner API handlers and the service-role scheduler access them. No existing store rows are modified. The schema depends on the existing `push_subscriptions.admin_email` migration.
 
 There are 102 Arabic tips, three per topic across 34 levels. IDs are immutable. To extend the course, append lessons and a new content migration; never renumber published tips. The sequence is finite and stops instead of recycling lessons. Content targets this project's Next.js 15; examples are deliberately small and labeled as simplified. A tip normally takes less than a minute to read.
 
@@ -45,3 +46,5 @@ Read time is recorded on opening a received lesson. Learned state is explicit; s
 Run `node --test tests/micro-learning*.test.ts tests/learning-reminder.test.ts tests/admin-push.test.ts tests/how-built-pin.test.ts` and `npm run build`.
 
 Before enabling production: apply migrations, check required environment variables, deploy, verify the scheduler is registered, then opt in on a real phone. Check the first notification, Arabic text, exact lesson navigation through login/PIN, pause, quiet hours, and another registered device. Automated tests exercise the SQL claims, API authorization, content, settings, progress and service worker; OS delivery still requires the real-device check.
+
+The cadence migration keeps the original interval phase when a tick arrives late, skips missed slots, and chooses a future deadline without catch-up bursts.
