@@ -141,6 +141,7 @@ const MOBILE_WEB_ORIGINS = new Set([
   "http://localhost:8081",
   "http://127.0.0.1:8081",
 ]);
+const MOBILE_LEARNING_API = /^\/api\/learning-mobile\/(auth|teacher)$/;
 
 function isAllowedMobileOrigin(origin: string) {
   if (origin === "https://app.lecomax.com") return true;
@@ -150,7 +151,7 @@ function isAllowedMobileOrigin(origin: string) {
 }
 
 function mobileCorsHeaders(req: NextRequest, response: NextResponse, pathname: string) {
-  if (!MOBILE_PUBLIC_API.test(pathname) && !/^\/api\/mobile\/(notifications|notification-preferences|web-push)$/.test(pathname)) return response;
+  if (!MOBILE_PUBLIC_API.test(pathname) && !MOBILE_LEARNING_API.test(pathname) && !/^\/api\/mobile\/(notifications|notification-preferences|web-push)$/.test(pathname)) return response;
   const origin = req.headers.get("origin");
   if (!origin || !isAllowedMobileOrigin(origin)) return response;
   response.headers.set("Access-Control-Allow-Origin", origin);
@@ -167,7 +168,7 @@ function mobileCorsHeaders(req: NextRequest, response: NextResponse, pathname: s
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname.replace(/\/+$/, "") || "/";
   const limited = edgeRateLimit(req, pathname);
-  if (limited) return limited;
+  if (limited) return MOBILE_LEARNING_API.test(pathname) ? mobileCorsHeaders(req, limited, pathname) : limited;
   if (pathname.startsWith("/api/") && !req.headers.get("content-type")?.includes("multipart/form-data") && Number(req.headers.get("content-length") || 0) > 1024 * 1024) return NextResponse.json({ error: "Request too large" }, { status: 413 });
   const lowerPath = pathname.toLowerCase();
 
@@ -176,7 +177,7 @@ export async function middleware(req: NextRequest) {
     return new NextResponse(null, { status: 404 });
   }
 
-  if (req.method === "OPTIONS" && (MOBILE_PUBLIC_API.test(pathname) || /^\/api\/mobile\/(notifications|notification-preferences|web-push)$/.test(pathname))) {
+  if (req.method === "OPTIONS" && (MOBILE_PUBLIC_API.test(pathname) || MOBILE_LEARNING_API.test(pathname) || /^\/api\/mobile\/(notifications|notification-preferences|web-push)$/.test(pathname))) {
     return mobileCorsHeaders(req, new NextResponse(null, { status: 204 }), pathname);
   }
 

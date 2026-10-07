@@ -6,7 +6,7 @@ import { clientIp, enforceRateLimit } from "./api-security";
 const SCRIPT = "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('PEXPIRE',KEYS[1],ARGV[1]) end; return {n,redis.call('PTTL',KEYS[1])}";
 
 /** Shared atomic counters when Redis is configured; bounded local defence otherwise. */
-export async function sensitiveRateLimit(req: NextRequest, scope: string, account?: string) {
+export async function sensitiveRateLimit(req: NextRequest, scope: string, account?: string, requireShared = false) {
   const period = 15 * 60_000;
   const counters: [string, number][] = [[`ip:${clientIp(req)}`, 30]];
   if (account) counters.push([`account:${account.trim().toLowerCase()}`, 10]);
@@ -18,6 +18,8 @@ export async function sensitiveRateLimit(req: NextRequest, scope: string, accoun
   for (const [identity, limit] of counters) {
     const digest = createHash("sha256").update(identity).digest("hex");
     if (!url && !token) {
+      if (requireShared && process.env.NODE_ENV === 'production')
+        return NextResponse.json({ error: 'RATE_LIMIT_UNAVAILABLE' }, { status: 503, headers: { 'Cache-Control': 'private, no-store' } });
       const denied = enforceRateLimit(req, scope, limit, period, digest);
       if (denied) return denied;
       continue;

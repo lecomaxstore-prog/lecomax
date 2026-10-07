@@ -1,0 +1,17 @@
+import {NextRequest} from 'next/server';
+import {readJsonLimited} from '@/lib/request-body';
+import {sensitiveRateLimit} from '@/lib/sensitive-rate-limit';
+import {mobileJson} from '@/lib/learning-mobile-auth';
+export async function POST(req:NextRequest){
+ const v=await readJsonLimited(req,8000).catch(()=>null);
+ if(!v||typeof v.email!=='string'||v.email.length>254||typeof v.password!=='string'||!v.password||v.password.length>1024)return mobileJson({error:'INVALID_INPUT'},400);
+ const limit=await sensitiveRateLimit(req,'learning-mobile-login',v.email,true);if(limit)return limit;
+ const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;const owner=process.env.ADMIN_EMAIL?.trim().toLowerCase();
+ if(!url||!key||!owner)return mobileJson({error:'UNAVAILABLE'},503);
+ try{
+  const response=await fetch(`${url}/auth/v1/token?grant_type=password`,{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify({email:v.email,password:v.password}),signal:AbortSignal.timeout(10000),cache:'no-store'});
+  const data=await response.json();
+  if(!response.ok||!data.user?.email_confirmed_at||String(data.user?.email).toLowerCase()!==owner||typeof data.access_token!=='string')return mobileJson({error:'OWNER_LOGIN_REQUIRED'},401);
+  return mobileJson({accessToken:data.access_token,expiresAt:Date.now()+Number(data.expires_in)*1000});
+ }catch{return mobileJson({error:'UNAVAILABLE'},503);}
+}
