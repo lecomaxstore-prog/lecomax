@@ -31,6 +31,7 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/api/learning-mobile/teacher": ["./.source-library/catalog.json"],
     "/api/admin/ai-tutor/message": ["./.source-library/catalog.json"],
+    "/api/admin/ai-tutor/source": ["./.source-library/catalog.json"],
     "/api/admin/learning-assistant": ["./.source-library/catalog.json"],
     "/api/dev-docs/*": [
       "./.source-library/catalog.json",

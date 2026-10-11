@@ -10,6 +10,14 @@ Answers stream progressively. Each completed answer has simpler/deeper/why/pract
 
 ## Existing architecture reused
 
+### Real-site lessons and mobile update
+
+Six guided lessons cover the product card, product page, category filters, products API, cart discount flow and server Supabase client. `TUTOR_EXAMPLES` stores real paths and function anchors; the sanitized snapshot resolves current line numbers. The owner-protected `/api/admin/ai-tutor/source` endpoint supplies a preview of up to 14 numbered lines. Its source catalog is included in deployment tracing. Missing anchors fail explicitly rather than returning an unrelated example.
+
+Selecting a lesson prepares an editable question and its exact source context; sending remains an explicit learner action. Questions without a selected file receive a topic-based source excerpt automatically. The composer shows that choice, and an explicit file/line takes precedence. The prompt distinguishes real excerpts from proposed changes, requires an observable check, and waits for an attempt before revealing exercise answers. Hints, quizzes and next-step actions are anchored to the selected saved explanation.
+
+On mobile, navigation uses a compact selector, learning modes stay collapsed until opened, examples have full-width actions, code scrolls internally, and the hero disappears during a conversation. Source previews use real local snapshots in the browser smoke test; AI replies and learning writes remain fixtures. This update follows the earlier production deployment recorded below.
+
 - Next.js 15 App Router and React 19; the official installed `openai` SDK and Responses API.
 - Existing `OPENAI_API_KEY` and `OPENAI_MODEL`, read only in `lib/ai-tutor-provider.ts`. No new key or browser OpenAI request. The configured model can be changed without code changes.
 - Existing owner admin session, learning PIN, same-origin mutation protection, bounded request reader, Supabase service client and source snapshot library.

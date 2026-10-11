@@ -25,7 +25,7 @@ try {
     const json=(body,status=200)=>Promise.resolve(new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json'}}));
     window.fetch=(input,options={})=>{
       const url=new URL(typeof input==='string'?input:input.url,location.href);
-      if(!url.pathname.startsWith('/api/admin/ai-tutor'))return original(input,options);
+      if(!url.pathname.startsWith('/api/admin/ai-tutor') || url.pathname.replace(/\/$/,'').endsWith('/source'))return original(input,options);
       const method=options.method||'GET',body=options.body?JSON.parse(options.body):{};
       state.calls.push({url:url.pathname,method,body});save();
       if(method==='GET'){
@@ -60,15 +60,45 @@ try {
   const click=async text=>evaluate(client,`(()=>{const b=[...document.querySelectorAll('[data-ai-tutor] button')].find(b=>b.textContent.trim()===${JSON.stringify(text)});if(!b)throw Error('Missing button');b.click();return true;})()`);
   const setInput=async(selector,value)=>evaluate(client,`(()=>{const e=document.querySelector(${JSON.stringify(selector)});Object.getOwnPropertyDescriptor(e.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(e,${JSON.stringify(value)});e.dispatchEvent(new Event('input',{bubbles:true}));return true;})()`);
   assert(await evaluate(client,`document.querySelector('[data-ai-tutor] nav').children.length===5 && getComputedStyle(document.querySelector('[data-ai-tutor]')).direction==='rtl'`),'five options and RTL');
+  await waitFor(client,`!!document.querySelector('[aria-label="أمثلة من ملفات موقعي"] pre')`,'real source preview',60000);
+  assert(await evaluate(client,`document.querySelector('[aria-label="أمثلة من ملفات موقعي"] pre').textContent.includes('export default function ProductCard')`),'preview contains actual product card source');
+  const sourcePreviews = await evaluate(client,`Promise.all(['product-card','product-page','filters','products-api','cart','database'].map(async example=>{const response=await fetch('/api/admin/ai-tutor/source?example='+example);const data=await response.json();return {example,status:response.status,path:data.path,line:data.focusLine,excerpt:data.excerpt};}))`);
+  assert(sourcePreviews.every(item=>item.status===200 && item.line>0 && item.excerpt.startsWith(item.line+': ')),'all six lessons resolve real numbered source');
+  await evaluate(client,`(()=>{const section=document.querySelector('[aria-label="أمثلة من ملفات موقعي"]');section.querySelector('details').open=true;section.scrollIntoView({block:'start'});})()`);
+  await mkdir('.source-library',{recursive:true});
+  const realExample=await client.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+  await writeFile('.source-library/ai-tutor-real-example.png',Buffer.from(realExample.data,'base64'));
+  await click('افهم هذا المثال ←');
+  assert(await evaluate(client,`document.querySelector('#tutor-question').value.includes('components/ProductCard.tsx')`),'guided lesson prepares file-specific question');
+  assert(await evaluate(client,`document.querySelector('input[list="tutor-source-files"]').value==='components/ProductCard.tsx'`),'guided lesson selects real source');
+  await click('＋ درس جديد');
+  await evaluate(client,"document.getElementById('admin-main').scrollTo(0,0)");
+  await mkdir('.source-library',{recursive:true});
+  const emptyMobile=await client.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+  await writeFile('.source-library/ai-tutor-mobile-empty.png',Buffer.from(emptyMobile.data,'base64'));
+  await evaluate(client, "document.querySelector('#tutor-question').scrollIntoView({block:'center'})");
+  const inputMobile=await client.send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+  await writeFile('.source-library/ai-tutor-mobile-input.png',Buffer.from(inputMobile.data,'base64'));
+  const initialLayout=await evaluate(client,`(()=>{const s=document.querySelector('[data-ai-tutor]');return {workspace:s.querySelector('section[aria-label]').getBoundingClientRect().bottom,workspaceTop:s.querySelector('section[aria-label]').getBoundingClientRect().top,composerBottom:s.querySelector('form').getBoundingClientRect().bottom,composer:s.querySelector('form').getBoundingClientRect().top};})()`);
+  assert(initialLayout.composerBottom<=initialLayout.workspaceTop,'mobile composer does not obscure lesson setup');
+  await setViewport(client,390,520);
+  await evaluate(client,"document.querySelector('#tutor-question').focus(); document.querySelector('#tutor-question').scrollIntoView({block:'center'})");
+  const inputBounds=await evaluate(client,`(()=>{const input=document.querySelector('#tutor-question').getBoundingClientRect();const nav=document.querySelector('.admin-bottom-nav').getBoundingClientRect();return {top:input.top,bottom:input.bottom,navTop:nav.top};})()`);
+  assert(inputBounds.top>=0 && inputBounds.bottom<=inputBounds.navTop,'question remains visible above navigation in a reduced viewport');
+  await setViewport(client,390,844);
   await setInput('#tutor-question','اشرح لي await');await click('أرسل ←');
   await waitFor(client,`document.querySelector('[data-ai-tutor]').innerText.includes('الأستاذ يفكر')`,'stream starts');
   await waitFor(client,`[...document.querySelectorAll('[data-ai-tutor] button')].some(b=>b.textContent==='☆ حفظ الشرح')`,'stream saves');
   assert(await evaluate(client,`!window.__injected && !document.querySelector('[data-ai-tutor] a[href^="javascript:"]')`),'Markdown executable content blocked');
   assert(await evaluate(client,`document.querySelector('[data-ai-tutor] pre').scrollWidth>document.querySelector('[data-ai-tutor] pre').clientWidth`),'long code scrolls internally');
-  for(const width of [360,390,768,1440]){
+  for(const width of [320,360,390,430,768,1440]){
     await setViewport(client,width,900);
     const overflow=await evaluate(client,`({page:document.documentElement.scrollWidth-innerWidth,main:document.querySelector('#admin-main').scrollWidth-document.querySelector('#admin-main').clientWidth})`);
     assert(overflow.page<=2&&overflow.main<=2,`overflow at ${width}: ${JSON.stringify(overflow)}`);
+    if(width<=700){
+      const layout=await evaluate(client,`(()=>{const s=document.querySelector('[data-ai-tutor]');return {workspace:s.querySelector('section[aria-label]').getBoundingClientRect().bottom,workspaceTop:s.querySelector('section[aria-label]').getBoundingClientRect().top,composerBottom:s.querySelector('form').getBoundingClientRect().bottom,composer:s.querySelector('form').getBoundingClientRect().top};})()`);
+      assert(layout.composer>=layout.workspace,'reply box does not overlap messages at '+width);
+    }
   }
   await click('نسخ الكود');await waitFor(client,`[...document.querySelectorAll('[data-ai-tutor] button')].some(b=>b.textContent==='تم النسخ ✓')`,'copy code');
   await click('☆ حفظ الشرح');await waitFor(client,`[...document.querySelectorAll('[data-ai-tutor] button')].some(b=>b.textContent==='★ شرح محفوظ')`,'bookmark');
