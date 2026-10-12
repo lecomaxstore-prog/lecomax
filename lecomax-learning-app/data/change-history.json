@@ -1,5 +1,89 @@
 [
   {
+    "id": "admin-loading-production-published-20261013",
+    "createdAt": "2026-10-12T23:56:59.246Z",
+    "relatedId": "admin-loading-authorized-publication-20261013",
+    "title": "Admin loading fix published to GitHub and deployed to lecomax.com",
+    "summary": "The tested admin update is live on both L’ecomax domains and pushed to the GitHub fix branch with draft PR 53. Vercel checks and public follow-up passed.",
+    "status": "successful",
+    "pages": [
+      "Admin Analytics",
+      "Admin navigation",
+      "Homepage",
+      "Boutique",
+      "Product details",
+      "Cart",
+      "Checkout"
+    ],
+    "components": [
+      "Analytics request lifecycle",
+      "Analytics comparison summary",
+      "Admin badge requests",
+      "GitHub publication",
+      "Vercel production deployment",
+      "Change History archive"
+    ],
+    "files": [
+      "app/admin/analytics/page.tsx",
+      "app/admin/layout.tsx",
+      "app/api/analytics/route.ts",
+      "lib/analytics-fetch.ts",
+      "tests/admin-analytics-loading.test.ts",
+      "docs/admin-analytics-performance-20261013.md",
+      "AGENTS.md",
+      ".vercelignore",
+      "lecomax-learning-app/data/change-history.json",
+      "lecomax-learning-app/scripts/change-report.cjs",
+      "lecomax-learning-app/artifacts/admin-loading-live-verification.json"
+    ],
+    "changes": [
+      {
+        "kind": "fixed",
+        "detail": "Publish current-report-first Analytics loading, compact comparison totals, request deadlines, obsolete-period cancellation and retry after failed main requests. Delay and reduce repeated admin navigation badge reads."
+      },
+      {
+        "kind": "added",
+        "detail": "Push fix/admin-loading-20261013 to lecomaxstore-prog/lecomax with code commit b49b35a and archive commit 2c46ea2; create draft PR https://github.com/lecomaxstore-prog/lecomax/pull/53. Retain previous source reports and append/check tooling."
+      },
+      {
+        "kind": "modified",
+        "detail": "Promote Ready Vercel deployment dpl_6mMrE2mLj1TVFBQL2WCTDqaAaQ7g. Vercel aliases confirm lecomax.com and www.lecomax.com target lecomax-mq3mrshnx-lecomaxstore-4321s-projects.vercel.app. First promotion failed with different-team scope; explicit lecomaxstore-4321s-projects scope succeeded. No permissions or account settings changed."
+      }
+    ],
+    "validation": [
+      {
+        "name": "Local and GitHub source validation",
+        "result": "passed",
+        "detail": "TypeScript passed in isolated release and clean GitHub checkout; 23 focused isolated regressions and five GitHub Analytics tests passed. Confirmed local production build exited 0 and generated 249 pages. Candidate Ready status verified with Vercel inspect."
+      },
+      {
+        "name": "Candidate checks",
+        "result": "passed",
+        "detail": "Homepage and boutique HTTP 200 with expected content; products/settings HTTP 200 and nonempty arrays; anonymous Analytics summary and admin verification HTTP 401. Initial multi-parameter Analytics curl was split by Windows command parsing; corrected single-parameter check passed."
+      },
+      {
+        "name": "Live public follow-up",
+        "result": "passed",
+        "detail": "32 live HTTP checks passed for public pages, products/settings APIs, JavaScript/CSS assets, original and optimized hero images. One responsive hero and no hidden menu images asserted. Live anonymous Analytics summary and admin verification both HTTP 401. Single homepage observation: 1776ms response headers, 2043ms total; not a browser speed score or guaranteed improvement."
+      },
+      {
+        "name": "Vercel diagnosis",
+        "result": "passed",
+        "detail": "Pre-rollout six-hour error and HTTP 5xx queries returned no records; post-rollout 15-minute error query returned no records. Official status page showed all systems operational; October 12 build/deploy incident resolved at 20:11 UTC. Available logs cannot rule out intermittent latency."
+      },
+      {
+        "name": "Scope and retention",
+        "result": "passed",
+        "detail": "Production release changed exactly six source/test/documentation files from prior deployed source. GitHub fix based on current main, with archive and .vercelignore retention additions. Draft PR because main differs from current production in unrelated areas; no main merge or replacement of unrelated edits performed."
+      },
+      {
+        "name": "Phone and authenticated browser acceptance",
+        "result": "not-run",
+        "detail": "No connected browser session was available. Physical-phone rendering, authenticated Analytics timings, checkout/payment interactions and Core Web Vitals remain unmeasured. Existing 5000-row query limits and up-to-one-minute badge freshness remain."
+      }
+    ]
+  },
+  {
     "id": "admin-loading-authorized-publication-20261013",
     "createdAt": "2026-10-12T23:50:52.350Z",
     "relatedId": "admin-loading-isolated-release-verified-blocked-20261013",
