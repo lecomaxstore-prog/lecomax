@@ -1,0 +1,40 @@
+{
+  "id": "hide-change-history-20261012",
+  "createdAt": "2026-10-12T16:32:45.729Z",
+  "title": "Hide change reports from the learning interface",
+  "summary": "Removed the dashboard report and More menu link; existing Change History URLs now redirect to Home. All saved reports remain intact.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "More",
+    "Change History"
+  ],
+  "components": [
+    "StudyDashboard",
+    "ChangeHistoryScreen",
+    "MoreScreen"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/change-history.tsx",
+    "lecomax-learning-app/docs/change-history.md"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed visible dashboard change reports and the More menu history entry at the user?s request."
+    },
+    {
+      "kind": "modified",
+      "detail": "Redirected the history route to Home and documented the visibility preference. No reports or archives were deleted."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint and history preservation checks pending. Browser and device interaction not yet tested."
+    }
+  ]
+}

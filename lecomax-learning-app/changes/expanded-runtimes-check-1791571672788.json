@@ -1,0 +1,52 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Record initial validation results without altering the implementation report."
+    }
+  ],
+  "summary": "All five interactive-terminal tests and six history tests passed; one separate script-runner assertion failed during package installation.",
+  "id": "expanded-runtimes-check-1791571672788",
+  "createdAt": "2026-10-09T18:47:52.788Z",
+  "validation": [
+    {
+      "name": "Interactive terminals",
+      "result": "passed",
+      "detail": "Five tests passed: PowerShell, Python, Node, runtime discovery and Kali Bash, including state and owner checks. node-pty emitted AttachConsole cleanup warnings."
+    },
+    {
+      "name": "Change history",
+      "result": "passed",
+      "detail": "Six persistence and UI interaction tests passed; manifest check passed with 47 reports."
+    },
+    {
+      "name": "Script runner",
+      "result": "failed",
+      "detail": "Three of four existing lab tests passed. PowerShell error-output assertion failed while Kali package installation was running. Retry pending."
+    },
+    {
+      "name": "Remaining checks",
+      "result": "not-run",
+      "detail": "Typecheck and lint still running. No browser automation available; no visual or owner-authenticated end-to-end check, native build or deployment."
+    }
+  ],
+  "files": [
+    "lib/teacher-runtimes.ts",
+    "lib/teacher-terminal.ts",
+    "app/api/learning-mobile/terminal/route.ts",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/docs/local-runtimes.md",
+    "tests/teacher-terminal.test.ts"
+  ],
+  "components": [
+    "TeacherLab web",
+    "Terminal API",
+    "Runtime discovery"
+  ],
+  "status": "failed",
+  "title": "Terminal checks passed; script-runner check needs review",
+  "pages": [
+    "Teacher"
+  ],
+  "relatedId": "expanded-local-runtimes-1791571438712"
+}

@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Completed password generation, installed lecomax-kali and lecomax-desktop on the connected phone, and started the desktop."
+    }
+  ],
+  "summary": "Completed the interrupted Termux desktop setup and started XFCE with password-protected VNC and the local noVNC bridge.",
+  "id": "phone-kali-desktop-running-20261010",
+  "createdAt": "2026-10-09T23:43:53.087Z",
+  "validation": [
+    {
+      "detail": "XFCE session and Xtigervnc running. Local noVNC HTTP 200. VNC RFB 003.008 handshake offers only VncAuth (type 2). Server arguments use localhost and bridge logs bind 127.0.0.1:6080. Password files mode 600 with nonzero expected sizes. Repeat launcher detects running desktop. Launcher shell syntax checks passed.",
+      "result": "passed",
+      "name": "Physical phone services"
+    },
+    {
+      "detail": "Seven phone connection and change-history tests passed.",
+      "result": "passed",
+      "name": "Focused automated tests"
+    },
+    {
+      "detail": "In-app visual interaction and reboot recovery not tested. No application deployment or OTA publication performed; repository history needs a future app delivery to appear in the installed release.",
+      "result": "not-run",
+      "name": "Acceptance and delivery limitations"
+    },
+    {
+      "name": "Static validation",
+      "result": "passed",
+      "detail": "TypeScript check and focused ESLint passed."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/install-phone-desktop.sh"
+  ],
+  "status": "successful",
+  "components": [
+    "Termux desktop setup"
+  ],
+  "relatedId": "phone-kali-password-resume-20261010",
+  "title": "Phone Kali desktop running and connection verified",
+  "pages": [
+    "Kali desktop"
+  ]
+}

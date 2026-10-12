@@ -1,0 +1,55 @@
+{
+  "id": "curriculum-library-refresh-1791544843719",
+  "createdAt": "2026-10-09T11:20:43.719Z",
+  "title": "A clearer programming curriculum library",
+  "summary": "Redesign the curriculum screen with a scrollable introduction, readable phase filters and less cluttered topic cards.",
+  "status": "needs-testing",
+  "pages": [
+    "/(tabs)/path"
+  ],
+  "components": [
+    "CurriculumLibrary"
+  ],
+  "files": [
+    "lecomax-learning-app/components/CurriculumLibrary.tsx",
+    "lecomax-learning-app/tests/curriculum-library-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Moved the introduction and search into the topic list so the entire screen scrolls together; added clearer localized headings and a prominent library link."
+    },
+    {
+      "kind": "modified",
+      "detail": "Replaced clipped horizontal phase chips with an expandable full-label phase picker and explicit All topics / Available now controls."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced mixed Arabic slash counters with complete localized completion phrases and clarified unpublished topic status."
+    },
+    {
+      "kind": "modified",
+      "detail": "Added phase-specific icons and green, amber and violet categories; show progress bars only after at least one completed lesson."
+    },
+    {
+      "kind": "added",
+      "detail": "Added empty-result filter reset and an interaction regression test for combined filters, search reset, Arabic labels and navigation."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed repetitive empty 0% progress bars and the redundant numbered metadata from topic cards."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated validation",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, curriculum interaction and history tests pending."
+    },
+    {
+      "name": "Visual review",
+      "result": "not-run",
+      "detail": "UI inventory reports no available browser or native app; rendered mobile and native-device appearance remain unverified. No deployment."
+    }
+  ]
+}

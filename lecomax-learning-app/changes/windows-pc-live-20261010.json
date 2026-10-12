@@ -1,0 +1,61 @@
+{
+  "id": "windows-pc-live-20261010",
+  "createdAt": "2026-10-10T15:26:22.266Z",
+  "title": "My PC: live Windows desktop over trusted Wi-Fi",
+  "summary": "Added a Windows desktop viewer with pairing, touch, keyboard and disconnect controls, plus a local start/stop helper. Validation and APK delivery are pending.",
+  "status": "needs-testing",
+  "pages": [
+    "My space",
+    "My PC"
+  ],
+  "components": [
+    "PcDesktop",
+    "PC pairing bridge",
+    "UltraVNC launcher"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PcDesktop.tsx",
+    "lecomax-learning-app/components/PcDesktop.web.tsx",
+    "lecomax-learning-app/app/pc.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/utils/pc-remote.ts",
+    "scripts/pc-remote-server.mjs",
+    "scripts/start-pc-remote.mjs",
+    "scripts/pc-remote/index.html",
+    "scripts/pc-remote/client.js",
+    "Start My PC.cmd",
+    "Stop My PC.cmd",
+    "lecomax-learning-app/docs/my-pc.md",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    ".gitignore",
+    "lecomax-learning-app/tests/pc-remote.test.cjs",
+    "tests/pc-remote.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Separate My PC screen with private Wi-Fi address validation, restricted WebView and disconnect on background; trilingual Android instructions."
+    },
+    {
+      "kind": "added",
+      "detail": "Local paired browser-to-VNC bridge, origin and host checks, rate-limited pairing, one session, expiry, stop command and portable loopback-only Windows server. No service, startup registration or public deployment."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prepared Android 1.0.7 build 9; ignored local helper binaries and secrets."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Official portable dependency",
+      "result": "passed",
+      "detail": "UltraVNC 1.8.3.0 archive matched official SHA256 11163a0b9b86321bf6403eb0cf84b81f7230ce32e6291377e1fe5beb987f7e4f."
+    },
+    {
+      "name": "Application and device validation",
+      "result": "not-run",
+      "detail": "Tests, native build, Windows runtime connection and phone acceptance are pending. No updated APK installed or published."
+    }
+  ]
+}

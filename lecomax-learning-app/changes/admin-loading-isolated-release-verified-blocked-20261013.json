@@ -1,0 +1,72 @@
+{
+  "id": "admin-loading-isolated-release-verified-blocked-20261013",
+  "createdAt": "2026-10-12T23:44:36.127Z",
+  "relatedId": "admin-loading-release-shell-check-20261013",
+  "title": "Isolated admin loading fix validated; Vercel upload awaits approval",
+  "summary": "The exact six-file admin update passes TypeScript, 23 regressions and a confirmed production build. Automatic approval review blocked source upload and remote deployment; live domain unchanged.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Analytics",
+    "Admin navigation",
+    "Storefront baseline"
+  ],
+  "components": [
+    "AnalyticsPage",
+    "AdminLayout",
+    "Analytics API",
+    "Isolated production release"
+  ],
+  "files": [
+    "app/admin/analytics/page.tsx",
+    "app/admin/layout.tsx",
+    "app/api/analytics/route.ts",
+    "lib/analytics-fetch.ts",
+    "tests/admin-analytics-loading.test.ts",
+    "docs/admin-analytics-performance-20261013.md",
+    "lecomax-learning-app/artifacts/build-admin-release.cjs",
+    "lecomax-learning-app/artifacts/admin-loading-release-audit.json",
+    "lecomax-learning-app/artifacts/admin-loading-isolated-build-result.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepared release/admin-loading-20261013 from the source of currently live deployment dpl_5qQ5jT3jFM19yDN2Q8TMuBDK8hyQ. Final byte-hash audit confirms exactly six intended source/test/documentation changes and no removals; unrelated workspace changes excluded."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Confirmed native build exit code directly instead of relying on PowerShell warning handling. Current Analytics renders before optional trends, failures release loading placeholders with retry, obsolete requests are cancelled, comparison payload is compact and navigation badge requests are reduced."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Isolated TypeScript and regressions",
+      "result": "passed",
+      "detail": "TypeScript command completed successfully and 23 runtime tests passed, zero failures, from inside isolated release."
+    },
+    {
+      "name": "Confirmed isolated production build",
+      "result": "passed",
+      "detail": "Direct child build capture records exitCode 0, no process error, successful compile in 24.9s and 249/249 static pages. Earlier PowerShell exit 1 is preserved in the linked report. Existing multi-lockfile tracing-root warning remains."
+    },
+    {
+      "name": "Source boundary",
+      "result": "passed",
+      "detail": "Final source comparison to the current production release found exactly the six audited files changed and zero removals, excluding generated build/source-library output."
+    },
+    {
+      "name": "Existing production public HTTP baseline",
+      "result": "passed",
+      "detail": "Read-only homepage/products/settings requests returned HTTP 200. Single response-header observations: homepage 2411ms (Vercel HIT), products 1500ms, settings 1376ms. These are pre-update HTTP observations, not browser rendering or measured improvements."
+    },
+    {
+      "name": "Remote build and production rollout",
+      "result": "not-run",
+      "detail": "Automatic approval review rejected vercel deploy --prod --skip-domain because it uploads private application source and creates a production deployment without explicit user authorization. No workaround or domain promotion attempted. Explicit approval is needed for upload to the existing Vercel project and deployment to lecomax.com."
+    },
+    {
+      "name": "Phone acceptance and authenticated live timings",
+      "result": "not-run",
+      "detail": "No connected browser or existing admin browser session available. No phone visual acceptance or post-deployment timing checks. The existing 5000-row Analytics query limits remain."
+    }
+  ]
+}

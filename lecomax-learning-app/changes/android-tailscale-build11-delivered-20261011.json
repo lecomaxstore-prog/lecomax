@@ -1,0 +1,71 @@
+{
+  "id": "android-tailscale-build11-delivered-20261011",
+  "createdAt": "2026-10-11T13:14:20.152Z",
+  "title": "Android 1.0.9 verified and copied to phone",
+  "summary": "Build 11 with Tailscale address support is available in the connected phone?s Zakaria folder; its checksum matches the verified APK.",
+  "status": "successful",
+  "relatedId": "android-tailscale-build11-20261011",
+  "pages": [
+    "My PC",
+    "Changes Made"
+  ],
+  "components": [
+    "Android release",
+    "APK verification",
+    "Phone delivery"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.9-build11.apk",
+    "lecomax-learning-app/artifacts/verify-tailscale-build11.cjs",
+    "lecomax-learning-app/artifacts/audit-build11.ps1",
+    "lecomax-learning-app/artifacts/tailscale-build11-verification.json",
+    "lecomax-learning-app/artifacts/tailscale-build11-secret-audit.json",
+    "lecomax-learning-app/artifacts/tailscale-build11-phone-transfer.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Created signed release APK 1.0.9 (11), 146940678 bytes, and copied it to /sdcard/Zakaria/lecomax-learn-1.0.9-build11.apk."
+    },
+    {
+      "kind": "modified",
+      "detail": "Release packages current app source including Tailscale address support and the 108-report history snapshot containing release preparation. Later interaction and delivery reports are preserved in source for a future build."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source checks",
+      "result": "passed",
+      "detail": "TypeScript, focused ESLint and 18 focused tests passed across release, history, API origin, PC URL policy, PC interaction and bridge security. An outdated HTTPS-rejection interaction assertion initially failed; corrected and rerun successfully, recorded in pc-tailscale-interaction-verified-20261011."
+    },
+    {
+      "name": "Android build",
+      "result": "passed",
+      "detail": "Gradle assembleRelease succeeded in 14m54s with dependency deprecation warnings."
+    },
+    {
+      "name": "APK identity and signature",
+      "result": "passed",
+      "detail": "Package com.lecomax.learning, version 1.0.9 / 11, ARM64 support, production update channel, backup disabled and embedded release report verified. Signing certificate matches build 10."
+    },
+    {
+      "name": "APK secret audit",
+      "result": "passed",
+      "detail": "All 1360 ZIP entries scanned for known private values and credential patterns. Original generic PEM filename rule flagged public Python and Expo certificates; scoped audit allows only those two paths, requires certificate content and still scans both for private keys. This does not prove absence of unknown or encoded secrets."
+    },
+    {
+      "name": "Phone transfer",
+      "result": "passed",
+      "detail": "ADB copy completed and phone SHA256 equals local: 57219274102567b3c1f159e1c8e0683e323bf8b800f7c96f44c36fa7ce45e820."
+    },
+    {
+      "name": "Installation and real cellular session",
+      "result": "not-run",
+      "detail": "APK copied only; installed app remains build 10. No physical Tailscale 4G/5G acceptance test or public deployment."
+    }
+  ]
+}

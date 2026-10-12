@@ -1,0 +1,57 @@
+{
+  "id": "pc-realistic-assembly-guides-20261012",
+  "createdAt": "2026-10-12T19:05:26.879Z",
+  "title": "Expand realistic PC assembly learning guides",
+  "summary": "PC Lab component details now explain connections, fitting order and placement reasons for realistic hardware learning.",
+  "status": "successful",
+  "pages": [
+    "PC Lab (/pc-lab)",
+    "AI Teacher"
+  ],
+  "components": [
+    "Component detail dialog",
+    "PC photo runtime",
+    "Desktop and laptop lesson bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/tests/pc-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added connection, installation and placement-reason sections to every selected-part detail view."
+    },
+    {
+      "kind": "added",
+      "detail": "Added practical assembly guidance for motherboard, CPU, cooler, RAM, SSD, GPU, PSU, fans, battery, Wi-Fi and other parts, with a cautious generic fallback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Kept AI Teacher handoff available beside the expanded hardware explanation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Document generation smoke",
+      "result": "passed",
+      "detail": "pcExplorerDocument('en') generated successfully."
+    },
+    {
+      "name": "TypeScript check",
+      "result": "passed",
+      "detail": "npx tsc --noEmit completed successfully."
+    },
+    {
+      "name": "PC explorer tests",
+      "result": "passed",
+      "detail": "3 tests passed."
+    },
+    {
+      "name": "Browser visual review",
+      "result": "not-run",
+      "detail": "No live browser/device screenshot review in this turn; exact model layouts remain illustrative."
+    }
+  ]
+}

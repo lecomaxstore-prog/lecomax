@@ -1,0 +1,54 @@
+{
+  "id": "academy-photo-layout-1791741643765-verified",
+  "createdAt": "2026-10-11T18:01:24.715Z",
+  "title": "Academy card layout correction checked",
+  "summary": "Photo frames, solid text panels and clearer course actions implemented; code and history checks passed.",
+  "status": "successful",
+  "pages": [
+    "Home dashboard"
+  ],
+  "components": [
+    "StudyDashboard"
+  ],
+  "files": [
+    "components/StudyDashboard.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace ImageBackground with an explicitly sized Image in a clipped 1.8:1 frame to prevent oversized imagery spilling behind descriptions."
+    },
+    {
+      "kind": "modified",
+      "detail": "Move titles and descriptions onto a solid theme-aware panel; add compact academy/icon badges, a divided footer and a distinct course action."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for components/StudyDashboard.tsx."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "Six tests passed, including expansion, statuses, links, archive persistence and retry."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append-only manifest check passed with 133 reports before this follow-up."
+    },
+    {
+      "name": "Visual browser and native checks",
+      "result": "not-run",
+      "detail": "Browser/app inventory returned no enabled surfaces. Updated card rendering has not been visually verified; no deployment performed."
+    }
+  ],
+  "relatedId": "academy-photo-layout-1791741643765"
+}

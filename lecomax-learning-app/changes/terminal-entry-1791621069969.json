@@ -1,0 +1,32 @@
+{
+  "id": "terminal-entry-1791621069969",
+  "createdAt": "2026-10-10T08:31:09.969Z",
+  "title": "Open the real terminal directly",
+  "summary": "Added a Terminal entry under More and a dedicated /terminal route using the existing real PowerShell, Python and Node.js terminal.",
+  "status": "needs-testing",
+  "pages": [
+    "More",
+    "Terminal"
+  ],
+  "components": [
+    "TeacherLab",
+    "TerminalPage"
+  ],
+  "files": [
+    "lecomax-learning-app/app/terminal.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Direct Terminal navigation with PowerShell selected; close returns to the previous page or More, and Explain opens the teacher."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, runtime and history tests pending. Interactive sessions are web-only; native uses the existing single-run console. No deployment."
+    }
+  ]
+}

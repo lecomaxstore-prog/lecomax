@@ -1,0 +1,70 @@
+{
+  "id": "phone-detail-lessons-verified-20261012",
+  "createdAt": "2026-10-12T17:28:06.000Z",
+  "title": "Detailed component exploration and translations verified",
+  "summary": "Expanded Phone Lab from 14 to 29 learning topics, with direct image-region selection, a nearby explanation panel and magnification.",
+  "status": "successful",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo view",
+    "Phone lesson content",
+    "Phone photo region map",
+    "Phone explorer document"
+  ],
+  "files": [
+    "lecomax-learning-app/data/phone-detail-topics.ts",
+    "lecomax-learning-app/data/phone-photo-regions.ts",
+    "lecomax-learning-app/data/phone-explorer.ts",
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "15 English/French/Arabic lessons covering boards, flex cables, connectors, shields, screws, frame, seals, thermal spreading, capacitors, resistors, inductors, power management, flash LED, haptics and microphone."
+    },
+    {
+      "kind": "added",
+      "detail": "24 selectable component families across the generated image, including repeated camera/cable/screw regions. Smaller regions take precedence; selected area is outlined. Existing nine large markers retained."
+    },
+    {
+      "kind": "added",
+      "detail": "Nearby role and everyday-example inspector, accessible component picker, 2x magnification and explicit full-lesson link. Existing saved topic IDs remain valid; progress includes new topics."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Restored corrupted French accents and Arabic captions/view labels and translated the AI-generated-image explanation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Phone interaction and history tests",
+      "result": "passed",
+      "detail": "10 tests passed. Each of 24 image component families was selected at 300px and 600px image widths, including a panned offset, in English/French/Arabic. Role, example, selected outline, accessible picker, magnification, marker taps, double taps, mode switching, image fallback, quiz and progress checked. Four phone tests passed again after adding blank-background and scroll-cancellation assertions."
+    },
+    {
+      "name": "Content and translations",
+      "result": "passed",
+      "detail": "29 topics contain names, roles and everyday examples in all three languages. Tests reject question-mark corruption and explicitly check French accents and Arabic caption text. Old and new learning IDs remain valid. Capacitor/inductor fundamentals checked against Murata references retained in phone-detail-topics.ts."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "App typecheck passed. Focused lint passed with --no-ignore to include the normally excluded data files as well as both document/view modules."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "193 preceding reports passed history integrity check before this follow-up."
+    },
+    {
+      "name": "Live browser/native validation",
+      "result": "not-run",
+      "detail": "Browser tool returned no available browsers. Live layout, magnification scrolling and physical touch gestures remain unverified. No deployment or APK rebuild. Regions illustrate component families in an AI-generated image; they cannot identify every real chip or provide an exact repair map."
+    }
+  ],
+  "relatedId": "phone-detail-lessons-20261012"
+}

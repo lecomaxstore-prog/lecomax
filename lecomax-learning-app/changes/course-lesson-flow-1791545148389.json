@@ -1,0 +1,72 @@
+{
+  "id": "course-lesson-flow-1791545148389",
+  "createdAt": "2026-10-09T11:25:48.390Z",
+  "title": "Complete lesson lists and connected course progress",
+  "summary": "Show all published lessons directly on every course overview, retain curriculum context through lesson navigation, and automatically complete lessons after required assessments.",
+  "status": "needs-testing",
+  "pages": [
+    "/course/[id]",
+    "/learning-path/[id]",
+    "/module/[id]",
+    "/lesson/[id]"
+  ],
+  "components": [
+    "CourseLessonList",
+    "LessonContent",
+    "LessonBrowser",
+    "LessonHeader",
+    "LessonFooter",
+    "course-navigation"
+  ],
+  "files": [
+    "lecomax-learning-app/components/CourseLessonList.tsx",
+    "lecomax-learning-app/app/course/[id].tsx",
+    "lecomax-learning-app/app/learning-path/[id].tsx",
+    "lecomax-learning-app/app/module/[id].tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/components/LessonBrowser.tsx",
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/services/course-navigation.ts",
+    "lecomax-learning-app/tests/academy-interaction.test.cjs",
+    "lecomax-learning-app/tests/course-library.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a shared searchable lesson list grouped by module with explicit not-started, in-progress and completed states."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course and curriculum overviews show all lessons before supplementary outcomes, syllabus and workshops; resume prefers the last unfinished lesson in that course."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Preserved the selected curriculum path through lesson opening, previous/next and return-to-course links, using a namespaced course identifier."
+    },
+    {
+      "kind": "added",
+      "detail": "Quiz-based lessons complete automatically at the assessment stage when all quiz answers and required practice confirmations pass. Lessons without quizzes retain explicit completion."
+    },
+    {
+      "kind": "modified",
+      "detail": "Added completion feedback with next-lesson navigation and a direct all-course-lessons button; reduced lesson hero size."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the additional module-opening step from course overviews while retaining workshops and planned-topic descriptions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated validation",
+      "result": "not-run",
+      "detail": "Typecheck, lint, navigation/completion and history checks pending."
+    },
+    {
+      "name": "Content and device scope",
+      "result": "not-run",
+      "detail": "Existing published lessons are exposed; missing lessons are not fabricated. Visual and native-device review not yet performed; no deployment."
+    }
+  ]
+}

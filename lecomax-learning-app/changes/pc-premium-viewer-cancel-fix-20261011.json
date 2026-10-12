@@ -1,0 +1,40 @@
+{
+  "id": "pc-premium-viewer-cancel-fix-20261011",
+  "createdAt": "2026-10-11T11:33:00.000Z",
+  "title": "Premium viewer timer cancellation corrected",
+  "summary": "Correct a timer helper regression found during post-validation review and rerun the focused client and bridge checks.",
+  "status": "successful",
+  "relatedId": "pc-premium-viewer-typecheck-verified-20261011",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "Windows remote desktop viewer"
+  ],
+  "files": [
+    "scripts/pc-remote/client.js"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Restore the timer helper to call clearTimeout rather than recursively calling itself."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Client and bridge focused tests",
+      "result": "passed",
+      "detail": "4 tests passed after the correction, covering pairing recovery and bridge authorization, revocation, expiry and rate limiting."
+    },
+    {
+      "name": "Client syntax check",
+      "result": "passed",
+      "detail": "node --check scripts/pc-remote/client.js passed."
+    },
+    {
+      "name": "Physical Android and 4G/5G sessions",
+      "result": "not-run",
+      "detail": "Still require physical device validation."
+    }
+  ]
+}

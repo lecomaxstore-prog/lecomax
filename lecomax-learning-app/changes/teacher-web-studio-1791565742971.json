@@ -1,0 +1,45 @@
+{
+  "id": "teacher-web-studio-1791565742971",
+  "createdAt": "2026-10-09T17:09:02.971Z",
+  "title": "Web editor, live preview and VS Code export",
+  "summary": "Add an in-app HTML/CSS/JavaScript editor, live preview and console, with local project export for installed VS Code.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherWebStudio",
+    "TeacherMessage",
+    "Workspace API",
+    "Teacher prompt"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherWebStudio.tsx",
+    "lecomax-learning-app/components/TeacherWebStudio.web.tsx",
+    "lecomax-learning-app/utils/web-studio.ts",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx",
+    "lib/teacher-workspace.ts",
+    "app/api/learning-mobile/workspace/route.ts",
+    "lib/mobile-teacher-prompt.ts",
+    "middleware.ts",
+    ".gitignore"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Three file tabs, auto-saved browser draft, live iframe preview, phone width, console, explanation draft and VS Code local-copy export."
+    },
+    {
+      "kind": "modified",
+      "detail": "Supported teacher code blocks offer Edit and preview; prompts describe web preview capabilities."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks",
+      "result": "not-run",
+      "detail": "Pending typecheck, lint, preview interaction and workspace tests. Full VS Code desktop handoff untested; no deployment."
+    }
+  ]
+}

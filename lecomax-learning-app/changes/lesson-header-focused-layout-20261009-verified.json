@@ -1,0 +1,54 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Appended verification for the lesson-first redesign; retained the original report and all earlier history."
+    }
+  ],
+  "summary": "Typecheck, focused lint and all 10 existing lesson and change-history tests passed. Visual review remains pending.",
+  "id": "lesson-header-focused-layout-20261009-verified",
+  "createdAt": "2026-10-09T11:16:51.494Z",
+  "validation": [
+    {
+      "detail": "tsc --noEmit completed without diagnostics.",
+      "result": "passed",
+      "name": "TypeScript"
+    },
+    {
+      "detail": "LessonHeader.tsx, LessonBrowser.tsx and app/lesson/[id].tsx lint completed without diagnostics.",
+      "result": "passed",
+      "name": "Focused ESLint"
+    },
+    {
+      "detail": "10 tests passed across lesson-footer, academy-interaction, course-library-interaction, change-history and change-history-interaction.",
+      "result": "passed",
+      "name": "Existing interaction and history tests"
+    },
+    {
+      "detail": "change-report.cjs --check passed with 20 reports before this follow-up.",
+      "result": "passed",
+      "name": "History integrity"
+    },
+    {
+      "detail": "Rendered appearance, native devices and the newly collapsed browser interaction were not directly verified. No deployment performed.",
+      "result": "not-run",
+      "name": "Visual and device review"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/LessonBrowser.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx"
+  ],
+  "components": [
+    "LessonHeader",
+    "LessonBrowser",
+    "LessonContent"
+  ],
+  "status": "successful",
+  "title": "Lesson layout: automated verification passed",
+  "pages": [
+    "/lesson/[id]"
+  ],
+  "relatedId": "lesson-header-focused-layout-20261009"
+}

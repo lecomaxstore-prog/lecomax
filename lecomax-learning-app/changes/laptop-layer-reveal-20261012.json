@@ -1,0 +1,47 @@
+{
+  "id": "laptop-layer-reveal-20261012",
+  "createdAt": "2026-10-12T18:58:15.029Z",
+  "title": "Reveal laptop layers and open component teaching",
+  "summary": "Computer Lab laptop parts now support double-click details and a reveal-underneath learning control with AI Teacher context.",
+  "status": "needs-testing",
+  "pages": [
+    "Computer Lab (/computer-lab)",
+    "AI Teacher"
+  ],
+  "components": [
+    "Laptop photo viewer",
+    "Piece detail dialog",
+    "PC teacher bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/computer-lab-styles.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Double-clicking the same mapped laptop component opens its close-up information dialog."
+    },
+    {
+      "kind": "added",
+      "detail": "Added a Remove piece / reveal underneath control with layer-specific educational guidance and restore behavior."
+    },
+    {
+      "kind": "modified",
+      "detail": "The selected part continues to support AI Teacher example requests with trusted laptop lesson context."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript check",
+      "result": "passed",
+      "detail": "npx tsc --noEmit completed successfully."
+    },
+    {
+      "name": "Focused computer interaction tests",
+      "result": "not-run",
+      "detail": "No browser interaction run yet; no deployment or live AI request."
+    }
+  ]
+}

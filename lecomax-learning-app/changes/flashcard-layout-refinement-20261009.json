@@ -1,0 +1,33 @@
+{
+  "id": "flashcard-layout-refinement-20261009",
+  "createdAt": "2026-10-09T14:04:03.152Z",
+  "title": "Clearer memory cards and teacher help",
+  "summary": "Refined memory-card spacing, recall guidance, progress and action hierarchy, with a dedicated AI teacher help area.",
+  "status": "needs-testing",
+  "pages": [
+    "/collection/flashcards"
+  ],
+  "components": [
+    "Collection flashcards"
+  ],
+  "files": [
+    "lecomax-learning-app/app/collection/[kind].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Centered terms, added recall hints and answer labels, moved answer control inside the card, grouped full-width review/next buttons, and gave contextual teacher help a compact tinted panel."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced ambiguous slash counter with localized Card X of Y text and a progress bar to avoid reversed Arabic number order."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Typecheck, lint and history validation pending. Visual browser/native checks and deployment have not been performed."
+    }
+  ]
+}

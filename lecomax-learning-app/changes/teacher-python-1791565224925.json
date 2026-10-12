@@ -1,0 +1,47 @@
+{
+  "id": "teacher-python-1791565224925",
+  "createdAt": "2026-10-09T17:00:24.925Z",
+  "title": "Python in the AI teacher practice lab",
+  "summary": "Connect the installed Python 3 runtime to editable examples, actual output and teacher explanations.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherLab",
+    "Local lab runner",
+    "Teacher prompt"
+  ],
+  "files": [
+    "lib/teacher-lab.ts",
+    "scripts/start-teacher-lab.mjs",
+    "lib/mobile-teacher-prompt.ts",
+    "lecomax-learning-app/components/TeacherLab.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "tests/teacher-lab.test.ts",
+    "lecomax-learning-app/tests/teacher-lab-interaction.test.cjs",
+    "lecomax-learning-app/docs/teacher-lab.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Python selector, editable cart example, python/python3/py code-block support, real UTF-8 execution and errors using installed Python 3."
+    },
+    {
+      "kind": "modified",
+      "detail": "Local launcher resolves Python; teacher instructions describe supported Python examples and existing console limits."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Python installation",
+      "result": "passed",
+      "detail": "Existing Python 3.14.6 verified; no additional installation needed."
+    },
+    {
+      "name": "Code validation",
+      "result": "not-run",
+      "detail": "Runtime, UI, lint, typecheck and history checks pending. No deployment."
+    }
+  ]
+}

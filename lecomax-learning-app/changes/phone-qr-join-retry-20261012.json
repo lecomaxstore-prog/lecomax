@@ -1,0 +1,51 @@
+{
+  "id": "phone-qr-join-retry-20261012",
+  "createdAt": "2026-10-12T06:15:40.837Z",
+  "status": "needs-testing",
+  "relatedId": "phone-quick-qr-automated-verified-20261012",
+  "title": "Recover a scanned connection when its first reply is lost",
+  "summary": "Retry a QR join up to three times with the same random attempt ID. The server returns the same session only to that matching code, attempt and network peer.",
+  "pages": [
+    "Phone viewer",
+    "My remote phone"
+  ],
+  "components": [
+    "PhoneDirectServer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/docs/phone-quick-qr-build16.md",
+    "lecomax-learning-app/artifacts/build-quick-qr16.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Recover lost join responses, including response-body failures, without automatically consuming another QR. Replays with another attempt, pairing code or peer cannot obtain the session token."
+    },
+    {
+      "kind": "added",
+      "detail": "Native and browser regression coverage for idempotent join and a guide for real-phone acceptance."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Direct viewer tests",
+      "result": "passed",
+      "detail": "Eight viewer tests pass including lost-reply retry using the identical random attempt ID."
+    },
+    {
+      "name": "Previous build stage",
+      "result": "passed",
+      "detail": "Initial build 16 completed successfully before this final join-retry improvement; it will be rebuilt before delivery."
+    },
+    {
+      "name": "Final native tests and APK",
+      "result": "not-run",
+      "detail": "Final rebuild pending. No real camera/device acceptance and no deployment."
+    }
+  ]
+}

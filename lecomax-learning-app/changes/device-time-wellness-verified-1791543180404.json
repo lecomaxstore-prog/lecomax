@@ -1,0 +1,68 @@
+{
+  "id": "device-time-wellness-verified-1791543180404",
+  "createdAt": "2026-10-09T10:53:00.404Z",
+  "title": "روتين صحي حسب وقت جهازك",
+  "summary": "تحديث تلقائي للوقت، واقتراحات تراعي مواعيد نومك واستيقاظك، ونصائح عملية مع مصادر صحية موثوقة.",
+  "status": "successful",
+  "pages": [
+    "Home routine card",
+    "Daily wellness routine"
+  ],
+  "components": [
+    "JourneyProvider",
+    "DailyRoutineCard",
+    "TodayScreen",
+    "TimelyAdvice",
+    "Routine scheduling"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/useJourney.tsx",
+    "lecomax-learning-app/features/wellness/routine.ts",
+    "lecomax-learning-app/features/wellness/TodayScreen.tsx",
+    "lecomax-learning-app/features/wellness/DailyRoutineCard.tsx",
+    "lecomax-learning-app/features/wellness/TimelyAdvice.tsx",
+    "lecomax-learning-app/tests/wellness.test.cjs",
+    "lecomax-learning-app/tests/wellness-clock.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "تحديث الوقت من جهازك كل ٣٠ ثانية وعند العودة للتطبيق، وإعادة مزامنة التذكيرات عند تغيّر المنطقة الزمنية أو التوقيت الصيفي."
+    },
+    {
+      "kind": "modified",
+      "detail": "اقتراحات حسب موعد الاستيقاظ والنوم، بما يشمل الاستيقاظ ليلًا، دون اقتراح إفطار أو تمرين لتعويض مهام قديمة أثناء وقت الراحة."
+    },
+    {
+      "kind": "added",
+      "detail": "عرض وقت الجهاز ونصيحة مناسبة للوقت مع روابط CDC للنوم وWHO للتغذية والحركة. لا يتم تفعيل الإشعارات أو تغيير أوقات التذكير المحفوظة تلقائيًا."
+    },
+    {
+      "kind": "fixed",
+      "detail": "زر الخطوة التالية يتبع التوصية الحالية بدل إعادة المستخدم إلى مهام الصباح أثناء الليل. تبدأ توصية التهدئة قبل النوم بتسعين دقيقة."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Wellness regression tests",
+      "result": "passed",
+      "detail": "27/27 passed: clock refresh, resume, midnight, timezone offset rescheduling, overnight schedules, persistence and native/browser reminder mocks. Initial checks found a schedule parameter typing issue and evening-boundary mismatch; both corrected before the passing run."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "TypeScript and lint passed for all five changed wellness implementation files; rerun for the final next-step adjustment also passed."
+    },
+    {
+      "name": "Advice sources",
+      "result": "passed",
+      "detail": "Reviewed CDC https://www.cdc.gov/sleep/about/index.html and WHO https://www.who.int/news-room/fact-sheets/detail/healthy-diet and https://www.who.int/news-room/fact-sheets/detail/physical-activity. Source links are visible in the advice card."
+    },
+    {
+      "name": "Live device and notification delivery",
+      "result": "not-run",
+      "detail": "No real phone notification delivery or visual verification, and no deployment. Browser reminders require an open tab; native delivery depends on OS scheduling and permission. Existing opt-in and reminder times are preserved."
+    }
+  ],
+  "relatedId": "device-time-wellness-1791543106257"
+}

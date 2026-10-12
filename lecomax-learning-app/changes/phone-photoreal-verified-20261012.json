@@ -1,0 +1,69 @@
+{
+  "id": "phone-photoreal-verified-20261012",
+  "createdAt": "2026-10-12T17:09:03.703Z",
+  "title": "Photorealistic phone interior and lesson hotspots verified",
+  "summary": "Replaced the default flat interior with a bundled AI-generated realistic teardown visualization and nine accessible component hotspots.",
+  "status": "successful",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo view",
+    "Phone explorer document",
+    "Phone lab image assets"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/data/phone-teardown-image.json",
+    "lecomax-learning-app/assets/phone-lab/realistic-interior-v1.png",
+    "lecomax-learning-app/assets/phone-lab/realistic-interior-v1.jpg",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Photographic materials, optical camera lenses, populated circuit boards, solder joints, battery pouch, ribbon cables and machined metal from an AI-generated educational visualization."
+    },
+    {
+      "kind": "modified",
+      "detail": "Default view opens the realistic interior with nine numbered, localized touch/keyboard lesson targets; a separate 3D diagram remains available for rotation and exploded layers."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline embedded JPEG, photo-to-diagram fallback on image failure, synchronized component selection and double-tap cover replacement."
+    },
+    {
+      "kind": "modified",
+      "detail": "Localized note clearly identifies the AI-generated conceptual component locations rather than claiming a photograph or exact teardown of a real model."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Photorealistic asset",
+      "result": "passed",
+      "detail": "Inspected generated 1024 ? 1536 portrait interior and aligned nine hotspots. JPEG is 264850 bytes and embedded as a data URI for offline web/native loading. Original PNG, optimized JPEG and exact built-in imagegen prompt are saved in assets/phone-lab."
+    },
+    {
+      "name": "Phone Lab and history tests",
+      "result": "passed",
+      "detail": "10 tests passed, including default photo view, all nine accessible hotspots, single and double taps, photo/3D transitions, image-failure fallback, existing gestures, lessons, quiz, progress, and six history tests. Phone tests passed again after final localized mode-button text."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Typecheck and focused lint passed after final edits."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "All 191 preceding reports passed history integrity check before this follow-up."
+    },
+    {
+      "name": "Live browser and physical device",
+      "result": "not-run",
+      "detail": "Live browser/native WebView layout and device touch gestures not tested. No deployment or APK rebuild. The image is an AI-generated educational visualization, not a photo or exact teardown of a specific device; component placements are conceptual."
+    }
+  ],
+  "relatedId": "phone-photoreal-interior-20261012"
+}

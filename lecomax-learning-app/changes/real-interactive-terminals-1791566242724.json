@@ -1,0 +1,45 @@
+{
+  "id": "real-interactive-terminals-1791566242724",
+  "createdAt": "2026-10-09T17:17:22.724Z",
+  "title": "Real interactive PowerShell, Python and Node terminals",
+  "summary": "Replace the web script form with full-screen real persistent PTY terminals, keyboard input and session controls.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherLab web",
+    "Terminal sessions",
+    "Terminal API"
+  ],
+  "files": [
+    "lib/teacher-terminal.ts",
+    "app/api/learning-mobile/terminal/route.ts",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "middleware.ts",
+    "next.config.js",
+    "lib/mobile-teacher-prompt.ts",
+    "package.json",
+    "package-lock.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "tests/teacher-terminal.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Installed node-pty and xterm.js with fit addon. Real persistent interpreters support input, state, directory changes, resizing, Ctrl+C and restart."
+    },
+    {
+      "kind": "modified",
+      "detail": "Web lab uses full-screen terminal tabs instead of prefilled script forms. Owner-authenticated local-only sessions have bounded output, idle expiry and close cleanup; native script lab remains."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks",
+      "result": "not-run",
+      "detail": "Pending PTY runtime tests, frontend checks and HTTP/asset verification. No deployment."
+    }
+  ]
+}

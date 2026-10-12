@@ -1,0 +1,66 @@
+{
+  "id": "android-release-api-verified-20261011",
+  "createdAt": "2026-10-11T10:03:03.795Z",
+  "relatedId": "android-release-api-fix-20261011",
+  "title": "Android 1.0.8 installed: session connection restored",
+  "summary": "Installed the corrected release over 1.0.7 on the connected phone. The app reached its authenticated learning screen instead of the connection error.",
+  "status": "successful",
+  "pages": [
+    "Sign in",
+    "Session restoration",
+    "Learning home",
+    "Android release"
+  ],
+  "components": [
+    "API origin",
+    "Owner authentication",
+    "Android APK"
+  ],
+  "files": [
+    "lecomax-learning-app/services/api-origin.ts",
+    "lecomax-learning-app/services/auth.ts",
+    "lecomax-learning-app/tests/api-origin.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.8-build10.apk",
+    "lecomax-learning-app/artifacts/build10-final.xml",
+    "lecomax-learning-app/artifacts/release-build10.log"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Release authentication now uses the live HTTPS API regardless of inherited local development overrides."
+    },
+    {
+      "kind": "added",
+      "detail": "Signed 1.0.8/build 10 APK installed with adb install -r (no uninstall/data clearing) and copied to /sdcard/Zakaria/lecomax-learn-1.0.8-build10.apk."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "2 API-origin tests, 6 change-history tests and 8 owner-session security tests passed (16 total). Typecheck, focused ESLint and history validation passed."
+    },
+    {
+      "name": "Release build and signature",
+      "result": "passed",
+      "detail": "Gradle assembleRelease succeeded in 3m 23s. apksigner verified v2 signature; aapt and device package metadata confirmed version 1.0.8/code 10."
+    },
+    {
+      "name": "Device session and main screen",
+      "result": "passed",
+      "detail": "After installation and launch, UI inspection reached protected app content. Opening the home deep link displayed Your learning essentials, Python, My tools, Courses, My PC and tab navigation, with no connection error. Evidence: artifacts/build10-final.xml."
+    },
+    {
+      "name": "Phone APK integrity",
+      "result": "passed",
+      "detail": "Phone and local SHA-256 match: e371c56b35af83fc99f63e56e801e49d084652673609443cbac1fa2bdc354c3d; size 146128758 bytes."
+    },
+    {
+      "name": "Remaining scope",
+      "result": "not-run",
+      "detail": "Fresh credential entry, all course interactions and PC remote-control rendering were not tested. Android denied synthetic Back input; navigation verification used the app home deep link. No server deployment. This follow-up is in source/current history; the APK bundles the preceding fix report."
+    }
+  ]
+}

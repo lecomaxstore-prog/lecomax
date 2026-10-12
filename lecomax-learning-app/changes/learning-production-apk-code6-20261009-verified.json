@@ -1,0 +1,73 @@
+{
+  "id": "learning-production-apk-code6-20261009-verified",
+  "relatedId": "learning-production-apk-code6-20261009",
+  "createdAt": "2026-10-09T12:30:46.125Z",
+  "title": "Latest learning update and admin APK published",
+  "summary": "Published the latest Android production update to Expo, verified the signed 1.0.4 build 6 APK, and deployed its download settings to the Lecomax admin panel.",
+  "status": "successful",
+  "pages": [
+    "Learning app",
+    "/admin/learning-app",
+    "/change-history"
+  ],
+  "components": [
+    "Expo production updates",
+    "Android release configuration",
+    "Admin learning APK download"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/data/change-history.json",
+    "app/admin/learning-app/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Published current lessons, notebook, learning interface and wellness changes on Expo production runtime 1.0.4; update group b7576e28-153d-4341-b979-b0a8d618332f."
+    },
+    {
+      "kind": "modified",
+      "detail": "Built signed Android APK 1.0.4 code 6, Expo build 900ab341-2229-4f8e-9bb6-bc96a669d01b, retaining package com.lecomax.learning and existing signing certificate."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated production LEARNING_ANDROID_APK_URL to the verified Expo artifact and LEARNING_ANDROID_VERSION to 1.0.4 (build 6). Redeployed existing production source as dpl_GgP5J53zyaZQ2xyiHfFHt3ZW1pra; lecomax.com and www.lecomax.com point to the ready deployment."
+    },
+    {
+      "kind": "added",
+      "detail": "Appended this linked verification report while preserving all previous history records."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source checks",
+      "result": "passed",
+      "detail": "TypeScript and ESLint passed; all 157 tests passed before metadata update; all 5 release tests passed after setting build 6."
+    },
+    {
+      "name": "APK integrity and update configuration",
+      "result": "passed",
+      "detail": "Verified package/version, existing release signer, backup disabled, Expo updates enabled with ALWAYS launch checks, production channel and expected project URL. APK SHA256 da487100453b6e793a43fe67ddfffc0b81bdde89419acf71bbe50d0488c221d3. Release report exists in bundle."
+    },
+    {
+      "name": "Source and APK secret audit",
+      "result": "passed",
+      "detail": "Source and exported bundle audits passed. Scanned all 1320 APK ZIP entries against 11 configured backend secrets with no findings."
+    },
+    {
+      "name": "Admin rendering and production deployment",
+      "result": "passed",
+      "detail": "Component rendering verified new download link, build 6 label and preservation instructions. Vercel reported deployment ready and assigned live domains. Live homepage 200; unauthenticated admin page redirected 307; sessions and invalid login returned expected 401 INVALID_CREDENTIALS."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "All 34 reports valid before this follow-up; original reports retained."
+    },
+    {
+      "name": "Physical device and authenticated admin browser",
+      "result": "not-run",
+      "detail": "No connected phone, emulator or authenticated browser was available. Installation, visual rendering on device and actual OTA adoption were not tested."
+    }
+  ]
+}

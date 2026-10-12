@@ -1,0 +1,85 @@
+{
+  "id": "storefront-loading-reliability-verified-20261013",
+  "createdAt": "2026-10-12T22:39:24.280Z",
+  "title": "Storefront loading fixes: production build and regressions verified",
+  "summary": "Verified immediate product visibility, no hidden menu image downloads, deferred search/ranking, bounded refresh and the previously optimized responsive hero.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage",
+    "All storefront headers",
+    "Boutique",
+    "Product rails"
+  ],
+  "components": [
+    "Header",
+    "SearchOverlay loading boundary",
+    "ProductRail",
+    "CollectionProductCard",
+    "OurProductsGrid",
+    "Storefront refresh and settings"
+  ],
+  "files": [
+    "components/Header.tsx",
+    "components/ProductRail.tsx",
+    "components/CollectionProductCard.tsx",
+    "components/OurProductsGrid.tsx",
+    "app/globals.css",
+    "lib/when-near-viewport.ts",
+    "lib/use-settings.ts",
+    "lib/use-store-refresh.ts",
+    "lib/storefront-refresh.ts",
+    "tests/storefront-loading-performance.test.ts",
+    "docs/storefront-loading-reliability-20261013.md"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Remove six permanently hidden menu images totaling 12191600 source bytes and unused hidden promotional markup. Retain visible menu links."
+    },
+    {
+      "kind": "modified",
+      "detail": "Search code loads when opened with a visible loading state; optional recommendation request starts near the catalogue and times out after 5 seconds."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Product rails and collection cards are visible immediately without JavaScript reveal timers or entrance delays."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Settings and client refresh reads have 10-second deadlines so stalled requests do not permanently lock refresh. Boutique no longer refreshes its server shell alongside its client catalogue poll."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regressions",
+      "result": "passed",
+      "detail": "15 storefront/loading/catalogue/cache tests and 6 change-history tests passed (21 total). Includes hidden-menu absence, closed-search exclusion, SSR rail visibility, optional viewport work cancellation and client-only boutique refresh policy."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "Root tsc --noEmit --incremental false and focused Next lint passed without diagnostics. Full production lint retains existing repository warnings."
+    },
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Network-enabled node scripts/next-build.mjs exited 0; all 249 static pages generated. Build log: lecomax-learning-app/artifacts/storefront-reliability-build.log."
+    },
+    {
+      "name": "Generated homepage",
+      "result": "passed",
+      "detail": "593354 bytes of HTML; one hero picture containing one img and both WebP variants; zero hidden menu images; catalogue present. Earlier local HTML was 600306 bytes and live baseline 603935 bytes. Differences are not browser timing measurements."
+    },
+    {
+      "name": "Live baseline",
+      "result": "passed",
+      "detail": "Public HTTP 200, 54011 compressed bytes, 3.011217 s TTFB and 3.607982 s total in one environment-specific request. Live HTML still uses the earlier hero implementation."
+    },
+    {
+      "name": "Deployment and browser measurements",
+      "result": "not-run",
+      "detail": "No deployment performed. No post-change live LCP/INP/CLS, mobile browser or checkout end-to-end verification. Browser inventory was unavailable in this session. These checks do not guarantee every request under every network condition."
+    }
+  ],
+  "relatedId": "storefront-loading-reliability-20261013"
+}

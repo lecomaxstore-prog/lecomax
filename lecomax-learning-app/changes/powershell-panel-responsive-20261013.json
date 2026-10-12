@@ -1,0 +1,46 @@
+{
+  "id": "powershell-panel-responsive-20261013",
+  "createdAt": "2026-10-12T22:29:07.729Z",
+  "title": "Compact PowerShell panel and responsive terminal input",
+  "summary": "Redesign the web terminal with compact controls and clear connection states; send queued input promptly and start only the selected runtime.",
+  "status": "needs-testing",
+  "pages": [
+    "Terminal",
+    "Teacher practice lab"
+  ],
+  "components": [
+    "TeacherLab web shell",
+    "WebTerminalSession",
+    "Terminal request pump"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/WebTerminalSession.tsx",
+    "lecomax-learning-app/utils/terminal-pump.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Consistent dark toolbar, responsive touch controls, session path, readable terminal typography, Arabic direction support and a compact footer."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Input wakes idle polling after an 8 ms batching window; requests remain serialized, hidden sessions poll less often, and returning to a session refits and wakes it."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed all-runtime discovery from startup and the oversized shared button layout."
+    },
+    {
+      "kind": "added",
+      "detail": "Explicit connecting, disconnected and ended states, localized connection errors and empty-session guidance. Failed commands are never automatically replayed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "TypeScript, lint, request ordering tests and visual inspection pending. No deployment or measured end-to-end latency claim."
+    }
+  ]
+}

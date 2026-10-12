@@ -1,0 +1,57 @@
+{
+  "id": "python-ide-rebuild-20261011",
+  "createdAt": "2026-10-11T11:05:42.278Z",
+  "title": "Python Studio dark IDE rebuild",
+  "summary": "Rebuilt the workspace around a compact IDE shell, CodeMirror file tab, execution toolbar, console, exercises and responsive settings.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonEditor",
+    "TeacherLab",
+    "PythonMobileSchool"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/components/PythonStudioIcon.tsx",
+    "lecomax-learning-app/scripts/python-mobile-school.tsx",
+    "lecomax-learning-app/scripts/python-ide-smoke.cjs",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/data/python-mobile-workspace.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Shared charcoal/forest IDE styling, local SVG icons, overflow actions, file dirty state, console empty state, exercise progress, offline indicator and browser integration checks."
+    },
+    {
+      "kind": "modified",
+      "detail": "Preserved CodeMirror and isolated PythonSession; rebuilt panels with one workspace vertical scroller, desktop settings sidebar, keyboard viewport adaptation, safe areas and reduced motion."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Added missing RTL state to the mobile bridge and made long-line wrapping optional while keeping code and filenames LTR."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed duplicate Python header and always-visible secondary controls; retained their functions in overflow and collapsible sections."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial typecheck and focused lint",
+      "result": "passed",
+      "detail": "Initial pass completed; final implementation checks pending."
+    },
+    {
+      "name": "Browser and full test validation",
+      "result": "not-run",
+      "detail": "Pending rebuilt mobile bundle, viewport screenshots, execution smoke tests and full suite."
+    }
+  ]
+}

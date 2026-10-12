@@ -1,0 +1,53 @@
+{
+  "id": "kali-expo-production-release-20261010",
+  "createdAt": "2026-10-09T22:20:08.771Z",
+  "relatedId": "kali-keyboard-apk-verified-20261009",
+  "title": "Publishing Kali learning app to Expo and the live admin download panel",
+  "summary": "Preparing a production-channel Android 1.0.5/build 7 release and compatible Expo update, then updating the live admin APK link.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher",
+    "Kali desktop",
+    "Changes Made / Change History",
+    "Live admin /admin/learning-app"
+  ],
+  "components": [
+    "Expo Android release",
+    "Expo production update",
+    "Admin APK download",
+    "Release tests"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/eas.json",
+    "lecomax-learning-app/tests/release.test.cjs",
+    "app/admin/learning-app/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "User authorized publishing the updated learning app to Expo and the live admin panel. Preparing an EAS release build to include production update-channel metadata missing from the earlier local APK."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Release debug-code audit now parses executable syntax instead of mistaking JavaScript lesson strings for runtime logging. Added checks for actual log/debugger statements and template expressions. No lesson code or historical reports removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source secret audit",
+      "result": "passed",
+      "detail": "1160 application/content files checked without findings; secret values were not logged."
+    },
+    {
+      "name": "Initial release tests",
+      "result": "failed",
+      "detail": "Four tests passed; configuration test falsely flagged console.log inside a lesson example string. Syntax-aware correction awaits verification."
+    },
+    {
+      "name": "Publication",
+      "result": "not-run",
+      "detail": "New Expo build/update and live admin environment change are pending. Prior live deployment recorded for rollback. Native 1.0.4 devices require installation of the 1.0.5 APK; no physical device test or Wi-Fi activation."
+    }
+  ]
+}

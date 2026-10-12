@@ -1,0 +1,62 @@
+{
+  "id": "phone-direct-build12-installed-20261011",
+  "createdAt": "2026-10-11T20:45:39.095Z",
+  "title": "Direct Tailscale build 12 installed and sharing screen verified",
+  "summary": "Signed Android 1.0.10 build 12 installed over build 11 with app data preserved. The sharing screen opens and detects the active Tailscale address; two-phone sharing remains untested.",
+  "status": "successful",
+  "relatedId": "phone-direct-automated-verified-20261011",
+  "pages": [
+    "My remote phone"
+  ],
+  "components": [
+    "Android release",
+    "Phone",
+    "PhoneDirectServer",
+    "Direct browser viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/artifacts/verify-phone-direct-build12.cjs",
+    "lecomax-learning-app/artifacts/phone-direct-build12-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build12-screen.xml"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Delivered Android version 1.0.10 versionCode 12 to the connected phone using an in-place update. Opened the My remote phone sharing route."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "Gradle assembleRelease completed successfully: 812 tasks, 4m 46s. APK SHA-256 e26c8cad28f451c055d9806414ebfabeb30739aec84e282a2d477c4a9cda2f26.",
+      "result": "passed",
+      "name": "Release build"
+    },
+    {
+      "detail": "apksigner verifies; signing certificate matches build 11. Package/version, ARM64, capture service, input service, direct server, viewer assets and automated-verification history report checked.",
+      "result": "passed",
+      "name": "APK integrity and contents"
+    },
+    {
+      "detail": "adb install -r succeeded; device package reports 1.0.10/build 12. Deep link launch succeeded. UI hierarchy confirms sharing mode, detected Tailscale address, start control and idle sharing state.",
+      "result": "passed",
+      "name": "Device installation and launch"
+    },
+    {
+      "detail": "140 existing immutable reports passed --check before this append.",
+      "result": "passed",
+      "name": "History integrity"
+    },
+    {
+      "detail": "Capture consent, viewer approval, remote input, lock/rotation and network-loss behavior have not been tested on two physical phones. Sharing was not started. No public deployment. This delivery follow-up is in repository history and requires a future rebuild to appear in the installed APK.",
+      "result": "not-run",
+      "name": "Two-phone acceptance"
+    }
+  ],
+  "preview": {
+    "label": "Current My remote phone screen (not a historical snapshot)",
+    "path": "/phone",
+    "verifiedAt": "2026-10-11T20:45:39.100Z"
+  }
+}

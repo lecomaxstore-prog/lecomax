@@ -1,0 +1,30 @@
+{
+  "id": "teacher-clarify-intent-1791735986300",
+  "createdAt": "2026-10-11T16:26:26.300Z",
+  "title": "Clarify ambiguous teacher questions without assuming wrongdoing",
+  "summary": "The teacher now distinguishes free or no-subscription access questions from explicit requests to bypass protections.",
+  "status": "needs-testing",
+  "pages": [
+    "/teacher",
+    "/api/learning-mobile/teacher"
+  ],
+  "components": [
+    "mobileTeacherInstructions"
+  ],
+  "files": [
+    "lib/mobile-teacher-prompt.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added neutral intent clarification for ambiguous phrases such as without subscription, free channels and IPTV. Earlier assistant assumptions are not evidence of user intent; current service availability must not be invented."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Regression checks and lint pending. No live model evaluation or deployment."
+    }
+  ]
+}

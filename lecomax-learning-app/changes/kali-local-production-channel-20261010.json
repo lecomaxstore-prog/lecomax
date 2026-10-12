@@ -1,0 +1,48 @@
+{
+  "id": "kali-local-production-channel-20261010",
+  "createdAt": "2026-10-09T22:20:55.373Z",
+  "relatedId": "kali-expo-production-release-20261010",
+  "title": "Production update channel configured for local signing",
+  "summary": "Keep Android signing credentials on this PC, rebuild with the production update channel, and upload only the signed APK to Expo.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher",
+    "Kali desktop",
+    "Changes Made / Change History",
+    "Live admin /admin/learning-app"
+  ],
+  "components": [
+    "Expo Android release",
+    "Expo production update",
+    "Admin APK download",
+    "Release tests"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/eas.json",
+    "lecomax-learning-app/tests/release.test.cjs",
+    "app/admin/learning-app/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Added updates.requestHeaders.expo-channel-name=production to the app configuration so locally generated release APKs request the intended Expo channel."
+    },
+    {
+      "kind": "modified",
+      "detail": "Changed publication to local signing plus eas upload after automatic approval review rejected exporting signing credentials. No signing key is included in the APK upload. Live admin configuration will point to the verified uploaded APK."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Release tests",
+      "result": "passed",
+      "detail": "All six release tests passed after the syntax-aware debug audit correction."
+    },
+    {
+      "name": "Local signed release and publication",
+      "result": "not-run",
+      "detail": "Rebuild, APK verification, Expo upload/update and live admin deployment pending. Cloud build was rejected before execution because explicit signing-credential export approval was absent."
+    }
+  ]
+}

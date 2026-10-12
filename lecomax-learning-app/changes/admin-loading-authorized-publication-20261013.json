@@ -1,0 +1,63 @@
+{
+  "id": "admin-loading-authorized-publication-20261013",
+  "createdAt": "2026-10-12T23:50:52.350Z",
+  "relatedId": "admin-loading-isolated-release-verified-blocked-20261013",
+  "title": "Authorized GitHub publication and Vercel release in progress",
+  "summary": "User explicitly approved GitHub and Vercel publication. The isolated Vercel production candidate is Ready; verification and GitHub publication are in progress.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Analytics",
+    "Admin navigation",
+    "Storefront"
+  ],
+  "components": [
+    "Analytics loading",
+    "Admin navigation requests",
+    "GitHub publication",
+    "Vercel production release",
+    "Change History archive"
+  ],
+  "files": [
+    "app/admin/analytics/page.tsx",
+    "app/admin/layout.tsx",
+    "app/api/analytics/route.ts",
+    "lib/analytics-fetch.ts",
+    "tests/admin-analytics-loading.test.ts",
+    "docs/admin-analytics-performance-20261013.md",
+    "AGENTS.md",
+    ".vercelignore",
+    "lecomax-learning-app/data/change-history.json",
+    "lecomax-learning-app/docs/change-history.md",
+    "lecomax-learning-app/scripts/change-report.cjs",
+    "lecomax-learning-app/scripts/inspect.cjs",
+    "lecomax-learning-app/utils/change-history.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Create authorized production candidate dpl_6mMrE2mLj1TVFBQL2WCTDqaAaQ7g without promoting domains yet. Publish targeted admin changes and retained report archive to a GitHub branch based on current main; preserve other GitHub and workspace changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Vercel candidate build",
+      "result": "passed",
+      "detail": "Vercel inspect confirms Ready production candidate; authenticated homepage GET returned HTTP 200."
+    },
+    {
+      "name": "Vercel diagnostics",
+      "result": "passed",
+      "detail": "No production error or HTTP 5xx log records were returned by six-hour queries. Official Vercel status reports all systems operational; October 12 build/deploy incident resolved at 20:11 UTC. These checks do not prove absence of intermittent latency."
+    },
+    {
+      "name": "Retained report credential scan",
+      "result": "passed",
+      "detail": "244 reports passed known private environment-value and common credential-pattern checks; not proof against unknown or encoded secrets."
+    },
+    {
+      "name": "Publication completion",
+      "result": "not-run",
+      "detail": "Additional candidate route checks, GitHub commit/push, domain promotion and public follow-up pending. No browser is connected."
+    }
+  ]
+}

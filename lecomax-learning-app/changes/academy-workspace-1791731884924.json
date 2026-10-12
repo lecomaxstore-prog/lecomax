@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Localized section navigation, visible project objective, preparation guidance and a three-step learning method."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course page now organizes lessons, project workshops and prerequisites into focused sections. Mounted sections preserve search and workshop state while switching."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Deduplicated overview lessons so shared lessons do not inflate progress or duration."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the repeated completion card and long unsectioned stack; project completion standards remain in the workshop."
+    }
+  ],
+  "summary": "Continued the unfinished academy redesign with a clear project objective and dedicated Lessons, Practice and Preparation sections.",
+  "id": "academy-workspace-1791731884924",
+  "createdAt": "2026-10-11T15:18:04.930Z",
+  "relatedId": "course-professional-redesign-1791727656966",
+  "files": [
+    "lecomax-learning-app/components/CourseWorkspace.tsx",
+    "lecomax-learning-app/app/course/[id].tsx"
+  ],
+  "components": [
+    "CourseWorkspace",
+    "CourseOverview",
+    "CourseLessonList"
+  ],
+  "status": "needs-testing",
+  "validation": [
+    {
+      "detail": "Typecheck, lint, course/history tests and browser checks pending. No deployment or native device testing.",
+      "result": "not-run",
+      "name": "Validation pending"
+    }
+  ],
+  "title": "A focused professional course workspace",
+  "pages": [
+    "/course/[id]"
+  ]
+}

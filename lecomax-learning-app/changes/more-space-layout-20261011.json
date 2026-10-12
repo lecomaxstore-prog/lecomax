@@ -1,0 +1,42 @@
+{
+  "id": "more-space-layout-20261011",
+  "createdAt": "2026-10-11T10:49:21.757Z",
+  "title": "A clearer learning space on mobile",
+  "summary": "Compact heading, search and tabs first, grouped coding tools and readable Arabic Python guidance.",
+  "status": "needs-testing",
+  "pages": [
+    "/more"
+  ],
+  "components": [
+    "More"
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/tests/more-screen.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replaced the question-mark Arabic Python description with readable guidance."
+    },
+    {
+      "kind": "modified",
+      "detail": "Shortened the heading; placed search and tabs first; grouped Python and Terminal; moved desktop connections below saved learning and practice tools."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the duplicate Android terminal shortcut; Python still opens the Python terminal."
+    },
+    {
+      "kind": "modified",
+      "detail": "Extended the existing interaction check to cover coding and desktop destinations and localized descriptions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint and interaction/history checks pending. Browser and physical-device visual validation pending."
+    }
+  ]
+}

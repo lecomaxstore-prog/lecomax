@@ -1,0 +1,87 @@
+{
+  "id": "python-premium-mobile-ide-verified-20261011",
+  "createdAt": "2026-10-11T11:28:21.895Z",
+  "title": "Mobile Python IDE improvements verified",
+  "summary": "Functional coding accessory keys, keyboard layout, cursor retention and console input following pass browser and project checks.",
+  "status": "successful",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonEditor",
+    "PythonStudio",
+    "MobilePythonWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/components/MobilePythonWorkspace.tsx",
+    "lecomax-learning-app/data/python-mobile-workspace.json",
+    "lecomax-learning-app/scripts/python-ide-smoke.cjs",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/tests/python-editor-interaction.test.cjs",
+    "lecomax-learning-app/docs/python-workspace.md",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Optional accessible accessory keys for tab, indent/outdent, cursor movement, undo/redo, paired delimiters and Python symbols. Added cursor position and console follow control."
+    },
+    {
+      "kind": "modified",
+      "detail": "Larger default editor text, readable gutters, bounded editor scrolling, keyboard-specific editor height, batched viewport updates, panel scroll memory, input focus and reduced-motion-aware running feedback."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remove Android double keyboard avoidance because MainActivity already uses adjustResize. Disable autocorrect in code and input; preserve CodeMirror selection across panel switches. Preserve existing isolated Python execution and cancellation architecture."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Browser testing identified literal Tab insertion; touch Tab now inserts four spaces. Corrected an Arabic label and updated DOM fixtures for resize/focus behavior. Live input scrolls both the field and Send action into view after long output and viewport changes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated architecture documentation to describe the existing shared native WebView, live input, source limits and mobile controls accurately. Rebuilt the embedded mobile workspace."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Full test suite",
+      "result": "passed",
+      "detail": "178 passed, zero failed. Focused additions cover CodeMirror selection wrapping, undo, focus after resize, disabled accessory controls, repeated interactive prompts, tab switching and Stop."
+    },
+    {
+      "name": "TypeScript and ESLint",
+      "result": "passed",
+      "detail": "Full-app typecheck and lint completed without errors."
+    },
+    {
+      "name": "Real browser editing and layouts",
+      "result": "passed",
+      "detail": "21 en/ar/fr viewport cases at 320, 375, 390, 430, 480, 768 and 1280px, plus landscape and a simulated 380px keyboard viewport. Every accessory action, hardware bracket pairing, Python indentation, cursor retention, optional bar, save bridge, exercise grading and offline draft retention passed. Inspected mobile, Arabic, desktop and simulated-keyboard screenshots."
+    },
+    {
+      "name": "Real console execution",
+      "result": "passed",
+      "detail": "Long output followed by a real input() prompt keeps field and Send visible, focuses input, accepts Ada and produces Hello Ada. Infinite-loop Stop responds. Existing worker/session architecture preserved."
+    },
+    {
+      "name": "Production web export",
+      "result": "passed",
+      "detail": "Local Expo production export succeeded at artifacts/python-premium-web. The embedded mobile UI was rebuilt from current sources."
+    },
+    {
+      "name": "History integrity before verification report",
+      "result": "passed",
+      "detail": "98 existing reports validated; earlier reports preserved."
+    },
+    {
+      "name": "Physical devices and deployment",
+      "result": "not-run",
+      "detail": "No physical Android/iOS keyboard, IME or screen-reader verification, no native binary rebuild, no deployment. Native WebView uses existing Android adjustResize and iOS keyboard padding; browser bridge is simulated in integration tests."
+    }
+  ],
+  "relatedId": "python-premium-mobile-ide-20261011"
+}

@@ -1,0 +1,78 @@
+{
+  "id": "android-python-build-retry-1791622533105",
+  "createdAt": "2026-10-10T08:55:33.105Z",
+  "title": "Android Python checks and build retry",
+  "summary": "Python and UI checks passed. Retrying the Android APK build through a short Windows path after native compiler path failures.",
+  "status": "needs-testing",
+  "pages": [
+    "Python",
+    "Terminal",
+    "AI Teacher"
+  ],
+  "components": [
+    "PhonePythonLab",
+    "PhonePython native module",
+    "Disposable Python service",
+    "Expo Android plugin"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/components/TeacherLab.tsx",
+    "lecomax-learning-app/components/PhonePythonLab.tsx",
+    "lecomax-learning-app/plugins/with-phone-python.cjs",
+    "lecomax-learning-app/native/python/phone_runner.py",
+    "lecomax-learning-app/native/python/PhonePythonPackage.kt",
+    "lecomax-learning-app/native/python/PhonePythonService.kt",
+    "lecomax-learning-app/features/OwnerGate.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/native/python/test_phone_runner.py",
+    "lecomax-learning-app/native/python/PhonePythonDeviceCheck.kt",
+    "lecomax-learning-app/tests/phone-python-interaction.test.cjs",
+    "lecomax-learning-app/tests/teacher-lab-interaction.test.cjs",
+    "lecomax-learning-app/docs/android-python.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Offline Python entry on the connection-required screen without exposing the protected learning app; teacher questions are saved as drafts until reconnecting."
+    },
+    {
+      "kind": "added",
+      "detail": "Private Python file workspace, bounded error output, separate on-device instrumentation checks and runtime/build documentation."
+    },
+    {
+      "kind": "modified",
+      "detail": "Android More labels accurately describe its on-device Python console."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Python runner",
+      "result": "passed",
+      "detail": "5 CPython unit tests passed: calculation/input, traceback, fresh variables, output cap and SystemExit handling."
+    },
+    {
+      "name": "UI and history",
+      "result": "passed",
+      "detail": "7 interaction/history tests passed, including native-module execution dispatch and exact code/result handoff to AI Teacher. These are mock UI tests, not device results."
+    },
+    {
+      "name": "TypeScript/lint",
+      "result": "passed",
+      "detail": "App typecheck and focused lint completed after updates."
+    },
+    {
+      "name": "Initial Android build",
+      "result": "failed",
+      "detail": "Windows Ninja build.ninja remained dirty after 100 retries in Expo/Reanimated under the long original path. First drive-root alias then exposed an Expo package.json discovery boundary; corrected by mapping the parent directory."
+    },
+    {
+      "name": "Phone installation",
+      "result": "not-run",
+      "detail": "Phone authorized and existing 1.0.5 APK backed up. New APK not installed yet; current short-path build pending."
+    }
+  ],
+  "relatedId": "android-python-offline-1791621825369"
+}

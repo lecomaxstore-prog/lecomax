@@ -1,0 +1,72 @@
+{
+  "id": "phone-recovery-build13-apk-verified-20261012",
+  "createdAt": "2026-10-12T05:30:20.088Z",
+  "relatedId": "phone-recovery-automated-verified-20261012",
+  "status": "successful",
+  "title": "Android build 13 ready for installation on both phones",
+  "summary": "Signed version 1.0.11 APK built and audited locally. Physical two-phone acceptance and installation remain pending.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneViewer",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "Android config plugin"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.11-build13.apk",
+    "lecomax-learning-app/artifacts/verify-phone-direct-build13.cjs",
+    "lecomax-learning-app/artifacts/audit-build13.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Recovered the failed memory-heavy build using a bounded heap and a single worker; packaged the saved viewer and native sharing recovery changes."
+    },
+    {
+      "kind": "added",
+      "detail": "Created a signed arm64 build 13 APK, verification metadata and archive audit results."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Native build",
+      "result": "passed",
+      "detail": "Gradle testDebugUnitTest and assembleRelease succeeded in 15m26s; 6 native tests passed."
+    },
+    {
+      "name": "Viewer, history, TypeScript and lint",
+      "result": "passed",
+      "detail": "11 focused tests, TypeScript and focused ESLint passed."
+    },
+    {
+      "name": "APK identity and contents",
+      "result": "passed",
+      "detail": "Version 1.0.11 / code 13, arm64-v8a, 152131500 bytes; valid signature matches prior release signer. Native server, stopWithTask=false, exact viewer source assets and automated verification report confirmed. SHA256 5d78db289941c3f4e336a970bf7febe244070b723161364c76161666cb140bb0."
+    },
+    {
+      "name": "Artifact audit",
+      "result": "passed",
+      "detail": "1369 decompressed ZIP entries passed checks for known private environment values, common credential patterns and private file paths. Does not establish absence of unknown or encoded secrets."
+    },
+    {
+      "name": "Installation, two-phone acceptance and publication",
+      "result": "not-run",
+      "detail": "No ADB phone connected. Install on both phones and verify approval, Home/app switching, return within two minutes, temporary network loss and explicit Stop. No public deployment or OTA update performed. APK bundles 149 reports through automated verification; this post-build audit is appended in workspace history for the next build."
+    }
+  ]
+}

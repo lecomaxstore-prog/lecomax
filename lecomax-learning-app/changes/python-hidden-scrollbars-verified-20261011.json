@@ -1,0 +1,49 @@
+{
+  "id": "python-hidden-scrollbars-verified-20261011",
+  "createdAt": "2026-10-11T12:04:18.327Z",
+  "title": "Python editor scrollbar polish verified",
+  "summary": "Verified the mobile Python editor remains usable and manually scrollable with scrollbar visuals removed.",
+  "status": "successful",
+  "relatedId": "python-hidden-scrollbars-20261011",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonEditor",
+    "PythonStudio",
+    "MobilePythonWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/data/python-mobile-workspace.json",
+    "lecomax-learning-app/artifacts/python-ide/checks.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Scrollbar tracks and thumbs are hidden across browser engines while editor overflow and hand scrolling remain available."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused browser review",
+      "result": "passed",
+      "detail": "48 viewport/theme/locale cases passed, including long lines, search, keyboard viewport and execution flows."
+    },
+    {
+      "name": "Mobile workspace bundle",
+      "result": "passed",
+      "detail": "Offline bundle rebuilt successfully at 732479 bytes."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Change report append and manifest verification completed."
+    },
+    {
+      "name": "Physical device testing",
+      "result": "not-run",
+      "detail": "No native device testing or deployment."
+    }
+  ]
+}

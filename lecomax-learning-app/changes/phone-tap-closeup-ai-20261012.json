@@ -1,0 +1,46 @@
+{
+  "id": "phone-tap-closeup-ai-20261012",
+  "createdAt": "2026-10-12T18:51:44.635Z",
+  "title": "Open phone piece explanations on tap with close-up zoom",
+  "summary": "Phone Lab component taps now open the selected piece explanation immediately, with 1x/2x/3x close-up controls and contextual AI teacher actions.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)",
+    "AI Teacher"
+  ],
+  "components": [
+    "Phone photo viewer",
+    "Piece detail dialog",
+    "AI teacher bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "A single tap on a mapped phone component opens its explanation and selected crop instead of requiring a double tap."
+    },
+    {
+      "kind": "added",
+      "detail": "Added 1x, 2x and 3x close-up controls inside the selected piece dialog."
+    },
+    {
+      "kind": "modified",
+      "detail": "Kept Explain, example, quiz and custom question actions connected to the authenticated AI Teacher with trusted lesson context."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript check",
+      "result": "passed",
+      "detail": "npx tsc --noEmit completed successfully in lecomax-learning-app."
+    },
+    {
+      "name": "Focused interaction tests",
+      "result": "not-run",
+      "detail": "Existing phone explorer interaction suite was not completed after the intentional single-tap behavior change; no deployment or live AI request."
+    }
+  ]
+}

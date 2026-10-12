@@ -1,0 +1,70 @@
+{
+  "id": "kali-publication-validation-fixes-20261010",
+  "createdAt": "2026-10-09T22:23:13.088Z",
+  "relatedId": "kali-local-production-channel-20261010",
+  "title": "Release validation corrected and learning source excerpts refreshed",
+  "summary": "Updated stale offline source excerpts and repaired the lab test router mock after the full suite exposed two failures.",
+  "status": "needs-testing",
+  "pages": [
+    "Source Library",
+    "Teacher Lab",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Offline source catalog",
+    "Lab interaction tests",
+    "Production release validation"
+  ],
+  "files": [
+    "lecomax-learning-app/tests/teacher-lab-interaction.test.cjs",
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/site-source-map.json",
+    "lecomax-learning-app/artifacts/verify-kali-build7.cjs",
+    "lecomax-learning-app/data/source/92bdae3d6b86807739248e616f66a7ba529c71a7f6e1e037403e779c81fd9453.json",
+    "lecomax-learning-app/data/source/6edc40812025a9027df57c616b516ca1d68df90912338afbf5095fb4cb290032.json",
+    "lecomax-learning-app/data/source/be054fb8c38502663abee4f1e203feb7e6d5b59455cb300cc13c4238526e1d03.json",
+    "lecomax-learning-app/data/source/6a000b7f0055259d6360bccbe1831374cb6220e3a5e329f160ee66c8c5ec57b3.json",
+    "lecomax-learning-app/data/source/4d40aa8030fa8b9e0d9cd03701d94fcda8d61854f578ed2407ababc081043860.json",
+    "lecomax-learning-app/data/source/bfae00165d06cd9254b3daf78ae3f79ed7344d6d56d1a749eb13aa5aa5578f4b.json",
+    "lecomax-learning-app/data/source/a3e3dcd8cd4b483553fda10295c94fcc0f73598bc0e7aacac16cb47ef0c21ea3.json",
+    "lecomax-learning-app/data/source/e1ae5e70d5fc8d751bd16924cd8a12ffeaaa79b4b85fa73c3c2f673d3f5d23a4.json",
+    "lecomax-learning-app/data/source/464550331cc8920516df6d309cbebf6dab721c0cb9c80d157f273bac61a57075.json",
+    "lecomax-learning-app/data/source/129f73f68fe7ef5ad1f9afbbca38c44f45587446450e73b8f09d79cda70b67eb.json",
+    "lecomax-learning-app/data/source/5903c81cd4adcf1c651688040c60146f8162f3b7553122e2ba65d6b3ba73e259.json",
+    "lecomax-learning-app/data/source/5695d400c996c83ef073947da8df4f58e8c8e4e83ac73d27c7478908c30892bf.json",
+    "lecomax-learning-app/data/source/d1f8391feb94c53f5f006858f01837df25928ae2006432e9eed5e6eb57079df8.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Added the expo-router mock required by the updated lab component. Refreshed 614 real source files and the visible element map; changed excerpts now match current repository files."
+    },
+    {
+      "kind": "modified",
+      "detail": "Extended APK verification to check production-channel metadata, bundled release report and every decompressed ZIP entry against configured private environment values. No prior history or source snapshots deleted."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Full suite before corrections",
+      "result": "failed",
+      "detail": "163 of 165 tests passed; stale source excerpts and missing expo-router mock caused the two failures."
+    },
+    {
+      "name": "Focused correction checks",
+      "result": "passed",
+      "detail": "All five content/lab tests passed, and 1173 application/content files passed the secret audit."
+    },
+    {
+      "name": "Expo export",
+      "result": "failed",
+      "detail": "Sandbox blocked execution of the Hermes compiler (permission denied). Retrying with execution permission; this was not a bundle syntax failure."
+    },
+    {
+      "name": "Full rerun and publication",
+      "result": "not-run",
+      "detail": "Full test rerun, corrected export and published-artifact checks pending."
+    }
+  ]
+}

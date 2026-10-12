@@ -1,0 +1,37 @@
+{
+  "id": "python-hidden-scrollbars-20261011",
+  "createdAt": "2026-10-11T12:04:17.895Z",
+  "title": "Python editor manual scrolling polish",
+  "summary": "Remove the visible horizontal scrollbar from the mobile code editor while retaining hand and touch scrolling.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonEditor",
+    "PythonStudio",
+    "MobilePythonWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/data/python-mobile-workspace.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Applied WebKit, Firefox and legacy scrollbar hiding to the CodeMirror scroller and workspace scroll surfaces; overflow remains enabled for manual movement."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused browser review",
+      "result": "not-run",
+      "detail": "Run the existing 48-case Python Studio browser review after this polish."
+    },
+    {
+      "name": "Physical device testing",
+      "result": "not-run",
+      "detail": "No native device validation or deployment."
+    }
+  ]
+}

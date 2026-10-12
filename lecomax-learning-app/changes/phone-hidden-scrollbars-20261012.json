@@ -1,0 +1,31 @@
+{
+  "id": "phone-hidden-scrollbars-20261012",
+  "createdAt": "2026-10-12T17:35:46.173Z",
+  "title": "Hide visible Phone Lab scrollbars",
+  "summary": "Removed scrollbar tracks and arrows from the Phone Lab document, magnified image and piece detail content while retaining touch, wheel and keyboard scrolling.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone explorer styles",
+    "Piece detail dialog",
+    "Photo viewport"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-explorer-document.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added Firefox and WebKit scrollbar hiding styles without disabling overflow or removing content."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused validation",
+      "result": "not-run",
+      "detail": "Pending lint, typecheck, phone/history regressions and history integrity. Live browser appearance not yet verified; no deployment."
+    }
+  ]
+}

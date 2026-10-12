@@ -1,0 +1,58 @@
+{
+  "id": "phone-qr-build14-apk-verified-20261012",
+  "createdAt": "2026-10-12T05:55:31.765Z",
+  "status": "successful",
+  "relatedId": "phone-qr-pairing-automated-verified-20261012",
+  "title": "QR pairing Android build 14 is ready to install",
+  "summary": "Signed Android 1.0.12 APK built and verified with native camera scanner and current phone viewer. Physical two-phone scanning remains untested.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer",
+    "QR scanner",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "PhonePairingScanner",
+    "PhoneViewer",
+    "Android release APK"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.12-build14.apk",
+    "lecomax-learning-app/artifacts/phone-qr-build14.log",
+    "lecomax-learning-app/artifacts/phone-direct-build14-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build14-secret-audit.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Completed installable arm64 Android 1.0.12/build 14 APK containing QR pairing, native Expo camera scanner, direct server, and existing automated-verification history report."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "Gradle assembleRelease succeeded: 849 tasks, 17m 18s. Deprecation warnings remain.",
+      "result": "passed",
+      "name": "Android release build"
+    },
+    {
+      "detail": "Signature verified and matches build 11; package com.lecomax.learning version 1.0.12 code 14; native camera/direct server present; bundled viewer assets match source; CAMERA permission present, RECORD_AUDIO absent. SHA256 08df9ecd64e3fc88ddc64659633fd8b0c016d1a158ad79c1ceb8af38f865aa15.",
+      "result": "passed",
+      "name": "APK verification"
+    },
+    {
+      "detail": "All 15 QR/page/viewer/history tests passed on resume. TypeScript and focused ESLint passed.",
+      "result": "passed",
+      "name": "Focused regression checks"
+    },
+    {
+      "detail": "1403 ZIP entries passed known private-value, credential-pattern and private-file checks. This does not prove absence of unknown or encoded secrets.",
+      "result": "passed",
+      "name": "APK credential audit"
+    },
+    {
+      "detail": "No ADB device connected. Install and real-camera pairing have not been tested. No deployment or OTA update. This post-build report is in workspace history and requires a later build to appear in an installed APK.",
+      "result": "not-run",
+      "name": "Installation and two-phone camera acceptance"
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "academy-design-refresh-1791545940732",
+  "createdAt": "2026-10-09T11:39:00.732Z",
+  "title": "A calmer, learning-first academy",
+  "summary": "Redesigned the dashboard and shared visual system with warm backgrounds, emerald lesson cards, clearer course progress and rounded navigation.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Learning paths",
+    "Teacher",
+    "Project",
+    "More",
+    "Screens using shared UI"
+  ],
+  "components": [
+    "Home",
+    "Page",
+    "BottomTabBar",
+    "Design tokens",
+    "ProgressBar"
+  ],
+  "files": [
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/app/(tabs)/index.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Updated shared light palette, card and control radii, page spacing and section headers."
+    },
+    {
+      "kind": "modified",
+      "detail": "Rebuilt the dashboard hierarchy around the next lesson; restyled search, shortcut cards, course cards and bottom navigation."
+    },
+    {
+      "kind": "added",
+      "detail": "Course cards now show actual completion progress bars."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the change-history block from the top of Home; it remains visible below learning content with every report preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint and history tests pending. Native device appearance and production deployment are not verified."
+    }
+  ]
+}

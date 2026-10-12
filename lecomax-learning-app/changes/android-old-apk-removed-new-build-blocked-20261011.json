@@ -1,0 +1,43 @@
+{
+  "id": "android-old-apk-removed-new-build-blocked-20261011",
+  "createdAt": "2026-10-11T06:05:00.000Z",
+  "relatedId": "android-build8-copied-zakaria-20261011",
+  "title": "Old Android APK removed; replacement build blocked",
+  "summary": "Removed the old LECOMAX Learn APK from the phone's Zakaria folder. A replacement APK could not be produced because the offline Gradle build is missing the Foojay resolver plugin and network access is blocked.",
+  "status": "needs-testing",
+  "pages": [
+    "Android release",
+    "Changes Made"
+  ],
+  "components": [
+    "Android release",
+    "LECOMAX Learn"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.6-build8.apk",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed /sdcard/Zakaria/lecomax-learn-1.0.6-build8.apk from the connected phone."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Old APK removal",
+      "result": "passed",
+      "detail": "ADB listing confirmed the old APK is no longer present in /sdcard/Zakaria."
+    },
+    {
+      "name": "Replacement APK build",
+      "result": "failed",
+      "detail": "Gradle assembleRelease --offline failed because org.gradle.toolchains.foojay-resolver-convention:1.0.0 is not cached; the wrapper also could not download it due blocked network access."
+    },
+    {
+      "name": "Replacement APK transfer",
+      "result": "not-run",
+      "detail": "No new APK existed to copy."
+    }
+  ]
+}

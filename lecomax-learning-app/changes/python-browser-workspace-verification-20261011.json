@@ -1,0 +1,79 @@
+{
+  "id": "python-browser-workspace-verification-20261011",
+  "relatedId": "python-browser-workspace-20261011",
+  "createdAt": "2026-10-11T10:29:27.635Z",
+  "title": "Python workspace verified; broader checks and device work remain",
+  "summary": "Browser Python and editor checks passed. Full app suite: 176 passed, two failures in unchanged areas. This is the first increment, not the complete Python curriculum or native editor upgrade.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal",
+    "/change-history"
+  ],
+  "components": [
+    "TeacherLab",
+    "PythonStudio",
+    "PythonEditor",
+    "Python sandbox",
+    "Change History"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/utils/python-sandbox.ts",
+    "lecomax-learning-app/utils/python-errors.ts",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/tests/python-workspace.test.cjs",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/tests/python-editor-interaction.test.cjs",
+    "lecomax-learning-app/scripts/smoke-python-browser.cjs",
+    "lecomax-learning-app/docs/python-workspace.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Preserve delayed and empty saved drafts; prevent repeated runtime messages extending deadlines; discard stale iframe results; prioritize Run shortcut over default editor bindings; use four-space indentation and provide a replace shortcut."
+    },
+    {
+      "kind": "modified",
+      "detail": "Preserved the existing owner-authenticated local PC Python terminal under the advanced toggle. Default web Python uses the isolated workspace; native Python and other PC runtimes are unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "Real Python, CodeMirror, workspace and sandbox tests plus Chromium/Pyodide smoke script. Added architecture audit, implementation contracts, limitations and prioritized follow-up plan."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Targeted automated checks",
+      "result": "passed",
+      "detail": "16/16 tests passed: new Python tests, existing Android bridge, local lab permissions, and Change History interaction/archive tests."
+    },
+    {
+      "name": "Actual browser Python",
+      "result": "passed",
+      "detail": "Separate headless Chromium with Pyodide verified stdout, pre-entered input, runtime/syntax errors, output cap, JSON, infinite-loop cancellation and recovery, and opaque-origin isolation. No user credentials used."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck, focused ESLint and full ESLint completed successfully."
+    },
+    {
+      "name": "Web export",
+      "result": "passed",
+      "detail": "Expo web export succeeded to dist-python-workspace-check. Local build only; no deployment or live app preview verification."
+    },
+    {
+      "name": "Full app test suite",
+      "result": "failed",
+      "detail": "178 tests: 176 passed, 2 failed. Unchanged lib/teacher-lab.ts differs from its bundled source snapshot; unchanged More-screen test omits the React Native Platform mock. These files were not modified in this increment."
+    },
+    {
+      "name": "Remaining validation and scope",
+      "result": "not-run",
+      "detail": "Physical Android/iOS keyboards, screen readers and full responsive visual QA untested. Live stdin, streamed output, complete curriculum/project expansion, cloud sync and native editor parity are not implemented. Detailed offline error guidance is English. Browser allocations have no fixed memory quota; runtime download needs internet."
+    }
+  ]
+}

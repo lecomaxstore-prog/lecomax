@@ -1,0 +1,50 @@
+{
+  "id": "pc-premium-viewer-typecheck-verified-20261011",
+  "createdAt": "2026-10-11T11:30:00.000Z",
+  "title": "Premium My PC viewer type check verified",
+  "summary": "Complete the validation follow-up with syntax and TypeScript checks after the focused remote PC tests.",
+  "status": "successful",
+  "relatedId": "pc-premium-viewer-verified-20261011",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "PcDesktop",
+    "PC bridge"
+  ],
+  "files": [
+    "scripts/pc-remote/client.js",
+    "scripts/pc-remote/input.mjs",
+    "scripts/pc-remote-server.mjs",
+    "scripts/start-pc-remote.mjs",
+    "lecomax-learning-app/components/PcDesktop.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Record completed syntax and TypeScript validation for the premium remote viewer change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "JavaScript syntax checks",
+      "result": "passed",
+      "detail": "node --check passed for client.js, input.mjs and pc-remote-server.mjs."
+    },
+    {
+      "name": "Learning app TypeScript check",
+      "result": "passed",
+      "detail": "npm.cmd --prefix lecomax-learning-app run typecheck completed successfully."
+    },
+    {
+      "name": "Physical Android portrait/landscape session",
+      "result": "not-run",
+      "detail": "Still requires an Android build and physical device."
+    },
+    {
+      "name": "4G/5G Tailscale session",
+      "result": "not-run",
+      "detail": "Still requires a physical phone/mobile-data session."
+    }
+  ]
+}

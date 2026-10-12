@@ -1,0 +1,94 @@
+{
+  "id": "learning-studio-resume-1791733507193-verified",
+  "createdAt": "2026-10-11T15:49:01.895Z",
+  "title": "Learning studio and guided navigation verified",
+  "summary": "Verified the resumed home studio, responsive course discovery, lesson guidance and direct workshop navigation in the local web app.",
+  "status": "successful",
+  "pages": [
+    "/",
+    "/path",
+    "/course/[id]",
+    "/lesson/[id]"
+  ],
+  "components": [
+    "StudyDashboard",
+    "StudioVisual",
+    "CurriculumLibrary",
+    "LessonHeader",
+    "CourseWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/StudioVisual.tsx",
+    "lecomax-learning-app/app/(tabs)/index.tsx",
+    "lecomax-learning-app/components/CurriculumLibrary.tsx",
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/CourseWorkspace.tsx",
+    "lecomax-learning-app/app/course/[id].tsx",
+    "lecomax-learning-app/scripts/studio-resume-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Continued the interrupted home studio with classroom progress, saved session budgets, course recommendations and toolkit links; retained existing wellness and history sections."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course discovery uses a coordinated green hero, code-native illustration and two-column topic grid on wide screens, retaining search and availability filters."
+    },
+    {
+      "kind": "added",
+      "detail": "Contextual instructions for understanding, examples, practice and quiz lesson stages."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Dashboard practice links now honor the requested course section rather than always opening Lessons."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected unfinished dashboard TypeScript errors with a missing-course guard, filtered recommended courses and typed toolkit tuples."
+    },
+    {
+      "kind": "added",
+      "detail": "Repeatable studio browser checks with synthetic authentication, isolated progress and screenshots; reloads explicitly sign in again as required by web session behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "npm run typecheck and ESLint on all six changed components/course route passed. Initial dashboard type errors and an effect lint error were corrected."
+    },
+    {
+      "name": "Focused regression tests",
+      "result": "passed",
+      "detail": "13 tests passed across course-flow, course-workshops, academy-interaction, change-history and change-history-interaction."
+    },
+    {
+      "name": "Existing course workspace browser regression",
+      "result": "passed",
+      "detail": "24 responsive checks across 3 languages, 2 themes and 4 widths; sections, workshop expansion and lesson navigation passed with no page errors."
+    },
+    {
+      "name": "Studio browser validation",
+      "result": "passed",
+      "detail": "48 responsive checks across home and discovery at 320, 390, 768 and 1280 pixels in Arabic, English and French, light and dark. English checks in both themes verified search reset, phase selection, persisted 60-minute budget after reload, practice deep link and contextual lesson instructions. No page errors. Initial harness failures from text encoding and web reauthentication were corrected before passing."
+    },
+    {
+      "name": "Visual inspection",
+      "result": "passed",
+      "detail": "Reviewed English desktop home, Arabic mobile home and desktop discovery, French dark mobile discovery, and English lesson/practice screenshots. No clipping observed in reviewed layouts."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No deployment, native Android/iOS testing, live backend authentication or AI service validation. Screenshots are local synthetic-session checks; course content translations were not expanded."
+    }
+  ],
+  "relatedId": "learning-studio-resume-1791733507193",
+  "preview": {
+    "path": "/",
+    "label": "Current learning studio (locally verified; not a historical snapshot)",
+    "verifiedAt": "2026-10-11T15:49:01.895Z"
+  }
+}

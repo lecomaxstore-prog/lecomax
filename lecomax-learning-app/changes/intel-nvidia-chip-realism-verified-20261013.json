@@ -1,0 +1,63 @@
+{
+  "id": "intel-nvidia-chip-realism-verified-20261013",
+  "createdAt": "2026-10-12T22:11:06.859Z",
+  "title": "Intel/NVIDIA chip refinement verified",
+  "summary": "New branded chip imagery and localized lessons passed automated verification.",
+  "status": "successful",
+  "pages": [
+    "Computer lab / laptop"
+  ],
+  "components": [
+    "Uncovered motherboard",
+    "CPU and GPU details",
+    "Localized reveal controls"
+  ],
+  "files": [
+    "lecomax-learning-app/data/laptop-chip-topics.ts",
+    "lecomax-learning-app/data/laptop-explorer.ts",
+    "lecomax-learning-app/data/laptop-revealed.json",
+    "lecomax-learning-app/utils/pc-layer-explorer.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/assets/computer-lab/laptop-intel-nvidia-v3.png",
+    "lecomax-learning-app/assets/computer-lab/laptop-intel-nvidia-v3.jpg",
+    "lecomax-learning-app/assets/computer-lab/laptop-intel-nvidia-v3.md",
+    "lecomax-learning-app/tests/pc-chip-reveal.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Generated a new image with reflective exposed dies, fine surface components and Intel/NVIDIA markings. Retained earlier assets and embedded the new optimized JPEG."
+    },
+    {
+      "kind": "added",
+      "detail": "Localized Intel Core CPU and NVIDIA GPU example descriptions without claiming an exact model."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Repaired corrupted Arabic and French text in chip lessons, reveal controls and photo-view accessibility description."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused tests",
+      "result": "passed",
+      "detail": "19 tests passed: localized chip text, exact embedded asset, reveal and restore, close-ups, learning progress, zoom panning and history retention."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint on modified utility files passed."
+    },
+    {
+      "name": "Image inspection",
+      "result": "passed",
+      "detail": "Generated output visually inspected; Intel and NVIDIA markings, reflective dies and small surface components are visible. Image remains an educational illustration."
+    },
+    {
+      "name": "Browser/device verification",
+      "result": "not-run",
+      "detail": "Live browser and physical phone appearance not verified. No deployment or live preview claimed."
+    }
+  ],
+  "relatedId": "intel-nvidia-chip-realism-20261013"
+}

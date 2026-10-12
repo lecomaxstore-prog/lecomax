@@ -1,0 +1,53 @@
+{
+  "id": "storefront-speed-release-started-20261013",
+  "createdAt": "2026-10-12T22:42:49.719Z",
+  "title": "Approved storefront speed release prepared for production",
+  "summary": "Package the tested storefront for a production-environment build, verify it, then promote it to lecomax.com.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage",
+    "All storefront headers",
+    "Boutique",
+    "Product rails"
+  ],
+  "components": [
+    "Header",
+    "SearchOverlay loading boundary",
+    "ProductRail",
+    "CollectionProductCard",
+    "OurProductsGrid",
+    "Storefront refresh and settings"
+  ],
+  "files": [
+    "components/Header.tsx",
+    "components/ProductRail.tsx",
+    "components/CollectionProductCard.tsx",
+    "components/OurProductsGrid.tsx",
+    "app/globals.css",
+    "lib/when-near-viewport.ts",
+    "lib/use-settings.ts",
+    "lib/use-store-refresh.ts",
+    "lib/storefront-refresh.ts",
+    "tests/storefront-loading-performance.test.ts",
+    "docs/storefront-loading-reliability-20261013.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "User explicitly approved deployment. Prepared an isolated source upload excluding environment files, credentials, local session data and caches. Previous ready deployment dpl_2xN3GMSY1ZLaWjtfydCdvxQcoymY retained as rollback reference."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local validation",
+      "result": "passed",
+      "detail": "Prior linked report records successful production build, 21 tests, TypeScript and focused lint."
+    },
+    {
+      "name": "Production release",
+      "result": "not-run",
+      "detail": "Remote build, domain promotion and live page/image checks pending."
+    }
+  ],
+  "relatedId": "storefront-loading-reliability-verified-20261013"
+}

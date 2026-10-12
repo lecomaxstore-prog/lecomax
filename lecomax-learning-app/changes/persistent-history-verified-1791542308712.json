@@ -1,0 +1,81 @@
+{
+  "id": "persistent-history-verified-1791542308712",
+  "createdAt": "2026-10-09T10:38:28.712Z",
+  "title": "Persistent visual change history — automated checks passed",
+  "summary": "Changes Made shows expanded details on Home. Change History retains every report with timestamps, affected files, status and validation; archive retention and retry checks now pass.",
+  "status": "successful",
+  "pages": [
+    "Home dashboard",
+    "More",
+    "Change History (/change-history)"
+  ],
+  "components": [
+    "ChangesMade",
+    "ChangeReportCard",
+    "ChangeHistoryProvider",
+    "Change report command"
+  ],
+  "files": [
+    "lecomax-learning-app/components/ChangeHistory.tsx",
+    "lecomax-learning-app/scripts/change-report.cjs",
+    "lecomax-learning-app/docs/change-history.md",
+    "lecomax-learning-app/tests/change-history.test.cjs",
+    "lecomax-learning-app/tests/change-history-interaction.test.cjs",
+    "lecomax-learning-app/data/change-history.json",
+    "lecomax-learning-app/store/ChangeHistory.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Latest dashboard report opens expanded; complete history remains accessible through Home and More using the existing interface and device persistence."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Append and rebuild refuse to remove bundled reports when source records are missing or edited."
+    },
+    {
+      "kind": "modified",
+      "detail": "Follow-up labels now use the selected interface language."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression tests cover retained archives, restarts, storage errors, immutable source reports, report expansion, statuses, navigation and retry."
+    },
+    {
+      "kind": "added",
+      "detail": "First source report initializes the previously empty bundled history. Existing unrelated repository changes are not backfilled with invented dates."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Archive retry resets loading and error state in the retry action instead of synchronously in an effect. Added a provider remount/retry regression test."
+    }
+  ],
+  "validation": [
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Source reports and bundled manifest matched before this follow-up; the appended manifest will also be checked."
+    },
+    {
+      "name": "Automated regression tests",
+      "result": "passed",
+      "detail": "6/6 passed: expansion, status labels, preview/history routing with UI mocks, archive retry, provider remount, restart retention, corruption/conflict preservation and append/rebuild protection."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "tsc --noEmit passed."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for history components, provider, utilities and route. CJS scripts/tests are excluded by repository lint configuration; they were exercised by tests."
+    },
+    {
+      "name": "Native device and live visual preview",
+      "result": "not-run",
+      "detail": "No real device or live browser visual verification; no preview link is claimed. No deployment performed."
+    }
+  ],
+  "relatedId": "persistent-history-validation-1791542272816"
+}

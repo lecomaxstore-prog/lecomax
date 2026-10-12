@@ -1,0 +1,55 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Open pairing and remote screen inside Android app, avoiding session loss caused by switching from browser to app."
+    },
+    {
+      "kind": "added",
+      "detail": "Other-phone approval instructions, same-address navigation restriction, connection failure state and explicit/background/back disconnect handling. Browser fallback for web."
+    }
+  ],
+  "summary": "Android Hermes export completed with the in-app viewer. Production OTA publication was blocked by automatic review pending explicit permission.",
+  "id": "phone-embedded-viewer-ready-20261011",
+  "createdAt": "2026-10-11T21:31:15.593Z",
+  "validation": [
+    {
+      "detail": "11 focused tests passed; TypeScript and focused lint passed. Added route-leave interaction assertion also passed.",
+      "result": "passed",
+      "name": "Automated checks"
+    },
+    {
+      "detail": "Expo Android export generated Hermes bytecode for 2443 modules. Initial sandbox compiler permission error resolved by allowing local export outside sandbox; no upload occurred.",
+      "result": "passed",
+      "name": "Android production bundle"
+    },
+    {
+      "detail": "Automatic approval review rejected OTA publication because explicit permission is required for this production deployment. Installed apps remain unchanged. Export artifacts/phone-embedded-export is ready for delivery after approval.",
+      "result": "not-run",
+      "name": "Production delivery"
+    },
+    {
+      "detail": "Actual capture, approval and remote controls remain untested on two physical phones.",
+      "result": "not-run",
+      "name": "Two-phone device acceptance"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/components/PhoneViewer.web.tsx",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/docs/phone-remote.md"
+  ],
+  "components": [
+    "Phone",
+    "PhoneViewer"
+  ],
+  "status": "needs-testing",
+  "title": "Embedded viewer Android bundle ready; publishing awaits approval",
+  "pages": [
+    "My remote phone"
+  ],
+  "relatedId": "phone-embedded-viewer-verified-20261011"
+}

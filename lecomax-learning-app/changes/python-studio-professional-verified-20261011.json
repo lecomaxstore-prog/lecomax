@@ -1,0 +1,61 @@
+{
+  "id": "python-studio-professional-verified-20261011",
+  "createdAt": "2026-10-11T10:59:03.298Z",
+  "title": "Compact Python layout validation",
+  "summary": "Typecheck, lint, mobile bundle and 13 Python/history tests passed. Browser and physical-device visual review remain unverified.",
+  "status": "successful",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "TeacherLab",
+    "PythonStudio",
+    "PythonEditor"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/data/python-mobile-workspace.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the new Python layout and regenerated the embedded mobile workspace."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm run typecheck completed without errors."
+    },
+    {
+      "name": "ESLint",
+      "result": "passed",
+      "detail": "All three modified workspace/editor components passed focused lint."
+    },
+    {
+      "name": "Python and change history tests",
+      "result": "passed",
+      "detail": "13 tests passed, including draft persistence, execution controls, CodeMirror, Arabic text integrity, LTR filename attributes, immutable reports and history interactions."
+    },
+    {
+      "name": "Mobile build",
+      "result": "passed",
+      "detail": "Existing build-python-mobile.cjs generated the 701540-byte embedded workspace."
+    },
+    {
+      "name": "Local routes",
+      "result": "passed",
+      "detail": "/terminal and /change-history returned HTTP 200; this is not proof of rendered appearance."
+    },
+    {
+      "name": "Visual and physical-device review",
+      "result": "not-run",
+      "detail": "Connected browser inventory was empty. No visual preview attached; native device layout and keyboard behavior are unverified. No deployment."
+    }
+  ],
+  "relatedId": "python-studio-professional-layout-20261011"
+}

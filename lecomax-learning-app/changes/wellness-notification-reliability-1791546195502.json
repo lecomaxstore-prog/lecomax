@@ -1,0 +1,52 @@
+{
+  "id": "wellness-notification-reliability-1791546195502",
+  "createdAt": "2026-10-09T11:43:15.502Z",
+  "title": "More reliable healthy-routine reminders",
+  "summary": "Fixed browser scheduling races, native cancellation, clock-change reconciliation and clearer saved-versus-draft feedback.",
+  "status": "needs-testing",
+  "pages": [
+    "Wellness reminders",
+    "Healthy routine"
+  ],
+  "components": [
+    "Native notification scheduler",
+    "Browser reminder scheduler",
+    "NotificationsScreen"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx",
+    "lecomax-learning-app/tests/wellness.test.cjs",
+    "lecomax-learning-app/tests/wellness-browser.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Disabling native wellness reminders now cancels pending wellness tests while preserving learning notifications; schedules are verified against OS pending requests before success."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Added UTC-offset signatures for clock-change recovery and support for existing iOS provisional notification permission."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Browser scheduling ignores disabled time fields, preserves the working schedule on invalid drafts, snapshots preferences, prevents stale permission responses from restarting reminders, and checks on focus/visibility return."
+    },
+    {
+      "kind": "modified",
+      "detail": "Notification settings distinguish unsaved changes and saved schedules, show saved daily reminder count, and refresh next-message preview with the journey clock."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression tests cover disable cancellation, provisional permission, silent OS schedule loss, invalid drafts, asynchronous opt-in races and weekday delivery."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated and device validation",
+      "result": "not-run",
+      "detail": "TypeScript, lint and regression tests pending. No real-device delivery or closed-app test performed; browser reminders still require an open tab. No deployment."
+    }
+  ]
+}

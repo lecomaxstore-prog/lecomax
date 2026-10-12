@@ -1,0 +1,58 @@
+{
+  "id": "phone-interaction-speed-verified-20261012",
+  "createdAt": "2026-10-12T17:38:51.314Z",
+  "title": "Immediate photo selection and hidden-render avoidance verified",
+  "summary": "Removed the photo selection delay, stopped hidden 3D rendering and reused the close-up image source.",
+  "status": "successful",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo view",
+    "Phone explorer document",
+    "Phone model renderer"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-model-renderer.ts",
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Photo taps update selection and explanations immediately. The 340ms timer only clears double-tap tracking; first taps no longer wait or automatically move the image."
+    },
+    {
+      "kind": "modified",
+      "detail": "Synchronize visible mode before drawing and skip all canvas geometry work while the realistic image is showing."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reuse the existing close-up image source, pre-sort hit regions once and remove animated scrolling from the component picker."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interaction and history regression tests",
+      "result": "passed",
+      "detail": "12 tests passed. All 24 photo component families update before any timer runs at two image sizes in three languages. Canvas instrumentation confirms zero hidden 3D draws during photo selection and detail opening, and rendering resumes in 3D mode. Double taps, teacher navigation and history remain functional."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "App typecheck and ESLint passed for all three modified source modules."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "201 preceding reports valid before this follow-up."
+    },
+    {
+      "name": "Device performance",
+      "result": "not-run",
+      "detail": "No real-device frame-rate, end-to-end timing or visual measurements. These changes remove the explicit 340ms photo selection wait and redundant rendering; they do not measure or change AI provider response time. No deployment or APK rebuild."
+    }
+  ],
+  "relatedId": "phone-interaction-speed-20261012"
+}

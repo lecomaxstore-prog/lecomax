@@ -1,0 +1,45 @@
+{
+  "id": "python-premium-mobile-ide-20261011",
+  "createdAt": "2026-10-11T11:20:44.261Z",
+  "title": "Mobile Python editing and console improvements",
+  "summary": "Add functional touch coding keys, a bounded CodeMirror surface, cursor feedback, keyboard-aware layout and console output following.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonEditor",
+    "PythonStudio",
+    "MobilePythonWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/components/MobilePythonWorkspace.tsx",
+    "lecomax-learning-app/data/python-mobile-workspace.json",
+    "lecomax-learning-app/scripts/python-ide-smoke.cjs",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Optional accessible accessory keys for tab, indent/outdent, cursor movement, undo/redo, paired delimiters and Python symbols. Added cursor position and console follow control."
+    },
+    {
+      "kind": "modified",
+      "detail": "Larger default editor text, readable gutters, bounded editor scrolling, keyboard-specific editor height, batched viewport updates, panel scroll memory, input focus and reduced-motion-aware running feedback."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remove Android double keyboard avoidance because MainActivity already uses adjustResize. Disable autocorrect in code and input; preserve CodeMirror selection across panel switches. Preserve existing isolated Python execution and cancellation architecture."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused and full validation",
+      "result": "not-run",
+      "detail": "Pending rebuilt mobile bundle, automated tests, lint, typecheck, browser interaction/layout checks and web export. Physical Android and iOS keyboard validation remains required."
+    }
+  ]
+}

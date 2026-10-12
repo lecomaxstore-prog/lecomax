@@ -1,0 +1,61 @@
+{
+  "id": "android-build9-zakaria-verified-20261011",
+  "createdAt": "2026-10-11T07:06:20.432Z",
+  "relatedId": "android-build9-native-version-20261011",
+  "title": "Android 1.0.7 build 9 copied to Zakaria and verified",
+  "summary": "Built the replacement signed release APK and copied it to the connected phone?s Zakaria folder. Local and phone SHA-256 hashes match.",
+  "status": "successful",
+  "pages": [
+    "Android release",
+    "Changes Made"
+  ],
+  "components": [
+    "Android release metadata",
+    "Expo Updates runtime",
+    "APK delivery"
+  ],
+  "files": [
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.7-build9.apk",
+    "lecomax-learning-app/artifacts/short-path-build9-package.log",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Aligned native Android version 1.0.7, versionCode 9 and Expo runtime 1.0.7 with app.json."
+    },
+    {
+      "kind": "added",
+      "detail": "Created the signed APK and copied 146124626 bytes to /sdcard/Zakaria/lecomax-learn-1.0.7-build9.apk."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Release build",
+      "result": "passed",
+      "detail": "Gradle assembleRelease completed successfully in 1m 24s on the final incremental attempt. Earlier attempts encountered missing staged dependency files, stale original-path build caches (cancelled and cleared), and a packaging failure after a metaspace warning; final retry passed."
+    },
+    {
+      "name": "APK identity and signature",
+      "result": "passed",
+      "detail": "aapt confirmed com.lecomax.learning versionName 1.0.7, versionCode 9, arm64-v8a and x86_64. apksigner verified APK Signature Scheme v2."
+    },
+    {
+      "name": "Phone transfer integrity",
+      "result": "passed",
+      "detail": "ADB push succeeded. Local and device SHA-256: 74f876765c3212c6bda8176db3aa1df748599b4c7a5893b4f1df74cbda0612ae. Phone file size equals local size: 146124626 bytes."
+    },
+    {
+      "name": "Typecheck, focused lint and history tests",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed; ESLint passed for components/ChangeHistory.tsx and app/change-history.tsx; all six change-history unit and interaction tests passed."
+    },
+    {
+      "name": "Installation and device runtime",
+      "result": "not-run",
+      "detail": "The APK was copied only; installation, launch and runtime behavior were not tested. This verification report was appended after building and is available in source/current app history; the delivered APK bundles the preceding needs-testing report. No deployment performed."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "pc-premium-viewer-needs-testing-20261011",
+  "createdAt": "2026-10-11T11:20:00.000Z",
+  "title": "Premium My PC viewer and input controls added",
+  "summary": "Replace the basic remote desktop page with a responsive immersive viewer supporting rotation, touchpad input, keyboard controls, clipboard opt-in, quality presets and reconnect behavior.",
+  "status": "needs-testing",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "PcDesktop",
+    "Windows remote desktop viewer",
+    "PC bridge"
+  ],
+  "files": [
+    "scripts/pc-remote/index.html",
+    "scripts/pc-remote/client.js",
+    "scripts/pc-remote/input.mjs",
+    "scripts/pc-remote-server.mjs",
+    "scripts/start-pc-remote.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Add landscape-friendly fullscreen viewport, auto-hiding toolbar, zoom/pan and safe-area styling."
+    },
+    {
+      "kind": "added",
+      "detail": "Add direct-touch and precision-touchpad gestures, two-finger scroll/pinch, right-click, drag locking, special keys, modifiers, clipboard opt-in and adaptive quality controls."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Expire pairing codes after ten minutes, add bounded reconnect and visible Windows session activity, and expose gateway health measurements without claiming FPS."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks",
+      "result": "not-run",
+      "detail": "Run focused bridge, client and coordinate-mapping checks after implementation."
+    },
+    {
+      "name": "Physical Android portrait/landscape session",
+      "result": "not-run",
+      "detail": "Requires a built Android client, Windows host and real device."
+    },
+    {
+      "name": "4G/5G Tailscale session",
+      "result": "not-run",
+      "detail": "Requires Tailscale on both devices and a real mobile-data test."
+    }
+  ]
+}

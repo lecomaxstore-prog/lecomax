@@ -1,0 +1,50 @@
+{
+  "id": "compact-arabic-history-1791542506270",
+  "createdAt": "2026-10-09T10:41:46.270Z",
+  "title": "تحسين عرض التغييرات في الصفحة الرئيسية",
+  "summary": "بطاقة مختصرة تحافظ على مساحة التعلّم، مع إمكانية فتح التفاصيل الكاملة وتحسين اتجاه النصوص العربية والإنجليزية.",
+  "status": "needs-testing",
+  "pages": [
+    "Home dashboard",
+    "Change History"
+  ],
+  "components": [
+    "ChangesMade",
+    "ChangeReportCard"
+  ],
+  "files": [
+    "lecomax-learning-app/components/ChangeHistory.tsx",
+    "lecomax-learning-app/docs/change-history.md",
+    "lecomax-learning-app/tests/change-history-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "The latest report starts collapsed instead of consuming the dashboard with technical details."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home titles and summaries use at most two lines when collapsed; expansion restores the complete text and details."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Arabic and Latin report text use their own reading direction instead of forcing English text into the Arabic interface direction."
+    },
+    {
+      "kind": "modified",
+      "detail": "Smaller Home title and more readable timestamp text improve the mobile card hierarchy. All historical reports remain unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks",
+      "result": "not-run",
+      "detail": "Pending regression tests, TypeScript, focused lint and history integrity."
+    },
+    {
+      "name": "Device visual review",
+      "result": "not-run",
+      "detail": "Screenshot informed the changes; updated application has not been inspected on a device."
+    }
+  ]
+}

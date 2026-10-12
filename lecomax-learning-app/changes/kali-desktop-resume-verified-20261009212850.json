@@ -1,0 +1,64 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Documented confirmed installation of kali-linux-default 2026.3.9 and kali-win-kex 3.1.4. No packages needed repair; no packages removed."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Restarted the stale local Teacher API and its failed duplicate after port conflict and missing webpack runtime errors. Local terminal endpoint responds again."
+    }
+  ],
+  "summary": "Confirmed the standard Kali tools and Win-KeX installation, verified real terminals, and restarted the stale local Teacher API.",
+  "id": "kali-desktop-resume-verified-20261009212850",
+  "createdAt": "2026-10-09T21:29:12.934Z",
+  "validation": [
+    {
+      "detail": "Both metapackages report install ok installed; dpkg --audit has no findings, no apt/dpkg installer remains active, and /usr/bin/kex exists.",
+      "result": "passed",
+      "name": "Kali installation"
+    },
+    {
+      "detail": "All 9 teacher-lab and teacher-terminal tests passed, including real Kali Bash, Windows PowerShell, Python and Node.",
+      "result": "passed",
+      "name": "Real runtime tests"
+    },
+    {
+      "detail": "App TypeScript check, focused ESLint for TeacherLab.web.tsx, and all 6 history persistence/interaction tests passed.",
+      "result": "passed",
+      "name": "App and change history"
+    },
+    {
+      "detail": "http://localhost:8081 returned HTTP 200. Restarted terminal API rejects unauthenticated local requests with OWNER_LOGIN_REQUIRED and external origins with LOCAL_LAB_ONLY.",
+      "result": "passed",
+      "name": "Local HTTP"
+    },
+    {
+      "detail": "No graphical desktop or signed-in browser end-to-end verification. No existing Win-KeX password found in standard root locations: user must run wsl -d kali-linux kex --win -s and choose a password. node-pty emitted AttachConsole cleanup errors despite passing test assertions. No deployment or mobile device validation.",
+      "result": "not-run",
+      "name": "Limitations"
+    },
+    {
+      "name": "Web bundle",
+      "result": "passed",
+      "detail": "Current Expo web bundle returned HTTP 200 and includes http://127.0.0.1:3002 and the kex --win -s desktop launch command. This is an HTTP/bundle check, not visual browser verification."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/docs/local-runtimes.md",
+    "scripts/start-teacher-lab.mjs"
+  ],
+  "status": "successful",
+  "components": [
+    "TeacherLab web",
+    "Kali WSL system",
+    "Local Teacher API"
+  ],
+  "relatedId": "kali-standard-desktop-1791572118270",
+  "title": "Kali tools installed and local learning terminal restored",
+  "pages": [
+    "Teacher",
+    "Changes Made / Change History"
+  ]
+}

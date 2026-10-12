@@ -1,0 +1,31 @@
+{
+  "id": "flashcard-ask-ai-teacher-20261009",
+  "createdAt": "2026-10-09T13:53:12.627Z",
+  "title": "Ask the AI teacher about a memory card",
+  "summary": "Memory cards now offer a teacher button that opens a contextual explanation of the current term and definition in the selected language.",
+  "status": "needs-testing",
+  "pages": [
+    "/collection/flashcards",
+    "/(tabs)/teacher"
+  ],
+  "components": [
+    "Collection flashcards",
+    "Existing teacher question navigation"
+  ],
+  "files": [
+    "lecomax-learning-app/app/collection/[kind].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a localized AI teacher button below Flip card. It passes the current card term and translated definition, asks for a simple explanation and practical example, and starts the existing contextual teacher flow."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, history checks and card interaction validation pending. No Expo/APK publication performed for this change."
+    }
+  ]
+}

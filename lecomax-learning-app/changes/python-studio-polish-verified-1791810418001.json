@@ -1,0 +1,47 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the refined studio hierarchy and runtime-state presentation."
+    }
+  ],
+  "summary": "Automated type, lint, interaction and history checks pass for the Python Studio refinement.",
+  "id": "python-studio-polish-verified-1791810418001",
+  "createdAt": "2026-10-12T13:12:00.000Z",
+  "relatedId": "python-studio-polish-1791810418000",
+  "files": [
+    "components/PythonStudio.web.tsx",
+    "components/python-studio-design.ts"
+  ],
+  "components": [
+    "PythonStudio",
+    "pythonStudioCSS"
+  ],
+  "status": "successful",
+  "validation": [
+    {
+      "detail": "tsc --noEmit completed successfully.",
+      "result": "passed",
+      "name": "TypeScript"
+    },
+    {
+      "detail": "ESLint completed successfully for both changed files.",
+      "result": "passed",
+      "name": "Focused lint"
+    },
+    {
+      "detail": "9 focused tests passed, including Python Studio interaction, console session, history persistence and append-only checks.",
+      "result": "passed",
+      "name": "Interaction and history tests"
+    },
+    {
+      "detail": "No live browser screenshot review, native device test or deployment performed.",
+      "result": "not-run",
+      "name": "Limitations"
+    }
+  ],
+  "title": "Verified Python Studio polish",
+  "pages": [
+    "/terminal"
+  ]
+}

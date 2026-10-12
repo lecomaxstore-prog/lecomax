@@ -1,0 +1,50 @@
+{
+  "id": "auth-local-database-access-fixed-20261012",
+  "relatedId": "auth-connection-recovery-verified-20261012",
+  "createdAt": "2026-10-12T16:25:56.455Z",
+  "title": "Restore local sign-in database access",
+  "summary": "Corrected the earlier local backend restart: its restricted network environment prevented session database access and caused login HTTP 503 responses.",
+  "status": "successful",
+  "pages": [
+    "Owner sign-in",
+    "All authenticated learning routes"
+  ],
+  "components": [
+    "Local learning API process",
+    "Owner authentication database"
+  ],
+  "files": [
+    "scripts/start-teacher-lab.mjs",
+    "scripts/start-notification-api.mjs",
+    "lib/owner-auth-database.mjs",
+    "lecomax-learning-app/changes/auth-local-database-access-fixed-20261012.json",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replaced the sandbox-restricted local backend with a backend running with access to the existing configured database, bound to 127.0.0.1:3002. Application source and credentials were unchanged; affected runtime files are listed for traceability."
+    },
+    {
+      "kind": "added",
+      "detail": "Appended this correction to the previous verification report: unauthenticated GET 401 did not verify database connectivity; login requires an actual database-backed check."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "node scripts/check-learning-owner.mjs passed outside the network sandbox. The restricted environment had failed with EACCES.",
+      "result": "passed",
+      "name": "Backend configuration and database"
+    },
+    {
+      "detail": "POST empty JSON returned 400 INVALID_INPUT after the database-backed throttle checks. One synthetic invalid login returned 401 INVALID_CREDENTIALS with the correct localhost:8081 CORS header, replacing the observed HTTP 503.",
+      "result": "passed",
+      "name": "Database-backed login endpoint"
+    },
+    {
+      "detail": "User must retry with their existing password; no real password was accessed, changed or submitted. No deployment or source code changes.",
+      "result": "not-run",
+      "name": "Actual owner login"
+    }
+  ]
+}

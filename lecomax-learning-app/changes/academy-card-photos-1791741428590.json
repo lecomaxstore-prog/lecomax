@@ -1,0 +1,37 @@
+{
+  "id": "academy-card-photos-1791741428590",
+  "createdAt": "2026-10-11T17:57:08.590Z",
+  "title": "Realistic photos for the three featured academy cards",
+  "summary": "Add generated photographic covers for programming foundations, the real website course, and Python.",
+  "status": "needs-testing",
+  "pages": [
+    "Home dashboard"
+  ],
+  "components": [
+    "StudyDashboard"
+  ],
+  "files": [
+    "components/StudyDashboard.tsx",
+    "assets/course-photos/programming-foundations.png",
+    "assets/course-photos/real-website.png",
+    "assets/course-photos/python.png",
+    "assets/course-photos/prompts.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Three AI-generated photographic course covers and their generation prompts; remaining generation and asset copy pending."
+    },
+    {
+      "kind": "modified",
+      "detail": "Replace plain featured-card headers with bundled photo backgrounds, a dark overlay, and readable titles."
+    }
+  ],
+  "validation": [
+    {
+      "name": "App checks",
+      "result": "not-run",
+      "detail": "Generation and validation in progress. No deployment or native-device check performed."
+    }
+  ]
+}

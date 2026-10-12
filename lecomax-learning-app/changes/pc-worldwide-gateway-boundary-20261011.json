@@ -1,0 +1,63 @@
+{
+  "id": "pc-worldwide-gateway-boundary-20261011",
+  "createdAt": "2026-10-11T12:13:55.939Z",
+  "title": "Remote PC HTTPS gateway boundary",
+  "summary": "Extended My PC to accept a secure HTTPS gateway origin while preserving the local bridge policy and documenting the cloud signaling and TURN requirements for worldwide access.",
+  "status": "needs-testing",
+  "pages": [
+    "My PC",
+    "My space"
+  ],
+  "components": [
+    "PcDesktop",
+    "PC remote URL policy",
+    "Local PC bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-remote.ts",
+    "lecomax-learning-app/components/PcDesktop.tsx",
+    "lecomax-learning-app/tests/pc-remote.test.cjs",
+    "lecomax-learning-app/docs/remote-pc-worldwide.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Accept default-port HTTPS gateway origins without credentials, queries, alternate ports or paths; retain private HTTP port 6081 only for local use."
+    },
+    {
+      "kind": "modified",
+      "detail": "Update mobile copy and placeholder to distinguish local trusted Wi-Fi from a future authenticated remote gateway."
+    },
+    {
+      "kind": "added",
+      "detail": "Document the required outbound host agent, signaling, WebRTC, TURN, MFA, revocation and audit architecture; explicitly prohibit public exposure of the local bridge."
+    }
+  ],
+  "validation": [
+    {
+      "name": "URL policy tests",
+      "result": "passed",
+      "detail": "Local, HTTPS, unsafe scheme, credential, path, query and port cases passed."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "tsc --noEmit completed successfully."
+    },
+    {
+      "name": "PcDesktop interaction test",
+      "result": "failed",
+      "detail": "The existing jsdom interaction test ended with Array buffer allocation failed during the transpiled component run; no successful interaction result is claimed."
+    },
+    {
+      "name": "Worldwide connectivity",
+      "result": "not-run",
+      "detail": "No cloud signaling service, TURN deployment, Windows outbound agent, mobile-data session, or device acceptance test exists in the repository yet."
+    },
+    {
+      "name": "History integrity",
+      "result": "not-run",
+      "detail": "Follow-up verification is pending after correcting the interaction test/runtime issue."
+    }
+  ]
+}

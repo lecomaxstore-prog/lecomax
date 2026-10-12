@@ -1,0 +1,40 @@
+{
+  "id": "course-professional-redesign-1791727656966",
+  "createdAt": "2026-10-11T14:07:36.966Z",
+  "title": "Refined academy course experience",
+  "summary": "Redesigned the course overview and curriculum with clearer next steps and progress filters.",
+  "status": "needs-testing",
+  "pages": [
+    "/course/[id]"
+  ],
+  "components": [
+    "CourseOverview",
+    "CourseLessonList"
+  ],
+  "files": [
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/components/CourseLessonList.tsx",
+    "lecomax-learning-app/app/course/[id].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Integrated next-lesson panel, estimated remaining reading time, and All/Remaining/Completed lesson filters."
+    },
+    {
+      "kind": "modified",
+      "detail": "Emerald and gold course header, responsive typography, numbered curriculum modules, and completion summaries."
+    },
+    {
+      "kind": "removed",
+      "detail": "Replaced the separate oversized hero and progress cards with one coordinated course overview."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation validation",
+      "result": "not-run",
+      "detail": "Type checks, focused lint, interaction tests and visual review pending. No deployment or native device verification."
+    }
+  ]
+}

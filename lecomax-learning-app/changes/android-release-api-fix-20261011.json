@@ -1,0 +1,54 @@
+{
+  "id": "android-release-api-fix-20261011",
+  "createdAt": "2026-10-11T09:57:09.690Z",
+  "relatedId": "android-build9-zakaria-verified-20261011",
+  "title": "Fix release sign-in connection in Android 1.0.8",
+  "summary": "Version 1.0.7 inherited the development loopback API address. Release builds now always use the live HTTPS service; development overrides remain available.",
+  "status": "needs-testing",
+  "pages": [
+    "Sign in",
+    "Session restoration",
+    "Android release"
+  ],
+  "components": [
+    "API origin",
+    "Owner authentication",
+    "Release metadata"
+  ],
+  "files": [
+    "lecomax-learning-app/services/api-origin.ts",
+    "lecomax-learning-app/services/auth.ts",
+    "lecomax-learning-app/tests/api-origin.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Release API selection ignores development environment overrides and uses https://lecomax.com, preserving HTTPS validation and authentication."
+    },
+    {
+      "kind": "modified",
+      "detail": "Version 1.0.8/build 10 with matching Expo runtime isolates the corrected build from 1.0.7 updates."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression tests cover release builds inheriting loopback, LAN, staging and missing API configuration."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live endpoint connectivity",
+      "result": "passed",
+      "detail": "HTTPS request to /api/learning-mobile/auth reached the live server and received HTTP 405 for unsupported GET."
+    },
+    {
+      "name": "Tests and device replacement",
+      "result": "not-run",
+      "detail": "Pending regression tests, release rebuild, signature verification and phone launch."
+    }
+  ]
+}

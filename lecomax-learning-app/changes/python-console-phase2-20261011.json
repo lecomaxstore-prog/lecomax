@@ -1,0 +1,37 @@
+{
+  "id": "python-console-phase2-20261011",
+  "createdAt": "2026-10-11T10:33:47.203Z",
+  "title": "Python console phase 2: live input, files and exercises",
+  "summary": "Audited existing browser and native runtimes. Implementing browser live prompts, controlled execution sessions, practice files, isolated exercise checks and mobile keyboard improvements.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonEditor",
+    "PhonePythonLab"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/python-sandbox.ts",
+    "lecomax-learning-app/utils/python-session.ts",
+    "lecomax-learning-app/utils/python-practice.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Parent-owned execution controller with cumulative execution, input-wait and wall deadlines; JSPI live input bridge with buffered fallback; practice-file and exercise models."
+    },
+    {
+      "kind": "modified",
+      "detail": "Browser runtime accepts bounded 64,000-character scripts and bounded streaming snapshots while preserving the opaque-origin iframe and disposable worker."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation pending",
+      "result": "not-run",
+      "detail": "Live input requires browser JSPI. Native/runtime/editor integration and real browser tests remain pending. No deployment or production backend execution."
+    }
+  ]
+}

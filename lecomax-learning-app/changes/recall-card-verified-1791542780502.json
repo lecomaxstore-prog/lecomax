@@ -1,0 +1,53 @@
+{
+  "id": "recall-card-verified-1791542780502",
+  "createdAt": "2026-10-09T10:46:20.502Z",
+  "title": "تحسين بطاقة «تحقّق من فهمك»",
+  "summary": "تعليمات أوضح، وحقل إجابة موجّه، ومقارنة بارزة، وخيارات تقييم سهلة القراءة بعد كتابة الإجابة.",
+  "status": "successful",
+  "pages": [
+    "Lesson screen"
+  ],
+  "components": [
+    "StudyCoach"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyCoach.tsx",
+    "lecomax-learning-app/tests/study-coach.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "تحسين العنوان والمسافات والأيقونات، وإضافة خطوات واضحة: اشرح، قارن، قيّم فهمك."
+    },
+    {
+      "kind": "added",
+      "detail": "تسمية واضحة لحقل الإجابة، ومثال إرشادي، ورسالة توضّح أن كتابة فكرة تتيح المقارنة."
+    },
+    {
+      "kind": "modified",
+      "detail": "عرض خيارات التقييم بعرض البطاقة بعد كتابة الإجابة، وإبراز النقاط الأساسية في مساحة ملوّنة."
+    },
+    {
+      "kind": "fixed",
+      "detail": "مسح التقييم السابق عند تعديل الإجابة وإغلاق المقارنة عند إفراغ الحقل، مع الاحتفاظ بحفظ المسودة."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Study coach tests",
+      "result": "passed",
+      "detail": "3/3 passed. Recall interaction covers hidden lesson, saved writing, comparison, review queue, rating reset after editing, and empty-answer recovery."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint for StudyCoach.tsx completed successfully."
+    },
+    {
+      "name": "Device visual review",
+      "result": "not-run",
+      "detail": "Visual appearance on a live browser or native device remains unverified. No deployment performed."
+    }
+  ],
+  "relatedId": "recall-card-improvement-1791542770060"
+}

@@ -1,0 +1,45 @@
+{
+  "id": "phone-lab-realistic-design-20261012",
+  "createdAt": "2026-10-12T16:53:52.445Z",
+  "title": "A more realistic phone learning model",
+  "summary": "Replaced boxy wireframe-like rendering with a rounded phone enclosure, glass display, camera lenses, hardware details and a refined mobile viewer.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone lab"
+  ],
+  "components": [
+    "Phone model renderer",
+    "Phone explorer document"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-model-renderer.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Rounded 3D extrusions, face visibility culling, layered lens optics, continuous metal frame, side buttons, port, speaker grilles, screen wallpaper, app tiles, clock and glass reflection."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced average polygon-depth sorting that hid front-screen details. Centered and separated the display and chassis in the opened view; removed full-model selection wireframes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Larger phone framing, studio-gradient background, compact segmented controls and rounded topic chips. Tapping a part or named topic brings its lesson into view. Existing lessons and saved progress preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial interaction checks",
+      "result": "passed",
+      "detail": "Existing four phone lab tests passed during implementation."
+    },
+    {
+      "name": "Final checks",
+      "result": "not-run",
+      "detail": "Pending final hit-testing regression, typecheck, lint and history retention validation. Direct renderer snapshots are being inspected; no live browser or native-device screenshot verification."
+    }
+  ]
+}

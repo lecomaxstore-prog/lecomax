@@ -1,0 +1,71 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Verified and saved lecomax-learning-app/artifacts/lecomax-learn-1.0.5-build7.apk, providing the native Live Kali Wi-Fi WebView screen. The local web app supplies the current text-entry bar and Enter/Tab/Esc controls."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Recovered the Android application build from Gradle Metaspace exhaustion with temporary JVM memory overrides. No permanent build configuration changes and no deployment."
+    },
+    {
+      "kind": "modified",
+      "detail": "Expanded keyboard regression coverage and appended linked preparation, failure and verification reports; all earlier reports remain intact."
+    }
+  ],
+  "summary": "Keyboard interaction, access controls, typechecks and lint passed. The signed Android 1.0.5/build 7 APK was produced and verified after the memory retry.",
+  "id": "kali-keyboard-apk-verified-20261009",
+  "createdAt": "2026-10-09T22:17:53.751Z",
+  "validation": [
+    {
+      "name": "App and backend",
+      "result": "passed",
+      "detail": "Both TypeScript checks passed. Focused lint passed for KaliDesktop native/web, TeacherLab native/web, the Kali route and Wi-Fi URL validation."
+    },
+    {
+      "name": "Interaction and access",
+      "result": "passed",
+      "detail": "Two desktop tests passed, including accented/Arabic/emoji key transmission, Enter/Tab/Esc, clearing and disabling text controls, reconnect cleanup and late-session cleanup. Six history tests and two access-control unit tests passed; the real graphical-desktop integration test was skipped in this run. API probes returned 401 OWNER_LOGIN_REQUIRED and 403 LOCAL_LAB_ONLY as expected."
+    },
+    {
+      "name": "APK verification",
+      "result": "passed",
+      "detail": "Gradle completed :app:assembleRelease. Verified com.lecomax.learning 1.0.5/versionCode 7, existing release certificate 69a0f7fa4609c172acd3d683da50144ffe9810bc2d764c607439dc5081fa6a64, disabled backup, enabled local cleartext WebView support, arm64-v8a/x86_64 and Wi-Fi/auth/history bundle markers. APK SHA256 c051e40f7f28637beb4135f228cefed7d7cc4c4a1eaedd3467b9cbd25614e65b."
+    },
+    {
+      "name": "Current preview",
+      "result": "passed",
+      "detail": "The current local /kali and /change-history pages returned HTTP 200 through localhost:8081. This is an HTTP check, not a visual or authenticated-desktop check."
+    },
+    {
+      "name": "Delivery and device limitations",
+      "result": "not-run",
+      "detail": "No connected adb device; no physical installation or phone keyboard/Wi-Fi test. Wi-Fi exposure remains disabled pending explicit approval required by prior automatic review. No hosting/upload/deployment. APK contains the earlier embedded-kali-wifi preparation report; the newest follow-ups are in repository/current web-app history and are not retroactively inserted into the completed APK."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/KaliDesktop.web.tsx",
+    "lecomax-learning-app/tests/kali-desktop-interaction.test.cjs",
+    "lecomax-learning-app/android/gradle.properties",
+    "lecomax-learning-app/artifacts/verify-kali-build7.cjs",
+    "lecomax-learning-app/artifacts/kali-build7-verification.json"
+  ],
+  "pages": [
+    "Teacher",
+    "Kali desktop",
+    "Changes Made / Change History"
+  ],
+  "status": "successful",
+  "components": [
+    "KaliDesktop web",
+    "Desktop interaction tests",
+    "Android release build"
+  ],
+  "relatedId": "kali-build7-memory-failure-20261009",
+  "title": "Kali keyboard controls verified and Android build 7 available",
+  "preview": {
+    "path": "/kali",
+    "label": "Current local Kali page (HTTP checked; not a historical snapshot)",
+    "verifiedAt": "2026-10-09T22:17:53.751Z"
+  }
+}

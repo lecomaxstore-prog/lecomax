@@ -1,0 +1,42 @@
+{
+  "id": "phone-hidden-scrollbars-verified-20261012",
+  "createdAt": "2026-10-12T17:36:08.237Z",
+  "title": "Phone Lab scrollbar styling checks passed",
+  "summary": "Removed scrollbar tracks and arrows from the Phone Lab document, magnified image and piece detail content while retaining touch, wheel and keyboard scrolling.",
+  "status": "successful",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone explorer styles",
+    "Piece detail dialog",
+    "Photo viewport"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-explorer-document.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added Firefox and WebKit scrollbar hiding styles without disabling overflow or removing content."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "10 existing phone and history tests passed."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "App typecheck and focused document ESLint passed."
+    },
+    {
+      "name": "Live visual verification",
+      "result": "not-run",
+      "detail": "Scrollbar appearance not checked in a live browser or physical WebView. CSS preserves overflow scrolling while hiding scrollbar tracks and arrows. No deployment or APK rebuild."
+    }
+  ],
+  "relatedId": "phone-hidden-scrollbars-20261012"
+}
