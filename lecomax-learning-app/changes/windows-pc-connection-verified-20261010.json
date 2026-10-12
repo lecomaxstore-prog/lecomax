@@ -1,0 +1,67 @@
+{
+  "id": "windows-pc-connection-verified-20261010",
+  "createdAt": "2026-10-10T16:38:45.801Z",
+  "relatedId": "windows-pc-live-20261010",
+  "title": "Windows connection verified; Android delivery pending",
+  "summary": "Paired WebSocket and real Windows VNC authentication now pass. The Windows desktop reports 1920 by 1080. APK compilation and phone visual acceptance are still pending.",
+  "status": "needs-testing",
+  "pages": [
+    "My PC",
+    "My space",
+    "Changes Made"
+  ],
+  "components": [
+    "PC helper",
+    "PcDesktop",
+    "Android release"
+  ],
+  "files": [
+    "scripts/start-pc-remote.mjs",
+    "scripts/pc-remote-server.mjs",
+    "scripts/check-pc-remote.mjs",
+    "lecomax-learning-app/tests/pc-desktop-interaction.test.cjs",
+    "lecomax-learning-app/tests/pc-remote.test.cjs",
+    "tests/pc-remote.test.mjs",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Used Windows INI password checksums and the UltraVNC portable marker so the helper reads its fresh local configuration instead of migrated ProgramData configuration."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Required authentication to disconnect an active paired session and handled comparison of non-ASCII pairing attempts safely."
+    },
+    {
+      "kind": "added",
+      "detail": "Protocol-only Windows runtime check and app interaction tests; no screen capture or keyboard input is performed by the protocol check."
+    },
+    {
+      "kind": "modified",
+      "detail": "Aligned package-lock metadata with application version 1.0.7."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source and focused tests",
+      "result": "passed",
+      "detail": "TypeScript, focused ESLint, 6 history tests, private-address validation, native screen interaction and bridge integration tests passed (9 focused tests total). Initial test-harness issues were corrected before these passes."
+    },
+    {
+      "name": "Real Windows connection",
+      "result": "passed",
+      "detail": "Pairing, authenticated WebSocket upgrade and actual UltraVNC password authentication passed. Server desktop metadata: 1920x1080. TCP 5908 listens only on 127.0.0.1; bridge listens on 192.168.1.11:6081."
+    },
+    {
+      "name": "Visual and phone acceptance",
+      "result": "not-run",
+      "detail": "Browser automation inventory is empty. No visual desktop or keyboard/mouse acceptance is claimed. Phone HTTP reachability is being investigated; no firewall changes yet."
+    },
+    {
+      "name": "Android delivery",
+      "result": "not-run",
+      "detail": "Version 1.0.7 build 9 compilation is running. No APK installed, copied or published yet in this feature work."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "storefront-speed-production-verified-20261013",
+  "createdAt": "2026-10-12T23:05:35.179Z",
+  "title": "Storefront speed release promoted and public pages verified",
+  "summary": "User completed production promotion in PowerShell. Vercel aliases and public HTTP checks confirm the verified release is live on lecomax.com.",
+  "status": "successful",
+  "pages": [
+    "Homepage",
+    "Boutique",
+    "Product details",
+    "Cart",
+    "Checkout"
+  ],
+  "components": [
+    "Header",
+    "SearchOverlay loading boundary",
+    "ProductRail",
+    "CollectionProductCard",
+    "OurProductsGrid",
+    "Storefront refresh and settings"
+  ],
+  "files": [
+    "lib/teacher-workspace.ts",
+    "lib/teacher-web-files.ts",
+    "tests/teacher-workspace.test.ts",
+    ".vercelignore"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Published previously tested storefront loading improvements and standalone backend validation fix through deployment dpl_5qQ5jT3jFM19yDN2Q8TMuBDK8hyQ. No additional application code changed during verification."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production domain routing",
+      "result": "passed",
+      "detail": "Vercel alias listing confirms lecomax.com and www.lecomax.com target lecomax-o7wtnejbd-lecomaxstore-4321s-projects.vercel.app."
+    },
+    {
+      "name": "Public storefront pages",
+      "result": "passed",
+      "detail": "Homepage, /boutique, /produit/veste-en-jean-homme-double-sherpa--bleu-clair--chaude--vintage, /panier and /checkout returned HTTP 200 with expected page titles."
+    },
+    {
+      "name": "Live hero and images",
+      "result": "passed",
+      "detail": "Homepage has a single image inside the responsive hero picture and both WebP variants. Both original hero assets, optimized mobile hero and optimized catalogue image returned HTTP 200 with image content types. Initial exact-tag assertion was corrected to accept existing data-source attributes; corrected assertion passed."
+    },
+    {
+      "name": "Browser interactions and performance",
+      "result": "not-run",
+      "detail": "No connected browser available. Cart interactions, payment submission, mobile visual checks and measured Core Web Vitals remain unverified. Learning app report delivery requires its own rebuild; no learning app deployment performed."
+    }
+  ],
+  "relatedId": "storefront-speed-promotion-blocked-20261013"
+}

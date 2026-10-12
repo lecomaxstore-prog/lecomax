@@ -1,0 +1,71 @@
+{
+  "id": "teacher-any-topic-verified-1791735838225",
+  "createdAt": "2026-10-11T16:23:58.225Z",
+  "title": "Any-topic teacher checks passed",
+  "summary": "General questions now default to any topic, with no automatic project source retrieval or unrelated learning record.",
+  "status": "successful",
+  "pages": [
+    "/teacher",
+    "/api/learning-mobile/teacher"
+  ],
+  "components": [
+    "TeacherChat",
+    "AIEmptyState",
+    "mobileTeacherInstructions",
+    "Teacher API"
+  ],
+  "files": [
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lib/mobile-teacher-prompt.ts",
+    "app/api/learning-mobile/teacher/route.ts",
+    "lecomax-learning-app/tests/teacher-route.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Teacher instructions cover any subject and follow subject changes. Default topic, welcome suggestions and placeholder now support general learning."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed implicit repository retrieval and automatic assessment context from ordinary questions. Explicit lesson/file help remains available."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for non-programming questions, subject changes and explicit-only source selection."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "23 teacher API, validation and change-history tests passed, including explicit-only repository retrieval and subject-switch instructions."
+    },
+    {
+      "name": "Typecheck and focused lint",
+      "result": "passed",
+      "detail": "Learning app TypeScript and ESLint passed; root ESLint passed for the backend route and teacher instructions."
+    },
+    {
+      "name": "Browser checks",
+      "result": "passed",
+      "detail": "Arabic light/dark, English and French: responsive composer, no horizontal overflow, settings and cancel/confirm new chat passed in isolated Edge contexts with mocked authentication."
+    },
+    {
+      "name": "Local backend",
+      "result": "passed",
+      "detail": "Local port 3002 teacher API responds with expected 401 to an unauthenticated POST. Initial startup request timed out; subsequent check passed."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No live model reply or native-device test. No production deployment. Prompt behavior is covered by instruction regression tests, not a live model evaluation."
+    }
+  ],
+  "relatedId": "teacher-any-topic-1791735754010",
+  "preview": {
+    "path": "/teacher",
+    "label": "Current any-topic teacher",
+    "verifiedAt": "2026-10-11T16:23:58.225Z"
+  }
+}

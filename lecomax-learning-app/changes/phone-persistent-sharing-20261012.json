@@ -1,0 +1,60 @@
+{
+  "id": "phone-persistent-sharing-20261012",
+  "createdAt": "2026-10-12T05:58:10.197Z",
+  "status": "needs-testing",
+  "title": "Keep approved Tailscale sharing until manual disconnect",
+  "summary": "Remove the two-minute inactivity and four-hour limits for approved direct sessions. Keep the sharing service available when leaving the app or during a temporary Tailscale outage.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneDirectServer",
+    "PhoneRemoteService",
+    "PhoneViewer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Remove inactivity and total-duration expiry from approved direct Tailscale sessions, and remove viewer pause/reconnect deadlines."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Retain the approved service during temporary loss of the original Tailscale address; resume when that address returns. Heartbeat still pauses frames and controls during viewer absence."
+    },
+    {
+      "kind": "modified",
+      "detail": "Update English, French and Arabic session guidance and prepare Android 1.0.13/build 15. Keep explicit Stop controls, owner approval, ten-minute unapproved pairing expiry and Android capture revocation handling."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression coverage for 24-hour idle/pause/reconnect and pending approval expiry."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "TypeScript, lint, viewer/history tests, native JVM tests and signed APK verification pending."
+    },
+    {
+      "name": "Physical device acceptance",
+      "result": "not-run",
+      "detail": "No device connected. Android force-stop, process death, reboot, capture revocation and screen lock can end sharing. Rotation still ends capture. Tailscale must return on its original address. Viewer process recreation requires new pairing; external relay mode retains its existing policy. No deployment."
+    }
+  ]
+}

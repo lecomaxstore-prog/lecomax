@@ -1,0 +1,33 @@
+{
+  "id": "academy-photo-layout-1791741643765",
+  "createdAt": "2026-10-11T18:00:43.765Z",
+  "title": "Clearer academy photos and readable course cards",
+  "summary": "Bound photo sizing and separate course text onto a solid panel.",
+  "status": "needs-testing",
+  "pages": [
+    "Home dashboard"
+  ],
+  "components": [
+    "StudyDashboard"
+  ],
+  "files": [
+    "components/StudyDashboard.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace ImageBackground with an explicitly sized Image in a clipped 1.8:1 frame to prevent oversized imagery spilling behind descriptions."
+    },
+    {
+      "kind": "modified",
+      "detail": "Move titles and descriptions onto a solid theme-aware panel; add compact academy/icon badges, a divided footer and a distinct course action."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "TypeScript, focused lint and history checks pending. Browser inventory returned no enabled browsers or apps; live visual verification unavailable."
+    }
+  ]
+}

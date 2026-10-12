@@ -1,0 +1,46 @@
+{
+  "id": "storefront-speed-release-standalone-backend-20261013",
+  "createdAt": "2026-10-12T22:46:59.066Z",
+  "title": "Make website workspace validation independent of Expo packaging",
+  "summary": "The nested upload exception did not include the utility. Keep the same bounded workspace validation in the website backend source tree.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage",
+    "All storefront headers",
+    "Boutique",
+    "Product rails"
+  ],
+  "components": [
+    "Header",
+    "SearchOverlay loading boundary",
+    "ProductRail",
+    "CollectionProductCard",
+    "OurProductsGrid",
+    "Storefront refresh and settings"
+  ],
+  "files": [
+    "lib/teacher-workspace.ts",
+    "lib/teacher-web-files.ts",
+    "tests/teacher-workspace.test.ts",
+    ".vercelignore"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Backend workspace export now imports its validation contract from lib/teacher-web-files.ts. Preserve exact HTML/CSS/JavaScript keys, string types and 20000-character limits. Restore the exclusion of the separately deployed learning app."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Second remote build",
+      "result": "failed",
+      "detail": "Deployment 5HvxbwzYqVbJcP6jjSPe4obxTmY9 still omitted the nested utility and failed before promotion. No production change."
+    },
+    {
+      "name": "Standalone backend checks",
+      "result": "not-run",
+      "detail": "Workspace validation tests and remote build pending."
+    }
+  ],
+  "relatedId": "storefront-speed-release-packaging-fix-20261013"
+}

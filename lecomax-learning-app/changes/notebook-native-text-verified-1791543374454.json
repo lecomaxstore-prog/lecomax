@@ -1,0 +1,46 @@
+{
+  "id": "notebook-native-text-verified-1791543374454",
+  "createdAt": "2026-10-09T10:56:14.454Z",
+  "title": "إصلاح خطأ عرض دفتر التعلّم",
+  "summary": "إزالة النصوص غير المسموح بها داخل حاويات العرض لمنع رسالة Unexpected text node في دفتر التعلّم.",
+  "status": "successful",
+  "pages": [
+    "Lesson screen",
+    "Academy lessons"
+  ],
+  "components": [
+    "LessonFooter"
+  ],
+  "files": [
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/tests/lesson-footer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "إزالة المسافات النصية بين البطاقات وتحويل شرط زر إعادة الحفظ إلى قيمة منطقية حتى لا يُعرض نص فارغ داخل View."
+    },
+    {
+      "kind": "added",
+      "detail": "اختبار يرفض النصوص المباشرة داخل View وCard وRow، مع إبقاء النصوص داخل Label."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Native-compatible interaction regression",
+      "result": "passed",
+      "detail": "Test failed on original raw whitespace, then passed after repair. Strict containers reject raw strings including empty strings; note prompts, save errors/retry, navigation and restart remain covered."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint for LessonFooter.tsx passed."
+    },
+    {
+      "name": "Live Expo session",
+      "result": "not-run",
+      "detail": "No live device/browser validation or deployment performed."
+    }
+  ],
+  "relatedId": "notebook-native-text-fix-1791543362120"
+}

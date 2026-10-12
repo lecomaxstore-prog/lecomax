@@ -1,0 +1,46 @@
+{
+  "id": "pc-visible-layer-removal-verified-20261013",
+  "relatedId": "pc-visible-layer-removal-1791842247931",
+  "createdAt": "2026-10-12T22:00:35.837Z",
+  "title": "Verify visible PC layer removal interactions",
+  "summary": "Verified remove, reveal, inspect, AI Teacher and restore interactions for the PC viewer in all supported languages.",
+  "status": "successful",
+  "pages": [
+    "PC Lab (/pc-lab)",
+    "AI Teacher"
+  ],
+  "components": [
+    "Layer overlays",
+    "Laptop and desktop viewer",
+    "Piece detail dialog"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-layer-explorer.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/tests/pc-layers.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Confirmed removed component overlays expose clickable underlying teaching targets and restore state independently per device."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Layer interaction tests",
+      "result": "passed",
+      "detail": "12 focused tests passed overall: remove, reveal, inspect, teacher handoff and restore in English, French and Arabic, plus existing PC and history tests."
+    },
+    {
+      "name": "TypeScript check",
+      "result": "not-run",
+      "detail": "The repository-wide TypeScript process did not complete within this validation session."
+    },
+    {
+      "name": "Visual browser review",
+      "result": "not-run",
+      "detail": "No live browser screenshot review; revealed areas are explicitly simplified teaching diagrams, not verified hidden hardware."
+    }
+  ]
+}

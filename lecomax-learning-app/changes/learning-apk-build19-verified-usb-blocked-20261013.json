@@ -1,0 +1,62 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Completed signed APK 1.0.17/build 19, 173418704 bytes. SHA256 2BF983E54FF9883FAF16BF57228004FB917CB9D0628E5AFD58F54AC590F88CDC. Older USB APKs preserved; build 19 not copied."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Packaging script stops on PowerShell errors and rejects unexpected APK version metadata. Syntax check passed; injected failure testing not run."
+    }
+  ],
+  "summary": "Signed APK 1.0.17/code 19 is ready locally. Automatic approval review blocked USB transfer pending explicit authorization. Full JavaScript suite has seven failures.",
+  "id": "learning-apk-build19-verified-usb-blocked-20261013",
+  "createdAt": "2026-10-12T23:20:42.489Z",
+  "validation": [
+    {
+      "detail": "Gradle BUILD SUCCESSFUL in 10m 34s; 11 release native tests passed with zero failures/errors. aapt confirms package com.lecomax.learning, version 1.0.17/code 19. apksigner verification passed.",
+      "result": "passed",
+      "name": "Android release"
+    },
+    {
+      "detail": "TypeScript passed; six history tests passed. History manifest check passed before this follow-up.",
+      "result": "passed",
+      "name": "TypeScript and history"
+    },
+    {
+      "detail": "Prior build19-js-tests.log records 220 passing and 7 failing tests: lesson content/source contracts, curriculum navigation, More navigation, French and Arabic 3D lab interactions, wellness daily interaction. Not repaired in this APK packaging task.",
+      "result": "failed",
+      "name": "Existing complete JavaScript test run"
+    },
+    {
+      "detail": "All 1403 ZIP entries passed known private-value, common credential-pattern and private-file checks. Does not prove absence of unknown or encoded secrets.",
+      "result": "passed",
+      "name": "APK private-data audit"
+    },
+    {
+      "detail": "Automatic approval review rejected USB transfer as requiring explicit authorization for proprietary APK data. No physical device install, UI preview or deployment performed. This post-build report and packaging-guard report are retained in source history, not bundled in the already completed APK.",
+      "result": "not-run",
+      "name": "USB and device acceptance"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.17-build19.apk",
+    "lecomax-learning-app/artifacts/build-latest19.ps1",
+    "lecomax-learning-app/artifacts/phone-responsive-build19.log",
+    "lecomax-learning-app/artifacts/phone-responsive-build19-native-tests.xml",
+    "lecomax-learning-app/artifacts/phone-direct-build19-secret-audit.json",
+    "lecomax-learning-app/artifacts/build19-js-tests.log"
+  ],
+  "status": "needs-testing",
+  "components": [
+    "Android release",
+    "Release validation",
+    "Change history"
+  ],
+  "relatedId": "learning-apk-build19-prepared-20261013",
+  "title": "Build 19 packaged and audited; USB delivery blocked",
+  "pages": [
+    "Learning app",
+    "Device labs"
+  ]
+}

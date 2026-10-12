@@ -1,0 +1,52 @@
+{
+  "id": "wellness-notification-reliability-1791546195502-hermes-blocked",
+  "createdAt": "2026-10-09T11:44:05.205Z",
+  "title": "Native bytecode validation blocked by compiler permissions",
+  "summary": "Automated checks passed, but Android Hermes bytecode export could not run because Windows denied execution of hermesc.exe.",
+  "status": "failed",
+  "pages": [
+    "Wellness reminders",
+    "Healthy routine"
+  ],
+  "components": [
+    "Native notification scheduler",
+    "Browser reminder scheduler",
+    "NotificationsScreen"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx",
+    "lecomax-learning-app/tests/wellness.test.cjs",
+    "lecomax-learning-app/tests/wellness-browser.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Validation follow-up for the healthy-routine notification fixes; no rollback or deployment performed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and source lint",
+      "result": "passed",
+      "detail": "Typecheck passed; all three changed TypeScript/TSX files passed ESLint. CJS tests are ignored by repository lint configuration."
+    },
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "36 tests passed across wellness, browser reminders, journey clock and change-history suites."
+    },
+    {
+      "name": "Android bytecode export",
+      "result": "failed",
+      "detail": "Hermes compiler hermesc.exe failed with permission denied. This environment failure prevents verification of the compiled native release."
+    },
+    {
+      "name": "JavaScript bundle fallback",
+      "result": "not-run",
+      "detail": "Export using Expo --no-bytecode is in progress."
+    }
+  ],
+  "relatedId": "wellness-notification-reliability-1791546195502"
+}

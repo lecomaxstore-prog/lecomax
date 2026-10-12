@@ -1,0 +1,44 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded the previously saved phone text-entry bar, Unicode key transmission, Enter/Tab/Esc buttons and connection-state controls. Original edit timestamp is unavailable."
+    },
+    {
+      "kind": "modified",
+      "detail": "Extended interaction coverage for Unicode, text clearing, empty-input disabling and Tab/Esc keys. No source files or previous reports removed."
+    }
+  ],
+  "summary": "Resumed the saved text-entry bar and Enter, Tab and Esc controls; Android build 7 is still compiling.",
+  "id": "kali-mobile-keyboard-resume-20261009",
+  "createdAt": "2026-10-09T22:00:18.199Z",
+  "validation": [
+    {
+      "detail": "App TypeScript and eight existing desktop/history tests passed on resume.",
+      "result": "passed",
+      "name": "Existing app checks"
+    },
+    {
+      "detail": "Expanded tests pending. Existing Gradle build is still running in C:/temp/l7. Physical phone keyboard and Wi-Fi activation remain unverified; prior automatic review requires explicit network-exposure approval.",
+      "result": "not-run",
+      "name": "Expanded keyboard tests and Android build"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/KaliDesktop.web.tsx",
+    "lecomax-learning-app/tests/kali-desktop-interaction.test.cjs"
+  ],
+  "pages": [
+    "Teacher",
+    "Kali desktop",
+    "Changes Made / Change History"
+  ],
+  "status": "needs-testing",
+  "components": [
+    "KaliDesktop web",
+    "Desktop interaction tests"
+  ],
+  "relatedId": "embedded-kali-wifi-20261009",
+  "title": "Phone keyboard controls for the embedded Kali desktop",
+  "retrospective": true
+}

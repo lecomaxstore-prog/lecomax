@@ -1,0 +1,50 @@
+{
+  "id": "phone-keep-connected-20261012",
+  "createdAt": "2026-10-12T08:57:48.039Z",
+  "status": "needs-testing",
+  "title": "Keep the approved phone connection when leaving the viewer",
+  "summary": "Back pauses viewing without disconnecting. The approved direct connection is saved in Android secure storage so reopening the viewer can resume until sharing is stopped.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneViewer",
+    "Direct session storage"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/utils/phone-session.ts",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/artifacts/build-keep-connected17.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Android Back pauses the viewer instead of sending Stop to the shared phone."
+    },
+    {
+      "kind": "added",
+      "detail": "Remember direct session credentials with expo-secure-store, bound to the exact Tailscale origin. Explicit disconnect and server rejection clear the saved credential; a new QR takes priority. Credentials never enter URLs or AsyncStorage."
+    },
+    {
+      "kind": "modified",
+      "detail": "Add Back / keep connection action and resumption guidance. Prepare Android version 1.0.15 build 17. Existing foreground sharing service remains independent of screen navigation with stopWithTask=false and a visible Stop sharing notification."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks and APK",
+      "result": "not-run",
+      "detail": "Pending focused tests, typecheck, lint and release build."
+    },
+    {
+      "name": "Physical phones",
+      "result": "not-run",
+      "detail": "No ADB phones connected. Android can still revoke capture on locking, force-stop, reboot or process death; current rotation handling also stops capture. No deployment authorized or performed."
+    }
+  ]
+}

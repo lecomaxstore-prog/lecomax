@@ -1,0 +1,51 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Embedded noVNC desktop client, owner-authenticated start/stop endpoint, loopback-only WebSocket bridge with expiring single-use origin-bound tickets, private VNC password per session, idle and maximum session expiry."
+    },
+    {
+      "kind": "modified",
+      "detail": "Teacher Kali tab can open the graphical desktop in-app. Installed Kali novnc and websockify packages; added application noVNC and server ws dependencies. No application files or Kali packages removed."
+    }
+  ],
+  "summary": "Add a live graphical Kali desktop alongside the existing terminal, using the installed Kali tools on this PC.",
+  "id": "embedded-kali-desktop-20261009",
+  "createdAt": "2026-10-09T21:36:59.921Z",
+  "validation": [
+    {
+      "detail": "Kali novnc and websockify packages installed successfully. npm dependencies installed.",
+      "result": "passed",
+      "name": "Package installation"
+    },
+    {
+      "detail": "Typecheck and focused lint running. Desktop execution, connection/authentication, lifecycle, app bundle, and history checks pending. PC-local web access only; phone and published app access await user choice. No deployment.",
+      "result": "not-run",
+      "name": "Implementation checks"
+    }
+  ],
+  "files": [
+    "lib/kali-desktop.ts",
+    "app/api/learning-mobile/desktop/route.ts",
+    "middleware.ts",
+    "lecomax-learning-app/components/KaliDesktop.web.tsx",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/types/novnc.d.ts",
+    "tests/kali-desktop.test.ts",
+    "package.json",
+    "package-lock.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "components": [
+    "TeacherLab web",
+    "KaliDesktop web",
+    "Desktop API",
+    "WebSocket bridge"
+  ],
+  "status": "needs-testing",
+  "title": "Live Kali desktop inside Teacher",
+  "pages": [
+    "Teacher"
+  ]
+}

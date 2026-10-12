@@ -1,0 +1,41 @@
+{
+  "id": "android-tailscale-build11-20261011",
+  "createdAt": "2026-10-11T12:56:23.198Z",
+  "title": "Android 1.0.9 with Tailscale address support",
+  "summary": "Prepare build 11 with current My PC Tailscale support and current learning app improvements for delivery to the connected phone.",
+  "status": "needs-testing",
+  "relatedId": "pc-tailscale-4g-path-20261011",
+  "pages": [
+    "My PC",
+    "Changes Made"
+  ],
+  "components": [
+    "Android release",
+    "PC address validation"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/utils/pc-remote.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Advance Android version to 1.0.9 / 11 and package current source including Tailscale CGNAT address support. No feature removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build and APK verification",
+      "result": "not-run",
+      "detail": "Pending release build, source checks, signature verification and phone transfer checksum."
+    },
+    {
+      "name": "Physical 4G session",
+      "result": "not-run",
+      "detail": "Tailscale PC-to-phone session and manual installation remain untested."
+    }
+  ]
+}

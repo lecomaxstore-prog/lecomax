@@ -1,0 +1,43 @@
+{
+  "id": "learning-notebook-1791542947529",
+  "createdAt": "2026-10-09T10:49:07.529Z",
+  "title": "تحسين دفتر التعلّم",
+  "summary": "أفكار كتابة مرتّبة، وحقل ملاحظات أوضح، ووصول مباشر إلى جميع الملاحظات مع تنبيه عند تعذّر الحفظ.",
+  "status": "needs-testing",
+  "pages": [
+    "Lesson screen"
+  ],
+  "components": [
+    "LessonFooter learning notebook"
+  ],
+  "files": [
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/tests/lesson-footer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "ترتيب أزرار فكرة ومثال وسؤال في صف واحد متوازن، وتحسين المسافات وعنوان حقل الكتابة."
+    },
+    {
+      "kind": "added",
+      "detail": "رسالة عند إضافة بداية للكتابة أو اختيار بداية موجودة، مع الحفاظ على النص السابق ومنع تكرار الإضافة."
+    },
+    {
+      "kind": "added",
+      "detail": "زر لعرض جميع الملاحظات ورسالة خطأ مع إعادة محاولة الحفظ عند فشل التخزين."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated validation",
+      "result": "not-run",
+      "detail": "Pending notebook interaction test, TypeScript, focused lint and history check."
+    },
+    {
+      "name": "Visual device review",
+      "result": "not-run",
+      "detail": "No live visual preview or device validation performed."
+    }
+  ]
+}

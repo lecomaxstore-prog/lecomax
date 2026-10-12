@@ -1,0 +1,47 @@
+{
+  "id": "flashcard-ask-ai-teacher-20261009-verified",
+  "relatedId": "flashcard-ask-ai-teacher-20261009",
+  "createdAt": "2026-10-09T13:55:21.425Z",
+  "title": "Memory-card teacher option verified",
+  "summary": "The teacher button passes the correct current card and translated definition in Arabic, English and French; existing revision controls still work.",
+  "status": "successful",
+  "pages": [
+    "/collection/flashcards",
+    "/(tabs)/teacher"
+  ],
+  "components": [
+    "Collection flashcards",
+    "Contextual teacher navigation"
+  ],
+  "files": [
+    "lecomax-learning-app/app/collection/[kind].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Appended verification of the contextual AI teacher button, preserving the original report and all previous history."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint on app/collection/[kind].tsx completed without diagnostics."
+    },
+    {
+      "name": "Card interactions",
+      "result": "passed",
+      "detail": "Rendered the actual Collection component in an isolated React/JSDOM check. In ar/en/fr, the teacher route received the current term and translated definition before and after Next, plus the explain launch parameter. Flip revealed the definition and Again hid it."
+    },
+    {
+      "name": "History integrity and interaction tests",
+      "result": "passed",
+      "detail": "History check passed with 36 reports before this follow-up. All six history tests passed, including expansion, persistence, retry and append preservation."
+    },
+    {
+      "name": "Device, browser visuals and live teacher reply",
+      "result": "not-run",
+      "detail": "No visual browser/device verification or live AI response was performed. The first in-process interaction harness could not access window; the isolated Node harness passed. This local change has not been published to Expo or rebuilt into an APK."
+    }
+  ]
+}

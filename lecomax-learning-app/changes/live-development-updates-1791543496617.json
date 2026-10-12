@@ -1,0 +1,45 @@
+{
+  "id": "live-development-updates-1791543496617",
+  "createdAt": "2026-10-09T10:58:16.617Z",
+  "title": "تحديثات مباشرة أثناء التطوير",
+  "summary": "تهيئة تشغيل التطبيق لمتابعة تعديلات الملفات تلقائيًا دون الحاجة إلى تحديث يدوي في كل مرة.",
+  "status": "needs-testing",
+  "pages": [
+    "Local development preview"
+  ],
+  "components": [
+    "Expo development launcher"
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/docs/change-history.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "مشغّل تطوير يزيل إعداد CI الموروث ويستخدم وضع التطوير حتى لا يتوقف Metro عن مراقبة تغييرات الملفات."
+    },
+    {
+      "kind": "modified",
+      "detail": "أوامر npm start وnpm run web تستخدم المشغّل الجديد. التحديث المباشر خاص بمعاينة التطوير؛ بعض التغييرات قد تتطلب إعادة تحميل تلقائية."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live server",
+      "result": "passed",
+      "detail": "localhost:8088 responds with packager-status:running and serves the app development HTML."
+    },
+    {
+      "name": "Hot update delivery",
+      "result": "not-run",
+      "detail": "Connected to the Metro hot-update channel; checking a real manifest change next."
+    },
+    {
+      "name": "Connected user browser",
+      "result": "not-run",
+      "detail": "No browser is exposed to UI tools; cannot visually verify the user tab or its Fast Refresh setting."
+    }
+  ]
+}

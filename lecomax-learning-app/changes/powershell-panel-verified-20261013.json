@@ -1,0 +1,69 @@
+{
+  "id": "powershell-panel-verified-20261013",
+  "createdAt": "2026-10-12T22:31:10.021Z",
+  "title": "PowerShell panel: interaction and real shell checks passed",
+  "summary": "Validated compact terminal controls, prompt input scheduling, session recovery and real PowerShell state.",
+  "status": "successful",
+  "pages": [
+    "Terminal",
+    "Teacher practice lab"
+  ],
+  "components": [
+    "TeacherLab web shell",
+    "WebTerminalSession",
+    "Terminal request pump"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/WebTerminalSession.tsx",
+    "lecomax-learning-app/utils/terminal-pump.ts",
+    "lecomax-learning-app/tests/terminal-pump.test.cjs",
+    "lecomax-learning-app/tests/web-terminal-session.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Consistent dark toolbar, responsive touch controls, session path, readable terminal typography, Arabic direction support and a compact footer."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Input wakes idle polling after an 8 ms batching window; requests remain serialized, hidden sessions poll less often, and returning to a session refits and wakes it."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed all-runtime discovery from startup and the oversized shared button layout."
+    },
+    {
+      "kind": "added",
+      "detail": "Explicit connecting, disconnected and ended states, localized connection errors and empty-session guidance. Failed commands are never automatically replayed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Learning app npm.cmd run typecheck and ESLint for TeacherLab.web.tsx, WebTerminalSession.tsx and terminal-pump.ts completed without diagnostics."
+    },
+    {
+      "name": "Terminal request and UI tests",
+      "result": "passed",
+      "detail": "5 tests passed: serialized immediate input, batching/chunking, no replay after failure, hidden-session wake/stop, direct runtime startup, RTL markup, controls, explain selection, reconnect errors, restart cleanup and returning-session resize."
+    },
+    {
+      "name": "History regression tests",
+      "result": "passed",
+      "detail": "6 archive and interaction tests passed, including append preservation, retry and older-bundle retention."
+    },
+    {
+      "name": "Real PowerShell",
+      "result": "passed",
+      "detail": "Existing real PowerShell test passed: variables, directory changes and owner isolation. node-pty emitted an AttachConsole cleanup diagnostic after the passing test; runner exited 0."
+    },
+    {
+      "name": "Visual and deployment validation",
+      "result": "not-run",
+      "detail": "Browser tool inventory exposed no browser or app. No visual screenshot review, physical mobile check, production build/deployment or end-to-end latency measurement. Scheduling improvements are code/test verified, not a measured network speed guarantee."
+    }
+  ],
+  "relatedId": "powershell-panel-responsive-20261013"
+}

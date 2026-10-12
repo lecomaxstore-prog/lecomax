@@ -1,0 +1,38 @@
+{
+  "id": "python-gesture-scroll-20261011",
+  "createdAt": "2026-10-11T11:55:38.662Z",
+  "title": "Python Studio scrolling without visible bars",
+  "summary": "Hide editor and workspace scrollbars while retaining native touch, trackpad, wheel and keyboard scrolling.",
+  "status": "needs-testing",
+  "relatedId": "python-production-review-20261011",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonEditor",
+    "MobilePythonWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/data/python-mobile-workspace.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Hide scrollbar tracks on the code editor, workspace body, coding key strip, menu and lint tooltip without disabling overflow scrolling."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser and project checks",
+      "result": "not-run",
+      "detail": "Rebuild shared mobile workspace and complete interrupted production review next."
+    },
+    {
+      "name": "Physical devices and deployment",
+      "result": "not-run",
+      "detail": "No device testing or deployment performed."
+    }
+  ]
+}

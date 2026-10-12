@@ -1,0 +1,40 @@
+{
+  "id": "build17-admin-publication-prepared-20261012",
+  "createdAt": "2026-10-12T09:12:42.905Z",
+  "relatedId": "phone-keep-connected-build17-verified-20261012",
+  "title": "Publish build 17 to the learning admin download",
+  "summary": "User authorized publishing verified Android 1.0.15 build 17 and updating the production learning APK link.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/learning-app",
+    "Changes Made"
+  ],
+  "components": [
+    "Learning APK distribution",
+    "Production release configuration"
+  ],
+  "files": [
+    "app/admin/learning-app/page.tsx",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.15-build17.apk",
+    "lecomax-learning-app/artifacts/phone-direct-build17-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build17-secret-audit.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepare publication of the verified build 17 APK using the existing Expo artifact hosting and production learning download configuration."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local artifact",
+      "result": "passed",
+      "detail": "Signed version 1.0.15/code 17 verified; SHA256 27f9e7d946f2d2a49157ad97b8068fed0d1fa5fedc1290aa38de863103cb50b9; 171191212 bytes. All 1403 archive entries passed scoped credential audit."
+    },
+    {
+      "name": "Publication and live admin link",
+      "result": "not-run",
+      "detail": "Pending upload, full download comparison and production configuration update. Physical two-phone acceptance remains untested."
+    }
+  ]
+}

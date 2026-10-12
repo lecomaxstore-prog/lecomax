@@ -1,0 +1,72 @@
+{
+  "id": "phone-responsive-resume-20261012",
+  "createdAt": "2026-10-12T10:24:48.817Z",
+  "status": "needs-testing",
+  "title": "Remote phone: larger viewer, rotation and saved return",
+  "summary": "Expand the remote screen, preserve navigation on app switching, restore the last page and approved pairing after reopening. Native capture changes require a new Android build.",
+  "pages": [
+    "My remote phone",
+    "Remote viewer",
+    "App navigation",
+    "Sign-in"
+  ],
+  "components": [
+    "PhoneViewer",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "PhonePairingStore",
+    "ResumeNavigation",
+    "Owner session"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/features/ResumeNavigation.tsx",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/owner-session.ts",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/phone-relay/viewer.css",
+    "lecomax-learning-app/native/phone/PhonePairingStore.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteInput.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/resume-route.test.cjs",
+    "tests/owner-session.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use a compact safe-area toolbar, collapsible instructions, full available screen height and landscape side controls. Localize native viewer navigation/status in French, English and Arabic."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resize the existing Android capture surface on rotation; reject gestures from mismatched frame orientation. Avoid clearing each valid frame before replacing it."
+    },
+    {
+      "kind": "added",
+      "detail": "Keep approved host pairing encrypted with Android Keystore in no-backup storage; restore after capture restart and revoke through explicit Disconnect, Stop sharing or Forget paired phone. Android capture permission itself is never persisted or bypassed."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Preserve authenticated navigation during background/foreground verification while retaining rejection handling. Save allowlisted app routes without pairing secrets, respect incoming links, and reopen saved direct viewer sessions."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove always-expanded viewer instructions and automatic stop-on-rotation behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checkpoint",
+      "result": "not-run",
+      "detail": "Checks have not yet run. Two-phone rotation, lock/reboot, secure-storage behavior, foreground service survival and installation remain untested. No deployment authorized or performed. A sharing-phone reboot still requires fresh Android capture consent; relay sessions retain their existing lifetime."
+    }
+  ]
+}

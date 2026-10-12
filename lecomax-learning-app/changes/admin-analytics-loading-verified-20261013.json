@@ -1,0 +1,71 @@
+{
+  "id": "admin-analytics-loading-verified-20261013",
+  "createdAt": "2026-10-12T23:33:49.873Z",
+  "relatedId": "admin-analytics-loading-recovery-20261013",
+  "title": "Admin loading fixes pass production build and regression checks",
+  "summary": "Verified current-report-first loading, compact comparison totals, request recovery and reduced navigation badge traffic. Production rollout and mobile acceptance remain pending.",
+  "status": "successful",
+  "pages": [
+    "Admin Analytics",
+    "Admin navigation",
+    "Storefront regression checks"
+  ],
+  "components": [
+    "AnalyticsPage",
+    "Analytics API",
+    "AdminLayout",
+    "Analytics request helper",
+    "Release validation"
+  ],
+  "files": [
+    "app/admin/analytics/page.tsx",
+    "app/api/analytics/route.ts",
+    "app/admin/layout.tsx",
+    "lib/analytics-fetch.ts",
+    "tests/admin-analytics-loading.test.ts",
+    "docs/admin-analytics-performance-20261013.md",
+    ".source-library/catalog.json",
+    "admin-analytics-performance-build-network.log"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Bound current-report and comparison requests, handle HTTP/JSON/network errors with retry, cancel obsolete requests and preserve the current report when optional trends fail. Added eight-second deadlines to authentication/permissions HTTP reads without changing authorization."
+    },
+    {
+      "kind": "modified",
+      "detail": "Request compact comparison totals after current report renders. Use narrow database projections and eight-second query deadlines. Delay optional badge reads 1.5 seconds; refresh each minute and skip hidden tabs instead of rereading five lists on every route navigation."
+    },
+    {
+      "kind": "added",
+      "detail": "Added runtime regressions and performance documentation; regenerated private source-library catalog during production build."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused runtime regressions",
+      "result": "passed",
+      "detail": "23 tests passed, zero failures: analytics loading, deadline/body abort, cancellation, retry, stale-response prevention, compact API totals and authorization; existing admin UI recovery, workspace permissions and storefront loading regressions."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "Root TypeScript tsc --noEmit --incremental false passed. Focused Next lint completed successfully with existing img warnings, no lint errors."
+    },
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Network-enabled production build exited 0 and generated 249/249 static pages. Initial sandboxed attempt compiled but encountered network EACCES during page collection and was stopped; authorized retry completed. Existing repository lint warnings remain."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "All six change-history persistence/interaction/append tests passed; previous reports retained. Final manifest consistency check run after append."
+    },
+    {
+      "name": "Live baseline and rollout",
+      "result": "not-run",
+      "detail": "Public homepage single pre-deployment request returned HTTP 200, 53352 compressed bytes, 2.517833s first byte and 3.046213s total. No production deployment, authenticated live Analytics timing, physical-phone UI check or post-deployment performance comparison. Existing 5000-row analytics limits remain; badge freshness may lag a minute."
+    }
+  ]
+}

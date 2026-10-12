@@ -1,0 +1,60 @@
+{
+  "id": "expo-production-live-update-1791546708096",
+  "createdAt": "2026-10-09T11:51:48.096Z",
+  "title": "Production live update prepared for Android 1.0.4",
+  "summary": "Preparing the refreshed learning design and healthy-routine notification fixes for the existing Expo production runtime 1.0.4.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Wellness reminders",
+    "Change History",
+    "Android app"
+  ],
+  "components": [
+    "EAS Update production channel",
+    "Learning design",
+    "Wellness notification scheduling"
+  ],
+  "files": [
+    "lecomax-learning-app/docs/eas-updates.md",
+    "lecomax-learning-app/app/(tabs)/index.tsx",
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Documented live-update publishing and the existing update-enabled Expo APK. Local native folder is stale and excluded from EAS cloud builds."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prepared current design and reminder fixes for publication to production, Android runtime 1.0.4; no native runtime changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Release tests",
+      "result": "passed",
+      "detail": "42 tests passed across release, wellness, browser/clock, and change-history suites."
+    },
+    {
+      "name": "TypeScript and source secret audit",
+      "result": "passed",
+      "detail": "Typecheck passed. Secret audit passed for 1151 source/content files without exposing secret values."
+    },
+    {
+      "name": "Expo configuration",
+      "result": "passed",
+      "detail": "Remote project, production channel and finished release build c6bdf6f9-d93c-4fec-95ac-009d3f87cec7 verified through EAS CLI."
+    },
+    {
+      "name": "Publication and phone delivery",
+      "result": "not-run",
+      "detail": "Publication pending. Update application and notification delivery on a physical device have not been tested."
+    }
+  ]
+}

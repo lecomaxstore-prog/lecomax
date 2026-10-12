@@ -1,0 +1,36 @@
+{
+  "id": "learning-apk-build19-usb-delivered-20261013",
+  "createdAt": "2026-10-12T23:22:11.305Z",
+  "relatedId": "learning-apk-build19-verified-usb-blocked-20261013",
+  "title": "Build 19 copied to approved USB folder",
+  "summary": "Copied Android 1.0.17/build 19 to D:/lecomax app with matching SHA256; builds 17 and 18 remain.",
+  "status": "successful",
+  "pages": [
+    "Learning app"
+  ],
+  "components": [
+    "Android release delivery"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.17-build19.apk",
+    "lecomax-learning-app/artifacts/build19-usb-verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Delivered lecomax-learn-1.0.17-build19.apk after explicit user authorization."
+    }
+  ],
+  "validation": [
+    {
+      "name": "USB integrity",
+      "result": "passed",
+      "detail": "Local and USB SHA256 match: 2BF983E54FF9883FAF16BF57228004FB917CB9D0628E5AFD58F54AC590F88CDC; 173418704 bytes. Older builds 17 and 18 retained."
+    },
+    {
+      "name": "Device installation",
+      "result": "not-run",
+      "detail": "Physical phone installation remains untested. Earlier full JavaScript suite failures remain documented in linked report."
+    }
+  ]
+}

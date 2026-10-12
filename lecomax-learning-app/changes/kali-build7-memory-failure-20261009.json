@@ -1,0 +1,56 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Retried the staged release build with command-line JVM memory overrides after stopping the identified failed build processes. No application source or existing history removed."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared APK verification for package/version, release signer, backup settings, local HTTP support and native Wi-Fi screen markers."
+    }
+  ],
+  "summary": "The original build exhausted its 512 MB Metaspace limit. A retry now uses 1536 MB Metaspace and a 3 GB heap, preserving compiled outputs.",
+  "id": "kali-build7-memory-failure-20261009",
+  "createdAt": "2026-10-09T22:13:20.678Z",
+  "validation": [
+    {
+      "name": "Original Android build",
+      "result": "failed",
+      "detail": "Gradle daemon 29444 reported java.lang.OutOfMemoryError: Metaspace; no APK produced. Retry log: lecomax-learning-app/artifacts/kali-build7-retry.log."
+    },
+    {
+      "name": "Keyboard, history and access checks",
+      "result": "passed",
+      "detail": "Two desktop interaction tests including Unicode/Enter/Tab/Esc, six history tests, two access-control unit tests, app/backend typechecks and focused app lint passed. Local desktop API rejects unauthenticated and external-origin calls with 401 and 403."
+    },
+    {
+      "name": "Current preview",
+      "result": "passed",
+      "detail": "http://localhost:8081/kali and /change-history returned 200. Initial IPv4 checks failed because the existing server listens on IPv6; an attempted duplicate server exited with EADDRINUSE. No visual verification."
+    },
+    {
+      "name": "Retry and phone checks",
+      "result": "not-run",
+      "detail": "Higher-memory build is running. Physical device, authenticated graphical desktop, and Wi-Fi activation remain untested. No deployment."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/KaliDesktop.web.tsx",
+    "lecomax-learning-app/tests/kali-desktop-interaction.test.cjs",
+    "lecomax-learning-app/android/gradle.properties",
+    "lecomax-learning-app/artifacts/verify-kali-build7.cjs"
+  ],
+  "pages": [
+    "Teacher",
+    "Kali desktop",
+    "Changes Made / Change History"
+  ],
+  "status": "failed",
+  "components": [
+    "KaliDesktop web",
+    "Desktop interaction tests",
+    "Android release build"
+  ],
+  "relatedId": "kali-mobile-keyboard-resume-20261009",
+  "title": "Android build retry after Gradle memory exhaustion"
+}

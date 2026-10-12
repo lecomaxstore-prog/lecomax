@@ -1,0 +1,45 @@
+{
+  "id": "flashcard-layout-refinement-20261009-verified",
+  "relatedId": "flashcard-layout-refinement-20261009",
+  "createdAt": "2026-10-09T14:04:40.745Z",
+  "title": "Memory-card layout checks passed",
+  "summary": "The refined card screen passes type, lint and localized interaction checks; teacher questions still carry the correct card context.",
+  "status": "successful",
+  "pages": [
+    "/collection/flashcards"
+  ],
+  "components": [
+    "Collection flashcards"
+  ],
+  "files": [
+    "lecomax-learning-app/app/collection/[kind].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded verification of the revised memory-card layout without changing earlier reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Typecheck and lint passed without diagnostics."
+    },
+    {
+      "name": "Localized interactions",
+      "result": "passed",
+      "detail": "Actual Collection component rendered with React/JSDOM in Arabic, English and French. Current term and definition reached teacher navigation before and after Next; Show answer revealed the definition and Review again hid it."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "All six history tests passed and all 38 reports were valid before this follow-up."
+    },
+    {
+      "name": "Visual and device review",
+      "result": "not-run",
+      "detail": "Actual browser/native appearance and live AI replies were not verified. No Expo update or APK deployment performed."
+    }
+  ]
+}

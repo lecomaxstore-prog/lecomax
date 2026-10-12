@@ -1,0 +1,67 @@
+{
+  "id": "guided-learning-teacher-1791545596149",
+  "createdAt": "2026-10-09T11:33:16.149Z",
+  "title": "Guided course discovery and contextual AI teaching",
+  "summary": "Find a starting point or resume learning, and request a simple explanation, concrete example or guided practice with the current lesson attached.",
+  "status": "needs-testing",
+  "pages": [
+    "/(tabs)/path",
+    "/course/[id]",
+    "/learning-path/[id]",
+    "/module/[id]",
+    "/lesson/[id]",
+    "/(tabs)/teacher"
+  ],
+  "components": [
+    "CurriculumLibrary",
+    "CourseLessonList",
+    "LessonTeacherHelp",
+    "MobileTeacher"
+  ],
+  "files": [
+    "lecomax-learning-app/components/CurriculumLibrary.tsx",
+    "lecomax-learning-app/components/CourseLessonList.tsx",
+    "lecomax-learning-app/components/LessonTeacherHelp.tsx",
+    "lecomax-learning-app/services/teacher-navigation.ts",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/tests/teacher-learning-navigation.test.cjs",
+    "lecomax-learning-app/tests/curriculum-library-interaction.test.cjs",
+    "lecomax-learning-app/tests/course-flow.test.cjs",
+    "lecomax-learning-app/tests/academy-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added Start from zero, Build a website and Understand AI goal filters, a resume card for unfinished curriculum lessons, and Help me choose routing to the teacher."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course discovery initially shows published topics so learners can start immediately; all topics remain accessible."
+    },
+    {
+      "kind": "added",
+      "detail": "Added Explain this lesson to course lesson lists and an expandable teacher-help panel in lesson readers with explain, example and practice actions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Teacher requests opened from a general question default to the general topic instead of Next.js."
+    },
+    {
+      "kind": "added",
+      "detail": "Centralized localized teacher intents and regression tests for context transfer, explicit help selection and guided discovery."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks",
+      "result": "not-run",
+      "detail": "Typecheck, lint, guidance/navigation, completion and history tests pending."
+    },
+    {
+      "name": "Live AI and visual review",
+      "result": "not-run",
+      "detail": "No paid/live AI request, native-device or visual review performed. No deployment."
+    }
+  ]
+}

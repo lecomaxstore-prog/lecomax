@@ -1,0 +1,71 @@
+{
+  "id": "pc-lab-verified-20261012",
+  "createdAt": "2026-10-12T18:14:33.677Z",
+  "title": "PC Lab verified across languages and responsive layouts",
+  "summary": "Verified all 15 parts, the local app route, persisted learning progress and contextual teacher navigation.",
+  "status": "successful",
+  "pages": [
+    "PC Lab (/pc-lab)",
+    "Home learning toolkit",
+    "More"
+  ],
+  "components": [
+    "PcExplorer web and native",
+    "PC canvas renderer",
+    "PC lessons",
+    "AI teacher bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/app/pc-lab.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/PcExplorer.tsx",
+    "lecomax-learning-app/components/PcExplorer.web.tsx",
+    "lecomax-learning-app/data/pc-explorer.ts",
+    "lecomax-learning-app/utils/pc-explorer-document.ts",
+    "lecomax-learning-app/utils/pc-model-renderer.ts",
+    "lecomax-learning-app/utils/pc-learning.ts",
+    "lecomax-learning-app/utils/pc-teacher.ts",
+    "lecomax-learning-app/tests/pc-explorer.test.cjs",
+    "lecomax-learning-app/scripts/pc-lab-smoke.cjs",
+    "lecomax-learning-app/scripts/pc-app-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added repeatable regression checks for 15 localized parts, geometry and canvas picking, rotation, panel and exploded controls, zoom, dialogs, quiz, progress sanitization and teacher context."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Refined selected-face outlining and subdivided large model surfaces to improve visibility of raised pieces. Delayed mounting of the explorer until saved school progress is loaded."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive browser interaction",
+      "result": "passed",
+      "detail": "Nine Edge combinations: English, French, Arabic at 360x740, 844x390 and 1280x900. 135 part inspections. Checks include rendered geometry, pointer picking, keyboard rotation, zoom and exploded controls, independent dialog scrolling and focus restoration, learning marks and quiz. Screenshots saved in artifacts/pc-lab; desktop app and mobile component screenshots visually reviewed."
+    },
+    {
+      "name": "Local app integration",
+      "result": "passed",
+      "detail": "Actual Expo /pc-lab route loaded in an isolated browser with synthetic sign-in/API responses. Verified saved PC progress restored and persisted across reload, phone progress unchanged, and PC lesson passed to teacher route. An initial fixture mistakenly accessed sandboxed iframe storage; the fixture was corrected to seed only the top window and the complete check passed."
+    },
+    {
+      "name": "Typecheck, lint and tests",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed. Focused ESLint passed for the new application source and modified navigation. Seven PC lesson/progress/teacher and immutable change-history tests passed. Final browser runs had no page errors."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No physical Android/iOS run, live authentication/backend/AI response test, production deployment or APK rebuild. The offline 3D model is illustrative, not a photogrammetric scan or exact branded assembly. Local preview requires normal app sign-in; development server is running on port 8081."
+    }
+  ],
+  "relatedId": "pc-lab-20261012",
+  "preview": {
+    "path": "/pc-lab",
+    "label": "Current PC Lab (local app; sign-in required)",
+    "verifiedAt": "2026-10-12T18:14:33.677Z"
+  }
+}

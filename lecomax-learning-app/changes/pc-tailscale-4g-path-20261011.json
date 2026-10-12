@@ -1,0 +1,55 @@
+{
+  "id": "pc-tailscale-4g-path-20261011",
+  "createdAt": "2026-10-11T12:23:07.188Z",
+  "title": "My PC Tailscale 4G access path",
+  "summary": "Enable the existing paired PC bridge to bind to a Tailscale address so the phone can connect over 4G/5G without router port forwarding.",
+  "status": "needs-testing",
+  "pages": [
+    "My PC",
+    "My space"
+  ],
+  "components": [
+    "PC remote launcher",
+    "PC remote server",
+    "PcDesktop"
+  ],
+  "files": [
+    "scripts/pc-remote-server.mjs",
+    "scripts/start-pc-remote.mjs",
+    "lecomax-learning-app/utils/pc-remote.ts",
+    "lecomax-learning-app/docs/my-pc-tailscale.md",
+    "lecomax-learning-app/tests/pc-remote.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Treat Tailscale CGNAT addresses 100.64.0.0/10 as private authorized addresses for the helper, server origin checks and mobile URL validation."
+    },
+    {
+      "kind": "added",
+      "detail": "Document exact PC and phone setup steps for Tailscale over 4G/5G, including no port forwarding, pairing, firewall and helper lifecycle guidance."
+    }
+  ],
+  "validation": [
+    {
+      "name": "URL policy test",
+      "result": "passed",
+      "detail": "Local, Tailscale, HTTPS and unsafe URL cases passed."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "tsc --noEmit passed."
+    },
+    {
+      "name": "Real 4G/5G session",
+      "result": "not-run",
+      "detail": "Requires Tailscale installed and signed in on the user’s PC and phone; no connected device session was available."
+    },
+    {
+      "name": "Windows firewall and agent runtime",
+      "result": "not-run",
+      "detail": "Requires running the helper on the target Windows PC."
+    }
+  ]
+}

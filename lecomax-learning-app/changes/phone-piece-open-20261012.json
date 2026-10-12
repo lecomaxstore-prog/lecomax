@@ -1,0 +1,41 @@
+{
+  "id": "phone-piece-open-20261012",
+  "createdAt": "2026-10-12T17:29:53.387Z",
+  "title": "Unobstructed phone image and individual piece detail views",
+  "summary": "Removed numbered markers; select a region for its explanation or double-click/double-tap to open a close-up of that piece.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo view",
+    "Piece detail dialog",
+    "Phone explorer styles"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "All nine numbered marker buttons from the realistic phone image."
+    },
+    {
+      "kind": "modified",
+      "detail": "A single image tap selects a component. Double-click/double-tap on the same piece now opens its detail view instead of replacing the phone cover."
+    },
+    {
+      "kind": "added",
+      "detail": "Localized close-up dialog shows the selected image region, role and example. Includes an accessible Open selected piece button, Back to phone, Escape and focus restoration. Close-up enlarges the existing illustration; it does not simulate dismantling component internals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression, typecheck and lint",
+      "result": "not-run",
+      "detail": "Pending validation; physical-device gestures and live browser layout remain unverified. No deployment."
+    }
+  ]
+}

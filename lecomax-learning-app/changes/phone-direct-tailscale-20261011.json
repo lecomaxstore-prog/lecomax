@@ -1,0 +1,59 @@
+{
+  "id": "phone-direct-tailscale-20261011",
+  "createdAt": "2026-10-11T20:19:22.185Z",
+  "title": "Direct phone sharing through Tailscale without a PC",
+  "summary": "Adds an Android-hosted private viewer, a direct connection workflow and copyable pairing details. Requires a new Android build; physical two-phone validation is pending.",
+  "status": "needs-testing",
+  "pages": [
+    "My remote phone",
+    "Phone browser viewer"
+  ],
+  "components": [
+    "Phone",
+    "PhoneRemoteModule",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "Direct browser viewer",
+    "Android config plugin"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/docs/phone-remote.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Android hosts the viewer on its Tailscale IPv4 address, with random single-use pairing, owner approval, expiry, network-loss stop and authenticated controls."
+    },
+    {
+      "kind": "modified",
+      "detail": "Phone page defaults to direct Tailscale; separates sharing and viewing, remembers viewer address, copies address/code and keeps HTTPS relay as an advanced option."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the hosted-relay requirement from direct mode; no PC or public relay is required."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Unsupported native builds and missing VPN addresses receive setup guidance rather than silently using the relay."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks and Android build",
+      "result": "not-run",
+      "detail": "Implementation checkpoint before validation."
+    },
+    {
+      "name": "Two physical phones",
+      "result": "not-run",
+      "detail": "No Android device currently connected to ADB; Tailscale routing, capture, input and lifecycle require device validation. No deployment or installation performed."
+    }
+  ]
+}

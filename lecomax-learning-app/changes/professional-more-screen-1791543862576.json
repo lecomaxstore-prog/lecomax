@@ -1,0 +1,49 @@
+{
+  "id": "professional-more-screen-1791543862576",
+  "createdAt": "2026-10-09T11:04:22.576Z",
+  "title": "تنظيم وتحسين صفحة المزيد",
+  "summary": "وصول أوضح إلى أدواتك وملاحظاتك ودوراتك، مع أقسام مرتّبة وتصميم أبسط للإعدادات والروتين اليومي.",
+  "status": "needs-testing",
+  "pages": [
+    "More tab"
+  ],
+  "components": [
+    "More",
+    "ListItem grouped variant"
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/tests/more-screen.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "فتح أدواتي افتراضيًا، ووضع البحث في الأعلى، مع إبقاء الدورات متاحة في تبويب مستقل."
+    },
+    {
+      "kind": "modified",
+      "detail": "تنظيم الأدوات في قسم للمحفوظات والملاحظات والمراجعة، وقسم للتدريب والتقدّم، بصفوف متناسقة بدل شبكة البطاقات الكبيرة."
+    },
+    {
+      "kind": "modified",
+      "detail": "تصغير بطاقة الروتين وإزالة مدخل الصحة المكرر، ونقل سجل التغييرات إلى قسم التطبيق والتفضيلات مع الإعدادات."
+    },
+    {
+      "kind": "added",
+      "detail": "نمط صفوف مجمّعة يحافظ على اتجاه العربية، واختبار للتنقّل والتبديل بين الأدوات والدورات بثلاث لغات."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks",
+      "result": "not-run",
+      "detail": "Pending More interaction test, TypeScript, focused lint and history integrity."
+    },
+    {
+      "name": "Live visual review",
+      "result": "not-run",
+      "detail": "No connected browser for visual verification; no deployment performed."
+    }
+  ]
+}

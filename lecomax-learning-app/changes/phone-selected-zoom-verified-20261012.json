@@ -1,0 +1,56 @@
+{
+  "id": "phone-selected-zoom-verified-20261012",
+  "createdAt": "2026-10-12T17:42:52.626Z",
+  "title": "Selected-component zoom positioning verified",
+  "summary": "The 2x zoom control now centers the selected image region horizontally and vertically, instead of opening at the top-left.",
+  "status": "successful",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo viewer",
+    "Component picker",
+    "Zoom control"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Center zoom on the active selected region, including the specific camera/screw/cable instance clicked. Clamp to image edges."
+    },
+    {
+      "kind": "modified",
+      "detail": "Selecting another piece from the picker while zoomed recenters it. Resize and image-load events retain selected focus. Zoom out resets both scroll axes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Localized zoom labels now distinguish Zoom selected from Show full phone."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Phone and history regressions",
+      "result": "passed",
+      "detail": "10 tests passed. In all three languages, geometry checks verify both-axis storage centering, camera recentering via picker, edge clamping, targeting the second camera instance and resetting both axes on zoom out."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "App typecheck and photo-view ESLint passed."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "203 preceding reports valid before this follow-up."
+    },
+    {
+      "name": "Live browser/device",
+      "result": "not-run",
+      "detail": "Scroll geometry tested with simulated viewport dimensions; physical-device appearance and touch panning not visually verified. No deployment or APK rebuild."
+    }
+  ],
+  "relatedId": "phone-selected-zoom-20261012"
+}

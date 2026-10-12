@@ -1,0 +1,75 @@
+{
+  "id": "teacher-web-studio-verified-1791565893852",
+  "createdAt": "2026-10-09T17:11:33.852Z",
+  "title": "Verified web editor, preview and VS Code export",
+  "summary": "Editor controls, actual preview interaction and saved project export passed tests. Current local teacher page is available.",
+  "status": "successful",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherWebStudio",
+    "TeacherMessage",
+    "Workspace API",
+    "Teacher prompt"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherWebStudio.tsx",
+    "lecomax-learning-app/components/TeacherWebStudio.web.tsx",
+    "lecomax-learning-app/utils/web-studio.ts",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx",
+    "lib/teacher-workspace.ts",
+    "app/api/learning-mobile/workspace/route.ts",
+    "lib/mobile-teacher-prompt.ts",
+    "middleware.ts",
+    ".gitignore",
+    "tests/teacher-workspace.test.ts",
+    "lecomax-learning-app/tests/web-studio.test.cjs",
+    "lecomax-learning-app/tests/web-studio-interaction.test.cjs",
+    "lecomax-learning-app/docs/web-studio.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Three file tabs, auto-saved browser draft, live iframe preview, phone width, console, explanation draft and VS Code local-copy export."
+    },
+    {
+      "kind": "modified",
+      "detail": "Supported teacher code blocks offer Edit and preview; prompts describe web preview capabilities."
+    }
+  ],
+  "validation": [
+    {
+      "name": "App checks",
+      "result": "passed",
+      "detail": "Learning app typecheck and focused ESLint passed."
+    },
+    {
+      "name": "Preview and regression checks",
+      "result": "passed",
+      "detail": "23 tests passed: actual HTML button clicks and JavaScript output in jsdom, file validation, teacher routes and change-history interactions/retention."
+    },
+    {
+      "name": "Editor interaction",
+      "result": "passed",
+      "detail": "1 jsdom test passed for tabs, iframe sandbox attribute, explanation draft and mocked VS Code export response."
+    },
+    {
+      "name": "Actual file export",
+      "result": "passed",
+      "detail": "1 test passed: complete three-file projects and README written to separate temporary directories, previous exports preserved and VS Code URI round-tripped."
+    },
+    {
+      "name": "Live local routes",
+      "result": "passed",
+      "detail": "Teacher HTTP 200, unauthenticated workspace export 401, foreign origin 403."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Full browser visual QA, browser CSP enforcement and desktop VS Code handoff not tested. Native editor unsupported. Export is a separate copy, not bidirectional sync. No deployment."
+    }
+  ],
+  "relatedId": "teacher-web-studio-1791565742971"
+}

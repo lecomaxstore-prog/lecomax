@@ -598,6 +598,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         const verifyRes = await fetch("/api/admin/auth/verify/", {
           method: "GET",
           cache: "no-store",
+          signal: AbortSignal.timeout(8000),
         });
         let email: string | null = null;
         if (verifyRes.ok) {
@@ -612,7 +613,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         const res = await fetch(
           `/api/admin/staff/permissions/?email=${encodeURIComponent(email)}&v=2`,
-          { cache: "no-store" }
+          { cache: "no-store", signal: AbortSignal.timeout(8000) }
         );
         if (!res.ok) throw new Error("Unable to load permissions");
         const result = await res.json() as { isStaff?: unknown; permissions?: unknown };
@@ -723,7 +724,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     // Check the server-side admin_session cookie first (source of truth).
     // Only fall back to Supabase if the cookie is also missing.
-    fetch("/api/admin/auth/verify/", { method: "GET", cache: "no-store" })
+    fetch("/api/admin/auth/verify/", { method: "GET", cache: "no-store", signal: AbortSignal.timeout(8000) })
       .then((res) => {
         if (res.ok) {
           // Cookie session is valid — stay on current page regardless of Supabase state
@@ -752,27 +753,36 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // Load badge counts (pending orders + low stock)
   useEffect(() => {
-    if (pathname === "/admin" || pathname === "/admin/") return;
-    Promise.all([
-      fetch("/api/orders"),
-      fetch("/api/products"),
-      fetch("/api/messages?unread=true"),
-      fetch("/api/admin/approvals?status=pending"),
-      fetch("/api/admin/ecomedia/posts?limit=100"),
-    ]).then(async ([oRes, pRes, mRes, aRes, eRes]) => {
-      const orders = oRes.ok ? await oRes.json() : [];
-      const products = pRes.ok ? await pRes.json() : [];
-      const msgs = mRes.ok ? await mRes.json() : [];
-      const approvals = aRes.ok ? await aRes.json() : [];
-      const ecomediaPosts = eRes.ok ? await eRes.json() : [];
-      const pending = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === "pending").length : 0;
-      const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= lowStockThreshold).length : 0;
-      const unread = Array.isArray(msgs) ? msgs.length : 0;
-      const pendingApprovals = Array.isArray(approvals) ? approvals.length : 0;
-      const pendingEcomedia = Array.isArray(ecomediaPosts) ? ecomediaPosts.filter((post: { is_client_post?: boolean; is_published?: boolean }) => post.is_client_post && !post.is_published).length : 0;
-      setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals, ecomedia: pendingEcomedia });
-    }).catch(() => {});
-  }, [pathname, lowStockThreshold]);
+    if (isLoginRoute || checking) return;
+    let cancelled = false;
+    const refreshBadges = () => {
+      if (document.visibilityState === "hidden") return;
+      Promise.all([
+        fetch("/api/orders", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/products", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/messages?unread=true", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/admin/approvals?status=pending", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/admin/ecomedia/posts?limit=100", { signal: AbortSignal.timeout(10_000) }),
+      ]).then(async ([oRes, pRes, mRes, aRes, eRes]) => {
+        const orders = oRes.ok ? await oRes.json() : [];
+        const products = pRes.ok ? await pRes.json() : [];
+        const msgs = mRes.ok ? await mRes.json() : [];
+        const approvals = aRes.ok ? await aRes.json() : [];
+        const ecomediaPosts = eRes.ok ? await eRes.json() : [];
+        const pending = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === "pending").length : 0;
+        const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= lowStockThreshold).length : 0;
+        const unread = Array.isArray(msgs) ? msgs.length : 0;
+        const pendingApprovals = Array.isArray(approvals) ? approvals.length : 0;
+        const pendingEcomedia = Array.isArray(ecomediaPosts) ? ecomediaPosts.filter((post: { is_client_post?: boolean; is_published?: boolean }) => post.is_client_post && !post.is_published).length : 0;
+        if (!cancelled) setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals, ecomedia: pendingEcomedia });
+      }).catch(() => {});
+    };
+    // Give page data priority; the persistent shell need not reload full lists
+    // on every route transition just to update small navigation counters.
+    const initial = setTimeout(refreshBadges, 1500);
+    const interval = setInterval(refreshBadges, 60_000);
+    return () => { cancelled = true; clearTimeout(initial); clearInterval(interval); };
+  }, [isLoginRoute, checking, lowStockThreshold]);
 
   // login page — no shell (strip trailing slash before comparing)
   if (isLoginRoute) return <>{children}</>;

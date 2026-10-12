@@ -1,0 +1,63 @@
+{
+  "id": "academy-card-photos-1791741428590-verified",
+  "createdAt": "2026-10-11T17:58:06.570Z",
+  "title": "Academy course photos saved and code checks verified",
+  "summary": "All three generated photos are bundled and connected to their featured dashboard cards.",
+  "status": "successful",
+  "pages": [
+    "Home dashboard"
+  ],
+  "components": [
+    "StudyDashboard"
+  ],
+  "files": [
+    "components/StudyDashboard.tsx",
+    "assets/course-photos/programming-foundations.png",
+    "assets/course-photos/real-website.png",
+    "assets/course-photos/python.png",
+    "assets/course-photos/prompts.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Saved and visually inspected three 1536x1024 generated PNG photographs for foundations, ecommerce website building, and Python. Prompts saved with the assets."
+    },
+    {
+      "kind": "modified",
+      "detail": "Featured dashboard cards use their corresponding photos with dark overlays and white title shadows; existing navigation and progress remain in place."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "npx.cmd eslint components/StudyDashboard.tsx passed."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All six change-history and interaction tests passed, covering expansion, statuses, links, archive persistence and retry."
+    },
+    {
+      "name": "Asset integrity",
+      "result": "passed",
+      "detail": "All three PNG signatures and 1536x1024 dimensions verified; generated images visually inspected."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "change-report.cjs --check passed before this verification append; final check follows."
+    },
+    {
+      "name": "Live browser, native device and deployment",
+      "result": "not-run",
+      "detail": "Finished card rendering has not been checked in a live browser or native device. No deployment performed."
+    }
+  ],
+  "relatedId": "academy-card-photos-1791741428590"
+}

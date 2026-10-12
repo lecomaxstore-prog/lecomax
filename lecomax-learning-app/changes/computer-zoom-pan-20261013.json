@@ -1,0 +1,35 @@
+{
+  "id": "computer-zoom-pan-20261013",
+  "createdAt": "2026-10-12T22:04:11.216Z",
+  "title": "Drag the zoomed computer interior to explore details",
+  "summary": "Added mouse and touch pointer panning in both directions to the enlarged computer interior.",
+  "status": "needs-testing",
+  "pages": [
+    "Computer lab"
+  ],
+  "components": [
+    "Computer photo viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/tests/pc-photo-pan.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Dragging now scrolls the zoomed photo with bounded movement and suppresses accidental component clicks."
+    },
+    {
+      "kind": "added",
+      "detail": "Keyboard arrow panning, focus outline and grab cursor. Full view retains normal page scrolling."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Automated interaction tests, typecheck, lint and history checks pending. Physical mobile/browser gestures not yet verified."
+    }
+  ]
+}

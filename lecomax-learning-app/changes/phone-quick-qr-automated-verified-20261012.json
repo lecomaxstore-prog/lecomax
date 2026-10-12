@@ -1,0 +1,76 @@
+{
+  "id": "phone-quick-qr-automated-verified-20261012",
+  "createdAt": "2026-10-12T06:12:40.085Z",
+  "status": "successful",
+  "title": "Quick QR and viewer recovery pass automated checks",
+  "summary": "17 focused tests, TypeScript and lint pass for QR consent/cancellation, scanning from either role, self-scan rejection, flashlight/retry, viewer token recovery and connection persistence.",
+  "pages": [
+    "My remote phone",
+    "Phone scanner",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneDirectServer",
+    "PhoneRemoteService",
+    "PhoneRemoteModule",
+    "PhonePairingScanner",
+    "PhoneViewer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhonePairingScanner.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Either idle phone can open Scan a phone directly and become the viewer. Owner taps Allow QR connection on the sharing phone to grant one scanner screen/control access without a second approval tap. Separate random QR capability expires after two minutes and is revoked when hidden, replaced, used or stopped."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Return non-authentication status codes for rapid taps, paused streaming and a locked screen, so the viewer does not revoke a valid session. Reject scanning the same phone."
+    },
+    {
+      "kind": "added",
+      "detail": "Flashlight and camera retry; viewer reload retry with same-origin in-memory token restoration after WebView process loss, without persistent token storage."
+    },
+    {
+      "kind": "modified",
+      "detail": "Repair QR translations, update recovery guidance, and prepare version 1.0.14/build 16. Preserve manual owner approval and Android capture permission."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected scanner JSX, updated the remembered-address test after scanning, and moved QR expiry cleanup into native status polling after initial syntax/lint checks."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused UI/viewer/history tests",
+      "result": "passed",
+      "detail": "17 tests passed. Includes explicit QR display/cancellation, scanner on share/view screens, self-scan rejection, camera flashlight/retry, duplicate/background scans, same-origin token restoration, transient 409/429 responses, long pause/reconnect and history retention."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "TypeScript and ESLint passed after correcting initial syntax and state-effect lint findings."
+    },
+    {
+      "name": "Native and physical acceptance",
+      "result": "not-run",
+      "detail": "Native JVM tests and APK build pending. No real two-phone scanning or device lifecycle tests yet. No deployment."
+    }
+  ],
+  "relatedId": "phone-quick-qr-reliability-20261012"
+}

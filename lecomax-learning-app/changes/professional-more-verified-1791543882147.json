@@ -1,0 +1,55 @@
+{
+  "id": "professional-more-verified-1791543882147",
+  "createdAt": "2026-10-09T11:04:42.147Z",
+  "title": "تنظيم وتحسين صفحة المزيد",
+  "summary": "وصول أوضح إلى أدواتك وملاحظاتك ودوراتك، مع أقسام مرتّبة وتصميم أبسط للإعدادات والروتين اليومي.",
+  "status": "successful",
+  "pages": [
+    "More tab"
+  ],
+  "components": [
+    "More",
+    "ListItem grouped variant"
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/tests/more-screen.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "فتح أدواتي افتراضيًا، ووضع البحث في الأعلى، مع إبقاء الدورات متاحة في تبويب مستقل."
+    },
+    {
+      "kind": "modified",
+      "detail": "تنظيم الأدوات في قسم للمحفوظات والملاحظات والمراجعة، وقسم للتدريب والتقدّم، بصفوف متناسقة بدل شبكة البطاقات الكبيرة."
+    },
+    {
+      "kind": "modified",
+      "detail": "تصغير بطاقة الروتين وإزالة مدخل الصحة المكرر، ونقل سجل التغييرات إلى قسم التطبيق والتفضيلات مع الإعدادات."
+    },
+    {
+      "kind": "added",
+      "detail": "نمط صفوف مجمّعة يحافظ على اتجاه العربية، واختبار للتنقّل والتبديل بين الأدوات والدورات بثلاث لغات."
+    }
+  ],
+  "validation": [
+    {
+      "name": "More navigation test",
+      "result": "passed",
+      "detail": "All eight collection destinations, search, settings, change history and study-skills navigation passed. Course/tool switching passed in Arabic, French and English. Strict mocked View containers reject direct text children."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint for More and UI.tsx passed."
+    },
+    {
+      "name": "Visual review",
+      "result": "not-run",
+      "detail": "No connected browser or native device visual verification. No deployment performed."
+    }
+  ],
+  "relatedId": "professional-more-screen-1791543862576"
+}

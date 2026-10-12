@@ -1,0 +1,55 @@
+{
+  "id": "build12-admin-publication-verified-20261011",
+  "createdAt": "2026-10-11T21:08:52.755Z",
+  "title": "Android build 12 published and admin download updated",
+  "summary": "Published verified Lecomax Learn 1.0.10 build 12 to Expo and updated the production admin download. Downloaded APK checksum matches the installed signed build.",
+  "status": "successful",
+  "relatedId": "build12-admin-publication-pending-20261011",
+  "pages": [
+    "/admin/learning-app",
+    "Changes Made"
+  ],
+  "components": [
+    "Learning APK distribution",
+    "Production release configuration"
+  ],
+  "files": [
+    "app/admin/learning-app/page.tsx",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.10-build12.apk",
+    "lecomax-learning-app/artifacts/build12-publication.json",
+    "lecomax-learning-app/artifacts/phone-direct-build12-secret-audit.json",
+    ".owner-auth-qa/check-admin-build12.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Published APK at https://expo.dev/artifacts/eas/xTuGhwG5Bzi3NhO2fC3GypDD9EUtZakSB2xpaKfiMno.apk after explicit user authorization. Expo reports artifact expiry 2027-01-09T21:01:34.343Z."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated production LEARNING_ANDROID_APK_URL and LEARNING_ANDROID_VERSION to 1.0.10 (build 12). Redeployed existing production source as dpl_38k4E76bC7NLEYx4F4ttpZnEgSpM, Ready and aliased to lecomax.com and www.lecomax.com. No unrelated workspace code uploaded."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "Full download SHA256 e26c8cad28f451c055d9806414ebfabeb30739aec84e282a2d477c4a9cda2f26 matches verified local build; 152124760 bytes. Signature and bundled native viewer verified; 1369 entries passed scoped secret audit.",
+      "result": "passed",
+      "name": "Published APK"
+    },
+    {
+      "detail": "Environment updates succeeded; production deployment Ready with domain aliases confirmed. Admin route returns expected unauthenticated 307. Admin component rendering verified correct version/link and rejects unsafe URLs.",
+      "result": "passed",
+      "name": "Production and admin configuration"
+    },
+    {
+      "detail": "TypeScript, focused admin-page ESLint, and all six history unit/interaction tests passed.",
+      "result": "passed",
+      "name": "Source validation"
+    },
+    {
+      "detail": "Authenticated live admin visual check unavailable because no browser session was connected. Two-phone physical remote-sharing acceptance remains untested. Published APK contains its original history snapshot; this later publication report is preserved in repository history for a future build.",
+      "result": "not-run",
+      "name": "Limitations"
+    }
+  ]
+}

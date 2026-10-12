@@ -1,0 +1,44 @@
+{
+  "id": "phone-kali-desktop-launcher-20261010",
+  "createdAt": "2026-10-09T23:09:44.507Z",
+  "relatedId": "phone-local-kali-20261010",
+  "title": "Prepare phone-local desktop launcher and verify app connection",
+  "summary": "Added a Termux desktop setup script and tested the app loopback connection.",
+  "status": "needs-testing",
+  "pages": [
+    "Kali desktop",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Termux desktop launcher",
+    "Native KaliDesktop WebView"
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/install-phone-desktop.sh",
+    "lecomax-learning-app/tests/phone-kali.test.cjs",
+    "lecomax-learning-app/components/KaliDesktop.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Desktop setup creates a local password and a lecomax-kali launcher; VNC and noVNC bind to loopback. Interaction test checks loopback navigation and reconnect errors."
+    }
+  ],
+  "validation": [
+    {
+      "name": "App tests and static validation",
+      "result": "passed",
+      "detail": "All 166 app tests passed, including the new native connection test. TypeScript and focused ESLint passed."
+    },
+    {
+      "name": "Kali archive",
+      "result": "passed",
+      "detail": "Full official ARM64 rootfs SHA256 matched official manifest; xz metadata reports 8394291200 uncompressed bytes. Extraction underway."
+    },
+    {
+      "name": "Phone desktop and publication",
+      "result": "not-run",
+      "detail": "Desktop startup, HTTP/VNC connectivity and app update delivery pending."
+    }
+  ]
+}

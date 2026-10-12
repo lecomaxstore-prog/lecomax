@@ -1,0 +1,47 @@
+{
+  "id": "windows-pc-acceptance-verified-20261011",
+  "createdAt": "2026-10-11T05:46:55.486Z",
+  "relatedId": "windows-pc-connection-verified-20261010",
+  "title": "Windows PC helper acceptance protocol verified",
+  "summary": "Resumed the local PC helper, paired the saved phone bridge path, and verified authenticated VNC desktop metadata at 1920 by 1080. Visual phone interaction remains untested because no controllable phone surface is connected in this session.",
+  "status": "needs-testing",
+  "pages": [
+    "My PC",
+    "My space",
+    "Changes Made"
+  ],
+  "components": [
+    "PC helper",
+    "PcDesktop",
+    "Android release"
+  ],
+  "files": [
+    "scripts/start-pc-remote.mjs",
+    "scripts/pc-remote-server.mjs",
+    "scripts/check-pc-remote.mjs",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Restarted the expired local helper session and regenerated its live pairing state for the approved Wi-Fi bridge."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Authenticated PC bridge protocol",
+      "result": "passed",
+      "detail": "scripts/check-pc-remote.mjs passed pairing, WebSocket upgrade, VNC password authentication, and desktop metadata checks; reported 1920x1080."
+    },
+    {
+      "name": "Visual and input acceptance",
+      "result": "not-run",
+      "detail": "No browser or phone control surface was available in this session, so viewing the desktop inside the phone app and controlling it were not claimed."
+    },
+    {
+      "name": "Change-history integrity",
+      "result": "passed",
+      "detail": "change-report.cjs --check passed before appending; follow-up report is linked to windows-pc-connection-verified-20261010."
+    }
+  ]
+}

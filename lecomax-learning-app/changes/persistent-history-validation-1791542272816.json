@@ -1,0 +1,61 @@
+{
+  "id": "persistent-history-validation-1791542272816",
+  "createdAt": "2026-10-09T10:37:52.816Z",
+  "title": "History tests passed; provider lint needs correction",
+  "summary": "Five regression tests and TypeScript passed. Focused lint found a synchronous state update in the existing archive provider.",
+  "status": "failed",
+  "pages": [
+    "Home dashboard",
+    "More",
+    "Change History (/change-history)"
+  ],
+  "components": [
+    "ChangesMade",
+    "ChangeReportCard",
+    "ChangeHistoryProvider",
+    "Change report command"
+  ],
+  "files": [
+    "lecomax-learning-app/components/ChangeHistory.tsx",
+    "lecomax-learning-app/scripts/change-report.cjs",
+    "lecomax-learning-app/docs/change-history.md",
+    "lecomax-learning-app/tests/change-history.test.cjs",
+    "lecomax-learning-app/tests/change-history-interaction.test.cjs",
+    "lecomax-learning-app/data/change-history.json",
+    "lecomax-learning-app/store/ChangeHistory.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded validation findings without altering the original report."
+    }
+  ],
+  "validation": [
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "One immutable source report matches the manifest."
+    },
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "5/5 tests passed, including persistence, error recovery, retention, expansion, statuses and navigation."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "tsc --noEmit completed with exit code 0."
+    },
+    {
+      "name": "Focused lint",
+      "result": "failed",
+      "detail": "react-hooks/set-state-in-effect flags setSaved(false) in ChangeHistoryProvider. CJS files are excluded by repository lint configuration."
+    },
+    {
+      "name": "Live preview and native device",
+      "result": "not-run",
+      "detail": "Not verified; interaction tests use jsdom and native UI mocks."
+    }
+  ],
+  "relatedId": "persistent-history-completion-1791542249712"
+}

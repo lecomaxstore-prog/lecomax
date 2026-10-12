@@ -1,0 +1,56 @@
+{
+  "id": "hide-change-history-verified-20261012",
+  "createdAt": "2026-10-12T16:33:52.000Z",
+  "title": "Hidden Change History checks passed",
+  "summary": "Removed the dashboard report and More menu link; existing Change History URLs now redirect to Home. All saved reports remain intact.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "More",
+    "Change History"
+  ],
+  "components": [
+    "StudyDashboard",
+    "ChangeHistoryScreen",
+    "MoreScreen"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/change-history.tsx",
+    "lecomax-learning-app/docs/change-history.md"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed visible dashboard change reports and the More menu history entry at the user?s request."
+    },
+    {
+      "kind": "modified",
+      "detail": "Redirected the history route to Home and documented the visibility preference. No reports or archives were deleted."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Learning app typecheck and lint for the three changed UI files passed."
+    },
+    {
+      "name": "History preservation and component tests",
+      "result": "passed",
+      "detail": "All six existing history tests passed. Manifest check confirmed all 179 reports at validation; this follow-up adds one more."
+    },
+    {
+      "name": "Visibility source check",
+      "result": "passed",
+      "detail": "No ChangesMade mount or history navigation remains in StudyDashboard or More. Legacy route returns Redirect to /."
+    },
+    {
+      "name": "Browser and device interaction",
+      "result": "not-run",
+      "detail": "No live browser or native device visual verification was performed. No deployment."
+    }
+  ],
+  "relatedId": "hide-change-history-20261012"
+}

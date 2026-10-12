@@ -1,0 +1,34 @@
+{
+  "id": "phone-local-kali-20261010",
+  "createdAt": "2026-10-09T23:05:59.906Z",
+  "title": "Connect to Kali running on this Android phone",
+  "summary": "Added a phone-local desktop option alongside the existing PC Wi-Fi connection.",
+  "status": "needs-testing",
+  "pages": [
+    "Kali desktop"
+  ],
+  "components": [
+    "Native KaliDesktop WebView"
+  ],
+  "files": [
+    "lecomax-learning-app/components/KaliDesktop.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Phone-local desktop opens loopback port 6080 with noVNC; instructions explain starting the Termux service. Existing PC Wi-Fi mode remains available."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Phone environment",
+      "result": "passed",
+      "detail": "POCO F5 Pro Android 15 ARM64 is authorized over USB. Termux installed and prerequisites installed. Full Kali archive downloading."
+    },
+    {
+      "name": "Desktop and application validation",
+      "result": "not-run",
+      "detail": "Kali extraction, local desktop, component checks and app publication pending."
+    }
+  ]
+}

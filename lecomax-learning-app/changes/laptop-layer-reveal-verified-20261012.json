@@ -1,0 +1,46 @@
+{
+  "id": "laptop-layer-reveal-verified-20261012",
+  "relatedId": "laptop-layer-reveal-20261012",
+  "createdAt": "2026-10-12T18:58:37.350Z",
+  "title": "Verify laptop layer reveal teaching changes",
+  "summary": "Validated the laptop lesson data and AI Teacher routing after adding layer reveal controls and double-click detail behavior.",
+  "status": "successful",
+  "pages": [
+    "Computer Lab (/computer-lab)",
+    "AI Teacher"
+  ],
+  "components": [
+    "Laptop photo viewer",
+    "Piece detail dialog",
+    "PC teacher bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/computer-lab-styles.ts",
+    "lecomax-learning-app/tests/pc-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Confirmed the new runtime and document generation compile with the rest of the learning app."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript check",
+      "result": "passed",
+      "detail": "npx tsc --noEmit completed successfully."
+    },
+    {
+      "name": "PC explorer tests",
+      "result": "passed",
+      "detail": "3 tests passed for localized lessons, learning progress and trusted AI Teacher context."
+    },
+    {
+      "name": "Browser gesture test",
+      "result": "not-run",
+      "detail": "Double-click and reveal interaction still needs a browser/device smoke test."
+    }
+  ]
+}

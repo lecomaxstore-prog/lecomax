@@ -1,0 +1,53 @@
+{
+  "id": "terminal-entry-verified-1791621181622",
+  "createdAt": "2026-10-10T08:33:01.622Z",
+  "title": "Terminal access verified",
+  "summary": "The direct terminal route responds locally and real PowerShell, Python and Node.js sessions passed their regression checks.",
+  "status": "successful",
+  "pages": [
+    "More",
+    "Terminal"
+  ],
+  "components": [
+    "TeacherLab",
+    "TerminalPage"
+  ],
+  "files": [
+    "lecomax-learning-app/app/terminal.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Direct Terminal navigation with PowerShell selected; close returns to the previous page or More, and Explain opens the teacher."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Runtime tests",
+      "result": "passed",
+      "detail": "4 terminal tests passed: PowerShell state/directory, Python input/Ctrl+C, Node state, runtime discovery. Kali skipped because not installed; node-pty cleanup emitted AttachConsole diagnostics."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "Direct local tsc --noEmit and ESLint on both changed files completed without errors. Used local binaries after npm/npx wrapper stalled."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All 4 history tests passed; append-only history check passed before final report."
+    },
+    {
+      "name": "Local routes",
+      "result": "passed",
+      "detail": "/terminal and /change-history returned HTTP 200."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Signed-in browser interaction and native phone not tested. Interactive terminal available on web with local PC server. No deployment."
+    }
+  ],
+  "relatedId": "terminal-entry-1791621069969"
+}

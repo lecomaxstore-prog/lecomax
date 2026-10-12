@@ -1,0 +1,84 @@
+{
+  "id": "phone-keep-connected-build17-verified-20261012",
+  "createdAt": "2026-10-12T09:10:28.371Z",
+  "status": "successful",
+  "title": "Keep-connection build 17 verified and ready to install",
+  "summary": "Signed Android 1.0.15/build 17 preserves approved direct access when leaving the viewer and securely restores it when reopening. 20 focused JavaScript tests and 10 native tests pass; physical phone acceptance remains untested.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneViewer",
+    "Direct session storage"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/utils/phone-session.ts",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/artifacts/build-keep-connected17.ps1",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-session.test.cjs",
+    "lecomax-learning-app/docs/phone-keep-connected-build17.md",
+    "lecomax-learning-app/artifacts/verify-phone-keep-connected17.cjs",
+    "lecomax-learning-app/artifacts/audit-build17.ps1",
+    "lecomax-learning-app/artifacts/phone-keep-connected-build17.log",
+    "lecomax-learning-app/artifacts/phone-keep-connected-build17-native-tests.xml",
+    "lecomax-learning-app/artifacts/phone-direct-build17-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build17-secret-audit.json",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.15-build17.apk"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Android Back pauses the viewer instead of sending Stop to the shared phone."
+    },
+    {
+      "kind": "added",
+      "detail": "Remember direct session credentials with expo-secure-store, bound to the exact Tailscale origin. Explicit disconnect and server rejection clear the saved credential; a new QR takes priority. Credentials never enter URLs or AsyncStorage."
+    },
+    {
+      "kind": "modified",
+      "detail": "Add Back / keep connection action and resumption guidance. Prepare Android version 1.0.15 build 17. Existing foreground sharing service remains independent of screen navigation with stopWithTask=false and a visible Stop sharing notification."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Update French, English and Arabic help to explain reopening without new pairing. Retain visible host Stop sharing and explicit viewer Disconnect."
+    },
+    {
+      "kind": "added",
+      "detail": "Signed arm64 APK, installation/acceptance guide, and regression tests for Back, remount, module restart, exact-origin restoration, new QR priority, host rejection, queued deletion and late bridge messages."
+    }
+  ],
+  "validation": [
+    {
+      "name": "App checks",
+      "result": "passed",
+      "detail": "20 focused JavaScript interaction/storage/history tests passed; TypeScript and focused ESLint passed. Follow-up translated help correction passed phone-page test and lint. npm.cmd/npx.cmd used after PowerShell blocked the .ps1 wrappers."
+    },
+    {
+      "name": "Android build and native tests",
+      "result": "passed",
+      "detail": "10 JVM server tests, zero failures/errors. Final Gradle release build succeeded in 1m 21s with 855 tasks; existing Gradle deprecation warnings remain."
+    },
+    {
+      "name": "Packaged APK",
+      "result": "passed",
+      "detail": "Version 1.0.15/code 17, signature matches build 11, persistent viewer strings and report bundled, current viewer source matches staging, native QR/recovery features and viewer assets present, stopWithTask=false and no microphone permission. SHA256 27f9e7d946f2d2a49157ad97b8068fed0d1fa5fedc1290aa38de863103cb50b9. Packaged-string verification initially failed because the verification script encoded the middle dot incorrectly; corrected Unicode handling and the check passed."
+    },
+    {
+      "name": "APK credential audit",
+      "result": "passed",
+      "detail": "All 1403 ZIP entries passed known private-value, common credential-pattern and private-file checks. This does not prove absence of unknown or encoded secrets."
+    },
+    {
+      "name": "Physical acceptance and delivery",
+      "result": "not-run",
+      "detail": "No ADB phones connected. Actual host Home/Back/Recents, viewer kill/relaunch, two-phone VPN recovery and overnight use remain untested. Android lock, force-stop, process death, reboot, capture revocation and current rotation handling can end host sharing. Legacy relay does not gain persistence. No deployment/OTA or device installation. The APK bundles the initial change report; this post-build verification report is in workspace history for a later build."
+    }
+  ],
+  "relatedId": "phone-keep-connected-20261012"
+}

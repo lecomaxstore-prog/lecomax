@@ -1,0 +1,40 @@
+{
+  "id": "home-mobile-refinement-20261012",
+  "createdAt": "2026-10-12T16:35:44.511Z",
+  "title": "Refine the mobile learning home",
+  "summary": "A more compact welcome section, clearer actions and progress, and a slimmer bottom navigation improve the mobile home layout.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Tab navigation"
+  ],
+  "components": [
+    "StudyDashboard",
+    "BottomTabBar"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Reduced hero spacing and heading size, shortened welcome text in all three languages, differentiated primary and secondary actions, and stacked actions on narrow or enlarged-text screens."
+    },
+    {
+      "kind": "modified",
+      "detail": "Grouped progress counts into a bordered strip with separators; removed zero-padding. Compacted the next-lesson card with a green accent and corrected its Arabic arrow direction."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reduced navigation padding and icon spacing while retaining accessible touch targets and RTL order. Preserved hidden Change History."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Code and history checks",
+      "result": "not-run",
+      "detail": "Pending typecheck, lint and history validation. Visual browser and physical-device verification unavailable."
+    }
+  ]
+}

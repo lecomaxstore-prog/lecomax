@@ -1,0 +1,44 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared build 12 publication evidence and a separate APK secret-audit result without replacing previous build audit records."
+    }
+  ],
+  "summary": "Android 1.0.10 build 12 passed signature, package and secret-scan checks. Upload approval is pending; production admin download remains unchanged.",
+  "id": "build12-admin-publication-pending-20261011",
+  "createdAt": "2026-10-11T21:00:31.497Z",
+  "relatedId": "phone-direct-build12-installed-20261011",
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.10-build12.apk",
+    "lecomax-learning-app/artifacts/audit-build12.ps1",
+    "lecomax-learning-app/artifacts/phone-direct-build12-secret-audit.json",
+    "app/admin/learning-app/page.tsx"
+  ],
+  "components": [
+    "Android release distribution"
+  ],
+  "status": "needs-testing",
+  "validation": [
+    {
+      "detail": "Signature matches build 11; package 1.0.10/build 12, direct viewer assets and bundled history verified.",
+      "result": "passed",
+      "name": "APK verification"
+    },
+    {
+      "detail": "1369 ZIP entries passed known private value and credential pattern checks. Does not prove absence of unknown or encoded secrets.",
+      "result": "passed",
+      "name": "APK secret audit"
+    },
+    {
+      "detail": "Automatic approval review rejected Expo upload pending explicit authorization to externally host a shareable APK. No APK upload or production change occurred.",
+      "result": "not-run",
+      "name": "Upload and production admin link"
+    }
+  ],
+  "title": "Build 12 verified for admin download publication",
+  "pages": [
+    "/admin/learning-app",
+    "Changes Made"
+  ]
+}

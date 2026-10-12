@@ -1,0 +1,53 @@
+{
+  "id": "kali-expo-release-resume-20261010-verified",
+  "createdAt": "2026-10-09T22:33:45.197Z",
+  "relatedId": "kali-publication-validation-fixes-20261010",
+  "title": "Android 1.0.5 verified and uploaded to Expo",
+  "summary": "Signed production APK is available on Expo and on this PC; all 165 tests pass.",
+  "status": "successful",
+  "pages": [
+    "Teacher",
+    "Kali desktop",
+    "Source Library",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Android release",
+    "Expo production update",
+    "Release verification"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/data/change-history.json",
+    "lecomax-learning-app/artifacts/kali-production-build7-verification.json",
+    "lecomax-learning-app/artifacts/resume-build7-upload.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Uploaded locally signed Android 1.0.5/build 7 to Expo build 9a558bef-d482-4450-83a4-cfb8b4d85b4e. Retained local artifacts/lecomax-learn-1.0.5-build7-production.apk (115335379 bytes). Verified existing production update 573f2227-e2f2-4541-956e-68e5bdd996cc for runtime 1.0.5."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression and TypeScript",
+      "result": "passed",
+      "detail": "165/165 tests passed on resume; tsc --noEmit passed; history valid with 59 prior reports preserved."
+    },
+    {
+      "name": "APK verification",
+      "result": "passed",
+      "detail": "Package com.lecomax.learning, version 1.0.5/code 7, retained signing certificate, production channel, and 1320 ZIP entries checked against 11 configured secrets. SHA256 90bade4d8d995f95d56360cb1d8c843c722db82e4be9aaf0859310ed8bbdaaa4."
+    },
+    {
+      "name": "Expo upload and update",
+      "result": "passed",
+      "detail": "Expo CLI confirmed APK upload; authenticated update:view confirmed published Android production update."
+    },
+    {
+      "name": "Device acceptance",
+      "result": "not-run",
+      "detail": "Physical installation, login, Kali Wi-Fi connection and on-device OTA adoption remain untested. Existing 1.0.4 installations need the 1.0.5 APK. No admin website deployment performed in this continuation."
+    }
+  ]
+}

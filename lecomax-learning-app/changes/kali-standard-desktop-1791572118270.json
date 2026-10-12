@@ -1,0 +1,40 @@
+{
+  "id": "kali-standard-desktop-1791572118270",
+  "createdAt": "2026-10-09T18:55:18.270Z",
+  "title": "Standard Kali tools and desktop setup",
+  "summary": "Install the selected standard Kali toolset and Win-KeX, with desktop launch guidance in the Teacher Kali tab.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherLab web",
+    "Kali WSL system"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/docs/local-runtimes.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Kali tab desktop command copy button and FR/EN/AR first-launch guidance. Standard Kali and Win-KeX package installation in progress."
+    },
+    {
+      "kind": "modified",
+      "detail": "Document standard toolset, desktop launch and WSL hardware limits. User selected standard tools plus desktop after full collection exceeded available disk capacity."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Storage planning",
+      "result": "passed",
+      "detail": "Full collection: 36.9 GB installed plus 13 GB archives against 42.7 GB free on C:. Selected standard collection: 10.2 GB installed and 2.9 GB download."
+    },
+    {
+      "name": "Installation and app checks",
+      "result": "not-run",
+      "detail": "Package installation running. Typecheck, lint, history and runtime checks pending. GUI first-launch password must be set by user; no deployment."
+    }
+  ]
+}

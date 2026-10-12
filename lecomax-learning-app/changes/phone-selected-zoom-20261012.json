@@ -1,0 +1,40 @@
+{
+  "id": "phone-selected-zoom-20261012",
+  "createdAt": "2026-10-12T17:42:11.172Z",
+  "title": "Zoom directly to the selected phone component",
+  "summary": "The 2x zoom control now centers the selected image region horizontally and vertically, instead of opening at the top-left.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo viewer",
+    "Component picker",
+    "Zoom control"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Center zoom on the active selected region, including the specific camera/screw/cable instance clicked. Clamp to image edges."
+    },
+    {
+      "kind": "modified",
+      "detail": "Selecting another piece from the picker while zoomed recenters it. Resize and image-load events retain selected focus. Zoom out resets both scroll axes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Localized zoom labels now distinguish Zoom selected from Show full phone."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks",
+      "result": "not-run",
+      "detail": "Pending interaction, typecheck, lint and history validation. No deployment."
+    }
+  ]
+}

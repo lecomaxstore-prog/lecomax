@@ -1,0 +1,48 @@
+{
+  "id": "admin-loading-release-shell-check-20261013",
+  "createdAt": "2026-10-12T23:41:56.913Z",
+  "relatedId": "admin-loading-isolated-release-prepared-20261013",
+  "title": "Isolated admin build generates pages but shell exit needs confirmation",
+  "summary": "Local release compiled and generated all 249 pages, but PowerShell returned exit 1 after a stderr warning. Capture the child exit code directly before declaring build validation successful.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Analytics",
+    "Admin navigation"
+  ],
+  "components": [
+    "Isolated release validation",
+    "Release tooling"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/build-admin-release.cjs",
+    "lecomax-learning-app/artifacts/admin-loading-isolated-local-build.log"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Add direct child-process output and exit-code capture to distinguish build failures from PowerShell native stderr warnings."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused runtime tests",
+      "result": "passed",
+      "detail": "Isolated release TypeScript passed; all 23 focused tests passed."
+    },
+    {
+      "name": "First local build shell result",
+      "result": "failed",
+      "detail": "Shell returned exit 1. Log shows successful compile and 249/249 static pages with a workspace-root inference warning, and a generated BUILD_ID. Native child exit status was not separately recorded, so full build success is not asserted."
+    },
+    {
+      "name": "Remote deployment approval",
+      "result": "not-run",
+      "detail": "Automatic approval review rejected uploading private application source and creating a Vercel production candidate, even with --skip-domain. No remote build, promotion or live domain change performed."
+    },
+    {
+      "name": "Confirmed child build result",
+      "result": "not-run",
+      "detail": "Direct-output capture retry pending."
+    }
+  ]
+}

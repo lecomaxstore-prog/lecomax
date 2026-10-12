@@ -1,0 +1,45 @@
+{
+  "id": "notebook-native-text-fix-1791543362120",
+  "createdAt": "2026-10-09T10:56:02.120Z",
+  "title": "إصلاح خطأ عرض دفتر التعلّم",
+  "summary": "إزالة النصوص غير المسموح بها داخل حاويات العرض لمنع رسالة Unexpected text node في دفتر التعلّم.",
+  "status": "needs-testing",
+  "pages": [
+    "Lesson screen",
+    "Academy lessons"
+  ],
+  "components": [
+    "LessonFooter"
+  ],
+  "files": [
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/tests/lesson-footer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "إزالة المسافات النصية بين البطاقات وتحويل شرط زر إعادة الحفظ إلى قيمة منطقية حتى لا يُعرض نص فارغ داخل View."
+    },
+    {
+      "kind": "added",
+      "detail": "اختبار يرفض النصوص المباشرة داخل View وCard وRow، مع إبقاء النصوص داخل Label."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression reproduction",
+      "result": "passed",
+      "detail": "Strengthened interaction test reproduced raw whitespace text inside a native View before the fix."
+    },
+    {
+      "name": "Post-fix checks",
+      "result": "not-run",
+      "detail": "Pending interaction test, TypeScript, focused lint and history check."
+    },
+    {
+      "name": "Live Expo device",
+      "result": "not-run",
+      "detail": "Not yet verified in a live device/browser session."
+    }
+  ]
+}

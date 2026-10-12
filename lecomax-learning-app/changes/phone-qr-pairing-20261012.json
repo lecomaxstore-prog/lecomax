@@ -1,0 +1,49 @@
+{
+  "id": "phone-qr-pairing-20261012",
+  "createdAt": "2026-10-12T05:33:58.146Z",
+  "status": "needs-testing",
+  "title": "Option 2: scan the other phone to pair inside L?ecomax",
+  "summary": "Display a session QR on the sharing phone and scan it in the first phone to open the embedded viewer without typing an address or code.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer",
+    "QR scanner"
+  ],
+  "components": [
+    "Phone",
+    "PhonePairingScanner",
+    "PhoneViewer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhonePairingScanner.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/utils/phone-pairing.ts",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Option 2 camera scanner, local session QR rendering, strict private Tailscale QR parsing and lecomax-learn phone links."
+    },
+    {
+      "kind": "modified",
+      "detail": "Pass a scanned code once to the embedded viewer in memory; preserve manual pairing, Android capture prompts and sharing-phone approval."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prepare Android 1.0.12/build 14 with camera scanning and SVG support, without microphone recording permission."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Automated checks, APK build and physical two-phone QR scanning have not yet run. No deployment."
+    }
+  ]
+}

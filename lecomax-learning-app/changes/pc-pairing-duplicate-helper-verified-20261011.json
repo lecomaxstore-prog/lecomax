@@ -1,0 +1,54 @@
+{
+  "id": "pc-pairing-duplicate-helper-verified-20261011",
+  "createdAt": "2026-10-11T13:21:36.210Z",
+  "title": "PC pairing repaired and live Windows authentication verified",
+  "summary": "Stopped the two conflicting app-owned helpers, started one Tailscale helper and verified successful desktop protocol authentication. Use the newly generated code in the local CONNECT.txt file.",
+  "status": "successful",
+  "relatedId": "pc-pairing-duplicate-helper-20261011",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "PC helper launcher",
+    "Pairing page",
+    "Regression tests"
+  ],
+  "files": [
+    "scripts/start-pc-remote.mjs",
+    "scripts/pc-remote/client.js",
+    "tests/pc-remote-client.test.mjs",
+    "scripts/check-pc-remote.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Removed the duplicate running helper conflict and restarted one helper on the existing Tailscale address. Pairing code rotated; no credentials recorded in history."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression tests cover rejected codes and missing session cookies with visible errors and restored button state."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused tests",
+      "result": "passed",
+      "detail": "Four bridge-security and pairing-client tests pass. Both changed scripts pass syntax checks."
+    },
+    {
+      "name": "Duplicate launcher guard",
+      "result": "passed",
+      "detail": "A second launcher attempt is rejected before overwriting active credentials."
+    },
+    {
+      "name": "Live protocol verification",
+      "result": "passed",
+      "detail": "Pairing, authenticated WebSocket, VNC password authentication and 1920x1080 desktop metadata passed after repair. One UltraVNC process remains."
+    },
+    {
+      "name": "Phone visual and input acceptance",
+      "result": "not-run",
+      "detail": "User must reconnect and enter the newly generated code. No new APK or website deployment. Helper serves corrected client JS immediately on page reload; history follow-ups require a future app rebuild."
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "python-runtime-verified-1791620994947",
+  "createdAt": "2026-10-10T08:29:54.947Z",
+  "title": "Real Python execution verified",
+  "summary": "Python 3.14.6 now runs code and interactive input through the local lab using automatic interpreter discovery.",
+  "status": "successful",
+  "pages": [
+    "Teacher practice lab",
+    "Interactive terminal"
+  ],
+  "components": [
+    "Python runtime discovery",
+    "Local lab server"
+  ],
+  "files": [
+    "lib/python-runtime.ts",
+    "lib/teacher-lab.ts",
+    "lib/teacher-runtimes.ts",
+    "scripts/start-teacher-lab.mjs",
+    "tests/teacher-lab.test.ts",
+    "tests/teacher-terminal.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Removed the broken py.exe dependency from the interactive Python regression test as well as the code-run test."
+    },
+    {
+      "kind": "modified",
+      "detail": "Verified the Python discovery correction and started the local API and learning web app."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Code runner",
+      "result": "passed",
+      "detail": "All 4 teacher-lab tests passed, including Python Unicode, standard library, traceback and timeout."
+    },
+    {
+      "name": "Interactive terminal",
+      "result": "passed",
+      "detail": "4 terminal tests passed, including Python variables, input and Ctrl+C; unrelated Kali test skipped. node-pty emitted AttachConsole cleanup diagnostics."
+    },
+    {
+      "name": "Correction during verification",
+      "result": "passed",
+      "detail": "Initial terminal test failed because its setup directly invoked broken py.exe. Removed that test-only override and reran successfully."
+    },
+    {
+      "name": "App TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed. Used npm.cmd because PowerShell blocks npm.ps1."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All 4 change-history tests passed."
+    },
+    {
+      "name": "Local server",
+      "result": "passed",
+      "detail": "App change-history route returned HTTP 200; local lab API returned expected 405 for unsupported GET."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No signed-in browser interaction, phone test or deployment. Focused ESLint has not completed. Python execution requires the local PC and lab server."
+    }
+  ],
+  "relatedId": "python-runtime-discovery-1791620889045"
+}

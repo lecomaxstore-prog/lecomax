@@ -1,0 +1,43 @@
+{
+  "id": "learning-apk-build19-prepared-20261013",
+  "createdAt": "2026-10-12T23:08:11.880Z",
+  "title": "Prepare latest learning app APK 1.0.17 build 19",
+  "summary": "Package the latest learning source and retained history for USB delivery, preserving older APKs.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning app",
+    "My space",
+    "Device labs"
+  ],
+  "components": [
+    "Android release",
+    "Bundled learning content",
+    "Change history archive"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml",
+    "lecomax-learning-app/artifacts/build-latest19.ps1",
+    "lecomax-learning-app/artifacts/audit-build19.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Increment Android version to 1.0.17/code 19 and synchronize current source into the existing local Android build staging project."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepare build 19 packaging and APK audit scripts; deliver a separately named APK to D:/lecomax app after checks."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Release validation",
+      "result": "not-run",
+      "detail": "TypeScript, tests, signed release build, APK audit and USB checksum verification pending. Physical device installation not yet tested."
+    }
+  ]
+}

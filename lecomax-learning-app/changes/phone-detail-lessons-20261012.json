@@ -1,0 +1,54 @@
+{
+  "id": "phone-detail-lessons-20261012",
+  "createdAt": "2026-10-12T17:26:40.343Z",
+  "title": "Explore small phone parts with role explanations",
+  "summary": "Expanded Phone Lab from 14 to 29 learning topics, with direct image-region selection, a nearby explanation panel and magnification.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo view",
+    "Phone lesson content",
+    "Phone photo region map",
+    "Phone explorer document"
+  ],
+  "files": [
+    "lecomax-learning-app/data/phone-detail-topics.ts",
+    "lecomax-learning-app/data/phone-photo-regions.ts",
+    "lecomax-learning-app/data/phone-explorer.ts",
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "15 English/French/Arabic lessons covering boards, flex cables, connectors, shields, screws, frame, seals, thermal spreading, capacitors, resistors, inductors, power management, flash LED, haptics and microphone."
+    },
+    {
+      "kind": "added",
+      "detail": "24 selectable component families across the generated image, including repeated camera/cable/screw regions. Smaller regions take precedence; selected area is outlined. Existing nine large markers retained."
+    },
+    {
+      "kind": "added",
+      "detail": "Nearby role and everyday-example inspector, accessible component picker, 2x magnification and explicit full-lesson link. Existing saved topic IDs remain valid; progress includes new topics."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Restored corrupted French accents and Arabic captions/view labels and translated the AI-generated-image explanation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks",
+      "result": "not-run",
+      "detail": "Pending tests, typecheck, lint and history integrity. Live browser/device not yet tested."
+    },
+    {
+      "name": "Content scope",
+      "result": "passed",
+      "detail": "Component-family lessons include conceptual-location caveats. Capacitor/inductor roles checked against Murata resources; source URLs retained with content. This is not an exact repair map."
+    }
+  ]
+}

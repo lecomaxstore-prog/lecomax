@@ -1,0 +1,38 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Open pairing and remote screen inside Android app, avoiding session loss caused by switching from browser to app."
+    },
+    {
+      "kind": "added",
+      "detail": "Other-phone approval instructions, same-address navigation restriction, connection failure state and explicit/background/back disconnect handling. Browser fallback for web."
+    }
+  ],
+  "summary": "Replaced the Android external-browser handoff with an embedded viewer and explicit instructions to approve on the other phone.",
+  "id": "phone-embedded-viewer-20261011",
+  "createdAt": "2026-10-11T21:28:18.465Z",
+  "validation": [
+    {
+      "detail": "TypeScript, lint, interaction checks and delivery pending. Physical two-phone acceptance not yet performed.",
+      "result": "not-run",
+      "name": "Implementation validation"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/components/PhoneViewer.web.tsx",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs"
+  ],
+  "components": [
+    "Phone",
+    "PhoneViewer"
+  ],
+  "status": "needs-testing",
+  "title": "Pair and view another phone inside the learning app",
+  "pages": [
+    "My remote phone"
+  ]
+}

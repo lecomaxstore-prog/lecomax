@@ -1,0 +1,42 @@
+{
+  "id": "auth-connection-recovery-20261012",
+  "createdAt": "2026-10-12T16:19:10.571Z",
+  "title": "Recover from a failed session connection",
+  "summary": "Keep session retries recoverable and provide a return to sign-in when verification cannot connect.",
+  "status": "needs-testing",
+  "pages": [
+    "Sign in",
+    "Session verification",
+    "Protected routes including Change History"
+  ],
+  "components": [
+    "OwnerGate",
+    "Owner session client"
+  ],
+  "files": [
+    "lecomax-learning-app/services/owner-session.ts",
+    "lecomax-learning-app/features/OwnerGate.tsx",
+    "tests/owner-session.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Retry rereads secure storage after a failed restore and no longer switches a valid session into a stuck loading state."
+    },
+    {
+      "kind": "added",
+      "detail": "Localized Back to sign in action clears local credentials without requiring a working backend; protected content still requires authentication."
+    },
+    {
+      "kind": "modified",
+      "detail": "Extracted shared restore operation for startup and retry. Restarted local API on port 3002 and Expo web on port 8081; no deployment."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "Pending focused session tests, typecheck, lint and history checks. Native device and real owner sign-in not yet tested.",
+      "result": "not-run",
+      "name": "Regression and app checks"
+    }
+  ]
+}

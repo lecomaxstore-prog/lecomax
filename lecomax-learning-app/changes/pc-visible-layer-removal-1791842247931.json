@@ -1,0 +1,38 @@
+{
+  "id": "pc-visible-layer-removal-1791842247931",
+  "createdAt": "2026-10-12T21:57:27.931Z",
+  "title": "Remove components directly in the PC viewer",
+  "summary": "Visible removal and restore controls replace selected image regions with interactive, explicitly simplified teaching diagrams.",
+  "status": "needs-testing",
+  "pages": [
+    "PC Lab (/pc-lab)"
+  ],
+  "components": [
+    "Photo viewer",
+    "Layer overlays",
+    "Part details"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-layer-explorer.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/tests/pc-layers.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Main viewer removal, per-device removed parts tray, individual restore and restore all; revealed lesson targets open details and existing teacher actions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced the dialog text-only removal action with actual on-image teaching overlays. Unsupported or hidden parts cannot be removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Interaction tests, typecheck, lint and history checks pending. Simplified diagrams do not represent verified hidden layouts; no deployment."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "python-success-ai-advice-20261012",
+  "createdAt": "2026-10-12T13:31:43Z",
+  "title": "Add AI teacher improvement advice after successful Python runs",
+  "summary": "Python Studio now shows code-aware improvement suggestions after a successful run and lets the learner request a fuller AI teacher review.",
+  "status": "successful",
+  "pages": [
+    "Python Studio results panel"
+  ],
+  "components": [
+    "PythonStudio"
+  ],
+  "files": [
+    "components/PythonStudio.web.tsx",
+    "components/python-studio-design.ts",
+    "tests/python-studio-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added success-only advice for formatting, input validation, naming and reusable functions, localized for French, English and Arabic."
+    },
+    {
+      "kind": "added",
+      "detail": "Added an Ask AI teacher for a code review action that sends the verified output and explicitly separates suggestions from tested results."
+    },
+    {
+      "kind": "modified",
+      "detail": "Styled the success advice card and added an interaction assertion for the Python Studio flow."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript typecheck",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck"
+    },
+    {
+      "name": "Python Studio interaction test",
+      "result": "passed",
+      "detail": "node --test tests/python-studio-interaction.test.cjs"
+    },
+    {
+      "name": "Device and production build validation",
+      "result": "not-run",
+      "detail": "Not run in this change."
+    }
+  ]
+}

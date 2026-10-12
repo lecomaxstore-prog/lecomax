@@ -1,0 +1,51 @@
+{
+  "id": "computer-zoom-pan-verified-20261013",
+  "createdAt": "2026-10-12T22:04:59.076Z",
+  "title": "Computer zoom panning: automated verification passed",
+  "summary": "Verified bounded two-axis dragging, tap preservation, drag click suppression, pointer cancellation, keyboard movement and full-view reset.",
+  "status": "successful",
+  "pages": [
+    "Computer lab"
+  ],
+  "components": [
+    "Computer photo viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/tests/pc-photo-pan.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Dragging now scrolls the zoomed photo with bounded movement and suppresses accidental component clicks."
+    },
+    {
+      "kind": "added",
+      "detail": "Keyboard arrow panning, focus outline and grab cursor. Full view retains normal page scrolling."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused interaction and regression tests",
+      "result": "passed",
+      "detail": "15 tests passed: pan interaction in English, French and Arabic, component lessons, layer interactions, and change-history UI/archive tests. JSDOM uses simulated layout dimensions."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Both modified TypeScript files passed ESLint. The CJS test is ignored by repository ESLint configuration and was executed with node --test."
+    },
+    {
+      "name": "Device/browser validation",
+      "result": "not-run",
+      "detail": "Physical phone touch gestures and browser layout were not manually verified. No deployment or preview claimed."
+    }
+  ],
+  "relatedId": "computer-zoom-pan-20261013"
+}

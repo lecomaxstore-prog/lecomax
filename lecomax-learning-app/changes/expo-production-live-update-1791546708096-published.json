@@ -1,0 +1,61 @@
+{
+  "id": "expo-production-live-update-1791546708096-published",
+  "createdAt": "2026-10-09T11:53:40.274Z",
+  "title": "Android production live update published",
+  "summary": "The design refresh and healthy-routine reminder fixes are published on Expo production for runtime 1.0.4. Reopen a compatible app to download and apply them.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "Wellness reminders",
+    "Change History",
+    "Android app"
+  ],
+  "components": [
+    "EAS Update production channel",
+    "Learning design",
+    "Wellness notification scheduling"
+  ],
+  "files": [
+    "lecomax-learning-app/docs/eas-updates.md",
+    "lecomax-learning-app/app/(tabs)/index.tsx",
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Published and remotely verified update group c793cd24-a77b-4b6d-936e-990a92ad1fe1 on the production branch for Android runtime 1.0.4."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded deployment verification in the permanent app change history. The completion record is being included in a follow-up package of the same release."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Release checks",
+      "result": "passed",
+      "detail": "42 tests, TypeScript, source secret audit and pre-publication history checks passed."
+    },
+    {
+      "name": "Android Hermes export",
+      "result": "passed",
+      "detail": "Production EAS Update compiled the native Hermes bundle successfully with the authorized publishing runner; this resolves the earlier restricted-runner compiler failure."
+    },
+    {
+      "name": "Expo publication",
+      "result": "passed",
+      "detail": "EAS Update exited 0. EAS update:view independently confirmed Android update 01a12082-8c7f-7b4f-8f44-5ab1724041a1, production branch, runtime 1.0.4. Dashboard: https://expo.dev/accounts/lecomax/projects/lecomax-learn/updates/c793cd24-a77b-4b6d-936e-990a92ad1fe1"
+    },
+    {
+      "name": "Physical device",
+      "result": "not-run",
+      "detail": "Actual update application and wellness notification delivery have not been observed on a phone. Users on the older APK without live updates must install the existing Expo release 1.0.4 once."
+    }
+  ],
+  "relatedId": "expo-production-live-update-1791546708096"
+}

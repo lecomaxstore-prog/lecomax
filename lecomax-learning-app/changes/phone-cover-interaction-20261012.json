@@ -1,0 +1,45 @@
+{
+  "id": "phone-cover-interaction-20261012",
+  "createdAt": "2026-10-12T16:59:00.677Z",
+  "title": "Open the phone cover and explore organized hardware",
+  "summary": "Resumed the interrupted Phone Lab change: double-click or double-tap the model, or use Open cover, to reveal components and their lessons.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone explorer document",
+    "Phone model renderer",
+    "Shared web/native PhoneExplorer"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-model-renderer.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Double-click/double-tap and accessible Open cover / Replace cover button, with English, French and Arabic instructions."
+    },
+    {
+      "kind": "modified",
+      "detail": "Cover mode removes the display layer to expose hardware; topics are organized into power, processing, image/sensors and connections/sound learning groups."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Pending lesson taps are canceled by rotation, dragging, mode changes and next-topic navigation. Ignore secondary buttons and unrelated pointers."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for cover gestures, physical component hit targets, grouping, mode transitions and drag rejection in all three languages."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated and visual validation",
+      "result": "not-run",
+      "detail": "Pending targeted tests, typecheck, lint and model inspection. Native touch and live browser have not been tested; no deployment."
+    }
+  ]
+}

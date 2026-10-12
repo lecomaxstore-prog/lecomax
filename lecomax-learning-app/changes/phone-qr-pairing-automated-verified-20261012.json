@@ -1,0 +1,73 @@
+{
+  "id": "phone-qr-pairing-automated-verified-20261012",
+  "createdAt": "2026-10-12T05:39:17.418Z",
+  "status": "successful",
+  "title": "QR pairing passes permission, connection and recovery checks",
+  "summary": "15 focused tests, TypeScript and lint pass. The QR option opens the in-app viewer and keeps approval and manual pairing intact.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer",
+    "QR scanner"
+  ],
+  "components": [
+    "Phone",
+    "PhonePairingScanner",
+    "PhoneViewer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhonePairingScanner.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/utils/phone-pairing.ts",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/tests/phone-qr.test.cjs",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Option 2 camera scanner, local session QR rendering, strict private Tailscale QR parsing and lecomax-learn phone links."
+    },
+    {
+      "kind": "modified",
+      "detail": "Pass a scanned code once to the embedded viewer in memory; preserve manual pairing, Android capture prompts and sharing-phone approval."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prepare Android 1.0.12/build 14 with camera scanning and SVG support, without microphone recording permission."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Fit QR on narrow phones and refresh camera permission after returning from Android settings. Corrected TypeScript checks and deep-link state handling found during validation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused interaction and history checks",
+      "result": "passed",
+      "detail": "15 tests passed: actual page QR display/hide, manual pairing, scan-to-viewer and incoming-link flow, no code persisted, permission denial, settings path, background camera pause, invalid/duplicate scans, one-time WebView handoff, owner approval and recovery/history regressions."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Typecheck and lint of phone page, viewer, scanner and pairing parser passed after correcting initial typing and effect lint findings."
+    },
+    {
+      "name": "Web export",
+      "result": "passed",
+      "detail": "Expo web export compiled the QR and camera dependencies successfully. This is not physical camera validation."
+    },
+    {
+      "name": "Native APK and physical two-phone scanning",
+      "result": "not-run",
+      "detail": "Build 14 running. No physical two-phone camera acceptance or installation yet. No public deployment."
+    }
+  ],
+  "relatedId": "phone-qr-pairing-20261012"
+}

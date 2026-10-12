@@ -1,0 +1,40 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Kali WSL terminal tab, actual runtime version checks, missing-runtime setup instructions and local setup documentation. Official Kali distribution installed on this PC; development package installation is in progress."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resolve Python launcher automatically and prefer modern PowerShell with Windows PowerShell fallback; preserve owner authentication and localhost restrictions."
+    }
+  ],
+  "summary": "Add a real Kali WSL terminal and automatic Python, PowerShell and Node runtime detection with version and setup details.",
+  "id": "expanded-local-runtimes-1791571438712",
+  "createdAt": "2026-10-09T18:44:25.989Z",
+  "validation": [
+    {
+      "detail": "Pending real PTY tests, typecheck, focused lint and history verification. No production deployment or native mobile runtime installation.",
+      "result": "not-run",
+      "name": "Implementation checks"
+    }
+  ],
+  "files": [
+    "lib/teacher-runtimes.ts",
+    "lib/teacher-terminal.ts",
+    "app/api/learning-mobile/terminal/route.ts",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/docs/local-runtimes.md",
+    "tests/teacher-terminal.test.ts"
+  ],
+  "components": [
+    "TeacherLab web",
+    "Terminal API",
+    "Runtime discovery"
+  ],
+  "status": "needs-testing",
+  "title": "Kali Linux and detected real learning runtimes",
+  "pages": [
+    "Teacher"
+  ]
+}

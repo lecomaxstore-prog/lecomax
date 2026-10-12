@@ -1,0 +1,52 @@
+{
+  "id": "pc-lab-blank-page-fix-20261012",
+  "createdAt": "2026-10-12T19:01:01.296Z",
+  "title": "Fix blank PC Lab page",
+  "summary": "Removed invalid raw CSS appended outside the computer lab style string, which caused the embedded PC Lab document to fail parsing and render blank.",
+  "status": "successful",
+  "pages": [
+    "PC Lab (/pc-lab)"
+  ],
+  "components": [
+    "PcExplorer web",
+    "Computer lab document generator",
+    "Computer lab styles"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/computer-lab-styles.ts",
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Moved the accidental standalone CSS out of the TypeScript module so pcExplorerDocument can compile and render again."
+    },
+    {
+      "kind": "added",
+      "detail": "Retained double-click component inspection and reveal-underneath controls in the valid generated document."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Document generation smoke",
+      "result": "passed",
+      "detail": "pcExplorerDocument('en') generated a 905279-character document successfully."
+    },
+    {
+      "name": "TypeScript check",
+      "result": "passed",
+      "detail": "npx tsc --noEmit completed successfully."
+    },
+    {
+      "name": "PC explorer tests",
+      "result": "passed",
+      "detail": "3 tests passed."
+    },
+    {
+      "name": "Browser route smoke",
+      "result": "not-run",
+      "detail": "The visible browser route was not reloaded from this session; no deployment."
+    }
+  ]
+}

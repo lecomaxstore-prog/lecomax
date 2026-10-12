@@ -1,0 +1,43 @@
+{
+  "id": "pc-simple-controls-needs-testing-20261011",
+  "createdAt": "2026-10-11T13:51:20Z",
+  "title": "My PC viewer simplified for one-hand control",
+  "summary": "Match the connected desktop view to the requested phone experience with immersive screen space, large close control and a three-dot menu for advanced actions.",
+  "status": "needs-testing",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "Windows remote desktop viewer"
+  ],
+  "files": [
+    "scripts/pc-remote/index.html",
+    "scripts/pc-remote/client.js"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replace the always-visible control surface with two large floating quick controls: close/disconnect and menu."
+    },
+    {
+      "kind": "added",
+      "detail": "Keep the advanced keyboard, touch mode, zoom, settings and reconnect actions behind the three-dot menu while preserving direct touch gestures."
+    },
+    {
+      "kind": "modified",
+      "detail": "Hide transient status text after connection and keep the desktop viewport visually clear."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused remote PC tests",
+      "result": "not-run",
+      "detail": "Run after recording this implementation report."
+    },
+    {
+      "name": "Physical landscape Android comparison",
+      "result": "not-run",
+      "detail": "Requires a real Android build and device to compare against the supplied reference image."
+    }
+  ]
+}

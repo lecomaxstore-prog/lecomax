@@ -1,0 +1,52 @@
+{
+  "id": "intel-nvidia-chip-realism-20261013",
+  "createdAt": "2026-10-12T22:10:36.591Z",
+  "title": "More realistic Intel and NVIDIA laptop chips",
+  "summary": "Refined the exposed CPU/GPU surfaces and manufacturer markings, with Intel Core and NVIDIA example lessons.",
+  "status": "needs-testing",
+  "pages": [
+    "Computer lab / laptop"
+  ],
+  "components": [
+    "Uncovered motherboard",
+    "CPU and GPU details",
+    "Localized reveal controls"
+  ],
+  "files": [
+    "lecomax-learning-app/data/laptop-chip-topics.ts",
+    "lecomax-learning-app/data/laptop-explorer.ts",
+    "lecomax-learning-app/data/laptop-revealed.json",
+    "lecomax-learning-app/utils/pc-layer-explorer.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/assets/computer-lab/laptop-intel-nvidia-v3.png",
+    "lecomax-learning-app/assets/computer-lab/laptop-intel-nvidia-v3.jpg",
+    "lecomax-learning-app/assets/computer-lab/laptop-intel-nvidia-v3.md",
+    "lecomax-learning-app/tests/pc-chip-reveal.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Generated a new image with reflective exposed dies, fine surface components and Intel/NVIDIA markings. Retained earlier assets and embedded the new optimized JPEG."
+    },
+    {
+      "kind": "added",
+      "detail": "Localized Intel Core CPU and NVIDIA GPU example descriptions without claiming an exact model."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Repaired corrupted Arabic and French text in chip lessons, reveal controls and photo-view accessibility description."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Image inspection",
+      "result": "passed",
+      "detail": "Generated output inspected visually: markings and die surfaces visible; package locations remain aligned with existing hotspots."
+    },
+    {
+      "name": "Code checks",
+      "result": "not-run",
+      "detail": "Automated tests, typecheck and focused lint pending. Browser/physical phone appearance not verified; not deployed."
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "storefront-loading-performance-verified-20261013",
+  "createdAt": "2026-10-12T22:23:05.654Z",
+  "title": "Storefront speed fixes: production build and regression checks passed",
+  "summary": "Verified single responsive hero, smaller default banner sources, immediately visible catalogue, and parallel bounded homepage requests.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage",
+    "Pages using ScrollReveal"
+  ],
+  "components": [
+    "Hero banner",
+    "Product grid",
+    "ScrollReveal",
+    "Homepage server data"
+  ],
+  "files": [
+    "components/ResponsiveHeroImage.tsx",
+    "components/HeroBanner.tsx",
+    "components/ScrollReveal.tsx",
+    "components/OurProductsGrid.tsx",
+    "app/page.tsx",
+    "app/globals.css",
+    "tests/storefront-loading-performance.test.ts",
+    "public/images/hero-desktop-v2.webp",
+    "public/images/hero-mobile-v2.webp",
+    "docs/storefront-performance-20261013.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "One responsive picture selects desktop OR mobile hero; mutually exclusive preload hints replace two eager image elements and duplicate backdrop layers. Supported remote images use the existing optimizer, with original-source fallback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Hero headline, action buttons and image appear without entrance delays. Catalogue is visible in initial HTML; scroll effects progressively enhance only offscreen content."
+    },
+    {
+      "kind": "modified",
+      "detail": "Ecomedia read starts alongside catalogue/settings requests, and optional banner/post reads have 1.8-second timeouts."
+    },
+    {
+      "kind": "added",
+      "detail": "WebP defaults reduce desktop source 2145760 to 145308 bytes and mobile source 2158587 to 145360 bytes; originals retained. Exact legacy default paths map to new assets, including encoded paths in existing settings."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Removed a leftover visibility-hook call caught by initial TypeScript/regression checks; subsequent checks pass."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regressions",
+      "result": "passed",
+      "detail": "5 loading-performance tests, 3 catalogue tests, 3 product-cache failure tests and 6 change-history tests passed (17 total). Tests cover rendering, fallback, legacy mapping, concurrent requests, deadlines and image decoding/size."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Root tsc --noEmit --incremental false passed; final production build also passed type validation."
+    },
+    {
+      "name": "Lint",
+      "result": "passed",
+      "detail": "Focused Next lint passed with 2 existing unoptimized-img warnings in community markup. Full build lint completed with existing repository warnings."
+    },
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Final network-enabled next-build.mjs completed successfully, generating 249 pages. Initial restricted build could not fetch Google Fonts; network-enabled build resolved this."
+    },
+    {
+      "name": "Built homepage verification",
+      "result": "passed",
+      "detail": "Actual generated HTML contains one hero img in a picture, viewport-specific preload hints, and both optimized WebP source paths. Built HTML is 600306 bytes; baseline differences are not treated as measured user speedup."
+    },
+    {
+      "name": "Live validation",
+      "result": "not-run",
+      "detail": "No deployment. No post-change production/browser/Lighthouse/mobile performance measurement. Public baseline remains environment-specific; see linked performance document."
+    }
+  ],
+  "relatedId": "storefront-loading-performance-20261013"
+}

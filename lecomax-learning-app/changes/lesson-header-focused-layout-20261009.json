@@ -1,0 +1,54 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Moved the lesson hero and learning stages before the course browser. Reduced the hero spacing and replaced repeated academy branding with a localized learning label."
+    },
+    {
+      "kind": "modified",
+      "detail": "Restyled the four learning stages as a compact segmented control with clear active state and distinct example icon."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the decorative hero circle, divider and repeated stage underline decorations."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced slash-based lesson counters with localized phrases to avoid confusing Arabic bidirectional ordering."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course progress, search and previous/next navigation now appear when the course browser is expanded. Existing footer navigation remains available."
+    }
+  ],
+  "summary": "Put the lesson title first, simplify the learning stages and collapse course navigation to leave more room for learning.",
+  "id": "lesson-header-focused-layout-20261009",
+  "createdAt": "2026-10-09T11:15:20.201Z",
+  "validation": [
+    {
+      "detail": "Typecheck, focused lint and existing lesson/history interaction tests pending.",
+      "result": "not-run",
+      "name": "Automated checks"
+    },
+    {
+      "detail": "Rendered browser and native-device review not performed. No deployment.",
+      "result": "not-run",
+      "name": "Visual review"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/LessonBrowser.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx"
+  ],
+  "components": [
+    "LessonHeader",
+    "LessonBrowser",
+    "LessonContent"
+  ],
+  "status": "needs-testing",
+  "title": "A calmer, lesson-first reading screen",
+  "pages": [
+    "/lesson/[id]"
+  ]
+}

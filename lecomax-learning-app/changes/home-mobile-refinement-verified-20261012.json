@@ -1,0 +1,51 @@
+{
+  "id": "home-mobile-refinement-verified-20261012",
+  "createdAt": "2026-10-12T16:36:47.849Z",
+  "title": "Mobile home refinement code checks passed",
+  "summary": "A more compact welcome section, clearer actions and progress, and a slimmer bottom navigation improve the mobile home layout.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "Tab navigation"
+  ],
+  "components": [
+    "StudyDashboard",
+    "BottomTabBar"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Reduced hero spacing and heading size, shortened welcome text in all three languages, differentiated primary and secondary actions, and stacked actions on narrow or enlarged-text screens."
+    },
+    {
+      "kind": "modified",
+      "detail": "Grouped progress counts into a bordered strip with separators; removed zero-padding. Compacted the next-lesson card with a green accent and corrected its Arabic arrow direction."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reduced navigation padding and icon spacing while retaining accessible touch targets and RTL order. Preserved hidden Change History."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint for StudyDashboard and BottomTabBar passed after final edits."
+    },
+    {
+      "name": "History preservation",
+      "result": "passed",
+      "detail": "All six history tests passed and the manifest check preserved 181 reports before adding this follow-up."
+    },
+    {
+      "name": "Visual and device verification",
+      "result": "not-run",
+      "detail": "No browser screenshot or physical device check performed. Responsive layout changes require visual confirmation in the running app. No deployment."
+    }
+  ],
+  "relatedId": "home-mobile-refinement-20261012"
+}

@@ -1,0 +1,45 @@
+{
+  "id": "python-console-reliability-20261012",
+  "createdAt": "2026-10-12T12:11:33.788Z",
+  "title": "Python console: ordered output and honest interactive input",
+  "summary": "Improve the existing isolated Python Studio runtime and console without replacing navigation, files, exercises or the AI teacher.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonSession",
+    "Pyodide worker",
+    "MobilePythonWorkspace bundled UI"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/python-sandbox.ts",
+    "lecomax-learning-app/utils/python-session.ts",
+    "lecomax-learning-app/utils/python-errors.ts",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/data/python-mobile-workspace.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Preserve stdout/stderr execution order, bound event delivery, echo actual input answers, remove invented default answers and silent unsupported-input fallback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Show explicit completion/failure/cancellation, deterministic error help, Explain Error and copy suggestion actions, separate raw streams, and scroll-follow behavior that respects manual reading."
+    },
+    {
+      "kind": "added",
+      "detail": "ImportError and cautious unknown-exception guidance, retaining actual learner traceback locations."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation verification",
+      "result": "not-run",
+      "detail": "Needs unit, real-runtime, browser, mobile bundle and Android checks. iOS device coverage and fixed per-worker memory quotas are not available; runtime requires pinned CDN access."
+    }
+  ]
+}

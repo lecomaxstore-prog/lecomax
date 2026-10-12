@@ -1,0 +1,49 @@
+{
+  "id": "learning-notebook-verified-1791542959177",
+  "createdAt": "2026-10-09T10:49:19.177Z",
+  "title": "تحسين دفتر التعلّم",
+  "summary": "أفكار كتابة مرتّبة، وحقل ملاحظات أوضح، ووصول مباشر إلى جميع الملاحظات مع تنبيه عند تعذّر الحفظ.",
+  "status": "successful",
+  "pages": [
+    "Lesson screen"
+  ],
+  "components": [
+    "LessonFooter learning notebook"
+  ],
+  "files": [
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/tests/lesson-footer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "ترتيب أزرار فكرة ومثال وسؤال في صف واحد متوازن، وتحسين المسافات وعنوان حقل الكتابة."
+    },
+    {
+      "kind": "added",
+      "detail": "رسالة عند إضافة بداية للكتابة أو اختيار بداية موجودة، مع الحفاظ على النص السابق ومنع تكرار الإضافة."
+    },
+    {
+      "kind": "added",
+      "detail": "زر لعرض جميع الملاحظات ورسالة خطأ مع إعادة محاولة الحفظ عند فشل التخزين."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Notebook interaction test",
+      "result": "passed",
+      "detail": "Passed: existing notes preserved, duplicate prompts prevented, prompt feedback displayed, all-notes route correct, save error and retry handled, lesson navigation and restart confirmation retained."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint for LessonFooter.tsx passed."
+    },
+    {
+      "name": "Visual device review",
+      "result": "not-run",
+      "detail": "Live browser/mobile appearance unverified. No deployment performed."
+    }
+  ],
+  "relatedId": "learning-notebook-1791542947529"
+}

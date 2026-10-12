@@ -50,7 +50,9 @@ function groupBySessions(rows: ViewRow[]) {
 export async function GET(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const requestedDays = Number.parseInt(new URL(req.url).searchParams.get("days") || "30", 10);
+  const params = new URL(req.url).searchParams;
+  const previousSummary = params.get("summary") === "previous";
+  const requestedDays = Number.parseInt(params.get("days") || "30", 10);
   const days = [7, 14, 30, 60, 90, 180].includes(requestedDays) ? requestedDays : 30;
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -59,12 +61,22 @@ export async function GET(req: NextRequest) {
   const columns = "session_id,visitor_id,path,referrer,user_agent,created_at,ip_hash,ip_masked,country_code,region,city,device_type,browser,operating_system,screen_width,screen_height,language,timezone,latitude,longitude";
 
   const [{ data: views, error: viewsError }, { data: orders, error: ordersError }] = await Promise.all([
-    supabase.from("page_views").select(columns).gte("created_at", since).order("created_at", { ascending: false }).limit(5000),
-    supabase.from("orders").select("total,status,customer,created_at").gte("created_at", since).limit(5000),
+    supabase.from("page_views").select(previousSummary ? "created_at" : columns).gte("created_at", since).order("created_at", { ascending: false }).limit(5000).abortSignal(AbortSignal.timeout(8000)),
+    supabase.from("orders").select(previousSummary ? "total,status,created_at" : "total,status,customer,created_at").gte("created_at", since).limit(5000).abortSignal(AbortSignal.timeout(8000)),
   ]);
   if (viewsError || ordersError) return NextResponse.json({ error: viewsError?.message || ordersError?.message }, { status: 500 });
 
   const rows = (views || []) as unknown as ViewRow[];
+  const orderRows = (orders || []) as unknown as { total: number; status: string; customer?: unknown; created_at: string }[];
+  if (previousSummary) {
+    const cutoff = new Date(Date.now() - (days / 2) * 86_400_000).toISOString().split("T")[0];
+    const previousOrders = orderRows.filter((order) => order.created_at.split("T")[0] < cutoff);
+    return NextResponse.json({ previous_totals: {
+      views: rows.filter((row) => row.created_at.split("T")[0] < cutoff).length,
+      orders: previousOrders.length,
+      revenue: previousOrders.filter((order) => order.status !== "cancelled").reduce((sum, order) => sum + (order.total ?? 0), 0),
+    } }, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
+  }
   const visitorKey = (row: ViewRow) => row.visitor_id || row.ip_hash || row.session_id || row.user_agent || "anonymous";
   const todayRows = rows.filter((row) => row.created_at >= today.toISOString());
   const recentRows = rows.filter((row) => row.created_at >= recentSince).slice(0, 100);
