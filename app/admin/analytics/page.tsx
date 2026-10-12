@@ -1,7 +1,8 @@
 "use client";
 import AdminLoading from "@/components/admin/AdminLoading";
 import ResponsiveTable from "@/components/admin/ResponsiveTable";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { fetchAnalytics } from "@/lib/analytics-fetch";
 import MoroccoLiveMap from "@/components/admin/MoroccoLiveMap";
 import WeeklySearchMonitoring from "@/components/admin/WeeklySearchMonitoring";
 
@@ -190,47 +191,56 @@ function DonutChart({ slices }: { slices: { label: string; value: number; color:
 }
 
 const SESSION_PAGE_SIZE = 8;
+type AnalyticsResponse = {
+  views?: ViewRow[]; orders?: OrderRow[]; recent_views?: ViewRow[];
+  visitors_today?: number; unique_today?: number; active_now?: number; sessions?: SessionData[];
+};
 
 export default function AnalyticsPage() {
   const [period, setPeriod] = useState<7 | 30 | 90>(30);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const activeRequest = useRef<AbortController | null>(null);
   const [views, setViews] = useState<ViewRow[]>([]);
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [recentViews, setRecentViews] = useState<ViewRow[]>([]);
   const [visitorsToday, setVisitorsToday] = useState(0);
   const [uniqueToday, setUniqueToday] = useState(0);
   const [activeNow, setActiveNow] = useState(0);
-  const [prevTotals, setPrevTotals] = useState({ views: 0, orders: 0, revenue: 0 });
+  const [prevTotals, setPrevTotals] = useState<{ views: number; orders: number; revenue: number } | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [sessions, setSessions] = useState<SessionData[]>([]);
   const [expandedSession, setExpandedSession] = useState<string | null>(null);
   const [visibleSessionCount, setVisibleSessionCount] = useState(SESSION_PAGE_SIZE);
 
   const load = useCallback(async () => {
-    const [res, prevRes] = await Promise.all([
-      fetch(`/api/analytics?days=${period}`),
-      fetch(`/api/analytics?days=${period * 2}`),
-    ]);
-    const raw = await res.json();
-    const rawPrev = await prevRes.json();
-    setViews(raw.views ?? []);
-    setOrders(raw.orders ?? []);
-    setRecentViews(raw.recent_views ?? []);
-    setVisitorsToday(raw.visitors_today ?? 0);
-    setUniqueToday(raw.unique_today ?? 0);
-    setActiveNow(raw.active_now ?? 0);
-    setSessions(raw.sessions ?? []);
+    activeRequest.current?.abort();
+    const request = new AbortController();
+    activeRequest.current = request;
+    setLoading(true);
+    setLoadError(false);
+    setPrevTotals(null);
+    try {
+      const raw = await fetchAnalytics<AnalyticsResponse>(period, { signal: request.signal });
+      if (request.signal.aborted) return;
+      setViews(raw.views ?? []);
+      setOrders(raw.orders ?? []);
+      setRecentViews(raw.recent_views ?? []);
+      setVisitorsToday(raw.visitors_today ?? 0);
+      setUniqueToday(raw.unique_today ?? 0);
+      setActiveNow(raw.active_now ?? 0);
+      setSessions(raw.sessions ?? []);
 
-    const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - period);
-    const cutoffStr = cutoff.toISOString().split("T")[0];
-    const pv: ViewRow[] = rawPrev.views ?? [];
-    const po: OrderRow[] = rawPrev.orders ?? [];
-    setPrevTotals({
-      views: pv.filter((v) => v.created_at.split("T")[0] < cutoffStr).length,
-      orders: po.filter((o) => o.created_at.split("T")[0] < cutoffStr).length,
-      revenue: po.filter((o) => o.created_at.split("T")[0] < cutoffStr && o.status !== "cancelled").reduce((s, o) => s + (o.total ?? 0), 0),
-    });
-    setLoading(false);
+      setLoading(false);
+      // Optional trends must never hold the current report behind a skeleton.
+      void fetchAnalytics<{ previous_totals: { views: number; orders: number; revenue: number } }>(period * 2, { previous: true, signal: request.signal })
+        .then((comparison) => { if (!request.signal.aborted) setPrevTotals(comparison.previous_totals); })
+        .catch(() => { /* Keep trends unavailable instead of reporting false zeroes. */ });
+    } catch {
+      if (!request.signal.aborted) setLoadError(true);
+    } finally {
+      if (!request.signal.aborted) setLoading(false);
+    }
   }, [period]);
 
   useEffect(() => {
@@ -238,20 +248,24 @@ export default function AnalyticsPage() {
     setVisibleSessionCount(SESSION_PAGE_SIZE);
     setExpandedSession(null);
     load();
+    return () => activeRequest.current?.abort();
   }, [load]);
 
   // Auto-refresh recent activity every 60s
   useEffect(() => {
     if (!autoRefresh) return;
+    const request = new AbortController();
     const id = setInterval(() => {
-      fetch(`/api/analytics?days=${period}`).then((r) => r.json()).then((raw) => {
+      if (document.visibilityState === "hidden") return;
+      fetchAnalytics<AnalyticsResponse>(period, { signal: request.signal }).then((raw) => {
+        if (request.signal.aborted) return;
         setRecentViews(raw.recent_views ?? []);
         setVisitorsToday(raw.visitors_today ?? 0);
         setUniqueToday(raw.unique_today ?? 0);
         setActiveNow(raw.active_now ?? 0);
-      });
+      }).catch(() => { /* Keep the last successful activity during a failed refresh. */ });
     }, 60_000);
-    return () => clearInterval(id);
+    return () => { clearInterval(id); request.abort(); };
   }, [period, autoRefresh]);
 
   // â”€â”€ derived â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -360,7 +374,12 @@ export default function AnalyticsPage() {
 
       <WeeklySearchMonitoring />
 
-      {loading ? (
+      {loadError ? (
+        <div role="alert" className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+          <p>Le rapport n’a pas pu être chargé. Vérifiez votre connexion puis réessayez.</p>
+          <button type="button" onClick={() => void load()} className="mt-3 rounded-xl bg-black px-4 py-2 font-bold text-white">Réessayer</button>
+        </div>
+      ) : loading ? (
         <AdminLoading />
       ) : (
         <>
@@ -369,9 +388,9 @@ export default function AnalyticsPage() {
             <StatCard label="En ligne maintenant" value={activeNow} sub="5 dernières min" icon={<span className="relative flex h-3 w-3"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"/><span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"/></span>} color="bg-emerald-50 text-emerald-600" trend={null} />
             <StatCard label="Visiteurs aujourd'hui" value={visitorsToday} sub={`${uniqueToday} uniques`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>} color="bg-sky-50 text-sky-600" trend={null} />
             <StatCard label="Visiteurs uniques" value={totalUnique.toLocaleString("fr-FR")} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>} color="bg-blue-50 text-blue-600" trend={null} />
-            <StatCard label="Vues totales" value={views.length.toLocaleString("fr-FR")} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>} color="bg-violet-50 text-violet-600" trend={trendPct(views.length, prevTotals.views)} />
-            <StatCard label="Commandes" value={orders.length} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>} color="bg-emerald-50 text-emerald-600" trend={trendPct(orders.length, prevTotals.orders)} />
-            <StatCard label="Revenus" value={`${totalRevenue.toLocaleString("fr-MA")} MAD`} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>} color="bg-orange-50 text-orange-600" trend={trendPct(totalRevenue, prevTotals.revenue)} />
+            <StatCard label="Vues totales" value={views.length.toLocaleString("fr-FR")} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>} color="bg-violet-50 text-violet-600" trend={prevTotals ? trendPct(views.length, prevTotals.views) : null} />
+            <StatCard label="Commandes" value={orders.length} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>} color="bg-emerald-50 text-emerald-600" trend={prevTotals ? trendPct(orders.length, prevTotals.orders) : null} />
+            <StatCard label="Revenus" value={`${totalRevenue.toLocaleString("fr-MA")} MAD`} sub={`${period}j`} icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>} color="bg-orange-50 text-orange-600" trend={prevTotals ? trendPct(totalRevenue, prevTotals.revenue) : null} />
             <StatCard label="Panier moyen" value={`${aov.toFixed(0)} MAD`} sub="par commande" icon={<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>} color="bg-pink-50 text-pink-600" trend={null} />
           </div>
 
@@ -382,7 +401,7 @@ export default function AnalyticsPage() {
             <div className="md:col-span-2 bg-white rounded-2xl border border-neutral-100 p-5">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Vues & Visiteurs uniques — {period}j</p>
-                <Trend pct={trendPct(views.length, prevTotals.views)} />
+                <Trend pct={prevTotals ? trendPct(views.length, prevTotals.views) : null} />
               </div>
               <p className="text-2xl font-black mb-0.5">{views.length.toLocaleString("fr-FR")}</p>
               <p className="text-[11px] text-neutral-400 mb-3">{totalUnique.toLocaleString("fr-FR")} visiteurs uniques</p>
@@ -403,7 +422,7 @@ export default function AnalyticsPage() {
             <div className="bg-white rounded-2xl border border-neutral-100 p-5">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Revenus — {period}j</p>
-                <Trend pct={trendPct(totalRevenue, prevTotals.revenue)} />
+                <Trend pct={prevTotals ? trendPct(totalRevenue, prevTotals.revenue) : null} />
               </div>
               <p className="text-2xl font-black mb-4">{totalRevenue.toLocaleString("fr-MA")} MAD</p>
               <BarChart data={stats.map((s) => s.revenue)} color="#10b981" labels={dateLabels} />
@@ -550,7 +569,7 @@ export default function AnalyticsPage() {
             <div className="md:col-span-2 bg-white rounded-2xl border border-neutral-100 p-5">
               <div className="flex items-center justify-between mb-1">
                 <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide">Commandes par jour — {period}j</p>
-                <Trend pct={trendPct(orders.length, prevTotals.orders)} />
+                <Trend pct={prevTotals ? trendPct(orders.length, prevTotals.orders) : null} />
               </div>
               <p className="text-2xl font-black mb-4">{orders.length} commande{orders.length !== 1 ? "s" : ""}</p>
               <BarChart data={stats.map((s) => s.orders)} color="#8b5cf6" labels={dateLabels} />
@@ -657,7 +676,7 @@ export default function AnalyticsPage() {
           </div>
 
           {/* Comparison */}
-          {prevTotals.views > 0 && (
+          {prevTotals && prevTotals.views > 0 && (
             <div className="bg-white rounded-2xl border border-neutral-100 p-5">
               <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-wide mb-4">Comparaison vs période précédente</p>
               <div className="grid grid-cols-3 gap-4 text-center">

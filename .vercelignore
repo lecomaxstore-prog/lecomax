@@ -24,3 +24,5 @@ mobile/.credentials/
 *.log
 *.tsbuildinfo
 lighthouse-report.json
+
+lecomax-learning-app/
