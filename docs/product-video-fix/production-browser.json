@@ -1,0 +1,54 @@
+{
+  "checkedAt": "2026-10-17T21:29:14.894Z",
+  "engine": "Desktop Chrome with desktop and mobile viewports; not physical devices",
+  "results": [
+    {
+      "viewport": 1280,
+      "slug": "asics-superblast-2",
+      "time": 0.501606,
+      "width": 1280,
+      "height": 720,
+      "ready": 4,
+      "controls": true,
+      "inline": true,
+      "poster": "https://res.cloudinary.com/dbivkjlxr/video/upload/so_0/gemini_generated_video_54a7c167_hn0xmy.jpg",
+      "passed": true
+    },
+    {
+      "viewport": 1280,
+      "slug": "armani-stronger-with-you-intensely-60ml-occasion",
+      "time": 0.409944,
+      "width": 1920,
+      "height": 1080,
+      "ready": 4,
+      "controls": true,
+      "inline": true,
+      "poster": "https://res.cloudinary.com/dbivkjlxr/video/upload/so_0/STRONGER_WITH_YOU_INTENSELY___EMPORIO_ARMANI_1080p_o94mwo.jpg",
+      "passed": true
+    },
+    {
+      "viewport": 390,
+      "slug": "asics-superblast-2",
+      "time": 0.438517,
+      "width": 1280,
+      "height": 720,
+      "ready": 4,
+      "controls": true,
+      "inline": true,
+      "poster": "https://res.cloudinary.com/dbivkjlxr/video/upload/so_0/gemini_generated_video_54a7c167_hn0xmy.jpg",
+      "passed": true
+    },
+    {
+      "viewport": 390,
+      "slug": "armani-stronger-with-you-intensely-60ml-occasion",
+      "time": 0.448671,
+      "width": 1920,
+      "height": 1080,
+      "ready": 4,
+      "controls": true,
+      "inline": true,
+      "poster": "https://res.cloudinary.com/dbivkjlxr/video/upload/so_0/STRONGER_WITH_YOU_INTENSELY___EMPORIO_ARMANI_1080p_o94mwo.jpg",
+      "passed": true
+    }
+  ]
+}

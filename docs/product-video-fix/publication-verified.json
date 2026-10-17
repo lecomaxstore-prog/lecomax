@@ -1,0 +1,53 @@
+{
+  "id": "product-video-publication-verified-20261017",
+  "createdAt": "2026-10-17T21:29:32.689Z",
+  "relatedId": "product-video-publication-started-20261017",
+  "title": "Product video fix published and verified live",
+  "summary": "GitHub branch pushed and production deployment Ready on lecomax.com; both affected product videos play in live Chrome checks.",
+  "status": "successful",
+  "pages": [
+    "Product detail",
+    "Admin products"
+  ],
+  "components": [
+    "Product video player",
+    "GitHub release",
+    "Vercel production"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "components/ProductVideo.tsx",
+    "lib/product-video.ts",
+    "lib/product-api-validation.ts",
+    "app/admin/products/page.tsx",
+    "tests/product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepared isolated GitHub branch fix/product-video-cloudinary-20261017 from origin/main and applied the same fix to the previously deployed release checkout, preserving existing production changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "GitHub",
+      "result": "passed",
+      "detail": "Commit dd2bfbaf21d7e20e351ec439d4e24c7b50563b02 pushed to fix/product-video-cloudinary-20261017; remote SHA verified. Main remains unchanged because it predates the live combined release."
+    },
+    {
+      "name": "Production build and alias",
+      "result": "passed",
+      "detail": "Vercel dpl_BhXjeLDFsrfqcjsyDckH9cs7XLdY completed production build, lint and TypeScript, generated 257 pages, and is Ready aliased to lecomax.com. Existing unrelated lint warnings remain."
+    },
+    {
+      "name": "Live browser playback",
+      "result": "passed",
+      "detail": "Both Asics Superblast 2 and Armani Intensely played from real lecomax.com product galleries in Chrome at 1280px and 390px. All four checks had advancing time, nonzero video dimensions, readyState 4, native controls and playsInline. Initial early-click harness failure resolved by waiting for hydration."
+    },
+    {
+      "name": "Physical devices",
+      "result": "not-run",
+      "detail": "Physical iPhone/Android and Safari untested. No Android binary or Expo update published. Final learning history report is local until the learning app is rebuilt."
+    }
+  ]
+}
