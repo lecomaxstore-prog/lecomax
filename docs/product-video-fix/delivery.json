@@ -1,0 +1,117 @@
+{
+  "checkedAt": "2026-10-17T21:19:01.934Z",
+  "results": [
+    {
+      "slug": "asics-superblast-2",
+      "stored": "https://player.cloudinary.com/embed/?cloud_name=dbivkjlxr&public_id=gemini_generated_video_54a7c167_hn0xmy",
+      "resolved": "https://res.cloudinary.com/dbivkjlxr/video/upload/f_mp4,vc_h264,ac_aac/gemini_generated_video_54a7c167_hn0xmy.mp4",
+      "responses": [
+        {
+          "kind": "stored",
+          "status": 206,
+          "type": "text/html",
+          "range": "bytes 0-1023/1699",
+          "error": null
+        },
+        {
+          "kind": "video",
+          "status": 200,
+          "type": "video/mp4;codecs=avc1",
+          "range": null,
+          "error": null
+        },
+        {
+          "kind": "poster",
+          "status": 206,
+          "type": "image/jpeg",
+          "range": "bytes 0-1023/72010",
+          "error": null
+        }
+      ]
+    },
+    {
+      "slug": "armani-stronger-with-you-intensely-60ml-occasion",
+      "stored": "https://player.cloudinary.com/embed/?cloud_name=dbivkjlxr&public_id=STRONGER_WITH_YOU_INTENSELY___EMPORIO_ARMANI_1080p_o94mwo",
+      "resolved": "https://res.cloudinary.com/dbivkjlxr/video/upload/f_mp4,vc_h264,ac_aac/STRONGER_WITH_YOU_INTENSELY___EMPORIO_ARMANI_1080p_o94mwo.mp4",
+      "responses": [
+        {
+          "kind": "stored",
+          "status": 206,
+          "type": "text/html",
+          "range": "bytes 0-1023/1699",
+          "error": null
+        },
+        {
+          "kind": "video",
+          "status": 200,
+          "type": "video/mp4;codecs=avc1",
+          "range": null,
+          "error": null
+        },
+        {
+          "kind": "poster",
+          "status": 206,
+          "type": "image/jpeg",
+          "range": "bytes 0-1023/49277",
+          "error": null
+        }
+      ]
+    },
+    {
+      "slug": "veste-en-jean-homme-double-sherpa--bleu-clair--chaude--vintage",
+      "stored": "https://res.cloudinary.com/dbivkjlxr/video/upload/v1789643605/Create_a_premium_cinematic_fas_i4rn8l.mp4",
+      "resolved": "https://res.cloudinary.com/dbivkjlxr/video/upload/v1789643605/Create_a_premium_cinematic_fas_i4rn8l.mp4",
+      "responses": [
+        {
+          "kind": "stored",
+          "status": 206,
+          "type": "video/mp4;codecs=avc1",
+          "range": "bytes 0-1023/5500669",
+          "error": null
+        },
+        {
+          "kind": "video",
+          "status": 206,
+          "type": "video/mp4;codecs=avc1",
+          "range": "bytes 0-1023/5500669",
+          "error": null
+        },
+        {
+          "kind": "poster",
+          "status": 206,
+          "type": "image/jpeg",
+          "range": "bytes 0-1023/44301",
+          "error": null
+        }
+      ]
+    },
+    {
+      "slug": "veste-homme-varsity-matelasse--capuche--rust--cru",
+      "stored": "https://res.cloudinary.com/dbivkjlxr/video/upload/v1789642506/make_a_video_media_please_jetxnt.mp4",
+      "resolved": "https://res.cloudinary.com/dbivkjlxr/video/upload/v1789642506/make_a_video_media_please_jetxnt.mp4",
+      "responses": [
+        {
+          "kind": "stored",
+          "status": 206,
+          "type": "video/mp4;codecs=avc1",
+          "range": "bytes 0-1023/5510063",
+          "error": null
+        },
+        {
+          "kind": "video",
+          "status": 206,
+          "type": "video/mp4;codecs=avc1",
+          "range": "bytes 0-1023/5510063",
+          "error": null
+        },
+        {
+          "kind": "poster",
+          "status": 206,
+          "type": "image/jpeg",
+          "range": "bytes 0-1023/64411",
+          "error": null
+        }
+      ]
+    }
+  ]
+}

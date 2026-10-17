@@ -1,4 +1,6 @@
 "use client";
+
+import ProductVideo from "@/components/ProductVideo";
 import AdminToggle from "@/components/admin/AdminToggle";
 import AdminLoading from "@/components/admin/AdminLoading";
 import ProductSizeGuideEditor from "@/components/admin/ProductSizeGuideEditor";
@@ -1406,9 +1408,9 @@ export default function ProductsPage() {
                   </div>
                 );
                 return (
-                  <div className="rounded-xl overflow-hidden border border-neutral-200 aspect-video bg-black">
+                  <div className="relative rounded-xl overflow-hidden border border-neutral-200 aspect-video bg-black">
                     {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <video src={form.video} controls className="w-full h-full" />
+                    <ProductVideo key={form.video} url={form.video} />
                   </div>
                 );
               })()}

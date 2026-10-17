@@ -1,3 +1,4 @@
+import { productVideoMedia } from "@/lib/product-video";
 import {
   asStock,
   cleanColorStock,
@@ -209,7 +210,9 @@ export function cleanProductPayload(body: unknown, mode: "create" | "update") {
   if ("video" in body) {
     const video = String(body.video ?? "").trim();
     if (video && !/^https?:\/\//i.test(video)) return { error: "URL vidéo invalide." } as const;
-    payload.video = video ? video.slice(0, 2_000) : null;
+    const media = video ? productVideoMedia(video) : null;
+    if (video.length > 2_000 || media?.error) return { error: "URL vidéo invalide." } as const;
+    payload.video = media?.src || null;
   }
   if ("weight" in body) {
     const weight = optionalNumber(body.weight, { min: 0, max: 100_000 });

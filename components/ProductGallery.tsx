@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Image, { getImageProps } from "next/image";
 import { createPortal } from "react-dom";
 import { useProductColor } from "./ProductColorContext";
+import ProductVideo from "./ProductVideo";
+import { productVideoMedia } from "@/lib/product-video";
 import { resolveProductGalleryImages } from "@/lib/product-gallery-images";
 
 const colorMap: Record<string, string> = {
@@ -64,7 +66,6 @@ export default function ProductGallery({
   const [mounted, setMounted] = useState(false);
   const { color: selectedColor } = useProductColor();
   const thumbsRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
   const touchStartX = useRef<number | null>(null);
   const dragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
@@ -162,7 +163,7 @@ export default function ProductGallery({
 
   const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
     setMainControlsVisible(true);
-    touchStartX.current = event.touches[0]?.clientX ?? null;
+    touchStartX.current = active === "video" ? null : event.touches[0]?.clientX ?? null;
   };
 
   const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
@@ -173,18 +174,6 @@ export default function ProductGallery({
     if (distance > 0) goPrev();
     else goNext();
   };
-
-  // The video element mounts after the click state update. Calling play here
-  // makes playback reliable across browsers while muted autoplay remains safe.
-  useEffect(() => {
-    if (active !== "video" || !video || isYouTube(video)) return;
-    const player = videoRef.current;
-    if (!player) return;
-    player.currentTime = 0;
-    void player.play().catch(() => {
-      // A later click on the video thumbnail retries playback.
-    });
-  }, [active, video, videoPlaybackKey]);
 
   const hasColorPicker = !!(colors && colors.length > 0 && (colorImageGalleries || colorImages));
 
@@ -244,23 +233,7 @@ export default function ProductGallery({
               className="absolute inset-0 w-full h-full border-0"
             />
           ) : (
-          <video
-            ref={videoRef}
-            key={`${video}-${videoPlaybackKey}`}
-            src={video}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster={safeImages[0]}
-            onCanPlay={(event) => {
-              void event.currentTarget.play().catch(() => {
-                // A later click on the video thumbnail retries playback.
-              });
-            }}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
+          <ProductVideo key={`${video}-${videoPlaybackKey}`} url={video} poster={safeImages[0]} autoPlay />
           )
         ) : (
           <button
@@ -362,8 +335,9 @@ export default function ProductGallery({
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : safeImages[0]}
+                  src={isYouTube(video) ? `https://img.youtube.com/vi/${getYouTubeId(video)}/mqdefault.jpg` : productVideoMedia(video, safeImages[0]).poster}
                   alt=""
+                  onError={(event) => { if (event.currentTarget.getAttribute("src") !== safeImages[0]) event.currentTarget.src = safeImages[0]; }}
                   className="absolute inset-0 h-full w-full object-cover opacity-65"
                 />
                 <span className="relative z-10 flex h-7 w-7 items-center justify-center rounded-full bg-white/95 pl-0.5 text-[11px] leading-none text-black shadow-md">▶</span>
