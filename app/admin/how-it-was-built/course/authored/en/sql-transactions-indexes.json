@@ -1,0 +1,385 @@
+{
+  "id": "sql-transactions-indexes",
+  "order": 3,
+  "title": "Transactions, indexes and migrations: enforce and test the invariant",
+  "estimatedMinutes": 100,
+  "prerequisites": [
+    "Read the tables and relationships lesson: CREATE TABLE, SELECT, INSERT, UPDATE, primary and foreign keys.",
+    "Install the repository dependencies and open a terminal at the L’ecomax repository root."
+  ],
+  "objectives": [
+    "Enforce a successful stock reservation and prove rollback after an order-write failure.",
+    "Distinguish zero affected rows from SQL errors, and atomicity from isolation.",
+    "Compare query plans before and after an index and explain write costs.",
+    "Explain backfills, constraints, expand/contract and the limits of this lab."
+  ],
+  "sections": [
+    {
+      "id": "mental-model",
+      "title": "Intuition and prerequisites",
+      "blocks": [
+        {
+          "id": "sql-explanation-0",
+          "type": "paragraph",
+          "text": "Suppose a product has three units and a customer requests two. Stock must become one, and an order item must record the quantity and the price at purchase. These are two writes but one business operation: a valid reservation. If stock falls without an order, inventory disappears from the application. If an order appears without a reservation, the shop can sell inventory it does not have. A transaction defines the boundary within which changes commit together or are undone together. First state the invariant in ordinary language: stock stays nonnegative, and every newly accepted order item has a successful reservation. The database needs executable rules to enforce that statement."
+        },
+        {
+          "id": "sql-explanation-1",
+          "type": "paragraph",
+          "text": "You should already be able to read CREATE TABLE, INSERT, UPDATE and SELECT and explain a primary key and foreign key. Return to tables and relationships if those are unfamiliar. This workshop uses the locally installed PGlite PostgreSQL engine and temporary tables belonging to one connection. It needs no Supabase account or credentials. From the repository root run node --test lecomax-learning-app/tests/sql-chapter.test.cjs. These tests execute the lesson SQL, rather than merely checking JSON structure. The complete lab is academy-labs/sql-data-modeling/sql-transactions-indexes.sql. Use a fresh connection to rerun the whole file: the previous connection still has its temporary tables. The SQL runner is a development tool, not the academy's mobile code viewer."
+        },
+        {
+          "id": "analogy",
+          "type": "callout",
+          "tone": "analogy",
+          "title": "Intuition and prerequisites",
+          "text": "Imagine two linked entries in an accounting notebook: approve both the inventory reduction and the order, or erase both provisional entries. The analogy does not replace executable business rules or the explanation of concurrent access."
+        }
+      ]
+    },
+    {
+      "id": "deep-understanding",
+      "title": "Mechanisms and their limits",
+      "blocks": [
+        {
+          "id": "sql-explanation-2",
+          "type": "paragraph",
+          "text": "BEGIN starts an explicit transaction. Your connection can see its own subsequent changes, while other connections cannot read those uncommitted versions. COMMIT makes the group committed and releases its transaction locks; ROLLBACK undoes the group's changes and releases them. Without an explicit transaction, autocommit normally treats each successful statement as its own transaction. Sending UPDATE and INSERT separately therefore does not join their outcomes. An SQL error inside a transaction leaves it aborted: later commands fail until you roll back, or recover to an appropriate savepoint. Do not hide the error and assume COMMIT repairs the operation. Record the first failure and restore a known connection state."
+        },
+        {
+          "id": "sql-explanation-3",
+          "type": "paragraph",
+          "text": "An SQL failure and a failed business condition are different. UPDATE with WHERE stock >= 2 can successfully update zero rows because stock is insufficient or the product is absent. PostgreSQL cannot infer whether that outcome is acceptable to your shop. The previous example had a comment saying exactly one row was required, followed by an unconditional INSERT. A comment enforces nothing. The revised block reads ROW_COUNT immediately after UPDATE using GET DIAGNOSTICS. If it is not one, RAISE EXCEPTION stops execution before INSERT. Keep this diagnostic adjacent to the update: another statement can change the row-count status and make the check describe the wrong operation."
+        },
+        {
+          "id": "sql-explanation-4",
+          "type": "paragraph",
+          "text": "Read the setup before reserving anything. The primary key makes id = 1 match at most one product. Stock is a required integer, with a CHECK forbidding negative values. unit_price_cents stores the smallest currency unit: 4990 represents 49.90 for a currency with one hundred minor units. Display formatting is a separate concern. CHECK alone does not exclude NULL, so NOT NULL is also necessary. The order item references an existing product and requires positive quantity. Using order_id alone as the primary key deliberately permits only one item per order in this lab. A real multi-product shop needs an orders table and an appropriate item identifier or composite key; this simplified schema is not a production checkout model."
+        },
+        {
+          "id": "sql-explanation-5",
+          "type": "paragraph",
+          "text": "DO executes a PL/pgSQL block on the database. The dollar delimiters surround its body; they are not JavaScript variables. DECLARE introduces affected and reserved_price. The inner BEGIN starts the procedural body, not another transaction. UPDATE subtracts two only when the product exists and enough stock remains. RETURNING retrieves the updated row's price and INTO stores it locally. The row-count guard rejects a failed reservation. INSERT then uses the price obtained by that update, rather than trusting a browser-supplied price. The outer COMMIT follows the successfully completed block. The expected result is stock 1, order 101, quantity 2, and a unit price of 4990."
+        },
+        {
+          "id": "sql-explanation-6",
+          "type": "paragraph",
+          "text": "Test failure paths to understand rollback. In a fresh database, run setup, set stock to one, then request two: the block must throw. After ROLLBACK, stock must still be one and there must be no order item. In another fresh case, leave stock at three and insert order 101 before reserving. UPDATE can succeed, but INSERT then violates the primary key. Rolling back restores the earlier stock reduction as well: stock remains three and the preexisting order is unchanged. This demonstrates the relationship between writes, which searching the code for BEGIN cannot establish. Include the absent-product case and stock boundaries zero, one, two and three."
+        },
+        {
+          "id": "sql-explanation-7",
+          "type": "paragraph",
+          "text": "What if two customers reserve simultaneously? A separate SELECT, a subtraction in JavaScript, and an UPDATE of that computed value can use a stale observation. Both connections might read three and approve two purchases. UPDATE stock = stock - 2 WHERE stock >= 2 performs the check and decrement in one statement. Under Read Committed, a competing update of the same row can wait for the first transaction. PostgreSQL then rechecks its WHERE condition against the updated row. The first reservation leaves one; the second matches zero and is rejected. This describes PostgreSQL's concurrency mechanism. The local PGlite tests here do not establish behavior across two independent connections; a real PostgreSQL concurrency test remains necessary."
+        },
+        {
+          "id": "sql-explanation-8",
+          "type": "paragraph",
+          "text": "ACID separates four properties. Atomicity groups the commit or rollback of writes. Consistency depends on declared constraints and application rules; the database does not invent your business rules. Isolation governs how concurrent transactions observe and affect each other, and weaker levels do not promise fully serial execution. Durability concerns committed data under the engine's storage and write-ahead-log configuration; it does not replace backups. Read Committed can take a different snapshot for each statement. Serializable detects stronger classes of conflict, but can reject an operation with SQLSTATE 40001, requiring a retry of the entire transaction. Deadlocks use 40P01 and also need bounded handling. Reserving multiple products in a consistent order can reduce deadlocks."
+        },
+        {
+          "id": "sql-explanation-9",
+          "type": "paragraph",
+          "text": "A database rollback cannot unsend an email or undo an external payment merely because the database transaction failed. Keep transactions short and avoid waiting for a network provider while holding row locks. For notifications and payments, study idempotency and the transactional outbox: store the intent within the transaction, then have a worker process it with a key that prevents duplicated effects. A COMMIT reply can also be lost after the commit succeeded. Blindly repeating the request can therefore duplicate business work. The lab's primary key rejects repeated order numbers, but it is not a complete protocol for returning the previous successful response. Understand these boundaries before connecting the example to a real checkout."
+        },
+        {
+          "id": "sql-explanation-10",
+          "type": "paragraph",
+          "text": "An index is an auxiliary structure for finding rows without visiting every row. A book index is a useful first analogy, but database indexes also need maintenance during writes and consume storage and memory. Do not index every column automatically. The events example creates twenty thousand rows across one thousand customers, then asks for customer 42's latest five events. The composite index on customer_id and created_at DESC groups entries by customer, then orders them by date. Reversing the column order changes which query patterns are well supported. Do not assume a date-only filter gains the same benefit. A primary key creates an index, but PostgreSQL does not automatically index every referencing foreign-key column."
+        },
+        {
+          "id": "sql-explanation-11",
+          "type": "paragraph",
+          "text": "EXPLAIN displays the planner's chosen plan. EXPLAIN ANALYZE actually runs the query and adds measurements, while BUFFERS reports page-access information. This lab uses SELECT to avoid changing data while inspecting a plan. ANALYZE on UPDATE or DELETE still executes the write. Compare the plans before and after index creation: look for sequential, index or bitmap scans, estimated versus actual row counts, and any sort. ANALYZE academy_events refreshes statistics used by the planner. Do not promise a particular plan or speedup: table size, distribution, caching, engine version and available resources affect the choice. A tiny timing from your computer does not establish production performance."
+        },
+        {
+          "id": "sql-explanation-12",
+          "type": "paragraph",
+          "text": "A migration is a reviewed, recorded change to database structure or existing data, not merely a TypeScript interface edit. The reserved example adds a nullable column, fills old rows with zero, establishes a default for future rows, then adds NOT NULL and a nonnegative check. In this sequence, setting a default alone does not repair existing NULLs. Inspect the final SELECT and try writing reserved = -1 to observe enforcement. This small lab is not a large-table rollout recipe. A single massive backfill can retain locks, generate substantial WAL and delay other work. Plan batches, monitoring and timing for larger datasets. Some short DDL commands require strong locks, so short syntax does not imply interruption-free deployment."
+        },
+        {
+          "id": "sql-explanation-13",
+          "type": "paragraph",
+          "text": "Expand/contract lets old and new application versions coexist: add compatible structure, deploy code that tolerates both representations, backfill in controlled batches, verify counts and constraints, switch reads, and remove the old structure in a later release. An early rename or DROP can break instances still running the old code. PostgreSQL supports transactions around much DDL, but CREATE INDEX CONCURRENTLY cannot run inside a transaction block and has its own multi-phase failure modes. Reversing a migration that deleted data does not reconstruct that data. Recovery may require a forward fix or a tested backup restore. Record the recovery plan before production changes and rehearse it on a disposable copy."
+        },
+        {
+          "id": "sql-explanation-14",
+          "type": "paragraph",
+          "text": "Work through the exercises in increasing difficulty. First predict both tables after each reservation step. Second remove the row-count guard and explain why the shortage test now exposes a phantom order. Third draw the temporary stock decrement and its rollback when a duplicate order fails. Fourth compare the event query plans without asserting a fixed speedup. Fifth explain why backfilling precedes NOT NULL. The worked solution includes the complete script and a reasoning sequence; make a prediction before opening it. Mastery means explaining why zero updated rows are not an exception and why a transaction alone cannot enforce every business rule. Savepoints, multi-row locking, independent-connection concurrency tests and large migration rehearsals still need dedicated practice. For the deliberately broken reproduction only, also replace reserved_price inside VALUES with 4990. Otherwise NOT NULL rejects the absent returned price, so removing the guard alone does not reproduce the original phantom-order bug."
+        },
+        {
+          "id": "sql-explanation-15",
+          "type": "paragraph",
+          "text": "When debugging, distinguish the first failure from its consequences. For current transaction is aborted, find the earlier exception and issue ROLLBACK; repeating SELECT will not repair the state. For relation does not exist, ensure setup and reservation share one connection because temporary tables are connection-scoped. Check that assertions inspect stock, item counts and values, rather than just the absence of errors. Technical references verified on 2026-10-08: https://www.postgresql.org/docs/current/tutorial-transactions.html, https://www.postgresql.org/docs/current/transaction-iso.html and https://www.postgresql.org/docs/current/plpgsql-statements.html. The examples are isolated from actual shop tables. This chapter does not assert that the existing checkout implements this protocol."
+        },
+        {
+          "id": "vocabulary",
+          "type": "vocabulary",
+          "items": [
+            {
+              "term": "Transaction",
+              "definition": "Rollback groups database writes, not external API effects."
+            },
+            {
+              "term": "ROW_COUNT",
+              "definition": "Zero updated rows can be SQL success; reject unacceptable business outcomes explicitly."
+            },
+            {
+              "term": "Index",
+              "definition": "Evaluate indexes with plans and write cost, not a promised speedup."
+            },
+            {
+              "term": "Migration",
+              "definition": "Migrations need version compatibility, verification and recovery planning."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "worked-examples",
+      "title": "Reproducible lab and worked practice",
+      "blocks": [
+        {
+          "id": "general",
+          "type": "callout",
+          "tone": "idea",
+          "title": "Reproducible lab and worked practice",
+          "text": "Use this reasoning when related writes must succeed together: seat reservations, balance transfers or order creation. State the invariant and failure test before choosing SQL."
+        },
+        {
+          "id": "sql-setup",
+          "type": "code",
+          "title": "1 · TEMP schema",
+          "code": {
+            "language": "sql",
+            "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+            "source": "CREATE TEMP TABLE academy_products (\n  id integer PRIMARY KEY,\n  stock integer NOT NULL CHECK (stock >= 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nCREATE TEMP TABLE academy_order_items (\n  order_id integer PRIMARY KEY,\n  product_id integer NOT NULL REFERENCES academy_products(id),\n  quantity integer NOT NULL CHECK (quantity > 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nINSERT INTO academy_products VALUES (1, 3, 4990);",
+            "annotations": [
+              {
+                "lines": "1-5",
+                "label": "Define products with a unique key and required nonnegative stock and price."
+              },
+              {
+                "lines": "6-11",
+                "label": "Define the simplified one-item order with a product reference and positive quantity."
+              },
+              {
+                "lines": "12",
+                "label": "Seed product 1 with three units and price 4990 before the transaction."
+              }
+            ]
+          }
+        },
+        {
+          "id": "sql-reservation",
+          "type": "code",
+          "title": "2 · Reservation + rollback boundary",
+          "code": {
+            "language": "sql",
+            "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+            "source": "BEGIN;\nDO $$\nDECLARE\n  affected integer;\n  reserved_price integer;\nBEGIN\n  UPDATE academy_products\n  SET stock = stock - 2\n  WHERE id = 1 AND stock >= 2\n  RETURNING unit_price_cents INTO reserved_price;\n  GET DIAGNOSTICS affected = ROW_COUNT;\n  IF affected <> 1 THEN\n    RAISE EXCEPTION 'Product missing or insufficient stock';\n  END IF;\n  INSERT INTO academy_order_items\n    (order_id, product_id, quantity, unit_price_cents)\n  VALUES (101, 1, 2, reserved_price);\nEND $$;\nCOMMIT;\nSELECT id, stock FROM academy_products;\nSELECT order_id, quantity, unit_price_cents FROM academy_order_items;",
+            "annotations": [
+              {
+                "lines": "1",
+                "label": "Open the outer transaction to join UPDATE and INSERT outcomes."
+              },
+              {
+                "lines": "2-6",
+                "label": "Start PL/pgSQL and declare local variables; inner BEGIN is a block boundary."
+              },
+              {
+                "lines": "7-10",
+                "label": "Conditionally subtract two and retain the updated row’s price."
+              },
+              {
+                "lines": "11-14",
+                "label": "Read the affected-row count immediately and reject anything other than one."
+              },
+              {
+                "lines": "15-18",
+                "label": "Insert the order item with the reserved price and finish the block."
+              },
+              {
+                "lines": "19-21",
+                "label": "Commit the changes, then inspect both stock and the order item."
+              }
+            ]
+          }
+        },
+        {
+          "id": "sql-index",
+          "type": "code",
+          "title": "3 · EXPLAIN before / after",
+          "code": {
+            "language": "sql",
+            "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+            "source": "CREATE TEMP TABLE academy_events (\n  id integer PRIMARY KEY,\n  customer_id integer NOT NULL,\n  created_at timestamptz NOT NULL\n);\nINSERT INTO academy_events\nSELECT n, n % 1000, TIMESTAMPTZ '2026-01-01 00:00:00+00' + n * INTERVAL '1 minute'\nFROM generate_series(1, 20000) AS n;\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\nCREATE INDEX academy_events_customer_created_idx\nON academy_events (customer_id, created_at DESC);\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;",
+            "annotations": [
+              {
+                "lines": "1-5",
+                "label": "Create a temporary events table with explicit column constraints."
+              },
+              {
+                "lines": "6-9",
+                "label": "Generate 20000 deterministic events and refresh planner statistics."
+              },
+              {
+                "lines": "10-12",
+                "label": "Measure the latest-five query before creating the index."
+              },
+              {
+                "lines": "13-15",
+                "label": "Create the customer/date index and refresh statistics."
+              },
+              {
+                "lines": "16-18",
+                "label": "Run the same query after indexing and compare the observed plan."
+              }
+            ]
+          }
+        },
+        {
+          "id": "sql-migration",
+          "type": "code",
+          "title": "4 · Nullable → backfill → constraint",
+          "code": {
+            "language": "sql",
+            "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+            "source": "ALTER TABLE academy_products ADD COLUMN reserved integer;\nUPDATE academy_products SET reserved = 0 WHERE reserved IS NULL;\nALTER TABLE academy_products ALTER COLUMN reserved SET DEFAULT 0;\nALTER TABLE academy_products ALTER COLUMN reserved SET NOT NULL;\nALTER TABLE academy_products ADD CONSTRAINT academy_reserved_nonnegative\n  CHECK (reserved >= 0);\nSELECT id, stock, reserved FROM academy_products;",
+            "annotations": [
+              {
+                "lines": "1-2",
+                "label": "Add a nullable column and backfill existing rows with zero."
+              },
+              {
+                "lines": "3-6",
+                "label": "Set a future default and prohibit NULL and negative values."
+              },
+              {
+                "lines": "7",
+                "label": "Inspect the migrated values to verify the resulting data."
+              }
+            ]
+          }
+        },
+        {
+          "id": "lecomax",
+          "type": "callout",
+          "tone": "important",
+          "title": "L’ecomax",
+          "text": "This is a standalone lab, not evidence that the L’ecomax checkout uses this transaction. Compare it with the referenced product data access and inspect the actual write path before proposing an integration."
+        }
+      ]
+    }
+  ],
+  "commands": [
+    "node --test lecomax-learning-app/tests/sql-chapter.test.cjs"
+  ],
+  "expectedResult": "In a fresh connection: stock 1, order_id 101, quantity 2, unit_price_cents 4990. The events table contains 20000 rows and produces two EXPLAIN plans; plan type and timing are not guaranteed. The final reserved value is 0.",
+  "commonErrors": [
+    {
+      "symptom": "An order appears without sufficient stock",
+      "cause": "UPDATE affected zero rows but INSERT had no guard.",
+      "fix": "Read ROW_COUNT after UPDATE and raise before INSERT unless it is one."
+    },
+    {
+      "symptom": "current transaction is aborted",
+      "cause": "An earlier SQL error left the transaction failed.",
+      "fix": "Record the first error, issue ROLLBACK, and fix the cause before retrying."
+    },
+    {
+      "symptom": "relation does not exist",
+      "cause": "The temporary tables are absent from this connection.",
+      "fix": "Run setup and reservation in the same lab connection."
+    },
+    {
+      "symptom": "The expected index plan is absent",
+      "cause": "The planner chooses by statistics and cost, not mere index existence.",
+      "fix": "Run ANALYZE and inspect estimated/actual rows and the plan without prescribing a scan."
+    }
+  ],
+  "exercise": {
+    "task": "Complete five exercises: trace a reservation, expose a phantom order, prove rollback, compare index plans and explain a migration.",
+    "steps": [
+      "Easy: trace stock and order count before BEGIN, after UPDATE and after COMMIT; predict 3→1 and 0→1.",
+      "Intermediate: in a fresh lab set stock to 1 and temporarily remove the guard; explain why the shortage assertion must fail, then restore it. For the deliberately broken reproduction only, also replace reserved_price inside VALUES with 4990. Otherwise NOT NULL rejects the absent returned price, so removing the guard alone does not reproduce the original phantom-order bug.",
+      "Intermediate: preinsert order 101; predict a unique violation, issue ROLLBACK and inspect stock and the original item.",
+      "Advanced: run the complete events example and record both plans; assume neither a scan type nor a fixed speedup.",
+      "Advanced: run the migration, try reserved = -1, and explain the ordering and changes needed for a large production table."
+    ],
+    "hints": [
+      "ROW_COUNT describes the last operation: read it immediately after UPDATE.",
+      "A failed INSERT in the same transaction must roll back the preceding UPDATE.",
+      "Repair existing NULLs before NOT NULL; in this sequence the default serves future writes."
+    ],
+    "solution": {
+      "explanation": "1) Setup gives stock 3 and zero orders. The guarded UPDATE leaves 1, INSERT adds an item, and COMMIT preserves both. 2) Without the guard, stock 1 remains unchanged but INSERT can still create an item. Restoring IF affected rejects that invalid reservation. 3) With order 101 already present, the unique-key failure causes the transaction to abort. After ROLLBACK, stock is 3 and the original item is intact. 4) Run the events example and record the observed plan. The index orders by customer then date, but planner decisions depend on statistics; no constant speedup is part of the answer. 5) reserved starts NULL, the backfill fills it, and DEFAULT, NOT NULL and CHECK establish the policy. Writing -1 is rejected. This small sequence is not a complete large-table deployment plan. The code below is the full baseline; automated tests apply the isolated failure cases. For the deliberately broken reproduction only, also replace reserved_price inside VALUES with 4990. Otherwise NOT NULL rejects the absent returned price, so removing the guard alone does not reproduce the original phantom-order bug.",
+      "code": "CREATE TEMP TABLE academy_products (\n  id integer PRIMARY KEY,\n  stock integer NOT NULL CHECK (stock >= 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nCREATE TEMP TABLE academy_order_items (\n  order_id integer PRIMARY KEY,\n  product_id integer NOT NULL REFERENCES academy_products(id),\n  quantity integer NOT NULL CHECK (quantity > 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nINSERT INTO academy_products VALUES (1, 3, 4990);\n\nBEGIN;\nDO $$\nDECLARE\n  affected integer;\n  reserved_price integer;\nBEGIN\n  UPDATE academy_products\n  SET stock = stock - 2\n  WHERE id = 1 AND stock >= 2\n  RETURNING unit_price_cents INTO reserved_price;\n  GET DIAGNOSTICS affected = ROW_COUNT;\n  IF affected <> 1 THEN\n    RAISE EXCEPTION 'Product missing or insufficient stock';\n  END IF;\n  INSERT INTO academy_order_items\n    (order_id, product_id, quantity, unit_price_cents)\n  VALUES (101, 1, 2, reserved_price);\nEND $$;\nCOMMIT;\nSELECT id, stock FROM academy_products;\nSELECT order_id, quantity, unit_price_cents FROM academy_order_items;\n\nCREATE TEMP TABLE academy_events (\n  id integer PRIMARY KEY,\n  customer_id integer NOT NULL,\n  created_at timestamptz NOT NULL\n);\nINSERT INTO academy_events\nSELECT n, n % 1000, TIMESTAMPTZ '2026-01-01 00:00:00+00' + n * INTERVAL '1 minute'\nFROM generate_series(1, 20000) AS n;\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\nCREATE INDEX academy_events_customer_created_idx\nON academy_events (customer_id, created_at DESC);\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\n\nALTER TABLE academy_products ADD COLUMN reserved integer;\nUPDATE academy_products SET reserved = 0 WHERE reserved IS NULL;\nALTER TABLE academy_products ALTER COLUMN reserved SET DEFAULT 0;\nALTER TABLE academy_products ALTER COLUMN reserved SET NOT NULL;\nALTER TABLE academy_products ADD CONSTRAINT academy_reserved_nonnegative\n  CHECK (reserved >= 0);\nSELECT id, stock, reserved FROM academy_products;",
+      "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+      "language": "sql"
+    }
+  },
+  "quiz": [
+    {
+      "id": "sql-transactions-indexes-q1",
+      "question": "UPDATE affects zero rows without an SQL error. What should this reservation do?",
+      "options": [
+        "Continue with unconditional INSERT",
+        "Raise an exception and roll back",
+        "Change the CSS",
+        "Commit before checking"
+      ],
+      "correctIndex": 1,
+      "explanation": "Zero rows is not an SQL error, but the reservation requires exactly one. Reject it before inserting.",
+      "answerExplanations": [
+        "✗ Continue with unconditional INSERT. Raise an exception and roll back. Zero rows is not an SQL error, but the reservation requires exactly one. Reject it before inserting.",
+        "✓ Raise an exception and roll back. Zero rows is not an SQL error, but the reservation requires exactly one. Reject it before inserting.",
+        "✗ Change the CSS. Raise an exception and roll back. Zero rows is not an SQL error, but the reservation requires exactly one. Reject it before inserting.",
+        "✗ Commit before checking. Raise an exception and roll back. Zero rows is not an SQL error, but the reservation requires exactly one. Reject it before inserting."
+      ]
+    },
+    {
+      "id": "sql-transactions-indexes-q2",
+      "question": "UPDATE succeeds, then INSERT hits a duplicate key. What follows ROLLBACK?",
+      "options": [
+        "The reduction remains",
+        "The old order is deleted",
+        "The reduction is undone and the old order remains",
+        "An index must be added"
+      ],
+      "correctIndex": 2,
+      "explanation": "The update in this transaction is undone; data committed before it remains.",
+      "answerExplanations": [
+        "✗ The reduction remains. The reduction is undone and the old order remains. The update in this transaction is undone; data committed before it remains.",
+        "✗ The old order is deleted. The reduction is undone and the old order remains. The update in this transaction is undone; data committed before it remains.",
+        "✓ The reduction is undone and the old order remains. The update in this transaction is undone; data committed before it remains.",
+        "✗ An index must be added. The reduction is undone and the old order remains. The update in this transaction is undone; data committed before it remains."
+      ]
+    },
+    {
+      "id": "sql-transactions-indexes-q3",
+      "question": "Which statement about EXPLAIN ANALYZE is accurate?",
+      "options": [
+        "It only displays without executing",
+        "It guarantees an index scan",
+        "It repairs every query",
+        "It executes the query and measures it"
+      ],
+      "correctIndex": 3,
+      "explanation": "ANALYZE runs the statement, so applying it to a write can change data.",
+      "answerExplanations": [
+        "✗ It only displays without executing. It executes the query and measures it. ANALYZE runs the statement, so applying it to a write can change data.",
+        "✗ It guarantees an index scan. It executes the query and measures it. ANALYZE runs the statement, so applying it to a write can change data.",
+        "✗ It repairs every query. It executes the query and measures it. ANALYZE runs the statement, so applying it to a write can change data.",
+        "✓ It executes the query and measures it. ANALYZE runs the statement, so applying it to a write can change data."
+      ]
+    }
+  ],
+  "recap": [
+    "Zero updated rows can be SQL success; reject unacceptable business outcomes explicitly.",
+    "Rollback groups database writes, not external API effects.",
+    "Evaluate indexes with plans and write cost, not a promised speedup.",
+    "Migrations need version compatibility, verification and recovery planning."
+  ],
+  "next": "Next, practise savepoints, multi-product reservations, two independent PostgreSQL connections and a large-table backfill rehearsal. This expanded chapter does not complete the database pathway."
+}

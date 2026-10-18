@@ -28,7 +28,7 @@
     },
     {
       "path": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
-      "mode": "create"
+      "mode": "existing"
     }
   ],
   "lessons": [
@@ -773,74 +773,135 @@
     {
       "id": "sql-transactions-indexes",
       "order": 3,
-      "title": "Transactions, index et migrations",
-      "estimatedMinutes": 45,
+      "title": "Transactions, index et migrations : imposer et tester un invariant",
+      "estimatedMinutes": 100,
       "prerequisites": [
-        "Savoir ouvrir le projet L’ecomax dans VS Code et utiliser le terminal intégré.",
-        "Avoir lu la leçon précédente et pouvoir expliquer, avec ses propres mots, le rôle de l’atomicité d’une mutation multi-table."
+        "Lire le chapitre tables et relations : CREATE TABLE, SELECT, INSERT, UPDATE, clés primaires et étrangères.",
+        "Installer les dépendances du dépôt et ouvrir un terminal à la racine de L’ecomax."
       ],
       "objectives": [
-        "Construire un modèle mental précis de l’atomicité d’une mutation multi-table.",
-        "Écrire puis exécuter un exemple minimal avant de l’intégrer à une fonctionnalité réelle.",
-        "Reconnaître les états d’échec, lire leurs symptômes et appliquer une correction vérifiable."
+        "Imposer la réussite de la réservation et prouver le rollback après un échec de commande.",
+        "Distinguer zéro ligne modifiée et erreur SQL, atomicité et isolation.",
+        "Comparer les plans avant et après un index et expliquer le coût des écritures.",
+        "Expliquer remplissage, contraintes, expand/contract et limites du laboratoire."
       ],
       "sections": [
         {
           "id": "mental-model",
-          "title": "Modèle mental",
+          "title": "Intuition et prérequis",
           "blocks": [
             {
-              "id": "mental",
+              "id": "sql-explanation-0",
               "type": "paragraph",
-              "text": "Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma. Dessine d’abord les entrées, les transformations, les frontières de confiance et les sorties : cette carte permet de prévoir où le code s’exécute et où une erreur doit être traitée."
+              "text": "Un produit possède trois unités et un client en commande deux. Le stock doit passer à un, tandis qu'une ligne de commande enregistre la quantité et le prix au moment de l'achat. Deux écritures représentent donc une seule opération métier : une réservation valide. Diminuer le stock sans créer la commande fait disparaître des articles du système. Créer la commande sans réservation permet de vendre des articles indisponibles. Une transaction définit une frontière dans laquelle les changements sont validés ensemble ou annulés ensemble. Commence par écrire l'invariant : le stock reste positif ou nul, et chaque nouvelle ligne acceptée correspond à une réservation réussie. Il faut ensuite transformer cette règle en conditions exécutables."
+            },
+            {
+              "id": "sql-explanation-1",
+              "type": "paragraph",
+              "text": "Avant cet atelier, tu dois savoir lire CREATE TABLE, INSERT, UPDATE et SELECT, et expliquer une clé primaire et une clé étrangère. Reprends les tables et relations si nécessaire. Le laboratoire utilise PGlite, le moteur PostgreSQL local déjà installé dans ce projet, et des tables temporaires propres à une connexion. Aucun compte Supabase ni identifiant secret n'est nécessaire. Depuis la racine du dépôt, lance node --test lecomax-learning-app/tests/sql-chapter.test.cjs. Ces tests exécutent le SQL du chapitre, pas seulement une validation du JSON. Le fichier complet est academy-labs/sql-data-modeling/sql-transactions-indexes.sql. Utilise une connexion neuve pour le rejouer entièrement : les tables temporaires existent encore dans l'ancienne. Le lecteur mobile affiche le code, mais ne constitue pas un terminal SQL."
             },
             {
               "id": "analogy",
               "type": "callout",
               "tone": "analogy",
-              "title": "Analogie simple",
-              "text": "l’atomicité d’une mutation multi-table ressemble à un classeur où chaque feuille a une identité, des règles de saisie et des références vérifiées vers les autres feuilles. L’analogie aide à retenir le trajet principal, mais le code reste la preuve : observe chaque valeur à l’entrée, pendant la transformation et à la sortie."
+              "title": "Intuition et prérequis",
+              "text": "Imagine deux écritures liées dans un carnet : approuver ensemble la diminution du stock et la commande, ou effacer les deux écritures provisoires. Cette image ne remplace ni les conditions métier exécutables ni le mécanisme des accès concurrents."
             }
           ]
         },
         {
           "id": "deep-understanding",
-          "title": "Comprendre en profondeur",
+          "title": "Mécanismes et limites",
           "blocks": [
             {
-              "id": "explanation-1",
+              "id": "sql-explanation-2",
               "type": "paragraph",
-              "text": "La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. Commence par la version la plus petite possible et observe sa valeur réelle dans le terminal ou les DevTools avant d’ajouter une abstraction."
+              "text": "BEGIN ouvre une transaction explicite. Ta connexion voit ses propres modifications, tandis que les autres ne lisent pas ces versions non validées. COMMIT valide le groupe et libère ses verrous transactionnels ; ROLLBACK annule ses changements et les libère aussi. Sans transaction explicite, le mode autocommit traite normalement chaque instruction réussie comme une transaction distincte. Envoyer UPDATE puis INSERT séparément ne lie donc pas leurs résultats. Une erreur SQL dans une transaction la place dans un état abandonné : les instructions suivantes échouent jusqu'au rollback, ou jusqu'au retour à un savepoint approprié. Masquer l'erreur puis envoyer COMMIT ne répare pas l'opération. Identifie la première erreur et rétablis un état de connexion connu."
             },
             {
-              "id": "explanation-2",
+              "id": "sql-explanation-3",
               "type": "paragraph",
-              "text": "Créer order_items seulement après le succès stock et rollback à toute exception empêche une commande payée sans réservation ou une réservation sans ligne. Relie ensuite cette règle au contrat entre navigateur, serveur et base de données ; chaque frontière doit avoir une entrée définie et une erreur explicite."
+              "text": "Un échec SQL est différent d'une condition métier non satisfaite. UPDATE avec WHERE stock >= 2 peut réussir tout en modifiant zéro ligne, car le stock manque ou le produit n'existe pas. PostgreSQL ne devine pas si ce résultat convient au magasin. L'ancien exemple demandait exactement une ligne dans un commentaire, puis exécutait INSERT sans condition. Un commentaire ne contrôle rien. Le nouveau bloc lit ROW_COUNT avec GET DIAGNOSTICS immédiatement après UPDATE. Si le résultat diffère de un, RAISE EXCEPTION interrompt le bloc avant INSERT. Garde cette lecture juste après la modification : une autre instruction peut changer le diagnostic et faire vérifier une opération différente de celle que tu voulais contrôler."
             },
             {
-              "id": "explanation-3",
+              "id": "sql-explanation-4",
               "type": "paragraph",
-              "text": "Un index suit une requête fréquente sur filtre et ordre ; multiplier les index ralentit INSERT/UPDATE et ne corrige pas une requête qui sélectionne trop de données. Enfin, vérifie le cas nominal, une entrée limite et un échec volontaire afin de prouver que le comportement ne dépend pas seulement du scénario heureux."
+              "text": "Lis d'abord la préparation des tables. La clé primaire limite id = 1 à un produit au maximum. Le stock est un entier obligatoire et un CHECK interdit les valeurs négatives. unit_price_cents utilise la plus petite unité monétaire : 4990 représente 49,90 dans une monnaie divisée en cent unités. Le formatage d'affichage reste une autre responsabilité. Un CHECK seul n'exclut pas NULL, d'où NOT NULL. La ligne de commande référence un produit existant et impose une quantité positive. Dans ce laboratoire, order_id seul comme clé primaire limite volontairement chaque commande à une ligne. Une boutique avec plusieurs produits par commande nécessite une table orders et un identifiant de ligne ou une clé composée adaptée. Ce schéma simplifié n'est pas un modèle de paiement prêt à déployer."
+            },
+            {
+              "id": "sql-explanation-5",
+              "type": "paragraph",
+              "text": "DO exécute un bloc PL/pgSQL dans la base. Les délimiteurs dollar encadrent son texte ; ce ne sont pas des variables JavaScript. DECLARE définit affected et reserved_price. Le BEGIN intérieur démarre le corps procédural, pas une deuxième transaction. UPDATE soustrait deux seulement si le produit existe et si le stock suffit. RETURNING récupère le prix de la ligne modifiée et INTO le place dans une variable locale. Le contrôle du nombre de lignes rejette la réservation impossible. INSERT utilise ensuite ce prix, plutôt qu'un montant transmis par le navigateur. Le COMMIT extérieur intervient après la réussite du bloc. Résultat attendu : stock égal à un, commande 101, quantité deux et prix unitaire 4990."
+            },
+            {
+              "id": "sql-explanation-6",
+              "type": "paragraph",
+              "text": "Teste les échecs pour comprendre le rollback. Dans une base neuve, prépare les tables, fixe le stock à un, puis demande deux unités : le bloc doit lever une exception. Après ROLLBACK, le stock doit rester un et aucune ligne de commande ne doit exister. Dans un autre cas neuf, garde trois unités et insère d'abord la commande 101. UPDATE peut réussir, mais INSERT viole ensuite la clé primaire. Le rollback annule aussi la diminution déjà effectuée : le stock reste trois et l'ancienne commande reste intacte. Ce test vérifie le lien entre les écritures ; chercher seulement BEGIN dans le texte ne le prouve pas. Ajoute le produit absent et les frontières zéro, un, deux et trois unités."
+            },
+            {
+              "id": "sql-explanation-7",
+              "type": "paragraph",
+              "text": "Que se passe-t-il si deux clients réservent simultanément ? Une lecture SELECT séparée, un calcul en JavaScript puis une affectation UPDATE peuvent reposer sur une observation périmée. Deux connexions pourraient lire trois et accepter chacune deux unités. UPDATE stock = stock - 2 WHERE stock >= 2 réunit le contrôle et la soustraction dans la même instruction. En Read Committed, une mise à jour concurrente de la même ligne peut attendre la première transaction. PostgreSQL réévalue alors WHERE sur la version modifiée. La première réservation laisse un ; la seconde ne trouve aucune ligne admissible et est rejetée. C'est l'explication du mécanisme PostgreSQL. Les tests PGlite locaux ne valident pas deux connexions indépendantes : un test réel de concurrence PostgreSQL reste nécessaire."
+            },
+            {
+              "id": "sql-explanation-8",
+              "type": "paragraph",
+              "text": "ACID distingue quatre propriétés. L'atomicité groupe validation ou annulation des écritures. La cohérence dépend des contraintes et règles applicatives : la base n'invente pas les règles commerciales. L'isolation définit les interactions entre transactions concurrentes ; ses niveaux faibles ne promettent pas une exécution totalement séquentielle. La durabilité concerne la conservation des engagements selon la configuration du stockage et du journal WAL ; elle ne remplace pas les sauvegardes. Read Committed peut prendre un instantané différent à chaque instruction. Serializable détecte davantage de conflits mais peut refuser une transaction avec SQLSTATE 40001, ce qui demande de recommencer la transaction entière. Un interblocage utilise 40P01 et exige aussi une politique limitée. Réserver plusieurs produits dans un ordre constant réduit certains interblocages."
+            },
+            {
+              "id": "sql-explanation-9",
+              "type": "paragraph",
+              "text": "Un rollback ne peut pas rappeler un courriel envoyé ni annuler automatiquement un paiement externe. Garde les transactions courtes et évite d'attendre un fournisseur réseau pendant que des lignes sont verrouillées. Pour les notifications et paiements, approfondis l'idempotence et la boîte d'envoi transactionnelle : enregistre l'intention dans la transaction, puis laisse un traitement séparé la réaliser avec une clé empêchant les effets répétés. La réponse de COMMIT peut également se perdre après une validation réussie. Répéter aveuglément la requête peut donc dupliquer l'opération métier. La clé primaire du laboratoire refuse un numéro de commande répété, mais ne constitue pas un protocole complet pour retourner la réponse du premier succès. Comprends ces limites avant de relier le code à un véritable paiement."
+            },
+            {
+              "id": "sql-explanation-10",
+              "type": "paragraph",
+              "text": "Un index est une structure auxiliaire permettant de retrouver des lignes sans parcourir toute la table. L'index d'un livre donne une première intuition, mais celui d'une base doit aussi être entretenu à chaque écriture et consomme stockage et mémoire. N'indexe pas automatiquement toutes les colonnes. L'exemple crée vingt mille événements répartis entre mille clients puis demande les cinq plus récents du client 42. L'index composé sur customer_id et created_at DESC regroupe les entrées par client puis les ordonne par date. Inverser les colonnes modifie les usages adaptés. Un filtre seulement sur la date ne bénéficie pas forcément du même accès. Une clé primaire crée un index, mais PostgreSQL ne crée pas automatiquement un index pour chaque colonne portant une référence étrangère."
+            },
+            {
+              "id": "sql-explanation-11",
+              "type": "paragraph",
+              "text": "EXPLAIN affiche le plan choisi par l'optimiseur. EXPLAIN ANALYZE exécute réellement la requête et ajoute des mesures ; BUFFERS renseigne les accès aux pages. Le laboratoire utilise SELECT pour observer sans modifier les données. Avec UPDATE ou DELETE, ANALYZE exécute bien l'écriture. Compare les plans avant et après création de l'index : parcours séquentiel, index ou bitmap, nombres de lignes estimés et réels, présence d'un tri. ANALYZE academy_events actualise les statistiques utilisées par l'optimiseur. Ne promets aucun plan précis ni facteur d'accélération : volume, distribution, cache, version et ressources influencent le choix. Une durée minuscule sur ton ordinateur n'établit pas les performances en production."
+            },
+            {
+              "id": "sql-explanation-12",
+              "type": "paragraph",
+              "text": "Une migration est une modification enregistrée et relue de la structure ou des données existantes, pas simplement une modification d'interface TypeScript. L'exemple reserved ajoute une colonne nullable, remplit les anciennes lignes avec zéro, définit la valeur par défaut des prochaines lignes, puis impose NOT NULL et un contrôle de positivité. Dans cette séquence, le défaut ne répare pas à lui seul les NULL existants. Lis le SELECT final puis essaie reserved = -1 pour observer le refus. Ce petit exemple n'est pas une stratégie pour une table immense. Un remplissage massif peut conserver des verrous et produire beaucoup de WAL. Prévois des lots, de la surveillance et une fenêtre adaptée. Certaines instructions DDL très courtes demandent des verrous forts : syntaxe courte ne signifie pas déploiement sans interruption."
+            },
+            {
+              "id": "sql-explanation-13",
+              "type": "paragraph",
+              "text": "La méthode expand/contract fait cohabiter anciens et nouveaux programmes : ajoute une structure compatible, déploie du code tolérant les deux formes, remplis les données progressivement, vérifie les comptes et contraintes, bascule les lectures puis supprime l'ancienne structure dans une livraison ultérieure. Un renommage ou DROP prématuré casse les instances encore anciennes. PostgreSQL permet de placer beaucoup de DDL dans une transaction, mais CREATE INDEX CONCURRENTLY ne peut pas s'exécuter dans un bloc transactionnel et possède plusieurs phases et cas d'échec. Inverser une migration destructrice ne recrée pas les données effacées. Il faut parfois une correction en avant ou une restauration de sauvegarde déjà testée. Écris le plan de récupération avant la production et répète-le sur une copie jetable."
+            },
+            {
+              "id": "sql-explanation-14",
+              "type": "paragraph",
+              "text": "Travaille progressivement. Prédis d'abord les deux tables après chaque étape de réservation. Retire ensuite le contrôle du nombre de lignes et explique comment le test de rupture révèle une commande fictive. Dessine la diminution temporaire et son annulation lors d'une commande dupliquée. Compare les plans d'événements sans annoncer d'accélération fixe. Enfin, explique pourquoi remplir les lignes précède NOT NULL. Le corrigé contient le script complet et le raisonnement ; note ta prédiction avant de l'ouvrir. Comprendre signifie expliquer pourquoi zéro ligne n'est pas une exception et pourquoi une transaction seule n'impose pas toutes les règles métier. Savepoints, verrouillage multi-lignes, concurrence entre connexions et répétition de migrations volumineuses demandent encore des exercices spécialisés. Uniquement pour reproduire le défaut volontaire, remplacer aussi reserved_price dans VALUES par 4990. Sinon NOT NULL refuse le prix absent : retirer seulement le contrôle ne reproduit pas la commande fictive initiale."
+            },
+            {
+              "id": "sql-explanation-15",
+              "type": "paragraph",
+              "text": "Pour diagnostiquer, sépare la première erreur de ses conséquences. Devant current transaction is aborted, retrouve l'exception précédente puis fais ROLLBACK ; répéter SELECT ne répare pas l'état. Devant relation does not exist, vérifie que préparation et réservation partagent la connexion, car une table temporaire appartient à celle-ci. Les assertions doivent comparer stock, nombre de lignes et valeurs, pas seulement constater l'absence d'erreur. Références techniques vérifiées le 2026-10-08 : https://www.postgresql.org/docs/current/tutorial-transactions.html, https://www.postgresql.org/docs/current/transaction-iso.html et https://www.postgresql.org/docs/current/plpgsql-statements.html. Ces exemples sont isolés des tables réelles du magasin et ne prouvent pas que le paiement existant applique ce protocole."
             },
             {
               "id": "vocabulary",
               "type": "vocabulary",
               "items": [
                 {
-                  "term": "l’atomicité d’une mutation multi-table",
-                  "definition": "Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma."
+                  "term": "Transaction",
+                  "definition": "Le rollback groupe les écritures SQL, pas les effets des API externes."
                 },
                 {
-                  "term": "Transactions, index et migrations",
-                  "definition": "La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif."
+                  "term": "ROW_COUNT",
+                  "definition": "Zéro ligne modifiée peut être un succès SQL : refuser explicitement le résultat métier invalide."
                 },
                 {
-                  "term": "transaction",
-                  "definition": "Groupe d’opérations validé entièrement ou annulé entièrement."
+                  "term": "Index",
+                  "definition": "Évaluer index, plans et coût des écritures sans promettre un gain fixe."
                 },
                 {
-                  "term": "primary key",
-                  "definition": "Colonne ou ensemble identifiant chaque ligne de façon unique."
+                  "term": "Migration",
+                  "definition": "Prévoir compatibilité des versions, vérification et récupération des migrations."
                 }
               ]
             }
@@ -848,59 +909,127 @@
         },
         {
           "id": "worked-examples",
-          "title": "Exemple annoté",
+          "title": "Laboratoire reproductible et exercices corrigés",
           "blocks": [
             {
               "id": "general",
               "type": "callout",
               "tone": "idea",
-              "title": "Application générale",
-              "text": "Regroupe les invariants liés dans une transaction, mesure les plans avant/après index et déploie le schéma par migrations répétables."
+              "title": "Laboratoire reproductible et exercices corrigés",
+              "text": "Ce raisonnement sert aux écritures liées : réservation de places, transfert de solde ou création de commandes. Écris l’invariant et un test d’échec avant de choisir le SQL."
             },
             {
-              "id": "annotated-code",
+              "id": "sql-setup",
               "type": "code",
-              "title": "Exemple annoté",
+              "title": "1 · TEMP schema",
               "code": {
                 "language": "sql",
                 "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
-                "source": "begin;\nupdate products\nset stock = stock - 2\nwhere id = '00000000-0000-0000-0000-000000000001' and stock >= 2\nreturning id, stock;\n-- Exiger exactement une ligne avant de créer order_items.\ninsert into order_items (order_id, product_id, product_name, unit_price_cents, quantity)\nvalues ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Sac', 4990, 2);\ncommit;",
+                "source": "CREATE TEMP TABLE academy_products (\n  id integer PRIMARY KEY,\n  stock integer NOT NULL CHECK (stock >= 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nCREATE TEMP TABLE academy_order_items (\n  order_id integer PRIMARY KEY,\n  product_id integer NOT NULL REFERENCES academy_products(id),\n  quantity integer NOT NULL CHECK (quantity > 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nINSERT INTO academy_products VALUES (1, 3, 4990);",
                 "annotations": [
                   {
-                    "lines": "1-2",
-                    "label": "Transactions, index et migrations : les deux premières lignes installent le contrat et les données d’entrée."
+                    "lines": "1-5",
+                    "label": "Définir les produits avec clé unique, stock et prix obligatoires non négatifs."
                   },
                   {
-                    "lines": "3-6",
-                    "label": "Ce bloc réalise la transformation principale ; suis les valeurs ligne par ligne et vérifie leur type."
+                    "lines": "6-11",
+                    "label": "Définir la commande simplifiée avec référence produit et quantité positive."
                   },
                   {
-                    "lines": "7-9",
-                    "label": "La fin expose le résultat ou l’échec attendu afin que l’appelant puisse réagir sans deviner."
+                    "lines": "12",
+                    "label": "Préparer le produit 1 avec trois unités et prix 4990 avant la transaction."
                   }
                 ]
               }
             },
             {
-              "id": "solution-example",
+              "id": "sql-reservation",
               "type": "code",
-              "title": "Deuxième exemple — exécuter et vérifier",
+              "title": "2 · Reservation + rollback boundary",
               "code": {
-                "language": "shell",
-                "filename": "Terminal",
-                "source": "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard\nnpm run validate:course",
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+                "source": "BEGIN;\nDO $$\nDECLARE\n  affected integer;\n  reserved_price integer;\nBEGIN\n  UPDATE academy_products\n  SET stock = stock - 2\n  WHERE id = 1 AND stock >= 2\n  RETURNING unit_price_cents INTO reserved_price;\n  GET DIAGNOSTICS affected = ROW_COUNT;\n  IF affected <> 1 THEN\n    RAISE EXCEPTION 'Product missing or insufficient stock';\n  END IF;\n  INSERT INTO academy_order_items\n    (order_id, product_id, quantity, unit_price_cents)\n  VALUES (101, 1, 2, reserved_price);\nEND $$;\nCOMMIT;\nSELECT id, stock FROM academy_products;\nSELECT order_id, quantity, unit_price_cents FROM academy_order_items;",
                 "annotations": [
                   {
                     "lines": "1",
-                    "label": "Ouvre academy-labs/sql-data-modeling/sql-transactions-indexes.sql et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax. — Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard"
+                    "label": "Ouvrir la transaction extérieure liant les résultats UPDATE et INSERT."
                   },
                   {
-                    "lines": "2",
-                    "label": "Commence par le contrat de la première ligne — begin; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour. — npm run validate:course"
+                    "lines": "2-6",
+                    "label": "Démarrer PL/pgSQL et déclarer les variables ; BEGIN intérieur ouvre un bloc."
                   },
+                  {
+                    "lines": "7-10",
+                    "label": "Soustraire deux sous condition et conserver le prix de la ligne modifiée."
+                  },
+                  {
+                    "lines": "11-14",
+                    "label": "Lire immédiatement le nombre de lignes et refuser tout résultat autre que un."
+                  },
+                  {
+                    "lines": "15-18",
+                    "label": "Insérer la ligne avec le prix réservé puis terminer le bloc."
+                  },
+                  {
+                    "lines": "19-21",
+                    "label": "Valider les modifications et inspecter stock et ligne de commande."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sql-index",
+              "type": "code",
+              "title": "3 · EXPLAIN before / after",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+                "source": "CREATE TEMP TABLE academy_events (\n  id integer PRIMARY KEY,\n  customer_id integer NOT NULL,\n  created_at timestamptz NOT NULL\n);\nINSERT INTO academy_events\nSELECT n, n % 1000, TIMESTAMPTZ '2026-01-01 00:00:00+00' + n * INTERVAL '1 minute'\nFROM generate_series(1, 20000) AS n;\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\nCREATE INDEX academy_events_customer_created_idx\nON academy_events (customer_id, created_at DESC);\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;",
+                "annotations": [
+                  {
+                    "lines": "1-5",
+                    "label": "Créer une table temporaire d’événements avec contraintes explicites."
+                  },
+                  {
+                    "lines": "6-9",
+                    "label": "Générer 20000 événements déterministes et actualiser les statistiques."
+                  },
+                  {
+                    "lines": "10-12",
+                    "label": "Mesurer les cinq derniers événements avant création de l’index."
+                  },
+                  {
+                    "lines": "13-15",
+                    "label": "Créer l’index client/date et actualiser les statistiques."
+                  },
+                  {
+                    "lines": "16-18",
+                    "label": "Rejouer la même requête après indexation et comparer le plan observé."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sql-migration",
+              "type": "code",
+              "title": "4 · Nullable → backfill → constraint",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+                "source": "ALTER TABLE academy_products ADD COLUMN reserved integer;\nUPDATE academy_products SET reserved = 0 WHERE reserved IS NULL;\nALTER TABLE academy_products ALTER COLUMN reserved SET DEFAULT 0;\nALTER TABLE academy_products ALTER COLUMN reserved SET NOT NULL;\nALTER TABLE academy_products ADD CONSTRAINT academy_reserved_nonnegative\n  CHECK (reserved >= 0);\nSELECT id, stock, reserved FROM academy_products;",
+                "annotations": [
                   {
                     "lines": "1-2",
-                    "label": "Dans academy-labs/sql-data-modeling/sql-transactions-indexes.sql, le résultat doit démontrer « Transactions, index et migrations » et rendre l’atomicité d’une mutation multi-table observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard puis npm run validate:course se termine sans erreur ; le comportement obtenu respecte précisément : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif."
+                    "label": "Ajouter une colonne nullable puis remplir les lignes existantes avec zéro."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "Définir le défaut futur et interdire NULL et les valeurs négatives."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "Inspecter les valeurs migrées pour vérifier les données obtenues."
                   }
                 ]
               }
@@ -909,46 +1038,55 @@
               "id": "lecomax",
               "type": "callout",
               "tone": "important",
-              "title": "Application à L’ecomax",
-              "text": "L’ecomax décrémente le stock et crée les lignes ensemble ; ses migrations ajoutent contraintes et index sans édition manuelle de production."
+              "title": "L’ecomax",
+              "text": "Ce laboratoire indépendant ne prouve pas que le paiement L’ecomax utilise cette transaction. Compare son principe aux accès produits référencés et inspecte le véritable chemin d’écriture avant de proposer une intégration."
             }
           ]
         }
       ],
       "commands": [
-        "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard",
-        "npm run validate:course"
+        "node --test lecomax-learning-app/tests/sql-chapter.test.cjs"
       ],
-      "expectedResult": "Dans academy-labs/sql-data-modeling/sql-transactions-indexes.sql, le résultat doit démontrer « Transactions, index et migrations » et rendre l’atomicité d’une mutation multi-table observable. Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard puis npm run validate:course se termine sans erreur ; le comportement obtenu respecte précisément : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif.",
+      "expectedResult": "Dans une connexion neuve : stock 1, order_id 101, quantité 2, unit_price_cents 4990. La table événements contient 20000 lignes et produit deux plans EXPLAIN ; ni le type de plan ni la durée ne sont garantis. reserved vaut finalement 0.",
       "commonErrors": [
         {
-          "symptom": "L’exemple « Transactions, index et migrations » s’exécute, mais il ne démontre pas l’atomicité d’une mutation multi-table.",
-          "cause": "L’implémentation contredit cette règle du cours : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif.",
-          "fix": "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+          "symptom": "Une commande existe sans stock suffisant",
+          "cause": "UPDATE a modifié zéro ligne mais INSERT n’avait pas de contrôle.",
+          "fix": "Lire ROW_COUNT après UPDATE et lever une exception avant INSERT sauf si le résultat vaut un."
         },
         {
-          "symptom": "Le cas nominal fonctionne dans academy-labs/sql-data-modeling/sql-transactions-indexes.sql, mais le cas limite échoue ou reste silencieux.",
-          "cause": "La frontière suivante n’est pas encore représentée dans le code : Créer order_items seulement après le succès stock et rollback à toute exception empêche une commande payée sans réservation ou une réservation sans ligne.",
-          "fix": "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : Un index suit une requête fréquente sur filtre et ordre ; multiplier les index ralentit INSERT/UPDATE et ne corrige pas une requête qui sélectionne trop de données."
+          "symptom": "current transaction is aborted",
+          "cause": "Une première erreur SQL a abandonné la transaction.",
+          "fix": "Relever la première erreur, faire ROLLBACK puis corriger sa cause avant de recommencer."
+        },
+        {
+          "symptom": "relation does not exist",
+          "cause": "Les tables temporaires n’existent pas dans cette connexion.",
+          "fix": "Exécuter préparation et réservation dans la même connexion de laboratoire."
+        },
+        {
+          "symptom": "Le plan index attendu n’apparaît pas",
+          "cause": "L’optimiseur choisit selon statistiques et coût, pas seulement selon les index présents.",
+          "fix": "Faire ANALYZE et comparer lignes estimées/réelles et plan sans imposer un parcours."
         }
       ],
       "exercise": {
-        "task": "Dans academy-labs/sql-data-modeling/sql-transactions-indexes.sql, reconstruis l’exemple annoté « Transactions, index et migrations » afin qu’il démontre l’atomicité d’une mutation multi-table, puis vérifie exactement ce comportement avec les commandes fournies.",
+        "task": "Résoudre cinq exercices : tracer une réservation, révéler une commande fictive, prouver le rollback, comparer les plans et expliquer une migration.",
         "steps": [
-          "Ouvre academy-labs/sql-data-modeling/sql-transactions-indexes.sql et isole la fonction ou le composant de l’exercice sans supprimer le reste du fichier L’ecomax.",
-          "Commence par le contrat de la première ligne — begin; — puis saisis les lignes suivantes dans l’ordre en contrôlant chaque type et chaque retour.",
-          "Vérifie que la dernière instruction — commit; — respecte cette règle observable : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif.",
-          "Après la commande de copie, colle le SQL dans l’éditeur SQL d’un projet Supabase de test, exécute-le une seule fois et lis chaque succès ou erreur avant toute modification.",
-          "Enregistre le fichier, exécute Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard puis npm run validate:course, puis teste une valeur normale et le cas limite décrit dans les erreurs fréquentes."
+          "Facile : tracer stock et nombre de commandes avant BEGIN, après UPDATE et après COMMIT ; prévoir 3→1 et 0→1.",
+          "Intermédiaire : dans un laboratoire neuf, mettre le stock à 1 et retirer temporairement le contrôle ; expliquer l’échec du test puis remettre le contrôle. Uniquement pour reproduire le défaut volontaire, remplacer aussi reserved_price dans VALUES par 4990. Sinon NOT NULL refuse le prix absent : retirer seulement le contrôle ne reproduit pas la commande fictive initiale.",
+          "Intermédiaire : créer préalablement la commande 101 ; prévoir la violation de clé, faire ROLLBACK et vérifier stock et commande initiale.",
+          "Avancé : exécuter tout l’exemple événements et noter les deux plans, sans supposer un parcours précis ou un gain constant.",
+          "Avancé : exécuter la migration, essayer reserved = -1 et expliquer l’ordre et les adaptations pour une grande table en production."
         ],
         "hints": [
-          "Le point de départ est le contrat visible dans academy-labs/sql-data-modeling/sql-transactions-indexes.sql, pas une nouvelle abstraction ni un nouveau paquet.",
-          "Si le résultat diverge, relis cette frontière : Créer order_items seulement après le succès stock et rollback à toute exception empêche une commande payée sans réservation ou une réservation sans ligne.",
-          "Compare ta version ligne par ligne avec la solution et applique cette correction : Un index suit une requête fréquente sur filtre et ordre ; multiplier les index ralentit INSERT/UPDATE et ne corrige pas une requête qui sélectionne trop de données."
+          "ROW_COUNT décrit la dernière opération : le lire immédiatement après UPDATE.",
+          "L’échec INSERT dans la transaction doit annuler aussi le UPDATE précédent.",
+          "Réparer les NULL existants avant NOT NULL ; ici le défaut sert aux prochaines écritures."
         ],
         "solution": {
-          "explanation": "La solution complète de academy-labs/sql-data-modeling/sql-transactions-indexes.sql comporte 9 lignes annotées. Elle implémente directement l’atomicité d’une mutation multi-table, conserve le contrat montré dans l’exemple et rend le cas d’échec explicite sans ajouter de dépendance.",
-          "code": "begin;\nupdate products\nset stock = stock - 2\nwhere id = '00000000-0000-0000-0000-000000000001' and stock >= 2\nreturning id, stock;\n-- Exiger exactement une ligne avant de créer order_items.\ninsert into order_items (order_id, product_id, product_name, unit_price_cents, quantity)\nvalues ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Sac', 4990, 2);\ncommit;",
+          "explanation": "1) La préparation donne stock 3 et zéro commande. UPDATE contrôlé laisse 1, INSERT ajoute une ligne et COMMIT valide les deux. 2) Sans contrôle, stock 1 reste inchangé mais INSERT crée quand même une commande. Remettre IF affected rejette cette réservation. 3) Avec la commande 101 existante, la violation de clé abandonne la transaction. Après ROLLBACK, le stock reste 3 et l’ancienne ligne est intacte. 4) Exécute les événements et relève le plan observé. L’index ordonne client puis date, mais le choix dépend des statistiques ; aucun facteur d’accélération constant ne fait partie du corrigé. 5) reserved commence NULL, le remplissage le corrige, puis DEFAULT, NOT NULL et CHECK fixent la politique. La valeur -1 est refusée. Cette petite séquence ne suffit pas pour déployer une grande table. Le code ci-dessous est la base complète ; les tests appliquent les échecs isolés. Uniquement pour reproduire le défaut volontaire, remplacer aussi reserved_price dans VALUES par 4990. Sinon NOT NULL refuse le prix absent : retirer seulement le contrôle ne reproduit pas la commande fictive initiale.",
+          "code": "CREATE TEMP TABLE academy_products (\n  id integer PRIMARY KEY,\n  stock integer NOT NULL CHECK (stock >= 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nCREATE TEMP TABLE academy_order_items (\n  order_id integer PRIMARY KEY,\n  product_id integer NOT NULL REFERENCES academy_products(id),\n  quantity integer NOT NULL CHECK (quantity > 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nINSERT INTO academy_products VALUES (1, 3, 4990);\n\nBEGIN;\nDO $$\nDECLARE\n  affected integer;\n  reserved_price integer;\nBEGIN\n  UPDATE academy_products\n  SET stock = stock - 2\n  WHERE id = 1 AND stock >= 2\n  RETURNING unit_price_cents INTO reserved_price;\n  GET DIAGNOSTICS affected = ROW_COUNT;\n  IF affected <> 1 THEN\n    RAISE EXCEPTION 'Product missing or insufficient stock';\n  END IF;\n  INSERT INTO academy_order_items\n    (order_id, product_id, quantity, unit_price_cents)\n  VALUES (101, 1, 2, reserved_price);\nEND $$;\nCOMMIT;\nSELECT id, stock FROM academy_products;\nSELECT order_id, quantity, unit_price_cents FROM academy_order_items;\n\nCREATE TEMP TABLE academy_events (\n  id integer PRIMARY KEY,\n  customer_id integer NOT NULL,\n  created_at timestamptz NOT NULL\n);\nINSERT INTO academy_events\nSELECT n, n % 1000, TIMESTAMPTZ '2026-01-01 00:00:00+00' + n * INTERVAL '1 minute'\nFROM generate_series(1, 20000) AS n;\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\nCREATE INDEX academy_events_customer_created_idx\nON academy_events (customer_id, created_at DESC);\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\n\nALTER TABLE academy_products ADD COLUMN reserved integer;\nUPDATE academy_products SET reserved = 0 WHERE reserved IS NULL;\nALTER TABLE academy_products ALTER COLUMN reserved SET DEFAULT 0;\nALTER TABLE academy_products ALTER COLUMN reserved SET NOT NULL;\nALTER TABLE academy_products ADD CONSTRAINT academy_reserved_nonnegative\n  CHECK (reserved >= 0);\nSELECT id, stock, reserved FROM academy_products;",
           "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
           "language": "sql"
         }
@@ -956,65 +1094,66 @@
       "quiz": [
         {
           "id": "sql-transactions-indexes-q1",
-          "question": "Quelle affirmation applique correctement l’atomicité d’une mutation multi-table dans une application de production ?",
+          "question": "UPDATE modifie zéro ligne sans erreur SQL. Que doit faire cette réservation ?",
           "options": [
-            "Le navigateur peut décider seul de l’atomicité d’une mutation multi-table, car ses données sont toujours fiables.",
-            "l’atomicité d’une mutation multi-table concerne uniquement les couleurs et n’a aucun effet sur les données.",
-            "Les erreurs liées à l’atomicité d’une mutation multi-table peuvent être ignorées si le cas nominal fonctionne une fois.",
-            "La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif."
+            "Continuer avec INSERT sans condition",
+            "Lever une exception et annuler",
+            "Changer le CSS",
+            "Valider avant de vérifier"
           ],
-          "correctIndex": 3,
-          "explanation": "La bonne réponse est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
+          "correctIndex": 1,
+          "explanation": "Zéro ligne n’est pas une erreur SQL, mais la réservation en exige exactement une. Refuser avant INSERT.",
           "answerExplanations": [
-            "Cette option est incorrecte. Elle affirme « Le navigateur peut décider seul de l’atomicité d’une mutation multi-table, car ses données sont toujours fiables. ». La réponse de référence est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». La bonne réponse est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
-            "Cette option est incorrecte. Elle affirme « l’atomicité d’une mutation multi-table concerne uniquement les couleurs et n’a aucun effet sur les données. ». La réponse de référence est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». La bonne réponse est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
-            "Cette option est incorrecte. Elle affirme « Les erreurs liées à l’atomicité d’une mutation multi-table peuvent être ignorées si le cas nominal fonctionne une fois. ». La réponse de référence est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». La bonne réponse est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec.",
-            "Cette option est correcte. Elle affirme « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». La bonne réponse est « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». Elle décrit un comportement observable et vérifiable ; les autres propositions suppriment une frontière de sécurité, confondent présentation et données, ou ignorent les scénarios d’échec."
+            "✗ Continuer avec INSERT sans condition. Lever une exception et annuler. Zéro ligne n’est pas une erreur SQL, mais la réservation en exige exactement une. Refuser avant INSERT.",
+            "✓ Lever une exception et annuler. Zéro ligne n’est pas une erreur SQL, mais la réservation en exige exactement une. Refuser avant INSERT.",
+            "✗ Changer le CSS. Lever une exception et annuler. Zéro ligne n’est pas une erreur SQL, mais la réservation en exige exactement une. Refuser avant INSERT.",
+            "✗ Valider avant de vérifier. Lever une exception et annuler. Zéro ligne n’est pas une erreur SQL, mais la réservation en exige exactement une. Refuser avant INSERT."
           ]
         },
         {
           "id": "sql-transactions-indexes-q2",
-          "question": "Quelle définition correspond au terme « l’atomicité d’une mutation multi-table » ?",
+          "question": "UPDATE réussit puis INSERT rencontre une clé dupliquée. Après ROLLBACK ?",
           "options": [
-            "La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif.",
-            "Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma.",
-            "Groupe d’opérations validé entièrement ou annulé entièrement.",
-            "Ce terme ne possède aucune définition technique précise."
+            "La diminution reste",
+            "L’ancienne commande disparaît",
+            "La diminution est annulée et l’ancienne commande reste",
+            "Il faut ajouter un index"
           ],
-          "correctIndex": 1,
-          "explanation": "« l’atomicité d’une mutation multi-table » signifie : Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma.",
+          "correctIndex": 2,
+          "explanation": "La modification de cette transaction est annulée ; les données validées avant elle restent.",
           "answerExplanations": [
-            "Cette option est incorrecte. Elle affirme « La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. ». La réponse de référence est « Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma. ». « l’atomicité d’une mutation multi-table » signifie : Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma.",
-            "Cette option est correcte. Elle affirme « Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma. ». « l’atomicité d’une mutation multi-table » signifie : Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma.",
-            "Cette option est incorrecte. Elle affirme « Groupe d’opérations validé entièrement ou annulé entièrement. ». La réponse de référence est « Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma. ». « l’atomicité d’une mutation multi-table » signifie : Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma.",
-            "Cette option est incorrecte. Elle affirme « Ce terme ne possède aucune définition technique précise. ». La réponse de référence est « Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma. ». « l’atomicité d’une mutation multi-table » signifie : Une transaction crée une frontière tout-ou-rien autour de plusieurs écritures : un échec doit restaurer l’état précédent. Les index accélèrent des accès précis au prix d’espace et de travail à l’écriture, tandis qu’une migration versionne chaque changement de schéma."
+            "✗ La diminution reste. La diminution est annulée et l’ancienne commande reste. La modification de cette transaction est annulée ; les données validées avant elle restent.",
+            "✗ L’ancienne commande disparaît. La diminution est annulée et l’ancienne commande reste. La modification de cette transaction est annulée ; les données validées avant elle restent.",
+            "✓ La diminution est annulée et l’ancienne commande reste. La modification de cette transaction est annulée ; les données validées avant elle restent.",
+            "✗ Il faut ajouter un index. La diminution est annulée et l’ancienne commande reste. La modification de cette transaction est annulée ; les données validées avant elle restent."
           ]
         },
         {
           "id": "sql-transactions-indexes-q3",
-          "question": "Quel est le meilleur premier correctif lorsque vous observez : « L’exemple « Transactions, index et migrations » s’exécute, mais il ne démontre pas l’atomicité d’une mutation multi-table. » ?",
+          "question": "Quelle affirmation sur EXPLAIN ANALYZE est exacte ?",
           "options": [
-            "Relancer exactement la même action sans lire le premier message d’erreur.",
-            "Ajoute un cas de vérification explicite en t’appuyant sur ce principe : Un index suit une requête fréquente sur filtre et ordre ; multiplier les index ralentit INSERT/UPDATE et ne corrige pas une requête qui sélectionne trop de données.",
-            "Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
-            "Masquer l’erreur dans l’interface et considérer le problème comme résolu."
+            "Il affiche sans exécuter",
+            "Il garantit un parcours index",
+            "Il répare chaque requête",
+            "Il exécute la requête et la mesure"
           ],
-          "correctIndex": 2,
-          "explanation": "Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
+          "correctIndex": 3,
+          "explanation": "ANALYZE exécute l’instruction ; sur une écriture, il peut donc modifier les données.",
           "answerExplanations": [
-            "Cette option est incorrecte. Elle affirme « Relancer exactement la même action sans lire le premier message d’erreur. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
-            "Cette option est incorrecte. Elle affirme « Ajoute un cas de vérification explicite en t’appuyant sur ce principe : Un index suit une requête fréquente sur filtre et ordre ; multiplier les index ralentit INSERT/UPDATE et ne corrige pas une requête qui sélectionne trop de données. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
-            "Cette option est correcte. Elle affirme « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon.",
-            "Cette option est incorrecte. Elle affirme « Masquer l’erreur dans l’interface et considérer le problème comme résolu. ». La réponse de référence est « Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon. ». Le diagnostic part de la cause suivante : L’implémentation contredit cette règle du cours : La condition stock >= 2 fusionne vérification et décrémentation dans une seule instruction atomique ; zéro ligne retournée signifie indisponibilité sans stock négatif. Le correctif adapté est : Reviens au premier endroit où la valeur diverge, applique cette règle, puis relance les commandes exactes de la leçon."
+            "✗ Il affiche sans exécuter. Il exécute la requête et la mesure. ANALYZE exécute l’instruction ; sur une écriture, il peut donc modifier les données.",
+            "✗ Il garantit un parcours index. Il exécute la requête et la mesure. ANALYZE exécute l’instruction ; sur une écriture, il peut donc modifier les données.",
+            "✗ Il répare chaque requête. Il exécute la requête et la mesure. ANALYZE exécute l’instruction ; sur une écriture, il peut donc modifier les données.",
+            "✓ Il exécute la requête et la mesure. ANALYZE exécute l’instruction ; sur une écriture, il peut donc modifier les données."
           ]
         }
       ],
       "recap": [
-        "Tu peux maintenant expliquer l’atomicité d’une mutation multi-table avec un schéma entrée → transformation → sortie.",
-        "Regroupe les invariants liés dans une transaction, mesure les plans avant/après index et déploie le schéma par migrations répétables.",
-        "L’ecomax décrémente le stock et crée les lignes ensemble ; ses migrations ajoutent contraintes et index sans édition manuelle de production."
+        "Zéro ligne modifiée peut être un succès SQL : refuser explicitement le résultat métier invalide.",
+        "Le rollback groupe les écritures SQL, pas les effets des API externes.",
+        "Évaluer index, plans et coût des écritures sans promettre un gain fixe.",
+        "Prévoir compatibilité des versions, vérification et récupération des migrations."
       ],
-      "next": "Le module suivant applique ces principes avec les clients, Auth, RLS, Storage et Realtime de Supabase."
+      "next": "Poursuivre avec savepoints, réservations multi-produits, deux connexions PostgreSQL indépendantes et répétition d’un remplissage volumineux. Ce chapitre enrichi ne termine pas le parcours bases de données."
     }
   ]
 }

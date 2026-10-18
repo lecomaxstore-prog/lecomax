@@ -13,7 +13,7 @@ export function useStoreRefresh(load: (signal: AbortSignal) => Promise<void>) {
       // Keep at most one request running for this consumer.
       if (controller) return;
       controller = new AbortController();
-      void latest.current(controller.signal).catch(() => {}).finally(() => {
+      void latest.current(AbortSignal.any([controller.signal, AbortSignal.timeout(10_000)])).catch(() => {}).finally(() => {
         controller = undefined;
       });
     };

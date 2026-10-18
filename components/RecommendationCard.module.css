@@ -1,0 +1,61 @@
+.card {
+  border: 1px solid #e8ebe5;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.media { background: #f4f5f1; }
+.media .image { padding: 32px 12px 12px; }
+.wishlist { background: #fffffff0; box-shadow: 0 2px 8px #183c3008; }
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 10px;
+  max-width: calc(100% - 70px);
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #e5eddf;
+  color: #284332;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+.info { padding: 14px 12px 12px; }
+.category {
+  margin-bottom: 6px;
+  color: #687168;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.title {
+  min-height: 3em;
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: -.015em;
+  color: #242e26;
+}
+.prices { margin-top: 12px; }
+.price { font-size: 16px; font-weight: 650; color: #234735; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+.action {
+  margin-top: 5px;
+  padding: 10px 0 0;
+  border-top: 1px solid #e8ebe5;
+  font-size: 11px;
+  font-weight: 600;
+  color: #284b36;
+}
+.action svg { flex-shrink: 0; }
+.action:hover { color: #101d15; }
+@media (min-width: 640px) {
+  .info { padding: 16px; }
+  .title { font-size: 14px; }
+  .price { font-size: 18px; }
+  .action { font-size: 12px; }
+  .media .image { padding: 36px 18px 18px; }
+}

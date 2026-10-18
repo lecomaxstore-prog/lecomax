@@ -13,6 +13,7 @@ import { selectedInventory, preorderSnapshot, type PreorderFields, type Preorder
 import type { Product } from "@/lib/products";
 import { resolveProductVariantImage } from "@/lib/product-variant-image";
 import { colorPricesFromTags } from "@/lib/product-variant-pricing";
+import { cartQuantity, cartStockLimit } from "@/lib/cart-stock-limit";
 import { preorderCopy } from "@/lib/preorder-copy";
 import { safeLocalStorage } from "@/lib/browser-storage";
 
@@ -118,7 +119,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           if (!live) { changed = true; removed.push(item.name); return []; }
 
           const physical = selectedInventory({...live, stock:Number(live.stock)},item.color,item.size);
-          const available = physical < 0 ? 0 : live.preorder_enabled ? 20 : Math.min(20, physical);
+          const available = cartStockLimit(physical, live.preorder_enabled);
           if (available <= 0) {
             changed = true;
             removed.push(item.name);
@@ -198,14 +199,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           const idx = prev.findIndex(
             (i) => i.slug === p.slug && i.size === size && i.color === color
           );
+          const stock = selectedInventory(p, color, size);
+          if (!Number.isInteger(qty) || qty < 1) return prev;
+          const quantity = cartQuantity((idx >= 0 ? prev[idx].quantity : 0) + qty, stock, p.preorder_enabled);
+          if (quantity === 0) return prev;
           if (idx >= 0) {
             const next = [...prev];
             next[idx] = {
               ...next[idx],
-              ...preorderSnapshot(p,physical, Math.min(limit,next[idx].quantity + qty)),
+              ...preorderSnapshot(p,selectedInventory(p,color,size), quantity),
               preorder_enabled:p.preorder_enabled, available_stock:selectedInventory(p,color,size),
               preorder_details: { preorder_enabled: p.preorder_enabled, preorder_estimated_at: p.preorder_estimated_at, preorder_message: p.preorder_message },
-              quantity: Math.min(limit,next[idx].quantity + qty),
+              quantity: quantity,
               price,
               image: variantImage,
             };
@@ -220,10 +225,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               price,
               size,
               color,
-              ...preorderSnapshot(p,physical,Math.min(limit,qty)),
+              ...preorderSnapshot(p,stock,quantity),
               preorder_enabled:p.preorder_enabled, available_stock:selectedInventory(p,color,size),
               preorder_details: { preorder_enabled: p.preorder_enabled, preorder_estimated_at: p.preorder_estimated_at, preorder_message: p.preorder_message },
-              quantity: Math.min(limit,qty),
+              quantity,
             },
           ];
         }),
@@ -233,17 +238,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         ),
       setQty: (slug, size, color, qty) =>
         updateItems((prev) =>
-          prev.map((i) =>
-            i.slug === slug && i.size === size && i.color === color
-              ? (() => {
-                if (!Number.isInteger(qty)) return i;
-                const limit = i.preorder_enabled ? 20 : Math.min(20, i.available_stock ?? i.quantity);
-                if (limit <= 0) return i;
-                const quantity = Math.min(limit, Math.max(1, qty));
-                return { ...i, ...preorderSnapshot(i.preorder_details ?? i, i.available_stock ?? 0, quantity), quantity };
-              })()
-              : i
-          )
+          prev.map((i) => {
+            if (i.slug !== slug || i.size !== size || i.color !== color) return i;
+            const quantity = cartQuantity(qty, i.available_stock, i.preorder_enabled);
+            if (quantity === 0) return i;
+            return { ...i, ...preorderSnapshot(i.preorder_details ?? i, i.available_stock!, quantity), quantity };
+          })
         ),
       clear: () => updateItems(() => []),
       inventoryNotice,

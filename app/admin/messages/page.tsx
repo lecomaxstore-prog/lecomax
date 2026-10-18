@@ -39,32 +39,62 @@ export default function MessagesPage() {
   const [filter, setFilter] = useState<typeof STATUS_FILTERS[number]>("Tous");
   const [selected, setSelected] = useState<Message | null>(null);
   const [search, setSearch] = useState("");
+  const [contactError, setContactError] = useState("");
+  const [contactBusy, setContactBusy] = useState(false);
+  const contactMutation = useRef(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch("/api/messages");
-    const data = await res.json();
-    setMessages(Array.isArray(data) ? data : []);
-    setLoading(false);
+    setContactError("");
+    try {
+      const res = await fetch("/api/messages", { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) throw new Error("Messages unavailable");
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("Invalid messages response");
+      setMessages(data);
+    } catch {
+      setContactError("Impossible de charger les messages. Réessayez.");
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
   async function markRead(msg: Message, read: boolean) {
-    await fetch(`/api/messages/${msg.id}`, {
+    await updateContact(`/api/messages/${msg.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ read }),
+    }, () => {
+      setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, read } : m));
+      setSelected(current => current?.id === msg.id ? { ...current, read } : current);
     });
-    setMessages((prev) => prev.map((m) => m.id === msg.id ? { ...m, read } : m));
-    if (selected?.id === msg.id) setSelected({ ...msg, read });
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Supprimer ce message ?")) return;
-    await fetch(`/api/messages/${id}`, { method: "DELETE" });
-    if (selected?.id === id) setSelected(null);
-    load();
+    if (contactMutation.current || !confirm("Supprimer ce message ?")) return;
+    await updateContact(`/api/messages/${id}`, { method: "DELETE" }, () => {
+      setSelected(current => current?.id === id ? null : current);
+      setMessages(prev => prev.filter(message => message.id !== id));
+    });
+  }
+
+  async function updateContact(url: string, init: RequestInit, onSuccess: () => void) {
+    if (contactMutation.current) return;
+    contactMutation.current = true;
+    setContactBusy(true);
+    setContactError("");
+    try {
+      const response = await fetch(url, { ...init, signal: AbortSignal.timeout(10000) });
+      if (!response.ok) throw new Error("Message update failed");
+      onSuccess();
+    } catch {
+      setContactError("Modification non confirmée. Rechargez les messages avant de réessayer.");
+    } finally {
+      contactMutation.current = false;
+      setContactBusy(false);
+    }
   }
 
   const filtered = messages.filter((m) => {
@@ -551,6 +581,10 @@ export default function MessagesPage() {
 
   return (
     <div className="max-w-6xl pb-10">
+      {contactError && <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        {contactError} <button type="button" disabled={loading || contactBusy} onClick={() => void load()} className="ml-2 min-h-11 rounded-lg px-3 font-semibold underline">Recharger</button>
+      </div>}
+      {contactBusy && <p role="status" className="mb-3 text-sm text-neutral-600">Enregistrement en cours…</p>}
       <div className="mb-6 rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
         <div className="admin-mobile-heading flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-3.5">
@@ -685,6 +719,10 @@ export default function MessagesPage() {
         {selected && (
           <div className="fixed inset-0 z-50 bg-white overflow-auto md:relative md:inset-auto md:z-auto md:w-80 md:flex-shrink-0">
             <div className="bg-white md:border md:border-neutral-100 md:rounded-2xl p-5 md:sticky md:top-24 min-h-full md:min-h-0">
+              {contactError && <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                {contactError}
+                <button type="button" disabled={loading || contactBusy} onClick={() => { setSelected(null); void load(); }} className="block min-h-11 font-semibold underline">Recharger les messages</button>
+              </div>}
               {/* Mobile back bar */}
               <div className="flex items-center gap-3 mb-4 pb-3 border-b border-neutral-100">
                 <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-sm font-semibold text-neutral-600 hover:text-black transition-colors">

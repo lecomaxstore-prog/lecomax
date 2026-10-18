@@ -20,7 +20,7 @@ function emit(settings: SettingsMap) {
 
 export async function refreshSettings(): Promise<SettingsMap> {
   if (!request) {
-    request = fetch("/api/settings", { cache: "no-store" })
+    request = fetch("/api/settings", { cache: "no-store", signal: AbortSignal.timeout(10_000) })
       .then(async (response) => {
         if (!response.ok) throw new Error("Impossible de charger les paramètres");
         const rows = await response.json() as { key: string; value: string }[];

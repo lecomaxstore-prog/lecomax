@@ -83,3 +83,9 @@ release/
 supabase_error.json
 fluid-release.patch
 mobile/latest-build-audit.json
+
+# Local dependency cache and owner-auth QA artifacts
+.npm-cache/
+.owner-auth-qa/
+.teacher-workspaces/
+.pc-remote/

@@ -1,8 +1,19 @@
 "use client";
 import { useState } from "react";
 import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { TutorAction } from "@/lib/ai-tutor";
 import styles from "./Tutor.module.css";
+
+/** Small lexical highlighter; React escapes every token (no generated HTML). */
+function highlighted(code: string, language: string) {
+  if (!/^(js|jsx|ts|tsx|javascript|typescript|json|sql|css)$/.test(language)) return code;
+  const tokens = code.split(/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`|\b(?:const|let|var|function|return|if|else|async|await|import|from|export|default|new|throw|try|catch|type|interface|true|false|null|undefined|select|insert|where|into|create|table)\b|\b\d+(?:\.\d+)?\b)/gi);
+  return tokens.map((token, index) => {
+    const style = /^\/[/\*]/.test(token) ? styles.tokenComment : /^["'`]/.test(token) ? styles.tokenString : /^\d/.test(token) ? styles.tokenNumber : /^(const|let|var|function|return|if|else|async|await|import|from|export|default|new|throw|try|catch|type|interface|true|false|null|undefined|select|insert|where|into|create|table)$/i.test(token) ? styles.tokenKeyword : undefined;
+    return style ? <span key={index} className={style}>{token}</span> : token;
+  });
+}
 
 function CodeBlock({ code, language, onAction, disabled }: { code: string; language: string; onAction?: (action: TutorAction, code: string) => void; disabled: boolean }) {
   const [copied, setCopied] = useState(false);
@@ -15,7 +26,7 @@ function CodeBlock({ code, language, onAction, disabled }: { code: string; langu
   }
   return <div className={styles.codeBlock}>
     <div className={styles.codeBar}><span dir="ltr">{language || "code"}</span><button type="button" onClick={copy}>{copied ? "تم النسخ ✓" : "نسخ الكود"}</button></div>
-    <pre dir="ltr" tabIndex={0} aria-label="الكود"><code>{code}</code></pre>
+    <pre dir="ltr" tabIndex={0} aria-label="الكود"><code>{highlighted(code, language)}</code></pre>
     {copyError && <p role="status">تعذر النسخ. يمكنك تحديد الكود ونسخه يدويًا.</p>}
     {onAction && <details className={styles.codeTools}><summary>افهم الكود وجرّب بنفسك</summary>
       <div className={styles.actions}>{([ ["explain", "اشرح الكود"], ["lines", "اشرح سطرًا بسطر"], ["change", "ما الذي يجب أن أغيّره؟"], ["practice", "جرّبني"] ] as [TutorAction,string][]).map(([action,label]) => <button disabled={disabled} key={action} onClick={() => onAction(action,code)}>{label}</button>)}</div>
@@ -28,7 +39,8 @@ function CodeBlock({ code, language, onAction, disabled }: { code: string; langu
   </div>;
 }
 export default function TutorMarkdown({ text, onAction, disabled = false }: { text: string; onAction?: (action: TutorAction, code: string) => void; disabled?: boolean }) {
-  return <div className={styles.markdown}><Markdown skipHtml components={{
+  return <div className={styles.markdown} dir="auto"><Markdown skipHtml remarkPlugins={[remarkGfm]} components={{
+    table({ children }) { return <div className={styles.tableScroll} tabIndex={0} role="region" aria-label="جدول الشرح"><table>{children}</table></div>; },
     pre({ children }) { return <>{children}</>; },
     code({ className, children, node }) {
       const code = String(children).replace(/\n$/, "");

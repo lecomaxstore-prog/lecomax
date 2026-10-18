@@ -2,7 +2,7 @@
 // Re-rendering their server shell every 30 seconds adds no fresh product data.
 const CLIENT_DATA_ROUTES = new Set([
   "/connexion", "/inscription", "/mot-de-passe", "/panier", "/checkout",
-  "/wishlist", "/merci", "/suivre-commande", "/nouveautes", "/bestsellers", "/promotions",
+  "/boutique", "/wishlist", "/merci", "/suivre-commande", "/nouveautes", "/bestsellers", "/promotions",
 ]);
 
 export function needsStorefrontServerRefresh(pathname: string) {

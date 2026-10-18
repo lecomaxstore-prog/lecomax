@@ -10,6 +10,7 @@ import LessonMap from './LessonMap';
 import MiniLab from './MiniLab';
 import { labForLesson } from './practice';
 import styles from './Learning.module.css';
+import LessonTeacher from '../LessonTeacher';
 
 const steps: Text[] = [
   ['Comprendre', 'Understand', 'افهم'], ['Lire le code', 'Read code', 'اقرأ الكود'],
@@ -55,6 +56,7 @@ export default function LessonViewer({ lesson, lang, progress, update, next, onN
     <div className={styles.lessonTop}><button type="button" onClick={onHome}>← {t(['Mon parcours', 'My path', 'مساري'])}</button><span>≈ {lesson.minutes} min</span></div>
     <p className={styles.eyebrow}>{t(['UNE IDÉE À LA FOIS', 'ONE IDEA AT A TIME', 'فكرة واحدة كل مرة'])}</p>
     <h2>{t(lesson.title)}</h2>
+    <button type="button" aria-pressed={progress.bookmarks.includes(lesson.id)} onClick={() => update({ bookmarks: progress.bookmarks.includes(lesson.id) ? progress.bookmarks.filter(id => id !== lesson.id) : [...progress.bookmarks, lesson.id] })}>{progress.bookmarks.includes(lesson.id) ? t(['Dans mes favoris ✓', 'Bookmarked ✓', 'في المفضلة ✓']) : t(['Garder cette leçon pour plus tard', 'Save this lesson for later', 'احفظ الدرس لوقت لاحق'])}</button>
     <p className={styles.muted}>{t(['Lis, essaie, puis vérifie. Tu peux revenir en arrière à tout moment.', 'Read, try, then check. You can go back at any time.', 'اقرأ وجرب ثم تحقق. يمكنك الرجوع في أي وقت.'])}</p>
     <nav className={styles.lessonSteps} aria-label={t(['Étapes de la leçon', 'Lesson steps', 'خطوات الدرس'])}>
       {steps.map((label, index) => <button type="button" key={index} aria-current={step === index ? 'step' : undefined} onClick={() => goTo(index)}><span>{index + 1}</span>{t(label)}</button>)}
@@ -65,6 +67,7 @@ export default function LessonViewer({ lesson, lang, progress, update, next, onN
       <div className={styles.keyIdea}><p className={styles.eyebrow}>{t(['L’IDÉE À RETENIR', 'THE KEY IDEA', 'الفكرة الأساسية'])}</p><p>{t(lesson.simple)}</p></div>
       <h4>{t(['Pourquoi dans mon site ?', 'Why in my site?', 'لماذا في موقعي؟'])}</h4><p>{t(lesson.why)}</p>
       <LessonMap id={lesson.id} lang={lang} />
+      <details className={styles.note}><summary>{t(['Avant de regarder : prédis le résultat', 'Before looking: predict the result', 'قبل أن تنظر: توقع النتيجة'])}</summary><p>{t(lesson.prediction)}</p><p className={styles.muted}>{t(['Prends un instant pour répondre avec tes mots, puis compare.', 'Take a moment to answer in your own words, then compare.', 'خذ لحظة للإجابة بكلماتك ثم قارن.'])}</p><details><summary>{t(['Comparer avec l’explication', 'Compare with the explanation', 'قارن مع الشرح'])}</summary><p>{t(lesson.outcome)}</p></details></details>
       <details><summary>{t(['Et sur un autre site ?', 'What about another site?', 'وماذا عن موقع آخر؟'])}</summary><p>{t(lesson.transfer)}</p></details>
     </div>
     <div hidden={step !== 1}><ReadingCoach lesson={lesson} lang={lang} /></div>
@@ -95,6 +98,8 @@ export default function LessonViewer({ lesson, lang, progress, update, next, onN
       <button type="button" aria-expanded={help} onClick={() => { setHelp(value => !value); if (!help) review(); }}>{t(['Besoin d’une explication plus simple ?', 'Need a simpler explanation?', 'تحتاج شرحا أبسط؟'])}</button>
       {help && <div role="status"><p>{t(analogies[lesson.id])}</p><LessonMap id={lesson.id} lang={lang} /><button type="button" onClick={() => goTo(1)}>{t(['Relire une ligne à la fois', 'Read one line at a time', 'اقرأ سطرا كل مرة'])}</button></div>}
     </aside>
+    <LessonTeacher lang={lang} topic={t(lesson.title)} context={`${t(lesson.goal)}\n${t(lesson.simple)}\nCurrent activity: ${t(steps[step])}`} sourcePath={lesson.file} sourceAnchor={lesson.anchor} />
+    <details className={styles.note}><summary>{t(['Mon carnet pour cette leçon', 'My notebook for this lesson', 'دفتر ملاحظاتي لهذا الدرس'])}</summary><label className={styles.exercisePrompt}>{t(['Explique l’idée avec tes mots et note ta prochaine question.', 'Explain the idea in your own words and note your next question.', 'اشرح الفكرة بكلماتك واكتب سؤالك القادم.'])}<textarea className="mt-2 block w-full rounded-xl border p-3 text-base" rows={4} maxLength={2000} value={progress.notes[lesson.id] || ''} onChange={event => update({ notes: { ...progress.notes, [lesson.id]: event.target.value } })} /></label><p className={styles.muted}>{t(['Notes enregistrées avec ta progression dans ce navigateur. N’ajoute pas de clés ou de mots de passe.', 'Notes are saved with your progress in this browser. Do not add keys or passwords.', 'تُحفظ الملاحظات مع تقدمك في هذا المتصفح. لا تضف مفاتيح أو كلمات مرور.'])}</p></details>
     <footer className={styles.lessonFooter}>
       {step > 0 && <button type="button" onClick={() => goTo(step - 1)}>{t(['Précédent', 'Back', 'السابق'])}</button>}
       {step < 3 ? <button type="button" className={styles.primary} onClick={() => goTo(step + 1)}>{t(steps[step + 1])} →</button>

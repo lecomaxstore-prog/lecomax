@@ -141,7 +141,7 @@ const MOBILE_WEB_ORIGINS = new Set([
   "http://localhost:8081",
   "http://127.0.0.1:8081",
 ]);
-const MOBILE_LEARNING_API = /^\/api\/learning-mobile\/(auth|teacher)$/;
+const MOBILE_LEARNING_API = /^\/api\/learning-mobile\/(auth(?:\/(?:confirm|refresh|logout|sessions))?|teacher|lab|workspace|terminal|desktop|progress)$/;
 
 function isAllowedMobileOrigin(origin: string) {
   if (origin === "https://app.lecomax.com") return true;

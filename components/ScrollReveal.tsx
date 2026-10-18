@@ -25,13 +25,17 @@ export default function ScrollReveal({
 
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
+    if (!el || !('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Server HTML and already visible content must never wait for hydration.
+    if (el.getBoundingClientRect().top < window.innerHeight) return;
+    el.classList.add('sr-pending');
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           // Apply delay via inline style so the base transition picks it up
-          el.style.transitionDelay = delay > 0 ? `${delay}ms` : "";
+          el.style.transitionDelay = delay > 0 ? `${Math.min(delay, 150)}ms` : "";
+          el.classList.remove('sr-pending');
           el.classList.add("in");
           observer.unobserve(el);
         }
@@ -40,7 +44,7 @@ export default function ScrollReveal({
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => { observer.disconnect(); el.classList.remove('sr-pending'); };
   }, [delay, rootMargin]);
 
   return (

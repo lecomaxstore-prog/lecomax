@@ -6,6 +6,7 @@ import { learningDestination, learningPages } from "@/lib/site-learning";
 import { translate } from "./course/journey";
 import type { CourseLanguage } from "./course/types";
 import SiteLesson from "./SiteLesson";
+import SitePractice from "./SitePractice";
 import LearningStudio from "./learning/LearningStudio";
 import styles from "./SiteExplorer.module.css";
 import type { SourceConnections } from "@/lib/source-connections";
@@ -32,7 +33,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
   const [showNotices, setShowNotices] = useState(false);
   const [hint, setHint] = useState("");
   const [showGuide, setShowGuide] = useState(false);
-  const [workshop, setWorkshop] = useState<"site" | "guides" | "build">("guides");
+  const [workshop, setWorkshop] = useState<"site" | "guides" | "build">("site");
   const [connections, setConnections] = useState<SourceConnections>();
   const [sourceTrail, setSourceTrail] = useState<SourceSelection[]>([]);
 
@@ -40,7 +41,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     const restoreWorkshop = () => {
       if (window.location.hash === "#explore") setWorkshop("site");
       else if (window.location.hash === "#build") setWorkshop("build");
-      else if (window.location.hash === "#site") setWorkshop("guides");
+      else if (window.location.hash === "#site") setWorkshop("site");
     };
     restoreWorkshop();
     window.addEventListener("hashchange", restoreWorkshop);
@@ -152,6 +153,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
       <p className={styles.tapHint}>{t("Une image, un texte, un bouton : retrouve le fichier, son rôle et les données qu’il utilise.", "An image, text or a button: find its file, its purpose and the data it uses.", "صورة أو نص أو زر: اعرف ملفه ودوره والبيانات التي يستخدمها.")}</p>
       <button type="button" className={styles.guideToggle} aria-expanded={showGuide} aria-controls="site-workshop-guide" onClick={() => setShowGuide(value => !value)}>{showGuide ? t("Masquer le guide −", "Hide guide −", "إخفاء الدليل −") : t("Comment apprendre ? +", "How do I learn? +", "كيف أتعلّم؟ +")}</button>
       <button type="button" className={styles.jumpToSite} onClick={() => { previewCard.current?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); frame.current?.focus({ preventScroll: true }); }}>{t("Voir mon site ↓", "Go to my site ↓", "انتقل إلى موقعي ↓")}</button>
+      <button type="button" className="mt-3 min-h-11 rounded-xl border border-emerald-800 px-4 text-sm font-bold" onClick={() => document.getElementById("site-practice")?.scrollIntoView({ block: "start", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}>{t("Ma prochaine petite mission ↓", "My next small mission ↓", "مهمتي الصغيرة التالية ↓")}</button>
       <div id="site-workshop-guide" className={styles.guideBody}>
       <p>{t("Pars de ce que tu vois. Comprends le code qui le crée. Retiens une idée à la fois.", "Start with what you see. Understand the code behind it. Learn one idea at a time.", "ابدأ بما تراه. افهم الكود الذي يصنعه. تعلّم فكرة واحدة كل مرة.")}</p>
       <ol className={styles.steps}>{[t("Je choisis", "Choose", "اختر"), t("Je comprends", "Understand", "افهم"), t("Je pratique", "Practice", "تدرّب")].map((label, index) => <li key={label}><span>{index + 1}</span>{label}</li>)}</ol>
@@ -179,6 +181,7 @@ export default function SiteExplorer({ lang }: { lang: CourseLanguage }) {
     </div>
     <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-neutral-600"><span>{learned.length} {t("éléments compris", "elements understood", "عناصر فهمتها")}</span><a href="#files" className="min-h-11 content-center font-bold text-emerald-800 underline">{t("Tous les fichiers du projet", "All project files", "كل ملفات المشروع")}</a></div>
     {history.length > 0 && <details className="rounded-xl border bg-white p-3"><summary className="cursor-pointer text-sm font-bold">{t("Revoir mes dernières découvertes", "Review recent discoveries", "راجع اكتشافاتك الأخيرة")}</summary><div className="mt-2 space-y-1">{history.map((item, index) => <button key={`${item.path}:${item.line}:${index}`} type="button" onClick={() => select(item)} className="block min-h-11 w-full truncate rounded-lg px-2 text-left text-xs hover:bg-emerald-50">{item.label || item.path} · {item.path.split("/").pop()}:{item.line || 1}</button>)}</div></details>}
+    <SitePractice lang={lang} onOpenFile={(path, anchor) => select({ path, anchor, fileOnly: true })} />
     <dialog ref={dialog} onCancel={event => { event.preventDefault(); closeLesson(); }} onClose={() => { if (!dialog.current?.open) frame.current?.focus(); }} aria-labelledby="site-lesson-title" className={styles.dialog}>
       <div className={styles.dialogHeader}><div className="flex items-center justify-between gap-3"><h2 id="site-lesson-title" className="min-w-0 truncate text-sm font-bold">{selection?.label || t("Comprendre cet élément", "Understand this element", "افهم هذا العنصر")}</h2><button type="button" autoFocus onClick={closeLesson} className="min-h-11 shrink-0 rounded-xl bg-emerald-950 px-3 text-xs font-bold text-white">{t("← Mon site", "← My site", "موقعي ←")}</button></div></div>
       {sourceTrail.length > 0 && <button type="button" className={styles.sourceBack} onClick={() => { setSelection(sourceTrail[sourceTrail.length - 1]); setSourceTrail(items => items.slice(0, -1)); }}>{t("← Revenir au fichier précédent", "← Back to the previous file", "العودة إلى الملف السابق →")}</button>}

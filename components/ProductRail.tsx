@@ -66,43 +66,6 @@ export default function ProductRail({
     setCanNext(activeIndex < maxIndex);
   }, [activeIndex, maxIndex]);
 
-  // Stagger reveal on scroll-into-view
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    const reveal = () => {
-      const header = section.querySelector(".rail-header") as HTMLElement | null;
-      if (header) header.classList.add("in");
-      const cards = section.querySelectorAll(".card-sr");
-      cards.forEach((card, i) => {
-        setTimeout(() => card.classList.add("in"), i * 75);
-      });
-    };
-
-    const isInView = () => {
-      const rect = section.getBoundingClientRect();
-      return rect.top < window.innerHeight * 0.95 && rect.bottom > 0;
-    };
-
-    if (isInView()) {
-      reveal();
-      return;
-    }
-
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          reveal();
-          obs.unobserve(section);
-        }
-      },
-      { threshold: 0.05, rootMargin: "0px 0px -5% 0px" }
-    );
-    obs.observe(section);
-    return () => obs.disconnect();
-  }, []);
-
   // Sync dots on manual scroll
   useEffect(() => {
     const track = trackRef.current;
@@ -121,7 +84,7 @@ export default function ProductRail({
   return (
     <section data-source-file="components/ProductRail.tsx" ref={sectionRef} className={`${refined ? styles.refined : ""} max-w-7xl mx-auto px-4 md:px-6 py-10`}>
       {/* Header */}
-      <div className="rail-header sr sr-up flex items-center justify-between mb-8">
+      <div className="rail-header flex items-center justify-between mb-8">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400 mb-1.5">{refined ? "La sélection L’ecomax" : "Collection"}</p>
           <h2 className="h-display text-2xl md:text-3xl leading-none">{title}</h2>

@@ -16,7 +16,7 @@
     },
     {
       "path": "academy-labs/06-javascript/values.js",
-      "mode": "create"
+      "mode": "existing"
     },
     {
       "path": "academy-labs/06-javascript/control-flow.js",
@@ -35,69 +35,133 @@
     {
       "id": "lesson-06-01-values",
       "order": 0,
-      "title": "القيم والمتغيرات والأنواع والمعاملات",
-      "estimatedMinutes": 45,
+      "title": "القيم والأنواع: بني calculator ديال panier بمدخلات متحققة",
+      "estimatedMinutes": 100,
       "prerequisites": [
-        "يكفي معرفة استعمال لوحة المفاتيح والفأرة؛ لا نفترض أي خبرة برمجية. تثبّت الوحدة الأولى الأدوات وتفتح المشروع خطوة بخطوة.",
-        "إكمال الدرس السابق ومعرفة تشغيل npm run dev."
+        "خاصك تعرف تحفظ ملف .js وتشغلو بNode من module-00-learning-tools. غادي نشرحو function والحراس هنا قبل الدروس الخاصة بهم."
       ],
       "objectives": [
-        "في نهاية الدرس ستتمكن من شرح وتطبيق النموذج الذهني لموضوع القيم والمتغيرات والأنواع والمعاملات",
-        "في نهاية الدرس ستتمكن من شرح وتطبيق تنفيذًا أدنى يتحقق منه دليل"
+        "فرق بين declaration و assignment والقيم البسيطة و references المشتركة.",
+        "تحقق من كمية مكتوبة كنص وحسب التخفيض بسنتيمات صحيحة وحدود واضحة.",
+        "توقع conversion و formatting وجرب المدخلات الصحيحة والخاسرة."
       ],
       "sections": [
         {
           "id": "mental-model",
-          "title": "النموذج الذهني",
+          "title": "من سؤال boutique للقيم",
           "blocks": [
             {
-              "id": "mental",
+              "id": "values-depth-0",
               "type": "paragraph",
-              "text": "يربط المتغير اسمًا بقيمة؛ وينتمي النوع إلى القيمة ويحدد العمليات ذات المعنى. تحمي const الربط من إعادة الإسناد، وينتج الحساب قيمًا جديدة من دون تغيير المدخلات. افصل دائمًا بين الهدف، والبيانات الداخلة، والتحويل الذي ينفذه البرنامج، والنتيجة التي يمكن ملاحظتها. يساعدك هذا الفصل على توقع السلوك قبل تشغيل الشفرة وعلى تشخيص الخطأ بدقة."
+              "text": "نبداو بسؤال ديال boutique: عندنا جوج منتجات، ثمن الواحد هو 349 MAD، وبغينا نقصو عشرة فالمية. شحال غادي يبان للمشتري؟ الحاسوب ما كيفهمش هاد الجملة بوحدها، خاصنا نحولوها لقيم وعمليات واضحة. المدخلات هي الثمن والكمية ونسبة التخفيض. الحساب كيخرج subtotal، من بعد discount، ومن بعد total. غير فالآخر كنوجدو النص اللي غادي يقراه الإنسان. هاد الفصل مهم حيث النص اللي فيه MAD ما بقاش قيمة مناسبة للضرب. الهدف ماشي نحفظو سطر كيعطي رقم صحيح مرة وحدة، ولكن نفهمو علاش الحساب صحيح، وشنو غادي يوقع إلا تبدلات الكمية ولا دخل لينا نص خاسر."
+            },
+            {
+              "id": "values-depth-1",
+              "type": "paragraph",
+              "text": "هاد التجربة كتخدم بملف JavaScript و Node، بلا navigateur وبلا connexion وبلا قاعدة بيانات. من racine ديال المشروع شغل node academy-labs/06-javascript/values.js. إلا كنت كتبني التمرين فبلاصة أخرى، صايب المجلدات وحط الحل الكامل فنفس المسار النسبي. Node كيقرا الملف وكيشغل التعليمات بالترتيب. console.log كيطبع فالterminal، ما كيبدل حتى صفحة. إلا قال ليك الملف ما لقاوهش، راجع dossier اللي واقف فيه والاسم قبل ما تبدل الحساب. إلا عطاك SyntaxError، راجع الكتابة والقوس والسطر المذكور. الأمثلة الصغار شغل كل واحد بوحدو، حيث إلا جمعتهم فنفس الملف تقدر تعاود تصرح بنفس الاسم باستعمال const وتخلق خطأ ما عندو علاقة بالفكرة اللي كنت كتجرب."
             },
             {
               "id": "analogy",
               "type": "callout",
               "tone": "analogy",
-              "title": "تشبيه بسيط",
-              "text": "تشير بطاقة إلى محتوى صندوق؛ ويصف النوع ما يمكن فعله منطقيًا بذلك المحتوى."
+              "title": "من سؤال boutique للقيم",
+              "text": "الاسم بحال étiquette مرتبطة بقيمة. const كتمنع تحرك الإتيكيت لقيمة أخرى، ولكن ما كتسدش جميع الخانات اللي داخل object."
             }
           ]
         },
         {
           "id": "deep-understanding",
-          "title": "الفهم المتعمق",
+          "title": "فهم كل حد ديال البيانات",
           "blocks": [
             {
-              "id": "explanation-1",
+              "id": "values-depth-2",
               "type": "paragraph",
-              "text": "يربط المتغير اسمًا بقيمة؛ وينتمي النوع إلى القيمة ويحدد العمليات ذات المعنى. تحمي const الربط من إعادة الإسناد، وينتج الحساب قيمًا جديدة من دون تغيير المدخلات. اقرأ المثال من الأعلى إلى الأسفل، وحدد كل مدخل، ثم توقع النتيجة قبل تشغيل الأمر. بهذه العادة تتحول الصياغة المحفوظة إلى فهم تستطيع إعادة استخدامه."
+              "text": "التصريح declaration كيدخل اسم جديد فواحد النطاق scope. فـ let quantity = 2، الكلمة let كتصرح بالربط، quantity هو الاسم، و 2 هي القيمة الأولى. من بعد quantity = quantity + 1 كتقرا القيمة القديمة، كتحسب 3، وكتحطها مكان القديمة. علامة يساوي هنا إسناد assignment وماشي مساواة رياضية. مع const كتقدر تعطي القيمة فالتصريح ولكن ما تقدرش تعاود تربط الاسم بقيمة أخرى. استعمل const إلا ما محتاجش إعادة الإسناد، و let إلا كانت التغييرات مقصودة. حتى واحد فيهم ما كيخلي الاسم متاح فكل البرنامج: البلوك ولا الدالة اللي فيه كيتحكم ففين يقدر يتقرا. هادي بداية فهم علاش بعض الأسماء كيبانو خارج النطاق غير معرفين."
             },
             {
-              "id": "explanation-2",
+              "id": "values-depth-3",
               "type": "paragraph",
-              "text": "تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي. في المشروع الحقيقي تحقق من هذه الآلية باستعمال المتصفح أو الطرفية أو أدوات المطور بدل افتراض أنها تعمل. الدليل القابل للملاحظة أوثق من الحدس."
+              "text": "النوع type تابع للقيمة. الرقم 2 والنص '2' ماشي نفس الحاجة، واخا يبانوا متشابهين ملي نطبعوهم. string كيمثل النص، number كيتستعمل فالحساب، و boolean كيمثل true ولا false. undefined غالبا كيعني القيمة ما توفراتش، و null كنستعملوه باش نمثلو الغياب بطريقة صريحة. كاينين حتى bigint و symbol ولكن ما محتاجينهمش فهاد النسخة. object كيجمع خصائص عندها أسماء، و array كتجمع عناصر مرتبة. typeof مفيد باش تجمع دليل ولكن ماشي validation كاملة: typeof NaN كيرجع 'number' و typeof null كيرجع 'object' لسبب تاريخي. لذلك خاصنا نسولو واش القيمة عدد صحيح وآمن ومقبول فالقاعدة ديالنا، ماشي غير واش سميتها number."
             },
             {
-              "id": "explanation-3",
+              "id": "values-depth-4",
               "type": "paragraph",
-              "text": "سمّ الوحدات واستعمل const افتراضيًا وأضف أقواسًا لتوضيح النية ولا تنسق إلا عند العرض كي تبقى الحسابات رقمية. طبّق المفهوم أخيرًا عبر تغيير صغير ومعزول، وافحص النتيجة، ثم تراجع عنه عند الحاجة. التغييرات القصيرة تجعل العلاقة بين السبب والنتيجة واضحة."
+              "text": "قبل ما تشغل expression، تتبعها بشوية. الثمن 349 مضروب فـ 2 كيعطي 698. عشرة فالمية كتعطي تخفيض 69.8، والطرح كيوصل للنتيجة المقصودة 628.2. الضرب عندو أسبقية على الجمع: 10 + 5 * 2 كتساوي 20، بينما (10 + 5) * 2 كتساوي 30. الأقواس كتوضح الترتيب المقصود. الخطر الكبير هو plus: إلا كتبنا '349' + 2 غادي ناخدو النص '3492'. الضرب والطرح عندهم قواعد تحويل ضمني مختلفة، وكون الضرب خدم ما كيثبتش أن المدخلات أرقام أصلا. حول البيانات فحد معروف قبل الحساب، وسمي المتغيرات بوحداتها باش ما تخلطش الدرهم والسنتيم ولا النسبة المئوية ونقاط الأساس."
+            },
+            {
+              "id": "values-depth-5",
+              "type": "paragraph",
+              "text": "القيمة اللي جاية من input ديال formulaire كتكون غالبا نص، حتى إلا المستخدم كتب غير أرقام. Number('2') كتعطي 2، ولكن Number('') و Number('   ') كيعطيو صفر. Number('2e2') كتقبل الكتابة الأسية و Number('0x10') كتقبل hexadecimal. هادشي سلوك صحيح فاللغة ولكن ماشي بالضرورة كمية مقبولة فالboutique. العقد ديالنا كيقبل غير أرقام عشرية من بعد حذف الفراغات الخارجية، ومن بعد عدد صحيح بين 1 و 99. الأصفار فاللول مسموحين عمدا. الإشارة والنقطة والحروف والنص الخاوي مرفوضين. قبل التحويل خاصنا نحددو شنو كيقبل المنتوج، لأن برنامج كيقبل أي حاجة قابلة للتحويل يقدر يوافق على مدخل المستخدم ما كانش قاصدو نهائيا."
+            },
+            {
+              "id": "values-depth-6",
+              "type": "paragraph",
+              "text": "الحل كيدخل function باش نعاودو نستعملو نفس المعالجة بلا نسخوها. التصريح بالدالة كيعطي اسم لمجموعة تعليمات وكيحدد أسماء المدخلات parameters. ملي كنعيطو parseQuantity('2')، raw كيرتبط مؤقتا بالنص '2' وكتخدم التعليمات داخل الدالة. return كيرجع النتيجة للي عيط. if كيشغل البلوك إلا الشرط صحيح، و throw كيطلق خطأ وكيوقف هاد المسار إلا ما تشدش الخطأ فشي caller. فالحارس الأول || كتعني يكفي عيب واحد باش نرفضو. التقييم كيوقف ملي الجهة الأولى صحيحة. يعني إلا raw ماشي نص، raw.trim() ما كتتشغلش. بهاد الترتيب كنحافظو على رسالة validation المقصودة بدل خطأ غامض على method ما موجوداش."
+            },
+            {
+              "id": "values-depth-7",
+              "type": "paragraph",
+              "text": "الكتابة /^[0-9]+$/ هي regular expression كتشرح الشكل المسموح. الشرطتين كيبينو حدود التعبير، caret كيلزم البداية، [0-9] كيسمح برقم عشري، plus كيطلب رقم واحد على الأقل، و dollar كيلزم النهاية. method سميتها test كترجع واش النص كامل كيطابق القاعدة. علامة التعجب كتقلب boolean. trim كترجع نص جديد بلا الفراغات الخارجية وما كتبدلش النص الأصلي. من بعد هاد فحص الشكل، Number كتدير التحويل. Number.isSafeInteger كتقصي الكسور و NaN واللانهاية والأعداد اللي خرجات على الدقة الآمنة. المقارنة بين 1 و 99 كتزيد شرط النشاط التجاري. كل حارس عندو خدمة محددة، وبالتالي إلا حيدتيه خاصك تعرف أي صنف ديال الأخطاء غادي يدوز."
+            },
+            {
+              "id": "values-depth-8",
+              "type": "paragraph",
+              "text": "number العادي فـ JavaScript كيتخزن بتمثيل ثنائي floating point. بعض الكسور العشرية ما كتتمثلش بالضبط، ولهذا 0.1 + 0.2 ما كتساويش 0.3 بالضبط. تنسيق العرض يقدر يخبي الفرق ولكن ما كيبدلش القيمة المخزنة. فهاد النموذج التعليمي غادي نخزنو الفلوس بسنتيمات صحيحة: 349 MAD كتولي 34900. نسبة التخفيض غادي تكون basis points، يعني 10000 هي مية فالمية و 1000 هي عشرة فالمية. هكذا الضرب كيبدا بأعداد صحيحة. هاد الحل مبني على عملة عندها جوج منازل عشرية وعلى منتوج واحد وتخفيض غير سالب. الضرائب والعملات الأخرى والاسترجاع وسياسة التقريب التجارية محتاجين قواعد مستقلة وما خاصناش ندعيو أن هاد الملف الصغير كيحلهم كاملين."
+            },
+            {
+              "id": "values-depth-9",
+              "type": "paragraph",
+              "text": "حتى الأعداد الصحيحة عندها حد مع Number. Number.MAX_SAFE_INTEGER هي 9007199254740991، ومن بعد هاد الحد يقدرو جوج أعداد رياضية مختلفين يولي عندهم نفس التمثيل. لذلك validation خاصها حتى النتائج الوسطية. ثمن آمن مضروب فكمية آمنة يقدر يعطي subtotal غير آمن. وحتى subtotal آمن مضروب فنقاط التخفيض يقدر يتجاوز الحد. الحل كيرفض هاد الحالات قبل ما يستعمل النتائج. هاد العقد المحافظ كيرفض بعض المبالغ الضخمة حتى إلا كان total النهائي صغير. هادي مفاضلة مقصودة باش ما نقبلوش ضياع الدقة بصمت. إلا احتجنا مدى أكبر، خاص تصميم باستعمال BigInt ولا مكتبة decimal مع سياسة واضحة للتقريب وكيفاش تتحفظ وتتبادل هاد القيم."
+            },
+            {
+              "id": "values-depth-10",
+              "type": "paragraph",
+              "text": "calculateCart كتستقبل أرقام من بعد normalization. Number.isSafeInteger ما كتحولش النصوص، يعني '2' مرفوضة مباشرة فالحساب، ولكن parseQuantity('2') كتنتج الرقم المقبول. الثمن يقدر يكون صفر، الكمية من 1 حتى 99، و discountBps من صفر حتى 10000. أول عملية كتنتج subtotalCents، والثانية discountNumerator، ومن بعد كنراجعو الدقة ديال بجوج. Math.round كتقرب التخفيض لأقرب سنتيم، وفالقيم غير السالبة النصف بالضبط كيمشي للفوق. كنطرحو التخفيض باش نخرجو totalCents. مع 34900 و 2 و 1000، النتائج الوسطية هي 69800 ثم 69800000 ثم 6980 ثم 62820. إلا قسمنا بالغلط على 100 عوض 10000، هاد trace غادي يورينا أول موضع خرجنا فيه على الحساب الصحيح."
+            },
+            {
+              "id": "values-depth-11",
+              "type": "paragraph",
+              "text": "return كيبني object جديد فيه ثلاثة نتائج مسميين. فـ { subtotalCents, discountCents, totalCents }، كل اسم مختصر كيعني خاصية بنفس الاسم وبقيمة المتغير المقابل. ما محتاجينش نبدلو panier قديم باش نرجعو النتيجة. cart.totalCents كتقرا خاصية محددة. فالطباعة الأخيرة ...cart كينسخ الخصائص لobject آخر ومن بعد كنزيدو label. هادي shallow copy، يعني إلا كان شي object داخل النتيجة كان غادي يبقى مشترك. هنا عندنا غير أرقام primitive، لذلك هاد المشكل ما كيوقعش فهاد النتيجة. ولكن ما نعمموش ونقولو spread كينسخ جميع مستويات أي panier، حيث الفرق بين النسخ السطحي والعميق مهم ملي تبدأ البيانات تولي مركبة."
+            },
+            {
+              "id": "values-depth-12",
+              "type": "paragraph",
+              "text": "const كتحمي الربط وماشي جميع محتويات object. إلا صرحنا const item = { stock: 3 }، نقدروا نديرو item.stock = 2 حيث item مازال كيشير لنفس object. ولكن إسناد object آخر لitem غادي يفشل. إلا alias خذات item، بجوج الأسماء كيشيرو لنفس الكائن والتغيير من alias كيبان حتى من item. الرقم primitive المنسوخ ما كيتبعش تغييرات متغير آخر بهاد الطريقة. مثال references فيه details داخل object باش تشوف أن حتى { ...item } كتبقي details مشتركة. قبل تعديل panier حقيقي، حدد شكون كيشير لنفس الكائن وفاش من مستوى خاصك النسخ، وإلا تغيير حسبتيه محلي يقدر يبدل معلومات شاشة أخرى بلا ما تقصد."
+            },
+            {
+              "id": "values-depth-13",
+              "type": "paragraph",
+              "text": "التنسيق خاصو يبقى فالحد ديال العرض. (628.2).toFixed(2) كترجع النص '628.20'، ماشي رقم ولى أدق. إلا زدتي 1 لهاد النص غادي يتلصق، بينما مع الرقم الأصلي غادي يتحسب الجمع. template literal كتستعمل backticks وكتقيم كل expression بين dollar والأقواس ومن بعد كتدخل تمثيلها النصي. formatter ديالنا كيبقي السنتيمات صحيحة: Math.floor كتخرج الدرهم الكامل، remainder ديال القسمة على 100 كيعطي السنتيمات الباقية، String كتحولهم لنص و padStart كتزيد صفر إلا احتجناه. خمسة سنتيمات كتبان 0.05 MAD. حتى formatter كتدير validation باش ما تغلفش قيمة خاسرة فشكل ثمن معقول وتخلي المستخدم يتيق فيها بالغلط."
+            },
+            {
+              "id": "values-depth-14",
+              "type": "paragraph",
+              "text": "بني التمرين على مراحل وقارن الحدود. توقع أولا شنو غادي يطبع مثال declaration و conversion، ومن بعد جربهم كل واحد بوحدو. كتب parseQuantity وجرب '2' و ' 02 ' و '' و '2.5' و '2e2' و '2x' و '0' و '100'. من بعد بني calculator وقارن كل خاصية راجعة وماشي غير label. جرب تخفيض صفر ومية فالمية وثمن صفر وثمن سنتيم واحد مع خمسين فالمية. جمد object ديال المدخلات ومرر خصائصه الرقمية باش تتأكد أنه ما تبدلش. المدخل الخاسر خاصو يوقف الحساب وماشي ينتج صفر مخترع. للتحقق الكامل شغل node --test lecomax-learning-app/tests/javascript-values.test.cjs من racine ديال المشروع وقرا النتائج مع الحالة اللي اختبرها كل test."
+            },
+            {
+              "id": "values-depth-15",
+              "type": "paragraph",
+              "text": "فالتشخيص تبع الطريق اللي دازت منها البيانات. إلا بان '3492'، طبع كل operand ومعاه typeof قبل تبديل formula. هادي خطوة تشخيص صحيحة ولكن باقي ماشي إصلاح. الإصلاح يكون فالحد اللي دخل منو النص، ومن بعد عاود الحالات الصحيحة والخاسرة. إلا بان NaN، قلب على أول conversion نتجاتو؛ المقارنة مع NaN باستعمال === ما كتكشفوش ولكن Number.isNaN كتنفع. إلا فشل assignment مع const، سول واش إعادة الإسناد ضرورية قبل تبدل كلشي لlet. هاد calculator تجربة معزولة وماشي checkout الحقيقي ديال الموقع. الدفع الحقيقي خاصو أثمان وتخفيض ومخزون من مصدر server موثوق، وقواعد تقريب واضحة لجميع الأسطر قبل ما يقبل أي عملية أداء."
             },
             {
               "id": "vocabulary",
               "type": "vocabulary",
               "items": [
                 {
-                  "term": "primitive",
-                  "definition": "قيمة بسيطة مثل number أو string أو boolean."
+                  "term": "binding",
+                  "definition": "الربط بين اسم المتغير والقيمة الحالية ديالو."
                 },
                 {
                   "term": "coercion",
-                  "definition": "تحويل ضمني من نوع إلى آخر."
+                  "definition": "تحويل ضمني كيدار أثناء تقييم عملية."
                 },
                 {
-                  "term": "expression",
-                  "definition": "شفرة تُقيّم إلى قيمة."
+                  "term": "safe integer",
+                  "definition": "عدد صحيح فالمجال اللي Number كتمثلو بدقة موثوقة."
+                },
+                {
+                  "term": "shallow copy",
+                  "definition": "نسخة خارجية جديدة ولكن objects الداخلية يقدرو يبقاو مشتركين."
                 }
               ]
             }
@@ -105,55 +169,147 @@
         },
         {
           "id": "worked-examples",
-          "title": "مثال مشروح",
+          "title": "تتبع وبني وجرب",
           "blocks": [
             {
               "id": "general",
               "type": "callout",
               "tone": "idea",
-              "title": "تطبيق عام",
-              "text": "اكتب حساب سلة يتحقق من الأرقام ويعيد المجموع والخصم والإجمالي بلا تغيير."
+              "title": "الحساب الكامل مع validation",
+              "text": "بني calculator محلي بمدخلات واضحة ومن بعد نسق النتيجة. ما محتاج حتى connexion ولا commande حقيقية."
             },
             {
-              "id": "annotated-code",
+              "id": "values-example-0",
               "type": "code",
-              "title": "مثال مشروح",
+              "title": "التصريح وإعادة الإسناد",
               "code": {
                 "language": "javascript",
                 "filename": "academy-labs/06-javascript/values.js",
-                "source": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+                "source": "let quantity = 2;\nquantity = quantity + 1;\nconst unitPriceCents = 34900;\nconst subtotalCents = unitPriceCents * quantity;\nconsole.log(quantity, subtotalCents);",
                 "annotations": [
                   {
-                    "lines": "1-3",
-                    "label": "مدخلات وتهيئة «القيم والمتغيرات والأنواع والمعاملات»."
+                    "lines": "1",
+                    "label": "صرح بربط قابل للتغيير وبدا بالقيمة 2."
                   },
                   {
-                    "lines": "4-6",
-                    "label": "القاعدة المحورية التي يجب تتبعها وتوقعها."
+                    "lines": "2",
+                    "label": "قرا الكمية القديمة وزيد واحد وأسند النتيجة 3."
                   },
                   {
-                    "lines": "7-8",
-                    "label": "المخرج القابل للملاحظة الذي يثبت السلوك."
+                    "lines": "3-4",
+                    "label": "صرح بالثمن الثابت وحسب subtotal جديد بالسنتيم."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "راقب quantity 3 و subtotal 104700 سنتيم."
                   }
                 ]
               }
             },
             {
-              "id": "solution-example",
+              "id": "values-example-1",
               "type": "code",
-              "title": "المثال الثاني — التشغيل والتحقق",
+              "title": "التحويل والعرض",
               "code": {
-                "language": "shell",
-                "filename": "Terminal",
-                "source": "node academy-labs/06-javascript/values.js",
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "console.log(Number('2'), Number(''));\nconsole.log('349' + 2);\nconst label = (628.2).toFixed(2);\nconsole.log(label, typeof label);\nconsole.log(label + 1);",
                 "annotations": [
                   {
                     "lines": "1",
-                    "label": "افتح academy-labs/06-javascript/values.js وتوقع مخرجات المثال. — node academy-labs/06-javascript/values.js"
+                    "label": "حول نص الأرقام صراحة وراقب أن النص الخاوي كيعطي صفر."
                   },
                   {
+                    "lines": "2",
+                    "label": "شوف كيفاش plus كتلصق ملي كاين نص."
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "toFixed كترجع نص و typeof كتأكد حد العرض."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "من بعد التنسيق كاين لصق نصي وماشي جمع رقمي."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "values-example-2",
+              "type": "code",
+              "title": "الهوية والنسخ السطحي",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "const item = { stock: 3, details: { tag: 'new' } };\nconst alias = item;\nalias.stock = 2;\nconst copy = { ...item };\ncopy.details.tag = 'sale';\nconsole.log(item === alias, item === copy, item.stock, item.details.tag);",
+                "annotations": [
+                  {
                     "lines": "1",
-                    "label": "دليل النجاح: تعرض الطرفية مجموعًا فرعيًا 698 وإجماليًا 628.2 ونصًا بمنزلتين."
+                    "label": "صايب منتوج فيه details كobject داخلي."
+                  },
+                  {
+                    "lines": "2-3",
+                    "label": "alias كتشير لنفس المنتوج وتغيير stock كيبدل نفس الكائن."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "spread كتصايب object خارجي آخر ولكن details باقية مشتركة."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "تغيير details الداخلية كيبان حتى فالأصل."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "توقع true و false و 2 و sale فالنتائج المطبوعة."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "values-example-3",
+              "type": "code",
+              "title": "الحساب الكامل مع validation",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "// Teaching model: integer centimes, one item, percentage discount in basis points.\n// Run from the repository root: node academy-labs/06-javascript/values.js\nfunction parseQuantity(raw) {\n  if (typeof raw !== 'string' || !/^[0-9]+$/.test(raw.trim())) {\n    throw new TypeError('Quantity must contain decimal digits');\n  }\n  const quantity = Number(raw.trim());\n  if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99) {\n    throw new RangeError('Quantity must be from 1 to 99');\n  }\n  return quantity;\n}\n\nfunction calculateCart(unitPriceCents, quantity, discountBps) {\n  if (!Number.isSafeInteger(unitPriceCents) || unitPriceCents < 0 ||\n      !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99 ||\n      !Number.isSafeInteger(discountBps) || discountBps < 0 || discountBps > 10000) {\n    throw new RangeError('Invalid cart input');\n  }\n  const subtotalCents = unitPriceCents * quantity;\n  const discountNumerator = subtotalCents * discountBps;\n  if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(discountNumerator)) {\n    throw new RangeError('Calculation exceeds safe integer precision');\n  }\n  const discountCents = Math.round(discountNumerator / 10000);\n  const totalCents = subtotalCents - discountCents;\n  return { subtotalCents, discountCents, totalCents };\n}\n\nfunction formatMAD(cents) {\n  if (!Number.isSafeInteger(cents) || cents < 0) {\n    throw new RangeError('Amount must be nonnegative integer centimes');\n  }\n  const whole = Math.floor(cents / 100);\n  const fraction = String(cents % 100).padStart(2, '0');\n  return `${whole}.${fraction} MAD`;\n}\n\nconst quantity = parseQuantity('2');\nconst cart = calculateCart(34900, quantity, 1000);\nconsole.log({ ...cart, label: formatMAD(cart.totalCents) });",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "هاد التعليقات كتعرف النموذج والأمر اللي كيشغلو وما كتتنفذش."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "ارفض النوع والشكل الخاسر قبل methods ديال النص؛ short-circuit كيحمي هاد الحد."
+                  },
+                  {
+                    "lines": "7-13",
+                    "label": "حول غير الأرقام المقبولة وتأكد من safe integer بين 1 و 99 ومن بعد رجعو."
+                  },
+                  {
+                    "lines": "14-19",
+                    "label": "عرف calculator رقمي وارفض الثمن والكمية ونقاط التخفيض الخاسرين بلا تحويل النصوص."
+                  },
+                  {
+                    "lines": "20-24",
+                    "label": "حسب النتائج الوسطية الصحيحة وارفض تجاوز الدقة قبل حساب التخفيض."
+                  },
+                  {
+                    "lines": "25-29",
+                    "label": "قرب التخفيض غير السالب مرة وحدة وطرحو ورجع object جديد."
+                  },
+                  {
+                    "lines": "30-33",
+                    "label": "formatter كترفض أي مبلغ ماشي سنتيمات صحيحة آمنة وغير سالبة."
+                  },
+                  {
+                    "lines": "34-38",
+                    "label": "فرق الدرهم والسنتيمات وكمل الصفر فالجزء العشري ورجع النص."
+                  },
+                  {
+                    "lines": "39-41",
+                    "label": "حول الكمية وحسب 69800 ناقص 6980 باش يبان total 62820 و label 628.20 MAD."
                   }
                 ]
               }
@@ -162,42 +318,56 @@
               "id": "lecomax",
               "type": "callout",
               "tone": "important",
-              "title": "التطبيق في L’ecomax",
-              "text": "يحفظ L’ecomax السعر والكمية كأرقام؛ وتضاف «MAD» في مكون العرض فقط."
+              "title": "L’ecomax",
+              "text": "غير نموذج تعليمي، ماشي checkout ديال L’ecomax. الدفع الحقيقي خاصو يتحقق من الثمن والتخفيض والمخزون من server موثوق."
             }
           ]
         }
       ],
       "commands": [
-        "node academy-labs/06-javascript/values.js"
+        "node academy-labs/06-javascript/values.js",
+        "node --test lecomax-learning-app/tests/javascript-values.test.cjs"
       ],
-      "expectedResult": "دليل النجاح: تعرض الطرفية مجموعًا فرعيًا 698 وإجماليًا 628.2 ونصًا بمنزلتين.",
+      "expectedResult": "subtotalCents: 69800; discountCents: 6980; totalCents: 62820; label: 628.20 MAD.",
       "commonErrors": [
         {
-          "symptom": "يصبح الإجمالي 3492.",
-          "cause": "تتناقض العلامة مع الآلية المتوقعة: تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي.",
-          "fix": "حوّل الإدخال النصي صراحة عبر Number وتحقق منه."
+          "symptom": "total ولا النص 3492.",
+          "cause": "واحد operand ديال plus راه نص.",
+          "fix": "طبع القيم و typeof للتشخيص ومن بعد حول وتحقق فالحد ديال الدخول."
         },
         {
-          "symptom": "تساوي النتيجة NaN.",
-          "cause": "تتناقض العلامة مع الآلية المتوقعة: تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي.",
-          "fix": "اطبع كل معامل عبر typeof وNumber.isFinite قبل الحساب."
+          "symptom": "الكمية الخاوية ولات صفر.",
+          "cause": "Number كتحول النص الخاوي والفراغات لصفر.",
+          "fix": "راقب الشكل قبل التحويل وفرض كمية من 1 حتى 99."
+        },
+        {
+          "symptom": "الثمن المنسق خسر جمع من بعدو.",
+          "cause": "نتيجة toFixed النصية رجعات للحساب.",
+          "fix": "خلي totalCents رقم وخرج label غير للعرض."
+        },
+        {
+          "symptom": "تغيير النسخة بدل details ديال الأصل.",
+          "cause": "spread نسخ reference ديال object الداخلي.",
+          "fix": "نسخ المستوى الداخلي اللي باغي تبدلو وقارن الهوية باستعمال ===."
         }
       ],
       "exercise": {
-        "task": "اكتب حساب سلة يتحقق من الأرقام ويعيد المجموع والخصم والإجمالي بلا تغيير.",
+        "task": "بني وجرب calculator لمنتوج واحد. خلي الحساب الرقمي مفصول على label وارفض المدخلات الخاسرة.",
         "steps": [
-          "افتح academy-labs/06-javascript/values.js وتوقع مخرجات المثال.",
-          "أعد بناء المثال في ملف التمرين من دون نسخ الحل.",
-          "شغّل الأمر المذكور وقارن بالنتيجة المتوقعة واشرح أي فرق."
+          "توقع وشغل الأمثلة الثلاثة فملفات .js مؤقتة ومفصولة وفسر كل نتيجة.",
+          "كتب parseQuantity: الفراغات الخارجية والأصفار فاللول مسموحين، غير أرقام عشرية وكمية من 1 حتى 99.",
+          "كتب calculateCart بالسنتيمات ونقاط الأساس وراقب جوج النتائج ديال الضرب.",
+          "كتب formatter وخرج subtotal 69800 و discount 6980 و total 62820 و 628.20 MAD.",
+          "جرب تخفيض صفر وكامل ونصف سنتيم وتجاوز الدقة وobject مجمد. شغل tests من racine."
         ],
         "hints": [
-          "ابدأ بالمدخلات ثم اتبع تحويلًا واحدًا في كل مرة.",
-          "استعمل أول رسالة خطأ والسطر المشار إليه كدليل للتشخيص."
+          "راقب شكل النص قبل Number حيث النص الخاوي كيولي صفر.",
+          "واحد فالمية هي 100 basis points، لذلك قسم numerator على 10000.",
+          "شوف القيم الوسطية والوحدات قبل تبدل formula النهائية."
         ],
         "solution": {
-          "explanation": "سمّ الوحدات واستعمل const افتراضيًا وأضف أقواسًا لتوضيح النية ولا تنسق إلا عند العرض كي تبقى الحسابات رقمية.",
-          "code": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+          "explanation": "المرحلة الأولى: الكمية كتولي 3، النص الخاوي كيولي صفر، والنص المنسق كيتلصق. مثال references كيبين النسخ السطحي. الثانية: قاعدة الأرقام كتقصي الأشكال الممنوعة والحراس كيفرضو 1–99. الثالثة: راقب المدخلات والضرب حيث أرقام آمنة كل وحدة بوحدها تقدر تنتج نتيجة غير آمنة. الرابعة: قرب التخفيض مرة وحدة وطرحو ومن بعد نسق. الخامسة: بلا تخفيض total كيبقى subtotal، التخفيض الكامل كيعطي صفر، وسنتيم مع 5000 basis points كيخرج تخفيض مقرب لسنتيم. object ديال المدخلات كتبقى مجمدة حيث مررنا غير الخصائص primitive ورجعنا object جديد. tests كتشغل هاد الحالات وحتى الضرب اللي خارج الدقة.",
+          "code": "// Teaching model: integer centimes, one item, percentage discount in basis points.\n// Run from the repository root: node academy-labs/06-javascript/values.js\nfunction parseQuantity(raw) {\n  if (typeof raw !== 'string' || !/^[0-9]+$/.test(raw.trim())) {\n    throw new TypeError('Quantity must contain decimal digits');\n  }\n  const quantity = Number(raw.trim());\n  if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99) {\n    throw new RangeError('Quantity must be from 1 to 99');\n  }\n  return quantity;\n}\n\nfunction calculateCart(unitPriceCents, quantity, discountBps) {\n  if (!Number.isSafeInteger(unitPriceCents) || unitPriceCents < 0 ||\n      !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99 ||\n      !Number.isSafeInteger(discountBps) || discountBps < 0 || discountBps > 10000) {\n    throw new RangeError('Invalid cart input');\n  }\n  const subtotalCents = unitPriceCents * quantity;\n  const discountNumerator = subtotalCents * discountBps;\n  if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(discountNumerator)) {\n    throw new RangeError('Calculation exceeds safe integer precision');\n  }\n  const discountCents = Math.round(discountNumerator / 10000);\n  const totalCents = subtotalCents - discountCents;\n  return { subtotalCents, discountCents, totalCents };\n}\n\nfunction formatMAD(cents) {\n  if (!Number.isSafeInteger(cents) || cents < 0) {\n    throw new RangeError('Amount must be nonnegative integer centimes');\n  }\n  const whole = Math.floor(cents / 100);\n  const fraction = String(cents % 100).padStart(2, '0');\n  return `${whole}.${fraction} MAD`;\n}\n\nconst quantity = parseQuantity('2');\nconst cart = calculateCart(34900, quantity, 1000);\nconsole.log({ ...cart, label: formatMAD(cart.totalCents) });",
           "filename": "academy-labs/06-javascript/values.js",
           "language": "javascript"
         }
@@ -205,66 +375,65 @@
       "quiz": [
         {
           "id": "lesson-06-01-values-q1",
-          "question": "لماذا نحفظ السعر كـnumber؟",
+          "question": "شنو كتنتج (628.2).toFixed(2) + 1؟",
           "options": [
-            "للحساب قبل التنسيق",
-            "لتجنب const",
-            "لاستبدال CSS",
-            "لإنشاء DNS"
+            "629.20",
+            "628.201",
+            "628.2",
+            "TypeError"
           ],
-          "correctIndex": 0,
-          "explanation": "ينتمي رمز العملة للعرض؛ ويحسب منطق المجال أرقامًا.",
+          "correctIndex": 1,
+          "explanation": "toFixed كترجع النص و plus كتلصق الرقم 1.",
           "answerExplanations": [
-            "هذا الخيار صحيح، وهو يقول « للحساب قبل التنسيق ». ينتمي رمز العملة للعرض؛ ويحسب منطق المجال أرقامًا.",
-            "هذا الخيار غير صحيح، وهو يقول « لتجنب const ». الإجابة المرجعية هي « للحساب قبل التنسيق ». ينتمي رمز العملة للعرض؛ ويحسب منطق المجال أرقامًا.",
-            "هذا الخيار غير صحيح، وهو يقول « لاستبدال CSS ». الإجابة المرجعية هي « للحساب قبل التنسيق ». ينتمي رمز العملة للعرض؛ ويحسب منطق المجال أرقامًا.",
-            "هذا الخيار غير صحيح، وهو يقول « لإنشاء DNS ». الإجابة المرجعية هي « للحساب قبل التنسيق ». ينتمي رمز العملة للعرض؛ ويحسب منطق المجال أرقامًا."
+            "629.20 — هاد النتيجة كتحتاج الجمع الرقمي قبل التنسيق. → 628.201: toFixed كترجع النص و plus كتلصق الرقم 1.",
+            "628.201 — toFixed كترجع النص و plus كتلصق الرقم 1.",
+            "628.2 — التنسيق كيبقي جوج منازل ومن بعد كيزاد حرف. → 628.201: toFixed كترجع النص و plus كتلصق الرقم 1.",
+            "TypeError — العمليات صحيحة ولكن النتيجة نصية. → 628.201: toFixed كترجع النص و plus كتلصق الرقم 1."
           ]
         },
         {
           "id": "lesson-06-01-values-q2",
-          "question": "أي تعريف يطابق المصطلح «primitive»؟",
+          "question": "خاص الكمية الخاوية تترفض. أي قاعدة مطابقة للعقد؟",
           "options": [
-            "تحويل ضمني من نوع إلى آخر.",
-            "قيمة بسيطة مثل number أو string أو boolean.",
-            "شفرة تُقيّم إلى قيمة.",
-            "ليس لهذا المصطلح تعريف تقني دقيق."
+            "غير Number",
+            "غير parseInt",
+            "فحص الأرقام ثم safe integer ثم المجال",
+            "تعويض كل خطأ بصفر"
           ],
-          "correctIndex": 1,
-          "explanation": "يعني المصطلح «primitive»: قيمة بسيطة مثل number أو string أو boolean.",
+          "correctIndex": 2,
+          "explanation": "هاد الاختيار كيراقب الشكل والحدود التجارية بجوج.",
           "answerExplanations": [
-            "هذا الخيار غير صحيح، وهو يقول « تحويل ضمني من نوع إلى آخر. ». الإجابة المرجعية هي « قيمة بسيطة مثل number أو string أو boolean. ». يعني المصطلح «primitive»: قيمة بسيطة مثل number أو string أو boolean.",
-            "هذا الخيار صحيح، وهو يقول « قيمة بسيطة مثل number أو string أو boolean. ». يعني المصطلح «primitive»: قيمة بسيطة مثل number أو string أو boolean.",
-            "هذا الخيار غير صحيح، وهو يقول « شفرة تُقيّم إلى قيمة. ». الإجابة المرجعية هي « قيمة بسيطة مثل number أو string أو boolean. ». يعني المصطلح «primitive»: قيمة بسيطة مثل number أو string أو boolean.",
-            "هذا الخيار غير صحيح، وهو يقول « ليس لهذا المصطلح تعريف تقني دقيق. ». الإجابة المرجعية هي « قيمة بسيطة مثل number أو string أو boolean. ». يعني المصطلح «primitive»: قيمة بسيطة مثل number أو string أو boolean."
+            "غير Number — Number كتقبل النص الخاوي كصفر. → فحص الأرقام ثم safe integer ثم المجال: هاد الاختيار كيراقب الشكل والحدود التجارية بجوج.",
+            "غير parseInt — parseInt تقدر تقبل أرقام متبوعة بحروف. → فحص الأرقام ثم safe integer ثم المجال: هاد الاختيار كيراقب الشكل والحدود التجارية بجوج.",
+            "فحص الأرقام ثم safe integer ثم المجال — هاد الاختيار كيراقب الشكل والحدود التجارية بجوج.",
+            "تعويض كل خطأ بصفر — الصفر ممنوع وكيخبي خطأ الإدخال. → فحص الأرقام ثم safe integer ثم المجال: هاد الاختيار كيراقب الشكل والحدود التجارية بجوج."
           ]
         },
         {
           "id": "lesson-06-01-values-q3",
-          "question": "ما أول تصحيح مناسب عند ملاحظة: «يصبح الإجمالي 3492.»؟",
+          "question": "تأكدتي أن الثمن نص والكمية رقم. شنو كيصلح هاد الحد؟",
           "options": [
-            "تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ.",
-            "اطبع كل معامل عبر typeof وNumber.isFinite قبل الحساب.",
-            "حوّل الإدخال النصي صراحة عبر Number وتحقق منه.",
-            "إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة."
+            "غير طبع typeof مرة أخرى",
+            "حول وتحقق من الثمن الداخل قبل الحساب",
+            "نسق النص الملصوق",
+            "بدل جميع const بlet"
           ],
-          "correctIndex": 2,
-          "explanation": "يبدأ التشخيص من السبب التالي: تتناقض العلامة مع الآلية المتوقعة: تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي. والتصحيح المناسب هو: حوّل الإدخال النصي صراحة عبر Number وتحقق منه.",
+          "correctIndex": 1,
+          "explanation": "normalization و validation كيصلحو مشكل النوع المؤكد.",
           "answerExplanations": [
-            "هذا الخيار غير صحيح، وهو يقول « تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ. ». الإجابة المرجعية هي « حوّل الإدخال النصي صراحة عبر Number وتحقق منه. ». يبدأ التشخيص من السبب التالي: تتناقض العلامة مع الآلية المتوقعة: تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي. والتصحيح المناسب هو: حوّل الإدخال النصي صراحة عبر Number وتحقق منه.",
-            "هذا الخيار غير صحيح، وهو يقول « اطبع كل معامل عبر typeof وNumber.isFinite قبل الحساب. ». الإجابة المرجعية هي « حوّل الإدخال النصي صراحة عبر Number وتحقق منه. ». يبدأ التشخيص من السبب التالي: تتناقض العلامة مع الآلية المتوقعة: تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي. والتصحيح المناسب هو: حوّل الإدخال النصي صراحة عبر Number وتحقق منه.",
-            "هذا الخيار صحيح، وهو يقول « حوّل الإدخال النصي صراحة عبر Number وتحقق منه. ». يبدأ التشخيص من السبب التالي: تتناقض العلامة مع الآلية المتوقعة: تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي. والتصحيح المناسب هو: حوّل الإدخال النصي صراحة عبر Number وتحقق منه.",
-            "هذا الخيار غير صحيح، وهو يقول « إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة. ». الإجابة المرجعية هي « حوّل الإدخال النصي صراحة عبر Number وتحقق منه. ». يبدأ التشخيص من السبب التالي: تتناقض العلامة مع الآلية المتوقعة: تتبع المعاملات الأولوية والتحويل؛ تجمع + الأرقام لكنها تسلسل عند دخول نص. تجعل Number.isFinite وtypeof الافتراضات ظاهرة قبل الحساب المالي. والتصحيح المناسب هو: حوّل الإدخال النصي صراحة عبر Number وتحقق منه."
+            "غير طبع typeof مرة أخرى — الطباعة عاونات فالتشخيص ولكن ما بدلاتش القيمة. → حول وتحقق من الثمن الداخل قبل الحساب: normalization و validation كيصلحو مشكل النوع المؤكد.",
+            "حول وتحقق من الثمن الداخل قبل الحساب — normalization و validation كيصلحو مشكل النوع المؤكد.",
+            "نسق النص الملصوق — التنسيق ما كيصلحش operands اللي سببو اللصق. → حول وتحقق من الثمن الداخل قبل الحساب: normalization و validation كيصلحو مشكل النوع المؤكد.",
+            "بدل جميع const بlet — قواعد assignment ما كتبدلش الجمع مع النص. → حول وتحقق من الثمن الداخل قبل الحساب: normalization و validation كيصلحو مشكل النوع المؤكد."
           ]
         }
       ],
       "recap": [
-        "الفكرة المحورية: يربط المتغير اسمًا بقيمة؛ وينتمي النوع إلى القيمة ويحدد العمليات ذات المعنى. تحمي const الربط من إعادة الإسناد، وينتج الحساب قيمًا جديدة من دون تغيير المدخلات.",
-        "primitive: قيمة بسيطة مثل number أو string أو boolean.",
-        "coercion: تحويل ضمني من نوع إلى آخر.",
-        "expression: شفرة تُقيّم إلى قيمة."
+        "النوع تابع للقيمة و const ما كتجمدش object من الداخل.",
+        "تحقق من الشكل والمجال والدقة الوسطية فالحد المناسب.",
+        "حسب بالسنتيم وخلي formatting للآخر وجرب سياسة التقريب."
       ],
-      "next": "يتحكم الدرس التالي في مسار التنفيذ بالشروط والحلقات."
+      "next": "كمل مع lesson-06-02-control-flow باش تفهم ترتيب الشروط وتتبع loops واختبارات الحدود."
     },
     {
       "id": "lesson-06-02-control-flow",

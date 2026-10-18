@@ -1,5 +1,6 @@
 "use client";
 import "./admin-mobile.css";
+import "./admin-premium.css";
 import { useSettings as useCentralSettings } from "@/lib/use-settings";
 import { storeSettings as centralStoreSettings } from "@/lib/store-settings";
 import { useEffect, useRef, useState } from "react";
@@ -502,7 +503,7 @@ function ScrollToTop() {
   return (
     <button
       type="button"
-      onClick={() => document.getElementById("admin-main")?.scrollTo({ top: 0, behavior: "smooth" })}
+      onClick={() => document.getElementById("admin-main")?.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" })}
       aria-label="Retour en haut de la page"
       className="admin-scroll-top fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] right-4 z-20 flex h-11 w-11 items-center justify-center rounded-2xl bg-black text-white shadow-lg transition-all hover:bg-neutral-800 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3ecf4c] focus-visible:ring-offset-2 lg:bottom-6 lg:right-6"
       title="Retour en haut"
@@ -521,6 +522,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [checking, setChecking] = useState(true);
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
+  const logoutInProgress = useRef(false);
   const [badges, setBadges] = useState<Record<string, number>>({ orders: 0, stock: 0, messages: 0, approvals: 0, ecomedia: 0 });
   const [now, setNow] = useState("");
   const [permissionState, setPermissionState] = useState<
@@ -598,6 +602,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         const verifyRes = await fetch("/api/admin/auth/verify/", {
           method: "GET",
           cache: "no-store",
+          signal: AbortSignal.timeout(8000),
         });
         let email: string | null = null;
         if (verifyRes.ok) {
@@ -612,7 +617,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         const res = await fetch(
           `/api/admin/staff/permissions/?email=${encodeURIComponent(email)}&v=2`,
-          { cache: "no-store" }
+          { cache: "no-store", signal: AbortSignal.timeout(8000) }
         );
         if (!res.ok) throw new Error("Unable to load permissions");
         const result = await res.json() as { isStaff?: unknown; permissions?: unknown };
@@ -723,7 +728,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     // Check the server-side admin_session cookie first (source of truth).
     // Only fall back to Supabase if the cookie is also missing.
-    fetch("/api/admin/auth/verify/", { method: "GET", cache: "no-store" })
+    fetch("/api/admin/auth/verify/", { method: "GET", cache: "no-store", signal: AbortSignal.timeout(8000) })
       .then((res) => {
         if (res.ok) {
           // Cookie session is valid — stay on current page regardless of Supabase state
@@ -745,34 +750,43 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     // Still listen for explicit Supabase logout events while on page
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (_event === "SIGNED_OUT" && !session) router.replace("/admin");
+      if (_event === "SIGNED_OUT" && !session && !logoutInProgress.current) router.replace("/admin");
     });
     return () => listener.subscription.unsubscribe();
   }, [pathname, router]);
 
   // Load badge counts (pending orders + low stock)
   useEffect(() => {
-    if (pathname === "/admin" || pathname === "/admin/") return;
-    Promise.all([
-      fetch("/api/orders"),
-      fetch("/api/products"),
-      fetch("/api/messages?unread=true"),
-      fetch("/api/admin/approvals?status=pending"),
-      fetch("/api/admin/ecomedia/posts?limit=100"),
-    ]).then(async ([oRes, pRes, mRes, aRes, eRes]) => {
-      const orders = oRes.ok ? await oRes.json() : [];
-      const products = pRes.ok ? await pRes.json() : [];
-      const msgs = mRes.ok ? await mRes.json() : [];
-      const approvals = aRes.ok ? await aRes.json() : [];
-      const ecomediaPosts = eRes.ok ? await eRes.json() : [];
-      const pending = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === "pending").length : 0;
-      const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= lowStockThreshold).length : 0;
-      const unread = Array.isArray(msgs) ? msgs.length : 0;
-      const pendingApprovals = Array.isArray(approvals) ? approvals.length : 0;
-      const pendingEcomedia = Array.isArray(ecomediaPosts) ? ecomediaPosts.filter((post: { is_client_post?: boolean; is_published?: boolean }) => post.is_client_post && !post.is_published).length : 0;
-      setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals, ecomedia: pendingEcomedia });
-    }).catch(() => {});
-  }, [pathname, lowStockThreshold]);
+    if (isLoginRoute || checking) return;
+    let cancelled = false;
+    const refreshBadges = () => {
+      if (document.visibilityState === "hidden") return;
+      Promise.all([
+        fetch("/api/orders", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/products", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/messages?unread=true", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/admin/approvals?status=pending", { signal: AbortSignal.timeout(10_000) }),
+        fetch("/api/admin/ecomedia/posts?limit=100", { signal: AbortSignal.timeout(10_000) }),
+      ]).then(async ([oRes, pRes, mRes, aRes, eRes]) => {
+        const orders = oRes.ok ? await oRes.json() : [];
+        const products = pRes.ok ? await pRes.json() : [];
+        const msgs = mRes.ok ? await mRes.json() : [];
+        const approvals = aRes.ok ? await aRes.json() : [];
+        const ecomediaPosts = eRes.ok ? await eRes.json() : [];
+        const pending = Array.isArray(orders) ? orders.filter((o: { status: string }) => o.status === "pending").length : 0;
+        const lowStock = Array.isArray(products) ? products.filter((p: { stock: number }) => p.stock <= lowStockThreshold).length : 0;
+        const unread = Array.isArray(msgs) ? msgs.length : 0;
+        const pendingApprovals = Array.isArray(approvals) ? approvals.length : 0;
+        const pendingEcomedia = Array.isArray(ecomediaPosts) ? ecomediaPosts.filter((post: { is_client_post?: boolean; is_published?: boolean }) => post.is_client_post && !post.is_published).length : 0;
+        if (!cancelled) setBadges({ orders: pending, stock: lowStock, messages: unread, approvals: pendingApprovals, ecomedia: pendingEcomedia });
+      }).catch(() => {});
+    };
+    // Give page data priority; the persistent shell need not reload full lists
+    // on every route transition just to update small navigation counters.
+    const initial = setTimeout(refreshBadges, 1500);
+    const interval = setInterval(refreshBadges, 60_000);
+    return () => { cancelled = true; clearTimeout(initial); clearInterval(interval); };
+  }, [isLoginRoute, checking, lowStockThreshold]);
 
   // login page — no shell (strip trailing slash before comparing)
   if (isLoginRoute) return <>{children}</>;
@@ -803,9 +817,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }));
 
   async function logout() {
-    await supabase.auth.signOut();
-    await fetch("/api/admin/auth/session/", { method: "DELETE" });
-    router.replace("/admin");
+    if (logoutInProgress.current) return;
+    logoutInProgress.current = true;
+    setLoggingOut(true);
+    setLogoutError("");
+    try {
+      const response = await fetch("/api/admin/auth/session/", { method: "DELETE", signal: AbortSignal.timeout(10000) });
+      if (!response.ok) throw new Error("Session logout failed");
+      const { error } = await supabase.auth.signOut({ scope: "local" });
+      if (error) throw error;
+      router.replace("/admin");
+      router.refresh();
+    } catch {
+      setLogoutError("Déconnexion incomplète. Réessayez avant de fermer cette fenêtre.");
+    } finally {
+      logoutInProgress.current = false;
+      setLoggingOut(false);
+    }
   }
 
   function openDrawer(trigger: HTMLButtonElement) {
@@ -860,11 +888,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="admin-shell flex h-dvh min-h-0 overflow-hidden bg-[#f4f4f2]">
+      <a className="admin-skip-link" href="#admin-main">Aller au contenu</a>
       <AdminMobileViewport />
       {/* ──────────────── SIDEBAR ──────────────── */}
       <aside
         id="admin-sidebar"
         ref={drawerRef}
+        role={!isDesktop && open ? "dialog" : undefined}
+        aria-modal={!isDesktop && open ? true : undefined}
         aria-label="Navigation de l’administration"
         aria-hidden={!isDesktop && !open}
         className={`fixed inset-y-0 left-0 z-50 flex h-dvh max-h-dvh w-[min(86vw,300px)] flex-col bg-[#0d0d0d] pt-[env(safe-area-inset-top)] text-white transition-[transform,visibility] duration-300 ease-out lg:static lg:z-40 lg:h-auto lg:max-h-none lg:w-[260px] lg:translate-x-0 lg:pt-0
@@ -1036,14 +1067,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <span className="flex-1">Voir le site</span>
             <svg className="mr-1 text-white/20 transition group-hover:text-[#66e875]" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
           </Link>
-          <button type="button" onClick={logout}
+          <button type="button" onClick={logout} disabled={loggingOut} aria-busy={loggingOut}
             className="group flex min-h-12 w-full items-center gap-2.5 rounded-[14px] border border-transparent px-2 py-2 text-[12px] font-semibold text-white/45 transition-all hover:border-red-400/15 hover:bg-red-500/[.08] hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
             <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-white/[.045] text-white/30 transition group-hover:bg-red-500/15 group-hover:text-red-300"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
             </svg></span>
-            <span className="flex-1 text-left">Déconnexion</span>
+            <span className="flex-1 text-left">{loggingOut ? "Déconnexion…" : "Déconnexion"}</span>
           </button>
         </div>
+        {logoutError && <p role="alert" className="admin-logout-error">{logoutError}</p>}
       </aside>
 
       {/* Mobile overlay */}
@@ -1060,7 +1092,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       {/* ──────────────── MAIN ──────────────── */}
-      <div className="flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <div inert={open && !isDesktop} className="flex h-dvh min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <AdminConnectionNotice />
 
         {/* Top bar */}
@@ -1105,7 +1137,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {canSee("/admin/orders") && badges.orders > 0 && (
               <Link href="/admin/orders"
                 aria-label={`${badges.orders} commande${badges.orders > 1 ? "s" : ""} en attente`}
-                className="flex min-h-11 items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-2.5 text-[11px] font-bold text-orange-600 transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
+                className="admin-header-order-alert flex min-h-11 items-center gap-1.5 rounded-xl border border-orange-200 bg-orange-50 px-2.5 text-[11px] font-bold text-orange-600 transition-colors hover:bg-orange-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse shrink-0" />
                 <span className="hidden sm:inline">{badges.orders} en attente</span>
                 <span className="sm:hidden">{badges.orders}</span>

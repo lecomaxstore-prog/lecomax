@@ -9,7 +9,6 @@ const loadSettings = async (): Promise<Record<string, string>> => {
     "store_name", "seo_title", "seo_description", "favicon_image", "og_image",
     "hero_image", "hero_image_mobile", "shipping_cost", "free_shipping_threshold",
     "free_shipping_enabled", "shipping_estimated_days",
-    "business_hours", "store_phone", "store_email", "whatsapp_number",
   ]);
   if (error) throw error; // A transient failure must not replace the last good cache entry.
   return Object.fromEntries((data ?? []).map(row => [row.key, String(row.value ?? "")]));

@@ -1,3 +1,21 @@
+.header { margin-bottom: 20px; }
+.eyebrow {
+  margin-bottom: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: #637562;
+}
+.heading {
+  font-size: clamp(22px, 4.8vw, 32px);
+  line-height: 1.15;
+  font-weight: 500;
+  letter-spacing: -.04em;
+  color: #203d2b;
+  text-wrap: balance;
+}
+
 .track {
   display: grid;
   grid-auto-flow: column;

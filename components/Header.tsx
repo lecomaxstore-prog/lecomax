@@ -7,7 +7,10 @@ import { useCart } from "./CartContext";
 import { categories } from "@/lib/products";
 import Logo from "./Logo";
 import { supabase } from "@/lib/supabase";
-import SearchOverlay from "./SearchOverlay";
+import dynamic from "next/dynamic";
+const SearchOverlay = dynamic(() => import("./SearchOverlay"), {
+  loading: () => <div role="status" className="fixed inset-0 z-[100] grid place-items-center bg-white/95 text-sm text-neutral-600">Chargement de la recherche?</div>,
+});
 import { useSettings } from "@/lib/use-settings";
 import { useWishlist } from "./WishlistContext";
 
@@ -341,9 +344,6 @@ export default function Header() {
               <Link key={c.slug} href={`/${c.slug}`} onClick={() => setOpen(false)}
                 className={`group flex min-h-[60px] items-center justify-between border-b border-neutral-200 px-1 transition-colors active:bg-neutral-50 ${open ? "drawer-item" : ""}`}
                 style={{ animationDelay: `${140 + i * 55}ms` }}>
-                {/* Category photo */}
-                <div className="hidden">
-                </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-[18px] font-black uppercase leading-none tracking-[-0.02em] text-neutral-950">{c.label}</p>
                   <p className="hidden">{c.sub}</p>
@@ -354,39 +354,6 @@ export default function Header() {
               </Link>
             ))}
             </div>
-          </div>
-
-          {/* ── Promotions + Nouveautés photo banners ── */}
-          <div className="hidden">
-            {/* Nouveautés */}
-            <Link href="/nouveautes" onClick={() => setOpen(false)}
-              className="group relative h-[124px] overflow-hidden rounded-[20px] border border-white/70 shadow-[0_10px_24px_rgba(0,0,0,.10)] transition active:scale-[.98]">
-              {/* gradient overlay */}
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%)" }} />
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <p className="text-[13px] font-black text-white leading-tight">Nouveautés</p>
-                <p className="text-[10px] text-white/70 leading-tight mt-0.5">Voir tout →</p>
-              </div>
-            </Link>
-
-            {/* Promotions */}
-            <Link href="/promotions" onClick={() => setOpen(false)}
-              className="group relative h-[124px] overflow-hidden rounded-[20px] border border-white/70 shadow-[0_10px_24px_rgba(0,0,0,.10)] transition active:scale-[.98]">
-              {/* gradient overlay */}
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.80) 0%, rgba(0,0,0,0.1) 60%)" }} />
-              {/* live badge */}
-              <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-full bg-red-500">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"/>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"/>
-                </span>
-                <span className="text-[9px] font-black text-white uppercase tracking-wide">Live</span>
-              </div>
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <p className="text-[13px] font-black text-white leading-tight">Promotions</p>
-                <p className="text-[10px] text-white/70 leading-tight mt-0.5">Offres en cours →</p>
-              </div>
-            </Link>
           </div>
 
           {/* ── Useful links ── */}
@@ -439,7 +406,7 @@ export default function Header() {
         </div>
       </div>
       {/* Search overlay */}
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      {searchOpen && <SearchOverlay open onClose={() => setSearchOpen(false)} />}
     </>
   );
 }

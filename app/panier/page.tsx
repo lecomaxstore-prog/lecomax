@@ -6,6 +6,7 @@ import { preorderCopy } from "@/lib/preorder-copy";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { cartStockLimit } from "@/lib/cart-stock-limit";
 import { useCart } from "@/components/CartContext";
 import { formatMAD } from "@/lib/products";
 import { useSettings } from "@/lib/use-settings";
@@ -500,21 +501,22 @@ export default function CartPage() {
                   </div>
                 ) : (
                   <>
-                    <span className="text-[11px] text-neutral-300">{count} article{count !== 1 ? "s" : ""}</span>
+                    <span className="text-xs font-medium text-neutral-500">{count} article{count !== 1 ? "s" : ""}</span>
                     <button
+                      type="button"
                       onClick={() => setConfirmClear(true)}
                       aria-label="Vider tous les articles du panier"
-                      className="group inline-flex items-center gap-2.5 rounded-full border border-neutral-200 bg-white px-3.5 py-2 text-[10px] font-black uppercase tracking-[0.12em] text-neutral-600 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200 hover:-translate-y-px hover:border-red-200 hover:bg-red-50 hover:text-red-600 hover:shadow-[0_5px_16px_rgba(239,68,68,0.10)] active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 focus-visible:ring-offset-2"
+                      className="group inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md px-2 py-2 text-[13px] font-medium text-neutral-500 transition-colors duration-150 hover:text-red-700 active:text-red-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neutral-800 focus-visible:ring-offset-4 motion-reduce:transition-none"
                     >
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-neutral-500 transition-colors duration-200 group-hover:bg-red-100 group-hover:text-red-600">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                      <span aria-hidden="true" className="flex shrink-0 items-center justify-center text-neutral-400 transition-colors duration-150 group-hover:text-red-600 motion-reduce:transition-none">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="3 6 5 6 21 6"/>
                           <path d="M19 6l-1 14H6L5 6"/>
                           <path d="M10 11v6M14 11v6"/>
                           <path d="M9 6V4h6v2"/>
                         </svg>
                       </span>
-                      Vider le panier
+                      <span className="border-b border-neutral-300 pb-0.5 leading-5 transition-colors duration-150 group-hover:border-red-300 motion-reduce:transition-none">Vider le panier</span>
                     </button>
                   </>
                 )}

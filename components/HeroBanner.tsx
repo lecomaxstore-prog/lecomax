@@ -2,7 +2,7 @@
 import { RETURN_POLICY } from "@/lib/return-policy";
 
 import { BRAND_COPY, marketplaceHeadline } from "@/mobile/src/lib/brand-copy";
-import Image from "next/image";
+import ResponsiveHeroImage from "./ResponsiveHeroImage";
 import Link from "next/link";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import type { HeroBannerRecord } from "@/lib/hero-banners";
@@ -28,8 +28,8 @@ export default function HeroBanner({ banners = [], heroImage, heroImageMobile, s
     button_href: "/boutique",
     button2_label: "Voir les promos",
     button2_href: "/promotions",
-    image_desktop: heroImage || "/images/hero secrtion/hero section web version.png",
-    image_mobile: heroImageMobile || "/images/hero secrtion/hero section mobile version.png",
+    image_desktop: heroImage || "/images/hero-desktop-v2.webp",
+    image_mobile: heroImageMobile || "/images/hero-mobile-v2.webp",
     overlay_opacity: 48,
     sort_order: 0,
     active: true,
@@ -91,21 +91,10 @@ export default function HeroBanner({ banners = [], heroImage, heroImageMobile, s
       onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}
       className={`hero-cinema group relative min-h-[calc(100svh-60px)] w-full overflow-hidden bg-neutral-950 md:h-[calc(100svh-97px)] md:min-h-[620px] md:max-h-[820px] ${paused ? "is-paused" : ""}`}
     >
-      <div aria-hidden="true" className="hero-fill-backdrop absolute inset-0">
-        <div key={`${slide.id}-backdrop-desktop`} className="absolute inset-0 hidden md:block">
-          <Image src={desktopSrc} alt="" fill sizes="100vw" className="object-cover object-center" unoptimized={desktopSrc.startsWith("http")} />
-        </div>
-        <div key={`${slide.id}-backdrop-mobile`} className="absolute inset-0 md:hidden">
-          <Image src={mobileSrc} alt="" fill sizes="100vw" className="object-cover object-center" unoptimized={mobileSrc.startsWith("http")} />
-        </div>
-      </div>
       <div className="hero-3d-stage absolute inset-0">
         <div className="hero-3d-camera absolute inset-0">
-          <div key={`${slide.id}-desktop`} className="hero-cinematic-image absolute inset-0 hidden md:block">
-            <Image src={desktopSrc} alt="" priority={active === 0} fill sizes="100vw" className="object-cover object-[center_65%]" unoptimized={desktopSrc.startsWith("http")} />
-          </div>
-          <div key={`${slide.id}-mobile`} className="hero-cinematic-image absolute inset-0 md:hidden">
-            <Image src={mobileSrc} alt="" priority={active === 0} fill sizes="100vw" className="object-cover object-top" unoptimized={mobileSrc.startsWith("http")} />
+          <div className="hero-cinematic-image absolute inset-0">
+            <ResponsiveHeroImage key={slide.id + desktopSrc + mobileSrc} desktop={desktopSrc} mobile={mobileSrc} priority={active === 0} />
           </div>
         </div>
       </div>

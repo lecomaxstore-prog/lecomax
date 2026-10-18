@@ -10,6 +10,8 @@ Validation: 13 foundation/guide/reader tests pass, root TypeScript check passes,
 
 ## Resumed work: guided coding practice
 
+Release checkpoint: after explicit user approval, commit `8570a7893e459797d63e4bd1b578bebfa2c82220` was pushed to `lecomaxstore-prog/lecomax` on `main`. GitHub publication succeeded. Vercel deployment failed because Git author `perfumiro` lacks project access. The connected Vercel get_project tool also returned 403: re-authentication is required for scope `lecomaxstore-4321s-projects` (team `team_yFLUcpSvgQi8EQuvuorOZW7w`). Production deployment is still pending. No author rewriting, permission changes or alternate-scope deployment was attempted. Reconnect an authorized Vercel account, then deploy this exact GitHub commit and verify readiness.
+
 All ten foundation lessons now include a small missing-piece coding exercise. The learner types a tag, function name, operator, value, filename or command into a labeled field and sees it inside the code excerpt. Hints come before an optional explained solution. Looking at the solution does not mark the exercise correct: the learner must enter and check the answer. Validation compares one token without executing input. It accepts surrounding whitespace and preserves meaningful letter casing.
 
 The quiz unlocks after trying the example and checking the code. Editing a checked answer invalidates the check. Request examples wait for their simulated response before counting as tried. A two-item checklist explains the remaining steps. Each quiz option has its own explanation in French, English and Arabic. Existing completed lessons and notes remain valid; temporary coding attempts reset when switching lessons or reloading.

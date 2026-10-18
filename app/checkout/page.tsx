@@ -613,7 +613,7 @@ export default function CheckoutPage() {
     paymentTitle: siteSettings.checkout_payment_title || "Mode de paiement",
     paymentSubtitle: siteSettings.checkout_payment_subtitle || "Choisissez votre option de règlement",
     buttonLabel: siteSettings.checkout_button_label || "Confirmer ma commande",
-    trustTitle: siteSettings.checkout_trust_title || "Commande Paiement à réceptione",
+    trustTitle: siteSettings.checkout_trust_title || "Commande en toute confiance",
     trustDelivery: items.some(item => item.fulfillment_type === "PREORDER") ? preorderCopy.fr.delivery : siteSettings.checkout_trust_delivery || `Livraison ${shippingEstimate}`,
     trustPayment: siteSettings.checkout_trust_payment || "Paiement sûr",
     trustReturns: RETURN_POLICY.summary,
@@ -1295,7 +1295,7 @@ export default function CheckoutPage() {
 
                 {/* PayPal Buttons — shown when PayPal is selected */}
                 {payment === "paypal" && (
-                  <div className="rounded-xl border border-[#0070ba]/20 bg-gradient-to-b from-[#f7fbff] to-white p-4 shadow-[0_8px_24px_rgba(0,112,186,0.08)]" aria-live="polite">
+                  <div className="relative isolate z-0 rounded-xl border border-[#0070ba]/20 bg-gradient-to-b from-[#f7fbff] to-white p-4 shadow-[0_8px_24px_rgba(0,112,186,0.08)]" aria-live="polite">
                     <div className="mb-3 flex items-center justify-center gap-2 text-center">
                       {paypalStatus === "loading" && (
                         <>
@@ -1304,10 +1304,15 @@ export default function CheckoutPage() {
                         </>
                       )}
                       {paypalStatus === "ready" && (
-                        <p className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-emerald-700">
-                          <span className="flex h-4 w-4 items-center justify-center rounded-full bg-emerald-100" aria-hidden="true">✓</span>
-                          PayPal est prêt — vérifiez vos coordonnées puis payez
-                        </p>
+                        <div className="flex w-full items-start gap-3 text-left">
+                          <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700" aria-hidden="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 4 4L19 6" /></svg>
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[14px] font-semibold leading-5 tracking-[-0.01em] text-neutral-900">PayPal est prêt</p>
+                            <p className="mt-1 text-xs font-normal leading-5 text-neutral-600">Vérifiez vos coordonnées, puis choisissez un bouton ci-dessous pour payer.</p>
+                          </div>
+                        </div>
                       )}
                     </div>
 
@@ -1337,20 +1342,20 @@ export default function CheckoutPage() {
                 )}
 
                 {/* Trust banner */}
-                {checkoutCopy.showReassurance && <div className="mt-1 border border-neutral-100 overflow-hidden">
-                  <div className="bg-neutral-50 px-4 py-2.5 flex items-center justify-center gap-1.5 border-b border-neutral-100">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-green-700">{checkoutCopy.trustTitle}</span>
+                {checkoutCopy.showReassurance && <div className="mt-1 overflow-hidden rounded-xl border border-neutral-200/70 bg-white">
+                  <div className="flex items-center gap-2 border-b border-neutral-100 bg-neutral-50/80 px-4 py-3">
+                    <svg aria-hidden="true" className="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#15803d" strokeWidth="2.5" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    <span className="min-w-0 break-words text-[13px] font-semibold leading-5 text-green-800">{checkoutCopy.trustTitle}</span>
                   </div>
-                  <div className="grid grid-cols-3 divide-x divide-neutral-100">
+                  <div className="grid grid-cols-1 divide-y divide-neutral-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
                     {[
                       { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>, label: checkoutCopy.trustDelivery },
                       { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>, label: checkoutCopy.trustPayment },
                       { icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/></svg>, label: checkoutCopy.trustReturns },
                     ].map((b) => (
-                      <div key={b.label} className="flex flex-col items-center gap-2 py-3.5 bg-white">
-                        <span className="text-neutral-600">{b.icon}</span>
-                        <span className="text-[10px] font-bold text-neutral-500 text-center leading-tight">{b.label}</span>
+                      <div key={b.label} className="flex min-w-0 items-center gap-3 px-4 py-3 sm:flex-col sm:gap-2 sm:px-3 sm:py-4">
+                        <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-neutral-50 text-neutral-600">{b.icon}</span>
+                        <span className="min-w-0 break-words text-xs font-medium leading-5 text-neutral-600 sm:text-center">{b.label}</span>
                       </div>
                     ))}
                   </div>

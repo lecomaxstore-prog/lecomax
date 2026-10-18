@@ -1,4 +1,5 @@
 {
+  "root": true,
   "extends": ["next/core-web-vitals"],
   "plugins": ["@typescript-eslint"],
   "ignorePatterns": ["mobile/**", "out/**", ".next*/**", "projects/**", "premiere/**", "release/**", "store-release/**"]

@@ -3,6 +3,7 @@ import { tutorAccess, tutorJson, tutorFailure } from "@/lib/ai-tutor-server";
 import { isTutorId, isTutorMode, isTutorTopic } from "@/lib/ai-tutor";
 import { assertTutorContentSafe } from "@/lib/ai-tutor-security";
 import { readJsonLimited } from "@/lib/request-body";
+import { TUTOR_LESSONS } from "@/lib/ai-tutor-course";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
@@ -26,7 +27,8 @@ export async function GET(req: NextRequest) {
       db!.from("ai_learning_messages").select("id,conversation_id,role,content,status,bookmarked,sources,created_at").eq("owner_email", owner!).eq("bookmarked", true).eq("role", "assistant").eq("status", "complete").order("created_at", { ascending: false }).limit(100),
     ]);
     if ([conversations, progress, bookmarks].some(result => result.error)) throw new Error("STORAGE_UNAVAILABLE");
-    return tutorJson({ conversations: conversations.data, progress: progress.data, bookmarks: bookmarks.data, configured: Boolean(process.env.OPENAI_API_KEY?.trim()) });
+    const rows = progress.data ?? [];
+    return tutorJson({ conversations: conversations.data, progress: rows.filter(item => !item.topic?.startsWith("lesson:")), completedLessons: rows.filter(item => item.topic?.startsWith("lesson:") && item.confidence === 100).map(item => item.topic.slice(7)), bookmarks: bookmarks.data, configured: Boolean(process.env.OPENAI_API_KEY?.trim()) });
   } catch (error) { return tutorFailure(error); }
 }
 export async function POST(req: NextRequest) {
@@ -46,6 +48,11 @@ export async function PATCH(req: NextRequest) {
     const access = await tutorAccess(req, true);
     if (access.denied) return access.denied;
     const body = await readJsonLimited(req, 4096).catch(() => null);
+    if (body?.action === "lesson" && typeof body.completed === "boolean" && TUTOR_LESSONS.some(lesson => lesson.id === body.lessonId)) {
+      const result = await access.db!.from("ai_learning_progress").upsert({ owner_email: access.owner, topic: `lesson:${body.lessonId}`, confidence: body.completed ? 100 : 0, needs_practice: !body.completed, completed_at: body.completed ? new Date().toISOString() : null }, { onConflict: "owner_email,topic" });
+      if (result.error) throw result.error;
+      return tutorJson({ ok: true });
+    }
     if (body?.action === "bookmark" && isTutorId(body.messageId) && typeof body.value === "boolean") {
       const result = await access.db!.from("ai_learning_messages").update({ bookmarked: body.value }).eq("owner_email", access.owner!).eq("id", body.messageId).eq("role", "assistant").eq("status", "complete").select("id");
       if (result.error) throw result.error;

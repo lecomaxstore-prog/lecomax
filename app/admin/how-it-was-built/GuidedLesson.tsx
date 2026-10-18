@@ -3,10 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import type { ContentBlock, CourseLanguage, Lesson } from "./course/types";
 import { translate } from "./course/journey";
+import LessonTeacher from "./LessonTeacher";
 
-export default function GuidedLesson({ lesson, lang, renderBlock, completed, onComplete, onNext, hasNext, saveError }: {
+export default function GuidedLesson({ lesson, lang, renderBlock, completed, onComplete, onNext, hasNext, saveError, sourcePath }: {
   lesson: Lesson; lang: CourseLanguage; renderBlock: (block: ContentBlock, key: string) => React.ReactNode;
   completed: boolean; onComplete: () => Promise<void>; onNext: () => void; hasNext: boolean; saveError: string;
+  sourcePath?: string;
 }) {
   const t = (fr: string, en: string, ar: string) => translate(lang, fr, en, ar);
   // One content block per card keeps even the longest lessons approachable.
@@ -105,5 +107,6 @@ export default function GuidedLesson({ lesson, lang, renderBlock, completed, onC
       </div>}
     </div>
     <nav aria-label={t("Étapes", "Steps", "الخطوات")} className="flex gap-3"><button disabled={step === 0 || !ready} onClick={() => go(step - 1)} className="min-h-12 flex-1 rounded-xl border bg-white p-3 font-bold disabled:opacity-30">{t("Retour", "Back", "رجوع")}</button>{step < finishStep && <button disabled={!ready || (question !== null && answers[question.id] !== question.correctIndex)} onClick={() => go(step + 1)} className="min-h-12 flex-1 rounded-xl bg-neutral-950 p-3 font-bold text-white disabled:opacity-40">{t("Continuer", "Continue", "متابعة")} →</button>}</nav>
+    <LessonTeacher lang={lang} topic={`${lesson.title} · ${title}`} context={card ? JSON.stringify(card.block) : `${lesson.objectives.join("\n")}\nCurrent activity: ${phases[phase]}\n${step === practiceStep ? lesson.exercise.task : ""}`} sourcePath={sourcePath} />
   </section>;
 }

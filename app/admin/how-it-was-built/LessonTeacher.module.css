@@ -1,0 +1,28 @@
+.teacher { margin-block: 20px; border: 1px solid #b8d6c6; border-radius: 16px; background: #f5faf7; min-width: 0; overflow-wrap: anywhere; }
+.toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 54px; padding: 14px 18px; color: #174d32; font-weight: 750; text-align: start; }
+.body { padding: 0 18px 18px; }
+.body[hidden] { display: none; }
+.topic { font-size: 15px; line-height: 1.6; }
+.note { font-size: 12px; color: #52665a; line-height: 1.7; margin-block: 10px; }
+.path { font-size: 12px; font-family: monospace; overflow-wrap: anywhere; padding: 8px; border-radius: 8px; background: #e6f0e9; }
+.language { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; margin-block: 12px; }
+.language select { min-height: 44px; padding: 8px; border: 1px solid #b9cec1; border-radius: 8px; background: white; max-width: 100%; }
+.prompts, .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 12px; }
+.prompts button, .actions button { min-height: 44px; padding: 10px 14px; border: 1px solid #b9cec1; border-radius: 10px; font-size: 13px; background: white; color: #164b30; }
+.actions button[type=submit] { background: #174d32; color: white; }
+.teacher button:disabled { opacity: .5; cursor: not-allowed; }
+.teacher button:focus-visible, .teacher textarea:focus-visible, .teacher select:focus-visible { outline: 3px solid #4b9b71; outline-offset: 2px; }
+.body form > label { display: block; margin-top: 14px; font-weight: 650; font-size: 14px; }
+.body textarea { display: block; margin-top: 8px; width: 100%; padding: 12px; border: 1px solid #b9cec1; border-radius: 10px; background: white; color: #17251e; font-size: 16px; resize: vertical; }
+.messages { max-height: 540px; overflow-y: auto; scrollbar-gutter: stable; }
+.message { margin-block: 12px; padding: 14px; border: 1px solid #dae6dd; border-radius: 12px; background: white; font-size: 14px; line-height: 1.8; }
+.message[data-role=user] { background: #eaf3ee; }
+.message p, .message ul, .message ol { margin-block: 8px; }
+.message ul { list-style: disc; padding-inline-start: 22px; }
+.message ol { list-style: decimal; padding-inline-start: 22px; }
+.message pre { overflow: auto; padding: 12px; background: #152b20; color: #f0faf4; border-radius: 10px; direction: ltr; text-align: left; }
+.message code { font-size: 12px; }
+.message a { text-decoration: underline; color: #146239; }
+.source { display: block; padding-block: 8px; font-size: 12px; overflow-wrap: anywhere; }
+.error { border-inline-start: 3px solid #ac7620; padding: 10px; background: #fff5dc; font-size: 13px; line-height: 1.7; }
+@media (max-width: 480px) { .body { padding-inline: 12px; } .prompts button { flex: 1 1 40%; } }

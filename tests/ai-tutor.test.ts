@@ -5,9 +5,41 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import { PGlite } from "@electric-sql/pglite";
 import { randomUUID } from "node:crypto";
-import { tutorHistory, TUTOR_MODES, isTutorId, isTutorMode } from "../lib/ai-tutor.ts";
+import { tutorHistory, TUTOR_MODES, TUTOR_EXAMPLES, tutorExampleForTopic, isTutorId, isTutorMode } from "../lib/ai-tutor.ts";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
+test("guided examples refer to real project functions, with relevant topic defaults", () => {
+  for (const example of TUTOR_EXAMPLES) {
+    const content = readFileSync(example.path, "utf8");
+    assert.ok(content.includes(example.anchor), `${example.path} must contain ${example.anchor}`);
+  }
+  assert.equal(tutorExampleForTopic("api").path, "app/api/products/route.ts");
+  assert.equal(tutorExampleForTopic("react").path, "components/ProductCard.tsx");
+});
+test("source previews enforce access, allow only catalog examples and retain real line numbers", async () => {
+  for (const scenario of ["denied", "unknown", "valid", "sensitive"] as const) {
+    let sourceReads = 0;
+    const route = load("app/api/admin/ai-tutor/source/route.ts", {
+      "next/server": {}, "@/lib/ai-tutor": { TUTOR_EXAMPLES },
+      "@/lib/ai-tutor-server": {
+        tutorAccess: async () => scenario === "denied" ? { denied: Response.json({}, { status: 403 }) } : {},
+        tutorJson: (body: unknown, status = 200) => Response.json(body, { status }),
+        tutorFailure: () => Response.json({ error: "unavailable" }, { status: 400 }),
+      },
+      "@/lib/ai-tutor-security": { assertTutorContentSafe: () => { if (scenario === "sensitive") throw Error("SENSITIVE_CONTENT"); } },
+      "@/lib/learning-source-context": { getLearningSourceContext: async () => {
+        sourceReads++;
+        return { text: JSON.stringify({ startLine: 25, excerpt: "25: // context\n26: export default function ProductCard() {\n27: return null;" }), sources: [{ path: "components/ProductCard.tsx", startLine: 25, endLine: 27, generatedAt: "2026-10-06" }] };
+      } },
+    });
+    const response = await route.GET({ nextUrl: new URL(`https://example.test/?example=${scenario === "unknown" ? "../../.env" : "product-card"}`) });
+    assert.equal(response.status, scenario === "denied" ? 403 : scenario === "valid" ? 200 : 400);
+    assert.equal(sourceReads, scenario === "denied" || scenario === "unknown" ? 0 : 1);
+    const body = await response.json();
+    if (scenario === "valid") { assert.equal(body.focusLine, 26); assert.ok(body.excerpt.startsWith("26: export default")); }
+    else assert.equal(body.excerpt, undefined);
+  }
+});
 function load(file: string, deps: Record<string,unknown> = {}, env: Record<string,string> = {}) {
   const module = { exports: {} as any };
   runInNewContext(ts.transpileModule(readFileSync(file,"utf8"),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText,{
@@ -21,6 +53,12 @@ test("history is bounded and excludes failed or pending explanations",()=>{
   const result=tutorHistory([...history,{role:"assistant",content:"not completed",status:"failed"}]);
   assert.equal(result.length,9); assert.ok(result.every(item=>item.content.length===2500));
   assert.equal(isTutorId("../../other"),false); assert.equal(isTutorMode("constructor"),false);
+});
+test("tutor Arabic UI remains UTF-8 without replacement labels", () => {
+  for (const file of ["AITutor.tsx", "TutorCourse.tsx", "TutorMarkdown.tsx"]) {
+    const source = readFileSync(`app/admin/how-it-was-built/ai-tutor/${file}`, "utf8");
+    assert.doesNotMatch(source, /\?{3,}|\uFFFD/);
+  }
 });
 test("credentials are rejected, while ordinary code and placeholders remain teachable",()=>{
   const {assertTutorContentSafe:safe}=load("lib/ai-tutor-security.ts",{"../scripts/source-library.mjs":{containsEmbeddedSecret:(text:string)=>text.includes("PRIVATE KEY")}}, {OPENAI_API_KEY:"private-known-value-123456"});
@@ -43,6 +81,20 @@ test("Responses streaming uses the configured model, bounded output and no provi
   await streamTutorReply("teach",[{role:"user",content:"hello"}],new AbortController().signal);
   assert.equal(config.maxRetries,0); assert.equal(payload.model,"configured-model"); assert.equal(payload.stream,true); assert.equal(payload.store,false); assert.equal(payload.max_output_tokens,4000); assert.equal(payload.tools,undefined);
 });
+test("course requests use completed JSON and reject partial or empty provider responses", async () => {
+  let payload:any;
+  let response:any = { status: 'completed', output_text: '{"lessons":[]}', model: 'configured-model' };
+  const {generateTutorCourse}=load('lib/ai-tutor-provider.ts', {openai:class { responses={create:async (value:any) => { payload=value; return response; }}; }}, {OPENAI_API_KEY:'test-only-key'});
+  const result=await generateTutorCourse('JSON course', 'English', new AbortController().signal, 'configured-model');
+  assert.equal(result.answer, response.output_text);
+  assert.equal(payload.stream, false); assert.equal(payload.store, false);
+  assert.equal(payload.text.format.type, 'json_object'); assert.equal(payload.model, 'configured-model');
+  for (const invalid of [{status:'incomplete',output_text:'{}'}, {status:'completed',output_text:''}]) {
+    response=invalid;
+    await assert.rejects(generateTutorCourse('JSON course', 'English', new AbortController().signal, 'configured-model'), /INCOMPLETE_COURSE/);
+  }
+});
+
 test("database scopes ownership, deduplicates turns, limits spending and recovers stale streams",async()=>{
   const db=new PGlite();
   try{
@@ -74,17 +126,29 @@ function messageHarness({denied=false,fail=false,missing=false,limit=false,saveF
   const shared=load("lib/ai-tutor.ts");
   const db={from(table:string){const chain:any={select(){return chain;},eq(key:string,value:string){calls.push([table,key,value]);return chain;},order(){return chain;},limit(){return chain;},maybeSingle:async()=>({data:missing?null:{id:"owned",content:"earlier explanation"}}),then(resolve:any){resolve({data:table==="ai_learning_progress"?[]:[{role:"user",content:"What is await?",status:"complete"}]});}};return chain;},rpc:async(name:string,payload:any)=>{calls.push([name,payload]);return name==="begin_ai_learning_turn"&&limit?{error:{message:"RATE_LIMIT"}}:{data:name==="begin_ai_learning_turn"?randomUUID():!saveFail};}};
   const route=load("app/api/admin/ai-tutor/message/route.ts",{
-    "next/server":{},"@/lib/ai-tutor":shared,
+    "next/server":{},"@/lib/ai-tutor":shared,"@/lib/ai-tutor-course":load("lib/ai-tutor-course.ts"),
     "@/lib/ai-tutor-server":{tutorAccess:async()=>denied?{denied:Response.json({}, {status:403})}:{owner:"owner",db},tutorJson:(body:any,status=200)=>Response.json(body,{status}),tutorFailure:()=>Response.json({error:"safe error"},{status:503})},
     "@/lib/ai-tutor-security":{assertTutorContentSafe:(text:string)=>{if(text.includes("secret-value"))throw Error("SENSITIVE_CONTENT");}},
     "@/lib/ai-tutor-prompt":{tutorInstructions:()=>"instructions"},
     "@/lib/ai-tutor-provider":{streamTutorReply:async(_instructions:string,messages:any[])=>{providerCalled=true;calls.push(["provider",messages]);return(async function*(){yield{type:"response.output_text.delta",delta:"شرح عربي"};if(fail)throw Error("private provider details");yield{type:"response.completed",response:{status:"completed",usage:{input_tokens:10,output_tokens:20}}};})();}},
-    "@/lib/learning-source-context":{getLearningSourceContext:async()=>({text:"safe source",sources:[]})},
+    "@/lib/learning-source-context":{getLearningSourceContext:async(...args:unknown[])=>{calls.push(["source", ...args]);return {text:"safe source",sources:[]};}},
     "@/lib/request-body":{readJsonLimited:(req:Request)=>req.json()},
   },{OPENAI_API_KEY:"configured"});
   return{calls,providerCalled:()=>providerCalled,run:(body:any)=>route.POST(new Request("https://example.test/api/admin/ai-tutor/message",{method:"POST",body:JSON.stringify(body)}))};
 }
 const question=()=>({conversationId:randomUUID(),requestId:randomUUID(),mode:"explain",topic:"api",text:"What is await?",attempt:false});
+
+test("general questions omit unrelated sources; project questions retrieve relevant files; explicit selections win", async () => {
+  const automatic = messageHarness();
+  await (await automatic.run(question())).text();
+  assert.equal(automatic.calls.find(call => call[0] === "source"), undefined);
+  const project = messageHarness();
+  await (await project.run({ ...question(), text: "How does checkout work in my project?" })).text();
+  assert.deepEqual(project.calls.filter(call => call[0] === "source").map(call => call[1]), ["app/checkout/page.tsx", "app/api/orders/route.ts"]);
+  const selected = messageHarness();
+  await (await selected.run({ ...question(), sourcePath: "components/ProductCard.tsx", sourceLine: 27 })).text();
+  assert.deepEqual(selected.calls.find(call => call[0] === "source"), ["source", "components/ProductCard.tsx", 27, undefined]);
+});
 test("message endpoint denies unauthorized, oversized and cross-owner turns before provider calls",async()=>{
   for(const [options,body,status] of [[{denied:true},question(),403],[{missing:true},question(),404],[{}, {...question(),code:"a".repeat(8001)},400],[{}, {...question(),mode:"constructor"},400],[{limit:true},question(),429]] as const){
     const h=messageHarness(options);assert.equal((await h.run(body)).status,status);assert.equal(h.providerCalled(),false);
@@ -105,7 +169,7 @@ function storageHarness(denied=false,missing=false){
   const calls:any[]=[];
   const db={from(table:string){const q:any={select(){return q;},eq(key:string,value:any){calls.push([table,'eq',key,value]);return q;},order(){return q;},limit(){return q;},insert(data:any){calls.push([table,'insert',data]);return q;},update(data:any){calls.push([table,'update',data]);return q;},upsert(data:any){calls.push([table,'upsert',data]);return q;},single:async()=>({data:{id:randomUUID()}}),maybeSingle:async()=>({data:missing?null:{id:randomUUID()}}),then(resolve:any){resolve({data:missing?[]:[{id:randomUUID()}]});}};return q;}};
   const route=load('app/api/admin/ai-tutor/route.ts',{
-    'next/server':{},'@/lib/ai-tutor':load('lib/ai-tutor.ts'),
+    'next/server':{},'@/lib/ai-tutor':load('lib/ai-tutor.ts'),'@/lib/ai-tutor-course':load('lib/ai-tutor-course.ts'),
     '@/lib/ai-tutor-server':{tutorAccess:async()=>denied?{denied:Response.json({},{status:403})}:{owner:'owner',db},tutorJson:(body:any,status=200)=>Response.json(body,{status,headers:{'Cache-Control':'private, no-store'}}),tutorFailure:()=>Response.json({error:'unavailable'},{status:503})},
     '@/lib/ai-tutor-security':{assertTutorContentSafe:()=>{}},'@/lib/request-body':{readJsonLimited:(req:Request)=>req.json()},
   });
@@ -123,3 +187,19 @@ test('conversation lists, bookmarks and progress are owner scoped; client owners
   assert.equal((await storageHarness(false,true).run('GET',undefined,randomUUID())).status,404);
   assert.equal((await storageHarness(false,true).run('PATCH',{action:'bookmark',messageId:randomUUID(),value:true})).status,404);
 });
+
+ test('course completion validates lesson IDs and scopes writes to owner', async () => {
+ const h=storageHarness();
+ assert.equal((await h.run('PATCH',{action:'lesson',lessonId:'foundations-1',completed:true,owner_email:'attacker'})).status,200);
+ const saved=h.calls.find(c=>c[1]==='upsert')[2];assert.equal(saved.owner_email,'owner');assert.equal(saved.topic,'lesson:foundations-1');assert.equal(saved.confidence,100);
+ assert.equal((await h.run('PATCH',{action:'lesson',lessonId:'nonexistent',completed:true})).status,400);
+ });
+ test('curriculum, recommendations, languages and simplification are bounded',()=>{
+ const c=load('lib/ai-tutor-course.ts');assert.equal(c.TUTOR_COURSE.length,9);
+ assert.equal(new Set(c.TUTOR_LESSONS.map((l:any)=>l.id)).size,c.TUTOR_LESSONS.length);
+ assert.equal(c.recommendTutorLesson([],[]).id,'foundations-1');
+ assert.equal(c.recommendTutorLesson(c.TUTOR_LESSONS.map((l:any)=>l.id),[]),undefined);
+ assert.equal(c.isTutorLanguage('constructor'),false);assert.equal(c.isTutorLanguage('darija'),true);
+ assert.equal(c.tutorSimplificationLevel(Array.from({length:10},()=>({role:'user',content:'simpler'}))),6);
+ const {tutorInstructions}=load('lib/ai-tutor-prompt.ts');assert.match(tutorInstructions('explain','react','fr',4),/French/);assert.match(tutorInstructions('explain','react','fr',4),/strategy 4\/6/);
+ });

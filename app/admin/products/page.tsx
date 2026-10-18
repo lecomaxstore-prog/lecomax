@@ -1,6 +1,10 @@
 "use client";
+
+import ProductVideo from "@/components/ProductVideo";
 import ProductBrandPicker from "@/components/admin/ProductBrandPicker";
 import AdminToggle from "@/components/admin/AdminToggle";
+import ProductWritingAssistant from "@/components/admin/ProductWritingAssistant";
+import ProductPasteImport from "@/components/admin/ProductPasteImport";
 import AdminLoading from "@/components/admin/AdminLoading";
 import ProductSizeGuideEditor from "@/components/admin/ProductSizeGuideEditor";
 import { productSizeGuideFromTags, withProductSizeGuide, PRODUCT_SIZE_GUIDE_PREFIX, type ProductSizeGuide } from "@/mobile/src/lib/product-size-guide";
@@ -800,6 +804,12 @@ export default function ProductsPage() {
           ))}
         </div>
         {/* ── AI IMPORT BANNER ── */}
+        <div className="mb-5"><MobileSection title="Coller les informations de ChatGPT" defaultOpen>
+          <ProductPasteImport key={editId ?? "new-product"} onApply={fields => setForm(current => ({
+            ...current, ...fields,
+            slug: fields.name && !editId ? fields.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : current.slug,
+          }))} />
+        </MobileSection></div>
         <div className="mb-5"><MobileSection title="Importer un produit depuis un lien">
         <div className="admin-editor-import relative mb-5 overflow-hidden rounded-[24px] border border-violet-200/80 bg-gradient-to-br from-violet-50 via-white to-blue-50 p-4 shadow-[0_8px_30px_rgba(109,40,217,.06)] sm:p-5">
             <div aria-hidden="true" className="absolute -right-12 -top-16 h-40 w-40 rounded-full bg-violet-300/20 blur-3xl" />
@@ -875,7 +885,22 @@ export default function ProductsPage() {
                 </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Description</label>
+                <ProductWritingAssistant
+                  key={editId ?? "new-product"}
+                  context={[
+                    form.name.trim() && "Nom : " + form.name.trim(),
+                    form.brand.trim() && "Marque : " + form.brand.trim(),
+                    form.description.trim() && "Description actuelle : " + form.description.trim(),
+                    selectedColors.length > 0 && "Couleurs : " + selectedColors.join(", "),
+                    selectedSizes.length > 0 && "Tailles : " + selectedSizes.join(", "),
+                    ...productDetails.filter(detail => detail.key.trim() && detail.value.trim()).map(detail => detail.key + " : " + detail.value),
+                  ].filter(Boolean).join("\n")}
+                  onApply={patch => setForm(current => ({
+                    ...current, ...patch,
+                    slug: patch.name && !editId ? patch.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") : current.slug,
+                  }))}
+                />
+                <label className="mt-5 block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Description</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })}
                   rows={4} placeholder="Décrivez le produit, ses caractéristiques, matières…"
                   className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all resize-none" />
@@ -1403,9 +1428,9 @@ export default function ProductsPage() {
                   </div>
                 );
                 return (
-                  <div className="rounded-xl overflow-hidden border border-neutral-200 aspect-video bg-black">
+                  <div className="relative rounded-xl overflow-hidden border border-neutral-200 aspect-video bg-black">
                     {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-                    <video src={form.video} controls className="w-full h-full" />
+                    <ProductVideo key={form.video} url={form.video} />
                   </div>
                 );
               })()}

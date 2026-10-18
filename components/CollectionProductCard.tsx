@@ -2,12 +2,13 @@
 import ProductBrandMark from "./ProductBrandMark";
 
 import Link from "next/link";
+import styles from "./CollectionProductCard.module.css";
 import ProductImage from "./ProductImage";
 import CardColorOptions from "./CardColorOptions";
 import type { CardProduct } from "@/lib/products";
 import { recordProductSignal } from "@/lib/personalization";
 
-export default function CollectionProductCard({ product, index = 0, visibilityClass = "" }: { product: CardProduct; index?: number; visibilityClass?: string }) {
+export default function CollectionProductCard({ product, visibilityClass = "" }: { product: CardProduct; index?: number; visibilityClass?: string }) {
   const hasDiscount = product.oldPrice && product.oldPrice > product.price;
   const outOfStock = product.stock !== undefined && product.stock <= 0;
   const discount = hasDiscount
@@ -17,24 +18,20 @@ export default function CollectionProductCard({ product, index = 0, visibilityCl
   return (
     <div data-source-file="components/CollectionProductCard.tsx"
       className={`h-full ${visibilityClass}`}
-      style={{
-        animation: `cardFadeUp 0.45s cubic-bezier(0.22,1,0.36,1) both`,
-        animationDelay: `${index * 55}ms`,
-      }}
     >
       <Link
         href={`/produit/${product.slug}`}
         onClick={() => recordProductSignal(product, 2)}
-        className="product-card group flex flex-col bg-white border border-neutral-100 hover:border-[#3ecf4c]/40 hover:shadow-[0_8px_32px_rgba(62,207,76,0.10)] transition-all duration-300 overflow-hidden h-full"
+        className={`${styles.card} product-card group flex flex-col bg-white border border-neutral-100 hover:border-[#3ecf4c]/40 hover:shadow-[0_8px_32px_rgba(62,207,76,0.10)] transition-all duration-300 overflow-hidden h-full`}
       >
         {/* Image */}
-        <div className="relative aspect-[4/5] bg-neutral-50 overflow-hidden">
+        <div className={`${styles.media} relative aspect-[4/5] bg-neutral-50 overflow-hidden`}>
             <ProductImage
               src={product.image}
               alt={product.name}
               fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-              className={`object-cover transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.05]"}`}
+              className={`${styles.image} object-contain transition-transform duration-700 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] ${outOfStock ? "opacity-60 grayscale-[25%]" : "group-hover:scale-[1.05]"}`}
             />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
           {/* Top-left green accent line on hover */}
@@ -57,32 +54,19 @@ export default function CollectionProductCard({ product, index = 0, visibilityCl
               </span>
             )}
           </div>
-          {/* Refined CTA */}
-          <div className="product-card-cta absolute inset-x-0 bottom-0 px-3 pb-3 pt-12 pointer-events-none">
-            <div className={`flex min-h-11 items-center justify-between rounded-xl border px-3.5 pl-4 shadow-[0_8px_24px_rgba(0,0,0,.16)] backdrop-blur-md ${outOfStock ? "border-white/10 bg-neutral-950/95 text-white" : "border-transparent bg-[#f1f2f2] text-[#4f5553]"}`}>
-              <span className="text-[10px] font-extrabold tracking-[0.08em]">
-                {outOfStock ? "Produit épuisé" : "Voir le produit"}
-              </span>
-              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full transition-colors duration-200 ${outOfStock ? "bg-white/10 text-white" : "bg-[#079b70] text-white"}`}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </span>
-            </div>
-          </div>
+
         </div>
 
         {/* Info */}
-        <div className="px-3 pt-3 pb-4 flex flex-col flex-1">
+        <div className={`${styles.info} px-3 pt-3 pb-4 flex flex-col flex-1`}>
         {product.brand && <div className="mb-2"><ProductBrandMark name={product.brand} compact /></div>}
-          <CardColorOptions colors={product.colors ?? []} />
-          <h3 className="min-h-[36px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600">
+          <h3 className={`${styles.title} min-h-[36px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600`}>
             {product.name}
           </h3>
           <p className="text-neutral-400 text-[10.5px] mt-0.5 uppercase tracking-wider font-semibold">
             {product.category}
           </p>
-          <div className="mt-2.5 flex items-baseline gap-2 border-t border-neutral-100 pt-3">
+          <div className={`${styles.prices} mt-2.5 flex flex-wrap items-baseline gap-2 border-t border-neutral-100 pt-3`}>
             <span className={`text-[14px] font-extrabold tracking-[-0.02em] ${hasDiscount ? "text-red-600" : "text-neutral-950"}`}>
               {product.price}&nbsp;MAD
             </span>
@@ -92,6 +76,15 @@ export default function CollectionProductCard({ product, index = 0, visibilityCl
               </span>
             )}
           </div>
+          <CardColorOptions colors={product.colors ?? []} />
+          <span className={styles.action}>
+            Voir le produit
+            <span className={styles.actionIcon} aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </span>
+          </span>
         </div>
       </Link>
     </div>

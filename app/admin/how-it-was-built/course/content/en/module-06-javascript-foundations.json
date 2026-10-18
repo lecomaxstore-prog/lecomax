@@ -16,7 +16,7 @@
     },
     {
       "path": "academy-labs/06-javascript/values.js",
-      "mode": "create"
+      "mode": "existing"
     },
     {
       "path": "academy-labs/06-javascript/control-flow.js",
@@ -35,69 +35,133 @@
     {
       "id": "lesson-06-01-values",
       "order": 0,
-      "title": "Values, variables, types, and operators",
-      "estimatedMinutes": 45,
+      "title": "Values and types: build a validated cart calculator",
+      "estimatedMinutes": 100,
       "prerequisites": [
-        "Know how to use a keyboard and mouse; no programming experience is assumed. The first module installs the tools and opens the project step by step.",
-        "Have completed the previous lesson and know how to run npm run dev."
+        "Know how to save a .js file and run it with Node (module-00-learning-tools). Functions and validation syntax are introduced here before their later dedicated chapters."
       ],
       "objectives": [
-        "By the end, you will be able to explain and apply the mental model behind Values, variables, types, and operators",
-        "By the end, you will be able to explain and apply a minimal implementation verified by evidence"
+        "Distinguish declaration, reassignment, primitive values and shared object references.",
+        "Validate decimal quantity text and calculate a bounded, integer-centime discount.",
+        "Predict conversion and formatting behavior, then test valid and invalid inputs."
       ],
       "sections": [
         {
           "id": "mental-model",
-          "title": "Mental model",
+          "title": "From a shop question to values",
           "blocks": [
             {
-              "id": "mental",
+              "id": "values-depth-0",
               "type": "paragraph",
-              "text": "A variable binds a name to a value; the type belongs to the value and determines meaningful operations. const protects the binding from reassignment, while calculation produces new values without changing inputs. Always separate the intention, the incoming data, the transformation being performed, and the observable result. This separation lets you predict behavior before running code and diagnose an error precisely."
+              "text": "Start with a question a shop actually needs answered: two products cost 349 MAD each and receive a ten percent discount; what amount should the page display? A computer does not understand the sentence until we represent its quantities and operations. The input is a unit price, a quantity and a discount rate. The transformation multiplies price by quantity, calculates a discount and subtracts it. The output is a new amount, then a readable label. These stages are deliberately separate: a label containing MAD is useful to a person, but it is unsuitable as the input of a multiplication. This lesson develops that separation before building a reusable calculator."
+            },
+            {
+              "id": "values-depth-1",
+              "type": "paragraph",
+              "text": "Use a plain JavaScript file and Node, with no browser, network, packages or database. From the repository root, run node academy-labs/06-javascript/values.js. If recreating the lab elsewhere, create the folders first and save the complete solution at that relative path. A terminal command starts Node, which reads the file and executes its statements in order. console.log sends evidence to the terminal; it does not change a web page. Read the first error before changing anything. A missing-file error concerns your working directory or filename, whereas a SyntaxError concerns the program text. Run each smaller example separately so that identical variable names do not collide in one file."
             },
             {
               "id": "analogy",
               "type": "callout",
               "tone": "analogy",
-              "title": "Simple analogy",
-              "text": "A label points to box contents; type describes what can reasonably be done with them."
+              "title": "From a shop question to values",
+              "text": "A name is a label attached to a value. const prevents moving that label to another value; it does not lock every drawer inside a labeled object."
             }
           ]
         },
         {
           "id": "deep-understanding",
-          "title": "Understand it deeply",
+          "title": "Understand each boundary",
           "blocks": [
             {
-              "id": "explanation-1",
+              "id": "values-depth-2",
               "type": "paragraph",
-              "text": "A variable binds a name to a value; the type belongs to the value and determines meaningful operations. const protects the binding from reassignment, while calculation produces new values without changing inputs. Read the example from top to bottom, identify every input, and predict the output before running the command. This habit turns memorized syntax into reusable understanding."
+              "text": "A declaration introduces a name in a scope. In let quantity = 2, let declares the binding, quantity names it and the equals sign initializes it with the number 2. Later, quantity = quantity + 1 reads the current value, computes 3 and assigns that result back to the binding. It is not an algebraic equality. A const declaration also creates a binding, but subsequent assignment to that binding is forbidden. Prefer const for inputs that do not change during a calculation, and let for a value whose reassignment is intentional. Neither keyword makes a value globally available everywhere; the containing block or function determines where the name can be used."
             },
             {
-              "id": "explanation-2",
+              "id": "values-depth-3",
               "type": "paragraph",
-              "text": "Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. In a real project, verify this mechanism with the browser, terminal, or DevTools instead of assuming it works. Observable evidence is more reliable than intuition."
+              "text": "The type belongs to a value. The number 2 and the string '2' are different values even though they look similar when printed. A string represents text; a number supports arithmetic; a boolean represents true or false. undefined often means a value has not been provided, whereas null is commonly used as an explicit absence marker. JavaScript also has bigint and symbol primitives, but this lab uses ordinary numbers. Objects collect named properties, and arrays collect ordered elements. typeof is useful evidence, not a complete validator: typeof NaN is 'number', and typeof null is 'object' for historical reasons. We therefore check the particular property our calculation needs, rather than accepting every value whose type name sounds appropriate."
             },
             {
-              "id": "explanation-3",
+              "id": "values-depth-4",
               "type": "paragraph",
-              "text": "Name units, default to const, add parentheses for intent, and format only at the display boundary so calculations remain numeric. Finally apply the concept through one small isolated change, check the result, and revert if needed. Short changes make cause and effect easy to connect."
+              "text": "Trace expressions before trusting their output. With a price of 349 and quantity 2, multiplication produces 698; multiplying by 0.1 produces a discount of 69.8; subtraction produces the intended total of 628.2. Multiplication normally takes precedence over addition. Parentheses make a different evaluation order explicit, so (10 + 5) * 2 is 30 while 10 + 5 * 2 is 20. The plus operator is particularly dangerous at a text boundary: '349' + 2 produces the text '3492'. Subtraction and multiplication have different conversion behavior, so a successful multiplication is not evidence that incoming data already has the correct type. Normalize inputs explicitly and keep units in variable names."
+            },
+            {
+              "id": "values-depth-5",
+              "type": "paragraph",
+              "text": "A form field normally gives your program text, even when the user types digits. Number('2') produces the number 2, but Number('') and Number('   ') produce zero. Number('2e2') accepts exponent notation and Number('0x10') accepts hexadecimal notation. Those conversions are valid language behavior; they are not necessarily valid shop quantities. Decide the accepted text format before conversion. Our rule accepts a trimmed sequence of decimal digits, then requires an integer from 1 through 99. It accepts surrounding spaces and leading zeros deliberately. It rejects a decimal point, a sign, exponent notation, a blank value and any trailing letters. A different product may choose another contract, but that contract must be stated and tested."
+            },
+            {
+              "id": "values-depth-6",
+              "type": "paragraph",
+              "text": "The complete solution introduces functions to avoid repeating the same validation. A function declaration gives a sequence of statements a name and names its incoming parameters. Calling parseQuantity('2') runs that sequence with raw bound to the string '2'. return gives a value back to the caller. if runs its block only when its condition is true; throw creates an error and stops the current path unless a caller catches it. In the guard, || means that either defect is enough to reject the input. Its short-circuit behavior matters: when raw is not a string, JavaScript does not evaluate raw.trim(). This prevents an unrelated method error from hiding the intentional validation message."
+            },
+            {
+              "id": "values-depth-7",
+              "type": "paragraph",
+              "text": "Read /^[0-9]+$/ as a small format rule, not magic punctuation to memorize. The slashes delimit a regular expression. The caret anchors the beginning, [0-9] permits a decimal digit, the plus sign requires one or more digits, and the dollar sign anchors the end. The test method reports whether the trimmed input matches the whole pattern. The exclamation mark negates that result. trim removes surrounding whitespace and returns a new string; it does not edit the original string. After the format check, Number performs conversion, and Number.isSafeInteger rejects fractions, infinities, NaN and integers outside the reliably represented range. The later bounds check adds the shop-specific maximum of 99."
+            },
+            {
+              "id": "values-depth-8",
+              "type": "paragraph",
+              "text": "Ordinary JavaScript numbers use binary floating-point representation. Some decimal fractions cannot be represented exactly, so 0.1 + 0.2 is not exactly 0.3. Display formatting can hide that difference without changing the stored number. For this teaching model, store money as integer centimes: 349 MAD becomes 34900 centimes. Store a percentage in basis points, where 10000 means one hundred percent and 1000 means ten percent. Multiplication then uses integer operands. This is a useful design for a currency with two decimal places, not a universal money library. Taxes, multiple currencies, refunds and legal rounding rules need separately specified policies. We define one nonnegative discount rounded to the nearest centime for this single line item."
+            },
+            {
+              "id": "values-depth-9",
+              "type": "paragraph",
+              "text": "Integer storage still has a limit. Number.MAX_SAFE_INTEGER is 9007199254740991; beyond it, neighboring mathematical integers may map to the same JavaScript number. Validate intermediate results as well as inputs. A safe unit price multiplied by a safe quantity can produce an unsafe subtotal; a safe subtotal multiplied by 1000 can produce an unsafe discount numerator. The solution rejects either case before using the result. This intentionally rejects some enormous amounts even when the final discounted amount would be small. That conservative contract is easier to explain and test than silently accepting lost precision. A larger-range implementation would require a separate BigInt or decimal design, including an explicit rounding algorithm and serialization rules."
+            },
+            {
+              "id": "values-depth-10",
+              "type": "paragraph",
+              "text": "calculateCart accepts already normalized numeric inputs. Number.isSafeInteger does not coerce a string into a number, so passing '2' directly is rejected even though parseQuantity('2') succeeds. The price may be zero, quantity must be positive and no larger than 99, and discountBps must be between zero and 10000 inclusive. First compute subtotalCents, then discountNumerator, then validate both. Math.round chooses the nearest integer centime; with our nonnegative values an exact half rounds upward. Finally subtract discountCents from subtotalCents. For 34900, 2 and 1000 the intermediate values are 69800, 69800000, 6980 and 62820. Writing this trace makes it clear where a mistaken division by 100 instead of 10000 would first diverge."
+            },
+            {
+              "id": "values-depth-11",
+              "type": "paragraph",
+              "text": "The return statement builds an object containing three named results. In { subtotalCents, discountCents, totalCents }, each short property name means the same thing as subtotalCents: subtotalCents for that property. The function creates a fresh result instead of editing an existing cart. Property access such as cart.totalCents reads one named value. The final log uses ...cart to copy those properties into a display object, then adds label. This spread makes a shallow copy; nested objects would still be shared. Our result contains only primitive numbers, so that nested-reference issue does not arise here. Do not generalize this small example into a claim that spread deeply clones every shopping-cart structure."
+            },
+            {
+              "id": "values-depth-12",
+              "type": "paragraph",
+              "text": "const protects a binding, not every object reachable through it. If const item = { stock: 3 }, item.stock = 2 is allowed because the binding still points to the same object. Assigning a different object to item would fail. If alias = item, both names identify that same object, so a change through alias is visible through item. By contrast, a copied primitive number does not track later reassignments to another variable. The reference example adds a nested details object to demonstrate why { ...item } is not enough to isolate nested changes. Before modifying a real cart, identify which objects are shared and which properties need copying; otherwise an apparently local edit can unexpectedly change another screen's state."
+            },
+            {
+              "id": "values-depth-13",
+              "type": "paragraph",
+              "text": "Formatting belongs at the display boundary. (628.2).toFixed(2) returns the string '628.20', not a more precise number. Adding 1 to that string concatenates, whereas adding 1 to the original number performs arithmetic. A template literal uses backticks and evaluates each expression inside a dollar-sign brace pair, then inserts its textual representation. Our formatter keeps integer centimes until it creates the label: Math.floor divides out whole dirhams, the remainder operator finds the remaining centimes, String converts that remainder to text and padStart adds a leading zero when needed. A five-centime amount therefore displays as 0.05 MAD. The formatter validates its input instead of disguising invalid money as a plausible label."
+            },
+            {
+              "id": "values-depth-14",
+              "type": "paragraph",
+              "text": "Build the exercise in stages and verify each boundary. First reproduce the declarations and conversion examples and explain their logs without running them. Next implement parseQuantity and test '2', ' 02 ', '', '2.5', '2e2', '2x', '0' and '100'. Then implement the numeric calculator and compare every returned property, not just the final label. Try no discount, a full discount, a zero price and a one-centime price with a half discount. Finally freeze an input object, pass its numeric properties to the calculator and confirm they remain unchanged. An error should stop an invalid calculation rather than manufacture a zero total. Test the complete lab from the repository root with node --test lecomax-learning-app/tests/javascript-values.test.cjs."
+            },
+            {
+              "id": "values-depth-15",
+              "type": "paragraph",
+              "text": "Debug in the order data crosses boundaries. If you see '3492', log each operand and its typeof before changing the formula; that is useful diagnosis, not yet a correction. Apply the correction where text enters the program, then rerun valid and invalid cases. If NaN appears, find the first conversion that produced it; comparing a value with NaN using === cannot detect it, whereas Number.isNaN can. If a const assignment fails, decide whether reassignment is actually needed instead of changing every declaration to let. This calculator is an isolated exercise, not the site's payment implementation. A real checkout must obtain authoritative prices, discounts and stock on the server and define rounding across all line items before accepting payment."
             },
             {
               "id": "vocabulary",
               "type": "vocabulary",
               "items": [
                 {
-                  "term": "primitive",
-                  "definition": "Simple value such as number, string, or boolean."
+                  "term": "binding",
+                  "definition": "Association between a variable name and its current value."
                 },
                 {
                   "term": "coercion",
-                  "definition": "Implicit conversion from one type to another."
+                  "definition": "A conversion performed implicitly while evaluating an operation."
                 },
                 {
-                  "term": "expression",
-                  "definition": "Code evaluated into a value."
+                  "term": "safe integer",
+                  "definition": "An integer in the Number range where integer precision is reliable."
+                },
+                {
+                  "term": "shallow copy",
+                  "definition": "A new outer object whose nested object references may still be shared."
                 }
               ]
             }
@@ -105,55 +169,147 @@
         },
         {
           "id": "worked-examples",
-          "title": "Annotated example",
+          "title": "Trace, build and test",
           "blocks": [
             {
               "id": "general",
               "type": "callout",
               "tone": "idea",
-              "title": "General application",
-              "text": "Write a cart calculation validating numbers and returning subtotal, discount, and total without mutation."
+              "title": "Complete validated calculator",
+              "text": "Build a local calculator from explicit inputs, then format its output. No connection or real order is needed."
             },
             {
-              "id": "annotated-code",
+              "id": "values-example-0",
               "type": "code",
-              "title": "Annotated example",
+              "title": "Declaration and reassignment",
               "code": {
                 "language": "javascript",
                 "filename": "academy-labs/06-javascript/values.js",
-                "source": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+                "source": "let quantity = 2;\nquantity = quantity + 1;\nconst unitPriceCents = 34900;\nconst subtotalCents = unitPriceCents * quantity;\nconsole.log(quantity, subtotalCents);",
                 "annotations": [
                   {
-                    "lines": "1-3",
-                    "label": "Inputs and setup for “Values, variables, types, and operators.”"
+                    "lines": "1",
+                    "label": "Declare a mutable binding with initial value 2."
                   },
                   {
-                    "lines": "4-6",
-                    "label": "The central rule to trace and predict."
+                    "lines": "2",
+                    "label": "Read the old quantity, add one and assign 3."
                   },
                   {
-                    "lines": "7-8",
-                    "label": "The observable output that proves the behavior."
+                    "lines": "3-4",
+                    "label": "Declare a fixed numeric price and compute a new subtotal."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "Observe quantity 3 and subtotal 104700 centimes."
                   }
                 ]
               }
             },
             {
-              "id": "solution-example",
+              "id": "values-example-1",
               "type": "code",
-              "title": "Second example — run and verify",
+              "title": "Conversion and formatting",
               "code": {
-                "language": "shell",
-                "filename": "Terminal",
-                "source": "node academy-labs/06-javascript/values.js",
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "console.log(Number('2'), Number(''));\nconsole.log('349' + 2);\nconst label = (628.2).toFixed(2);\nconsole.log(label, typeof label);\nconsole.log(label + 1);",
                 "annotations": [
                   {
                     "lines": "1",
-                    "label": "Open academy-labs/06-javascript/values.js and predict the example output. — node academy-labs/06-javascript/values.js"
+                    "label": "Explicitly convert digit text; blank text also converts to zero."
                   },
                   {
+                    "lines": "2",
+                    "label": "Observe that plus concatenates when a string participates."
+                  },
+                  {
+                    "lines": "3-4",
+                    "label": "toFixed returns text; typeof confirms the display boundary."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "Observe concatenation after formatting, not numeric addition."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "values-example-2",
+              "type": "code",
+              "title": "Identity and shallow copies",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "const item = { stock: 3, details: { tag: 'new' } };\nconst alias = item;\nalias.stock = 2;\nconst copy = { ...item };\ncopy.details.tag = 'sale';\nconsole.log(item === alias, item === copy, item.stock, item.details.tag);",
+                "annotations": [
+                  {
                     "lines": "1",
-                    "label": "Evidence of success: the console prints subtotal 698, total 628.2, and a two-decimal label."
+                    "label": "Create a product with a nested details object."
+                  },
+                  {
+                    "lines": "2-3",
+                    "label": "The alias shares the product; stock mutation changes that object."
+                  },
+                  {
+                    "lines": "4",
+                    "label": "Spread creates a different outer object with shared nested details."
+                  },
+                  {
+                    "lines": "5",
+                    "label": "Changing nested details is visible through the original item."
+                  },
+                  {
+                    "lines": "6",
+                    "label": "Observe true, false, 2 and sale for identity and properties."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "values-example-3",
+              "type": "code",
+              "title": "Complete validated calculator",
+              "code": {
+                "language": "javascript",
+                "filename": "academy-labs/06-javascript/values.js",
+                "source": "// Teaching model: integer centimes, one item, percentage discount in basis points.\n// Run from the repository root: node academy-labs/06-javascript/values.js\nfunction parseQuantity(raw) {\n  if (typeof raw !== 'string' || !/^[0-9]+$/.test(raw.trim())) {\n    throw new TypeError('Quantity must contain decimal digits');\n  }\n  const quantity = Number(raw.trim());\n  if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99) {\n    throw new RangeError('Quantity must be from 1 to 99');\n  }\n  return quantity;\n}\n\nfunction calculateCart(unitPriceCents, quantity, discountBps) {\n  if (!Number.isSafeInteger(unitPriceCents) || unitPriceCents < 0 ||\n      !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99 ||\n      !Number.isSafeInteger(discountBps) || discountBps < 0 || discountBps > 10000) {\n    throw new RangeError('Invalid cart input');\n  }\n  const subtotalCents = unitPriceCents * quantity;\n  const discountNumerator = subtotalCents * discountBps;\n  if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(discountNumerator)) {\n    throw new RangeError('Calculation exceeds safe integer precision');\n  }\n  const discountCents = Math.round(discountNumerator / 10000);\n  const totalCents = subtotalCents - discountCents;\n  return { subtotalCents, discountCents, totalCents };\n}\n\nfunction formatMAD(cents) {\n  if (!Number.isSafeInteger(cents) || cents < 0) {\n    throw new RangeError('Amount must be nonnegative integer centimes');\n  }\n  const whole = Math.floor(cents / 100);\n  const fraction = String(cents % 100).padStart(2, '0');\n  return `${whole}.${fraction} MAD`;\n}\n\nconst quantity = parseQuantity('2');\nconst cart = calculateCart(34900, quantity, 1000);\nconsole.log({ ...cart, label: formatMAD(cart.totalCents) });",
+                "annotations": [
+                  {
+                    "lines": "1-2",
+                    "label": "These comments name the teaching model and exact command; they are not executed."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "Reject non-string or malformed text before calling string methods; short-circuiting protects the boundary."
+                  },
+                  {
+                    "lines": "7-13",
+                    "label": "Convert only accepted digit text; require a safe integer quantity between 1 and 99, then return it."
+                  },
+                  {
+                    "lines": "14-19",
+                    "label": "Declare a numeric calculator and reject invalid price, quantity and basis-point inputs without coercing strings."
+                  },
+                  {
+                    "lines": "20-24",
+                    "label": "Compute integer intermediate results and reject precision overflow before calculating a discount."
+                  },
+                  {
+                    "lines": "25-29",
+                    "label": "Round the nonnegative discount once, subtract it, and return a fresh result object."
+                  },
+                  {
+                    "lines": "30-33",
+                    "label": "The display function rejects amounts that are not nonnegative safe integer centimes."
+                  },
+                  {
+                    "lines": "34-38",
+                    "label": "Separate whole dirhams and remaining centimes, pad the fraction, and return text."
+                  },
+                  {
+                    "lines": "39-41",
+                    "label": "Parse the example input, calculate 69800 minus 6980 centimes, and print total 62820 with label 628.20 MAD."
                   }
                 ]
               }
@@ -162,42 +318,56 @@
               "id": "lecomax",
               "type": "callout",
               "tone": "important",
-              "title": "Application to L’ecomax",
-              "text": "L’ecomax keeps price and quantity numeric; “MAD” is added only in the display component."
+              "title": "L’ecomax",
+              "text": "Teaching model only: this file does not implement L’ecomax checkout. A real checkout must validate authoritative prices, discounts and stock on the server."
             }
           ]
         }
       ],
       "commands": [
-        "node academy-labs/06-javascript/values.js"
+        "node academy-labs/06-javascript/values.js",
+        "node --test lecomax-learning-app/tests/javascript-values.test.cjs"
       ],
-      "expectedResult": "Evidence of success: the console prints subtotal 698, total 628.2, and a two-decimal label.",
+      "expectedResult": "subtotalCents: 69800; discountCents: 6980; totalCents: 62820; label: 628.20 MAD.",
       "commonErrors": [
         {
-          "symptom": "The total becomes 3492.",
-          "cause": "The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation.",
-          "fix": "Explicitly convert text input with Number and validate it."
+          "symptom": "The total is the text 3492.",
+          "cause": "At least one operand of plus is text.",
+          "fix": "Log both values and typeof to diagnose; then normalize and validate at the input boundary before recalculating."
         },
         {
-          "symptom": "The total is NaN.",
-          "cause": "The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation.",
-          "fix": "Log each operand with typeof and Number.isFinite before calculating."
+          "symptom": "A blank quantity becomes zero.",
+          "cause": "Number converts empty or whitespace-only strings to zero.",
+          "fix": "Check the allowed text format before conversion and require quantity 1–99."
+        },
+        {
+          "symptom": "The displayed price breaks a later addition.",
+          "cause": "toFixed returned a string used in arithmetic.",
+          "fix": "Keep totalCents numeric and create labels only for display."
+        },
+        {
+          "symptom": "Changing a copied product changes its original details.",
+          "cause": "Spread copied the nested object reference.",
+          "fix": "Copy the specific nested object you intend to change; inspect identity with ===."
         }
       ],
       "exercise": {
-        "task": "Write a cart calculation validating numbers and returning subtotal, discount, and total without mutation.",
+        "task": "Build and test this one-item calculator. Keep numeric results separate from labels and reject invalid inputs.",
         "steps": [
-          "Open academy-labs/06-javascript/values.js and predict the example output.",
-          "Reproduce the example in the exercise file without copying the solution.",
-          "Run the listed command, compare the expected result, and explain any difference."
+          "Predict and run the three small examples in separate temporary .js files. Explain every output.",
+          "Implement parseQuantity: accept surrounding whitespace and leading zeros, reject blank/decimal/exponent text, and require 1–99.",
+          "Implement calculateCart using centimes and basis points; guard both intermediate products.",
+          "Implement the formatter and reproduce subtotal 69800, discount 6980, total 62820 and label 628.20 MAD.",
+          "Test zero/full discount, half-centime rounding, unsafe products and frozen input. Run the chapter tests from the repository root."
         ],
         "hints": [
-          "Start with inputs, then follow one transformation at a time.",
-          "Use the first error message and indicated line as diagnostic evidence."
+          "Validate the text shape before Number: blank text otherwise becomes zero.",
+          "One percent is 100 basis points; divide the discount numerator by 10000.",
+          "Inspect intermediate values and their units before changing the final formula."
         ],
         "solution": {
-          "explanation": "Name units, default to const, add parentheses for intent, and format only at the display boundary so calculations remain numeric.",
-          "code": "const unitPrice = 349;\nconst quantity = 2;\nconst discountRate = 0.1;\n\nconst subtotal = unitPrice * quantity;\nconst total = subtotal * (1 - discountRate);\nconst label = `Total: ${total.toFixed(2)} MAD`;\nconsole.log({ subtotal, total, label });",
+          "explanation": "Step 1: quantity becomes 3, blank text becomes zero, and formatted text concatenates. The reference example proves shallow copying. Step 2: the anchored digit rule rejects unsupported formats; the safe-integer and range guards enforce the quantity contract. Step 3: validate numeric parameters and both products so even individually safe inputs cannot silently lose integer precision. Step 4: round the discount once, subtract it, and format only at the end. Step 5: zero discount preserves subtotal; full discount gives zero; a one-centime subtotal with 5000 basis points rounds its discount to one centime. A frozen input remains unchanged because the calculator receives primitive properties and returns a new object. The executable tests include these cases and deliberately unsafe products.",
+          "code": "// Teaching model: integer centimes, one item, percentage discount in basis points.\n// Run from the repository root: node academy-labs/06-javascript/values.js\nfunction parseQuantity(raw) {\n  if (typeof raw !== 'string' || !/^[0-9]+$/.test(raw.trim())) {\n    throw new TypeError('Quantity must contain decimal digits');\n  }\n  const quantity = Number(raw.trim());\n  if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99) {\n    throw new RangeError('Quantity must be from 1 to 99');\n  }\n  return quantity;\n}\n\nfunction calculateCart(unitPriceCents, quantity, discountBps) {\n  if (!Number.isSafeInteger(unitPriceCents) || unitPriceCents < 0 ||\n      !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 99 ||\n      !Number.isSafeInteger(discountBps) || discountBps < 0 || discountBps > 10000) {\n    throw new RangeError('Invalid cart input');\n  }\n  const subtotalCents = unitPriceCents * quantity;\n  const discountNumerator = subtotalCents * discountBps;\n  if (!Number.isSafeInteger(subtotalCents) || !Number.isSafeInteger(discountNumerator)) {\n    throw new RangeError('Calculation exceeds safe integer precision');\n  }\n  const discountCents = Math.round(discountNumerator / 10000);\n  const totalCents = subtotalCents - discountCents;\n  return { subtotalCents, discountCents, totalCents };\n}\n\nfunction formatMAD(cents) {\n  if (!Number.isSafeInteger(cents) || cents < 0) {\n    throw new RangeError('Amount must be nonnegative integer centimes');\n  }\n  const whole = Math.floor(cents / 100);\n  const fraction = String(cents % 100).padStart(2, '0');\n  return `${whole}.${fraction} MAD`;\n}\n\nconst quantity = parseQuantity('2');\nconst cart = calculateCart(34900, quantity, 1000);\nconsole.log({ ...cart, label: formatMAD(cart.totalCents) });",
           "filename": "academy-labs/06-javascript/values.js",
           "language": "javascript"
         }
@@ -205,66 +375,65 @@
       "quiz": [
         {
           "id": "lesson-06-01-values-q1",
-          "question": "Why keep price as a number?",
+          "question": "What does (628.2).toFixed(2) + 1 produce?",
           "options": [
-            "To calculate before formatting",
-            "To avoid const",
-            "To replace CSS",
-            "To create DNS"
+            "629.20",
+            "628.201",
+            "628.2",
+            "A TypeError"
           ],
-          "correctIndex": 0,
-          "explanation": "Currency symbols belong to presentation; domain logic calculates numbers.",
+          "correctIndex": 1,
+          "explanation": "toFixed returns text, so plus appends the digit 1.",
           "answerExplanations": [
-            "This option is correct. It says « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers.",
-            "This option is incorrect. It says « To avoid const ». The reference answer is « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers.",
-            "This option is incorrect. It says « To replace CSS ». The reference answer is « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers.",
-            "This option is incorrect. It says « To create DNS ». The reference answer is « To calculate before formatting ». Currency symbols belong to presentation; domain logic calculates numbers."
+            "629.20 — This would require numeric addition before formatting. → 628.201: toFixed returns text, so plus appends the digit 1.",
+            "628.201 — toFixed returns text, so plus appends the digit 1.",
+            "628.2 — Formatting keeps two decimals and plus appends another character. → 628.201: toFixed returns text, so plus appends the digit 1.",
+            "A TypeError — Both operations are valid; the surprise is the string result. → 628.201: toFixed returns text, so plus appends the digit 1."
           ]
         },
         {
           "id": "lesson-06-01-values-q2",
-          "question": "Which definition matches the term “primitive”?",
+          "question": "The blank quantity must be rejected. Which policy implements the stated contract?",
           "options": [
-            "Implicit conversion from one type to another.",
-            "Simple value such as number, string, or boolean.",
-            "Code evaluated into a value.",
-            "This term has no precise technical definition."
+            "Convert with Number only",
+            "Use parseInt only",
+            "Check decimal digits, then safe integer and range",
+            "Replace every invalid value with zero"
           ],
-          "correctIndex": 1,
-          "explanation": "“primitive” means: Simple value such as number, string, or boolean.",
+          "correctIndex": 2,
+          "explanation": "Both the accepted textual form and the business bounds are checked.",
           "answerExplanations": [
-            "This option is incorrect. It says « Implicit conversion from one type to another. ». The reference answer is « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean.",
-            "This option is correct. It says « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean.",
-            "This option is incorrect. It says « Code evaluated into a value. ». The reference answer is « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean.",
-            "This option is incorrect. It says « This term has no precise technical definition. ». The reference answer is « Simple value such as number, string, or boolean. ». “primitive” means: Simple value such as number, string, or boolean."
+            "Convert with Number only — Number accepts blank text as zero. → Check decimal digits, then safe integer and range: Both the accepted textual form and the business bounds are checked.",
+            "Use parseInt only — parseInt can accept a numeric prefix followed by letters. → Check decimal digits, then safe integer and range: Both the accepted textual form and the business bounds are checked.",
+            "Check decimal digits, then safe integer and range — Both the accepted textual form and the business bounds are checked.",
+            "Replace every invalid value with zero — Zero is not an allowed quantity and conceals the input error. → Check decimal digits, then safe integer and range: Both the accepted textual form and the business bounds are checked."
           ]
         },
         {
           "id": "lesson-06-01-values-q3",
-          "question": "What is the best first fix when you observe: “The total becomes 3492.”?",
+          "question": "You confirmed that price is text and quantity is numeric. Which action corrects that input boundary?",
           "options": [
-            "Repeat the same action without reading the first error message.",
-            "Log each operand with typeof and Number.isFinite before calculating.",
-            "Explicitly convert text input with Number and validate it.",
-            "Hide the error in the interface and treat the problem as solved."
+            "Only log typeof again",
+            "Convert and validate the incoming price before calculation",
+            "Format the concatenated text",
+            "Change const to let everywhere"
           ],
-          "correctIndex": 2,
-          "explanation": "Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
+          "correctIndex": 1,
+          "explanation": "Normalization and validation correct the confirmed type problem.",
           "answerExplanations": [
-            "This option is incorrect. It says « Repeat the same action without reading the first error message. ». The reference answer is « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
-            "This option is incorrect. It says « Log each operand with typeof and Number.isFinite before calculating. ». The reference answer is « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
-            "This option is correct. It says « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it.",
-            "This option is incorrect. It says « Hide the error in the interface and treat the problem as solved. ». The reference answer is « Explicitly convert text input with Number and validate it. ». Diagnosis starts with this cause: The symptom contradicts the expected mechanism: Operators follow precedence and coercion; + adds numbers but concatenates once a string participates. Number.isFinite and typeof make assumptions visible before financial calculation. The appropriate fix is: Explicitly convert text input with Number and validate it."
+            "Only log typeof again — Logging was useful diagnosis, but does not change the input. → Convert and validate the incoming price before calculation: Normalization and validation correct the confirmed type problem.",
+            "Convert and validate the incoming price before calculation — Normalization and validation correct the confirmed type problem.",
+            "Format the concatenated text — Formatting does not repair the operands that caused concatenation. → Convert and validate the incoming price before calculation: Normalization and validation correct the confirmed type problem.",
+            "Change const to let everywhere — Reassignment rules do not change string addition behavior. → Convert and validate the incoming price before calculation: Normalization and validation correct the confirmed type problem."
           ]
         }
       ],
       "recap": [
-        "Core idea: A variable binds a name to a value; the type belongs to the value and determines meaningful operations. const protects the binding from reassignment, while calculation produces new values without changing inputs.",
-        "primitive: Simple value such as number, string, or boolean.",
-        "coercion: Implicit conversion from one type to another.",
-        "expression: Code evaluated into a value."
+        "Types belong to values; const protects a binding, not nested objects.",
+        "Normalize input explicitly and validate shape, range and intermediate precision.",
+        "Keep centimes numeric; format only for display, and test the rounding policy."
       ],
-      "next": "The next lesson controls execution flow with conditions and loops."
+      "next": "Continue with lesson-06-02-control-flow for explicit branch order, loop traces and boundary tests."
     },
     {
       "id": "lesson-06-02-control-flow",

@@ -17,3 +17,59 @@
 @media (prefers-reduced-motion: reduce) {
   .typingDot { animation: none; opacity: 0.65; }
 }
+
+@media (max-width: 767px) {
+  .launcher { width: 64px; height: 64px; padding: 6px; justify-content: center; gap: 0; box-shadow: 0 6px 22px rgb(24 60 48 / 18%); }
+  .launcher :global(.eco-chat-launcher-icon) { width: 50px; height: 50px; }
+  .launcher :global(.eco-chat-launcher-icon) svg { width: 27px; height: 27px; }
+  .launcherLabel {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    right: calc(100% + 12px);
+    top: 50%;
+    width: max-content;
+    max-width: calc(100vw - 112px);
+    min-height: 46px;
+    padding: 12px 16px;
+    border: 1px solid #dde7d8;
+    border-radius: 15px;
+    background: #fff;
+    color: #203d2b;
+    box-shadow: 0 5px 22px rgb(24 60 48 / 12%);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-50%);
+    transform-origin: right center;
+    animation: helpInvitation 30s ease-in-out 30s infinite both;
+  }
+  .launcherLabel::after {
+    content: "";
+    position: absolute;
+    right: -5px;
+    top: calc(50% - 5px);
+    width: 9px;
+    height: 9px;
+    border-top: 1px solid #dde7d8;
+    border-right: 1px solid #dde7d8;
+    background: #fff;
+    transform: rotate(45deg);
+  }
+  .launcher > span:last-child:not(.launcherLabel):not(:first-child) { position: absolute; top: -4px; right: -4px; }
+}
+
+/* First invitation after 30 seconds; visible for about six seconds per cycle. */
+@keyframes helpInvitation {
+  0%, 20%, 100% { opacity: 0; visibility: hidden; transform: translateY(-50%) translateX(8px) scale(.96); }
+  2%, 17% { opacity: 1; visibility: visible; transform: translateY(-50%) translateX(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .launcherLabel { animation-name: helpInvitationStill; animation-timing-function: step-end; }
+}
+@keyframes helpInvitationStill {
+  0%, 20%, 100% { opacity: 0; visibility: hidden; }
+  1%, 19% { opacity: 1; visibility: visible; }
+}

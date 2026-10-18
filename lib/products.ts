@@ -563,7 +563,8 @@ export function apiToCard(p: {
   };
 }
 
-/** Restored Lenovo catalogue items must not be promoted as new arrivals. */
+/** Catalogue items excluded from the curated new-arrivals selection. */
 export function isNewArrivalEligible(product: { slug: string; name: string; brand?: string | null }): boolean {
-  return !/\blenovo\b/i.test(`${product.brand ?? ""} ${product.slug} ${product.name}`);
+  const identity = `${product.brand ?? ""} ${product.slug} ${product.name}`;
+  return !/\blenovo\b|\bstronger[\s-]+with[\s-]+you\b/i.test(identity);
 }

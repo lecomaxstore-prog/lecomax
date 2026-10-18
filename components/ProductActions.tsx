@@ -5,6 +5,7 @@ import { preorderCopy } from "@/lib/preorder-copy";
 import { selectedInventory, preorderSnapshot } from "@/lib/preorder";
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { cartStockLimit } from "@/lib/cart-stock-limit";
 import { useCart } from "./CartContext";
 import { useProductColor } from "./ProductColorContext";
 import SizeGuideModal from "./SizeGuideModal";
@@ -162,6 +163,7 @@ function showCartToast() {
   toast.id = "__cart_toast__";
   toast.setAttribute("role", "status");
   toast.setAttribute("aria-live", "polite");
+  toast.setAttribute("aria-atomic", "true");
   const isMobileToast = window.innerWidth < 768;
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const toastBottom = isMobileToast ? "calc(66px + env(safe-area-inset-bottom, 0px) + 10px)" : "28px";
@@ -174,27 +176,30 @@ function showCartToast() {
     reducedMotion ? "transition:none" : "transition:transform 0.4s cubic-bezier(0.22,1,0.36,1),opacity 0.4s ease",
     "z-index:99998",
     "pointer-events:none",
-    "background:#111",
-    "color:#fff",
-    "border-radius:14px",
-    "padding:14px 18px",
+    "background:#fff",
+    "color:#203d2b",
+    "border-radius:18px",
+    "border:1px solid #dce7d7",
+    "width:360px",
+    "padding:16px 18px",
     "max-width:calc(100vw - 32px)",
     "display:flex",
     "align-items:center",
-    "gap:9px",
+    "gap:12px",
     "font-size:13px",
     "font-weight:700",
-    "letter-spacing:0.01em",
-    "box-shadow:0 8px 32px rgba(0,0,0,0.22)",
+    "letter-spacing:-0.01em",
+    "line-height:1.45",
+    "box-shadow:0 8px 32px rgba(24,60,48,0.14)",
     "box-sizing:border-box",
     "font-family:inherit",
   ].join(";");
   toast.innerHTML =
-    '<span style="display:flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#3ecf4c;flex-shrink:0">' +
-    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
-    "</span>" +
-    '<span><strong style="display:block;font-size:14px">Merci pour votre confiance !</strong>' +
-    '<span style="display:block;margin-top:3px;font-size:12px;font-weight:400;color:#d4d4d4">Votre article a été ajouté au panier.</span></span>';
+    '<span aria-hidden="true" style="display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#eaf4e5;color:#2f633d;flex-shrink:0">' +
+    '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+    '</span><span style="min-width:0">' +
+    '<strong style="display:block;font-size:15px;font-weight:600">Article ajout&eacute; au panier</strong>' +
+    '<span style="display:block;margin-top:4px;font-size:12px;font-weight:400;color:#5c7062">Retrouvez-le dans votre panier.</span></span>';
   document.body.appendChild(toast);
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
@@ -305,7 +310,7 @@ export default function ProductActions({
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const sizeGuideIntentRef = React.useRef(false);
-  const { add } = useCart();
+  const { add, items } = useCart();
   const { slugs: wishlistSlugs, pending: wishlistPending, toggle: toggleWishlist } = useWishlist();
   const wished = wishlistSlugs.has(product.slug);
   const router = useRouter();
@@ -367,6 +372,12 @@ export default function ProductActions({
     }
     if (selectedStock < 0 || (!product.preorder_enabled && selectedStock < 1)) {
       setError(preorderCopy.fr.unavailable);
+      return;
+    }
+    const inCart = items.find(item => item.slug === product.slug && item.size === (size ?? "") && item.color === color)?.quantity ?? 0;
+    const limit = cartStockLimit(selectedStock, product.preorder_enabled);
+    if (inCart >= limit) {
+      setError(`Quantité maximale atteinte : ${limit} article${limit > 1 ? "s" : ""}. Vous avez déjà cette quantité dans votre panier.`);
       return;
     }
     setError(null);

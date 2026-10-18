@@ -94,23 +94,13 @@ async function getHeroBanners(): Promise<HeroBannerRecord[]> {
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/banners?active=eq.true&select=*&order=sort_order.asc,created_at.asc`,
-      { headers: supabaseServiceHeaders(), next: { revalidate: 300, tags: ["storefront-banners"] } }
+      { headers: supabaseServiceHeaders(), signal: AbortSignal.timeout(1800), next: { revalidate: 300, tags: ["storefront-banners"] } }
     );
     return response.ok ? await response.json() : [];
   } catch { return []; }
 }
 
-export default async function HomePage() {
-  // Read the same live catalogue used by the app.
-  const [dbProducts, heroImages, heroBanners, reviewStats, promotionProducts] = await Promise.all([
-    getDbProducts({ activeOnly: true, throwOnError: true }),
-    getHeroImages(),
-    getHeroBanners(),
-    getReviewStats(),
-    getDbProducts({ activeOnly: true, promotionOnly: true, throwOnError: true }),
-  ]);
-  const shippingConfig = shippingConfigFromSettings(heroImages);
-
+async function getLatestPost() {
   // The homepage promotes the latest official photo post, never a text-only
   // guide or a video. Text content remains available in the Ecomedia feed.
   let latestPost: { id: string; title: string; content?: string; slug: string; media_url?: string; thumbnail_url?: string; likes_count: number; comments_count: number } | null = null;
@@ -129,15 +119,31 @@ export default async function HomePage() {
       {
         headers: supabaseServiceHeaders(),
         next: { revalidate: 300, tags: ["storefront-ecomedia"] },
+        signal: AbortSignal.timeout(1800),
       }
     );
     if (res.ok) { const rows = await res.json(); latestPost = rows[0] ?? null; }
   } catch { /* silent */ }
 
-  // An empty live catalogue must never resurrect removed bundled products.
-  const sourceProducts = dbProducts;
-  const categoryCounts = categoryProductCounts(sourceProducts);
+  return latestPost;
+}
+
+export default async function HomePage() {
+  // Read the same live catalogue used by the app.
+  const [dbProducts, heroImages, heroBanners, reviewStats, promotionProducts, latestPost] = await Promise.all([
+    getDbProducts({ activeOnly: true }),
+    getHeroImages(),
+    getHeroBanners(),
+    getReviewStats(),
+    getDbProducts({ activeOnly: true, promotionOnly: true }),
+    getLatestPost(),
+  ]);
+  const shippingConfig = shippingConfigFromSettings(heroImages);
   const maximumDiscount = maximumProductDiscount(promotionProducts);
+  const categoryCounts = categoryProductCounts(dbProducts);
+
+  // A successful empty catalogue must not resurrect unpublished static products.
+  const sourceProducts = dbProducts;
   const allProducts: CardProduct[] = sourceProducts.map((p) => ({
     ...p,
     rating: reviewStats[p.slug]?.rating,

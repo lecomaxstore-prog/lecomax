@@ -5,6 +5,7 @@ import { BRAND_COPY } from "@/mobile/src/lib/brand-copy";
 import { useState } from "react";
 import Link from "next/link";
 import Logo from "./Logo";
+import styles from "./Footer.module.css";
 import { useSettings } from "@/lib/use-settings";
 import { storeSettings } from "@/lib/store-settings";
 
@@ -105,7 +106,9 @@ export default function Footer() {
 
   const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: siteSettings[s.key] || s.defaultHref }));
   const whatsappNumber = siteSettings.whatsapp_number;
-  const whatsappUrl = `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, "")}`;
+  const contactPhone = whatsappNumber?.replace(/[^0-9]/g, "") || "212699289568";
+  const displayPhone = /^212\d{9}$/.test(contactPhone) ? `+212 ${contactPhone.slice(3, 6)} ${contactPhone.slice(6, 9)} ${contactPhone.slice(9)}` : `+${contactPhone}`;
+  const whatsappUrl = `https://wa.me/${contactPhone}`;
   const shippingCost = siteSettings.shipping_cost;
   const freeShippingThreshold = siteSettings.free_shipping_enabled === "false" ? "0" : siteSettings.free_shipping_threshold;
 
@@ -137,7 +140,7 @@ export default function Footer() {
       <div className="h-[3px] bg-gradient-to-r from-[#3ecf4c] via-[#6bdd6b] to-[#3ecf4c]" />
 
       {/* Trust bar */}
-      <div className="border-b border-white/10">
+      <div className={`${styles.trust} border-b border-white/10`}>
         <div className="max-w-7xl mx-auto px-6 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x divide-white/10">
           {trustBadges.map((b) => (
             <div key={b.sub} className="flex items-center gap-3 md:px-6 first:pl-0 last:pr-0">
@@ -161,14 +164,15 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-14">
+      <div className={`${styles.main} max-w-7xl mx-auto px-6 py-14`}>
         {/* Brand + contact + newsletter */}
-        <div className="grid md:grid-cols-3 gap-12 pb-12 border-b border-white/10">
+        <div className={`${styles.intro} grid md:grid-cols-3 gap-12 pb-12 border-b border-white/10`}>
           {/* Brand */}
-          <div>
+          <div className={styles.brand}>
             <Logo variant="light" />
             <p className="text-white/50 text-[13px] mt-4 leading-relaxed">
-              Votre marketplace lifestyle — des trouvailles et des essentiels pour tous les univers du quotidien. Livraison partout au Maroc.
+              <span className="md:hidden">Des trouvailles pour votre quotidien.<br />Partout au Maroc.</span>
+              <span className="hidden md:inline">Votre marketplace lifestyle — des trouvailles et des essentiels pour tous les univers du quotidien. Livraison partout au Maroc.</span>
             </p>
             <div className="flex items-center gap-2 mt-6">
               {socials.map((s) => (
@@ -187,21 +191,21 @@ export default function Footer() {
           </div>
 
           {/* Contact */}
-          <div>
+          <div className={styles.contact}>
             <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-5">Contact</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
                 <div>
                   <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">WhatsApp</p>
-                  <a href={whatsappUrl} className="text-[13px] text-white/80 hover:text-white transition-colors">{whatsappNumber ? `+${whatsappNumber.replace(/[^0-9]/g, "")}` : "+212 699 289 568"}</a>
+                  <a aria-label={`Nous contacter sur WhatsApp : ${displayPhone}`} href={whatsappUrl} className={styles.contactLink}>{displayPhone}</a>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <svg className="mt-0.5 shrink-0" style={{color:'#3ecf4c'}} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                 <div>
                   <p className="text-[11px] text-white/40 uppercase tracking-wide mb-0.5">Email</p>
-                  <a href={`mailto:${siteSettings.store_email || "contact@lecomax.com"}`} className="text-[13px] text-white/80 hover:text-white transition-colors">{siteSettings.store_email || "contact@lecomax.com"}</a>
+                  <a href={`mailto:${siteSettings.store_email || "contact@lecomax.com"}`} className={styles.contactLink}>{siteSettings.store_email || "contact@lecomax.com"}</a>
                 </div>
               </li>
               {(siteSettings.store_city || siteSettings.store_address) && (
@@ -217,13 +221,15 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          {siteSettings.enable_newsletter !== "false" && <div>
-            <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-5">Newsletter</h3>
+          {siteSettings.enable_newsletter !== "false" && <div className={styles.newsletter}>
+            <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-5"><span className="md:hidden">Les bonnes trouvailles, en avant-première.</span><span className="hidden md:inline">Newsletter</span></h3>
             <p className="text-white/55 text-[13px] mb-5 leading-relaxed">
               Nouveautés, offres exclusives et invitations en avant-première.
             </p>
-            <form className="flex flex-col gap-2" onSubmit={handleNewsletter}>
+            <form className="flex flex-col gap-2" onSubmit={handleNewsletter} aria-busy={newsletterStatus === "loading"}>
               <input
+                aria-label="Adresse email pour la newsletter"
+                autoComplete="email"
                 type="email"
                 required
                 value={email}
@@ -233,7 +239,7 @@ export default function Footer() {
                 className="w-full bg-white/5 border border-white/15 px-4 py-3 text-[13px] text-white placeholder-white/25 focus:outline-none focus:border-white/40 transition-colors disabled:opacity-50"
               />
               {newsletterStatus === "success" || newsletterStatus === "already" ? (
-                <p className="text-[12px] text-[#3ecf4c] font-bold py-2">
+                <p role="status" className="text-[12px] text-[#3ecf4c] font-bold py-2">
                   {newsletterStatus === "already" ? "✓ Vous êtes déjà inscrit(e) !" : "✓ Vous êtes inscrit(e) !"}
                 </p>
               ) : (
@@ -246,15 +252,25 @@ export default function Footer() {
                 </button>
               )}
               {newsletterStatus === "error" && (
-                <p className="text-[11px] text-red-400">Erreur. Réessayez.</p>
+                <p role="alert" className="text-[11px] text-red-400">Erreur. Réessayez.</p>
               )}
             </form>
             <p className="text-[10px] text-white/25 mt-2">Pas de spam. Désinscription en 1 clic.</p>
           </div>}
         </div>
 
+<nav className={styles.mobileNav} aria-label="Navigation de pied de page">
+          {cols.map((column) => (
+            <details key={column.title}>
+              <summary>{column.title}<span aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></span></summary>
+              <ul>{column.links.filter(link => link.href !== "/ecoclub/" || siteSettings.enable_ecoclub !== "false").map(link => (
+                <li key={link.href}><Link href={link.href}>{link.label}</Link></li>
+              ))}</ul>
+            </details>
+          ))}
+        </nav>
         {/* Nav columns */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 py-12 border-b border-white/10">
+        <div className="hidden md:grid md:grid-cols-5 gap-8 py-12 border-b border-white/10">
           {cols.map((c) => (
             <div key={c.title}>
               <h4 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-4">
@@ -278,8 +294,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 text-[11px] text-white/35">
-          <div>© {new Date().getFullYear()} {siteSettings.store_name || "L'ecomax"}. Tous droits réservés. — Fait avec ♥ au Maroc</div>
+        <div className={`${styles.bottom} flex flex-col md:flex-row justify-between items-center gap-4 pt-8 text-[11px] text-white/35`}>
+          <div className={styles.copyright}>
+            <span className={styles.copyrightBrand}>&copy; {new Date().getFullYear()} {siteSettings.store_name || "L'ecomax"}.</span>{" "}
+            <span className={styles.copyrightRights}>Tous droits réservés.</span>{" "}
+            <span className={styles.madeInMorocco}>Fait avec <span aria-label="amour">&hearts;</span> au Maroc</span>
+          </div>
 
           <div className="flex flex-wrap justify-center gap-5">
             <Link href="/conditions-utilisation/" className="hover:text-white/60 transition-colors">Conditions</Link>

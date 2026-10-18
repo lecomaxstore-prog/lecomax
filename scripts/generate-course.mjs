@@ -1,5 +1,6 @@
 import { access, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { authoredLesson, authoredSearch } from "./course-authored.mjs";
 import { fileURLToPath } from "node:url";
 import { modules as partA } from "./course-blueprints/part-a.mjs";
 import { modules as partB } from "./course-blueprints/part-b.mjs";
@@ -364,6 +365,7 @@ function loaderSource() {
 async function main() {
   validateBlueprint();
   const resolvedFiles = new Map();
+  const authored = new Map();
   for (const module of modules) {
     resolvedFiles.set(module.id, await resolveModuleFiles(module));
   }
@@ -379,7 +381,12 @@ async function main() {
         title: module.locales[lang].title,
         summary: module.locales[lang].summary,
         files: resolvedFiles.get(module.id),
-        lessons: module.lessons.map((lesson, lessonIndex) => createLesson(lesson, lang, lessonIndex)),
+        lessons: await Promise.all(module.lessons.map(async (lesson, lessonIndex) => {
+          const fallback = createLesson(lesson, lang, lessonIndex);
+          const revised = await authoredLesson(courseRoot, lang, fallback);
+          if (revised !== fallback) authored.set(lang + ":" + lesson.id, revised);
+          return revised;
+        })),
       };
       await writeFile(path.join(dir, module.id + ".json"), JSON.stringify(localized, null, 2) + "\n", "utf8");
     }
@@ -407,8 +414,11 @@ async function main() {
         id: module.id,
         title: module.locales[lang].title,
         summary: module.locales[lang].summary,
-        lessonTitles: module.lessons.map(lesson => lesson.locales[lang].title),
-        lessonSearchText: module.lessons.map(lesson => searchableText(module, lesson, lang)),
+        lessonTitles: module.lessons.map(lesson => authored.get(lang + ":" + lesson.id)?.title ?? lesson.locales[lang].title),
+        lessonSearchText: module.lessons.map(lesson => {
+          const revised = authored.get(lang + ":" + lesson.id);
+          return revised ? authoredSearch(module.locales[lang], revised, lang) : searchableText(module, lesson, lang);
+        }),
       })),
     };
     await writeFile(path.join(courseRoot, "content", "index", lang + ".json"), JSON.stringify(index, null, 2) + "\n", "utf8");

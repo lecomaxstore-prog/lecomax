@@ -1,13 +1,18 @@
-import 'server-only';
-import {NextRequest,NextResponse} from 'next/server';
-export const mobileJson=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store'}});
-export async function mobileOwner(req:NextRequest){
- const bearer=req.headers.get('authorization');
- if(!bearer?.startsWith('Bearer ')||bearer.length>12000)return null;
- const url=process.env.NEXT_PUBLIC_SUPABASE_URL;const key=process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;const owner=process.env.ADMIN_EMAIL?.trim().toLowerCase();
- if(!url||!key||!owner)return null;
- const response=await fetch(`${url}/auth/v1/user`,{headers:{Authorization:bearer,apikey:key},cache:'no-store',signal:AbortSignal.timeout(8000)}).catch(()=>null);
- if(!response?.ok)return null;
- const user=await response.json().catch(()=>null);
- return user?.email_confirmed_at&&typeof user.email==='string'&&user.email.toLowerCase()===owner?user.email as string:null;
+import "server-only";
+import { AuthError } from "./owner-auth-core";
+import { NextRequest, NextResponse } from "next/server";
+import { ownerAuth, bearer } from "./owner-auth-server";
+export const mobileJson = (body: unknown, status = 200) =>
+  NextResponse.json(body, {
+    status,
+    headers: { "Cache-Control": "private, no-store" },
+  });
+export async function mobileOwner(req: NextRequest) {
+  try {
+    await ownerAuth().authenticate(bearer(req));
+    return process.env.OWNER_EMAIL!.trim().toLowerCase();
+  } catch (error) {
+    if (error instanceof AuthError && error.status === 401) return null;
+    throw error;
+  }
 }

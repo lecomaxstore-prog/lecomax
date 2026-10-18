@@ -1,8 +1,9 @@
 "use client";
 import ProductCard from "./CollectionProductCard";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import { whenNearViewport } from "@/lib/when-near-viewport";
 import Image from "next/image";
 import type { CardProduct } from "@/lib/products";
 import { personalizeProducts, recordCategorySignal } from "@/lib/personalization";
@@ -28,34 +29,18 @@ const MOBILE_INITIAL_PRODUCT_COUNT = 8;
 const DESKTOP_INITIAL_PRODUCT_COUNT = 16;
 const PRODUCT_LOAD_STEP = 8;
 
-function useInView(threshold = 0.08) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return { ref, visible };
-}
-
-
 export default function OurProductsGrid({ products }: { products: CardProduct[] }) {
+  const sectionRef = useRef<HTMLElement>(null);
   const [active, setActive] = useState("tous");
   const [mobileDisplayed, setMobileDisplayed] = useState(MOBILE_INITIAL_PRODUCT_COUNT);
   const [desktopDisplayed, setDesktopDisplayed] = useState(DESKTOP_INITIAL_PRODUCT_COUNT);
   const [rankedProducts, setRankedProducts] = useState(products);
-  const { ref, visible } = useInView();
 
   useEffect(() => {
     setRankedProducts(personalizeProducts(products));
     const controller = new AbortController();
-    const timer = window.setTimeout(async () => {
+    const stopWaiting = whenNearViewport(sectionRef.current, () => {
+      void (async () => {
       try {
         let sessionId = "";
         const consentRaw = localStorage.getItem("lecomax_cookie_consent");
@@ -66,7 +51,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
         const params = new URLSearchParams({ limit: String(Math.min(80, Math.max(4, products.length))) });
         if (sessionId) params.set("mode", "personalized");
         const response = await fetch(`/api/recommendations?${params}`, {
-          signal: controller.signal,
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(5000)]),
           headers: {
             Accept: "application/json",
             ...(sessionId ? { "x-lecomax-session": sessionId } : {}),
@@ -89,9 +74,10 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
       } catch {
         // Keep the instant local/catalogue order when intelligence is unavailable.
       }
-    }, 250);
+      })();
+    });
     return () => {
-      window.clearTimeout(timer);
+      stopWaiting();
       controller.abort();
     };
   }, [products]);
@@ -160,17 +146,12 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
   };
 
   return (
-    <section data-source-file="components/OurProductsGrid.tsx" id="nos-produits" className="border-y border-neutral-100 bg-neutral-50/60 pb-10 pt-7 sm:py-10 md:py-12" ref={ref}>
+    <section data-source-file="components/OurProductsGrid.tsx" id="nos-produits" className="border-y border-neutral-100 bg-neutral-50/60 pb-10 pt-7 sm:py-10 md:py-12" ref={sectionRef}>
       <div className="max-w-7xl mx-auto px-4 md:px-6">
 
         {/* ── Header ── */}
         <div
           className="mb-5 flex items-end justify-between gap-3 border-b border-[#e0e5dd] pb-5 sm:mb-6 sm:gap-8 sm:pb-6"
-          style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? "translateY(0)" : "translateY(24px)",
-            transition: "opacity 0.6s ease, transform 0.6s ease",
-          }}
         >
           <div className="min-w-0">
             <p className="mb-2 flex items-center gap-2 text-[8px] font-semibold uppercase tracking-[0.18em] text-[#65816c] sm:text-[10px]">
@@ -201,10 +182,6 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
         {/* ── Grid ── */}
         <div
           className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3"
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: "opacity 0.4s ease 0.2s",
-          }}
         >
           {visibleProducts.map((p, i) => (
             <ProductCard

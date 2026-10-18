@@ -146,7 +146,10 @@ export default function AdminAppReleasesPage() {
 
   return (
     <div className="mx-auto w-full max-w-[1450px] space-y-6">
-      <Link href="/admin/learning-app" className="flex min-h-11 items-center rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-semibold text-emerald-900">L?ECOMAX Learn ? t?l?charger l?application de formation ?</Link>
+      <Link href="/admin/learning-app" className="flex min-h-11 items-center justify-between rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-semibold text-emerald-900">
+        <span>L’ECOMAX Learn — application de formation</span>
+        <span aria-hidden="true">→</span>
+      </Link>
       <header className="overflow-hidden rounded-[28px] bg-[#080808] p-6 text-white sm:p-8">
         <div className="admin-mobile-heading flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>

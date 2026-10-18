@@ -5,6 +5,7 @@ import { createRequire } from "node:module";
 import { runInNewContext } from "node:vm";
 import { selectedInventory, preorderSnapshot } from "../mobile/src/lib/purchasability.ts";
 import { colorPricesFromTags } from "../mobile/src/lib/product-variant-pricing.ts";
+import * as cartStockLimit from "../lib/cart-stock-limit.ts";
 const require = createRequire(import.meta.url);
 const ts = require("typescript");
 function compile(file: string, globals: Record<string, unknown>) {
@@ -59,6 +60,7 @@ function cartHarness(initial: unknown[] = []) {
       if (name === "react") return hooks;
       if (name === "react/jsx-runtime") return require(name);
       if (name === "@/lib/preorder") return { selectedInventory, preorderSnapshot };
+      if (name === "@/lib/cart-stock-limit") return cartStockLimit;
       if (name === "@/lib/browser-storage") return { safeLocalStorage: storage };
       if (name === "@/lib/product-variant-image") return { resolveProductVariantImage: (v: any) => v.fallback };
       if (name === "@/lib/product-variant-pricing") return { colorPricesFromTags };

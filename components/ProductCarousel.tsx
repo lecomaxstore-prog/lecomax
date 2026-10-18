@@ -37,10 +37,10 @@ export default function ProductCarousel({ products }: { products: CardProduct[] 
 
   return (
     <div role="region" aria-labelledby={headingId} className="min-w-0 w-full">
-      <div className="mb-4 flex items-end justify-between gap-3 md:mb-6">
+      <div className={`${styles.header} flex items-end justify-between gap-3`}>
         <div>
-          <p className="mb-1.5 text-[8px] font-medium uppercase tracking-[0.18em] text-neutral-500">La sélection L’ecomax</p>
-          <h2 id={headingId} className="text-xl font-medium leading-tight tracking-[-0.025em] text-[#242824] md:text-2xl">Vous aimerez aussi</h2>
+          <p className={styles.eyebrow}>La sélection L’ecomax</p>
+          <h2 id={headingId} className={styles.heading}>Vous aimerez aussi</h2>
         </div>
         <div className="flex shrink-0 gap-1">
           {[-1, 1].map((direction) => (

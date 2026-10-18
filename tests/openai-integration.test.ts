@@ -61,10 +61,11 @@ test("missing keys and incomplete responses never masquerade as working OpenAI",
 
 function tutor({ denied = false, limited = false, fail = false } = {}) {
   const calls: any[] = [];
+  const sourceCalls: unknown[][] = [];
   let read = false;
   const route = load("app/api/admin/learning-assistant/route.ts", {
     "next/server": { NextResponse: { json: (body: unknown, init?: ResponseInit) => Response.json(body, init) } },
-    "@/lib/learning-source-context": { getLearningSourceContext: async () => ({ text: "Verified source snapshot", sources: [] }) },
+    "@/lib/learning-source-context": { getLearningSourceContext: async (...args: unknown[]) => { sourceCalls.push(args); return { text: "Verified source snapshot", sources: [] }; } },
     "@/lib/dev-docs-access": { protectSourceBrowser: async () => denied ? Response.json({}, { status: 403 }) : null },
     "@/lib/api-security": { protectAdminMutation: async () => null },
     "@/lib/sensitive-rate-limit": { sensitiveRateLimit: async () => limited ? Response.json({}, { status: 429 }) : null },
@@ -72,9 +73,21 @@ function tutor({ denied = false, limited = false, fail = false } = {}) {
     "@/lib/openai-server": { generateOpenAIReply: async (input: unknown) => { calls.push(input); if (fail) throw new Error("private provider details"); return "One idea and one exercise."; }, openAIErrorCode: () => "AI_BILLING_REQUIRED" },
     "@/app/admin/how-it-was-built/course/daily-lessons": { DAILY_LESSONS: [{ id: "website", title: ["Site", "Website", "موقع"], idea: ["navigateur", "browser", "متصفح"], example: ["exemple", "example", "مثال"], task: ["essai", "try", "جرّب"], file: "app/page.tsx" }], dailyText: (lang: string, values: string[]) => values[lang === "en" ? 1 : lang === "ar" ? 2 : 0] },
   });
-  return { calls, read: () => read, run: (body: unknown) => route.POST(new Request("https://example.test/api/admin/learning-assistant", { method: "POST", body: JSON.stringify(body) })) };
+  return { calls, sourceCalls, read: () => read, run: (body: unknown) => route.POST(new Request("https://example.test/api/admin/learning-assistant", { method: "POST", body: JSON.stringify(body) })) };
 }
 const question = { lang: "en", lessonId: "website", messages: [{ role: "user", content: "Explain this lesson", extra: "discard" }] };
+
+test("inline teacher resolves the requested code anchor and rejects invalid anchors before generation", async () => {
+  const h = tutor();
+  assert.equal((await h.run({ ...question, sourcePath: "components/Header.tsx", sourceAnchor: "export default", sourceLine: 20 })).status, 200);
+  assert.deepEqual(h.sourceCalls[0], ["components/Header.tsx", 20, "export default"]);
+  for (const body of [{ ...question, sourceAnchor: "export default" }, { ...question, sourcePath: "app/page.tsx", sourceAnchor: 12 }, { ...question, sourcePath: "app/page.tsx", sourceAnchor: "x".repeat(301) }]) {
+    const invalid = tutor();
+    assert.equal((await invalid.run(body)).status, 400);
+    assert.equal(invalid.sourceCalls.length, 0);
+    assert.equal(invalid.calls.length, 0);
+  }
+});
 
 test("tutor explains Next.js in Darija or Arabic independently of the panel language", async () => {
   for (const [replyLanguage, expected] of [["darija", /Moroccan Darija written in Arabic script/], ["ar", /clear Modern Standard Arabic/]] as const) {

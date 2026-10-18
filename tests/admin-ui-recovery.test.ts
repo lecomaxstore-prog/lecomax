@@ -1,9 +1,9 @@
 import test from 'node:test';
-import { STORE_SETTING_DEFAULTS } from '../mobile/src/lib/store-settings.ts';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { runInNewContext } from 'node:vm';
+import { STORE_SETTING_DEFAULTS } from '../lib/store-settings.ts';
 const require = createRequire(import.meta.url);
 const ts = require('typescript');
 const fixture = { id: 'entry-1', question: 'Delivery time?', answer: 'Two days.', category: 'livraison', language: 'en', active: true, sort_order: 0, created_at: '2026-10-04' };
@@ -20,8 +20,8 @@ async function mount(path: string, fetcher: (...args: any[]) => Promise<any>, en
         useRef(initial: any) { const i = cursor++; return values[i] ??= { current: initial }; },
         useEffect(effect: () => void, deps: any[]) { const i = cursor++; if (!values[i] || deps.some((value, j) => value !== values[i][j])) { values[i] = deps; effects.push(effect); } },
       };
-      if (name === '@/lib/store-settings') return { STORE_SETTING_DEFAULTS };
       if (name === 'react/jsx-runtime') return require(name);
+      if (name === '@/lib/store-settings') return { STORE_SETTING_DEFAULTS };
       if (name.endsWith('.css')) return { default: new Proxy({}, { get: (_target, key) => key }) };
       if (name.includes('AdminLoading')) return { default: () => null };
       throw Error(name);

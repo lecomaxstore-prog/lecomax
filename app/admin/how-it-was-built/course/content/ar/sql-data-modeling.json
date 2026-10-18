@@ -28,7 +28,7 @@
     },
     {
       "path": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
-      "mode": "create"
+      "mode": "existing"
     }
   ],
   "lessons": [
@@ -773,74 +773,135 @@
     {
       "id": "sql-transactions-indexes",
       "order": 3,
-      "title": "Transactions والفهارس وmigrations",
-      "estimatedMinutes": 45,
+      "title": "المعاملات والفهارس وmigrations: من قاعدة العمل لاختبار الفشل",
+      "estimatedMinutes": 100,
       "prerequisites": [
-        "معرفة فتح مشروع L’ecomax في VS Code واستخدام الطرفية المدمجة فيه.",
-        "قراءة الدرس السابق والقدرة على شرح دور ذرية تغيير متعدد الجداول بكلماتك الخاصة."
+        "قرا درس الجداول والعلاقات: CREATE TABLE، SELECT، INSERT، UPDATE، primary key وforeign key.",
+        "باش تنفذ المختبر خاص dependencies ديال المشروع مثبتة وterminal فجذر L’ecomax."
       ],
       "objectives": [
-        "بناء نموذج ذهني دقيق لـ ذرية تغيير متعدد الجداول.",
-        "كتابة مثال صغير وتشغيله قبل دمجه في ميزة حقيقية.",
-        "تمييز حالات الفشل وقراءة أعراضها وتطبيق إصلاح يمكن التحقق منه."
+        "تفرض نجاح حجز المخزون وتثبت rollback إلا فشل إنشاء الطلب.",
+        "تفرق بين SQL error وصفر أسطر وبين atomicity وisolation.",
+        "تقرا خطة استعلام قبل وبعد index وتشرح كلفته.",
+        "تشرح backfill والقيود وتسلسل expand/contract وحدود المختبر."
       ],
       "sections": [
         {
           "id": "mental-model",
-          "title": "النموذج الذهني",
+          "title": "الفكرة والمتطلبات",
           "blocks": [
             {
-              "id": "mental",
+              "id": "sql-explanation-0",
               "type": "paragraph",
-              "text": "تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط. ارسم أولاً المدخلات والتحويلات وحدود الثقة والمخرجات؛ فهذه الخريطة تجعلك تتوقع مكان تنفيذ الشيفرة والمكان الصحيح لمعالجة كل خطأ."
+              "text": "تخيل عندنا منتوج فيه ثلاث قطع، وزبون طلب جوج. خاص المخزون يولي واحد، وفنفس الوقت يتسجل سطر الطلب بثمن القطعة وقت الشراء. هادو جوج تغييرات، ولكن المعنى التجاري ديالهم واحد: حجز صالح. إلا نقصنا المخزون وما تسجلش الطلب، غادي نضيعو سلعة فالنظام؛ وإلا تسجل الطلب بلا ما ينقص المخزون، نقدروا نبيعو نفس القطع مرات كثيرة. Transaction هي الحدود اللي كنحطو حول هاد العملية باش التغييرات الملتزمة تكون كلها أو حتى وحدة منها. قبل الكود كتب القاعدة بعبارتك: المخزون ما ينزلش تحت الصفر، وكل سطر طلب جديد خاصو يقابل حجز ناجح. هادي invariant، شرط خاص البيانات الصحيحة تحافظ عليه."
+            },
+            {
+              "id": "sql-explanation-1",
+              "type": "paragraph",
+              "text": "هاد الورشة كتفترض أنك قادر تقرا CREATE TABLE وINSERT وUPDATE وSELECT، وعارف primary key وforeign key. إلا مازال هاد الكلمات جداد عليك، رجع لدرس الجداول والعلاقات قبل التنفيذ. غادي نستعمل PostgreSQL محليا عبر PGlite اللي مثبت فالمشروع، وجداول TEMP اللي كتعيش غير داخل اتصال المختبر. ما تحتاج حتى كلمة سر ولا مشروع Supabase. افتح terminal فجذر L'ecomax وشغل node --test lecomax-learning-app/tests/sql-chapter.test.cjs. الاختبار كيشغل نفس أمثلة الدرس، ماشي غير كيتأكد أن JSON صالح. ملف SQL موجود فـ academy-labs/sql-data-modeling/sql-transactions-indexes.sql؛ باش تعاود الملف كامل استعمل اتصال جديد لأن أسماء الجداول المؤقتة موجودة فالقديم."
             },
             {
               "id": "analogy",
               "type": "callout",
               "tone": "analogy",
-              "title": "تشبيه بسيط",
-              "text": "ذرية تغيير متعدد الجداول يشبه مصنف تملك فيه كل ورقة هوية وقواعد إدخال ومراجع متحققة إلى الأوراق الأخرى. يساعدك التشبيه على تذكر المسار الرئيسي، لكن تشغيل الشيفرة هو الدليل: راقب كل قيمة عند الإدخال وأثناء التحويل وعند الإخراج."
+              "title": "الفكرة والمتطلبات",
+              "text": "بحال جوج خانات مرتبطين فدفتر الحساب: يا إما تصادق على نقص المخزون وتسجيل الطلب بجوج، يا إما تمحي التغييرات المؤقتة بجوج. التشبيه ما كيغنيش على شروط العمل ولا على شرح التزامن."
             }
           ]
         },
         {
           "id": "deep-understanding",
-          "title": "الفهم المتعمق",
+          "title": "كيفاش كتخدم الآليات وحدودها",
           "blocks": [
             {
-              "id": "explanation-1",
+              "id": "sql-explanation-2",
               "type": "paragraph",
-              "text": "يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. ابدأ بأصغر نسخة عاملة وراقب قيمتها الحقيقية في الطرفية أو أدوات المطور قبل إضافة أي طبقة تجريد."
+              "text": "BEGIN كتفتح transaction صريحة. التعديلات اللي كتدير من بعدها كتبان ليك داخل نفس الاتصال، ولكن الاتصالات الأخرى ما كتقراش النسخة غير الملتزمة. COMMIT كيثبت المجموعة وكيطلق الأقفال المرتبطة بها؛ ROLLBACK كيلغي تعديلات المجموعة وكيطلقها. فغياب BEGIN، كل statement ناجح غالبا كيتنفذ فtransaction بوحدو مع autocommit. إذن إرسال UPDATE ثم INSERT بوحدهم ما كيضمنش الربط بيناتهم. إلا statement عطى SQL error داخل transaction، الحالة كتولي aborted: باقي الأوامر كتترفض حتى تدير ROLLBACK أو ترجع لـsavepoint مناسب. ما تصلحش المشكل بإخفاء الرسالة وإرسال COMMIT؛ سجل أول خطأ واسترجع حالة اتصال مفهومة."
             },
             {
-              "id": "explanation-2",
+              "id": "sql-explanation-3",
               "type": "paragraph",
-              "text": "يمنع إنشاء order_items بعد نجاح المخزون فقط وrollback عند أي استثناء طلباً مدفوعاً بلا حجز أو حجزاً بلا سطر. ثم اربط القاعدة بالعقد بين المتصفح والخادم وقاعدة البيانات؛ فكل حد يحتاج إلى مدخل محدد وفشل صريح."
+              "text": "كاين فرق أساسي بين خطأ SQL وفشل شرط تجاري. UPDATE ... WHERE stock >= 2 يقدر يكمل بنجاح ويبدل صفر أسطر، حيث الشرط ما تحققش أو المنتوج ما كاينش. PostgreSQL ما عارفش واش هاد النتيجة مقبولة فالمتجر ديالك. النسخة القديمة من المثال كانت كتكتب تعليق يقول خاص سطر واحد، ثم INSERT بلا شرط. التعليق ما كيوقف والو. فالمثال الجديد GET DIAGNOSTICS affected = ROW_COUNT كتقرا عدد الأسطر مباشرة من بعد UPDATE؛ إلا ما كانش واحد كنرفعو exception قبل INSERT. بهاذ الشكل قاعدة العمل كتولي شرط قابل للتنفيذ. لو زدتي statement آخر بين UPDATE وقراءة ROW_COUNT، تقدر تقرا عدد ديال عملية أخرى؛ خليه حداه باش المعنى يبقى واضح."
             },
             {
-              "id": "explanation-3",
+              "id": "sql-explanation-4",
               "type": "paragraph",
-              "text": "يتبع الفهرس استعلام ترشيح وترتيب متكرراً؛ وتبطئ كثرة الفهارس INSERT/UPDATE ولا تصلح استعلاماً يختار بيانات كثيرة. وأخيراً اختبر الحالة العادية وقيمة حدّية وفشلاً متعمداً حتى تثبت السلوك خارج المسار الناجح فقط."
+              "text": "قرا setup سطر بسطر قبل الحجز. id هو مفتاح فريد، لذلك شرط id = 1 يقدر يطابق على الأكثر سطر واحد. stock عدد صحيح إجباري وCHECK كيمنع القيم السالبة. unit_price_cents كيسجل الثمن بأصغر وحدة نقدية: 4990 يعني 49.90 فعملة فيها مائة وحدة صغيرة؛ تنسيق العملة للعرض مسؤولية أخرى. CHECK بوحده ما كيمنعش NULL، ولهذا زدنا NOT NULL. سطر الطلب عنده foreign key لمنتوج موجود وquantity موجبة. order_id بوحده PRIMARY KEY هنا تبسيط مقصود: المختبر عنده سطر واحد لكل طلب. متجر حقيقي متعدد المنتجات يحتاج جدول orders ومعرف سطر مستقل أو مفتاح مركب مناسب، وما خاصش تنسخ هاد التبسيط بلا تفكير."
+            },
+            {
+              "id": "sql-explanation-5",
+              "type": "paragraph",
+              "text": "DO $$ ... $$ كيشغل block بلغة PL/pgSQL على السيرفر. علامتا الدولار حدود نص البلوك، ماشي variable JavaScript. DECLARE كيعرف affected وreserved_price؛ BEGIN اللي داخل البلوك كيبدا تعليمات البلوك وماشي transaction جديدة. UPDATE كينقص جوج فقط إلا لقا المنتوج والمخزون كافي. RETURNING كيرجع ثمن السطر اللي تبدل، وINTO كتخزنو فمتغير محلي. من بعد كنقراو ROW_COUNT وكنوقفو إلا فشل الحجز. INSERT كيستعمل الثمن اللي رجع من نفس عملية التحديث، ماشي ثمن مرسل من المتصفح. COMMIT الخارجي كيجي غير من بعد نجاح البلوك. النتيجة المتوقعة: stock = 1، طلب 101، quantity = 2، وثمن 4990."
+            },
+            {
+              "id": "sql-explanation-6",
+              "type": "paragraph",
+              "text": "باش تفهم rollback، ما تكتفيش بالحالة الناجحة. دير اتصال جديد وsetup، ثم بدل المخزون لواحد وحاول تحجز جوج: خاص exception يظهر، ومن بعد ROLLBACK يبقى المخزون واحد وما يكون حتى طلب. فجولة أخرى خلي المخزون ثلاثة، وسجل مسبقا order_id = 101 ثم نفذ الحجز. UPDATE يقدر ينجح أولا، ولكن INSERT غادي يصطدم بالمفتاح الفريد. ملي transaction كتترجع، حتى النقص اللي سبق الخطأ كيتلغى؛ المخزون كيبقى ثلاثة والطلب القديم كيبقى كما كان. هاد الاختبار أقوى من غير البحث على كلمة BEGIN فالكود، لأنه كيثبت العلاقة بين التغييرات. زيد حالة المنتوج الغائب وحدود المخزون: صفر، واحد، جوج، وثلاثة."
+            },
+            {
+              "id": "sql-explanation-7",
+              "type": "paragraph",
+              "text": "شنو كيوقع إلا جوج زبناء طلبو فنفس الوقت؟ النمط الخاطئ هو SELECT stock، حساب فJavaScript، ثم UPDATE بثمن مخزون محسوب من قراءة قديمة. جوج اتصالات يقدرو يشوفو نفس ثلاثة ويوافقو على جوج طلبات. النمط المستعمل هنا UPDATE stock = stock - 2 WHERE stock >= 2 كيخلي الاختبار والنقص فنفس statement. تحت Read Committed، تحديث نفس السطر المتنازع عليه كيقدر يتسنى حتى transaction الأولى تسالي؛ من بعد PostgreSQL كيعيد فحص WHERE على السطر المحدث. الأول يحجز جوج ويبقى واحد، والثاني ما يطابق حتى سطر ويرفض. هاد تفسير لآلية PostgreSQL؛ مختبر PGlite هنا ما كيثبتش سيناريو جوج connections مستقلة. اختبارات تزامن حقيقية على PostgreSQL مازالت مطلوبة."
+            },
+            {
+              "id": "sql-explanation-8",
+              "type": "paragraph",
+              "text": "ACID أربع خصائص مختلفة. Atomicity كتعني التغييرات داخل transaction كتثبت مجتمعة أو كتتلغى. Consistency كتربط صلاحية البيانات بالقيود وبمنطق التطبيق؛ قاعدة البيانات ما كتخترعش قواعد المتجر. Isolation كتحدد كيفاش المعاملات المتزامنة كتشوف وتتفاعل مع بعضها، وماشي وعد أن كل مستوى كيخليها بحال تنفيذ متسلسل. Durability كتخص بقاء الالتزام حسب إعدادات التخزين والـWAL؛ ماشي تعويض للنسخ الاحتياطي. Read Committed يقدر يعطي snapshots مختلفين بين statement وواحد آخر. Serializable أقوى فالكشف على تعارضات، ولكن يقدر يرفض transaction برمز 40001 وتحتاج retry للعملية كاملة. deadlock رمز 40P01 محتاج كذلك سياسة محدودة، وترتيب ثابت لحجز عدة منتجات كيقلل فرصه."
+            },
+            {
+              "id": "sql-explanation-9",
+              "type": "paragraph",
+              "text": "قاعدة البيانات ما كتقدرش ترجع email تبعث ولا charge تدار عند مزود أداء فقط لأن ROLLBACK وقع. خليك بtransaction قصيرة: ما تديرش اتصال شبكة طويل وانت شاد locks. بالنسبة للأداء والإشعارات، تعلم idempotency وoutbox فدرس العمليات الموزعة: سجل نية الإرسال فنفس transaction، ثم عامل مستقل يعالجها مع مفتاح يمنع تكرار الأثر. حتى جواب COMMIT يقدر يضيع فالطريق بعد ما التزام وقع؛ إعادة الطلب عميانيا ممكن تكرر الطلب. PRIMARY KEY ديال المختبر كيرفض رقم مكرر، ولكنه ما كيقدمش وحده بروتوكول يرجع نفس جواب الطلب السابق. هاد حدود ضروري تعرفها قبل ربط المختبر بـcheckout حقيقي."
+            },
+            {
+              "id": "sql-explanation-10",
+              "type": "paragraph",
+              "text": "Index هو بنية مساعدة باش قاعدة البيانات تلقى الأسطر بلا ما تمشي عليهم كاملين. فهرس الكتاب تشبيه مزيان للبداية، ولكن الفهرس الحقيقي خاصو يتحدث مع INSERT وUPDATE وDELETE وكيستهلك تخزين وذاكرة. لذلك ما نفهرسوش كل عمود تلقائيا. مثال academy_events كيخلق عشرين ألف حدث موزعين على ألف زبون. السؤال هو آخر خمسة أحداث للزبون 42. الفهرس المركب (customer_id, created_at DESC) كيجمع أولا أحداث نفس الزبون، ومن داخلها كيرتب التاريخ. تبديل ترتيب الأعمدة كيبدل الاستعمالات المناسبة؛ شرط على created_at بوحده ما خاصكش تفترض أنه غادي يستفيد بنفس الشكل. المفتاح الأساسي عنده فهرس، ولكن PostgreSQL ما كينشئش تلقائيا فهرس على كل عمود foreign key تابع."
+            },
+            {
+              "id": "sql-explanation-11",
+              "type": "paragraph",
+              "text": "EXPLAIN كيعطي الخطة اللي اختار planner. EXPLAIN ANALYZE كينفذ الاستعلام فعليا وكيضيف قياسات، وBUFFERS كيزيد معلومات على الوصول للصفحات. هنا كنستعملوه مع SELECT باش نتفادى تعديل البيانات وقت التشخيص. على UPDATE أو DELETE كلمة ANALYZE ماشي مراقبة بلا أثر: غادي تنفذ العملية. قارن الخطط قبل وبعد إنشاء الفهرس، وشوف Seq Scan أو Index Scan أو Bitmap Scan، عدد الأسطر المتوقع والفعلي، وواش كاين Sort. ANALYZE academy_events كيحدث الإحصائيات اللي planner كيستعمل. ما تكتبش أن الفهرس ضروري يعطي نوع خطة أو سرعة ثابتة؛ حجم البيانات، التوزيع، cache، وإصدار المحرك كيأثرو. وقت صغير فجهازك ما كيثبتش أداء production."
+            },
+            {
+              "id": "sql-explanation-12",
+              "type": "paragraph",
+              "text": "Migration هي تغيير مسجل ومراجع لبنية البيانات أو ترحيل قيمها، وماشي غير تعديل TypeScript interface. مثال reserved كيزيد عمود nullable، يعمر الأسطر القديمة بصفر، يحط DEFAULT للأسطر المقبلة، ثم NOT NULL وCHECK. DEFAULT ما كيصلحش وحده كل NULL قديم فهاد التسلسل. شوف SELECT النهائي باش تتأكد من القيم، وجرب INSERT فيه reserved = -1 باش تشوف constraint كترفضه. هاد مختبر صغير؛ backfill ضخم فUPDATE واحد يقدر يشد locks ويولد WAL بزاف. فخدمة كبيرة كتخطط دفعات، مراقبة ووقت التنفيذ. بعض تغييرات DDL كتحتاج قفل قوي ولو الأمر قصير، لذلك قصر الصيغة ما كيعنيش نشر بلا توقف."
+            },
+            {
+              "id": "sql-explanation-13",
+              "type": "paragraph",
+              "text": "منهج expand/contract كيخلي الإصدارات القديمة والجديدة يتعايشو: زيد البنية المتوافقة، انشر كود يقدر يتعامل مع الجوج، عمر البيانات القديمة على دفعات، تحقق من العدود والقيود، حول القراءات، ومن بعد فقط حذف العمود القديم فنشر لاحق. ما تديرش rename أو DROP مبكر وكود قديم مازال كيقراه. PostgreSQL كيسمح بكثير من DDL داخل transaction، ولكن CREATE INDEX CONCURRENTLY ما كيتنفذش داخل transaction block وعنده مراحل وحالات فشل خاصة. رجوع migration اللي حذفت البيانات ما كيرجعهاش بالسحر؛ بعض الحالات كتحتاج forward fix أو استرجاع مجرب من backup. سجل خطة الاسترجاع قبل تغيير production، وجربها على نسخة اختبار."
+            },
+            {
+              "id": "sql-explanation-14",
+              "type": "paragraph",
+              "text": "طبق التمارين بالتدرج. الأول توقع حالة الجداول فكل سطر من الحجز ثم قارنها بالاختبار الناجح. الثاني أصلح النسخة اللي ما فيهاش IF affected وشوف اختبار shortage كيفاش كيكشف الطلب الوهمي. الثالث فسر rollback ديال duplicate order مع رسم التغييرات المؤقتة. الرابع قارن خطة الأحداث قبل وبعد الفهرس بلا ادعاء رقم تسريع، والخامس فسر علاش backfill قبل NOT NULL. الحلول الكاملة والكود المعتمد تحت التمرين؛ حاول تكتب توقعك قبل فتحها. النجاح هنا هو أنك تقدر تشرح علاش صفر rows ماشي exception، وعلاش transaction وحدها ما كتفرضش كل قاعدة تجارية. مازال خاصك تدريب منفصل فsavepoints، قفل عدة أسطر، اختبارات اتصالات متزامنة وخطة migration كبيرة باش تعتبر الموضوع متقن بالكامل. فالتجربة المعيبة فقط، عوض reserved_price داخل VALUES بالعدد 4990 كذلك؛ بلا هاد التغيير NOT NULL كتوقف الإدخال لأن UPDATE ما رجع حتى ثمن، وما غاديش تعاود علة المثال القديم حرفيا."
+            },
+            {
+              "id": "sql-explanation-15",
+              "type": "paragraph",
+              "text": "فالتشخيص، فرق بين مصدر الخطأ والرسائل التابعة ليه. إذا بان current transaction is aborted، قلب على أول exception قبلها ثم نفذ ROLLBACK؛ تكرار SELECT ما غاديش يصلح الحالة. إذا بان relation does not exist، تأكد أن setup والحجز فنفس الاتصال لأن TEMP ما كتتشافش من اتصال آخر. إذا لقيتي الاختبار ناجح ولكن الطلب غلط، راجع assertions واش كتقارن stock وعدد الطلبات والقيم، ماشي غير غياب الخطأ. المراجع التقنية: https://www.postgresql.org/docs/current/tutorial-transactions.html وhttps://www.postgresql.org/docs/current/transaction-iso.html وhttps://www.postgresql.org/docs/current/plpgsql-statements.html؛ تحقق منها بتاريخ 2026-10-08. الأمثلة معزولة عن جداول المتجر الفعلية، والتحليل التعليمي ما كيعنيش أن checkout الحالي كيستعمل هاد البروتوكول."
             },
             {
               "id": "vocabulary",
               "type": "vocabulary",
               "items": [
                 {
-                  "term": "ذرية تغيير متعدد الجداول",
-                  "definition": "تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط."
+                  "term": "Transaction",
+                  "definition": "ROLLBACK كيلغي التعديلات المرتبطة؛ ما كيرجعش أثر API خارجي."
                 },
                 {
-                  "term": "Transactions والفهارس وmigrations",
-                  "definition": "يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب."
+                  "term": "ROW_COUNT",
+                  "definition": "صفر أسطر UPDATE نتيجة ناجحة تقنيا، خاص شرط تجاري صريح يرفضها."
                 },
                 {
-                  "term": "transaction",
-                  "definition": "مجموعة عمليات تثبت كلها أو تُلغى كلها."
+                  "term": "Index",
+                  "definition": "الفهرس كيحتاج قياس الخطة وكلفة الكتابة، ماشي وعد سرعة."
                 },
                 {
-                  "term": "primary key",
-                  "definition": "عمود أو مجموعة تعرف كل صف بصورة فريدة."
+                  "term": "Migration",
+                  "definition": "migration كتحتاج توافق الإصدارات والتحقق وخطة استرجاع."
                 }
               ]
             }
@@ -848,59 +909,127 @@
         },
         {
           "id": "worked-examples",
-          "title": "مثال مشروح",
+          "title": "مختبر كامل وتمارين محلولة",
           "blocks": [
             {
               "id": "general",
               "type": "callout",
               "tone": "idea",
-              "title": "تطبيق عام",
-              "text": "اجمع invariants المرتبطة في transaction وقس الخطط قبل الفهارس وبعدها وانشر المخطط عبر migrations قابلة للتكرار."
+              "title": "مختبر كامل وتمارين محلولة",
+              "text": "استعمل هاد النمط ملي تحديثات مرتبطة خاصها تنجح معا: حجز مقعد، تحويل رصيد، أو تسجيل طلب. كتب invariant واختبار فشل قبل ما تختار SQL."
             },
             {
-              "id": "annotated-code",
+              "id": "sql-setup",
               "type": "code",
-              "title": "مثال مشروح",
+              "title": "1 · TEMP schema",
               "code": {
                 "language": "sql",
                 "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
-                "source": "begin;\nupdate products\nset stock = stock - 2\nwhere id = '00000000-0000-0000-0000-000000000001' and stock >= 2\nreturning id, stock;\n-- Exiger exactement une ligne avant de créer order_items.\ninsert into order_items (order_id, product_id, product_name, unit_price_cents, quantity)\nvalues ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Sac', 4990, 2);\ncommit;",
+                "source": "CREATE TEMP TABLE academy_products (\n  id integer PRIMARY KEY,\n  stock integer NOT NULL CHECK (stock >= 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nCREATE TEMP TABLE academy_order_items (\n  order_id integer PRIMARY KEY,\n  product_id integer NOT NULL REFERENCES academy_products(id),\n  quantity integer NOT NULL CHECK (quantity > 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nINSERT INTO academy_products VALUES (1, 3, 4990);",
                 "annotations": [
                   {
-                    "lines": "1-2",
-                    "label": "Transactions والفهارس وmigrations: يثبت السطران الأولان العقد وبيانات الإدخال."
+                    "lines": "1-5",
+                    "label": "جدول المنتوجات: مفتاح فريد ومخزون وثمن إلزاميين غير سالبين."
                   },
                   {
-                    "lines": "3-6",
-                    "label": "تنفذ هذه الكتلة التحويل الرئيسي؛ تتبع القيم سطراً بسطر وتحقق من أنواعها."
+                    "lines": "6-11",
+                    "label": "جدول سطر الطلب المبسط: أمر واحد، مرجع منتوج، وكمية موجبة."
                   },
                   {
-                    "lines": "7-9",
-                    "label": "تكشف النهاية النتيجة المتوقعة أو الفشل حتى يتصرف المستدعي من دون تخمين."
+                    "lines": "12",
+                    "label": "جهز المنتوج 1 بثلاث قطع وثمن 4990 قبل فتح transaction."
                   }
                 ]
               }
             },
             {
-              "id": "solution-example",
+              "id": "sql-reservation",
               "type": "code",
-              "title": "المثال الثاني — التشغيل والتحقق",
+              "title": "2 · Reservation + rollback boundary",
               "code": {
-                "language": "shell",
-                "filename": "Terminal",
-                "source": "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard\nnpm run validate:course",
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+                "source": "BEGIN;\nDO $$\nDECLARE\n  affected integer;\n  reserved_price integer;\nBEGIN\n  UPDATE academy_products\n  SET stock = stock - 2\n  WHERE id = 1 AND stock >= 2\n  RETURNING unit_price_cents INTO reserved_price;\n  GET DIAGNOSTICS affected = ROW_COUNT;\n  IF affected <> 1 THEN\n    RAISE EXCEPTION 'Product missing or insufficient stock';\n  END IF;\n  INSERT INTO academy_order_items\n    (order_id, product_id, quantity, unit_price_cents)\n  VALUES (101, 1, 2, reserved_price);\nEND $$;\nCOMMIT;\nSELECT id, stock FROM academy_products;\nSELECT order_id, quantity, unit_price_cents FROM academy_order_items;",
                 "annotations": [
                   {
                     "lines": "1",
-                    "label": "افتح academy-labs/sql-data-modeling/sql-transactions-indexes.sql واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax. — Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard"
+                    "label": "افتح transaction خارج البلوك باش تربط UPDATE وINSERT."
                   },
                   {
-                    "lines": "2",
-                    "label": "ابدأ بعقد السطر الأول — begin; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع. — npm run validate:course"
+                    "lines": "2-6",
+                    "label": "بداية PL/pgSQL والمتغيران المحليان؛ BEGIN الداخلي ماشي transaction أخرى."
                   },
+                  {
+                    "lines": "7-10",
+                    "label": "نقص جوج عند تحقق الشرط وخزن ثمن السطر المحدث."
+                  },
+                  {
+                    "lines": "11-14",
+                    "label": "قرا عدد الأسطر فورا وارفض النتيجة إلا ما كانتش واحدا."
+                  },
+                  {
+                    "lines": "15-18",
+                    "label": "سجل سطر الطلب بالثمن المحجوز وسد البلوك."
+                  },
+                  {
+                    "lines": "19-21",
+                    "label": "ثبت التغييرات ثم اعرض المخزون والطلب للتحقق."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sql-index",
+              "type": "code",
+              "title": "3 · EXPLAIN before / after",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+                "source": "CREATE TEMP TABLE academy_events (\n  id integer PRIMARY KEY,\n  customer_id integer NOT NULL,\n  created_at timestamptz NOT NULL\n);\nINSERT INTO academy_events\nSELECT n, n % 1000, TIMESTAMPTZ '2026-01-01 00:00:00+00' + n * INTERVAL '1 minute'\nFROM generate_series(1, 20000) AS n;\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\nCREATE INDEX academy_events_customer_created_idx\nON academy_events (customer_id, created_at DESC);\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;",
+                "annotations": [
+                  {
+                    "lines": "1-5",
+                    "label": "أنشئ جدول أحداث مؤقتا بقيود واضحة لكل عمود."
+                  },
+                  {
+                    "lines": "6-9",
+                    "label": "ولد 20000 حدث بقيم معروفة وحدّث إحصائيات planner."
+                  },
+                  {
+                    "lines": "10-12",
+                    "label": "قيس استعلام آخر خمسة أحداث قبل إنشاء الفهرس."
+                  },
+                  {
+                    "lines": "13-15",
+                    "label": "أنشئ فهرس الزبون والتاريخ وحدّث الإحصائيات."
+                  },
+                  {
+                    "lines": "16-18",
+                    "label": "نفذ نفس الاستعلام بعد الفهرس وقارن الخطة الفعلية."
+                  }
+                ]
+              }
+            },
+            {
+              "id": "sql-migration",
+              "type": "code",
+              "title": "4 · Nullable → backfill → constraint",
+              "code": {
+                "language": "sql",
+                "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+                "source": "ALTER TABLE academy_products ADD COLUMN reserved integer;\nUPDATE academy_products SET reserved = 0 WHERE reserved IS NULL;\nALTER TABLE academy_products ALTER COLUMN reserved SET DEFAULT 0;\nALTER TABLE academy_products ALTER COLUMN reserved SET NOT NULL;\nALTER TABLE academy_products ADD CONSTRAINT academy_reserved_nonnegative\n  CHECK (reserved >= 0);\nSELECT id, stock, reserved FROM academy_products;",
+                "annotations": [
                   {
                     "lines": "1-2",
-                    "label": "في academy-labs/sql-data-modeling/sql-transactions-indexes.sql يجب أن تثبت النتيجة «Transactions والفهارس وmigrations» وتجعل ذرية تغيير متعدد الجداول قابلة للملاحظة. يكتمل Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard ثم npm run validate:course بلا خطأ ويطبق السلوك هذه القاعدة بدقة: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب."
+                    "label": "أضف العمود nullable ثم عمر القيم القديمة بصفر."
+                  },
+                  {
+                    "lines": "3-6",
+                    "label": "حدد default للمقبل وامنع NULL والقيم السالبة."
+                  },
+                  {
+                    "lines": "7",
+                    "label": "اعرض القيم بعد migration باش تتأكد من النتيجة."
                   }
                 ]
               }
@@ -909,46 +1038,55 @@
               "id": "lecomax",
               "type": "callout",
               "tone": "important",
-              "title": "التطبيق في L’ecomax",
-              "text": "ينقص L’ecomax المخزون وينشئ الأسطر معاً؛ وتضيف migrations القيود والفهارس بلا تعديل إنتاج يدوي."
+              "title": "L’ecomax",
+              "text": "هاد مختبر مستقل، ماشي إثبات أن checkout ديال L’ecomax كيستعمل نفس transaction. قارن الفكرة مع الوصول للمنتجات فالملفات المشار إليها، وتحقق من مسار الكتابة الفعلي قبل اقتراح دمج."
             }
           ]
         }
       ],
       "commands": [
-        "Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard",
-        "npm run validate:course"
+        "node --test lecomax-learning-app/tests/sql-chapter.test.cjs"
       ],
-      "expectedResult": "في academy-labs/sql-data-modeling/sql-transactions-indexes.sql يجب أن تثبت النتيجة «Transactions والفهارس وmigrations» وتجعل ذرية تغيير متعدد الجداول قابلة للملاحظة. يكتمل Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard ثم npm run validate:course بلا خطأ ويطبق السلوك هذه القاعدة بدقة: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.",
+      "expectedResult": "من اتصال جديد: stock = 1، order_id = 101، quantity = 2، unit_price_cents = 4990. جدول الأحداث فيه 20000 سطر وخطتا EXPLAIN؛ نوع الخطة والوقت ماشي مضمونين. reserved النهائي = 0.",
       "commonErrors": [
         {
-          "symptom": "يعمل مثال «Transactions والفهارس وmigrations» لكنه لا يثبت ذرية تغيير متعدد الجداول.",
-          "cause": "يخالف التنفيذ قاعدة الدرس التالية: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.",
-          "fix": "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+          "symptom": "كيتسجل طلب والمخزون ما كافيش",
+          "cause": "UPDATE بدل صفر أسطر ولكن INSERT بلا guard.",
+          "fix": "قرا ROW_COUNT بعد UPDATE وارفع exception قبل INSERT إذا ما كانش واحد."
         },
         {
-          "symptom": "تعمل الحالة العادية في academy-labs/sql-data-modeling/sql-transactions-indexes.sql لكن الحالة الحدية تفشل أو تبقى صامتة.",
-          "cause": "لم يمثل الكود الحد التالي بعد: يمنع إنشاء order_items بعد نجاح المخزون فقط وrollback عند أي استثناء طلباً مدفوعاً بلا حجز أو حجزاً بلا سطر.",
-          "fix": "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: يتبع الفهرس استعلام ترشيح وترتيب متكرراً؛ وتبطئ كثرة الفهارس INSERT/UPDATE ولا تصلح استعلاماً يختار بيانات كثيرة."
+          "symptom": "current transaction is aborted",
+          "cause": "SQL error سابق خلّى transaction فحالة فشل.",
+          "fix": "سجل أول خطأ، نفذ ROLLBACK، وصحح السبب قبل محاولة جديدة."
+        },
+        {
+          "symptom": "relation does not exist",
+          "cause": "TEMP tables ما كايناش فهاد الاتصال.",
+          "fix": "شغل setup والحجز فنفس اتصال المختبر."
+        },
+        {
+          "symptom": "الفهرس ما عطاش الخطة المتوقعة",
+          "cause": "planner كيختار حسب الإحصائيات والكلفة، ماشي بمجرد وجود index.",
+          "fix": "شغل ANALYZE وقارن estimated/actual rows والخطة بلا فرض scan معين."
         }
       ],
       "exercise": {
-        "task": "في academy-labs/sql-data-modeling/sql-transactions-indexes.sql أعد بناء المثال المشروح «Transactions والفهارس وmigrations» بحيث يثبت ذرية تغيير متعدد الجداول، ثم تحقق من السلوك نفسه بالأوامر المقدمة.",
+        "task": "خدم خمسة تمارين: توقع الحجز، اكشف الطلب الوهمي، أثبت rollback، قارن خطط index، وفسر migration.",
         "steps": [
-          "افتح academy-labs/sql-data-modeling/sql-transactions-indexes.sql واعزل دالة التمرين أو مكوّنه من دون حذف بقية ملف L’ecomax.",
-          "ابدأ بعقد السطر الأول — begin; — ثم اكتب بقية الأسطر بالترتيب مع فحص كل نوع وقيمة إرجاع.",
-          "تحقق من أن التعليمة الأخيرة — commit; — تطبق القاعدة الملحوظة التالية: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.",
-          "بعد أمر النسخ الصق SQL في محرر SQL لمشروع Supabase اختباري وشغّله مرة واحدة واقرأ كل نجاح أو خطأ قبل تعديل أي شيء.",
-          "احفظ الملف وشغّل Get-Content -Raw -LiteralPath \"academy-labs/sql-data-modeling/sql-transactions-indexes.sql\" | Set-Clipboard ثم npm run validate:course ثم اختبر قيمة عادية والحالة الحدية المذكورة في الأخطاء الشائعة."
+          "سهل: تتبع stock وعدد الطلبات قبل BEGIN وبعد UPDATE وبعد COMMIT؛ توقع 3→1 و0→1.",
+          "متوسط: فنسخة مختبر جديدة خلي stock = 1 واحذف guard مؤقتا؛ فسر علاش اختبار shortage خاصو يفشل، ثم رجع guard. فالتجربة المعيبة فقط، عوض reserved_price داخل VALUES بالعدد 4990 كذلك؛ بلا هاد التغيير NOT NULL كتوقف الإدخال لأن UPDATE ما رجع حتى ثمن، وما غاديش تعاود علة المثال القديم حرفيا.",
+          "متوسط: سجل order_id = 101 قبل الحجز؛ توقع unique violation، دير ROLLBACK وقارن stock والطلب القديم.",
+          "متقدم: نفذ مثال الأحداث كامل وسجل الفرق بين الخطة قبل وبعد الفهرس؛ ما تفترضش نوع scan أو رقم تسريع.",
+          "متقدم: نفذ migration ثم جرب reserved = -1؛ شرح الترتيب وشنو يتبدل فجدول production كبير."
         ],
         "hints": [
-          "ابدأ من العقد الظاهر في academy-labs/sql-data-modeling/sql-transactions-indexes.sql لا من طبقة تجريد أو حزمة جديدة.",
-          "إذا اختلفت النتيجة فأعد قراءة هذا الحد: يمنع إنشاء order_items بعد نجاح المخزون فقط وrollback عند أي استثناء طلباً مدفوعاً بلا حجز أو حجزاً بلا سطر.",
-          "قارن نسختك بالحل سطراً بسطر وطبق هذا التصحيح: يتبع الفهرس استعلام ترشيح وترتيب متكرراً؛ وتبطئ كثرة الفهارس INSERT/UPDATE ولا تصلح استعلاماً يختار بيانات كثيرة."
+          "ROW_COUNT كيخص آخر أمر: قراه مباشرة بعد UPDATE.",
+          "فشل INSERT داخل نفس transaction خاصو يلغي UPDATE السابق عند ROLLBACK.",
+          "NOT NULL كيحتاج إصلاح NULL القديمة أولا؛ DEFAULT كيخص الكتابات المقبلة فهاد التسلسل."
         ],
         "solution": {
-          "explanation": "يتكون الحل الكامل في academy-labs/sql-data-modeling/sql-transactions-indexes.sql من 9 سطراً مشروحاً. وهو ينفذ ذرية تغيير متعدد الجداول مباشرة ويحافظ على العقد الظاهر في المثال ويجعل حالة الفشل صريحة بلا حزمة إضافية.",
-          "code": "begin;\nupdate products\nset stock = stock - 2\nwhere id = '00000000-0000-0000-0000-000000000001' and stock >= 2\nreturning id, stock;\n-- Exiger exactement une ligne avant de créer order_items.\ninsert into order_items (order_id, product_id, product_name, unit_price_cents, quantity)\nvalues ('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', 'Sac', 4990, 2);\ncommit;",
+          "explanation": "1) setup كيعطي stock=3 وصفر طلبات. UPDATE الصحيح كينقصه لواحد؛ INSERT كيزيد طلبا؛ COMMIT كيثبت الجوج. 2) بلا guard، stock=1 ما كيتبدلش ولكن INSERT يقدر يسجل طلبا؛ هادي هي العلة، وإرجاع IF affected كيوقفها. 3) مع طلب 101 موجود، INSERT كيصطدم بالمفتاح؛ بعد ROLLBACK المخزون ثلاثة والطلب القديم محفوظ. 4) شغل مثال الأحداث وسجل الخطة الفعلية. الفهرس مرتب حسب الزبون والتاريخ، ولكن planner يقدر يختار خطة مختلفة حسب الإحصائيات؛ ما كاينش تسريع ثابت فالحل. 5) reserved كيبدأ NULL، backfill كيعمره، ثم DEFAULT وNOT NULL وCHECK كيفرضو سياسة واضحة. إدخال -1 مرفوض. هاد الترتيب الصغير ماشي خطة نشر جاهزة لجدول كبير. الكود التالي هو الحالة الأساسية الكاملة؛ الاختبارات كتطبق حالات الفشل المعزولة. فالتجربة المعيبة فقط، عوض reserved_price داخل VALUES بالعدد 4990 كذلك؛ بلا هاد التغيير NOT NULL كتوقف الإدخال لأن UPDATE ما رجع حتى ثمن، وما غاديش تعاود علة المثال القديم حرفيا.",
+          "code": "CREATE TEMP TABLE academy_products (\n  id integer PRIMARY KEY,\n  stock integer NOT NULL CHECK (stock >= 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nCREATE TEMP TABLE academy_order_items (\n  order_id integer PRIMARY KEY,\n  product_id integer NOT NULL REFERENCES academy_products(id),\n  quantity integer NOT NULL CHECK (quantity > 0),\n  unit_price_cents integer NOT NULL CHECK (unit_price_cents >= 0)\n);\nINSERT INTO academy_products VALUES (1, 3, 4990);\n\nBEGIN;\nDO $$\nDECLARE\n  affected integer;\n  reserved_price integer;\nBEGIN\n  UPDATE academy_products\n  SET stock = stock - 2\n  WHERE id = 1 AND stock >= 2\n  RETURNING unit_price_cents INTO reserved_price;\n  GET DIAGNOSTICS affected = ROW_COUNT;\n  IF affected <> 1 THEN\n    RAISE EXCEPTION 'Product missing or insufficient stock';\n  END IF;\n  INSERT INTO academy_order_items\n    (order_id, product_id, quantity, unit_price_cents)\n  VALUES (101, 1, 2, reserved_price);\nEND $$;\nCOMMIT;\nSELECT id, stock FROM academy_products;\nSELECT order_id, quantity, unit_price_cents FROM academy_order_items;\n\nCREATE TEMP TABLE academy_events (\n  id integer PRIMARY KEY,\n  customer_id integer NOT NULL,\n  created_at timestamptz NOT NULL\n);\nINSERT INTO academy_events\nSELECT n, n % 1000, TIMESTAMPTZ '2026-01-01 00:00:00+00' + n * INTERVAL '1 minute'\nFROM generate_series(1, 20000) AS n;\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\nCREATE INDEX academy_events_customer_created_idx\nON academy_events (customer_id, created_at DESC);\nANALYZE academy_events;\nEXPLAIN (ANALYZE, BUFFERS)\nSELECT id, created_at FROM academy_events\nWHERE customer_id = 42 ORDER BY created_at DESC LIMIT 5;\n\nALTER TABLE academy_products ADD COLUMN reserved integer;\nUPDATE academy_products SET reserved = 0 WHERE reserved IS NULL;\nALTER TABLE academy_products ALTER COLUMN reserved SET DEFAULT 0;\nALTER TABLE academy_products ALTER COLUMN reserved SET NOT NULL;\nALTER TABLE academy_products ADD CONSTRAINT academy_reserved_nonnegative\n  CHECK (reserved >= 0);\nSELECT id, stock, reserved FROM academy_products;",
           "filename": "academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
           "language": "sql"
         }
@@ -956,65 +1094,66 @@
       "quiz": [
         {
           "id": "sql-transactions-indexes-q1",
-          "question": "أي عبارة تطبق ذرية تغيير متعدد الجداول بصورة صحيحة في تطبيق إنتاجي؟",
+          "question": "UPDATE بدل صفر أسطر بلا SQL error. شنو خاص حجز المخزون يدير؟",
           "options": [
-            "يمكن للمتصفح أن يقرر ذرية تغيير متعدد الجداول وحده لأن بياناته موثوقة دائماً.",
-            "ذرية تغيير متعدد الجداول تخص الألوان فقط ولا تؤثر في البيانات.",
-            "يمكن تجاهل الأخطاء المتعلقة بـ ذرية تغيير متعدد الجداول إذا نجح المسار العادي مرة واحدة.",
-            "يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب."
+            "يكمل INSERT بلا شرط",
+            "يرفع exception ويرجع transaction",
+            "يبدل CSS",
+            "يدير COMMIT ثم يفحص"
           ],
-          "correctIndex": 3,
-          "explanation": "الإجابة الصحيحة هي «يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
+          "correctIndex": 1,
+          "explanation": "عدد صفر ماشي SQL error، ولكن قاعدة الحجز كتطلب سطرا واحدا. خاص الرفض يسبق INSERT.",
           "answerExplanations": [
-            "هذا الخيار غير صحيح، وهو يقول « يمكن للمتصفح أن يقرر ذرية تغيير متعدد الجداول وحده لأن بياناته موثوقة دائماً. ». الإجابة المرجعية هي « يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. ». الإجابة الصحيحة هي «يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
-            "هذا الخيار غير صحيح، وهو يقول « ذرية تغيير متعدد الجداول تخص الألوان فقط ولا تؤثر في البيانات. ». الإجابة المرجعية هي « يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. ». الإجابة الصحيحة هي «يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
-            "هذا الخيار غير صحيح، وهو يقول « يمكن تجاهل الأخطاء المتعلقة بـ ذرية تغيير متعدد الجداول إذا نجح المسار العادي مرة واحدة. ». الإجابة المرجعية هي « يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. ». الإجابة الصحيحة هي «يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل.",
-            "هذا الخيار صحيح، وهو يقول « يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. ». الإجابة الصحيحة هي «يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.». فهي تصف سلوكاً قابلاً للملاحظة والاختبار، بينما تلغي الخيارات الأخرى حد أمان أو تخلط العرض بالبيانات أو تتجاهل حالات الفشل."
+            "✗ يكمل INSERT بلا شرط. يرفع exception ويرجع transaction. عدد صفر ماشي SQL error، ولكن قاعدة الحجز كتطلب سطرا واحدا. خاص الرفض يسبق INSERT.",
+            "✓ يرفع exception ويرجع transaction. عدد صفر ماشي SQL error، ولكن قاعدة الحجز كتطلب سطرا واحدا. خاص الرفض يسبق INSERT.",
+            "✗ يبدل CSS. يرفع exception ويرجع transaction. عدد صفر ماشي SQL error، ولكن قاعدة الحجز كتطلب سطرا واحدا. خاص الرفض يسبق INSERT.",
+            "✗ يدير COMMIT ثم يفحص. يرفع exception ويرجع transaction. عدد صفر ماشي SQL error، ولكن قاعدة الحجز كتطلب سطرا واحدا. خاص الرفض يسبق INSERT."
           ]
         },
         {
           "id": "sql-transactions-indexes-q2",
-          "question": "أي تعريف يطابق المصطلح «ذرية تغيير متعدد الجداول»؟",
+          "question": "UPDATE نجح ثم INSERT فشل بمفتاح مكرر. شنو بعد ROLLBACK؟",
           "options": [
-            "يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب.",
-            "تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط.",
-            "مجموعة عمليات تثبت كلها أو تُلغى كلها.",
-            "ليس لهذا المصطلح تعريف تقني دقيق."
+            "النقص كيبقى",
+            "الطلب القديم كيتمسح",
+            "النقص كيتلغى والطلب القديم كيبقى",
+            "خاصنا نزيدو index"
           ],
-          "correctIndex": 1,
-          "explanation": "يعني المصطلح «ذرية تغيير متعدد الجداول»: تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط.",
+          "correctIndex": 2,
+          "explanation": "التحديث المؤقت فنفس transaction كيتلغى؛ البيانات اللي التزمات قبل البداية كتبقى.",
           "answerExplanations": [
-            "هذا الخيار غير صحيح، وهو يقول « يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. ». الإجابة المرجعية هي « تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط. ». يعني المصطلح «ذرية تغيير متعدد الجداول»: تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط.",
-            "هذا الخيار صحيح، وهو يقول « تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط. ». يعني المصطلح «ذرية تغيير متعدد الجداول»: تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط.",
-            "هذا الخيار غير صحيح، وهو يقول « مجموعة عمليات تثبت كلها أو تُلغى كلها. ». الإجابة المرجعية هي « تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط. ». يعني المصطلح «ذرية تغيير متعدد الجداول»: تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط.",
-            "هذا الخيار غير صحيح، وهو يقول « ليس لهذا المصطلح تعريف تقني دقيق. ». الإجابة المرجعية هي « تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط. ». يعني المصطلح «ذرية تغيير متعدد الجداول»: تنشئ transaction حداً كلياً أو لا شيء حول عدة كتابات؛ ويجب أن يعيد الفشل الحالة السابقة. تسرع الفهارس أنماط وصول محددة مقابل مساحة وعمل كتابة، بينما تصدر migrations كل تغيير للمخطط."
+            "✗ النقص كيبقى. النقص كيتلغى والطلب القديم كيبقى. التحديث المؤقت فنفس transaction كيتلغى؛ البيانات اللي التزمات قبل البداية كتبقى.",
+            "✗ الطلب القديم كيتمسح. النقص كيتلغى والطلب القديم كيبقى. التحديث المؤقت فنفس transaction كيتلغى؛ البيانات اللي التزمات قبل البداية كتبقى.",
+            "✓ النقص كيتلغى والطلب القديم كيبقى. التحديث المؤقت فنفس transaction كيتلغى؛ البيانات اللي التزمات قبل البداية كتبقى.",
+            "✗ خاصنا نزيدو index. النقص كيتلغى والطلب القديم كيبقى. التحديث المؤقت فنفس transaction كيتلغى؛ البيانات اللي التزمات قبل البداية كتبقى."
           ]
         },
         {
           "id": "sql-transactions-indexes-q3",
-          "question": "ما أول تصحيح مناسب عند ملاحظة: «يعمل مثال «Transactions والفهارس وmigrations» لكنه لا يثبت ذرية تغيير متعدد الجداول.»؟",
+          "question": "شنو العبارة الدقيقة على EXPLAIN ANALYZE؟",
           "options": [
-            "تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ.",
-            "أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: يتبع الفهرس استعلام ترشيح وترتيب متكرراً؛ وتبطئ كثرة الفهارس INSERT/UPDATE ولا تصلح استعلاماً يختار بيانات كثيرة.",
-            "ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
-            "إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة."
+            "كيعرض فقط بلا تنفيذ",
+            "كيضمن index scan",
+            "كيصلح كل query",
+            "كينفذ الاستعلام ويقيسه"
           ],
-          "correctIndex": 2,
-          "explanation": "يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
+          "correctIndex": 3,
+          "explanation": "ANALYZE كينفذ الأمر، لذلك استعماله مع كتابة يقدر يغير البيانات.",
           "answerExplanations": [
-            "هذا الخيار غير صحيح، وهو يقول « تكرار الإجراء نفسه من دون قراءة أول رسالة خطأ. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
-            "هذا الخيار غير صحيح، وهو يقول « أضف حالة تحقق صريحة بالاعتماد على هذا المبدأ: يتبع الفهرس استعلام ترشيح وترتيب متكرراً؛ وتبطئ كثرة الفهارس INSERT/UPDATE ولا تصلح استعلاماً يختار بيانات كثيرة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
-            "هذا الخيار صحيح، وهو يقول « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة.",
-            "هذا الخيار غير صحيح، وهو يقول « إخفاء الخطأ في الواجهة واعتبار المشكلة محلولة. ». الإجابة المرجعية هي « ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة. ». يبدأ التشخيص من السبب التالي: يخالف التنفيذ قاعدة الدرس التالية: يدمج شرط stock >= 2 الفحص والإنقاص في تعليمة ذرية واحدة؛ وتعني صفر صفوف معادة عدم التوفر بلا مخزون سالب. والتصحيح المناسب هو: ارجع إلى أول قيمة انحرفت وطبق القاعدة ثم أعد تشغيل أوامر الدرس الدقيقة."
+            "✗ كيعرض فقط بلا تنفيذ. كينفذ الاستعلام ويقيسه. ANALYZE كينفذ الأمر، لذلك استعماله مع كتابة يقدر يغير البيانات.",
+            "✗ كيضمن index scan. كينفذ الاستعلام ويقيسه. ANALYZE كينفذ الأمر، لذلك استعماله مع كتابة يقدر يغير البيانات.",
+            "✗ كيصلح كل query. كينفذ الاستعلام ويقيسه. ANALYZE كينفذ الأمر، لذلك استعماله مع كتابة يقدر يغير البيانات.",
+            "✓ كينفذ الاستعلام ويقيسه. ANALYZE كينفذ الأمر، لذلك استعماله مع كتابة يقدر يغير البيانات."
           ]
         }
       ],
       "recap": [
-        "يمكنك الآن شرح ذرية تغيير متعدد الجداول برسم مدخلات ← تحويل ← مخرجات.",
-        "اجمع invariants المرتبطة في transaction وقس الخطط قبل الفهارس وبعدها وانشر المخطط عبر migrations قابلة للتكرار.",
-        "ينقص L’ecomax المخزون وينشئ الأسطر معاً؛ وتضيف migrations القيود والفهارس بلا تعديل إنتاج يدوي."
+        "صفر أسطر UPDATE نتيجة ناجحة تقنيا، خاص شرط تجاري صريح يرفضها.",
+        "ROLLBACK كيلغي التعديلات المرتبطة؛ ما كيرجعش أثر API خارجي.",
+        "الفهرس كيحتاج قياس الخطة وكلفة الكتابة، ماشي وعد سرعة.",
+        "migration كتحتاج توافق الإصدارات والتحقق وخطة استرجاع."
       ],
-      "next": "تطبق الوحدة التالية هذه المبادئ باستخدام عملاء Supabase وAuth وRLS وStorage وRealtime."
+      "next": "من بعد هاد المختبر، خاص تدريب منفصل على savepoints، حجز عدة منتجات، PostgreSQL باتصالين مستقلين، وخطة backfill كبيرة؛ هاد التوسع ما كيسدش مسار قواعد البيانات كامل."
     }
   ]
 }

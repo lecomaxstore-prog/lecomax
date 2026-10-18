@@ -1,5 +1,7 @@
 # AI Tutor — fifth Learning Center option
 
+See [the 7 October programming tutor upgrade](ai-tutor-upgrade.md) for the current course, multilingual teaching, retrieval, progress and mobile-chat changes. Historical implementation notes below describe the earlier version.
+
 The existing four learning actions remain in `SiteExplorer`. A fifth Arabic link opens `/admin/how-it-was-built/ai-tutor/`. The tutor has its own conversation interface, with concept, code-writing, debugging, API integration, line explanation, project context, practice, build, review and quiz modes. All use one provider and teaching policy. The file library can open the tutor with the selected file and line.
 
 ## Teaching and UI
@@ -9,6 +11,14 @@ The server prompt teaches WHY before HOW, small examples, a learner attempt and 
 Answers stream progressively. Each completed answer has simpler/deeper/why/practice actions anchored to its saved message ID. Code blocks offer copy, explanation, line-by-line, changes, practice, a line picker, why and removal questions. Markdown is rendered without raw HTML, executable links or remote images. Long code scrolls within its block. The composer accommodates the visual viewport and the existing admin scroll container.
 
 ## Existing architecture reused
+
+### Real-site lessons and mobile update (local changes)
+
+Six guided lessons cover the product card, product page, category filters, products API, cart discount flow and server Supabase client. `TUTOR_EXAMPLES` stores real paths and function anchors; the sanitized snapshot resolves current line numbers. The owner-protected `/api/admin/ai-tutor/source` endpoint supplies a preview of up to 14 numbered lines. Its source catalog is included in deployment tracing. Missing anchors fail explicitly rather than returning an unrelated example.
+
+Selecting a lesson prepares an editable question and its exact source context; sending remains an explicit learner action. Questions without a selected file receive a topic-based source excerpt automatically. The composer shows that choice, and an explicit file/line takes precedence. The prompt distinguishes real excerpts from proposed changes, requires an observable check, and waits for an attempt before revealing exercise answers. Hints, quizzes and next-step actions are anchored to the selected saved explanation.
+
+On mobile, navigation uses a compact selector, learning modes stay collapsed until opened, examples have full-width actions, code scrolls internally, and the hero disappears during a conversation. Source previews use real local snapshots in the browser smoke test; AI replies and learning writes remain fixtures. These local improvements are not covered by the earlier production deployment recorded below.
 
 - Next.js 15 App Router and React 19; the official installed `openai` SDK and Responses API.
 - Existing `OPENAI_API_KEY` and `OPENAI_MODEL`, read only in `lib/ai-tutor-provider.ts`. No new key or browser OpenAI request. The configured model can be changed without code changes.

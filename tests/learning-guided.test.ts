@@ -68,7 +68,7 @@ function mount(component: string, getProps: () => Record<string, unknown>) {
       if (name === './progress') return progressHelpers;
       if (name === './coaching') return coaching;
       if (name.endsWith('.css')) return new Proxy({}, { get: (_, key) => String(key) });
-      if (['./ReadingCoach', './LessonQuiz', './LessonMap', './MiniLab', './FileCoach', './CodeTokens'].includes(name)) return { default: name };
+      if (['./ReadingCoach', './LessonQuiz', './LessonMap', './MiniLab', './FileCoach', './CodeTokens', '../LessonTeacher'].includes(name)) return { default: name };
       throw new Error(`Unexpected import ${name}`);
     },
   });

@@ -34,3 +34,11 @@ test("oversized source lines are bounded", async () => {
   const result = await fixture("x".repeat(20000)).get("app/page.tsx");
   assert.ok(result.text.length < 2000);
 });
+
+test("lesson anchors follow moved code and reject missing anchors instead of inventing an excerpt", async () => {
+  const content = Array.from({ length: 180 }, (_, i) => i === 149 ? "export function ActualLesson() {" : "// context").join("\n");
+  const result = await fixture(content).get("app/page.tsx", 1, "export function ActualLesson");
+  assert.equal(result.sources[0].startLine, 135);
+  assert.match(JSON.parse(result.text).excerpt, /150: export function ActualLesson/);
+  await assert.rejects(fixture(content).get("app/page.tsx", 1, "missing function"), /SOURCE_UNAVAILABLE/);
+});

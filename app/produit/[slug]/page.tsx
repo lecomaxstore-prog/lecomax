@@ -16,7 +16,6 @@ import RatingSummaryPopover from "@/components/RatingSummaryPopover";
 import LowStockReveal from "@/components/LowStockReveal";
 import ProductAccordion from "@/components/ProductAccordion";
 import ShareButtons from "@/components/ShareButtons";
-import NewsletterSection from "@/components/NewsletterSection";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { calculateShipping, formatShippingAmount, shippingSummary, shippingDeliveryTime } from "@/lib/shipping-config";
 import { colorSizeStockFromTags } from "@/lib/product-inventory";
@@ -400,10 +399,10 @@ export default async function ProductPage({
             )}
           </div>
 
-          <h1 className={`product-summary-enter h-display max-w-2xl leading-[.98] tracking-[-.035em] [animation-delay:.08s] ${
+          <h1 className={`product-summary-enter max-w-2xl break-words font-semibold normal-case leading-[1.3] tracking-[-.02em] text-neutral-900 [text-wrap:pretty] [animation-delay:.08s] ${
             (product.displayName ?? product.name).length > 35
-              ? "text-[1.75rem] sm:text-[2rem] lg:text-[2.35rem]"
-              : "text-[2rem] sm:text-[2.35rem] lg:text-[2.75rem]"
+              ? "text-[1.375rem] sm:text-[1.625rem] lg:text-[1.875rem]"
+              : "text-[1.625rem] sm:text-[1.875rem] lg:text-[2.25rem]"
           }`}>
             {product.displayName ?? product.name}
           </h1>
@@ -504,10 +503,6 @@ export default async function ProductPage({
           <ProductCarousel products={related} />
         </section>
       )}
-
-      <div className="mt-16">
-        <NewsletterSection />
-      </div>
 
     </div>
   );

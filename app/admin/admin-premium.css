@@ -1,0 +1,63 @@
+/* Shared administration tokens. Storefront and print routes remain independent. */
+.admin-shell {
+  --admin-canvas: #f4f7f6;
+  --admin-border: #dde6e1;
+  --admin-ink: #19372b;
+  --admin-accent: #087f5b;
+  --admin-shadow: 0 2px 8px #163d2b05;
+  background: var(--admin-canvas);
+  color: #202b26;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+.admin-shell #admin-main { scrollbar-width: thin; scrollbar-color: #c7d6cd transparent; }
+.admin-shell #admin-main > :where(div, section, form) { width: 100%; max-width: 1600px; margin-inline: auto; min-width: 0; }
+.admin-shell #admin-main :where(h1) { font-weight: 700; letter-spacing: -.035em; }
+.admin-shell #admin-main :where(h1:not(.text-white):not(.text-white *)) { color: var(--admin-ink); }
+.admin-shell #admin-main :where(h2, h3) { letter-spacing: -.015em; }
+.admin-shell #admin-main :where(.admin-mobile-heading, .admin-dashboard-heading) { margin-bottom: 24px; }
+.admin-shell #admin-main :where(.bg-white.border) { border-color: var(--admin-border); box-shadow: var(--admin-shadow); }
+.admin-shell #admin-main :where(input:not([type=checkbox]):not([type=radio]):not([type=color]):not([type=range]), select, textarea) { border-color: #d6e0da; border-radius: 10px; }
+.admin-shell :where(button, input, select, textarea, a):focus-visible { outline-color: var(--admin-accent); }
+.admin-shell #admin-main :where(button, a).bg-black,
+.admin-shell .admin-primary { background: var(--admin-ink); }
+.admin-shell #admin-main :where(button):disabled { cursor: not-allowed; }
+.admin-shell .admin-topbar { min-height: 64px; border-color: var(--admin-border); box-shadow: none; }
+.admin-shell .admin-topbar > nav { font-size: 13px; }
+.admin-shell .admin-topbar > nav > span:first-child { color: #687d71; }
+#admin-sidebar { background: #12271f; }
+#admin-sidebar .admin-drawer-brand { padding: 22px 20px; }
+#admin-sidebar .admin-drawer-navigation a { min-height: 44px; border-radius: 8px; }
+#admin-sidebar .admin-drawer-navigation a[aria-current=page] { background: #234a38; border-color: #38604b; box-shadow: inset 3px 0 #6bd2a1; }
+#admin-sidebar .admin-drawer-section-heading { padding-top: 22px; }
+#admin-sidebar .admin-drawer-shortcuts a { min-height: 58px; border-radius: 10px; }
+.admin-shell .admin-responsive-table { border-collapse: separate; border-spacing: 0; }
+.admin-shell .admin-responsive-table th { background: #f7faf8; color: #5a6f62; font-size: 11px; font-weight: 600; letter-spacing: .035em; padding-block: 14px; }
+.admin-shell .admin-responsive-table td { border-color: #edf1ee; padding-block: 16px; }
+.admin-shell .admin-responsive-table tbody tr:hover { background-color: #f7faf8; }
+.admin-shell [data-dashboard-metric] { box-shadow: var(--admin-shadow); border-radius: 16px; transform: none; }
+.admin-shell [data-dashboard-metric] [data-metric-value] { font-weight: 650; }
+.admin-shell .admin-analytics-stat { border-radius: 16px; box-shadow: var(--admin-shadow); transform: none; }
+.admin-shell .admin-analytics-stat:hover { transform: none; box-shadow: 0 4px 16px #163d2b09; }
+.admin-shell .admin-analytics-stat > p:nth-of-type(2) { font-size: 11px; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.admin-shell .admin-analytics-stat > p:nth-of-type(3) { font-size: 11px; color: #687d71; }
+.admin-shell .admin-pagination { padding: 14px 0; }
+.admin-shell .admin-pagination button { border-color: var(--admin-border); font-weight: 600; }
+.admin-shell .admin-pagination button:hover:not(:disabled) { background: #eaf5ef; border-color: #94baa5; }
+.admin-skip-link { position: fixed; left: 16px; top: -100px; z-index: 100; padding: 12px 20px; border-radius: 10px; background: white; color: #19372b; }
+.admin-skip-link:focus { top: 12px; }
+.admin-shell .admin-logout-error { margin: 8px; padding: 10px; border: 1px solid #a65b52; border-radius: 8px; color: #ffd4cd; font-size: 12px; }
+@media (min-width: 1024px) {
+  .admin-shell #admin-main { padding: 32px clamp(24px, 3vw, 56px); }
+  #admin-sidebar { flex-shrink: 0; width: 248px; }
+  .admin-shell #admin-main h1 { font-size: 30px; line-height: 1.25; }
+}
+@media (max-width: 639px) {
+  .admin-shell .admin-topbar { min-height: 56px; }
+  .admin-shell .admin-topbar .admin-header-order-alert { display: none; }
+  .admin-shell #admin-main { padding-inline: max(14px, env(safe-area-inset-left)) max(14px, env(safe-area-inset-right)); }
+  .admin-shell #admin-main h1 { line-height: 1.25; }
+  .admin-shell .admin-responsive-table td { padding-block: 8px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .admin-shell *, .admin-shell *::before, .admin-shell *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
