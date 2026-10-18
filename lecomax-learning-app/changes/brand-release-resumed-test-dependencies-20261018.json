@@ -1,0 +1,48 @@
+{
+  "id": "brand-release-resumed-test-dependencies-20261018",
+  "relatedId": "brand-release-preserve-live-20261018",
+  "createdAt": "2026-10-18T10:45:44.965Z",
+  "title": "Resume brand release and restore missing regression dependencies",
+  "summary": "Continue the preserved production release with the 30-brand picker and shared logos; restore two learning modules required by committed regression tests.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin products",
+    "Storefront product cards and details",
+    "Expo product and promotion cards",
+    "Change History"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Release regression tests"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/wifi-lab.ts",
+    "lecomax-learning-app/services/owner-session.ts",
+    "components/admin/ProductBrandPicker.tsx",
+    "components/ProductBrandMark.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Restored existing wifi-lab and owner-session source modules omitted from the isolated release checkout. Local noVNC dependency uses the existing ignored learning-app node_modules junction."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and history",
+      "result": "passed",
+      "detail": "tsc --noEmit passed; all 521 existing history reports validated."
+    },
+    {
+      "name": "Initial regression run",
+      "result": "failed",
+      "detail": "618 passed, 4 skipped, 3 suites could not load omitted learning-app dependencies. Corrected run pending."
+    },
+    {
+      "name": "Production build",
+      "result": "not-run",
+      "detail": "Vercel production-environment build started with --skip-domain; current production aliases remain unchanged."
+    }
+  ]
+}

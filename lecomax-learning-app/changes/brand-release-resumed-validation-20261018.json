@@ -1,0 +1,65 @@
+{
+  "id": "brand-release-resumed-validation-20261018",
+  "relatedId": "brand-release-resumed-test-dependencies-20261018",
+  "createdAt": "2026-10-18T10:48:35.884Z",
+  "title": "Brand release passes regression and Vercel build checks",
+  "summary": "Validated preserved production source plus the 30-brand catalogue before GitHub publication and domain promotion.",
+  "status": "successful",
+  "pages": [
+    "Admin products",
+    "Storefront product cards and details",
+    "Expo product and promotion cards",
+    "Change History"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Production release"
+  ],
+  "files": [
+    "components/admin/ProductBrandPicker.tsx",
+    "components/ProductBrandMark.tsx",
+    "app/api/products/brands/route.ts",
+    "mobile/src/lib/product-brands.ts",
+    "lecomax-learning-app/services/owner-session.ts",
+    "lecomax-learning-app/utils/wifi-lab.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Restored the two omitted learning modules used by regression tests; no existing production application behavior was changed during this continuation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression",
+      "result": "passed",
+      "detail": "633 tests passed, zero failed, five skipped. Android back-controller (10 scenarios) and scroll-return scenarios passed. Local noVNC tests used the existing learning-app dependency installation."
+    },
+    {
+      "name": "TypeScript and archive",
+      "result": "passed",
+      "detail": "tsc --noEmit passed. History check preserved all 522 reports. git diff --check passed."
+    },
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Vercel deployment dpl_Anin3iKdC7zzVkntYRKohWud7K6A is READY. Compilation, type validation, course validation and all 258 static pages passed. Existing lint warnings remain."
+    },
+    {
+      "name": "Protected deployment API",
+      "result": "passed",
+      "detail": "Authenticated vercel curl returned 30 brands from /api/products/brands. Direct unauthenticated deployment checks reached Vercel login and are not considered page validation."
+    },
+    {
+      "name": "Source secret checks",
+      "result": "passed",
+      "detail": "Mobile source audit checked 184 files with no findings; changed-file private-key/token pattern scan found no matches. No mobile bundle was audited."
+    },
+    {
+      "name": "Remaining acceptance checks",
+      "result": "not-run",
+      "detail": "Domain promotion and live HTTP checks pending. No connected browser: visual, authenticated admin saving, payment completion and physical Expo device acceptance remain untested. No Expo binary or OTA publication is included."
+    }
+  ]
+}

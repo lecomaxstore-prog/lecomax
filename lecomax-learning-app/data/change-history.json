@@ -1,5 +1,118 @@
 [
   {
+    "id": "brand-release-resumed-validation-20261018",
+    "relatedId": "brand-release-resumed-test-dependencies-20261018",
+    "createdAt": "2026-10-18T10:48:35.884Z",
+    "title": "Brand release passes regression and Vercel build checks",
+    "summary": "Validated preserved production source plus the 30-brand catalogue before GitHub publication and domain promotion.",
+    "status": "successful",
+    "pages": [
+      "Admin products",
+      "Storefront product cards and details",
+      "Expo product and promotion cards",
+      "Change History"
+    ],
+    "components": [
+      "ProductBrandPicker",
+      "ProductBrandMark",
+      "Production release"
+    ],
+    "files": [
+      "components/admin/ProductBrandPicker.tsx",
+      "components/ProductBrandMark.tsx",
+      "app/api/products/brands/route.ts",
+      "mobile/src/lib/product-brands.ts",
+      "lecomax-learning-app/services/owner-session.ts",
+      "lecomax-learning-app/utils/wifi-lab.ts"
+    ],
+    "changes": [
+      {
+        "kind": "fixed",
+        "detail": "Restored the two omitted learning modules used by regression tests; no existing production application behavior was changed during this continuation."
+      }
+    ],
+    "validation": [
+      {
+        "name": "Regression",
+        "result": "passed",
+        "detail": "633 tests passed, zero failed, five skipped. Android back-controller (10 scenarios) and scroll-return scenarios passed. Local noVNC tests used the existing learning-app dependency installation."
+      },
+      {
+        "name": "TypeScript and archive",
+        "result": "passed",
+        "detail": "tsc --noEmit passed. History check preserved all 522 reports. git diff --check passed."
+      },
+      {
+        "name": "Production build",
+        "result": "passed",
+        "detail": "Vercel deployment dpl_Anin3iKdC7zzVkntYRKohWud7K6A is READY. Compilation, type validation, course validation and all 258 static pages passed. Existing lint warnings remain."
+      },
+      {
+        "name": "Protected deployment API",
+        "result": "passed",
+        "detail": "Authenticated vercel curl returned 30 brands from /api/products/brands. Direct unauthenticated deployment checks reached Vercel login and are not considered page validation."
+      },
+      {
+        "name": "Source secret checks",
+        "result": "passed",
+        "detail": "Mobile source audit checked 184 files with no findings; changed-file private-key/token pattern scan found no matches. No mobile bundle was audited."
+      },
+      {
+        "name": "Remaining acceptance checks",
+        "result": "not-run",
+        "detail": "Domain promotion and live HTTP checks pending. No connected browser: visual, authenticated admin saving, payment completion and physical Expo device acceptance remain untested. No Expo binary or OTA publication is included."
+      }
+    ]
+  },
+  {
+    "id": "brand-release-resumed-test-dependencies-20261018",
+    "relatedId": "brand-release-preserve-live-20261018",
+    "createdAt": "2026-10-18T10:45:44.965Z",
+    "title": "Resume brand release and restore missing regression dependencies",
+    "summary": "Continue the preserved production release with the 30-brand picker and shared logos; restore two learning modules required by committed regression tests.",
+    "status": "needs-testing",
+    "pages": [
+      "Admin products",
+      "Storefront product cards and details",
+      "Expo product and promotion cards",
+      "Change History"
+    ],
+    "components": [
+      "ProductBrandPicker",
+      "ProductBrandMark",
+      "Release regression tests"
+    ],
+    "files": [
+      "lecomax-learning-app/utils/wifi-lab.ts",
+      "lecomax-learning-app/services/owner-session.ts",
+      "components/admin/ProductBrandPicker.tsx",
+      "components/ProductBrandMark.tsx"
+    ],
+    "changes": [
+      {
+        "kind": "fixed",
+        "detail": "Restored existing wifi-lab and owner-session source modules omitted from the isolated release checkout. Local noVNC dependency uses the existing ignored learning-app node_modules junction."
+      }
+    ],
+    "validation": [
+      {
+        "name": "TypeScript and history",
+        "result": "passed",
+        "detail": "tsc --noEmit passed; all 521 existing history reports validated."
+      },
+      {
+        "name": "Initial regression run",
+        "result": "failed",
+        "detail": "618 passed, 4 skipped, 3 suites could not load omitted learning-app dependencies. Corrected run pending."
+      },
+      {
+        "name": "Production build",
+        "result": "not-run",
+        "detail": "Vercel production-environment build started with --skip-domain; current production aliases remain unchanged."
+      }
+    ]
+  },
+  {
     "id": "brand-release-preserve-live-20261018",
     "relatedId": "brand-release-github-vercel-20261018",
     "createdAt": "2026-10-18T10:24:31.610Z",
