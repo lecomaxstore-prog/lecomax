@@ -1,0 +1,46 @@
+{
+  "id": "footer-mobile-live-parity-verified-20261018",
+  "relatedId": "footer-mobile-parity-validation-blocked-20261018",
+  "createdAt": "2026-10-18T11:16:21.688Z",
+  "title": "Light mobile footer published and verified",
+  "summary": "The approved footer correction is on GitHub main and live on lecomax.com.",
+  "status": "successful",
+  "pages": [
+    "All storefront pages: footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Published c8ba4150 to GitHub main. Production now applies the CSS module footer class, activating the existing light mobile background and light color scheme."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and history",
+      "result": "passed",
+      "detail": "tsc --noEmit and git diff --check passed before publication. All 526 earlier reports retained."
+    },
+    {
+      "name": "Vercel production build",
+      "result": "passed",
+      "detail": "GitHub deployment dpl_EWvvgMU6uHyA9q3RQDcjZcgccGoK is READY and serves lecomax.com and www.lecomax.com."
+    },
+    {
+      "name": "Live HTML and CSS",
+      "result": "passed",
+      "detail": "Fetched lecomax.com and four linked CSS files. Footer uses Footer_footer__pQtti, without hard-coded bg-neutral-950. Parsed CSS confirms #fafafa and color-scheme: only light within max-width:767px; desktop base remains #0a0a0a. A check made while deployment was building correctly failed against the previous release; the completed release passed."
+    },
+    {
+      "name": "Visual device check",
+      "result": "not-run",
+      "detail": "No physical phone or connected browser visual acceptance performed. Existing open tabs may need a refresh to load the new stylesheet. Learning app history delivery to installed builds requires a separate update."
+    }
+  ]
+}
