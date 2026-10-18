@@ -1,0 +1,63 @@
+{
+  "id": "brand-release-live-verified-20261018",
+  "relatedId": "brand-release-resumed-validation-20261018",
+  "createdAt": "2026-10-18T10:50:18.608Z",
+  "title": "Brand update published to GitHub and verified on lecomax.com",
+  "summary": "GitHub main contains the resumed brand release; Vercel production is ready and live HTTP verification passed.",
+  "status": "successful",
+  "pages": [
+    "Homepage",
+    "Boutique",
+    "New arrivals",
+    "Cart",
+    "Checkout",
+    "Admin products",
+    "Product details",
+    "Change History"
+  ],
+  "components": [
+    "30-brand catalogue",
+    "Shared brand logos",
+    "Production release"
+  ],
+  "files": [
+    "components/admin/ProductBrandPicker.tsx",
+    "components/ProductBrandMark.tsx",
+    "app/api/products/brands/route.ts",
+    "mobile/src/lib/product-brands.ts",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Published commits a1ac8d60, 3796cf63 and b463bc29 to GitHub main. Promoted Vercel deployment dpl_Anin3iKdC7zzVkntYRKohWud7K6A to lecomax.com using the explicit Lecomax team after the initial URL-based promotion returned a team-selection error."
+    }
+  ],
+  "validation": [
+    {
+      "name": "GitHub publication",
+      "result": "passed",
+      "detail": "git ls-remote confirmed main b463bc29752be9f7f109a5348ea0752147fdbac4 before this verification-only report commit."
+    },
+    {
+      "name": "Vercel production",
+      "result": "passed",
+      "detail": "vercel inspect lecomax.com resolves to READY deployment dpl_Anin3iKdC7zzVkntYRKohWud7K6A."
+    },
+    {
+      "name": "Public HTTP smoke checks",
+      "result": "passed",
+      "detail": "Homepage, boutique, new arrivals, cart, checkout and admin products returned HTTP 200. A sitemap-listed product detail includes structured data. Public brand API returned the 30-brand registry. All 30 PNG files match local SHA-256 hashes. Anonymous dashboard/order reads and brand writes are rejected."
+    },
+    {
+      "name": "Regression and build",
+      "result": "passed",
+      "detail": "633 passed, zero failed, five skipped; Android navigation checks and tsc passed. Vercel built all 258 static pages, with existing lint warnings."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No browser connected: visual interactions, authenticated admin save, payment completion and physical Expo device testing were not performed. No Expo OTA or binary was published. History is preserved in GitHub and the local learning-app manifest; delivery to installed learning apps requires their own update."
+    }
+  ]
+}
