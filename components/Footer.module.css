@@ -1,10 +1,11 @@
+.footer { background: #0a0a0a; color: #fff; }
 .mobileNav { display: none; }
 .contactLink { color: rgb(255 255 255 / 80%); font-size: 13px; transition: color 160ms ease; }
 .contactLink:visited { color: rgb(255 255 255 / 80%); }
 .contactLink:hover, .contactLink:active, .contactLink:focus-visible { color: #fff; }
 
 @media (max-width: 767px) {
-  .footer { background: #fafafa; color: #171c19; border-top: 1px solid #e5e8e5; }
+  .footer { background: #fafafa; color: #171c19; color-scheme: only light; border-top: 1px solid #e5e8e5; }
   .footer > div > div:first-child { display: none; }
   .trust { border-color: #e5e8e5; background: #fff; }
   .trust > div { padding: 22px 20px; gap: 18px 12px; }

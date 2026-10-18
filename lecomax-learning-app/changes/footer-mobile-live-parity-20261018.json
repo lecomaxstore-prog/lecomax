@@ -1,0 +1,35 @@
+{
+  "id": "footer-mobile-live-parity-20261018",
+  "createdAt": "2026-10-18T11:09:10.870Z",
+  "title": "Match the production mobile footer to localhost",
+  "summary": "Apply the existing local footer class and light mobile palette to the production release.",
+  "status": "needs-testing",
+  "pages": [
+    "All storefront pages: footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace hard-coded bg-neutral-950 text-white with styles.footer. Restore the desktop base colors and mobile light color-scheme. The existing mobile #fafafa background now applies; desktop appearance stays as designed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source comparison",
+      "result": "passed",
+      "detail": "Confirmed production omitted styles.footer while localhost uses it. Only the two footer files were synchronized."
+    },
+    {
+      "name": "Build and production",
+      "result": "not-run",
+      "detail": "TypeScript, production build and live CSS verification pending. Physical mobile browser acceptance remains untested."
+    }
+  ]
+}

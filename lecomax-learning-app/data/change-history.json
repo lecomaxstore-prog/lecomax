@@ -1,5 +1,82 @@
 [
   {
+    "id": "footer-mobile-parity-validation-blocked-20261018",
+    "relatedId": "footer-mobile-live-parity-20261018",
+    "createdAt": "2026-10-18T11:10:01.618Z",
+    "title": "Footer correction validated locally; publication awaits approval",
+    "summary": "The release footer matches localhost and TypeScript passes. Automatic approval review blocked the production GitHub push.",
+    "status": "needs-testing",
+    "pages": [
+      "Storefront footer"
+    ],
+    "components": [
+      "Footer",
+      "Release publication"
+    ],
+    "files": [
+      "components/Footer.tsx",
+      "components/Footer.module.css"
+    ],
+    "changes": [
+      {
+        "kind": "fixed",
+        "detail": "Prepared the two-file footer parity fix in release/brands-20261018. Production remains unchanged."
+      }
+    ],
+    "validation": [
+      {
+        "name": "TypeScript and source checks",
+        "result": "passed",
+        "detail": "tsc --noEmit and git diff --check passed. Append-only history check passed with 525 reports before this follow-up."
+      },
+      {
+        "name": "Publication",
+        "result": "not-run",
+        "detail": "Automatic approval review rejected the commit/push command because the user reported a mismatch without explicitly approving this specific production publication. The deployment command was not executed."
+      },
+      {
+        "name": "Visual acceptance",
+        "result": "not-run",
+        "detail": "No new browser or physical-device verification performed. Production build and live checks await publication approval."
+      }
+    ]
+  },
+  {
+    "id": "footer-mobile-live-parity-20261018",
+    "createdAt": "2026-10-18T11:09:10.870Z",
+    "title": "Match the production mobile footer to localhost",
+    "summary": "Apply the existing local footer class and light mobile palette to the production release.",
+    "status": "needs-testing",
+    "pages": [
+      "All storefront pages: footer"
+    ],
+    "components": [
+      "Footer"
+    ],
+    "files": [
+      "components/Footer.tsx",
+      "components/Footer.module.css"
+    ],
+    "changes": [
+      {
+        "kind": "fixed",
+        "detail": "Replace hard-coded bg-neutral-950 text-white with styles.footer. Restore the desktop base colors and mobile light color-scheme. The existing mobile #fafafa background now applies; desktop appearance stays as designed."
+      }
+    ],
+    "validation": [
+      {
+        "name": "Source comparison",
+        "result": "passed",
+        "detail": "Confirmed production omitted styles.footer while localhost uses it. Only the two footer files were synchronized."
+      },
+      {
+        "name": "Build and production",
+        "result": "not-run",
+        "detail": "TypeScript, production build and live CSS verification pending. Physical mobile browser acceptance remains untested."
+      }
+    ]
+  },
+  {
     "id": "brand-release-live-verified-20261018",
     "relatedId": "brand-release-resumed-validation-20261018",
     "createdAt": "2026-10-18T10:50:18.608Z",
