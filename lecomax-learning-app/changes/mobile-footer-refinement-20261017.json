@@ -1,0 +1,46 @@
+{
+  "id": "mobile-footer-refinement-20261017",
+  "createdAt": "2026-10-17T10:43:49.908Z",
+  "title": "More readable mobile footer",
+  "summary": "Compacted the newsletter, clarified contact rows and expanded mobile navigation touch areas.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront mobile footer",
+    "Mobile storefront assistance launcher"
+  ],
+  "components": [
+    "Footer",
+    "ChatWidget"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css",
+    "components/ChatWidget.tsx",
+    "components/ChatWidget.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Mobile newsletter heading uses the available width; rounded inputs, improved spacing and consistent sans-serif typography."
+    },
+    {
+      "kind": "modified",
+      "detail": "Contact details appear in bordered rows with stacked labels; navigation uses full-width expandable rows and larger plus controls. Social links use outlined 44px touch targets."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Small screens get an icon-only help launcher to reduce obstruction; footer bottom spacing accounts for floating controls and device safe areas."
+    },
+    {
+      "kind": "added",
+      "detail": "Newsletter success/error announcements and busy state for assistive technology."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks pending",
+      "result": "not-run",
+      "detail": "Type checks, focused lint and history tests pending. Visual browser verification and newsletter submission not performed; no deployment."
+    }
+  ]
+}

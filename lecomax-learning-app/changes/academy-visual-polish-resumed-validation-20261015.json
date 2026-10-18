@@ -1,0 +1,105 @@
+{
+  "id": "academy-visual-polish-resumed-validation-20261015",
+  "createdAt": "2026-10-15T16:55:11.490Z",
+  "title": "Visual polish verified; live history preview still needs testing",
+  "summary": "Completed the interrupted layout verification: 304 tests, 155 browser checks, learning journey and both platform exports passed. Existing development history URL timed out.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "AI Teacher",
+    "Explore",
+    "Profile",
+    "Lessons",
+    "Practice Studio",
+    "All shared card/button screens",
+    "Bottom navigation"
+  ],
+  "components": [
+    "Card",
+    "Button",
+    "AIEmptyState",
+    "LessonHeader",
+    "BottomTabBar",
+    "CodeLab"
+  ],
+  "files": [
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/app/explore.tsx",
+    "lecomax-learning-app/app/profile.tsx",
+    "lecomax-learning-app/features/interactive/CodeLab.tsx",
+    "lecomax-learning-app/scripts/test-signature-ui.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Remove default card elevation, distinguish tonal/outline/text buttons, preserve loading contrast and add keyboard focus borders."
+    },
+    {
+      "kind": "modified",
+      "detail": "Compact narrow teacher prompts and home hero; wrap lesson steps for narrow screens or enlarged text; bound bottom-tab labels."
+    },
+    {
+      "kind": "modified",
+      "detail": "Make explorer goal form expandable, keep filters in an RTL-aware horizontal row, flatten nested course rows and provide clear-filter recovery."
+    },
+    {
+      "kind": "modified",
+      "detail": "Give profile identity/goal clearer hierarchy and use meaningful navigation icons."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Add native safe-area containment to fullscreen coding editor; runtime documentation remains available in an accessible disclosure."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected the populated visual fixture with a required learner goal and assertions for saved profile and visible heading; see academy-visual-fixture-correction-20261015."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript, ESLint and regression suite",
+      "result": "passed",
+      "detail": "Fresh TypeScript and full app ESLint passed; all 304 tests passed. The browser script is excluded by the existing ESLint configuration; it was executed successfully."
+    },
+    {
+      "name": "Responsive browser matrix",
+      "result": "passed",
+      "detail": "155 checks: 144 route visits across 24 routes, English/French/Arabic and light/dark; six navigation checks; four goal-disclosure, loading/reply, short viewport and populated-state checks; recovery/completion check. Zero browser errors. Phone widths 320/390; home also 768/1280."
+    },
+    {
+      "name": "Visual review",
+      "result": "passed",
+      "detail": "Reviewed fresh English populated home/profile/teacher, dark loading, narrow explorer and lesson tabs, short focused composer, Arabic dark teacher and Arabic light profile screenshots."
+    },
+    {
+      "name": "Learning journey",
+      "result": "passed",
+      "detail": "Onboarding, teacher formula rendering, contextual lesson request, quiz/readiness, notes/bookmarks, real code success/error and grading, flashcards and restored state passed. Authentication and teacher responses used fixtures."
+    },
+    {
+      "name": "Platform exports",
+      "result": "passed",
+      "detail": "Fresh web export and Android Hermes export passed. Android compiler required sandbox escalation; export is not an installed-device test."
+    },
+    {
+      "name": "History archive",
+      "result": "passed",
+      "detail": "All four archive/preservation tests passed; append-only manifest check passed after the fixture report."
+    },
+    {
+      "name": "Current development preview",
+      "result": "failed",
+      "detail": "Root HTTP returned 200, but browser navigation to http://localhost:8081/change-history timed out at 30 seconds and again at 120 seconds. No live preview link is claimed."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Physical Android/iOS keyboard, native font scaling, screen readers, WebView formula rendering and frame-rate checks remain untested. No paid teacher request or deployment. Screenshots are local test captures, not historical app builds."
+    }
+  ],
+  "relatedId": "academy-visual-polish-20261015"
+}

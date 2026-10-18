@@ -1,0 +1,47 @@
+{
+  "id": "admin-loading-isolated-release-prepared-20261013",
+  "createdAt": "2026-10-12T23:37:48.707Z",
+  "relatedId": "admin-analytics-loading-verified-20261013",
+  "title": "Prepare isolated admin loading release from current production source",
+  "summary": "The live storefront release is confirmed. Prepare only six admin fix, test and documentation files for remote verification before production promotion.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Analytics",
+    "Admin navigation"
+  ],
+  "components": [
+    "Analytics request lifecycle",
+    "Admin release packaging"
+  ],
+  "files": [
+    "app/admin/analytics/page.tsx",
+    "app/admin/layout.tsx",
+    "app/api/analytics/route.ts",
+    "docs/admin-analytics-performance-20261013.md",
+    "lib/analytics-fetch.ts",
+    "tests/admin-analytics-loading.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Create release/admin-loading-20261013 from current production deployment source. Exact byte-hash comparison confirms six additions/modifications and zero removed files. The live domain remains unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Isolated release audit",
+      "result": "passed",
+      "detail": "Six expected files differ from current production source; zero removed files. Existing storefront improvements are already live on dpl_5qQ5jT3jFM19yDN2Q8TMuBDK8hyQ, confirmed by Vercel domain aliases."
+    },
+    {
+      "name": "Current focused regressions",
+      "result": "passed",
+      "detail": "23 focused Analytics, admin recovery/permissions and storefront loading tests passed in this session."
+    },
+    {
+      "name": "Remote candidate and live verification",
+      "result": "not-run",
+      "detail": "Remote build and candidate checks pending. No connected browser is available. No production promotion authorized or performed in this session."
+    }
+  ]
+}

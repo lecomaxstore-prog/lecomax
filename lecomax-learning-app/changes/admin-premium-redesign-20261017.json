@@ -1,0 +1,84 @@
+{
+  "id": "admin-premium-redesign-20261017",
+  "createdAt": "2026-10-17T17:21:16.823Z",
+  "title": "Premium administration styling and reliable actions",
+  "summary": "Shared emerald design, readable tables and analytics, accessible navigation, and checked logout/message actions.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/abandoned-carts",
+    "/admin/accept-invite",
+    "/admin/activity",
+    "/admin/ads",
+    "/admin/analytics",
+    "/admin/announcement",
+    "/admin/app-releases",
+    "/admin/approvals",
+    "/admin/banners",
+    "/admin/broadcast",
+    "/admin/categories",
+    "/admin/chat-kb",
+    "/admin/checkout",
+    "/admin/client-data",
+    "/admin/coupons",
+    "/admin/customers",
+    "/admin/dashboard",
+    "/admin/ecomedia",
+    "/admin/how-it-was-built",
+    "/admin/learning-app",
+    "/admin/loyalty",
+    "/admin/media",
+    "/admin/messages",
+    "/admin/mobile-app",
+    "/admin/newsletter",
+    "/admin/orders",
+    "/admin/pages",
+    "/admin/products",
+    "/admin/promotions",
+    "/admin/push",
+    "/admin/recordings",
+    "/admin/returns",
+    "/admin/reviews",
+    "/admin/roles",
+    "/admin/settings",
+    "/admin/shipping",
+    "/admin/size-guide",
+    "/admin/smart-assistant",
+    "/admin/staff",
+    "/admin/stock",
+    "/admin/studio",
+    "/admin/support",
+    "/admin/trustpilot"
+  ],
+  "components": [
+    "AdminLayout",
+    "Analytics StatCard",
+    "Messages"
+  ],
+  "files": [
+    "app/admin/admin-premium.css",
+    "app/admin/layout.tsx",
+    "app/admin/analytics/page.tsx",
+    "app/admin/messages/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Shared administration design tokens, skip link, and visible action failure feedback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Cards, table rhythm, typography, navigation and responsive header spacing across admin pages."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Prevent premature logout redirect and optimistic message changes on failed HTTP responses; contain mobile drawer interaction and respect reduced motion."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation verification",
+      "result": "not-run",
+      "detail": "Lint, TypeScript, production build, tests and browser checks pending. No deployment or production writes."
+    }
+  ]
+}

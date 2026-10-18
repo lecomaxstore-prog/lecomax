@@ -1,0 +1,29 @@
+{
+  "id": "paypal-ready-message-design-20261017",
+  "createdAt": "2026-10-17T11:11:50.083Z",
+  "title": "Readable PayPal ready message",
+  "summary": "Replaced the uppercase payment notice with a clear title and separate instruction.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout /checkout"
+  ],
+  "components": [
+    "PayPal ready status"
+  ],
+  "files": [
+    "app/checkout/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Left-aligned 14px title and 12px supporting instruction with 20px line height; separate 32px confirmation icon with non-shrinking layout. Retained parent live announcement and payment handlers."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Focused lint and history check pending. Browser verification and payment testing not performed; no deployment."
+    }
+  ]
+}

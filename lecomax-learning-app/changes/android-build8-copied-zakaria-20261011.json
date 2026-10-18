@@ -1,0 +1,39 @@
+{
+  "id": "android-build8-copied-zakaria-20261011",
+  "createdAt": "2026-10-11T06:00:00.000Z",
+  "relatedId": "android-python-build8-installed-20261010",
+  "title": "Android Learn build copied to Zakaria folder",
+  "summary": "Copied the finished LECOMAX Learn Android build to the connected phone at /sdcard/Zakaria for manual installation.",
+  "status": "needs-testing",
+  "pages": [
+    "Android release",
+    "My space",
+    "Changes Made"
+  ],
+  "components": [
+    "Android release",
+    "LECOMAX Learn"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.6-build8.apk",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Placed lecomax-learn-1.0.6-build8.apk in the connected phone's Zakaria folder."
+    }
+  ],
+  "validation": [
+    {
+      "name": "ADB transfer",
+      "result": "passed",
+      "detail": "adb push completed successfully and the phone reported the APK at /sdcard/Zakaria/lecomax-learn-1.0.6-build8.apk with size 146106342 bytes."
+    },
+    {
+      "name": "Installation and launch",
+      "result": "not-run",
+      "detail": "The APK was copied only; installation and on-device visual acceptance were not performed."
+    }
+  ]
+}

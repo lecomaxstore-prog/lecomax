@@ -1,0 +1,46 @@
+{
+  "id": "expo-related-landscape-20261018-verified",
+  "createdAt": "2026-10-18T09:44:39.102Z",
+  "title": "Landscape recommendations: code checks passed",
+  "summary": "Redesign You may also like as compact landscape cards with images beside product details.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Related carousel",
+    "ProductCard related variant"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use wide horizontal cards with a 42 percent image area, a pale sage details panel, three-line titles, dark green detail buttons and responsive widths capped at 420px. Preserve horizontal snapping and a visible next card."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Give the details button a localized product-view accessibility label instead of choose-options wording."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Mobile typecheck and lint of both changed files completed without diagnostics."
+    },
+    {
+      "name": "History validation",
+      "result": "passed",
+      "detail": "Four history tests and manifest preservation check passed."
+    },
+    {
+      "name": "Visual and device review",
+      "result": "not-run",
+      "detail": "Rendered appearance, large text and native/RTL gestures remain unverified. No connected UI preview available; not deployed."
+    }
+  ],
+  "relatedId": "expo-related-landscape-20261018"
+}

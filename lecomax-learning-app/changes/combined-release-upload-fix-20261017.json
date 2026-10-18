@@ -1,0 +1,41 @@
+{
+  "id": "combined-release-upload-fix-20261017",
+  "createdAt": "2026-10-17T20:35:00.476Z",
+  "relatedId": "combined-release-deploy-started-20261017",
+  "title": "Include shared learning API modules in website deployment",
+  "summary": "Repair production upload exclusions that omitted server-imported learning contracts and helpers.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning mobile APIs"
+  ],
+  "components": [
+    "Vercel upload rules",
+    "Shared learning contracts"
+  ],
+  "files": [
+    "release/latest-update-20261017/.vercelignore"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Explicitly include the 16 shared TypeScript modules and their transitive imports required by website learning APIs while excluding the remaining mobile app and artifacts."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First production build",
+      "result": "failed",
+      "detail": "Vercel deployment dpl_5mWbp5uaKzQQJTp25ryKhfv5wEjo failed because shared learning modules were excluded from upload."
+    },
+    {
+      "name": "Import closure",
+      "result": "passed",
+      "detail": "Parsed imports recursively and confirmed all 16 required modules exist."
+    },
+    {
+      "name": "Retry",
+      "result": "not-run",
+      "detail": "Corrected production submission pending."
+    }
+  ]
+}

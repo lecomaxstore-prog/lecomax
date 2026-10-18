@@ -1,0 +1,45 @@
+{
+  "id": "footer-reference-restored-20261017",
+  "relatedId": "original-footer-restored-20261017",
+  "createdAt": "2026-10-17T10:36:00.043Z",
+  "title": "Restore the footer selected in the screenshot",
+  "summary": "Restore the light mobile footer with compact brand row and dark green newsletter panel selected by the owner.",
+  "status": "successful",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Restore the previous compact mobile design: light background, white trust strip, logo alongside socials, short introduction and green newsletter panel with pale green subscribe button."
+    },
+    {
+      "kind": "added",
+      "detail": "Restore mobile stylesheet and two-column expandable navigation from that design. Desktop layout unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "ESLint",
+      "result": "passed",
+      "detail": "Footer.tsx passes focused lint."
+    },
+    {
+      "name": "Local mobile browser",
+      "result": "passed",
+      "detail": "At 470px confirmed footer rgb(250,250,250), newsletter rgb(23,61,42), expected French heading, no footer overflow and navigation links visible after expansion."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No full regression, real subscription or deployment."
+    }
+  ]
+}

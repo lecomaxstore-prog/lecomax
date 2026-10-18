@@ -1,0 +1,70 @@
+{
+  "id": "phone-lab-3d-verified-20261012",
+  "createdAt": "2026-10-12T16:47:44.517Z",
+  "title": "3D phone lab interaction checks passed",
+  "summary": "Explore phone hardware and software through a rotatable 3D model, component lessons, iPhone/Android comparisons, a quiz and saved learning progress.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "More",
+    "Phone lab"
+  ],
+  "components": [
+    "PhoneExplorer",
+    "StudyDashboard",
+    "More"
+  ],
+  "files": [
+    "lecomax-learning-app/data/phone-explorer.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-learning.ts",
+    "lecomax-learning-app/components/PhoneExplorer.tsx",
+    "lecomax-learning-app/components/PhoneExplorer.web.tsx",
+    "lecomax-learning-app/app/phone-lab.tsx",
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Offline self-contained perspective 3D cuboid model with depth ordering, face hit testing, drag/keyboard rotation, front/back controls, exploded layers and software view. Named topic buttons provide an accessible alternative."
+    },
+    {
+      "kind": "added",
+      "detail": "14 English/French/Arabic topics with explanations and everyday examples, broad iPhone/Android comparison, photo processing walkthrough and RAM/storage knowledge check. Official Apple and Android reading links; clearly labeled simplified educational model."
+    },
+    {
+      "kind": "added",
+      "detail": "Web iframe and native WebView renderers with validated message bridges, saved understood-topic checklist and entry points on Home and More. Existing phone remote-control screen is unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Phone lab interactions in three languages",
+      "result": "passed",
+      "detail": "Four tests passed: valid/deduplicated/restored topic IDs; projected 3D geometry and rotation; hardware and software lesson selection; exploded-view controls; next-topic cycling; quiz feedback and saved-progress bridge. Reran after final layer-offset edit."
+    },
+    {
+      "name": "TypeScript and ESLint",
+      "result": "passed",
+      "detail": "App typecheck passed. Focused ESLint passed after correcting a render-time ref write; content file was separately linted with --no-ignore."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "Six history/archive interaction tests passed. Prior reports preserved."
+    },
+    {
+      "name": "Local route",
+      "result": "passed",
+      "detail": "GET http://localhost:8081/phone-lab returned HTTP 200. This is a route availability check, not authenticated visual verification."
+    },
+    {
+      "name": "Visual browser and native device validation",
+      "result": "not-run",
+      "detail": "In-app browser creation failed because no browser provider is available. No visual or physical-device verification; native WebView and real-device layout remain untested. No deployment."
+    }
+  ],
+  "relatedId": "phone-lab-3d-20261012"
+}

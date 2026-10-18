@@ -1,0 +1,56 @@
+{
+  "id": "academy-build24-usb-verified-20261017",
+  "relatedId": "academy-build24-prepared-20261017",
+  "createdAt": "2026-10-17T10:01:59.107Z",
+  "title": "Academy build 24 verified and copied to USB",
+  "summary": "Android 1.0.22 build 24 completed, matches the previous signing identity and was copied to USB with matching SHA-256. Earlier installers were preserved.",
+  "status": "successful",
+  "pages": [
+    "Android app",
+    "Change History"
+  ],
+  "components": [
+    "Android release",
+    "USB installer"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/build-academy24.ps1",
+    "lecomax-learning-app/artifacts/verify-academy24.ps1",
+    "lecomax-learning-app/artifacts/copy-academy24-usb.ps1",
+    "lecomax-learning-app/artifacts/build24-verification.json",
+    "lecomax-learning-app/artifacts/build24-usb-verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Completed the ACADEMY-1.0.22-build24.apk installer and USB installation notes in D:\\lecomax app; preserved previous installers."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "Gradle assembleRelease succeeded; 13 native tests passed with zero failures, errors or skips.",
+      "result": "passed",
+      "name": "Android build and native tests"
+    },
+    {
+      "detail": "Verified package com.lecomax.learning, version 1.0.22 (24), ARM64, APK signature matching build 23, current source markers and both Arabic fonts.",
+      "result": "passed",
+      "name": "APK verification"
+    },
+    {
+      "detail": "216822100 bytes; source and USB SHA-256 A4E5DF9AA8194CC5677158AF6A52B71407488BB694BB75D3B3D37E378902227D.",
+      "result": "passed",
+      "name": "USB copy"
+    },
+    {
+      "detail": "Retained evidence shows 17 release tests passed and staging comparison contained no mismatches or extras. History check passed with 368 reports before this append.",
+      "result": "passed",
+      "name": "Prior release checks"
+    },
+    {
+      "detail": "Physical-phone installation and real-account login not tested. No website or OTA deployment. This post-build verification report is in local source history for the next build; the verified APK contains history through the prepared report.",
+      "result": "not-run",
+      "name": "Acceptance and report availability"
+    }
+  ]
+}

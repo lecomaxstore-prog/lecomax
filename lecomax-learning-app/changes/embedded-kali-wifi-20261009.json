@@ -1,0 +1,79 @@
+{
+  "id": "embedded-kali-wifi-20261009",
+  "createdAt": "2026-10-09T21:49:05.066Z",
+  "relatedId": "embedded-kali-desktop-20261009",
+  "title": "Kali desktop and Android Wi-Fi connection prepared",
+  "status": "needs-testing",
+  "summary": "Installed the missing XFCE desktop, verified real authenticated desktop pixels, and added same-network app access; firewall activation and phone checks remain pending.",
+  "pages": [
+    "Teacher",
+    "Kali desktop",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "KaliDesktop web/native",
+    "TeacherLab",
+    "Desktop API",
+    "Wi-Fi launcher",
+    "Android build"
+  ],
+  "files": [
+    "lib/kali-desktop.ts",
+    "lib/teacher-lab.ts",
+    "app/api/learning-mobile/desktop/route.ts",
+    "middleware.ts",
+    "scripts/start-notification-api.mjs",
+    "scripts/start-learning-wifi.ps1",
+    "lecomax-learning-app/components/KaliDesktop.web.tsx",
+    "lecomax-learning-app/components/KaliDesktop.tsx",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/TeacherLab.tsx",
+    "lecomax-learning-app/app/kali.tsx",
+    "lecomax-learning-app/utils/wifi-lab.ts",
+    "lecomax-learning-app/types/novnc.d.ts",
+    "lecomax-learning-app/plugins/with-wifi-lab.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/docs/local-runtimes.md",
+    "tests/kali-desktop.test.ts",
+    "package.json",
+    "package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Initial desktop tests found the recommended XFCE desktop absent, then a read-only WSLg X11 socket mount. Installed kali-desktop-xfce and applied the same socket mount preparation as Win-KeX; authenticated framebuffer test now passes."
+    },
+    {
+      "kind": "added",
+      "detail": "Native Live Kali Wi-Fi screen embeds the owner-gated local app in a WebView restricted to a selected private IPv4 origin on port 8081. Added /kali web route, desktop fullscreen and reconnect, exact-host LAN opt-in and reusable server launcher."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prepared Android version 1.0.5/build 7 with a new OTA runtime and local WebView HTTP support. Normal production owner API still requires HTTPS. Wi-Fi traffic uses HTTP and must be limited to a trusted local network. No firewall rule was created, no public tunnel or deployment; no source files removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Kali desktop and terminal tests",
+      "result": "passed",
+      "detail": "All 12 tests passed: private-host restrictions, origin-bound expiring single-use tickets, owner isolation, VNC-only security, real VNC password authentication and pixel transfer, desktop stop, and existing PowerShell/Python/Node/Kali terminal behavior."
+    },
+    {
+      "name": "App checks",
+      "result": "passed",
+      "detail": "App TypeScript and focused ESLint passed before the final lifecycle/theme refinements; six history interaction/persistence tests passed. Final check rerun pending."
+    },
+    {
+      "name": "Local HTTP",
+      "result": "passed",
+      "detail": "Local /kali returned 200. Desktop API rejected unauthenticated requests with OWNER_LOGIN_REQUIRED and external origins with LOCAL_LAB_ONLY; local CORS preflight returned 204."
+    },
+    {
+      "name": "Build and activation",
+      "result": "not-run",
+      "detail": "APK offline build failed because Kotlin plugin 2.2.0 was not cached; online retry pending. Root typecheck corrections pending verification. Automatic approval review rejected opening TCP 3002/3003/8081 to the Wi-Fi subnet and restarting in LAN mode until the user explicitly approves that exposure. No connected phone or available browser automation surface; no device/visual verification."
+    }
+  ]
+}

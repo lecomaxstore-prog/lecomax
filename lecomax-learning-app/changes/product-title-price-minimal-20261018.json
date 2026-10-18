@@ -1,0 +1,31 @@
+{
+  "id": "product-title-price-minimal-20261018",
+  "relatedId": "product-title-price-refinement-20261018",
+  "createdAt": "2026-10-18T09:05:09.603Z",
+  "title": "Lighter product title and refined price composition",
+  "summary": "Give the title priority and reduce price clutter with smaller decimals and inline currency.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product title",
+    "Price display"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Set the title in 26px medium type (23px compact), use a 24px medium price with 16px muted decimal digits, and place currency inline on the same baseline. Preserve locale grouping, exact amount and accessible full-price label."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Typecheck and lint pending. Rendered browser/device appearance unverified; no deployment."
+    }
+  ]
+}

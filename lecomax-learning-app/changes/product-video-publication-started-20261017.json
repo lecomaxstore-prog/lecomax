@@ -1,0 +1,43 @@
+{
+  "id": "product-video-publication-started-20261017",
+  "createdAt": "2026-10-17T21:25:38.822Z",
+  "relatedId": "product-video-cloudinary-verified-20261017",
+  "title": "Publish product video fix to GitHub and Vercel",
+  "summary": "User authorized GitHub publication and production deployment of the product video correction.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail",
+    "Admin products"
+  ],
+  "components": [
+    "Product video player",
+    "GitHub release",
+    "Vercel production"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "components/ProductVideo.tsx",
+    "lib/product-video.ts",
+    "lib/product-api-validation.ts",
+    "app/admin/products/page.tsx",
+    "tests/product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepared isolated GitHub branch fix/product-video-cloudinary-20261017 from origin/main and applied the same fix to the previously deployed release checkout, preserving existing production changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regressions",
+      "result": "passed",
+      "detail": "18 video/gallery and product API tests pass in workspace; prior browser checks confirmed both affected videos decode."
+    },
+    {
+      "name": "Publication and live verification",
+      "result": "not-run",
+      "detail": "GitHub push and Vercel production deployment pending. Physical iPhone/Android and Safari remain untested."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "product-reviews-clean-layout-20261018",
+  "createdAt": "2026-10-18T09:26:48.503Z",
+  "title": "Simplify product customer reviews",
+  "summary": "Clearer centered empty state, one section heading and a solid green review button.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile storefront /product/[slug]"
+  ],
+  "components": [
+    "ProductReviews",
+    "English and French review messages"
+  ],
+  "files": [
+    "mobile/src/components/product-reviews.tsx",
+    "mobile/src/i18n/locales/en.json",
+    "mobile/src/i18n/locales/fr.json"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed duplicate title, community label and blanket verified-purchases badge."
+    },
+    {
+      "kind": "modified",
+      "detail": "Centered compact empty state, improved English/French product-neutral copy and solid dark-green accessible-size action."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Individual verified-purchase badges now require an explicitly true verification flag."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint and review regression tests pending. No deployment or device preview performed."
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "id": "learning-apk-build21-verified-usb-approval-20261016",
+  "createdAt": "2026-10-15T23:07:59.871Z",
+  "relatedId": "learning-apk-build21-dependency-retry-20261016",
+  "title": "Learn 1.0.19 build 21 verified; USB transfer awaiting approval",
+  "summary": "Current learning updates packaged into a signed ARM64 APK. Build and automated verification passed. Automatic approval review blocked export to the removable drive until explicitly authorized.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning app",
+    "Learning universe",
+    "Tutor",
+    "Academy",
+    "Studios",
+    "Change History"
+  ],
+  "components": [
+    "Android release",
+    "Release verification",
+    "USB delivery"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/scripts/universe-browser.cjs",
+    "lecomax-learning-app/artifacts/build-latest21.ps1",
+    "lecomax-learning-app/artifacts/verify-latest21.cjs",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.19-build21.apk",
+    "lecomax-learning-app/artifacts/phone-internet-build21.log",
+    "lecomax-learning-app/artifacts/phone-internet-build21-native-tests.xml",
+    "lecomax-learning-app/artifacts/phone-direct-build21-verification.json",
+    "lecomax-learning-app/artifacts/build21-source-comparison.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Produced signed version 1.0.19, version code 21, ARM64 APK containing the current learning features and prepared/retry reports."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected browser scoring expectation and synchronized missing KaTeX dependency for release packaging."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source validation",
+      "result": "passed",
+      "detail": "335 automated tests passed; TypeScript and focused universe ESLint passed. After version/report changes, all 12 focused release/history tests passed."
+    },
+    {
+      "name": "Browser validation",
+      "result": "passed",
+      "detail": "Existing local web export passed English, Arabic, French checks: 16 routes and four viewport widths, nine playable games, score persistence, journey and flashcard interactions. No page errors. Home screenshot inspected."
+    },
+    {
+      "name": "Android release",
+      "result": "passed",
+      "detail": "Gradle BUILD SUCCESSFUL; 13 native tests, zero errors/failures. Signature matches prior release signer. Version, native assets and current feature/report markers verified. 1426 staged application files matched source with no extras before the retry history entry."
+    },
+    {
+      "name": "APK checksum",
+      "result": "passed",
+      "detail": "SHA-256 6581efafc67aecbb33f221504cb8b7160897d7b31e671a55c33d438d538c64bd; 213155792 bytes."
+    },
+    {
+      "name": "USB transfer",
+      "result": "not-run",
+      "detail": "Automatic approval review rejected copying the private APK to D:/lecomax app because explicit authorization for that removable drive was required. No copy performed. Destination detected as D: ANDROID-X86."
+    },
+    {
+      "name": "Physical device and delivery limitations",
+      "result": "not-run",
+      "detail": "No installation or physical-phone testing, no deployment. This post-build report is in repository history and requires a subsequent build to appear in installed APKs. No current app preview claimed."
+    }
+  ]
+}

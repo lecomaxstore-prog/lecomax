@@ -1,0 +1,50 @@
+{
+  "id": "curiosity-universe-implementation-20261016",
+  "createdAt": "2026-10-16T12:14:50.696Z",
+  "title": "Curiosity Universe: discoveries, journeys and journal",
+  "summary": "Adds a source-backed discovery catalog, exploration modes, contextual Tutor handoff and persistent retrieval journal.",
+  "status": "needs-testing",
+  "pages": [
+    "/curiosity",
+    "/",
+    "/tutor"
+  ],
+  "components": [
+    "CuriosityScreen",
+    "AcademyDashboard",
+    "TutorWorkspace",
+    "TutorSession"
+  ],
+  "files": [
+    "lecomax-learning-app/features/curiosity/catalog.ts",
+    "lecomax-learning-app/features/curiosity/model.ts",
+    "lecomax-learning-app/features/curiosity/CuriosityScreen.tsx",
+    "lecomax-learning-app/app/curiosity.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/docs/curiosity-universe.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "21 source-checked discoveries, diagrams, steps, checks, modes, recommendations, collections, local-day discovery and spaced retrieval."
+    },
+    {
+      "kind": "modified",
+      "detail": "Academy navigation and Tutor sessions retain discovery context across follow-up requests. Existing authentication and progress storage reused."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "Typecheck, catalog/unit tests, lint and runtime checks pending. npm.ps1 blocked by PowerShell policy; use npm.cmd."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "English catalog; AI translations require network. No expert peer review, physical Android test, production AI call or deployment."
+    }
+  ]
+}

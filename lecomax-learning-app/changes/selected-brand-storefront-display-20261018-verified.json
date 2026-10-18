@@ -1,0 +1,65 @@
+{
+  "id": "selected-brand-storefront-display-20261018-verified",
+  "createdAt": "2026-10-18T10:06:11.382Z",
+  "title": "Selected product brand display: regression checks passed",
+  "summary": "Website brand preservation, logo parity, shared registry requests and related catalogue behavior passed focused checks. Live saving and device rendering remain untested.",
+  "status": "successful",
+  "pages": [
+    "Admin products",
+    "Website catalogue and home",
+    "Website recommendations",
+    "Website product details"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "ProductCard",
+    "CollectionProductCard",
+    "RecommendationCard",
+    "apiToCard"
+  ],
+  "files": [
+    "lib/products.ts",
+    "lib/product-brand-client.ts",
+    "components/ProductBrandMark.tsx",
+    "components/ProductCard.tsx",
+    "components/CollectionProductCard.tsx",
+    "components/RecommendationCard.tsx",
+    "components/admin/ProductBrandPicker.tsx",
+    "tests/product-brand-display.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Record verification for the saved-brand website display fix without replacing earlier reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Product and brand regression tests",
+      "result": "passed",
+      "detail": "9 tests passed: selected brand survives card conversion, blank brands remain absent, custom registry logos survive, concurrent requests share one fetch, failed reads retry, all 17 web logos match Expo, API safeguards and new-arrival behavior remain intact."
+    },
+    {
+      "name": "Typechecks",
+      "result": "passed",
+      "detail": "Scoped website tsc using artifacts/brand-parity-tsconfig.json and learning app tsc --noEmit passed. Full root typecheck not run; Expo source unchanged."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "No errors across changed website components and registry loader. Three next/no-img-element optimization warnings remain."
+    },
+    {
+      "name": "History checks",
+      "result": "passed",
+      "detail": "6 history tests passed. Pre-follow-up check validated 514 reports."
+    },
+    {
+      "name": "Live save, visual and deployment checks",
+      "result": "not-run",
+      "detail": "Authenticated product save and logo upload, live website rendering and physical-device verification were not performed. No deployment or live product mutation."
+    }
+  ],
+  "relatedId": "selected-brand-storefront-display-20261018"
+}

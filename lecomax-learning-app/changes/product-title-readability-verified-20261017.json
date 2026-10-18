@@ -1,0 +1,46 @@
+{
+  "id": "product-title-readability-verified-20261017",
+  "relatedId": "product-title-readability-20261017",
+  "createdAt": "2026-10-17T10:20:56.896Z",
+  "title": "Product title layout verified",
+  "summary": "Checked the full Armani product heading on narrow mobile, mobile and desktop layouts.",
+  "status": "successful",
+  "pages": [
+    "Product details"
+  ],
+  "components": [
+    "Product heading"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx",
+    "lecomax-learning-app/artifacts/product-title-mobile.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the natural-case, semibold product heading without truncating product size or condition information."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "Product details page passed ESLint."
+    },
+    {
+      "name": "Responsive browser",
+      "result": "passed",
+      "detail": "At 320px and 390px the heading uses 22px text with 28.6px line height; at 1280px it uses 30px text with 39px line height. Full title retained and no heading overflow at all three widths. Inspected 390px screenshot."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No physical-device or full-site regression run. No deployment."
+    }
+  ],
+  "preview": {
+    "path": "/produit/armani-stronger-with-you-intensely-60ml-occasion",
+    "label": "Current product page",
+    "verifiedAt": "2026-10-17T10:20:56.897Z"
+  }
+}

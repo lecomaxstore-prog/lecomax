@@ -1,0 +1,35 @@
+{
+  "id": "interactive-studio-review-fix-20261015",
+  "createdAt": "2026-10-15T11:48:04.744Z",
+  "relatedId": "interactive-learning-studio-20261015",
+  "title": "Immediate flashcard review after creation",
+  "summary": "Refreshes the review clock when cards are added so new cards are available immediately.",
+  "status": "needs-testing",
+  "pages": [
+    "Interactive Learning Studio"
+  ],
+  "components": [
+    "Flashcards"
+  ],
+  "files": [
+    "lecomax-learning-app/features/interactive/StudyLabs.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Refresh due-card time and reset answer visibility after manual card creation or generation from notes; previously review could wait for the 30-second timer."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser reproduction",
+      "result": "failed",
+      "detail": "Existing browser suite reached flashcards after passing runtime, preview, math, science and quiz checks, then timed out waiting for Reveal answer."
+    },
+    {
+      "name": "Correction validation",
+      "result": "not-run",
+      "detail": "Fresh export and browser regression pending. Native device and live AI checks remain unrun."
+    }
+  ]
+}

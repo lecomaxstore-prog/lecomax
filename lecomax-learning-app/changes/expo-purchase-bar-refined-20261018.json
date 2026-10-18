@@ -1,0 +1,33 @@
+{
+  "id": "expo-purchase-bar-refined-20261018",
+  "createdAt": "2026-10-18T09:48:12.113Z",
+  "title": "Refined product purchase bar",
+  "summary": "Improve the sticky price and Add to cart bar with calmer typography and a cleaner button.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Sticky purchase bar"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use a larger semibold price with smaller decimal digits, a readable unit-price label, more horizontal padding, gentler bar corners and shadow, and a 52px green button with clearer text."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the bag icon background circle and button shadow. Preserve exact localized prices, safe-area padding and existing cart/preorder/loading states."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Pending code checks. Device visual appearance and interactions unverified. Not deployed."
+    }
+  ]
+}

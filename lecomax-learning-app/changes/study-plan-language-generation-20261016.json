@@ -1,0 +1,46 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Dedicated JSON course contract, explicit field limits and increased course output budget."
+    },
+    {
+      "kind": "added",
+      "detail": "Explanation language selection, generation progress, specific session and connection errors, regression and live checks."
+    },
+    {
+      "kind": "modified",
+      "detail": "Clearer Arabic instructions and examples; keep selected goal and language consistent during generation."
+    }
+  ],
+  "summary": "Separate course generation from chat instructions, expose explanation language, and clarify progress and failures.",
+  "id": "study-plan-language-generation-20261016",
+  "createdAt": "2026-10-16T10:57:03.564Z",
+  "validation": [
+    {
+      "detail": "Automated checks and live generation to follow. Browser session unavailable through UI tools.",
+      "result": "not-run",
+      "name": "Validation pending"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/study-plan.tsx",
+    "lecomax-learning-app/services/study-plan.ts",
+    "lecomax-learning-app/services/teacher.ts",
+    "lib/mobile-teacher-prompt.ts",
+    "lib/learning-mobile-validation.ts",
+    "app/api/learning-mobile/teacher/route.ts",
+    "lecomax-learning-app/tests/learning-journey.test.cjs",
+    "lecomax-learning-app/scripts/check-study-plan-live.cjs"
+  ],
+  "components": [
+    "StudyPlanScreen",
+    "teacher service",
+    "mobile teacher API"
+  ],
+  "status": "needs-testing",
+  "title": "Reliable lesson generation and clearer Arabic setup",
+  "pages": [
+    "/study-plan"
+  ]
+}

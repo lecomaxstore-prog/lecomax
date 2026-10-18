@@ -1,0 +1,47 @@
+{
+  "id": "recall-card-improvement-1791542770060",
+  "createdAt": "2026-10-09T10:46:10.060Z",
+  "title": "تحسين بطاقة «تحقّق من فهمك»",
+  "summary": "تعليمات أوضح، وحقل إجابة موجّه، ومقارنة بارزة، وخيارات تقييم سهلة القراءة بعد كتابة الإجابة.",
+  "status": "needs-testing",
+  "pages": [
+    "Lesson screen"
+  ],
+  "components": [
+    "StudyCoach"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyCoach.tsx",
+    "lecomax-learning-app/tests/study-coach.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "تحسين العنوان والمسافات والأيقونات، وإضافة خطوات واضحة: اشرح، قارن، قيّم فهمك."
+    },
+    {
+      "kind": "added",
+      "detail": "تسمية واضحة لحقل الإجابة، ومثال إرشادي، ورسالة توضّح أن كتابة فكرة تتيح المقارنة."
+    },
+    {
+      "kind": "modified",
+      "detail": "عرض خيارات التقييم بعرض البطاقة بعد كتابة الإجابة، وإبراز النقاط الأساسية في مساحة ملوّنة."
+    },
+    {
+      "kind": "fixed",
+      "detail": "مسح التقييم السابق عند تعديل الإجابة وإغلاق المقارنة عند إفراغ الحقل، مع الاحتفاظ بحفظ المسودة."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated validation",
+      "result": "not-run",
+      "detail": "Pending focused interaction tests, TypeScript, lint and history check."
+    },
+    {
+      "name": "Device visual check",
+      "result": "not-run",
+      "detail": "No live preview or native device validation yet."
+    }
+  ]
+}

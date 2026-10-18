@@ -1,0 +1,62 @@
+{
+  "id": "phone-viewing-invitation-checkpoint-20261013",
+  "createdAt": "2026-10-13T20:01:08.697Z",
+  "title": "Invitation validation checkpoint and corrections",
+  "summary": "Initial checks found strict TypeScript indexing and asynchronous test cleanup issues; corrected before continuing validation.",
+  "status": "needs-testing",
+  "pages": [
+    "My remote phone (/phone)",
+    "Change History (/change-history)"
+  ],
+  "components": [
+    "PhoneInvitation",
+    "PhoneViewer",
+    "Android phone capture and invitation server"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneInvitation.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/utils/phone-invitation.ts",
+    "lecomax-learning-app/native/phone/PhoneInvitationServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteInput.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/docs/phone-viewing-invitations.md",
+    "lecomax-learning-app/tests/phone-invitation.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Explicitly narrow invitation address/token and IP components for strict TypeScript; wait for React test cleanup before restoring browser globals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Existing phone and history regression checks",
+      "result": "passed",
+      "detail": "18 tests passed covering direct viewer, QR, secure sessions and append-only history."
+    },
+    {
+      "name": "First TypeScript run",
+      "result": "failed",
+      "detail": "Five strict indexing errors in the new invitation parser. Corrections applied; rerun pending."
+    },
+    {
+      "name": "Initial new interaction tests",
+      "result": "failed",
+      "detail": "12 assertions/tests passed, but asynchronous React cleanup caused a failing test-file result. Cleanup corrected; rerun pending."
+    },
+    {
+      "name": "Native and physical verification",
+      "result": "not-run",
+      "detail": "Native checks pending; two-phone validation, installation and deployment not performed."
+    }
+  ],
+  "relatedId": "phone-viewing-invitation-20261013"
+}

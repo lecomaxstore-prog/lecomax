@@ -1,0 +1,78 @@
+{
+  "id": "production-readiness-resume-verified-20261015",
+  "createdAt": "2026-10-15T15:31:11.088Z",
+  "relatedId": "production-ux-feedback-20261015",
+  "title": "Resumed production checks: saved learning journey and responsive layouts verified",
+  "summary": "Completed fresh-build verification of launch loading, device-save feedback, lesson persistence and English/French/Arabic layouts. Also verifies production-readiness-upgrade-20261015. No deployment performed.",
+  "status": "successful",
+  "pages": [
+    "Sign in",
+    "Onboarding",
+    "Lesson",
+    "Interactive Learning Studio",
+    "Change History"
+  ],
+  "components": [
+    "SchoolProvider",
+    "Page",
+    "Button",
+    "LessonFooter",
+    "StudyCoach",
+    "OwnerGate",
+    "CodeEditor",
+    "Expo Router"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/store/School.tsx",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/components/StudyCoach.tsx",
+    "lecomax-learning-app/features/OwnerGate.tsx",
+    "lecomax-learning-app/features/interactive/CodeEditor.web.tsx",
+    "lecomax-learning-app/scripts/test-production-journey.cjs",
+    "lecomax-learning-app/scripts/test-production-quality.cjs",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Append verification of the two pending production-readiness reports, retaining all historical entries."
+    },
+    {
+      "kind": "modified",
+      "detail": "Verified existing asynchronous web routes, device-write feedback and neutral sign-in greeting."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Verified existing note-save wording, learning-time accounting and left-to-right code direction; no additional application behavior changes in this resume."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression and static checks",
+      "result": "passed",
+      "detail": "Fresh run: 302 app tests, 27 authentication/session tests, 6 backup tests, TypeScript and full ESLint. App tests include embedded PostgreSQL migration role isolation and revision checks."
+    },
+    {
+      "name": "Fresh web export and browser journey",
+      "result": "passed",
+      "detail": "Expo web export succeeded. Onboarding, lesson, contextual teacher request, incorrect answer feedback, completion, note/bookmark, real QuickJS success/error and flashcard review passed. New browser context restored saved browser data. No page errors. Authentication and teacher responses mocked; this verifies local persistence, not automatic cross-device sync."
+    },
+    {
+      "name": "Responsive and offline checks",
+      "result": "passed",
+      "detail": "English/French/Arabic hub widths 320, 390, 768 and 1280 passed overflow checks. Phone editor direction LTR and real offline execution after asset load passed. Inspected Arabic editor, French dark hub and reopened lesson screenshots."
+    },
+    {
+      "name": "Local launch measurement",
+      "result": "passed",
+      "detail": "Three cold contexts per build on loopback: startup JavaScript 101420721 to 69635946 bytes (31.3% reduction); median sign-in readiness 873 to 729 ms. Remaining 69.6 MB is substantial. These are local measurements, not real-device/network performance."
+    },
+    {
+      "name": "Remaining limitations",
+      "result": "not-run",
+      "detail": "No deployment, physical Android/iOS tests, live teacher-provider/browser sign-in checks or offline cold-start verification. Studio contains English labels in French/Arabic interfaces; layout checks do not establish complete translation. No current preview URL claimed."
+    }
+  ]
+}

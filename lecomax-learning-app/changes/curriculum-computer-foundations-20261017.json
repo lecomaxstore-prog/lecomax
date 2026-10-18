@@ -1,0 +1,60 @@
+{
+  "id": "curriculum-computer-foundations-20261017",
+  "createdAt": "2026-10-17T09:19:10.202Z",
+  "title": "Computer fundamentals: practical sequence and evidence rubrics",
+  "summary": "Preserve the existing introduction and add files, networks, protection, algorithm testing and an integrated capstone using the current lesson player and progress backend.",
+  "status": "needs-testing",
+  "pages": [
+    "Computer Fundamentals",
+    "Course overview",
+    "Roadmap",
+    "Lesson player"
+  ],
+  "components": [
+    "CourseProgram",
+    "CurriculumRubric",
+    "LessonOrientation",
+    "LessonContent"
+  ],
+  "files": [
+    "lecomax-learning-app/data/computer-foundations.ts",
+    "lecomax-learning-app/types/content.ts",
+    "lecomax-learning-app/services/content.ts",
+    "lecomax-learning-app/constants/courses.ts",
+    "lecomax-learning-app/constants/course-programs.ts",
+    "lecomax-learning-app/components/CourseProgram.tsx",
+    "lecomax-learning-app/components/CurriculumRubric.tsx",
+    "lecomax-learning-app/components/LessonOrientation.tsx",
+    "lecomax-learning-app/services/curriculum-evidence.ts",
+    "lecomax-learning-app/app/roadmap.tsx",
+    "lecomax-learning-app/app/course/[id].tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/tests/curriculum-quality.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Five substantive English lessons with worked examples, diagrams, independent tasks, explained quizzes, evidence rubrics and a capstone; original Arabic introduction retained."
+    },
+    {
+      "kind": "modified",
+      "detail": "New lesson completion requires saved exercise evidence and rubric self-review as well as quiz success. Existing progress is preserved and self-review is not presented as certified mastery."
+    },
+    {
+      "kind": "added",
+      "detail": "Course briefs show audience, requirements, outcomes, workload, progression, targeted revision and next courses."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source inspection",
+      "result": "passed",
+      "detail": "Inspected existing content schema, course library, university introductions, workshop projects, lesson completion and progress storage. Checked foundational sources from OpenStax, MDN and CISA search results; CISA direct-page retrieval was unavailable."
+    },
+    {
+      "name": "Implementation verification",
+      "result": "not-run",
+      "detail": "Content, navigation, runnable examples, persistence and interaction checks pending. Native device and live multi-device behavior not verified. New instruction is English, not a claimed translation."
+    }
+  ]
+}

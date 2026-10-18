@@ -1,0 +1,35 @@
+{
+  "id": "expo-related-editorial-20261018",
+  "createdAt": "2026-10-18T09:46:37.524Z",
+  "title": "Photo-led recommendation carousel",
+  "summary": "Give You may also like a clean editorial layout with large images and restrained product details.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Related carousel",
+    "ProductCard related variant"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use photo-led portrait cards capped at 320px, a partial next-card preview, 20px spacing and matching snap interval. Refine brand tracking, two-line names and inline current/original prices."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove landscape split panels, sage backgrounds and redundant detail arrow buttons. Product images and titles retain their navigation actions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Pending code checks. Rendered appearance and native gestures remain unverified; no deployment."
+    }
+  ]
+}

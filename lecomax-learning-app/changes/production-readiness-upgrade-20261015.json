@@ -1,0 +1,45 @@
+{
+  "id": "production-readiness-upgrade-20261015",
+  "createdAt": "2026-10-15T11:53:12.630Z",
+  "title": "Production readiness: launch, save feedback and learning verification",
+  "summary": "Audit and improve launch loading, persistent save feedback, learning time accounting and shared accessibility; verify the student journey.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning app",
+    "Interactive Learning Studio",
+    "All learning pages"
+  ],
+  "components": [
+    "SchoolProvider",
+    "Page",
+    "Button",
+    "Expo Router"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/store/School.tsx",
+    "lecomax-learning-app/components/UI.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Plan web-only asynchronous route loading and explicit device-save status, preserving native bundling and existing state."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Include Interactive Studio in learning time accounting; remove decorative button scaling and announce storage errors."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Baseline",
+      "result": "passed",
+      "detail": "Full ESLint and secret audit passed. Existing exported entry approximately 101 MB."
+    },
+    {
+      "name": "Release verification",
+      "result": "not-run",
+      "detail": "Fresh build, storage regression and end-to-end journey pending. In-app browser unavailable; use automated browser fixtures and inspect fresh captures. Real devices/live-provider checks not yet performed."
+    }
+  ]
+}

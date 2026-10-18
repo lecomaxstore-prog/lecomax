@@ -1,0 +1,64 @@
+{
+  "id": "phone-workbench-verified-20261012",
+  "createdAt": "2026-10-12T17:04:17.835Z",
+  "title": "Detailed Phone Lab redesign verified",
+  "summary": "Replaced plain internal blocks with detailed component assemblies and refined the Phone Lab layout for smaller screens.",
+  "status": "successful",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone model renderer",
+    "Phone explorer document"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-model-renderer.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Layered battery pouch with seams and markings; PCB traces, contacts, processor shield, inset memory chips, camera housings, sensor optics, speaker grille, USB recess and chassis screws."
+    },
+    {
+      "kind": "modified",
+      "detail": "Compact mobile canvas, graphite studio background, quieter selection treatment, rectangular controls, organized full-width topic rows and refined lesson typography."
+    },
+    {
+      "kind": "removed",
+      "detail": "Large all-caps battery/speaker block labels and excessive selection outlines across component polygons."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Selection uses one component outline rather than outlining individual battery markings and details."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interaction and history tests",
+      "result": "passed",
+      "detail": "10 tests passed: Phone Lab in English/French/Arabic and six history tests. Four Phone Lab tests passed again after the selection outline refinement."
+    },
+    {
+      "name": "Typecheck and lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and focused ESLint passed, including after final renderer refinement."
+    },
+    {
+      "name": "Model visual inspection",
+      "result": "passed",
+      "detail": "Generated and inspected the open-phone canvas replay at artifacts/phone-cover-inside.png. Components, traces, markings and selection border are visible. This is a model-only PNG render, not a screenshot of the live app. Font cache warnings did not prevent output."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "History check passed with 189 reports before this linked follow-up; all previous reports retained."
+    },
+    {
+      "name": "Browser and physical device",
+      "result": "not-run",
+      "detail": "Browser verification was attempted, but the browser tool reported no available browsers. Responsive CSS has not been visually checked in a live browser or native WebView. No deployment or APK rebuild."
+    }
+  ],
+  "relatedId": "phone-workbench-redesign-20261012"
+}

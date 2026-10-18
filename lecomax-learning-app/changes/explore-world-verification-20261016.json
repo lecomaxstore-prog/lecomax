@@ -1,0 +1,93 @@
+{
+  "id": "explore-world-verification-20261016",
+  "createdAt": "2026-10-16T11:49:24.400Z",
+  "relatedId": "explore-world-experience-20261016",
+  "title": "Explore World verification and mobile refinements",
+  "summary": "Verified the first Explore World implementation: 177 map entries, 29 topics, eight-planet comparison, nine missions, journal persistence and reviewed-context Tutor navigation.",
+  "status": "successful",
+  "pages": [
+    "/world",
+    "/explore",
+    "/tutor",
+    "/change-history"
+  ],
+  "components": [
+    "Offline globe",
+    "WorldScreen",
+    "Nature illustrations",
+    "Journal",
+    "Missions",
+    "AI Tutor context"
+  ],
+  "files": [
+    "lecomax-learning-app/features/world/WorldScreen.tsx",
+    "lecomax-learning-app/features/world/Globe.tsx",
+    "lecomax-learning-app/features/world/Globe.web.tsx",
+    "lecomax-learning-app/features/world/globe-runtime.ts",
+    "lecomax-learning-app/features/world/content.ts",
+    "lecomax-learning-app/features/world/Diagrams.tsx",
+    "lecomax-learning-app/features/world/countries.geojson",
+    "lecomax-learning-app/features/world/map.json",
+    "lecomax-learning-app/data/world-runtime.json",
+    "lecomax-learning-app/scripts/check-world-globe.cjs",
+    "lecomax-learning-app/scripts/check-world-app.cjs",
+    "lecomax-learning-app/tests/world.test.cjs",
+    "lecomax-learning-app/docs/explore-world.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Adds sourced turtle, whale, pollinator, bird and desert lessons, original nature illustrations, and repeatable local browser checks."
+    },
+    {
+      "kind": "modified",
+      "detail": "Localizes category navigation, makes it horizontally scrollable, and documents reproducible checks and content coverage."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrects cramped mobile globe controls, maintains 2:1 proportions on the 2D map, prevents empty country actions and removes planet-shaped illustrations from non-planet topics. Fixes a lint purity finding by initializing daily discovery once per screen mount."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "App tsc --noEmit and ESLint on new module, world route, explorer and Tutor passed."
+    },
+    {
+      "name": "Automated model, history and API regression tests",
+      "result": "passed",
+      "detail": "22 tests passed: catalog validity, question evidence, serialized backup round-trip, mission gates, malformed data, adaptive ordering, polygon selection, reviewed Tutor context, append-only history, authenticated backup ownership/conflict handling and Tutor API contracts."
+    },
+    {
+      "name": "Offline globe browser checks",
+      "result": "passed",
+      "detail": "Installed Edge verified 3D country selection, zoom, 2D point selection, mobile dimensions, labels/borders/reset and forced WebGL fallback. Screenshots inspected."
+    },
+    {
+      "name": "Exported app interaction checks",
+      "result": "passed",
+      "detail": "Local browser with isolated mock auth verified map-to-country navigation, bookmarks, wrong/correct feedback, Morocco mission completion, planet comparison, mobile overflow, persistence after reload and Tutor route handoff. Screenshots inspected."
+    },
+    {
+      "name": "Expo web and Android export",
+      "result": "passed",
+      "detail": "Web and Android bundles exported successfully. Android export is a bundling check, not a physical-device performance result."
+    },
+    {
+      "name": "Live services and device coverage",
+      "result": "not-run",
+      "detail": "No live database write/restore, paid AI response, physical Android gesture/performance, or production deployment was performed. Cloud backup is manual using the existing authenticated API."
+    },
+    {
+      "name": "Content coverage and language limits",
+      "result": "not-run",
+      "detail": "Expanded country profiles cover Morocco and Brazil; 175 other map entries are basic sourced records. Lessons are introductory English content with multilingual Tutor access, not a fully translated encyclopedia. Visuals are stylized; there is no orbital simulator or live satellite data."
+    }
+  ],
+  "preview": {
+    "path": "/world",
+    "label": "Current app ? Explore World (local browser checked with mock auth)",
+    "verifiedAt": "2026-10-16T11:49:24.401Z"
+  }
+}

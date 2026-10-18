@@ -1,0 +1,34 @@
+{
+  "id": "mobile-footer-navigation-polish-20261017",
+  "createdAt": "2026-10-17T10:50:49.468Z",
+  "title": "Clearer expandable mobile footer menus",
+  "summary": "Grouped footer navigation into rounded sections with highlighted open headers and comfortable link rows.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added outlined accordion sections, green-tinted open headers, stronger labels and 48px link rows with separators and directional arrows."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced the plus/cross toggle with a down/up chevron to clarify expand/collapse behavior while preserving native details keyboard support and all destinations."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Static validation pending. No browser connected; visual and native accordion interaction verification pending. No deployment."
+    }
+  ]
+}

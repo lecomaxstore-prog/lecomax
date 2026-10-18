@@ -1,0 +1,39 @@
+{
+  "id": "pc-tailscale-interaction-verified-20261011",
+  "createdAt": "2026-10-11T13:01:58.824Z",
+  "title": "My PC interaction tests updated and verified",
+  "summary": "Align the interaction test with supported HTTPS gateways and verify connecting to a Tailscale address.",
+  "status": "successful",
+  "relatedId": "pc-tailscale-4g-path-20261011",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "PcDesktop interaction tests"
+  ],
+  "files": [
+    "lecomax-learning-app/tests/pc-desktop-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace the stale HTTPS rejection case with unsafe public HTTP rejection. The stale assertion produced an array-buffer allocation error while formatting the unexpected DOM object."
+    },
+    {
+      "kind": "added",
+      "detail": "Check a Tailscale address connects on port 6081, persists its origin and rejects navigation to a different address."
+    }
+  ],
+  "validation": [
+    {
+      "name": "My PC interaction test",
+      "result": "passed",
+      "detail": "Corrected test passes, including connection, background disconnect, origin restriction and Tailscale address."
+    },
+    {
+      "name": "Physical Tailscale session",
+      "result": "not-run",
+      "detail": "Automated component test only; no actual 4G/5G phone session."
+    }
+  ]
+}

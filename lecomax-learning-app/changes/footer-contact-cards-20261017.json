@@ -1,0 +1,34 @@
+{
+  "id": "footer-contact-cards-20261017",
+  "createdAt": "2026-10-17T10:46:27.714Z",
+  "title": "Clearer mobile contact cards",
+  "summary": "Made WhatsApp and email cards fully tappable with clearer labels, icon tiles and directional indicators.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Larger contact heading, sentence-case labels, muted details, rounded icon tiles, chevrons and more generous padding."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Expanded mobile links to the whole card with visible keyboard focus and hover feedback. Grouped Moroccan phone digits for readability and synchronized fallback display and WhatsApp destination."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Static checks and history validation pending. No browser connected; live WhatsApp/email handoff untested. No deployment."
+    }
+  ]
+}

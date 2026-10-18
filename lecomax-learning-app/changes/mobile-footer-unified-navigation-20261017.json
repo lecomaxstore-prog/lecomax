@@ -1,0 +1,37 @@
+{
+  "id": "mobile-footer-unified-navigation-20261017",
+  "createdAt": "2026-10-17T10:52:45.975Z",
+  "title": "Unified mobile footer navigation",
+  "summary": "Refined navigation into one divided panel with inset expanded links and clearer legal text.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replaced separate outlined accordion boxes with a single rounded panel, thin dividers, 15px headings and subtler chevrons. Expanded links sit in a soft tinted inset."
+    },
+    {
+      "kind": "modified",
+      "detail": "Increased copyright text to 12px with balanced wrapping and arranged legal links into two columns with 44px tap targets."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Explicit dark mobile legal-link hover and active colors prevent desktop light text styles from reducing contrast."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Static validation pending; no connected browser for visual or touch checks. No deployment."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "discovery-subjects-resume-20261016",
+  "createdAt": "2026-10-16T13:16:41.770Z",
+  "title": "Six new interactive subject journeys and reliable resume",
+  "summary": "Adds engineering, aviation, chemistry, ecosystems, archaeology and echoes to the existing AI-first player.",
+  "status": "needs-testing",
+  "pages": [
+    "/discovery",
+    "/curiosity"
+  ],
+  "components": [
+    "DiscoveryPlayer",
+    "ScientificVisual",
+    "CuriosityScreen",
+    "Journey models"
+  ],
+  "files": [
+    "lecomax-learning-app/features/curiosity/subject-journeys.ts",
+    "lecomax-learning-app/features/curiosity/journeys.ts",
+    "lecomax-learning-app/features/curiosity/labs.ts",
+    "lecomax-learning-app/features/curiosity/ScientificVisual.tsx",
+    "lecomax-learning-app/features/curiosity/DiscoveryPlayer.tsx",
+    "lecomax-learning-app/features/curiosity/CuriosityScreen.tsx",
+    "lecomax-learning-app/features/curiosity/model.ts",
+    "lecomax-learning-app/tests/discovery-player.test.cjs",
+    "lecomax-learning-app/scripts/check-discovery-player.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Six sourced two-step journeys with six executable models, responsive diagrams, predictions and model-limit checkpoints; catalog lists all guided journeys."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Record journey entry before interaction, restore preferred depth, and support bookmarks for new journey IDs."
+    }
+  ],
+  "validation": [
+    {
+      "name": "AI-first baseline",
+      "result": "passed",
+      "detail": "Before expansion, seven model tests, app typecheck, fresh Expo web export and browser walkthrough of eight AI steps passed. Authentication mocked."
+    },
+    {
+      "name": "Expanded implementation",
+      "result": "not-run",
+      "detail": "Pending typecheck, focused lint, tests, fresh export and browser walkthrough. Live AI, physical devices and deployment not tested."
+    }
+  ]
+}

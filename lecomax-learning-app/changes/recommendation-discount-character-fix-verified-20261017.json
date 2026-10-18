@@ -1,0 +1,45 @@
+{
+  "id": "recommendation-discount-character-fix-verified-20261017",
+  "createdAt": "2026-10-17T10:58:32.576Z",
+  "title": "Discount badge rendering checks passed",
+  "summary": "Rendered sale and sold-out checks, focused lint, learning app type check and history tests passed.",
+  "status": "successful",
+  "pages": [
+    "Product detail recommendations"
+  ],
+  "components": [
+    "RecommendationCard"
+  ],
+  "files": [
+    "components/RecommendationCard.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recorded validation of corrected discount badge text."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Rendered component checks",
+      "result": "passed",
+      "detail": "React server rendering verified -10 %, -25 %, no discount for equal prices and sold-out badge priority. Next Image/Link and wishlist were mocked."
+    },
+    {
+      "name": "Static checks",
+      "result": "passed",
+      "detail": "RecommendationCard lint and learning app TypeScript passed."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All six history tests passed."
+    },
+    {
+      "name": "Browser and deployment",
+      "result": "not-run",
+      "detail": "No connected browser for visual verification. Not deployed."
+    }
+  ],
+  "relatedId": "recommendation-discount-character-fix-20261017"
+}

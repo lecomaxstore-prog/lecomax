@@ -1,0 +1,43 @@
+{
+  "id": "mobile-footer-refresh-20261017",
+  "createdAt": "2026-10-17T10:23:53.133Z",
+  "title": "Simpler mobile footer",
+  "summary": "Improve mobile footer spacing, contact details, newsletter form and navigation.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Mobile-only layout with compact contact rows, improved text contrast, 44px social links, and a rounded newsletter panel with a larger email field and clear subscription action."
+    },
+    {
+      "kind": "added",
+      "detail": "Native expandable navigation sections on mobile, email input label and autocomplete, and keyboard focus styles."
+    },
+    {
+      "kind": "removed",
+      "detail": "Replace the always-expanded mobile link grid with collapsible groups; preserve desktop navigation and existing links."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Footer.tsx passes ESLint."
+    },
+    {
+      "name": "Browser checks",
+      "result": "not-run",
+      "detail": "Responsive rendering and navigation interaction pending. Newsletter submission will not send a real subscription."
+    }
+  ]
+}

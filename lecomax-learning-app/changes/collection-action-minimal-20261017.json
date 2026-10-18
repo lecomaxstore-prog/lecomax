@@ -1,0 +1,33 @@
+{
+  "id": "collection-action-minimal-20261017",
+  "createdAt": "2026-10-17T10:16:42.473Z",
+  "title": "Simplify Voir le produit styling",
+  "summary": "Replace the heavy green product action with a clean text-and-arrow footer.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage collections"
+  ],
+  "components": [
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/CollectionProductCard.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Remove the solid green action background and circular icon background."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use dark text on the white card, a fine top divider, a simple arrow and 46px minimum action height. Preserve keyboard and reduced-motion feedback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visual validation",
+      "result": "not-run",
+      "detail": "Local mobile screenshot pending. No deployment."
+    }
+  ]
+}

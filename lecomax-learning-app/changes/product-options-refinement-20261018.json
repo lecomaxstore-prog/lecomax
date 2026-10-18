@@ -1,0 +1,40 @@
+{
+  "id": "product-options-refinement-20261018",
+  "createdAt": "2026-10-18T09:09:42.791Z",
+  "title": "Refined size, quantity and product reassurance section",
+  "summary": "Simplify product options into consistent outlined controls and lighter supporting rows.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Size selector",
+    "Quantity stepper",
+    "Reviews and share",
+    "Product reassurance"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use a 52px size selector with plain selected value and checkmark, a matching 46px quantity stepper with 44px button targets, and explicit quantity button roles."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the nested size badge, redundant Selected label, circular chevron background, nested quantity button fills, share pill and bulky reassurance panel."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use quieter review/share text, consistent corners and a single subtle divider above reassurance details. Existing size selection and quantity limits are retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Mobile typecheck and focused lint pending. Browser/device visual and interaction checks unverified; no deployment."
+    }
+  ]
+}

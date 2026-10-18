@@ -1,0 +1,81 @@
+{
+  "id": "phone-viewing-invitation-verified-20261013",
+  "createdAt": "2026-10-13T20:05:38.974Z",
+  "title": "View-only invitations: automated checks passed",
+  "summary": "The link invitation, approval, automatic device handoff and host-enforced view-only flow passed automated checks. New Android builds and physical two-phone verification are still required.",
+  "status": "successful",
+  "pages": [
+    "My remote phone (/phone)",
+    "Change History (/change-history)"
+  ],
+  "components": [
+    "PhoneInvitation",
+    "PhoneViewer",
+    "Android phone capture and invitation server"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneInvitation.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/utils/phone-invitation.ts",
+    "lecomax-learning-app/native/phone/PhoneInvitationServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteInput.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/docs/phone-viewing-invitations.md",
+    "lecomax-learning-app/tests/phone-invitation.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-page.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected strict parser types and React lifecycle lint findings; checks native sharing status before accepting a link, preserves in-flight delivery retries and avoids automatic saved-session restoration over invitation consent."
+    },
+    {
+      "kind": "modified",
+      "detail": "Existing sharing screen shows view-only status after returning to an active view-only session; Accessibility settings and control-mode QR prompt are hidden for that active session."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression coverage for explicit consent, send-link-to-viewer handoff, hidden controls, server-side control denial, authenticated invitation delivery, duplicate response recovery and expiry."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck completed with exit code 0."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for app/phone.tsx, components/PhoneInvitation.tsx, components/PhoneViewer.tsx and utils/phone-invitation.ts. Initial ref/effect lint findings were corrected."
+    },
+    {
+      "name": "JavaScript interaction and history regression tests",
+      "result": "passed",
+      "detail": "25 tests passed across invitation, phone page, direct viewer, QR, native viewer, secure sessions, append-only history and history UI persistence/expansion."
+    },
+    {
+      "name": "Native protocol tests",
+      "result": "passed",
+      "detail": "13 JUnit tests passed against the real NanoHTTPD loopback servers, including view-only control rejection and invitation authentication/idempotency/expiry."
+    },
+    {
+      "name": "Android Kotlin compilation",
+      "result": "passed",
+      "detail": "All native/phone production Kotlin sources compiled against cached Android, React Native, OkHttp, Okio and NanoHTTPD dependencies. Existing deprecation/parameter-name warnings remain. This is source compilation, not a full APK build."
+    },
+    {
+      "name": "Physical phones, installation and deployment",
+      "result": "not-run",
+      "detail": "No APK built or installed and no deployment performed. Requires updated Android builds on both phones and Tailscale TCP 8093/8092 access. Real share-sheet/custom-link handling, screen capture, app switching, lock/rotation and two-phone behavior remain untested."
+    }
+  ],
+  "relatedId": "phone-viewing-invitation-checkpoint-20261013"
+}

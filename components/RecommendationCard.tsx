@@ -1,4 +1,5 @@
 "use client";
+import ProductBrandMark from "./ProductBrandMark";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -27,6 +28,7 @@ export default function RecommendationCard({ product }: { product: CardProduct }
         </button>
       </div>
       <div className="flex flex-1 flex-col pt-2.5">
+        {product.brand && <div className="mb-2"><ProductBrandMark name={product.brand} compact /></div>}
         <p className="mb-1 text-[8px] font-medium uppercase tracking-[0.12em] text-neutral-500">{product.category}</p>
         <h3 title={product.name} className="line-clamp-2 text-[12px] font-medium leading-[1.5] tracking-[-0.015em] text-[#242824] sm:text-[13px]">
           <Link href={`/produit/${product.slug}`} className="rounded-sm hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#234735]">{product.name}</Link>

@@ -1,0 +1,109 @@
+{
+  "id": "phone-responsive-resume-verified-20261012",
+  "createdAt": "2026-10-12T10:33:15.689Z",
+  "status": "successful",
+  "title": "Remote viewer and return behavior verified in automated checks",
+  "summary": "TypeScript, focused lint, viewer/history/auth tests, 11 native server tests and four browser orientation layouts passed. Android build 18 is being prepared; physical acceptance remains required.",
+  "pages": [
+    "My remote phone",
+    "Remote viewer",
+    "App navigation",
+    "Sign-in"
+  ],
+  "components": [
+    "PhoneViewer",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "PhonePairingStore",
+    "ResumeNavigation",
+    "Owner session"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/features/ResumeNavigation.tsx",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/owner-session.ts",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/phone-relay/viewer.css",
+    "lecomax-learning-app/native/phone/PhonePairingStore.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteInput.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/resume-route.test.cjs",
+    "tests/owner-session.test.ts",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/scripts/check-phone-layout.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/artifacts/build-phone-responsive18.ps1",
+    "lecomax-learning-app/docs/phone-responsive-resume-build18.md",
+    "lecomax-learning-app/docs/phone-remote.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use a compact safe-area toolbar, collapsible instructions, full available screen height and landscape side controls. Localize native viewer navigation/status in French, English and Arabic."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resize the existing Android capture surface on rotation; reject gestures from mismatched frame orientation. Avoid clearing each valid frame before replacing it."
+    },
+    {
+      "kind": "added",
+      "detail": "Keep approved host pairing encrypted with Android Keystore in no-backup storage; restore after capture restart and revoke through explicit Disconnect, Stop sharing or Forget paired phone. Android capture permission itself is never persisted or bypassed."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Preserve authenticated navigation during background/foreground verification while retaining rejection handling. Save allowlisted app routes without pairing secrets, respect incoming links, and reopen saved direct viewer sessions."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove always-expanded viewer instructions and automatic stop-on-rotation behavior."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Correct TypeScript optional path handling and effect-based route references found in initial checks. Confirm direct Disconnect on the host before closing; retain the session for retry if unreachable. Correct viewer asset Unicode text found during screenshot inspection."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepare version 1.0.16 / Android build 18, a reproducible build script, an installation/acceptance guide, and synthetic orientation screenshots."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "TypeScript and focused ESLint passed after correcting the two initial route-restoration findings. TypeScript passed again after disconnect handling and version preparation."
+    },
+    {
+      "name": "JavaScript regression checks",
+      "result": "passed",
+      "detail": "19 initial viewer, session, route and history tests passed; 9 owner-session tests passed. The final focused viewer/page/route run passed 12 tests including an added rotation-gesture test and saved connection restoration on page remount."
+    },
+    {
+      "name": "Android native checks",
+      "result": "passed",
+      "detail": "arm64 debug Kotlin/Java compilation and all 11 PhoneDirectServer JVM tests passed, including approval persistence across host restart and explicit revocation. Initial wrapper download was sandbox-blocked; existing cache was used with escalation. Initial default ABI configuration was incompatible with Python 3.14; supported arm64 passed."
+    },
+    {
+      "name": "Browser orientation layout",
+      "result": "passed",
+      "detail": "Headless Edge: four viewer/remote portrait-landscape combinations (360x490 and 780x230 viewer areas; 432x960 and 960x432 synthetic frames). No clipping or overflow, correct proportions, Arabic controls, no browser errors. Screenshots inspected; these are test fixtures, not physical phone captures."
+    },
+    {
+      "name": "Physical acceptance and release",
+      "result": "not-run",
+      "detail": "APK packaging is pending. No installation or deployment. Two-phone capture rotation, Keystore storage/reboot, OEM service survival, network changes and Android capture prompts remain untested. Android consent remains mandatory after capture ends. Relay persistence is unchanged."
+    }
+  ],
+  "relatedId": "phone-responsive-resume-20261012"
+}

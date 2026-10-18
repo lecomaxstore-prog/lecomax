@@ -1,0 +1,76 @@
+{
+  "id": "local-car-assembly-verified-20261013",
+  "createdAt": "2026-10-13T19:15:25.418Z",
+  "title": "Local car studio verified: cabin, moving panels and 12 systems",
+  "summary": "Verified the locally rendered sports sedan, cockpit and opening panels, multilingual learning, progress persistence and current app history.",
+  "status": "successful",
+  "pages": [
+    "/car-studio",
+    "/change-history"
+  ],
+  "components": [
+    "Local car assembly",
+    "CarViewer",
+    "Studio runtime",
+    "Change History"
+  ],
+  "files": [
+    "lecomax-learning-app/features/car-studio/local-car.ts",
+    "lecomax-learning-app/features/car-studio/viewer.ts",
+    "lecomax-learning-app/features/car-studio/runtime.ts",
+    "lecomax-learning-app/features/car-studio/studio.css",
+    "lecomax-learning-app/data/car-studio-runtime.json",
+    "lecomax-learning-app/docs/car-studio.md",
+    "lecomax-learning-app/scripts/car-studio-smoke.cjs",
+    "lecomax-learning-app/scripts/local-car-smoke.cjs",
+    "lecomax-learning-app/scripts/car-studio-app-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected cockpit camera clearance after screenshot inspection, reset panel state and mobile framing. Made Isolate available from initial load, added open/close labels and moved cabin/parts controls directly below the viewer."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated studio regression checks for the local assembly and the live app; documented original educational geometry and exact-BMW limitations."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Bundle, types and focused lint",
+      "result": "passed",
+      "detail": "npm run studio:build; npm run typecheck; focused ESLint for local-car.ts, viewer.ts and runtime.ts."
+    },
+    {
+      "name": "Focused regression tests",
+      "result": "passed",
+      "detail": "15 tests passed across car-studio, change-history, change-history-interaction, progress and more-screen."
+    },
+    {
+      "name": "Actual 3D model and visual checks",
+      "result": "passed",
+      "detail": "local-car-smoke.cjs passed: zero external requests; 482 unique meshes, 157660 triangles, 12 systems; animated hinge open/close, initial Isolate button, cockpit, modes, paint, raycast selection, pause/disposal and 320/390/844px layouts. Inspected desktop/mobile/open/cockpit/interior images."
+    },
+    {
+      "name": "Multilingual studio and GLB regression",
+      "result": "passed",
+      "detail": "car-studio-smoke.cjs passed English/French/Darija learning, quiz/progress, guided tour, simulation and layout checks; GLB fixture load/select/orbit/zoom/pinch/pan/paint/X-ray/explode/disposal/recovery checks passed."
+    },
+    {
+      "name": "Live app integration",
+      "result": "passed",
+      "detail": "car-studio-app-smoke.cjs on localhost:8082 passed More to Studio, current local canvas, saved/restored progress, unchanged course completion and visible Change History. Synthetic auth only."
+    },
+    {
+      "name": "Remaining limitations",
+      "result": "not-run",
+      "detail": "No Android/iOS physical-device or GPU-performance measurements, no production deployment. Original illustrative sports sedan geometry is not an exact licensed BMW model or repair reference."
+    }
+  ],
+  "relatedId": "local-car-assembly-20261013",
+  "preview": {
+    "path": "/car-studio",
+    "label": "Current local 3D studio (not a historical snapshot)",
+    "verifiedAt": "2026-10-13T19:15:25.418Z"
+  }
+}

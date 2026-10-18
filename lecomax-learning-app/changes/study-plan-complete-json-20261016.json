@@ -1,0 +1,51 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Use non-streaming JSON for courses, reject incomplete responses, validate course structure before returning, and expose selected language accessibly."
+    }
+  ],
+  "summary": "Live stream ended with text but no completion event; course generation now requests one completed JSON response and validates it on the server.",
+  "id": "study-plan-complete-json-20261016",
+  "createdAt": "2026-10-16T11:01:38.530Z",
+  "validation": [
+    {
+      "name": "Initial live stream",
+      "result": "failed",
+      "detail": "English course with Arabic explanations returned 11050 characters but no response.completed event."
+    },
+    {
+      "name": "Regression checks",
+      "result": "passed",
+      "detail": "11 journey/history tests and 2 provider tests passed. App typecheck and focused lint passed before the response-handling follow-up."
+    },
+    {
+      "name": "Complete JSON live validation",
+      "result": "not-run",
+      "detail": "In progress; authenticated browser interaction unavailable."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/study-plan.tsx",
+    "lecomax-learning-app/services/study-plan.ts",
+    "lecomax-learning-app/services/teacher.ts",
+    "lib/mobile-teacher-prompt.ts",
+    "lib/learning-mobile-validation.ts",
+    "app/api/learning-mobile/teacher/route.ts",
+    "lecomax-learning-app/tests/learning-journey.test.cjs",
+    "lecomax-learning-app/scripts/check-study-plan-live.cjs",
+    "lib/ai-tutor-provider.ts",
+    "tests/ai-tutor.test.ts"
+  ],
+  "components": [
+    "StudyPlanScreen",
+    "teacher service",
+    "mobile teacher API"
+  ],
+  "status": "needs-testing",
+  "title": "Correct interrupted course response handling",
+  "pages": [
+    "/study-plan"
+  ],
+  "relatedId": "study-plan-language-generation-20261016"
+}

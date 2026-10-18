@@ -1,0 +1,34 @@
+{
+  "id": "checkout-mobile-payment-layout-20261017",
+  "createdAt": "2026-10-17T11:10:34.421Z",
+  "title": "Mobile payment panel layout fix",
+  "summary": "Contain PayPal stacking and improve mobile checkout reassurance readability.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout /checkout"
+  ],
+  "components": [
+    "PayPal panel",
+    "Checkout reassurance banner"
+  ],
+  "files": [
+    "app/checkout/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Isolated the PayPal panel in a z-index 0 stacking context to contain SDK layering under the fixed header. Replaced misspelled cash-payment default heading with payment-neutral text; custom admin heading remains supported."
+    },
+    {
+      "kind": "modified",
+      "detail": "Mobile reassurance becomes three padded horizontal rows with 12px text and 20px line height; desktop retains three columns. Added rounded panel, larger heading and non-shrinking decorative icons."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Lint and history checks pending. Live PayPal browser rendering and payment processing have not been tested. No deployment."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "expo-real-brand-logos-20261018-verified",
+  "createdAt": "2026-10-18T09:50:44.942Z",
+  "title": "Brand logos: assets and code verified",
+  "summary": "Display bundled Puma, Adidas, Nike, New Balance, Reebok and Under Armour marks beside stock status.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "ProductBrandMark"
+  ],
+  "files": [
+    "mobile/src/components/product-brand-mark.tsx",
+    "mobile/assets/images/brands/SOURCES.md",
+    "public/images/brands/puma.svg",
+    "mobile/assets/images/brands/puma.png",
+    "public/images/brands/adidas.svg",
+    "mobile/assets/images/brands/adidas.png",
+    "public/images/brands/nike.svg",
+    "mobile/assets/images/brands/nike.png",
+    "public/images/brands/newbalance.svg",
+    "mobile/assets/images/brands/newbalance.png",
+    "public/images/brands/reebok.svg",
+    "mobile/assets/images/brands/reebok.png",
+    "public/images/brands/underarmour.svg",
+    "mobile/assets/images/brands/underarmour.png"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Bundle six real brand marks from Simple Icons with SVG originals, PNG app assets and source attribution."
+    },
+    {
+      "kind": "modified",
+      "detail": "Match names case-insensitively and ignore spaces/hyphens for bundled marks. Preserve admin HTTPS logo overrides, fall back to bundled marks on remote failure, and keep text for unknown brands. Preserve ASICS."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Asset visual inspection",
+      "result": "passed",
+      "detail": "Inspected a montage of all six bundled marks; all render as recognizable black brand logos with preserved proportions."
+    },
+    {
+      "name": "TypeScript, focused lint and tests",
+      "result": "passed",
+      "detail": "Mobile typecheck and component ESLint passed. All eight brand registry and history tests passed."
+    },
+    {
+      "name": "In-app device review",
+      "result": "not-run",
+      "detail": "Actual device rendering and remote override failure interaction were not exercised. No deployment."
+    }
+  ],
+  "relatedId": "expo-real-brand-logos-20261018"
+}

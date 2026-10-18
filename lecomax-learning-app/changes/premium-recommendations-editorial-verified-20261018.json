@@ -1,0 +1,47 @@
+{
+  "id": "premium-recommendations-editorial-verified-20261018",
+  "createdAt": "2026-10-18T09:31:54.336Z",
+  "title": "Premium recommendation redesign automated checks passed",
+  "summary": "Mobile typecheck, focused lint and history integrity passed. Live visual validation remains pending.",
+  "status": "successful",
+  "relatedId": "premium-recommendations-editorial-20261018",
+  "pages": [
+    "Mobile product /product/[slug]"
+  ],
+  "components": [
+    "Related ProductCard",
+    "Recommendation carousel"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded automated verification for the premium editorial recommendation redesign."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "ProductCard and product detail page lint passed."
+    },
+    {
+      "name": "Whitespace and history",
+      "result": "passed",
+      "detail": "git diff --check and change-report.cjs --check passed."
+    },
+    {
+      "name": "Visual preview and deployment",
+      "result": "not-run",
+      "detail": "No live preview, device interaction test or deployment performed."
+    }
+  ]
+}

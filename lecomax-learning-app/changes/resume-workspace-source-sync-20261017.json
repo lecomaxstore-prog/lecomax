@@ -1,0 +1,37 @@
+{
+  "id": "resume-workspace-source-sync-20261017",
+  "createdAt": "2026-10-17T17:54:40.320Z",
+  "relatedId": "resumed-release-source-refresh-20261017",
+  "title": "Match workspace learning snapshots to workspace source",
+  "summary": "Refresh the local learning source archive independently from the combined release so source examples match their actual checkout.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning source explorer"
+  ],
+  "components": [
+    "Source archive and source map"
+  ],
+  "files": [
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/site-source-map.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Regenerated workspace source snapshots after content tests detected release-versus-workspace analytics source drift. Existing archived source files are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Workspace learning suite",
+      "result": "failed",
+      "detail": "Initial rerun found source drift and VM timeouts during concurrent production compilation. Corrected snapshots await focused verification."
+    },
+    {
+      "name": "Deployment",
+      "result": "not-run",
+      "detail": "No deployment performed in this resumed session."
+    }
+  ]
+}

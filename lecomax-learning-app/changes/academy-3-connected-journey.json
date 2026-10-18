@@ -1,0 +1,67 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Versioned prerequisite graph, separate diagnostic questions, immutable confidence baseline, evidence-based next action and recall-card creation."
+    },
+    {
+      "kind": "modified",
+      "detail": "Connect existing generation, lessons, home and tutor to the saved journey; retain legacy plans, localization and explicit progress-sharing preference."
+    }
+  ],
+  "summary": "Add a persistent diagnostic and an evidence-based learning journey to existing generated courses.",
+  "id": "academy-3-connected-journey",
+  "createdAt": "2026-10-15T20:39:02.927Z",
+  "validation": [
+    {
+      "detail": "39 tests passed, including diagnostics, persistence, tutor interactions, backup authorization, SM-2 and change history.",
+      "result": "passed",
+      "name": "First focused tests"
+    },
+    {
+      "detail": "Strict indexed access flagged ten possibly undefined array entries. Correction and revalidation pending.",
+      "result": "failed",
+      "name": "First typecheck"
+    },
+    {
+      "detail": "Zero source errors; test files ignored by repository lint configuration.",
+      "result": "passed",
+      "name": "Focused ESLint"
+    },
+    {
+      "detail": "Live provider, cloud round trip, browser visual layout and native device testing not run. No deployment.",
+      "result": "not-run",
+      "name": "Live and device validation"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/utils/academy.ts",
+    "lecomax-learning-app/utils/learning-journey.ts",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/study-plan.ts",
+    "lecomax-learning-app/app/learning-journey.tsx",
+    "lecomax-learning-app/app/study-plan.tsx",
+    "lecomax-learning-app/app/plan-lesson.tsx",
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/tests/learning-journey.test.cjs",
+    "lecomax-learning-app/tests/fixtures/learning-journey.cjs",
+    "lecomax-learning-app/tests/academy-2-interaction.test.cjs",
+    "lecomax-learning-app/docs/academy-3-first-journey.md"
+  ],
+  "components": [
+    "LearningJourney",
+    "School progress schema",
+    "AcademyDashboard",
+    "AI study-plan generation"
+  ],
+  "status": "needs-testing",
+  "title": "Connect goals, assessment, lessons and memory review",
+  "pages": [
+    "/learning-journey",
+    "/study-plan",
+    "/plan-lesson",
+    "/tutor",
+    "/"
+  ]
+}

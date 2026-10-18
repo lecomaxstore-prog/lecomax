@@ -1,0 +1,101 @@
+{
+  "id": "academy-ecosystem-validation-20261016",
+  "createdAt": "2026-10-16T19:42:43.416Z",
+  "title": "Academy integration checked; repository release checks remain open",
+  "summary": "New onboarding, planning, navigation and Agent Studio flows pass focused and browser checks. Full suite: 370 passed, six existing snapshot/test-harness failures remain. Not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Onboarding",
+    "My learning",
+    "Learning week",
+    "Agent Studio"
+  ],
+  "components": [
+    "AcademyDestinations",
+    "AcademyDashboard",
+    "LearnerProfile",
+    "weeklyAcademy",
+    "AgentStudio"
+  ],
+  "files": [
+    "lecomax-learning-app/components/AcademyDestinations.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/app/onboarding.tsx",
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/app/academy-week.tsx",
+    "lecomax-learning-app/app/agent-studio.tsx",
+    "lecomax-learning-app/utils/academy.ts",
+    "lecomax-learning-app/utils/weekly-academy.ts",
+    "lecomax-learning-app/utils/agent-studio.ts",
+    "lecomax-learning-app/services/discovery.ts",
+    "lecomax-learning-app/app/(tabs)/_layout.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/services/teacher.ts",
+    "lecomax-learning-app/services/tutor.ts",
+    "lecomax-learning-app/tests/academy-ecosystem.test.cjs",
+    "lecomax-learning-app/tests/academy-2-interaction.test.cjs",
+    "lecomax-learning-app/tests/release.test.cjs",
+    "lecomax-learning-app/scripts/academy-ecosystem-smoke.cjs",
+    "lecomax-learning-app/docs/ACADEMY-ECOSYSTEM-2026-10-16.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Eight academy destinations, seven flexible sessions prioritizing due recall, and a bounded agent tool runner with observable trace and failure checks."
+    },
+    {
+      "kind": "modified",
+      "detail": "Onboarding supports skipping and optional interests, routine goals and accessibility notes. Existing profile shape remains readable."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home, progress and search connect to the new screens. Existing lessons, consoles, authentication and wellness storage are preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Optional preference sharing is off by default; teacher and tutor transports omit new optional details until explicitly enabled. Saved generated courses participate in weekly planning."
+    },
+    {
+      "kind": "fixed",
+      "detail": "All quiz questions require spaced recall before the planner advances. Agent projects distinguish unsaved edits and show corrupt-project recovery. Updated Home and transport test harness dependencies."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course tab is named Learn; Explore links to interactive discovery. Added audit, implementation details and remaining product work."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "npm run typecheck and ESLint for modified application files passed."
+    },
+    {
+      "name": "Focused regression checks",
+      "result": "passed",
+      "detail": "37 focused tests passed; later 17 tests passed for preferences, agent flows and teacher transport harnesses."
+    },
+    {
+      "name": "Web build and real browser",
+      "result": "passed",
+      "detail": "Expo web export; English browser smoke with synthetic auth verified execution, storage reload, navigation, and 320/390/768/1280px widths. Agent and weekly screenshots visually inspected."
+    },
+    {
+      "name": "Full repository suite",
+      "result": "failed",
+      "detail": "376 tests: 370 passed, 6 failed. Existing stale source snapshot, course API cwd-dependent path and four tutor-coach world-content mock imports. See artifacts/academy-ecosystem-tests-final.log."
+    },
+    {
+      "name": "Release and product completeness",
+      "result": "not-run",
+      "detail": "No production deployment, APK build, live AI/auth, physical device or Arabic/French visual verification. Expert curricula, autonomous LLM agent runtime and offline owner-auth startup remain open."
+    }
+  ],
+  "relatedId": "academy-ecosystem-integration-20261016",
+  "preview": {
+    "path": "/agent-studio",
+    "label": "Current Agent Studio (checked local web export; not a historical snapshot)",
+    "verifiedAt": "2026-10-16T19:42:43.417Z"
+  }
+}

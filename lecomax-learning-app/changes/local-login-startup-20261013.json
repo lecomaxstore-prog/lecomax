@@ -1,0 +1,43 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Start the configured loopback API before Expo; reuse a running API and check database access first."
+    },
+    {
+      "kind": "added",
+      "detail": "Bounded readiness checks, startup errors, owned child process cleanup, regression tests and startup documentation."
+    }
+  ],
+  "summary": "Prevent the local login connection failure caused by starting Expo without its configured backend.",
+  "id": "local-login-startup-20261013",
+  "createdAt": "2026-10-13T09:19:53.451Z",
+  "validation": [
+    {
+      "detail": "Frontend localhost:8082 returned 200 while the configured API at 127.0.0.1:3002 refused connections. Database preflight passed outside the network sandbox.",
+      "result": "passed",
+      "name": "Diagnosis"
+    },
+    {
+      "detail": "Regression tests, typecheck, history checks and live API verification pending. No deployment or actual owner sign-in.",
+      "result": "not-run",
+      "name": "Implementation verification"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/scripts/local-api.cjs",
+    "lecomax-learning-app/tests/local-api.test.cjs",
+    "lecomax-learning-app/README.md"
+  ],
+  "components": [
+    "Development launcher",
+    "Local API readiness"
+  ],
+  "status": "needs-testing",
+  "title": "Start the login API with the learning app",
+  "pages": [
+    "Owner sign-in",
+    "Local development startup"
+  ]
+}

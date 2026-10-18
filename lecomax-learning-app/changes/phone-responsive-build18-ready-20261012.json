@@ -1,0 +1,100 @@
+{
+  "id": "phone-responsive-build18-ready-20261012",
+  "createdAt": "2026-10-12T10:40:41.585Z",
+  "status": "successful",
+  "title": "Android build 18 ready: responsive remote and saved return",
+  "summary": "Signed Android 1.0.16/build 18 is packaged and checked. It restores the last page and approved direct connection, supports capture resizing, and retries an unavailable viewer automatically. Physical two-phone acceptance remains untested.",
+  "pages": [
+    "My remote phone",
+    "Remote viewer",
+    "App navigation",
+    "Sign-in"
+  ],
+  "components": [
+    "PhoneViewer",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "PhonePairingStore",
+    "ResumeNavigation",
+    "Owner session"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/features/ResumeNavigation.tsx",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/owner-session.ts",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/phone-relay/viewer.css",
+    "lecomax-learning-app/native/phone/PhonePairingStore.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteInput.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/resume-route.test.cjs",
+    "tests/owner-session.test.ts",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/scripts/check-phone-layout.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/artifacts/build-phone-responsive18.ps1",
+    "lecomax-learning-app/docs/phone-responsive-resume-build18.md",
+    "lecomax-learning-app/docs/phone-remote.md",
+    "lecomax-learning-app/artifacts/verify-phone-responsive18.cjs",
+    "lecomax-learning-app/artifacts/audit-build18.ps1",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.16-build18.apk",
+    "lecomax-learning-app/artifacts/phone-direct-build18-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build18-secret-audit.json",
+    "lecomax-learning-app/artifacts/phone-responsive-build18-native-tests.xml",
+    "lecomax-learning-app/artifacts/phone-responsive-build18.log"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Package signed arm64 Android 1.0.16 / build 18 with compact portrait/landscape viewer, native capture resize, encrypted host pairing and saved page restoration. Install on both phones to receive the full native change."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Retry a failed WebView load every five seconds while the viewer is active. Explicit direct Disconnect waits for host confirmation, keeps the saved session available for retry when unreachable, and reads a saved token if the viewer has not loaded it yet."
+    },
+    {
+      "kind": "modified",
+      "detail": "Document Android capture-consent requirements after sharing-phone power-off/lock/revocation and distinguish page/pairing restoration from uninterrupted screen capture. Preserve all earlier immutable reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated regression checks",
+      "result": "passed",
+      "detail": "TypeScript and focused ESLint passed. Viewer/history/storage/route suite: 19 passed, with a subsequently added rotation-gesture test passing in the final 12-test focused run. Owner session: 9 passed. The final viewer interaction test additionally passed automatic retry, failed-disconnect retention and successful-disconnect clearing."
+    },
+    {
+      "name": "Native Android checks and APK",
+      "result": "passed",
+      "detail": "11 native server tests passed with zero failures/errors in debug and release. Final release build succeeded in 1m 37s. Version 1.0.16/code 18 and arm64 verified; signature matches earlier build 11; encrypted pairing, resize methods, navigation restoration, camera, QR consent and recovery are packaged. Viewer assets match workspace source byte-for-byte; final staged source matches workspace. Expo runtime resource is 1.0.16. SHA256: 7de5f7f37ac4668a64505baf8c87cdc515d294d9606853cae05024b71ba3260a."
+    },
+    {
+      "name": "Layout and package inspection",
+      "result": "passed",
+      "detail": "Four headless Edge viewport/frame orientation combinations passed with Arabic controls, maintained image proportions, no clipping/overflow and no browser errors; synthetic screenshots inspected. All 1403 APK ZIP entries passed known private-value, common credential-pattern and private-file checks. This is not proof against unknown or encoded secrets."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "Append command preserved earlier reports; history checker passed before this final append and will run again after it. APK includes initial and automated-verification reports; this post-build report is stored in workspace history for the next build."
+    },
+    {
+      "name": "Device acceptance and delivery",
+      "result": "not-run",
+      "detail": "No physical two-phone testing, APK installation, OTA or public deployment. Real rotation/touch, Android Keystore/reboot, lock/unlock, capture restart, network changes, background/overnight service survival and OEM behavior remain untested. Android requires fresh capture consent when the sharing capture ends; no connection operates while a phone is off. Cold login still validates remembered credentials and honors revocation. Hosted relay sessions retain their existing lifetime."
+    }
+  ],
+  "relatedId": "phone-responsive-resume-verified-20261012"
+}

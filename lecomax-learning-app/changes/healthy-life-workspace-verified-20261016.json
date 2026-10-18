@@ -1,0 +1,74 @@
+{
+  "id": "healthy-life-workspace-verified-20261016",
+  "createdAt": "2026-10-16T19:58:22.386Z",
+  "title": "Healthy Life workspace: focused validation passed",
+  "summary": "51 focused tests, TypeScript and lint pass. Existing guided routines and reminder regressions pass. Native device and visual browser QA remain untested; not deployed.",
+  "status": "successful",
+  "pages": [
+    "/wellness",
+    "/wellness/guided"
+  ],
+  "components": [
+    "HealthyLifeScreen",
+    "LifeEditors",
+    "LifeFocus",
+    "LifeAcademy",
+    "Journey storage"
+  ],
+  "files": [
+    "lecomax-learning-app/app/wellness.tsx",
+    "lecomax-learning-app/app/wellness/guided.tsx",
+    "lecomax-learning-app/features/wellness/HealthyLifeScreen.tsx",
+    "lecomax-learning-app/features/wellness/LifeEditors.tsx",
+    "lecomax-learning-app/features/wellness/LifeFocus.tsx",
+    "lecomax-learning-app/features/wellness/LifeAcademy.tsx",
+    "lecomax-learning-app/features/wellness/life-model.ts",
+    "lecomax-learning-app/features/wellness/life-lessons.ts",
+    "lecomax-learning-app/features/wellness/engine.ts",
+    "lecomax-learning-app/features/wellness/types.ts",
+    "lecomax-learning-app/tests/healthy-life.test.cjs",
+    "lecomax-learning-app/tests/healthy-life-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Updated WHO physical activity and NHS strength/running source URLs after reading the linked primary sources. Corrected French/Arabic language-notice encoding."
+    },
+    {
+      "kind": "modified",
+      "detail": "Formatted new workspace components and model for maintainability. Replaced a generic arrow helper with a function declaration after formatting exposed TSX ambiguity in existing test loaders; the repeated suite now passes."
+    },
+    {
+      "kind": "added",
+      "detail": "Eight model/interaction tests cover legacy data roundtrip, invalid input, historical targets, rest/skip denominators, overnight plans, focus recovery, week navigation, confirmed deletion, draft retention and optional preview application."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused wellness and Change History suite",
+      "result": "passed",
+      "detail": "node --test tests/healthy-life*.test.cjs tests/wellness*.test.cjs tests/change-history*.test.cjs: 51 passed, 0 failed. Includes mocked native/browser reminder tests and DOM interactions."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck completed with no errors."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "All new Healthy Life components and model/lesson files pass; route, engine and types files also passed the initial focused run."
+    },
+    {
+      "name": "Lesson sources",
+      "result": "passed",
+      "detail": "Read CDC sleep/hydration, WHO activity/diet/stress, NHS running/strength and NIH sleep-memory pages. Replaced an inaccessible WHO topic URL and NHS links with the directly checked destinations."
+    },
+    {
+      "name": "Remaining QA and delivery",
+      "result": "not-run",
+      "detail": "No native-device or full browser visual/end-to-end run, production build or deployment. New workspace is English; full French/Arabic translation remains pending. Reminders retain existing schedule behavior and do not automatically track custom activity times. Focus prompt is foreground-only."
+    }
+  ],
+  "relatedId": "healthy-life-workspace-20261016"
+}

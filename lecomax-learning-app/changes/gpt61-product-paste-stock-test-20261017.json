@@ -1,0 +1,38 @@
+{
+  "id": "gpt61-product-paste-stock-test-20261017",
+  "createdAt": "2026-10-17T11:28:12.857Z",
+  "title": "Live extraction exposed stock-unit parsing gap",
+  "summary": "GPT-6.1 Sol connected, but the first live test did not return usable stock; stock-unit normalization was corrected.",
+  "status": "failed",
+  "pages": [
+    "Admin Products create/edit"
+  ],
+  "components": [
+    "ProductPasteImport",
+    "Protected paste extraction endpoint",
+    "GPT-6.1 Sol extraction service"
+  ],
+  "files": [
+    "components/admin/ProductPasteImport.tsx",
+    "app/api/admin/products/parse/route.ts",
+    "lib/product-paste-ai.ts",
+    "tests/product-paste-ai.test.ts",
+    "tests/product-paste-interaction.test.ts",
+    "lib/product-paste.ts",
+    "tests/product-paste.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Clarified stock extraction instruction and normalized explicit stock suffixes such as 3 unit?s en stock."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First live GPT-6.1 Sol test",
+      "result": "failed",
+      "detail": "Model returned a response, name and price checks passed; stock was absent after validation. Correction and follow-up verification recorded separately."
+    }
+  ],
+  "relatedId": "gpt61-product-paste-20261017"
+}

@@ -1,0 +1,73 @@
+{
+  "id": "teacher-practice-lab-verified-1791565111641",
+  "createdAt": "2026-10-09T16:58:31.641Z",
+  "title": "Verified: practical teacher and local JavaScript / PowerShell console",
+  "summary": "Runtime, UI interaction, access restrictions and history checks passed. Local lab backend is running; production is unchanged.",
+  "status": "successful",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherLab",
+    "TeacherMessage",
+    "MobileTeacher",
+    "Mobile teacher prompt",
+    "Local lab API"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lib/mobile-teacher-prompt.ts",
+    "lib/teacher-lab.ts",
+    "app/api/learning-mobile/lab/route.ts",
+    "middleware.ts",
+    "scripts/start-teacher-lab.mjs",
+    "tests/teacher-lab.test.ts",
+    "lecomax-learning-app/docs/teacher-lab.md",
+    "lecomax-learning-app/tests/teacher-lab-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Resolved the initial React effect lint failure using keyed lab state, and added a process-termination fallback when Windows taskkill fails."
+    },
+    {
+      "kind": "added",
+      "detail": "Verified manual review/run flow, output-to-teacher draft and owner/origin/input execution gates with interaction tests."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Actual runtime tests",
+      "result": "passed",
+      "detail": "3 tests passed: real Node.js and Windows PowerShell output/errors, secret environment omission, timeout, output bounds, cancellation, concurrent-run rejection, local/production gates."
+    },
+    {
+      "name": "Lab UI and route tests",
+      "result": "passed",
+      "detail": "2 tests passed with jsdom and mocked network/auth: no automatic execution, review required, real response displayed, exact executed code included in explanation draft, owner/origin/input gating."
+    },
+    {
+      "name": "Teacher and history regression tests",
+      "result": "passed",
+      "detail": "21 tests passed, including history expansion/links/statuses, retries, persistence, append retention and teacher validation/routes."
+    },
+    {
+      "name": "Typecheck and focused lint",
+      "result": "passed",
+      "detail": "Learning app TypeScript check and ESLint for TeacherLab, TeacherMessage and MobileTeacher passed after correction."
+    },
+    {
+      "name": "Live local HTTP checks",
+      "result": "passed",
+      "detail": "Teacher route HTTP 200; lab preflight 204 with expected CORS; unauthenticated POST 401; foreign-origin POST 403. API running on 127.0.0.1:3002 via explicit lab launcher."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No visual browser QA or real provider teaching conversation performed. Full owner-authenticated browser execution was not tested end to end; runtime and UI layers tested separately. Native remote terminal unsupported. No production deployment. Local terminal is not a sandbox and has access with the server user permissions."
+    }
+  ],
+  "relatedId": "teacher-practice-lab-1791564911614"
+}

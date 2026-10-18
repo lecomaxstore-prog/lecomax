@@ -1,0 +1,50 @@
+{
+  "id": "build17-admin-publication-live-check-20261012",
+  "relatedId": "build17-admin-publication-prepared-20261012",
+  "createdAt": "2026-10-12T09:28:54.248Z",
+  "title": "Verify build 17 production download publication",
+  "summary": "Production verification reached lecomax.com, but the public Android download page still serves version 1.0.9, so the authorized 1.0.15 build 17 publication is not live yet.",
+  "status": "failed",
+  "pages": [
+    "/download",
+    "/admin/learning-app",
+    "Changes Made"
+  ],
+  "components": [
+    "Learning APK distribution",
+    "Production deployment"
+  ],
+  "files": [
+    "app/admin/learning-app/page.tsx",
+    "lecomax-learning-app/changes/build17-admin-publication-prepared-20261012.json",
+    "lecomax-learning-app/changes/build17-admin-publication-live-check-20261012.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recorded a verification follow-up for the pending build 17 publication; no source files were changed during this check."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production homepage",
+      "result": "passed",
+      "detail": "https://lecomax.com/ was reachable and returned the live storefront document."
+    },
+    {
+      "name": "Public Android download metadata",
+      "result": "failed",
+      "detail": "https://lecomax.com/download was reachable but reported Version 1.0.9 and SHA-256 c5f49a97a7c9437027489ad9d89616e6077edcd3902da12afb183f713117a904, not build 17 (1.0.15)."
+    },
+    {
+      "name": "Authenticated admin rendering",
+      "result": "not-run",
+      "detail": "No signed-in browser session was available; the unauthenticated admin route could not be used for visual verification."
+    },
+    {
+      "name": "Vercel CLI status",
+      "result": "not-run",
+      "detail": "The local CLI could not connect because the execution environment denied outbound socket access."
+    }
+  ]
+}

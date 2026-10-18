@@ -1,0 +1,65 @@
+{
+  "id": "teacher-visual-polish-verified-1791735672262",
+  "createdAt": "2026-10-11T16:21:12.261Z",
+  "title": "AI teacher visual refresh verified",
+  "summary": "Verified the polished teacher conversation and welcome screens across phone, tablet and desktop widths, with Arabic light/dark and English/French layouts.",
+  "status": "successful",
+  "pages": [
+    "/teacher"
+  ],
+  "components": [
+    "AIHeader",
+    "TeacherIcon",
+    "TeacherShell",
+    "TeacherChat",
+    "TeacherMessage"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added a centered welcome layout, compact practice/studio shortcuts, emerald header and user bubbles, bordered assistant cards, restrained message typography and a lighter composer."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Visual review caught and corrected encoding in the newly added Arabic and French shortcut labels."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm run typecheck completed successfully."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "TeacherUI.tsx, TeacherMessage.tsx and MobileTeacher.tsx passed ESLint."
+    },
+    {
+      "name": "Teacher and history regression tests",
+      "result": "passed",
+      "detail": "25 tests passed across teacher, teacher-route, teacher-learning-navigation, teacher-lab-interaction, change-history and change-history-interaction."
+    },
+    {
+      "name": "Responsive browser smoke and visual review",
+      "result": "passed",
+      "detail": "Headless Edge: Arabic light/dark and English/French light; 320x568, 390x844, 768x1024, 1440x1000 and 390x480. Composer remained visible; no horizontal overflow or page errors. Settings topic selection and cancel/confirm new conversation passed. Arabic conversation, welcome and dark screenshots reviewed. Authentication was mocked in isolated browser contexts."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Physical devices, native keyboards, live AI responses and lab/studio execution were not tested in this visual-only change. No deployment."
+    }
+  ],
+  "relatedId": "teacher-visual-polish-1791735483001",
+  "preview": {
+    "path": "/teacher",
+    "label": "Current AI teacher screen",
+    "verifiedAt": "2026-10-11T16:21:12.261Z"
+  }
+}

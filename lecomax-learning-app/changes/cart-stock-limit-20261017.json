@@ -1,0 +1,40 @@
+{
+  "id": "cart-stock-limit-20261017",
+  "createdAt": "2026-10-17T11:05:17.554Z",
+  "title": "Cart quantities respect available stock",
+  "summary": "Cap additions and quantity changes at available inventory and disable increases at the limit.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail",
+    "Cart /panier"
+  ],
+  "components": [
+    "CartProvider",
+    "ProductActions",
+    "CartPage"
+  ],
+  "files": [
+    "lib/cart-stock-limit.ts",
+    "components/CartContext.tsx",
+    "components/ProductActions.tsx",
+    "app/panier/page.tsx",
+    "tests/cart-stock-limit.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Initial and repeated adds and quantity edits respect selected variant stock; invalid adds are ignored. Explicit preorder behavior is preserved."
+    },
+    {
+      "kind": "modified",
+      "detail": "Both responsive cart increase buttons disable at the stock limit; product detail shows a maximum-quantity message before success feedback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Regression tests, type checking and focused lint pending. Browser interaction and deployment have not been performed."
+    }
+  ]
+}

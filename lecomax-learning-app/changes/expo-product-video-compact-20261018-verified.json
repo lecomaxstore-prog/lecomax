@@ -1,0 +1,52 @@
+{
+  "id": "expo-product-video-compact-20261018-verified",
+  "createdAt": "2026-10-18T08:43:40.229Z",
+  "title": "Expo compact video gallery checks passed",
+  "summary": "Use a landscape stage for video slides and explicit player dimensions to remove the oversized dark area.",
+  "status": "successful",
+  "pages": [
+    "Expo product detail"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideoPlayer"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx",
+    "mobile/src/components/product-video.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Video slides use a compact 16:9 stage; photos retain their larger stage. Explicit player width and height fill the stage on web. Playback controls, contain fitting and pagination are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "npm run typecheck and ESLint on both edited components completed without diagnostics."
+    },
+    {
+      "name": "Video regression tests",
+      "result": "passed",
+      "detail": "2 tests passed: media resolution, playback, pause, poster, error and retry behavior."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "6 archive and interaction tests passed; manifest integrity check passed."
+    },
+    {
+      "name": "Local Expo server",
+      "result": "passed",
+      "detail": "Homepage returns HTTP 200 on port 8081."
+    },
+    {
+      "name": "Visual and device checks",
+      "result": "not-run",
+      "detail": "Browser visual inspection and native device playback not verified. Landscape 16:9 stage uses contain fitting; portrait clips may retain side space. No deployment."
+    }
+  ],
+  "relatedId": "expo-product-video-compact-20261018"
+}

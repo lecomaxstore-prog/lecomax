@@ -1,0 +1,50 @@
+{
+  "id": "android-python-offline-1791621825369",
+  "createdAt": "2026-10-10T08:43:45.369Z",
+  "title": "Built-in Python for Android",
+  "summary": "Prepare version 1.0.6 with a real CPython interpreter running directly on the phone, offline code execution, and AI Teacher help.",
+  "status": "needs-testing",
+  "pages": [
+    "Python",
+    "Terminal",
+    "AI Teacher"
+  ],
+  "components": [
+    "PhonePythonLab",
+    "PhonePython native module",
+    "Disposable Python service",
+    "Expo Android plugin"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/components/TeacherLab.tsx",
+    "lecomax-learning-app/components/PhonePythonLab.tsx",
+    "lecomax-learning-app/plugins/with-phone-python.cjs",
+    "lecomax-learning-app/native/python/phone_runner.py",
+    "lecomax-learning-app/native/python/PhonePythonPackage.kt",
+    "lecomax-learning-app/native/python/PhonePythonService.kt"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Embedded CPython 3.14 through Chaquopy, running in a disposable Android process with Stop and a ten-second timeout."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline code editor, pre-entered input() answers, real output/errors and AI Teacher explanation of code/results."
+    },
+    {
+      "kind": "modified",
+      "detail": "Android lab now uses on-device Python instead of the PC API. Version bumped to 1.0.6/code 8 to isolate native runtime compatibility."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending verification",
+      "result": "not-run",
+      "detail": "Phone authorized; installed version 1.0.5 detected. Build, runtime tests, APK installation and on-device validation pending. AI needs internet."
+    }
+  ]
+}

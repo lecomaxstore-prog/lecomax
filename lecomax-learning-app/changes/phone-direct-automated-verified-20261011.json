@@ -1,0 +1,73 @@
+{
+  "id": "phone-direct-automated-verified-20261011",
+  "createdAt": "2026-10-11T20:34:53.082Z",
+  "title": "Direct Tailscale automated checks passed; build 12 prepared",
+  "summary": "Four native server protocol tests, four app/viewer interaction tests, TypeScript and focused lint passed. Physical Tailscale sharing and APK installation remain pending.",
+  "status": "successful",
+  "pages": [
+    "My remote phone",
+    "Phone browser viewer"
+  ],
+  "components": [
+    "Phone",
+    "PhoneRemoteModule",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "Direct browser viewer",
+    "Android config plugin"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/docs/phone-remote.md",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected the protocol test harness to transmit the actual Origin header; cross-origin requests are rejected by the server."
+    },
+    {
+      "kind": "modified",
+      "detail": "Android 1.0.10 build 12 configuration is ready for signed APK packaging."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Native HTTP protocol tests",
+      "result": "passed",
+      "detail": "4 JUnit tests, 0 failures: authentication/approval, locked-screen protection, one viewer, foreign-origin and peer rejection, pairing/heartbeat expiry and attempt limits."
+    },
+    {
+      "name": "App/viewer interactions",
+      "result": "passed",
+      "detail": "4 Node tests passed: direct start without relay key, saved viewer address, approval gating, authenticated controls, disconnect and visibility/network-loss cleanup."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint app/phone.tsx passed after localized UI changes."
+    },
+    {
+      "name": "Change history",
+      "result": "passed",
+      "detail": "History tests passed and 139 reports validated before this append."
+    },
+    {
+      "name": "Physical devices and signed APK",
+      "result": "not-run",
+      "detail": "USB phone is now connected. Its Tailscale interface is not yet active; APK packaging and installation are pending. No deployment performed."
+    }
+  ],
+  "relatedId": "phone-direct-validation-checkpoint-20261011"
+}

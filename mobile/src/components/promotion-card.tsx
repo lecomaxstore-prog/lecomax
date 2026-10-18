@@ -1,3 +1,4 @@
+import { ProductBrandMark } from "@/components/product-brand-mark";
 import { localizedContent } from "@/i18n/content";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -77,9 +78,7 @@ export const PromotionCard = memo(function PromotionCard({
         </AnimatedPressable>
       </View>
       <View style={styles.body}>
-        <Text numberOfLines={1} style={styles.category}>
-          {(product.brand || localizedContent(product.category)).toUpperCase()}
-        </Text>
+        <View style={{ minHeight: 20, justifyContent: "center" }}>{product.brand ? <ProductBrandMark name={product.brand} compact /> : <Text numberOfLines={1} style={styles.category}>{localizedContent(product.category).toUpperCase()}</Text>}</View>
         <Text numberOfLines={2} style={styles.name}>
           {product.name}
         </Text>

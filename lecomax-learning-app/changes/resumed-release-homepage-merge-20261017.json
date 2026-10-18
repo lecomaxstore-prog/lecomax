@@ -1,0 +1,34 @@
+{
+  "id": "resumed-release-homepage-merge-20261017",
+  "createdAt": "2026-10-17T17:44:32.162Z",
+  "title": "Repair homepage release merge",
+  "summary": "Remove a duplicated catalogue import that prevented the combined release from compiling.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage"
+  ],
+  "components": [
+    "Homepage catalogue summaries"
+  ],
+  "files": [
+    "app/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Remove the duplicate categoryProductCounts and maximumProductDiscount import while retaining the catalogue behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production build",
+      "result": "failed",
+      "detail": "The first network-enabled build identified the duplicate import. A corrected build is running."
+    },
+    {
+      "name": "Deployment",
+      "result": "not-run",
+      "detail": "No publication performed yet."
+    }
+  ]
+}

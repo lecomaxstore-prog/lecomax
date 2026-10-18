@@ -1,0 +1,82 @@
+{
+  "id": "phone-direct-validation-checkpoint-20261011",
+  "createdAt": "2026-10-11T20:32:36.897Z",
+  "title": "Direct Tailscale checks and Android build preparation",
+  "summary": "App and viewer checks pass. Android server tests found a test-client Origin-header issue; corrected test rerun and APK build are pending.",
+  "status": "needs-testing",
+  "pages": [
+    "My remote phone",
+    "Phone browser viewer"
+  ],
+  "components": [
+    "Phone",
+    "PhoneRemoteModule",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "Direct browser viewer",
+    "Android config plugin"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/docs/phone-remote.md",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepare Android 1.0.10 build 12 with a separate native runtime version, localized sharing states and disabled unavailable actions."
+    },
+    {
+      "kind": "added",
+      "detail": "Browser interaction and real local HTTP server tests cover consent, authentication, lock-screen frame withholding, expiry and invalid attempts."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Cancel pending capture requests on Stop; handle VPN interface lookup failures; restrict detection to VPN interfaces. Replaced a test client that silently stripped Origin with raw HTTP requests."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint app/phone.tsx passed."
+    },
+    {
+      "name": "App and viewer interaction",
+      "result": "passed",
+      "detail": "Four Node interaction tests passed."
+    },
+    {
+      "name": "Change history",
+      "result": "passed",
+      "detail": "Six history tests passed and 138 reports validated before this append."
+    },
+    {
+      "name": "Android compilation",
+      "result": "passed",
+      "detail": "ARM64 compileDebugKotlin completed successfully; latest native and unit test sources subsequently compiled."
+    },
+    {
+      "name": "Android protocol tests",
+      "result": "failed",
+      "detail": "Initial run: 3 passed, foreign-Origin assertion failed because HttpURLConnection omitted the Origin header. Test now uses raw sockets; rerun pending."
+    },
+    {
+      "name": "Physical devices and release APK",
+      "result": "not-run",
+      "detail": "Awaiting device connection and APK generation. Initial prebuild hit a locked generated file; restored generated template files and completed prebuild with --no-clean. Initial unrestricted ABI build failed on existing Python dependency; ARM64 compilation passed."
+    }
+  ],
+  "relatedId": "phone-direct-tailscale-20261011"
+}

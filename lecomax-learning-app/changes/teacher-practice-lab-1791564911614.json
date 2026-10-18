@@ -1,0 +1,46 @@
+{
+  "id": "teacher-practice-lab-1791564911614",
+  "createdAt": "2026-10-09T16:55:11.614Z",
+  "title": "AI teacher: runnable examples and local console",
+  "summary": "Add an editable JavaScript and Windows PowerShell lab with real results, plus teaching focused on why each step works.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherLab",
+    "TeacherMessage",
+    "MobileTeacher",
+    "Mobile teacher prompt",
+    "Local lab API"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lib/mobile-teacher-prompt.ts",
+    "lib/teacher-lab.ts",
+    "app/api/learning-mobile/lab/route.ts",
+    "middleware.ts",
+    "scripts/start-teacher-lab.mjs",
+    "tests/teacher-lab.test.ts",
+    "lecomax-learning-app/docs/teacher-lab.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Local opt-in owner-authenticated console for standalone Node.js JavaScript and Windows PowerShell; manual review/run, output/errors/timing, cancellation and execution limits."
+    },
+    {
+      "kind": "modified",
+      "detail": "Teacher explains concrete examples, expected versus actual output, line-by-line reasons and prediction exercises. Supported code blocks open an editable lab; result explanation prepares a chat draft."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "Pending typecheck, focused lint, runtime/security tests and history checks. No production deployment or native terminal support."
+    }
+  ]
+}

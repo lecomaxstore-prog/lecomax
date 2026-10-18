@@ -1,0 +1,40 @@
+{
+  "id": "pc-pairing-duplicate-helper-20261011",
+  "createdAt": "2026-10-11T13:20:10.528Z",
+  "title": "Fix duplicate PC-sharing helpers and silent pairing failures",
+  "summary": "Prevent a second helper from replacing VNC credentials while an existing helper owns the screen-sharing port; show pairing progress and actionable errors.",
+  "status": "needs-testing",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "PC helper launcher",
+    "Pairing page"
+  ],
+  "files": [
+    "scripts/start-pc-remote.mjs",
+    "scripts/pc-remote/client.js"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Check loopback VNC port before changing credentials or starting another helper."
+    },
+    {
+      "kind": "added",
+      "detail": "Show connection progress, hide the phone keyboard on submit, and report missing session cookies and VNC authentication failure."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live diagnosis",
+      "result": "passed",
+      "detail": "Two app-owned helpers and two UltraVNC processes found. Protocol check accepted pairing but rejected VNC authentication."
+    },
+    {
+      "name": "Correction checks",
+      "result": "not-run",
+      "detail": "Pending controlled helper restart and protocol tests."
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "id": "expo-admin-brand-parity-20261018-verified",
+  "createdAt": "2026-10-18T10:02:53.920Z",
+  "title": "Expo and admin brand parity: code checks passed",
+  "summary": "All 17 brand logo files match Expo byte for byte. Brand regression tests, history tests and scoped website/mobile/learning typechecks passed; live UI and authenticated saving remain untested.",
+  "status": "successful",
+  "pages": [
+    "Admin products",
+    "Website product details",
+    "Expo product brands"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Shared brand catalogue"
+  ],
+  "files": [
+    "mobile/src/lib/product-brands.ts",
+    "components/admin/ProductBrandPicker.tsx",
+    "components/ProductBrandMark.tsx",
+    "app/produit/[slug]/page.tsx",
+    "tests/product-brands.test.ts",
+    "docs/product-brands.md",
+    "public/images/brands/adidas.png",
+    "public/images/brands/asics.png",
+    "public/images/brands/baasploa.png",
+    "public/images/brands/ellesse.png",
+    "public/images/brands/emporioarmani.png",
+    "public/images/brands/genai.png",
+    "public/images/brands/joma.png",
+    "public/images/brands/jordan.png",
+    "public/images/brands/kangol.png",
+    "public/images/brands/kemei.png",
+    "public/images/brands/lenovo.png",
+    "public/images/brands/newbalance.png",
+    "public/images/brands/nike.png",
+    "public/images/brands/puma.png",
+    "public/images/brands/reebok.png",
+    "public/images/brands/sony.png",
+    "public/images/brands/underarmour.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Append verification results for the shared brand catalogue and website brand display, preserving all earlier history."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Brand regression tests",
+      "result": "passed",
+      "detail": "5 tests passed, covering identity normalization, API authorization/persistence, registry overrides, unsafe URLs, and exact parity of all 17 Expo/web logo files."
+    },
+    {
+      "name": "Typechecks",
+      "result": "passed",
+      "detail": "Mobile tsc --noEmit, learning app tsc --noEmit and scoped website tsc using artifacts/brand-parity-tsconfig.json passed. A full root repository typecheck was not run."
+    },
+    {
+      "name": "Website focused lint",
+      "result": "passed",
+      "detail": "No errors. Three next/no-img-element optimization warnings in picker and website mark. Root lint ignores mobile files; mobile lint checked separately."
+    },
+    {
+      "name": "Change history",
+      "result": "passed",
+      "detail": "6 history archive/interaction tests passed and pre-follow-up manifest check passed with 512 reports."
+    },
+    {
+      "name": "Live UI, authenticated save/upload and native devices",
+      "result": "not-run",
+      "detail": "No local servers were listening on 3000/8081/8082. Live visual checks, authenticated brand creation/logo upload and physical-device rendering were not performed. No deployment."
+    },
+    {
+      "name": "Mobile focused lint",
+      "result": "passed",
+      "detail": "ESLint src/lib/product-brands.ts passed from the mobile workspace with no warnings."
+    }
+  ],
+  "relatedId": "expo-admin-brand-parity-20261018"
+}

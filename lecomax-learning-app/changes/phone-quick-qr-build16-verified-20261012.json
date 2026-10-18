@@ -1,0 +1,99 @@
+{
+  "id": "phone-quick-qr-build16-verified-20261012",
+  "createdAt": "2026-10-12T06:18:26.628Z",
+  "status": "successful",
+  "title": "Quick QR pairing build 16 verified and ready to install",
+  "summary": "Signed Android 1.0.14/build 16 includes either-phone scanning, explicit one-use QR authorization, lost-reply recovery and viewer reload recovery. 28 automated tests pass; physical two-phone acceptance remains untested.",
+  "pages": [
+    "My remote phone",
+    "Phone scanner",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneDirectServer",
+    "PhoneRemoteService",
+    "PhoneRemoteModule",
+    "PhonePairingScanner",
+    "PhoneViewer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhonePairingScanner.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/docs/phone-quick-qr-build16.md",
+    "lecomax-learning-app/artifacts/build-quick-qr16-final.ps1",
+    "lecomax-learning-app/artifacts/verify-phone-quick-qr16.cjs",
+    "lecomax-learning-app/artifacts/audit-build16.ps1",
+    "lecomax-learning-app/artifacts/phone-quick-qr-build16-final.log",
+    "lecomax-learning-app/artifacts/phone-quick-qr-build16-native-tests.xml",
+    "lecomax-learning-app/artifacts/phone-direct-build16-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build16-secret-audit.json",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.14-build16.apk"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Either idle phone can open Scan a phone directly and become the viewer. Owner taps Allow QR connection on the sharing phone to grant one scanner screen/control access without a second approval tap. Separate random QR capability expires after two minutes and is revoked when hidden, replaced, used or stopped."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Return non-authentication status codes for rapid taps, paused streaming and a locked screen, so the viewer does not revoke a valid session. Reject scanning the same phone."
+    },
+    {
+      "kind": "added",
+      "detail": "Flashlight and camera retry; viewer reload retry with same-origin in-memory token restoration after WebView process loss, without persistent token storage."
+    },
+    {
+      "kind": "modified",
+      "detail": "Repair QR translations, update recovery guidance, and prepare version 1.0.14/build 16. Preserve manual owner approval and Android capture permission."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Retry a lost QR join reply up to three times with the same random attempt. Only that attempt, code and peer can recover the existing token; a different scanner cannot reuse it."
+    },
+    {
+      "kind": "added",
+      "detail": "Signed arm64 APK and two-phone installation/acceptance guide."
+    }
+  ],
+  "validation": [
+    {
+      "name": "App/viewer/history checks",
+      "result": "passed",
+      "detail": "18 focused tests passed. TypeScript and focused ESLint passed. Initial JSX/state-effect lint findings and remembered-address test expectation were corrected before the final build."
+    },
+    {
+      "name": "Native server tests",
+      "result": "passed",
+      "detail": "10 JVM tests passed, zero failures/errors. Includes owner-approved one-use QR, hide/replace/expiry revocation, manual approval, duplicate join recovery, explicit stop, 24-hour idle/pause recovery, peer/origin restrictions and rapid-tap throttling."
+    },
+    {
+      "name": "Android build",
+      "result": "passed",
+      "detail": "Final Gradle build returned exit 0: BUILD SUCCESSFUL in 1m 30s, 855 tasks. Existing Gradle and manifest warnings remain."
+    },
+    {
+      "name": "APK and credential verification",
+      "result": "passed",
+      "detail": "Signature verified and matches build 11. Version 1.0.14/code 16; arm64, camera, native QR consent and join recovery are packaged. All changed native sources match staging, viewer assets match workspace, history report included, stopWithTask=false, no microphone permission. All 1403 ZIP entries pass known-value/pattern/private-file credential audit; unknown or encoded secrets are outside scope. SHA256 b0c2698061d6e1633c61acf796020a394ae5cd63a789e39c97cfe4d1c724e210."
+    },
+    {
+      "name": "Physical acceptance and deployment",
+      "result": "not-run",
+      "detail": "No ADB phones connected; actual camera scans, VPN recovery, Recents and overnight operation not tested. Either phone scans the sharing phone; no reverse-invitation QR on an idle viewer. Android capture revocation/lock/process termination/reboot and rotation can stop sharing. Viewer app restart loses in-memory token; persistent initial-join failure may require re-pairing. Offline Disconnect may require Stop on host. No deployment/OTA. This post-build verification report is in workspace history for a future build."
+    }
+  ],
+  "relatedId": "phone-qr-join-retry-20261012"
+}

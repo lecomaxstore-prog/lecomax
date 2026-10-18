@@ -1,0 +1,87 @@
+{
+  "id": "course-lesson-flow-1791545148389-verified",
+  "createdAt": "2026-10-09T11:29:47.775Z",
+  "title": "Course lists, completion and saved progress verified",
+  "summary": "All 32 course, completion, persistence and history checks passed. Typecheck, focused lint and the local Expo web export also succeeded.",
+  "status": "successful",
+  "pages": [
+    "/course/[id]",
+    "/learning-path/[id]",
+    "/module/[id]",
+    "/lesson/[id]"
+  ],
+  "components": [
+    "CourseLessonList",
+    "LessonContent",
+    "LessonBrowser",
+    "LessonHeader",
+    "LessonFooter",
+    "course-navigation"
+  ],
+  "files": [
+    "lecomax-learning-app/components/CourseLessonList.tsx",
+    "lecomax-learning-app/app/course/[id].tsx",
+    "lecomax-learning-app/app/learning-path/[id].tsx",
+    "lecomax-learning-app/app/module/[id].tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/components/LessonBrowser.tsx",
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/services/course-navigation.ts",
+    "lecomax-learning-app/tests/academy-interaction.test.cjs",
+    "lecomax-learning-app/tests/course-library.test.cjs",
+    "lecomax-learning-app/components/CourseLibrary.tsx",
+    "lecomax-learning-app/tests/course-flow.test.cjs",
+    "lecomax-learning-app/tests/course-library-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Verified exact lesson sequences and previous/next boundaries for every published curriculum path, plus lesson-list search and completion restoration through the real SchoolProvider after remount."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course card headings now open course overviews; the reader uses one compact all-course-lessons link instead of the previous expandable browser card."
+    },
+    {
+      "kind": "modified",
+      "detail": "Continuation actions appear before optional notes. Changing lesson stages remounts the page to reset its scroll position."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Opening a lesson records stage zero so its in-progress status remains visible after visiting another lesson."
+    },
+    {
+      "kind": "added",
+      "detail": "Updated completion interaction tests for automatic assessment completion while retaining explicit completion for lessons without quizzes, and preserving notes and practice drafts on restart."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Typecheck and lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and focused ESLint on all ten affected TS/TSX source files passed after final edits."
+    },
+    {
+      "name": "Regression checks",
+      "result": "passed",
+      "detail": "32 tests passed across course-flow, course-library, course-library-interaction, academy, academy-interaction, lesson-footer, progress and both history suites. Four affected interaction tests passed again after the final reader changes."
+    },
+    {
+      "name": "Saved completion",
+      "result": "passed",
+      "detail": "The new interaction test uses the real SchoolProvider with test storage, verifies the serialized completion record and remounts the provider to confirm Completed/In progress labels restore."
+    },
+    {
+      "name": "Web export",
+      "result": "passed",
+      "detail": "Offline local Expo export --platform web --output-dir artifacts/course-flow-web completed successfully; no deployment."
+    },
+    {
+      "name": "Visual review and content scope",
+      "result": "not-run",
+      "detail": "No connected browser/native UI is available for rendered mobile review. Newly written course content was not included; every existing published lesson is exposed and planned topics remain explicitly unpublished. Scroll resetting is implemented but not visually checked."
+    }
+  ],
+  "relatedId": "course-lesson-flow-1791545148389"
+}

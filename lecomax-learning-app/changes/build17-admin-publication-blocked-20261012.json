@@ -1,0 +1,44 @@
+{
+  "id": "build17-admin-publication-blocked-20261012",
+  "createdAt": "2026-10-12T09:40:54Z",
+  "title": "Build 17 admin publication remains pending",
+  "summary": "The verified Learn Android 1.0.15 build 17 remains local and was not published to the admin download because the admin release flow requires a hosted HTTPS artifact and rejects this 171 MB APK above its 150 MB upload limit.",
+  "status": "failed",
+  "relatedId": "build17-admin-publication-prepared-20261012",
+  "pages": [
+    "/admin/learning-app",
+    "Changes Made"
+  ],
+  "components": [
+    "Learning APK distribution",
+    "Production release configuration"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.15-build17.apk",
+    "app/admin/learning-app/page.tsx",
+    "lecomax-learning-app/artifacts/build17-publication-prepared.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Recorded the publication outcome and preserved the pending release record without changing the currently configured admin download link."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local artifact verification",
+      "result": "passed",
+      "detail": "Existing build 17 verification reports SHA-256 27f9e7d946f2d2a49157ad97b8068fed0d1fa5fedc1290aa38de863103cb50b9 and 171191212 bytes."
+    },
+    {
+      "name": "Admin publication",
+      "result": "failed",
+      "detail": "Not published: the admin upload limit is 150 MiB while the APK is 171191212 bytes; no hosted artifact URL or valid GitHub authentication was available to complete publication."
+    },
+    {
+      "name": "Physical device acceptance",
+      "result": "not-run",
+      "detail": "Two-phone acceptance remains untested."
+    }
+  ]
+}

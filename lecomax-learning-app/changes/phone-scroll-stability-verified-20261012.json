@@ -1,0 +1,59 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified the previously saved native two-axis pan styling, scroll chaining, stable zoom viewport and resize position preservation, plus modal background lock and focus restoration."
+    },
+    {
+      "kind": "added",
+      "detail": "Repeatable Edge browser regression script covering English, French and Arabic at 360x740, 844x390 and 1280x800 viewports; outputs screenshots and results under artifacts/phone-scroll."
+    }
+  ],
+  "summary": "Resumed the interrupted scrolling fix and verified image pan preservation, dialog scrolling, focus restoration and responsive layouts.",
+  "id": "phone-scroll-stability-verified-20261012",
+  "createdAt": "2026-10-12T17:58:32.883Z",
+  "validation": [
+    {
+      "detail": "10 tests passed across phone-explorer, phone-teacher and change-history suites.",
+      "result": "passed",
+      "name": "Focused regression tests"
+    },
+    {
+      "detail": "npm.cmd run typecheck passed; focused ESLint passed for both changed application source files; node --check passed for the new browser script. Test CJS is excluded by the existing lint configuration.",
+      "result": "passed",
+      "name": "TypeScript and lint"
+    },
+    {
+      "detail": "Nine isolated generated-document combinations passed: no horizontal page overflow, zoom scroll styles, resize preserves pan, dialog content scrolls, close remains visible, Escape restores focus and page position, and full image has no nested scroll container. Arabic mobile screenshot visually inspected. Initial test assertion was corrected to accept the browser canonical touch-action value manipulation, equivalent to pan-x pan-y pinch-zoom.",
+      "result": "passed",
+      "name": "Edge browser checks"
+    },
+    {
+      "detail": "Existing 205-report archive validated before appending this linked report; append uses the prescribed immutable report command.",
+      "result": "passed",
+      "name": "History integrity"
+    },
+    {
+      "detail": "Physical iOS/Android touch gestures, app embedding, live app preview and production deployment were not tested or performed. Browser checks use the generated Phone Lab document directly. No preview link claimed.",
+      "result": "not-run",
+      "name": "Device and deployment"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs",
+    "lecomax-learning-app/scripts/phone-scroll-smoke.cjs"
+  ],
+  "status": "successful",
+  "components": [
+    "Phone photo viewport",
+    "Component picker",
+    "Piece detail dialog"
+  ],
+  "relatedId": "phone-scroll-stability-20261012",
+  "title": "Phone scrolling and zoom stability verified",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ]
+}

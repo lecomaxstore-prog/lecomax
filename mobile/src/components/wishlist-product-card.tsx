@@ -1,3 +1,4 @@
+import { ProductBrandMark } from "@/components/product-brand-mark";
 import { localizedContent } from "@/i18n/content";
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -108,9 +109,7 @@ export const WishlistProductCard = memo(function WishlistProductCard({
 
       <View style={styles.body}>
         <View style={styles.meta}>
-          <Text numberOfLines={1} style={styles.category}>
-            {localizedContent(product.category).toUpperCase()}
-          </Text>
+          <View style={{ minHeight: 20, justifyContent: "center" }}>{product.brand ? <ProductBrandMark name={product.brand} compact /> : <Text numberOfLines={1} style={styles.category}>{localizedContent(product.category).toUpperCase()}</Text>}</View>
           <View style={styles.stock}>
             <View
               style={[

@@ -1,0 +1,113 @@
+{
+  "id": "car-studio-validation-20261013",
+  "relatedId": "car-studio-implementation-20261013",
+  "createdAt": "2026-10-13T14:33:56.842Z",
+  "title": "Car Studio integration verified; licensed vehicle and device checks pending",
+  "summary": "Viewer, translated learning controls, app navigation and independent local progress verified. Web/Android exports pass. No BMW geometry licensed or deployed; unrelated full-suite checks remain failing.",
+  "status": "needs-testing",
+  "pages": [
+    "/car-studio",
+    "/(tabs)/more",
+    "/change-history"
+  ],
+  "components": [
+    "CarStudioScreen",
+    "StudioFrame",
+    "CarViewer",
+    "Engineering simulations",
+    "Change History"
+  ],
+  "files": [
+    "lecomax-learning-app/app/car-studio.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/change-history.tsx",
+    "lecomax-learning-app/features/car-studio/CarStudioScreen.tsx",
+    "lecomax-learning-app/features/car-studio/StudioFrame.tsx",
+    "lecomax-learning-app/features/car-studio/StudioFrame.web.tsx",
+    "lecomax-learning-app/features/car-studio/frame-types.ts",
+    "lecomax-learning-app/features/car-studio/runtime.ts",
+    "lecomax-learning-app/features/car-studio/viewer.ts",
+    "lecomax-learning-app/features/car-studio/vehicle.ts",
+    "lecomax-learning-app/features/car-studio/simulations.ts",
+    "lecomax-learning-app/features/car-studio/studio.css",
+    "lecomax-learning-app/data/car-studio-runtime.json",
+    "lecomax-learning-app/scripts/build-car-studio.cjs",
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/tsconfig.json",
+    "lecomax-learning-app/docs/car-studio.md",
+    "lecomax-learning-app/docs/change-history.md",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/utils/car-studio-progress.ts",
+    "lecomax-learning-app/tests/car-studio.test.cjs",
+    "lecomax-learning-app/tests/more-screen.test.cjs",
+    "lecomax-learning-app/scripts/car-studio-smoke.cjs",
+    "lecomax-learning-app/scripts/car-studio-app-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected route typing and navigation lifecycle; remount restores latest progress. Studio progress now lives in a validated independent carStudio field in the existing AsyncStorage state, leaving course statistics untouched."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Exploded system offsets computed before transforms; viewer creation failures recover through Retry. Updated the More test harness to cover the studio route and its existing DeviceLabsSection dependency."
+    },
+    {
+      "kind": "added",
+      "detail": "Repeatable multilingual runtime, synthetic GLB touch and app navigation/persistence tests; original synthetic geometry is test-only, never shown as a BMW."
+    },
+    {
+      "kind": "added",
+      "detail": "Full bundled Three.js MIT license, source and asset contract, implementation inventory and documented test limitations. Prior history reports preserved; no deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript / focused ESLint / dependencies",
+      "result": "passed",
+      "detail": "tsc --noEmit and focused ESLint passed. npm ls confirms installed React 19.2.3, RN 0.86.3, WebView 13.16.1, Three 0.180.0 and types without peer conflicts."
+    },
+    {
+      "name": "Focused automated tests",
+      "result": "passed",
+      "detail": "13/13 tests passed: registry, translations, bridge, dedicated progress migration/validation, existing lesson progress, More navigation and append-only history."
+    },
+    {
+      "name": "Browser runtime / synthetic GLB",
+      "result": "passed",
+      "detail": "Headless Edge: all 12 panels in English/French/Darija, levels, simulations, quiz/progress messages, written tour; 320px portrait, 844px landscape, 1440px desktop. Synthetic GLB loading/rendering, mesh selection, orbit/zoom, emulated two-finger pinch/pan, X-ray/highlight, isolation, paint, labels, explosion, disposal, 404 and retry passed."
+    },
+    {
+      "name": "Actual app navigation and persistence",
+      "result": "passed",
+      "detail": "Local Expo export with disposable synthetic authentication: More to Studio, study save to AsyncStorage, reload restores study state, course completed array unchanged, Changes Made to visible history. No real credentials or backend calls."
+    },
+    {
+      "name": "Expo exports",
+      "result": "passed",
+      "detail": "Local web and Android JavaScript exports passed. These are builds, not device installs or deployments."
+    },
+    {
+      "name": "Full regression",
+      "result": "failed",
+      "detail": "Initial run 233/239 passed. More harness corrected and retested; offline adapter timeout passed on isolated rerun. Four unrelated checks remain failing: academy/source content drift, curriculum StudioVisual mock and wellness react-native mock. See artifacts/car-studio-regression.log and car-studio-unrelated-checks.log."
+    },
+    {
+      "name": "Whole-app lint",
+      "result": "failed",
+      "detail": "4 errors and 2 warnings in existing Home/PythonStudio/phone-relay code; focused changed-file lint clean. See artifacts/car-studio-lint.log. npm install also reported 29 app dependency audit findings, not remediated by broad upgrades."
+    },
+    {
+      "name": "Real BMW model / physical devices",
+      "result": "not-run",
+      "detail": "Required licensed F90 LCI GLB is absent. Real model proportions/internal geometry, full V8 simulation, native Android/iOS gestures, haptics, GPU/battery/FPS and persistent offline asset cache not validated. Tour is written and manually advanced; diagrams are simplified principles."
+    }
+  ],
+  "preview": {
+    "path": "/car-studio",
+    "label": "Open current Car Studio (licensed model pending)",
+    "verifiedAt": "2026-10-13T14:31:41.802Z"
+  }
+}

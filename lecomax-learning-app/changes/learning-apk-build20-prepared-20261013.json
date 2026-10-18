@@ -1,0 +1,43 @@
+{
+  "id": "learning-apk-build20-prepared-20261013",
+  "createdAt": "2026-10-13T21:32:22.800Z",
+  "title": "Prepare latest Learn Android 1.0.18 build 20 for USB",
+  "summary": "Package current app changes, internet invitation support and retained history into a new signed APK for D:/lecomax app. Internet relay is not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning app",
+    "My remote phone",
+    "Internet invitations",
+    "Change History"
+  ],
+  "components": [
+    "Android release",
+    "Native phone capture",
+    "Bundled app content"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml",
+    "lecomax-learning-app/artifacts/build-latest20.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Increment version to 1.0.18/code 20 and prepare current source for the established short-path signed Android build."
+    },
+    {
+      "kind": "added",
+      "detail": "Create separately named build 20 APK for USB delivery, preserving older APKs and all history records."
+    }
+  ],
+  "validation": [
+    {
+      "name": "APK build and USB delivery",
+      "result": "not-run",
+      "detail": "Build, signature/version/content checks and copy/hash verification pending. No Android device currently detected; no hosting deployment authorized or performed."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "mobile-footer-compact-verified-20261017",
+  "relatedId": "mobile-footer-compact-design-20261017",
+  "createdAt": "2026-10-17T10:30:19.092Z",
+  "title": "Compact footer layout verified locally",
+  "summary": "Checked the revised mobile footer and expandable navigation across phone and desktop widths.",
+  "status": "successful",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css",
+    "lecomax-learning-app/artifacts/footer-compact-mobile.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified neutral mobile footer, compact brand/social arrangement, green newsletter panel and two-column expandable navigation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive browser",
+      "result": "passed",
+      "detail": "No footer horizontal overflow at 320, 390, 768 or 1280px. Inspected 390px screenshot. Touch expansion and keyboard collapse expose and hide navigation links correctly."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "Footer.tsx passed ESLint."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Newsletter submission logic unchanged and not retested in this revision. No live subscription, physical-device or exhaustive screen-reader checks. Screenshot contains fixed page header/chat overlays. No deployment."
+    }
+  ]
+}

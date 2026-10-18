@@ -1,0 +1,64 @@
+{
+  "id": "healthy-life-complete-module-20261016",
+  "createdAt": "2026-10-16T20:02:37.961Z",
+  "title": "Healthy Life: adaptive routines, learning paths and quiet hours",
+  "summary": "Extend the working wellness workspace with per-date adaptations, exercise learning paths, study focus notes, daily knowledge and more detailed insights.",
+  "status": "needs-testing",
+  "pages": [
+    "/wellness",
+    "/wellness/notifications"
+  ],
+  "components": [
+    "LifeEditors",
+    "LifePrograms",
+    "LifeOverview",
+    "LifeFocus",
+    "LifeAcademy",
+    "Wellness reminders"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/life-model.ts",
+    "lecomax-learning-app/features/wellness/LifeEditors.tsx",
+    "lecomax-learning-app/features/wellness/LifePrograms.tsx",
+    "lecomax-learning-app/features/wellness/LifeOverview.tsx",
+    "lecomax-learning-app/features/wellness/HealthyLifeScreen.tsx",
+    "lecomax-learning-app/features/wellness/LifeFocus.tsx",
+    "lecomax-learning-app/features/wellness/LifeAcademy.tsx",
+    "lecomax-learning-app/features/wellness/life-lessons.ts",
+    "lecomax-learning-app/features/wellness/reminder-policy.ts",
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx",
+    "lecomax-learning-app/features/wellness/daily-content.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Optional lighter-day preview, date-specific duration changes, conflict-checked rescheduling and activity check-in undo. Planner weekday preferences and independent preference saving."
+    },
+    {
+      "kind": "added",
+      "detail": "Four self-paced exercise education paths with persisted difficulty and learning progress; daily knowledge rotation and nutrition myth/warm-up lessons with primary sources."
+    },
+    {
+      "kind": "added",
+      "detail": "Study activity opens Focus with its task; editable persistent distraction notes. Illustrated overview, labeled calendar counts and per-habit weekly insights."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Quiet hours now suppress native schedules and browser delivery/catch-up and are reflected in next-reminder previews. Quiet-hours inputs are user-controlled."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial TypeScript",
+      "result": "passed",
+      "detail": "TypeScript passed after initial additions."
+    },
+    {
+      "name": "Regression and visual QA",
+      "result": "not-run",
+      "detail": "Pending focused tests, lint and browser export/interaction checks. No deployment authorized or performed."
+    }
+  ]
+}

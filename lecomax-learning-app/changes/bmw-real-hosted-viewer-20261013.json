@@ -1,0 +1,56 @@
+{
+  "id": "bmw-real-hosted-viewer-20261013",
+  "createdAt": "2026-10-13T14:57:33.714Z",
+  "title": "Real BMW M5 3D model and clearer mobile studio",
+  "summary": "Integrated SQUIR3D?s official interactive BMW M5 F90 2021 embed instead of the empty asset panel. Added real camera reset and material-based paint controls; compact mobile layout and corrected RTL units.",
+  "status": "needs-testing",
+  "pages": [
+    "/car-studio"
+  ],
+  "components": [
+    "HostedCarViewer",
+    "StudioFrame",
+    "CarStudioScreen",
+    "Studio runtime"
+  ],
+  "files": [
+    "lecomax-learning-app/features/car-studio/hosted-viewer.ts",
+    "lecomax-learning-app/features/car-studio/runtime.ts",
+    "lecomax-learning-app/features/car-studio/studio.css",
+    "lecomax-learning-app/features/car-studio/StudioFrame.tsx",
+    "lecomax-learning-app/features/car-studio/StudioFrame.web.tsx",
+    "lecomax-learning-app/features/car-studio/CarStudioScreen.tsx",
+    "lecomax-learning-app/data/car-studio-runtime.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Official Sketchfab Viewer API 1.12.1 loads creator model 2673357ae2364ecbac334ce2a2b74ceb. Attribution preserved; no model files extracted or redistributed. Requires internet; hosted model is named BMW M5 F90 2021, not certified Competition mechanical geometry."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prioritized a larger 3D viewport, collapsed Competition reference specs, fixed Latin units in RTL, and replaced oversized white Changes Made button."
+    },
+    {
+      "kind": "added",
+      "detail": "Ready/error handling, retry, camera reset framing, body-only paint changes when supported, viewport/background pause and disposal."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Creator availability",
+      "result": "passed",
+      "detail": "Public oEmbed confirms title and SQUIR3D attribution. Initial headless Edge rendering succeeded through the official API; camera, scene nodes and materials inspected."
+    },
+    {
+      "name": "Integrated app validation",
+      "result": "not-run",
+      "detail": "Nested iframe, actual app, responsive layout, material controls, typecheck and lint pending."
+    },
+    {
+      "name": "Physical devices and internal geometry",
+      "result": "not-run",
+      "detail": "No Android/iOS physical-device check. Internal mechanical meshes unverified; no engine/chassis/X-ray functionality claimed for hosted model."
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "id": "memory-studio-verified-20261015",
+  "createdAt": "2026-10-15T20:18:53.346Z",
+  "title": "Memory Studio verification: 309 tests and web export passed",
+  "summary": "Verified scheduling, migration and create/reveal/review/edit/restart interactions; app/backend types, focused lint and web export pass. No deployment or real-device preview.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "Memory Studio",
+    "Personal lesson"
+  ],
+  "components": [
+    "MemoryStudio",
+    "AcademyDashboard",
+    "SchoolProvider",
+    "Progress"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/flashcards.ts",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/app/memory-studio.tsx",
+    "lecomax-learning-app/app/plan-lesson.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/store/School.tsx",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/tests/flashcards.test.cjs",
+    "lecomax-learning-app/tests/academy-2-interaction.test.cjs",
+    "lecomax-learning-app/docs/MEMORY-STUDIO.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Personal question/answer and cloze-style prompts with reveal-before-rating, collection search and paginated display."
+    },
+    {
+      "kind": "added",
+      "detail": "Validated additive progress migration with card scheduling parameters and review events; self-ratings do not inflate mastery."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home and personal lesson notes link to Memory Studio. Existing progress, authentication, navigation and courses retained."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Validation corrections: supplied timer globals to the simulated UI harness, used lazy clock initialization and explicit event timestamps, corrected strict indexed-access types and localized entry labels."
+    },
+    {
+      "kind": "added",
+      "detail": "Repository audit, scheduling adaptations, implementation boundaries and release follow-up documented in docs/MEMORY-STUDIO.md."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused tests",
+      "result": "passed",
+      "detail": "8 scheduler, migration, onboarding, lesson and Memory Studio interaction tests passed after fixing missing timer globals in the harness."
+    },
+    {
+      "name": "Full learning application suite",
+      "result": "passed",
+      "detail": "309 tests passed, 0 failed; artifacts/memory-studio-tests.log. Includes change-history, persistence, assessment and AI output validation coverage."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Learning app npm.cmd run typecheck and root npx.cmd tsc --noEmit --incremental false passed after strict indexing corrections."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "All seven changed application TypeScript files passed after clock purity corrections."
+    },
+    {
+      "name": "Web build",
+      "result": "passed",
+      "detail": "Expo web export completed to dist-memory-studio-check; artifacts/memory-studio-build.log. Build success is not a verified browser preview or a production deployment."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append-only manifest check passed with 305 reports before this follow-up."
+    },
+    {
+      "name": "Untested release boundaries",
+      "result": "not-run",
+      "detail": "Real devices, authenticated browser visual QA, live AI calls, cloud migration and deployment not performed. Public enrollment and remaining advanced phases remain outside this verified slice."
+    }
+  ],
+  "relatedId": "memory-studio-20261015"
+}

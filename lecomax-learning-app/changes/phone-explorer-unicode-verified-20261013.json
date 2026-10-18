@@ -1,0 +1,56 @@
+{
+  "id": "phone-explorer-unicode-verified-20261013",
+  "createdAt": "2026-10-13T09:28:13.866Z",
+  "title": "Phone explorer Unicode repair verified",
+  "summary": "Restore readable Arabic and French labels, descriptions, accessibility text and zoom symbols in the phone component explorer.",
+  "status": "successful",
+  "pages": [
+    "Phone lab"
+  ],
+  "components": [
+    "Phone photo explorer",
+    "Component details dialog"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Reversed repeated Windows-1252/UTF-8 corruption in localized strings and restored question-mark zoom labels."
+    },
+    {
+      "kind": "added",
+      "detail": "Unicode regression checks for rendered text, accessibility labels and zoom symbols in all three languages."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interaction and history regression tests",
+      "result": "passed",
+      "detail": "10 tests passed: all three language explorers, component selection, details, zoom, quiz/progress bridge and history retention/interactions."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "npm run typecheck and eslint utils/phone-photo-view.ts passed."
+    },
+    {
+      "name": "Encoding scan",
+      "result": "passed",
+      "detail": "No remaining corruption markers or question-mark placeholders in phone-photo-view.ts; rendered text and accessibility labels checked in English, French and Arabic."
+    },
+    {
+      "name": "Local route",
+      "result": "passed",
+      "detail": "Current localhost:8082/phone-lab returned HTTP 200."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Visual browser and physical device verification unavailable; HTTP response is not an authenticated visual preview. No deployment."
+    }
+  ],
+  "relatedId": "phone-explorer-unicode-20261013"
+}

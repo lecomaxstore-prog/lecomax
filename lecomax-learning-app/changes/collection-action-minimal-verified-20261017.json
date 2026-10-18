@@ -1,0 +1,36 @@
+{
+  "id": "collection-action-minimal-verified-20261017",
+  "relatedId": "collection-action-minimal-20261017",
+  "createdAt": "2026-10-17T10:17:00.183Z",
+  "title": "Minimal product action visually checked",
+  "summary": "Checked the lighter Voir le produit footer in the local mobile storefront.",
+  "status": "successful",
+  "pages": [
+    "Homepage collections"
+  ],
+  "components": [
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/CollectionProductCard.module.css",
+    "lecomax-learning-app/artifacts/product-action-minimal.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the minimal text-and-arrow action after removing the green button treatment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local mobile screenshot",
+      "result": "passed",
+      "detail": "Inspected rendered action at 390px viewport: 46px height, transparent background, dark text, fine divider and unframed arrow."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "CSS-only change; full regression suite and physical-device checks not run. No deployment."
+    }
+  ]
+}

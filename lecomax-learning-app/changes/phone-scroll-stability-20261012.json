@@ -1,0 +1,45 @@
+{
+  "id": "phone-scroll-stability-20261012",
+  "createdAt": "2026-10-12T17:44:19.889Z",
+  "title": "Stable phone panning and dialog scrolling",
+  "summary": "Corrected conflicting touch and scroll behavior in the realistic viewer and prevented automatic scroll jumps.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo viewport",
+    "Component picker",
+    "Piece detail dialog"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Allow native horizontal and vertical touch panning of the enlarged image; permit scroll chaining at image edges and remove the nested scroll container in full-phone view."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Use stable viewport height for zoom and stop resize events recentering the image while browsing. Component picker no longer jumps the outer page to the explanation."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Lock background scrolling while detail dialog is open and restore focus without scrolling when it closes."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Passive pointer tracking suppresses clicks after dragging or gesture cancellation; scroll handling stays passive and clears double-tap tracking."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused checks",
+      "result": "not-run",
+      "detail": "Pending regression, typecheck, lint and history checks. Device scroll/performance measurements and live visual verification not yet performed. No deployment."
+    }
+  ]
+}

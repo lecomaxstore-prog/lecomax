@@ -1,0 +1,34 @@
+{
+  "id": "footer-contact-tap-color-20261017",
+  "createdAt": "2026-10-17T10:48:02.171Z",
+  "title": "Keep contact links readable after tapping",
+  "summary": "Removed desktop white-hover utilities from contact links and defined contrasting mobile interaction colors.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "WhatsApp and email links remain dark green on mobile hover, focus, active and visited states. Desktop retains light text for its dark background."
+    },
+    {
+      "kind": "modified",
+      "detail": "Improved contact value contrast and weight, added a green tap highlight and stronger pressed-card background and border. Reduced motion disables link transitions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Static checks pending. Physical touch/browser verification unavailable; no deployment."
+    }
+  ]
+}

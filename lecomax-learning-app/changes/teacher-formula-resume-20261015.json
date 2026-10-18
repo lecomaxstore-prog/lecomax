@@ -1,0 +1,44 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Local KaTeX MathML rendering on web and script-disabled native WebView, with plain-text fallback for unsupported formulas."
+    },
+    {
+      "kind": "modified",
+      "detail": "Teacher response parsing recognizes display and parenthesized LaTeX outside code fences."
+    }
+  ],
+  "summary": "Finish and validate the formula display saved before the interrupted Academy Signature work.",
+  "id": "teacher-formula-resume-20261015",
+  "createdAt": "2026-10-15T16:15:06.596Z",
+  "validation": [
+    {
+      "detail": "Pending fresh export, formula regression checks and isolated runtime validation. Native device rendering remains untested.",
+      "result": "not-run",
+      "name": "Formula and resumed journey validation"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherFormula.tsx",
+    "lecomax-learning-app/components/TeacherFormula.web.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx",
+    "lecomax-learning-app/utils/teacher-math.ts",
+    "lecomax-learning-app/utils/teacher-markdown.ts",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/scripts/test-production-journey.cjs",
+    "lecomax-learning-app/tests/teacher-math.test.cjs"
+  ],
+  "components": [
+    "TeacherMessage",
+    "TeacherFormula",
+    "teacherBlocks"
+  ],
+  "status": "needs-testing",
+  "title": "Render teacher mathematics as formatted formulas",
+  "pages": [
+    "AI Teacher",
+    "Contextual lesson teacher"
+  ]
+}

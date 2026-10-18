@@ -1,0 +1,58 @@
+{
+  "id": "arabic-typography-20261016",
+  "createdAt": "2026-10-16T21:09:03.729Z",
+  "title": "Clearer Arabic typography and home labels",
+  "summary": "Use bundled Noto Sans Arabic, readable navigation and button sizes, and more natural Arabic home-card wording.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Shared Arabic screens",
+    "Bottom navigation"
+  ],
+  "components": [
+    "Label",
+    "Button",
+    "BottomTabBar",
+    "UniverseOverview",
+    "JourneyPicker",
+    "Root Layout"
+  ],
+  "files": [
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/features/universe/Overview.tsx",
+    "lecomax-learning-app/features/universe/Journey.tsx",
+    "lecomax-learning-app/assets/fonts/NotoSansArabic-Regular.ttf",
+    "lecomax-learning-app/assets/fonts/NotoSansArabic-SemiBold.ttf",
+    "lecomax-learning-app/assets/fonts/Noto-OFL.txt",
+    "lecomax-learning-app/assets/fonts/README.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace the Arabic UI font that rendered poorly at small sizes with bundled Noto Sans Arabic Regular and SemiBold, with web sans-serif fallbacks."
+    },
+    {
+      "kind": "modified",
+      "detail": "Increase Arabic button labels to 15px and bottom tabs to 12px; clarify daily challenge, journey and tutor wording."
+    },
+    {
+      "kind": "added",
+      "detail": "Include font license and provenance documentation. Existing font assets and history remain preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Baseline browser reproduction",
+      "result": "passed",
+      "detail": "Reproduced the screenshot at 390px in Edge; CDP confirmed IBM Plex custom fonts were loaded. This was poor small-size rendering, not missing font requests."
+    },
+    {
+      "name": "Post-change checks",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, change history checks and responsive visual validation pending. Native devices and production deployment not tested."
+    }
+  ]
+}

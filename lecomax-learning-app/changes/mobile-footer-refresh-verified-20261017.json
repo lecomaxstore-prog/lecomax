@@ -1,0 +1,47 @@
+{
+  "id": "mobile-footer-refresh-verified-20261017",
+  "relatedId": "mobile-footer-refresh-20261017",
+  "createdAt": "2026-10-17T10:25:24.058Z",
+  "title": "Mobile footer layout and interaction verified",
+  "summary": "Responsive footer, expandable navigation and simulated newsletter success checked locally.",
+  "status": "successful",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css",
+    "lecomax-learning-app/artifacts/mobile-footer.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified mobile contact rows, newsletter panel, social touch targets and compact navigation while retaining desktop columns."
+    }
+  ],
+  "validation": [
+    {
+      "name": "ESLint",
+      "result": "passed",
+      "detail": "Footer.tsx passed focused ESLint."
+    },
+    {
+      "name": "Responsive layout",
+      "result": "passed",
+      "detail": "Footer has no internal horizontal overflow at 320, 390, 768 or 1280px. Inspected mobile screenshot. Mobile disclosure navigation is hidden on desktop."
+    },
+    {
+      "name": "Navigation and form",
+      "result": "passed",
+      "detail": "Pointer and keyboard expansion show links; keyboard collapse hides links. Mocked newsletter success disables email and removes submit button. No real subscription was sent. Initial automation used a terminal-corrupted accented selector; corrected to href and reran successfully."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No live newsletter delivery, physical-device or exhaustive screen-reader testing. No deployment."
+    }
+  ]
+}

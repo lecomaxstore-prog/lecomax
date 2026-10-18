@@ -1,0 +1,58 @@
+{
+  "id": "product-reviews-clean-layout-verified-20261018",
+  "createdAt": "2026-10-18T09:27:39.718Z",
+  "title": "Customer reviews update passes automated checks",
+  "summary": "Mobile typecheck, focused lint, 22 review tests and six history tests passed; device visual verification remains pending.",
+  "status": "successful",
+  "pages": [
+    "Mobile storefront /product/[slug]"
+  ],
+  "components": [
+    "ProductReviews",
+    "English and French review messages"
+  ],
+  "files": [
+    "mobile/src/components/product-reviews.tsx",
+    "mobile/src/i18n/locales/en.json",
+    "mobile/src/i18n/locales/fr.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded automated validation of the customer reviews layout and copy update."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck in mobile."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "npx.cmd eslint src/components/product-reviews.tsx in mobile."
+    },
+    {
+      "name": "Review regression tests",
+      "result": "passed",
+      "detail": "22 tests across review-authenticity, review-order-proof and review-submit-proof."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "Six tests across change-history and change-history-interaction."
+    },
+    {
+      "name": "History integrity and whitespace",
+      "result": "passed",
+      "detail": "Append/check preserves prior reports; git diff --check passed for affected mobile files."
+    },
+    {
+      "name": "Device preview and deployment",
+      "result": "not-run",
+      "detail": "No live visual preview, native device interaction or deployment performed."
+    }
+  ],
+  "relatedId": "product-reviews-clean-layout-20261018"
+}

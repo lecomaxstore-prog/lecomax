@@ -1,0 +1,55 @@
+{
+  "id": "routine-notification-check-corrections-20261016",
+  "createdAt": "2026-10-16T11:25:02.942Z",
+  "title": "Correct daily checklist validation issues",
+  "summary": "Corrected JSX closure and task callback promise, and aligned weekday-message tests with the new explicit routine prompts.",
+  "status": "needs-testing",
+  "pages": [
+    "/wellness",
+    "/wellness/notifications"
+  ],
+  "components": [
+    "RoutineProgramme",
+    "NotificationBridge",
+    "Wellness reminders"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/types.ts",
+    "lecomax-learning-app/features/wellness/data.ts",
+    "lecomax-learning-app/features/wellness/engine.ts",
+    "lecomax-learning-app/features/wellness/daily-content.ts",
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx",
+    "lecomax-learning-app/features/wellness/RoutineProgramme.tsx",
+    "lecomax-learning-app/features/wellness/TodayScreen.tsx",
+    "lecomax-learning-app/features/NotificationBridge.tsx",
+    "lecomax-learning-app/tests/wellness.test.cjs",
+    "lecomax-learning-app/tests/wellness-daily-interaction.test.cjs",
+    "lecomax-learning-app/tests/routine-notification-navigation.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Checklist returns the save promise to keep the checkbox busy until persistence completes; stale-day actions cannot alter another day."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial validation",
+      "result": "failed",
+      "detail": "Caught missing JSX closure, void callback incompatible with TaskCard, and former daily-variation expectation for the new fixed routine prompts."
+    },
+    {
+      "name": "Behavioral tests after corrections",
+      "result": "passed",
+      "detail": "44 routine, notification, navigation and history tests passed."
+    },
+    {
+      "name": "Final static check",
+      "result": "not-run",
+      "detail": "Pending after correcting the callback promise."
+    }
+  ],
+  "relatedId": "routine-notification-programme-20261016"
+}

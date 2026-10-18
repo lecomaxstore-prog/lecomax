@@ -1,0 +1,41 @@
+{
+  "id": "recommendation-cards-polish-20261017",
+  "createdAt": "2026-10-17T10:40:34.142Z",
+  "title": "Clearer product recommendations",
+  "summary": "Refined the Vous aimerez aussi section with rounded cards, aligned titles and prices, and visible discounts.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail /produit/[slug]"
+  ],
+  "components": [
+    "ProductCarousel",
+    "RecommendationCard"
+  ],
+  "files": [
+    "components/ProductCarousel.tsx",
+    "components/ProductCarousel.module.css",
+    "components/RecommendationCard.tsx",
+    "components/RecommendationCard.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added soft bordered cards, larger readable type, green price hierarchy, white wishlist surfaces and consistent card padding."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Reserved two lines for product names so prices align across short and long titles."
+    },
+    {
+      "kind": "added",
+      "detail": "Calculated percentage badges for discounted recommendations while preserving sold-out priority."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Static checks and existing recommendation/history tests pending. Browser appearance and live wishlist behavior not yet verified. No deployment."
+    }
+  ]
+}

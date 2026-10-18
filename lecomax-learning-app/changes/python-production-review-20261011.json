@@ -1,0 +1,58 @@
+{
+  "id": "python-production-review-20261011",
+  "createdAt": "2026-10-11T11:35:55.986Z",
+  "title": "Python Studio production-readiness corrections",
+  "summary": "Fix verified small-screen overflow, light-theme contrast, cross-file undo, prompt tab stealing and native draft debounce loss.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonEditor",
+    "MobilePythonWorkspace",
+    "Native draft bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/components/MobilePythonWorkspace.tsx",
+    "lecomax-learning-app/utils/python-mobile-bridge.ts",
+    "lecomax-learning-app/scripts/python-mobile-entry.tsx",
+    "lecomax-learning-app/data/python-mobile-workspace.json",
+    "lecomax-learning-app/scripts/python-ide-smoke.cjs",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/tests/python-mobile-draft.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Small-screen running toolbar overflow reproduced in Chromium. Correcting compact actions, keyboard-bounded menu, light-theme status/error/dirty colors and Run hover contrast."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Reset editor undo history on explicit document switches, preserve same-document saves, and only select Console when a new input prompt arrives. Emit native working drafts immediately instead of waiting for the 300ms autosave."
+    },
+    {
+      "kind": "added",
+      "detail": "Accessible tablist keyboard controls and bounded native draft validation."
+    },
+    {
+      "kind": "modified",
+      "detail": "Memoize the editor with stable editing/run callbacks and avoid duplicate viewport state updates. Extend browser review to both themes, 280px screens and edge cases."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Baseline browser review",
+      "result": "failed",
+      "detail": "English dark-theme running toolbar overflow reproduced at 280px. Static contrast calculation found light Stop at 1.56:1, error text at 1.93:1, dirty marker at 1.74:1 and Run hover text at 3.77:1. Final checks pending."
+    },
+    {
+      "name": "Physical mobile testing",
+      "result": "not-run",
+      "detail": "No device or native binary validation claimed. Browser snapshots and automated tests will verify the shared implementation."
+    }
+  ]
+}

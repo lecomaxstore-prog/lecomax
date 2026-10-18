@@ -1,0 +1,68 @@
+{
+  "id": "phone-remote-relay-viewer-20261011",
+  "createdAt": "2026-10-11T18:34:55.000Z",
+  "title": "Resumed phone-to-phone remote sharing",
+  "summary": "Added hosted relay viewer, Android pairing screen, deployment recipe and safety boundaries for approved phone sharing.",
+  "status": "needs-testing",
+  "pages": [
+    "More",
+    "My remote phone",
+    "Phone relay viewer"
+  ],
+  "components": [
+    "Phone",
+    "PhoneRemoteService",
+    "phone-relay viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/phone-relay/server.cjs",
+    "lecomax-learning-app/phone-relay/viewer.html",
+    "lecomax-learning-app/phone-relay/viewer.js",
+    "lecomax-learning-app/phone-relay/viewer.css",
+    "lecomax-learning-app/phone-relay/Dockerfile",
+    "lecomax-learning-app/phone-relay/compose.yaml",
+    "lecomax-learning-app/phone-relay/Caddyfile",
+    "lecomax-learning-app/docs/phone-remote.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added HTTPS relay browser pairing with expiring codes, explicit approval, JPEG frames and allowlisted controls."
+    },
+    {
+      "kind": "added",
+      "detail": "Added Android My remote phone setup, accessibility guidance, status, approval and stop controls."
+    },
+    {
+      "kind": "added",
+      "detail": "Added Docker/Caddy hosting files and operator guide."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Added relay security headers and strict access-key validation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Learning app TypeScript",
+      "result": "passed",
+      "detail": "npm run typecheck"
+    },
+    {
+      "name": "Existing PC bridge tests",
+      "result": "passed",
+      "detail": "node --test tests/pc-remote.test.mjs (2 passed)"
+    },
+    {
+      "name": "Physical Android relay flow",
+      "result": "not-run",
+      "detail": "Requires hosted relay, two physical devices and a new native Android build."
+    },
+    {
+      "name": "Relay package install",
+      "result": "not-run",
+      "detail": "npm registry access was unavailable in this environment."
+    }
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "id": "expo-admin-brand-parity-20261018",
+  "createdAt": "2026-10-18T10:01:38.976Z",
+  "title": "Match admin brands to the Expo catalogue",
+  "summary": "Offer all 17 Expo brands and identical logos in the product editor and show registry-backed logos on website product details.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin products",
+    "Website product details",
+    "Expo product brands"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Shared brand catalogue"
+  ],
+  "files": [
+    "mobile/src/lib/product-brands.ts",
+    "components/admin/ProductBrandPicker.tsx",
+    "components/ProductBrandMark.tsx",
+    "app/produit/[slug]/page.tsx",
+    "tests/product-brands.test.ts",
+    "docs/product-brands.md",
+    "public/images/brands/adidas.png",
+    "public/images/brands/asics.png",
+    "public/images/brands/baasploa.png",
+    "public/images/brands/ellesse.png",
+    "public/images/brands/emporioarmani.png",
+    "public/images/brands/genai.png",
+    "public/images/brands/joma.png",
+    "public/images/brands/jordan.png",
+    "public/images/brands/kangol.png",
+    "public/images/brands/kemei.png",
+    "public/images/brands/lenovo.png",
+    "public/images/brands/newbalance.png",
+    "public/images/brands/nike.png",
+    "public/images/brands/puma.png",
+    "public/images/brands/reebok.png",
+    "public/images/brands/sony.png",
+    "public/images/brands/underarmour.png"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Expose the 17 existing Expo brands in the shared catalogue, using exact copies of their PNG artwork for the website and admin."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Admin no longer starts with only ASICS. Preserve existing product names, new-brand creation and saved logo overrides; hide failed admin images."
+    },
+    {
+      "kind": "modified",
+      "detail": "Website product details display shared brand logos with text/offline fallback. Explain product-save behavior in the picker."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused checks",
+      "result": "not-run",
+      "detail": "Pending regression, lint and type checks. Authenticated save/upload, visual device checks and production deployment have not been performed."
+    }
+  ]
+}

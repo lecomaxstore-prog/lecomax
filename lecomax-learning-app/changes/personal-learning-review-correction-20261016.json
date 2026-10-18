@@ -1,0 +1,36 @@
+{
+  "id": "personal-learning-review-correction-20261016",
+  "createdAt": "2026-10-16T11:16:10.974Z",
+  "title": "Correct review clock and extend navigation checks",
+  "summary": "Initial validation caught render-time clock usage and an incomplete test subtitle mock; both corrected, pending recheck.",
+  "status": "needs-testing",
+  "pages": [
+    "/my-learning"
+  ],
+  "components": [
+    "MyLearning"
+  ],
+  "files": [
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/tests/my-learning-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Review status now refreshes on entering Reviews and every minute. Completed plans open the project page. Tests render list subtitles."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial checks",
+      "result": "failed",
+      "detail": "ESLint rejected Date.now during render; review-label assertion failed because its test mock omitted subtitles."
+    },
+    {
+      "name": "Correction verification",
+      "result": "not-run",
+      "detail": "Pending rerun."
+    }
+  ],
+  "relatedId": "personal-learning-navigation-20261016"
+}

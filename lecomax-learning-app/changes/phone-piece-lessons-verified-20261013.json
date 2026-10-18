@@ -1,0 +1,67 @@
+{
+  "id": "phone-piece-lessons-verified-20261013",
+  "createdAt": "2026-10-13T09:50:49.584Z",
+  "title": "One-tap phone lessons verified",
+  "summary": "Expand the phone explorer with immediate component lessons, assembly principles, connected-part navigation and offline practice in Arabic, French and English.",
+  "status": "successful",
+  "pages": [
+    "Phone lab",
+    "AI Teacher"
+  ],
+  "components": [
+    "Phone explorer document",
+    "Component lesson dialog",
+    "Phone teacher context"
+  ],
+  "files": [
+    "lecomax-learning-app/data/phone-assembly.ts",
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-teacher.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs",
+    "lecomax-learning-app/tests/phone-teacher.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Assembly and placement content for 25 hardware topics, related component navigation, three lesson sections, an offline role quiz, progress and next-piece controls."
+    },
+    {
+      "kind": "modified",
+      "detail": "Single taps and component picker open the lesson immediately. Redesigned responsive lesson panel; AI teacher receives trusted assembly context."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Lesson coverage and interaction tests",
+      "result": "passed",
+      "detail": "7 phone tests passed. All 25 hardware topics have three-language assembly content and valid related parts. All 24 mapped families open with one click at two image sizes. Verified tabs, wrong/correct quiz feedback, related and next navigation, screen lesson without fabricated image crop, learned-state bridge, focus restoration, drag suppression, zoom, and AI context/bridges."
+    },
+    {
+      "name": "History regression tests",
+      "result": "passed",
+      "detail": "6 retention and interaction tests passed, including immutable append and archive recovery."
+    },
+    {
+      "name": "Static validation",
+      "result": "passed",
+      "detail": "App TypeScript and focused ESLint checks passed. Focused tests and lint passed again after accessibility refinements."
+    },
+    {
+      "name": "Local route",
+      "result": "passed",
+      "detail": "Current localhost:8082/phone-lab returned HTTP 200; local development server remains running."
+    },
+    {
+      "name": "Reference review",
+      "result": "passed",
+      "detail": "Reviewed Apple iPhone 15 repair manual, camera, battery and haptic actuator references. The assembly section links to the model-specific manual and distinguishes illustrative lessons from real repair instructions."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No visual browser or physical-phone QA was available. AI teacher routing and trusted context passed automated checks; live AI responses were not requested. No deployment."
+    }
+  ],
+  "relatedId": "phone-piece-lessons-20261013"
+}

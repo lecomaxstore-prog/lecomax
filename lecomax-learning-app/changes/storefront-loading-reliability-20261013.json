@@ -1,0 +1,62 @@
+{
+  "id": "storefront-loading-reliability-20261013",
+  "createdAt": "2026-10-12T22:34:16.308Z",
+  "title": "Reduce storefront loading work and keep products visible",
+  "summary": "Remove hidden image downloads and delayed product reveals; load search on demand and postpone optional ranking until the catalogue approaches the viewport.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage",
+    "All storefront headers",
+    "Boutique",
+    "Product rails"
+  ],
+  "components": [
+    "Header",
+    "SearchOverlay loading boundary",
+    "ProductRail",
+    "CollectionProductCard",
+    "OurProductsGrid",
+    "Storefront refresh and settings"
+  ],
+  "files": [
+    "components/Header.tsx",
+    "components/ProductRail.tsx",
+    "components/CollectionProductCard.tsx",
+    "components/OurProductsGrid.tsx",
+    "app/globals.css",
+    "lib/when-near-viewport.ts",
+    "lib/use-settings.ts",
+    "lib/use-store-refresh.ts",
+    "lib/storefront-refresh.ts"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Remove six permanently hidden menu images totaling 12191600 source bytes and unused hidden promotional markup. Retain visible menu links."
+    },
+    {
+      "kind": "modified",
+      "detail": "Search code loads when opened with a visible loading state; optional recommendation request starts near the catalogue and times out after 5 seconds."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Product rails and collection cards are visible immediately without JavaScript reveal timers or entrance delays."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Settings and client refresh reads have 10-second deadlines so stalled requests do not permanently lock refresh. Boutique no longer refreshes its server shell alongside its client catalogue poll."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Public baseline",
+      "result": "passed",
+      "detail": "Public GET lecomax.com returned HTTP 200, 54011 compressed bytes, TTFB 3.011217 s, total 3.607982 s. HTML has 603935 bytes and still uses the old hero implementation. Single environment-specific request, not Core Web Vitals."
+    },
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Focused regression tests, TypeScript, lint and production build pending. No deployment or measured post-change production improvement."
+    }
+  ]
+}

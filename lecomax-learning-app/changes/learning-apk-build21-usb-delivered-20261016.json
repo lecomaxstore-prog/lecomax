@@ -1,0 +1,44 @@
+{
+  "id": "learning-apk-build21-usb-delivered-20261016",
+  "createdAt": "2026-10-15T23:09:06.551Z",
+  "relatedId": "learning-apk-build21-verified-usb-approval-20261016",
+  "title": "Learn 1.0.19 build 21 copied to USB and verified",
+  "summary": "Following explicit approval, delivered the verified Android APK to D:/lecomax app on ANDROID-X86. Source and USB SHA-256 match.",
+  "status": "successful",
+  "pages": [
+    "Learning app",
+    "Change History"
+  ],
+  "components": [
+    "Android release",
+    "USB delivery"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.19-build21.apk",
+    "lecomax-learning-app/artifacts/build21-usb-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build21-verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Copied lecomax-learn-1.0.19-build21.apk to D:/lecomax app, preserving all existing APKs."
+    }
+  ],
+  "validation": [
+    {
+      "name": "USB delivery",
+      "result": "passed",
+      "detail": "Verified removable volume ANDROID-X86, source hash against prior signed-APK verification, and destination SHA-256: 6581efafc67aecbb33f221504cb8b7160897d7b31e671a55c33d438d538c64bd. Size 213155792 bytes."
+    },
+    {
+      "name": "Previous release checks",
+      "result": "passed",
+      "detail": "Earlier linked report records successful Android build, signature verification, 335 source tests, 13 native tests, 12 release/history tests, TypeScript, focused lint and multilingual browser checks; these were not rerun for the copy."
+    },
+    {
+      "name": "Physical phone and bundled history",
+      "result": "not-run",
+      "detail": "Installation and physical-phone behavior not tested. This delivery report is appended to repository history; the already-built APK contains the earlier preparation/retry reports. No deployment or live preview claimed."
+    }
+  ]
+}

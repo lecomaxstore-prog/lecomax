@@ -1,0 +1,86 @@
+{
+  "id": "learning-roadmap-platform-resume-verified-20261017",
+  "createdAt": "2026-10-17T09:11:46.032Z",
+  "relatedId": "learning-roadmap-platform-20261017",
+  "title": "Learning journey verification completed after session interruption",
+  "summary": "Verified course selection, saved progress, project completion rules and conservative sync behavior; documented remaining live-device and content-review limits.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "Onboarding",
+    "Roadmap",
+    "Lesson player",
+    "Change History"
+  ],
+  "components": [
+    "JourneyDashboard",
+    "LessonOrientation",
+    "ProgressSyncRunner",
+    "Curriculum projects",
+    "Progress schema",
+    "Change History"
+  ],
+  "files": [
+    "lecomax-learning-app/components/JourneyDashboard.tsx",
+    "lecomax-learning-app/components/SyncProgress.tsx",
+    "lecomax-learning-app/app/roadmap.tsx",
+    "lecomax-learning-app/app/(tabs)/index.tsx",
+    "lecomax-learning-app/app/onboarding.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/utils/journey-state.ts",
+    "lecomax-learning-app/utils/progress-sync.ts",
+    "lecomax-learning-app/services/learning-roadmap.ts",
+    "lecomax-learning-app/docs/learning-platform-audit.md",
+    "lecomax-learning-app/components/LessonOrientation.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/services/course-learning.ts",
+    "lecomax-learning-app/constants/courses.ts",
+    "lecomax-learning-app/constants/course-guidance.ts",
+    "lecomax-learning-app/constants/course-workshops.ts",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/tests/learning-roadmap.test.cjs",
+    "lecomax-learning-app/tests/roadmap-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Completed the interrupted verification record for the implemented journey dashboard, optional placement, course roadmap and authenticated revision-checked progress synchronization."
+    },
+    {
+      "kind": "modified",
+      "detail": "Documented verification and outstanding limitations in docs/learning-platform-audit.md; existing reports remain unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded the implemented workshop milestone rule: each published course has project content, and path completion requires both lesson completion and learner-attested project review. Review is not automated certification."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "npm.cmd run typecheck and npx.cmd eslint across 17 changed screens, components, services, models, constants and tutor files exited successfully.",
+      "result": "passed",
+      "name": "Current TypeScript and focused ESLint"
+    },
+    {
+      "detail": "55 tests passed across learning-journey, learning-roadmap, roadmap-interaction, course-learning, course-flow, course-library-interaction, course-library, course-workshops, learning-memory, progress, change-history and change-history-interaction. A separate academy-2 and academy-2-interaction run passed 16 tests. Total: 71 passed, no failures or skips.",
+      "result": "passed",
+      "name": "Current regression and interaction tests"
+    },
+    {
+      "detail": "change-report.cjs --check validated all 360 existing reports. Append-only history and archive interaction tests passed.",
+      "result": "passed",
+      "name": "History preservation before append"
+    },
+    {
+      "detail": "Inspected saved roadmap-final-build.txt log reporting completed web/Android/iOS export and roadmap-validation.txt reporting 57 passing tests from the earlier session. Builds were not rerun or visually checked in this resumed session.",
+      "result": "passed",
+      "name": "Earlier build evidence"
+    },
+    {
+      "detail": "Live authenticated two-device sync, physical Android interaction and crash recovery, responsive/RTL visual review, live AI responses and comprehensive historical lesson quality remain unverified. No deployment or checked preview is claimed.",
+      "result": "not-run",
+      "name": "Remaining verification and deployment"
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "resumed-release-compatibility-20261017",
+  "createdAt": "2026-10-17T17:42:28.685Z",
+  "title": "Resume release compatibility fixes",
+  "summary": "Repair lesson source references and test harness imports while preserving the current GitHub storefront fixes.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning lessons",
+    "Storefront cart",
+    "Admin knowledge base"
+  ],
+  "components": [
+    "Source readings and click journeys",
+    "Cart and admin test harnesses"
+  ],
+  "files": [
+    "app/admin/how-it-was-built/learning/reading.ts",
+    "app/admin/how-it-was-built/learning/click-flows.ts",
+    "app/admin/how-it-was-built/learning/resources.ts",
+    "tests/admin-ui-recovery.test.ts",
+    "tests/cart-stock-limit.test.ts",
+    "tests/storefront-audit.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Update lesson excerpts for parallel catalogue loading and safe cart storage."
+    },
+    {
+      "kind": "modified",
+      "detail": "Load shared stock limits and store defaults in regression harnesses; provide the browser storage adapter in cart tests."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial release test suite",
+      "result": "failed",
+      "detail": "605 passed, 14 failed and 4 skipped. Failures include outdated harness dependencies, source anchors and unavailable release-folder learning dependencies."
+    },
+    {
+      "name": "Production release",
+      "result": "not-run",
+      "detail": "Build, full regression rerun, browser checks and publication remain pending."
+    }
+  ]
+}

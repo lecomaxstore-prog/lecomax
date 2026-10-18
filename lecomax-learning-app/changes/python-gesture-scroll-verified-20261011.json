@@ -1,0 +1,65 @@
+{
+  "id": "python-gesture-scroll-verified-20261011",
+  "createdAt": "2026-10-11T11:58:40.745Z",
+  "title": "Python Studio scrolling verification",
+  "summary": "Verified hidden scrollbar tracks preserve editor interaction, output bounds and narrow-screen layouts.",
+  "status": "successful",
+  "relatedId": "python-gesture-scroll-20261011",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonEditor",
+    "MobilePythonWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/data/python-mobile-workspace.json",
+    "lecomax-learning-app/artifacts/python-ide/checks.json",
+    "lecomax-learning-app/artifacts/python-resume-tests.log"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Confirmed editor, workspace, accessory strip, menu and lint tooltip remain scrollable with scrollbar visuals hidden."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Headless browser review",
+      "result": "passed",
+      "detail": "48 locale/theme/viewport cases passed, including 280px layouts, long lines, 24,000-character output, search, keyboard viewport, tab navigation, execution, prompts and Stop."
+    },
+    {
+      "name": "Production mobile workspace bundle",
+      "result": "passed",
+      "detail": "Offline Python mobile workspace rebuilt successfully at the embedded data bundle."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "TypeScript completed without errors; focused ESLint completed with one existing ignored-file warning and zero errors."
+    },
+    {
+      "name": "Full automated tests",
+      "result": "passed",
+      "detail": "180 tests passed, zero failed."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Change history check reports 101 preserved reports."
+    },
+    {
+      "name": "Physical devices and deployment",
+      "result": "not-run",
+      "detail": "No physical Android/iOS keyboard or screen-reader testing and no deployment performed."
+    }
+  ],
+  "preview": {
+    "path": "/terminal",
+    "label": "Python Studio current app preview",
+    "verifiedAt": "2026-10-11T11:58:40.745Z"
+  }
+}

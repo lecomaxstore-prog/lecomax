@@ -1,0 +1,68 @@
+{
+  "id": "explore-world-experience-20261016",
+  "createdAt": "2026-10-16T11:39:04.610Z",
+  "relatedId": "explore-world-foundation-20261016",
+  "title": "Explore World lessons, missions and discovery journal",
+  "summary": "Connects the offline globe, Earth lesson, planet comparison, topic catalog, missions and journal to Academy navigation and the existing AI Tutor.",
+  "status": "needs-testing",
+  "pages": [
+    "/world",
+    "/explore",
+    "/tutor"
+  ],
+  "components": [
+    "WorldScreen",
+    "Diagrams",
+    "Discovery AI context",
+    "CloudProgress"
+  ],
+  "files": [
+    "lecomax-learning-app/features/world/WorldScreen.tsx",
+    "lecomax-learning-app/features/world/Diagrams.tsx",
+    "lecomax-learning-app/features/world/content.ts",
+    "lecomax-learning-app/features/world/model.ts",
+    "lecomax-learning-app/features/world/geometry.ts",
+    "lecomax-learning-app/features/world/globe-runtime.ts",
+    "lecomax-learning-app/data/world-runtime.json",
+    "lecomax-learning-app/app/world.tsx",
+    "lecomax-learning-app/app/explore.tsx",
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/tests/world.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Adds topic exploration, country search, reference Earth lesson, diagrams, eight-planet comparison, nine evidence-based missions, adaptive challenge and persistent bookmarks."
+    },
+    {
+      "kind": "modified",
+      "detail": "Adds Explore World entry to existing course explorer and reviewed topic context to the existing authenticated Tutor. Reuses manual account-scoped database backup."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resolves strict indexed-access errors found in initial type checking."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "App tsc --noEmit passes after correcting indexed access."
+    },
+    {
+      "name": "Model and history tests",
+      "result": "passed",
+      "detail": "13 tests passed for catalog, evidence, backup serialization, Morocco activity, malformed data, adaptive review, geography, Tutor context and existing history."
+    },
+    {
+      "name": "Globe bundle",
+      "result": "passed",
+      "detail": "Built offline globe with installed Three.js and esbuild."
+    },
+    {
+      "name": "Pending integration checks",
+      "result": "not-run",
+      "detail": "Interaction, browser, exports, live cloud, AI and Android hardware checks remain. Detailed country lessons currently cover Morocco and Brazil; other map features are explicitly basic entries. No deployment."
+    }
+  ]
+}

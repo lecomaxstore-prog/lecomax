@@ -1,0 +1,40 @@
+{
+  "id": "wellness-daily-action-plan-20261012",
+  "createdAt": "2026-10-12T15:35:56.391Z",
+  "title": "Daily action plan and AI teacher meal guidance",
+  "summary": "See today’s activities and meals together, and send the current plan to the AI teacher for practical adjustments and recipes.",
+  "status": "needs-testing",
+  "pages": [
+    "/wellness"
+  ],
+  "components": [
+    "DailyActionPlan",
+    "TodayScreen"
+  ],
+  "files": [
+    "features/wellness/DailyActionPlan.tsx",
+    "features/wellness/TodayScreen.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Date-specific overview of waking, movement, learning, evening and four meal slots using the existing daily plan."
+    },
+    {
+      "kind": "added",
+      "detail": "AI teacher actions pass current preferences, meals, completed habits and check-in; prompts ask for relevant constraints before personalization."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck"
+    },
+    {
+      "name": "Interaction and regression checks",
+      "result": "not-run",
+      "detail": "Pending. No deployment or native device verification."
+    }
+  ]
+}

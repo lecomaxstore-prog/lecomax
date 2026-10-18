@@ -1,0 +1,42 @@
+{
+  "id": "python-runtime-lint-1791621004686",
+  "createdAt": "2026-10-10T08:30:04.686Z",
+  "title": "Python runtime lint verification",
+  "summary": "Focused ESLint completed successfully for the Python runtime and both lab integrations.",
+  "status": "successful",
+  "pages": [
+    "Teacher practice lab",
+    "Interactive terminal"
+  ],
+  "components": [
+    "Python runtime discovery",
+    "Local lab server"
+  ],
+  "files": [
+    "lib/python-runtime.ts",
+    "lib/teacher-lab.ts",
+    "lib/teacher-runtimes.ts",
+    "scripts/start-teacher-lab.mjs",
+    "tests/teacher-lab.test.ts",
+    "tests/teacher-terminal.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added final validation evidence for the Python runtime correction."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "ESLint exited 0 for lib/python-runtime.ts, lib/teacher-lab.ts and lib/teacher-runtimes.ts."
+    },
+    {
+      "name": "Remaining limits",
+      "result": "not-run",
+      "detail": "Signed-in UI interaction, phone execution and deployment were not performed."
+    }
+  ],
+  "relatedId": "python-runtime-verified-1791620994947"
+}

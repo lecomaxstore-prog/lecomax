@@ -1,0 +1,40 @@
+{
+  "id": "product-description-details-layout-20261018",
+  "createdAt": "2026-10-18T09:22:39.309Z",
+  "title": "Readable description and aligned specification table",
+  "summary": "Improve the description typography and present saved admin details in a clearly aligned table.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "ProductDescription",
+    "Product details table",
+    "Product accordions"
+  ],
+  "files": [
+    "mobile/src/components/product-description.tsx",
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Increase description to 14px with 25px line spacing and stronger contrast. Keep description content and translation behavior unchanged."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use a softly outlined specification table with alternating neutral rows, 13px text, aligned label/value columns and extra width for long values. Preserve exact admin wording and order."
+    },
+    {
+      "kind": "modified",
+      "detail": "Refine accordion heading size, remove the filled open-chevron circle and add an explicit accessible button role."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint and existing details regression tests pending. Browser/device visual review not performed; no deployment."
+    }
+  ]
+}

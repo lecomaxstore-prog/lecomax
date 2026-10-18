@@ -1,0 +1,40 @@
+{
+  "id": "resume-release-lint-isolation-20261017",
+  "createdAt": "2026-10-17T17:56:00.348Z",
+  "relatedId": "resumed-release-homepage-merge-20261017",
+  "title": "Isolate release lint configuration",
+  "summary": "Prevent the standalone release from inheriting duplicate Next.js ESLint plugins from the surrounding workspace.",
+  "status": "successful",
+  "pages": [
+    "Storefront release validation"
+  ],
+  "components": [
+    "Release ESLint configuration"
+  ],
+  "files": [
+    "release/latest-update-20261017/.eslintrc.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Mark the release ESLint configuration as root after independent dependency installs exposed conflicting parent plugins."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused release lint",
+      "result": "passed",
+      "detail": "Six changed storefront and lesson files checked; zero errors and two existing no-img-element warnings on the homepage."
+    },
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Build completed with 223 pages using non-secret service placeholders. Its lint phase identified the configuration conflict, subsequently fixed and verified by focused lint."
+    },
+    {
+      "name": "Production and browser verification",
+      "result": "not-run",
+      "detail": "No deployment or authenticated production checks performed in this session."
+    }
+  ]
+}

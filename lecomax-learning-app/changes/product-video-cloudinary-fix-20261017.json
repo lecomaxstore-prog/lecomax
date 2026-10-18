@@ -1,0 +1,45 @@
+{
+  "id": "product-video-cloudinary-fix-20261017",
+  "createdAt": "2026-10-17T21:18:36.410Z",
+  "title": "Fix Cloudinary product video playback",
+  "summary": "Resolve stored Cloudinary player page links to native video delivery URLs in the gallery and admin preview.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail",
+    "Admin products"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideo",
+    "Product media validation"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "components/ProductVideo.tsx",
+    "lib/product-video.ts",
+    "lib/product-api-validation.ts",
+    "app/admin/products/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Public product data contains player.cloudinary.com HTML embed URLs for Asics Superblast 2 and Armani Intensely. These were passed directly to video src. Resolve existing links on read and normalize future product writes to video/upload H.264 MP4 delivery."
+    },
+    {
+      "kind": "added",
+      "detail": "Cloudinary posters, native controls, inline playback, metadata preload, loading status and retryable errors; preserve gallery navigation and prevent video scrubbing from triggering slide swipes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source and public data inspection",
+      "result": "passed",
+      "detail": "Confirmed stored embed URLs, unchanged retrieval, direct video src usage and same issue in admin preview. No Cloudinary upload implementation exists in this repository; media upload API uses Supabase."
+    },
+    {
+      "name": "Regression and delivery checks",
+      "result": "not-run",
+      "detail": "Pending. No deployment or database rewrite performed."
+    }
+  ]
+}

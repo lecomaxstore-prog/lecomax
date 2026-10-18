@@ -1,0 +1,46 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use a horizontal snapping ScrollView, responsive cards with the next card partly visible, and reset the row for a different product. Refine rounded borders, image proportions, title spacing and separated prices only for related cards."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the wrapping multi-row recommendation layout."
+    }
+  ],
+  "summary": "Replace the wrapped recommendation grid with a swipeable row and refine the product cards.",
+  "id": "expo-related-horizontal-20261018-verified",
+  "createdAt": "2026-10-18T09:41:36.081Z",
+  "validation": [
+    {
+      "name": "Mobile TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint for the product page and product-card completed with exit code 0."
+    },
+    {
+      "name": "Recommendation and history tests",
+      "result": "passed",
+      "detail": "All 11 tests passed. History manifest check passed with all previous reports retained."
+    },
+    {
+      "name": "Device appearance and gestures",
+      "result": "not-run",
+      "detail": "No device/browser visual preview checked; native scrolling, RTL gestures and large text remain unverified. Local source change only; not deployed."
+    }
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "components": [
+    "Related products carousel",
+    "ProductCard related variant"
+  ],
+  "status": "successful",
+  "title": "Horizontal recommendations: code checks passed",
+  "pages": [
+    "Expo product details /product/[slug]"
+  ],
+  "relatedId": "expo-related-horizontal-20261018"
+}

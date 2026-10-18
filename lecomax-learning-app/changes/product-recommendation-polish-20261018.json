@@ -1,0 +1,39 @@
+{
+  "id": "product-recommendation-polish-20261018",
+  "createdAt": "2026-10-18T09:28:30.498Z",
+  "title": "Refine product recommendation cards",
+  "summary": "Lighter recommendation cards with responsive sizing, consistent product imagery and simpler price presentation.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile storefront /product/[slug]"
+  ],
+  "components": [
+    "ProductCard related variant",
+    "Product recommendations rail"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Refined borders, spacing, typography, square image presentation and responsive card/rail sizing."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed heavy boxed price panel and fixed oversized card/image dimensions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Wishlist and purchase controls now have 44px touch targets in related cards; old prices stack to avoid competing with actions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Typecheck and focused lint pending. Device visual preview and deployment not performed."
+    }
+  ]
+}

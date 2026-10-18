@@ -1,0 +1,77 @@
+{
+  "id": "programming-practice-lab-verified-20261014",
+  "relatedId": "programming-practice-lab-20261014",
+  "createdAt": "2026-10-14T09:27:46.929Z",
+  "title": "Programming Practice Lab verified on local web",
+  "summary": "Verified all nine challenge records, saved answers and notes, language filters, retries, daily selection and Home/My tools navigation. Reviewed mobile screenshots.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "My tools",
+    "/practice-lab",
+    "/change-history"
+  ],
+  "components": [
+    "PracticeLab",
+    "PracticeLaunchpad",
+    "StudyDashboard",
+    "More"
+  ],
+  "files": [
+    "app/practice-lab.tsx",
+    "features/practice/challenges.ts",
+    "features/practice/progress.ts",
+    "components/PracticeLaunchpad.tsx",
+    "components/StudyDashboard.tsx",
+    "app/(tabs)/more.tsx",
+    "tests/practice-lab.test.cjs",
+    "artifacts/practice-lab-browser.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Keep the practice progress fraction left-to-right within Arabic layouts and reset scroll position when opening a challenge."
+    },
+    {
+      "kind": "added",
+      "detail": "Real JavaScript and SQLite answer-key verification plus disposable browser coverage for practice interactions and persistence."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint passed for all changed application TS/TSX files."
+    },
+    {
+      "name": "Automated tests",
+      "result": "passed",
+      "detail": "12 tests passed: five Practice Lab tests, six history tests and the speaking interaction regression. All JavaScript and SQL answer keys match actual Node/SQLite execution."
+    },
+    {
+      "name": "Browser interactions",
+      "result": "passed",
+      "detail": "Disposable Edge browser verified disabled submission, language filters, mini-lesson, wrong and correct answers, hints, retries, notes and attempts after reload, non-inflating first-try counts, empty filter and Home/My tools entry links. Authentication mocked; no real credentials."
+    },
+    {
+      "name": "Responsive and visual review",
+      "result": "passed",
+      "detail": "18 library width checks at 320/390/900 across Arabic, English, French and light/dark themes; six challenge layout checks; no page errors. Reviewed Arabic light, Arabic dark challenge, English light and French dark Home screenshots."
+    },
+    {
+      "name": "History",
+      "result": "passed",
+      "detail": "History check passed with 278 reports before this linked report; prior reports preserved."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Python snippets reviewed manually but not executed: local python/py launchers were unavailable. Native Android/iOS testing and deployment not performed. Code challenges are reasoning exercises, not an embedded runtime or certification."
+    }
+  ],
+  "preview": {
+    "path": "/practice-lab",
+    "label": "Current app: Programming Practice Lab",
+    "verifiedAt": "2026-10-14T09:27:46.930Z"
+  }
+}

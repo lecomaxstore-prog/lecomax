@@ -1,0 +1,38 @@
+{
+  "id": "phone-invitation-404-release-prepared-20261013",
+  "createdAt": "2026-10-13T21:55:02.062Z",
+  "title": "Prepare missing WhatsApp invitation page for publication",
+  "summary": "The shared HTTPS link targets a landing page absent from the live website. An isolated release adds its HTML, JavaScript and CSS to the exact current production source.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone invitation landing",
+    "My remote phone"
+  ],
+  "components": [
+    "WhatsApp invitation",
+    "Android app launch"
+  ],
+  "files": [
+    "public/phone-invite.html",
+    "public/phone-invite.js",
+    "public/phone-invite.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Prepare the missing public landing page and its assets for lecomax.com. Existing build 20 links can use the page without an APK rebuild."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production source isolation",
+      "result": "passed",
+      "detail": "All 1664 source files matched SHA-1 hashes from live Vercel deployment dpl_6mMrE2mLj1TVFBQL2WCTDqaAaQ7g. Only three invitation assets added."
+    },
+    {
+      "name": "Publication and device use",
+      "result": "not-run",
+      "detail": "Release validation/publication pending. Physical two-phone capture and Tailscale connectivity not tested."
+    }
+  ]
+}

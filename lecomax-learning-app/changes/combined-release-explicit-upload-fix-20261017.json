@@ -1,0 +1,41 @@
+{
+  "id": "combined-release-explicit-upload-fix-20261017",
+  "createdAt": "2026-10-17T20:37:53.520Z",
+  "relatedId": "combined-release-upload-fix-20261017",
+  "title": "Correct shared module upload filtering",
+  "summary": "Repair production upload exclusions that omitted server-imported learning contracts and helpers.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning mobile APIs"
+  ],
+  "components": [
+    "Vercel upload rules",
+    "Shared learning contracts"
+  ],
+  "files": [
+    "release/latest-update-20261017/.vercelignore"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replaced wildcard exclusions and negations with explicit exclusions for mobile-only paths. Deployment upload now includes 142 KB of shared code."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Second production build",
+      "result": "failed",
+      "detail": "dpl_9txhgfq416cwGzyVZ7jU7rchc52X still omitted shared modules; no promotion occurred."
+    },
+    {
+      "name": "Corrected upload",
+      "result": "passed",
+      "detail": "dpl_8haYmMxDrjBnACRoqiXZWXYwPART accepted 142 KB rather than only the ignore file."
+    },
+    {
+      "name": "Final production verification",
+      "result": "not-run",
+      "detail": "Build and live smoke checks pending."
+    }
+  ]
+}

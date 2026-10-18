@@ -1,0 +1,56 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Completed the interrupted build workflow and installed version 1.0.6 build 8 over build 7 without uninstalling the app. No production publishing performed."
+    }
+  ],
+  "summary": "Android 1.0.6 build 8 compiled successfully and updated the connected phone. Xiaomi security verification currently prevents installation of the separate runtime test APK.",
+  "id": "android-python-build8-installed-20261010",
+  "createdAt": "2026-10-10T15:14:33.277Z",
+  "relatedId": "android-python-resume-20261010",
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.6-build8.apk",
+    "lecomax-learning-app/native/python/PhonePythonDeviceCheck.kt",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "components": [
+    "PhonePythonLab",
+    "PhonePythonService",
+    "Android release"
+  ],
+  "status": "needs-testing",
+  "validation": [
+    {
+      "detail": "Existing Gradle log ends BUILD SUCCESSFUL, 840 tasks, including assembleRelease and assembleReleaseAndroidTest.",
+      "result": "passed",
+      "name": "Android release and instrumentation builds"
+    },
+    {
+      "detail": "apksigner verify passed. adb install -r succeeded; device package reports 1.0.6 versionCode 8. MainActivity launch accepted and app process observed. APK SHA256 E79891E69D65DDA2D8BE843F27E5932D85FF421B01A6B53C43273BCC63D99ECD.",
+      "result": "passed",
+      "name": "APK signature and installation"
+    },
+    {
+      "detail": "7 tests passed, 0 failures in this continuation.",
+      "result": "passed",
+      "name": "Focused Python UI and history tests"
+    },
+    {
+      "detail": "Test APK installation returned INSTALL_FAILED_USER_RESTRICTED. Xiaomi USB-install security verification requires completion on the phone. Calculations, input, tracebacks, stop and timeout remain unverified on device.",
+      "result": "not-run",
+      "name": "On-device Python instrumentation"
+    },
+    {
+      "detail": "This new report is in the source app manifest; the already-built installed APK does not contain this follow-up report. No new UI preview verified.",
+      "result": "not-run",
+      "name": "History delivery"
+    }
+  ],
+  "title": "Offline Python build 8 installed; device checks pending",
+  "pages": [
+    "Python",
+    "Terminal",
+    "Changes Made"
+  ]
+}

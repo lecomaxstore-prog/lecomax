@@ -1,0 +1,74 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Added a safe fallback for the active practice step after TypeScript flagged potentially undefined indexed access."
+    },
+    {
+      "kind": "added",
+      "detail": "Interaction coverage for topic selection, keyword retention, back/forward, completion, repeat and French/Arabic controls."
+    }
+  ],
+  "summary": "Verified speaking practice navigation, keyword retention during the session, completion, repeat practice and translated controls.",
+  "id": "speaking-practice-verified-20261014",
+  "createdAt": "2026-10-14T09:09:59.181Z",
+  "validation": [
+    {
+      "detail": "npm.cmd run typecheck passed after correcting indexed access.",
+      "result": "passed",
+      "name": "TypeScript"
+    },
+    {
+      "detail": "Four changed TSX files passed. The CJS test file is ignored by repository lint configuration.",
+      "result": "passed",
+      "name": "Focused ESLint"
+    },
+    {
+      "detail": "One JSDOM React interaction test passed with mocked native UI primitives. An initial test expectation omitted a visible space; corrected and rerun successfully.",
+      "result": "passed",
+      "name": "Speaking interaction test"
+    },
+    {
+      "detail": "All six archive, append and interaction tests passed; manifest check passed with 274 reports before this follow-up.",
+      "result": "passed",
+      "name": "Change History tests"
+    },
+    {
+      "detail": "GET http://localhost:8081/speaking returned HTTP 200. This checks route availability, not rendered visual layout or authenticated interaction.",
+      "result": "passed",
+      "name": "Local route"
+    },
+    {
+      "detail": "Browser visual layout, Android/iOS device behavior and deployment were not tested. No deployment performed.",
+      "result": "not-run",
+      "name": "Visual and native validation"
+    }
+  ],
+  "files": [
+    "app/speaking.tsx",
+    "components/SpeakingCard.tsx",
+    "components/StudyDashboard.tsx",
+    "app/(tabs)/more.tsx",
+    "tests/speaking-interaction.test.cjs"
+  ],
+  "status": "successful",
+  "components": [
+    "Speaking",
+    "SpeakingCard",
+    "StudyDashboard",
+    "More"
+  ],
+  "relatedId": "speaking-practice-added-20261014",
+  "preview": {
+    "label": "Current app: speaking practice (HTTP checked)",
+    "path": "/speaking",
+    "verifiedAt": "2026-10-14T09:09:59.193Z"
+  },
+  "title": "Speaking practice checks passed",
+  "pages": [
+    "Home",
+    "My tools",
+    "/speaking",
+    "/change-history"
+  ]
+}

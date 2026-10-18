@@ -1,0 +1,66 @@
+{
+  "id": "curriculum-computer-foundations-20261017-verified",
+  "createdAt": "2026-10-17T09:21:22.660Z",
+  "title": "Computer fundamentals first-path verification",
+  "summary": "Preserve the existing introduction and add files, networks, protection, algorithm testing and an integrated capstone using the current lesson player and progress backend.",
+  "status": "successful",
+  "pages": [
+    "Computer Fundamentals",
+    "Course overview",
+    "Roadmap",
+    "Lesson player"
+  ],
+  "components": [
+    "CourseProgram",
+    "CurriculumRubric",
+    "LessonOrientation",
+    "LessonContent"
+  ],
+  "files": [
+    "lecomax-learning-app/data/computer-foundations.ts",
+    "lecomax-learning-app/types/content.ts",
+    "lecomax-learning-app/services/content.ts",
+    "lecomax-learning-app/constants/courses.ts",
+    "lecomax-learning-app/constants/course-programs.ts",
+    "lecomax-learning-app/components/CourseProgram.tsx",
+    "lecomax-learning-app/components/CurriculumRubric.tsx",
+    "lecomax-learning-app/components/LessonOrientation.tsx",
+    "lecomax-learning-app/services/curriculum-evidence.ts",
+    "lecomax-learning-app/app/roadmap.tsx",
+    "lecomax-learning-app/app/course/[id].tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/tests/curriculum-quality.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Five substantive English lessons with worked examples, diagrams, independent tasks, explained quizzes, evidence rubrics and a capstone; original Arabic introduction retained."
+    },
+    {
+      "kind": "modified",
+      "detail": "New lesson completion requires saved exercise evidence and rubric self-review as well as quiz success. Existing progress is preserved and self-review is not presented as certified mastery."
+    },
+    {
+      "kind": "added",
+      "detail": "Course briefs show audience, requirements, outcomes, workload, progression, targeted revision and next courses."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Content and progress models",
+      "result": "passed",
+      "detail": "15 tests passed for curriculum structure, exact navigation, executable boundary example, rubric persistence, preserved records and roadmap/project rules."
+    },
+    {
+      "name": "Interaction gate before expansion",
+      "result": "passed",
+      "detail": "10 focused tests passed: rubric rating, revision links, remount persistence, next-course navigation, lesson completion, restart and course workshops. TypeScript passed after correcting a tuple-spread type error."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No native-device or live cloud checks, no deployment. Self-review is not an independent assessment; new lessons are English and the original introduction remains Arabic."
+    }
+  ],
+  "relatedId": "curriculum-computer-foundations-20261017"
+}

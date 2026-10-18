@@ -1,0 +1,76 @@
+{
+  "id": "python-studio-mobile-refinement-verified-20261015",
+  "createdAt": "2026-10-15T20:04:08.889Z",
+  "title": "Python Studio mobile refinements verified",
+  "summary": "Cleaner editor layout, visible wrapping controls and full-viewport focus mode passed regression and browser checks.",
+  "status": "successful",
+  "pages": [
+    "Python Studio",
+    "Interactive Studio"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonStudioIcon",
+    "PythonLab"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonStudioIcon.tsx",
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/features/interactive/PythonLab.web.tsx",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/data/python-mobile-workspace.json",
+    "lecomax-learning-app/scripts/python-ide-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Visible line-wrap and focus-mode controls beside the file; focus mode has an exit button and Escape support. Console tab displays the actual saved run count."
+    },
+    {
+      "kind": "modified",
+      "detail": "Wrap long lines by default. Refine rounded workspace frame, compact header, translated subtitle, tab treatment, coding keys, editor height and status spacing."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Use a flex container and dynamic viewport height for the embedded web studio so its internal scrolling is constrained."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected navigation containing blocks and stacking while focus mode is active, keeping its header and exit control visible. Updated browser tests to select tabs by accessible name and account for default line wrapping."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Static and interaction checks",
+      "result": "passed",
+      "detail": "TypeScript and focused ESLint passed; all 16 Python/history regression tests passed, including focus toggling, Escape, wrapping and draft preservation."
+    },
+    {
+      "name": "Browser integration suite",
+      "result": "passed",
+      "detail": "48 viewport/locale/theme cases at widths 280 through 1280. Actual Python execution, inputs, timeout/stop, saving, accessory keys, exercise grading, theme contrast, tab navigation, simulated short keyboard viewport and draft recovery passed."
+    },
+    {
+      "name": "Current localhost app",
+      "result": "passed",
+      "detail": "Fixture-authenticated localhost browser verified focus fills the viewport, wrap toggles, Escape preserves code, and the exit control receives pointer hits above app navigation. Visually reviewed Arabic mobile studio and final English focus screenshots."
+    },
+    {
+      "name": "Mobile bundle",
+      "result": "passed",
+      "detail": "Rebuilt data/python-mobile-workspace.json from shared components after the final layering correction."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No physical phone keyboard, screen reader, or installed Android build validation. No deployment. Live app authentication in UI checks was a fixture; Python execution in the standalone browser suite was real."
+    }
+  ],
+  "relatedId": "python-studio-mobile-refinement-20261015",
+  "preview": {
+    "path": "/interactive-studio",
+    "label": "Current Interactive Studio",
+    "verifiedAt": "2026-10-15T20:04:08.889Z"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "tutor-guided-cycle-20261015",
+  "createdAt": "2026-10-15T20:24:29.875Z",
+  "title": "Guided personal tutor and connected retrieval practice",
+  "summary": "Retains existing tutor modes and adds a persisted question/response teaching cycle, depth and privacy controls, gradual hints and connected review cards.",
+  "status": "needs-testing",
+  "pages": [
+    "AI Tutor",
+    "Memory Studio"
+  ],
+  "components": [
+    "TutorWorkspace",
+    "TutorCoach",
+    "TutorMemory",
+    "Tutor server instructions"
+  ],
+  "files": [
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/TutorCoach.tsx",
+    "lecomax-learning-app/utils/tutor-coach.ts",
+    "lecomax-learning-app/utils/tutor-coach-state.ts",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/services/tutor.ts",
+    "lib/tutor-workspace.ts",
+    "lecomax-learning-app/tests/tutor-coach.test.cjs",
+    "lecomax-learning-app/tests/tutor-coach-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Guided diagnosis, one concept, teach-back, mini challenge, mastery check and recap with persisted learner response gates and AI feedback provenance."
+    },
+    {
+      "kind": "modified",
+      "detail": "Server instructions adapt to depth, confidence and errors; optional cross-course context sharing; no credentials or provider calls added to the client."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Quiz hints reveal one step at a time; quiz and exam results schedule deduplicated Memory Studio cards; deleting tutor records removes corresponding review cards."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks",
+      "result": "not-run",
+      "detail": "Unit, interaction, type, lint, build and history validation pending. No live provider response or real-device verification yet."
+    }
+  ]
+}

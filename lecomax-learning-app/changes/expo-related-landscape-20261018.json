@@ -1,0 +1,35 @@
+{
+  "id": "expo-related-landscape-20261018",
+  "createdAt": "2026-10-18T09:44:12.572Z",
+  "title": "Landscape recommendation cards",
+  "summary": "Redesign You may also like as compact landscape cards with images beside product details.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Related carousel",
+    "ProductCard related variant"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use wide horizontal cards with a 42 percent image area, a pale sage details panel, three-line titles, dark green detail buttons and responsive widths capped at 420px. Preserve horizontal snapping and a visible next card."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Give the details button a localized product-view accessibility label instead of choose-options wording."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Pending typecheck and lint. Device visual review and gesture checks unverified; not deployed."
+    }
+  ]
+}

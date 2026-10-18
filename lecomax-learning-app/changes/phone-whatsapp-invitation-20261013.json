@@ -1,0 +1,58 @@
+{
+  "id": "phone-whatsapp-invitation-20261013",
+  "createdAt": "2026-10-13T21:03:05.026Z",
+  "title": "WhatsApp links for approved view-only phone sharing",
+  "summary": "Adds an HTTPS invitation handoff, a WhatsApp composer action, a received-link fallback and clear approval instructions. Website publication and updated Android installation are required before public use.",
+  "status": "needs-testing",
+  "pages": [
+    "My remote phone (/phone)",
+    "WhatsApp invitation landing (/phone-invite.html)",
+    "Change History (/change-history)"
+  ],
+  "components": [
+    "PhoneInvitation",
+    "HTTPS invitation handoff",
+    "ResumeNavigation route filtering"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PhoneInvitation.tsx",
+    "lecomax-learning-app/utils/phone-invitation.ts",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "public/phone-invite.html",
+    "public/phone-invite.js",
+    "public/phone-invite.css",
+    "lecomax-learning-app/tests/phone-invitation.test.cjs",
+    "lecomax-learning-app/tests/phone-invitation-web.test.cjs",
+    "lecomax-learning-app/docs/phone-viewing-invitations.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Normal HTTPS WhatsApp link with invitation credential in its fragment, localized landing page, explicit package-bound Android app launch, manual copy fallback and no analytics or API calls on the landing page."
+    },
+    {
+      "kind": "modified",
+      "detail": "Send through WhatsApp opens the composer, falls back to the share sheet, displays expiry countdown and explains returning to Learn; copying gives confirmation."
+    },
+    {
+      "kind": "added",
+      "detail": "Paste a received HTTPS or legacy app invitation inside Learn, with exact-origin validation and existing explicit approval flow."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Exclude invitation routes from saved navigation history."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks",
+      "result": "not-run",
+      "detail": "TypeScript, focused lint, handoff/interaction/regression and history checks pending."
+    },
+    {
+      "name": "Public and physical availability",
+      "result": "not-run",
+      "detail": "Not deployed and not installed. The public landing files must be published on lecomax.com; both phones require updated Learn, sign-in and Tailscale. Actual WhatsApp launch and live two-phone capture remain untested."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "id": "tutor-guided-cycle-verified-20261015",
+  "createdAt": "2026-10-15T20:30:17.183Z",
+  "title": "Guided tutor verified: 317 tests and web export passed",
+  "summary": "Verified response-gated teaching, persisted feedback/review cards, privacy controls, retry, restart and progressive hints. Existing server tutor boundary retained; live provider teaching quality remains unverified.",
+  "status": "successful",
+  "pages": [
+    "AI Tutor",
+    "Memory Studio"
+  ],
+  "components": [
+    "TutorWorkspace",
+    "TutorCoach",
+    "TutorMemory",
+    "Tutor server instructions"
+  ],
+  "files": [
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/TutorCoach.tsx",
+    "lecomax-learning-app/utils/tutor-coach.ts",
+    "lecomax-learning-app/utils/tutor-coach-state.ts",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/services/tutor.ts",
+    "lib/tutor-workspace.ts",
+    "lecomax-learning-app/tests/tutor-coach.test.cjs",
+    "lecomax-learning-app/tests/tutor-coach-interaction.test.cjs",
+    "lecomax-learning-app/docs/TUTOR-GUIDED-TEACHING.md",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/site-source-map.json",
+    "lecomax-learning-app/data/source/8fd768fed2c869294f666fd3ba2963838ceb435b2c7ae149390ffd826930c56f.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Guided diagnosis, one concept, teach-back, mini challenge, mastery check and recap with persisted learner response gates and AI feedback provenance."
+    },
+    {
+      "kind": "modified",
+      "detail": "Server instructions adapt to depth, confidence and errors; optional cross-course context sharing; no credentials or provider calls added to the client."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Quiz hints reveal one step at a time; quiz and exam results schedule deduplicated Memory Studio cards; deleting tutor records removes corresponding review cards."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Regression check caught stale embedded server prompt source. Refreshed the source library with the repository generator; no regression assertions removed. Fixed an encoded ellipsis in the new interaction-test fixture."
+    },
+    {
+      "kind": "added",
+      "detail": "Audit and implementation notes describe retained integrations, AI feedback provenance, privacy scope, scheduling and untested deployment boundaries."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused tutor checks",
+      "result": "passed",
+      "detail": "22 tests passed: actual React tutor journey with controlled provider fixtures, gradual hints, scheduler linkage, exam submission, migration, malformed state, privacy deletion and existing server auth/stream/error contracts."
+    },
+    {
+      "name": "Full regression suite",
+      "result": "passed",
+      "detail": "317 tests passed, zero failures after source refresh. Initial run had 316 pass and one stale-source failure. Logs: artifacts/tutor-guided-tests.log and artifacts/tutor-guided-tests-verified.log."
+    },
+    {
+      "name": "Type checks",
+      "result": "passed",
+      "detail": "Learning app npm.cmd run typecheck and root npx.cmd tsc --noEmit --incremental false passed."
+    },
+    {
+      "name": "Lint",
+      "result": "passed",
+      "detail": "Focused ESLint passed for six changed app/service/state files and lib/tutor-workspace.ts."
+    },
+    {
+      "name": "Build",
+      "result": "passed",
+      "detail": "Expo web export passed again after source refresh to dist-tutor-guided-check. Log: artifacts/tutor-guided-build-verified.log. Not an authenticated preview or deployment."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append-only check passed with 307 preserved reports before this verification entry."
+    },
+    {
+      "name": "Live validation limits",
+      "result": "not-run",
+      "detail": "No paid live provider call, real-device run, authenticated browser visual preview, database migration or deployment. Full automated journey uses controlled AI fixtures, not fabricated live responses."
+    }
+  ],
+  "relatedId": "tutor-guided-cycle-20261015"
+}

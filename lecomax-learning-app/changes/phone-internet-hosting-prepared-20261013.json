@@ -1,0 +1,76 @@
+{
+  "id": "phone-internet-hosting-prepared-20261013",
+  "createdAt": "2026-10-13T21:21:08.447Z",
+  "title": "Internet phone sharing and dedicated relay hosting preparation",
+  "summary": "Completes the interrupted internet invitation integration: owner-only creation and viewing, account-free recipient consent, Android view-only capture, WhatsApp links, and dedicated Docker relay packaging. Local preparation only.",
+  "status": "needs-testing",
+  "pages": [
+    "My remote phone",
+    "Internet phone sharing",
+    "Recipient screen sharing consent",
+    "WhatsApp invitation landing"
+  ],
+  "components": [
+    "OwnerGate",
+    "PhoneInternetInvitation",
+    "InternetPhoneViewer",
+    "PhoneRemoteModule",
+    "PhoneRemoteService",
+    "Internet relay"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app/phone-internet.tsx",
+    "lecomax-learning-app/app/phone-share.tsx",
+    "lecomax-learning-app/features/OwnerGate.tsx",
+    "lecomax-learning-app/utils/phone-internet.ts",
+    "lecomax-learning-app/components/PhoneInternetInvitation.tsx",
+    "lecomax-learning-app/components/InternetPhoneViewer.tsx",
+    "lecomax-learning-app/components/InternetPhoneViewer.web.tsx",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "app/api/learning-mobile/phone-invitations/route.ts",
+    "public/phone-invite.js",
+    "lecomax-learning-app/phone-relay/server.cjs",
+    "lecomax-learning-app/phone-relay/internet.cjs",
+    "lecomax-learning-app/phone-relay/internet-viewer.js",
+    "lecomax-learning-app/phone-relay/internet-viewer.html",
+    "lecomax-learning-app/phone-relay/Dockerfile",
+    "lecomax-learning-app/phone-relay/.dockerignore",
+    "lecomax-learning-app/phone-relay/.env.example",
+    "lecomax-learning-app/phone-relay/package.json",
+    "lecomax-learning-app/docs/phone-internet-hosting.md",
+    "lecomax-learning-app/tests/phone-internet-relay.test.cjs",
+    "lecomax-learning-app/tests/phone-internet-flow.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Resumed unfinished internet relay, recipient consent screen, native capture support, owner backend endpoint and embedded viewer; connected the new workflow to My remote phone."
+    },
+    {
+      "kind": "modified",
+      "detail": "Allow only the recipient consent route through the owner gate; internet WhatsApp links launch that route with translated no-account instructions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Include internet relay files in Docker image and build context; repair relay test command and constrain browser WebSocket origins."
+    },
+    {
+      "kind": "added",
+      "detail": "Add deployment environment template, hosting runbook and invitation/access-control regression tests. No existing reports removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated checks",
+      "result": "not-run",
+      "detail": "Validation pending after completing the interrupted integration."
+    },
+    {
+      "name": "Hosting and devices",
+      "result": "not-run",
+      "detail": "No deployment or APK installation performed. Docker not available in this shell. DNS/TLS, physical two-phone capture and WhatsApp launch still require testing."
+    }
+  ]
+}

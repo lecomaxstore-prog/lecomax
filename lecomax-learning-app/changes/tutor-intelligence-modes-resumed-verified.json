@@ -1,0 +1,93 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Beginner, expert, mistake diagnosis, alternative explanation, Feynman, real-world, memory, project and reflection modes alongside existing Socratic, exam and challenge capabilities. Structured cards and progressive hints; manual secure cloud backup controls inside tutor."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Uncertain diagnosis no longer advances. Repeated misconceptions return to concept work. AI assessment creates due cards without pretending a recall occurred. Context remains valid bounded JSON."
+    },
+    {
+      "kind": "modified",
+      "detail": "Persist recent questions, learner responses, confidence, misconceptions, next exercises and reflections. Show observed counts instead of a mastery percentage."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Regenerated source library to replace outdated embedded tutor server instructions that failed the interrupted regression run. Active sessions use explicit mode switching without conflicting new-session controls."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented teaching modes, assessment evidence, immediate retrieval scheduling, multilingual synthetic browser verification and live-service limitations."
+    }
+  ],
+  "summary": "Completed regression and multilingual browser checks; refreshed embedded tutor source documentation and recorded remaining live-service limitations.",
+  "id": "tutor-intelligence-modes-resumed-verified",
+  "createdAt": "2026-10-15T21:22:14.061Z",
+  "validation": [
+    {
+      "detail": "329 tests passed with zero failures, including tutor, backup endpoint and change-history interactions. Log: artifacts/tutor-intelligence-resumed-tests.log.",
+      "result": "passed",
+      "name": "Full regression suite"
+    },
+    {
+      "detail": "App typecheck and root tsc --noEmit --incremental false passed. Focused ESLint passed for tutor page, teaching card, coach, contract, state, context and server workspace.",
+      "result": "passed",
+      "name": "TypeScript and lint"
+    },
+    {
+      "detail": "Expo web export completed to dist-tutor-intelligence-check; artifacts/tutor-intelligence-resumed-export.log.",
+      "result": "passed",
+      "name": "Web export"
+    },
+    {
+      "detail": "English, French and Arabic controls: progressive hints, reload persistence, answer assessment, reflection, mode switching, mocked cloud save and restore; no page errors or horizontal overflow at widths 320/390/768/844. Screenshots visually inspected. Teaching fixture text is English; no claim of live translated content quality. Log: artifacts/tutor-intelligence-resumed-browser.log.",
+      "result": "passed",
+      "name": "Multilingual browser checks"
+    },
+    {
+      "detail": "311 existing reports validated before this append; prior reports preserved.",
+      "result": "passed",
+      "name": "History integrity"
+    },
+    {
+      "detail": "No real cloud backup round trip, paid live AI request, native-device run or deployment. Browser authentication and API responses are synthetic.",
+      "result": "not-run",
+      "name": "Live services and native devices"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/TutorCoach.tsx",
+    "lecomax-learning-app/components/TutorTeachingCard.tsx",
+    "lecomax-learning-app/utils/tutor-contract.ts",
+    "lecomax-learning-app/utils/tutor-coach.ts",
+    "lecomax-learning-app/utils/tutor-coach-state.ts",
+    "lecomax-learning-app/utils/tutor-context.ts",
+    "lib/tutor-workspace.ts",
+    "lecomax-learning-app/tests/tutor-coach.test.cjs",
+    "lecomax-learning-app/tests/tutor-coach-interaction.test.cjs",
+    "lecomax-learning-app/tests/tutor-intelligence.test.cjs",
+    "lecomax-learning-app/tests/fixtures/tutor.cjs",
+    "lecomax-learning-app/scripts/tutor-intelligence-smoke.cjs",
+    "lecomax-learning-app/docs/TUTOR-GUIDED-TEACHING.md",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/site-source-map.json",
+    "lecomax-learning-app/data/source/847d8dda2a720400efe3b5604e1834b4cc3b87a07a5fce39e9b6726f2b8339fe.json"
+  ],
+  "components": [
+    "TutorWorkspace",
+    "TutorCoach",
+    "TutorTeachingCard",
+    "Tutor contract",
+    "Server teaching instructions"
+  ],
+  "status": "successful",
+  "title": "Tutor teaching modes verified after resuming interrupted work",
+  "pages": [
+    "/tutor",
+    "/memory-studio"
+  ],
+  "relatedId": "tutor-intelligence-modes"
+}

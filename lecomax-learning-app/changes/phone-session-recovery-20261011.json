@@ -1,0 +1,53 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Pause hidden viewers and retry transient network errors instead of immediately invalidating the session. Reuse only the in-memory authenticated session within a two-minute limit."
+    },
+    {
+      "kind": "modified",
+      "detail": "Foreground sharing no longer stops merely because the task is removed; Stop and Android capture revocation remain effective. Preserve viewer role/address and show a capture-ended reason."
+    },
+    {
+      "kind": "added",
+      "detail": "Native and viewer regression tests for pause, resume, pending approval, expiry and no remote input while paused."
+    }
+  ],
+  "summary": "Build 13 prepares an embedded viewer, a two-minute resume window, saved viewer mode/address, and foreground sharing independent of the task screen.",
+  "id": "phone-session-recovery-20261011",
+  "createdAt": "2026-10-11T21:35:17.194Z",
+  "relatedId": "phone-embedded-viewer-ready-20261011",
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "components": [
+    "PhoneViewer",
+    "PhoneRemoteService",
+    "PhoneDirectServer",
+    "Android config plugin"
+  ],
+  "status": "needs-testing",
+  "validation": [
+    {
+      "detail": "Tests, native build and physical Home/app-switch acceptance pending. No production deployment authorized or attempted for this build.",
+      "result": "not-run",
+      "name": "Validation"
+    }
+  ],
+  "title": "Keep phone setup and resume brief connection interruptions",
+  "pages": [
+    "My remote phone",
+    "Phone viewer"
+  ]
+}

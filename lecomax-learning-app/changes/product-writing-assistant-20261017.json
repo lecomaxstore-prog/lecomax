@@ -1,0 +1,41 @@
+{
+  "id": "product-writing-assistant-20261017",
+  "createdAt": "2026-10-17T11:16:51.154Z",
+  "title": "OpenAI product writing assistant",
+  "summary": "Generate and review French product names, descriptions and tags from your own product facts.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Products: create and edit"
+  ],
+  "components": [
+    "ProductWritingAssistant",
+    "Protected product writing API"
+  ],
+  "files": [
+    "components/admin/ProductWritingAssistant.tsx",
+    "app/admin/products/page.tsx",
+    "app/api/admin/products/write/route.ts",
+    "tests/product-writing.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Expandable writing assistant with facts input, three tones, generated preview and separate apply buttons. Existing form facts are included; new product slugs update when applying a name. Editing an existing product preserves its URL."
+    },
+    {
+      "kind": "added",
+      "detail": "Admin-authorized same-origin rate-limited endpoint using existing server-only OpenAI Responses integration. Input/output validation, bounded request sizes, timeout and safe configuration/billing errors. No automatic database writes; API key never reaches browser."
+    },
+    {
+      "kind": "modified",
+      "detail": "General information form now includes AI writing before the description field. Prompt restricts output to supplied facts and rejects internal inventory tags."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Local server key is configured (presence only checked). Automated route tests, lint and typecheck pending. Browser and live model output not yet tested. No deployment."
+    }
+  ]
+}

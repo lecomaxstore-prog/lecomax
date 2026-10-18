@@ -1,0 +1,40 @@
+{
+  "id": "tutor-verification-tools",
+  "createdAt": "2026-10-15T21:24:05.041Z",
+  "title": "Connect tutor verification to executable learning tools",
+  "summary": "Close the verification-navigation gap found while auditing the twelve-mode tutor specification.",
+  "status": "needs-testing",
+  "pages": [
+    "/tutor",
+    "/interactive-studio"
+  ],
+  "components": [
+    "TutorTeachingCard"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TutorTeachingCard.tsx",
+    "lecomax-learning-app/tests/tutor-coach-interaction.test.cjs",
+    "lecomax-learning-app/docs/TUTOR-REQUIREMENTS-AUDIT.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Code challenge verification now opens the executable studio instead of the code-reading practice page."
+    },
+    {
+      "kind": "added",
+      "detail": "English, French and Arabic verification guidance with JavaScript, Python and math tool links; explains manual output comparison, factual source checks and limits without awarding mastery."
+    },
+    {
+      "kind": "added",
+      "detail": "Requirements audit maps the twelve modes, teaching loop, persistence, structured UI and testing to implementation and explicit limitations."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending verification",
+      "result": "not-run",
+      "detail": "Interaction tests, full regression, typecheck, lint, export and multilingual browser checks pending. Live model quality, real cloud and native devices unverified."
+    }
+  ]
+}

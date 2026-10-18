@@ -1,0 +1,98 @@
+{
+  "id": "academy-premium-refinement-verified-20261015",
+  "relatedId": "academy-premium-refinement-20261015",
+  "createdAt": "2026-10-15T16:31:33.496Z",
+  "title": "Premium Academy refinements verified across languages and themes",
+  "summary": "Responsive dashboard, themed practice screens, empty-state recovery and completion milestones passed the expanded browser matrix and full learning journey.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "Learning paths",
+    "Notes",
+    "Bookmarks",
+    "Mistakes",
+    "Practice Lab",
+    "Speaking",
+    "Shared search and progress"
+  ],
+  "components": [
+    "AcademyDashboard",
+    "EmptyState",
+    "ProgressBar",
+    "SearchBar",
+    "CurriculumLibrary"
+  ],
+  "files": [
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/LearningUI.tsx",
+    "lecomax-learning-app/components/CurriculumLibrary.tsx",
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/app/collection/[kind].tsx",
+    "lecomax-learning-app/app/learning-path/[id].tsx",
+    "lecomax-learning-app/app/practice-lab.tsx",
+    "lecomax-learning-app/app/speaking.tsx",
+    "lecomax-learning-app/scripts/test-signature-ui.cjs",
+    "lecomax-learning-app/docs/academy-signature.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prioritize resume immediately alongside/below the hero, adapt desktop/tablet composition and localize weekday labels. Notification shortcut opens notification preferences."
+    },
+    {
+      "kind": "added",
+      "detail": "Reusable empty-state actions, collection recovery links, missing-path recovery and a real completion milestone for all published path lessons."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Suppress misleading empty bookmarks when saved code exists, translate French clear-search label and react to reduced-motion setting changes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Replace independent curriculum, speaking and coding challenge palettes with shared semantic theme tokens; retain readable dark code surfaces."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript, full lint and tests",
+      "result": "passed",
+      "detail": "Typecheck and full ESLint passed; 304 tests passed, zero failed."
+    },
+    {
+      "name": "Expanded browser matrix",
+      "result": "passed",
+      "detail": "151 checks: 144 route visits (24 routes x English/French/Arabic x light/dark), six five-tab navigation checks, and recovery/completion interactions. Widths 320/390, plus home at 768/1280. Zero browser errors. Corrected html-css test fixture before this completed run."
+    },
+    {
+      "name": "Visual review",
+      "result": "passed",
+      "detail": "Reviewed actual English desktop light/dark, Arabic 320px light and desktop dark, empty notes, speaking and completed-path renders. Screenshots are saved test snapshots, not deployed or historical app builds."
+    },
+    {
+      "name": "Learning journey",
+      "result": "passed",
+      "detail": "Fresh export passed onboarding, contextual teacher/formula UI, lesson quiz/readiness, real code success/error and grading, flashcard review and state restoration after reopening. Authentication and teacher transport are fixtures."
+    },
+    {
+      "name": "Web and Android builds",
+      "result": "passed",
+      "detail": "Fresh web export and Android Hermes export succeeded. Android export does not establish on-device behavior."
+    },
+    {
+      "name": "Current development preview",
+      "result": "passed",
+      "detail": "Started the existing development workflow on http://localhost:8081. Checked real sign-in UI and displayed the new Change History report in an isolated fixture-authenticated browser context. Startup regenerated the existing offline car runtime."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No physical Android/iOS keyboard, screen-reader, native font-scaling, WebView formula or frame-rate testing. No live paid teacher call. No deployment."
+    }
+  ],
+  "preview": {
+    "path": "/change-history",
+    "label": "Current app Change History",
+    "verifiedAt": "2026-10-15T16:31:33.496Z"
+  }
+}

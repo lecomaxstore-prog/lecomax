@@ -1,0 +1,39 @@
+{
+  "id": "product-size-dropdown-restored-20261018-verified",
+  "relatedId": "product-size-dropdown-restored-20261018",
+  "createdAt": "2026-10-18T09:14:58.943Z",
+  "title": "Restored size dropdown: code checks passed",
+  "summary": "Restore the original expandable size selector with a quieter, more compact visual treatment.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Size dropdown"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed the inline size buttons and redundant panel heading, availability counter and repeated Selected wording."
+    },
+    {
+      "kind": "modified",
+      "detail": "Restored the dropdown trigger, scrollable options, selection close, quantity reset, size guide, Escape/Android-back dismissal, web focus return and panel visibility scrolling. Use matching 10px corners, aligned text, a subtle selected row and simple checkmark."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and product page ESLint completed without diagnostics."
+    },
+    {
+      "name": "Visual and interaction review",
+      "result": "not-run",
+      "detail": "Browser/device appearance and restored dropdown interactions not verified. No deployment."
+    }
+  ]
+}

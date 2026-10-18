@@ -1,0 +1,47 @@
+{
+  "id": "pc-lab-20261012",
+  "createdAt": "2026-10-12T18:08:00.772Z",
+  "title": "Interactive desktop PC and component explorer",
+  "summary": "Added a detailed offline 3D tower, 15 multilingual component lessons, isolated part inspection and learning progress.",
+  "status": "needs-testing",
+  "pages": [
+    "PC Lab (/pc-lab)",
+    "Home learning toolkit",
+    "More"
+  ],
+  "components": [
+    "PcExplorer web and native",
+    "PC canvas renderer",
+    "PC lessons",
+    "AI teacher bridge"
+  ],
+  "files": [
+    "lecomax-learning-app/app/pc-lab.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/PcExplorer.tsx",
+    "lecomax-learning-app/components/PcExplorer.web.tsx",
+    "lecomax-learning-app/data/pc-explorer.ts",
+    "lecomax-learning-app/utils/pc-explorer-document.ts",
+    "lecomax-learning-app/utils/pc-model-renderer.ts",
+    "lecomax-learning-app/utils/pc-learning.ts",
+    "lecomax-learning-app/utils/pc-teacher.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Rotatable tower, opening side panel, exploded view, bounded zoom, accessible component picker and individual 3D part dialogs with physical details."
+    },
+    {
+      "kind": "added",
+      "detail": "English, French and Arabic explanations, examples, quiz, separately saved PC progress and validated contextual teacher requests. Home and More entry points."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation verification",
+      "result": "not-run",
+      "detail": "Typecheck, lint, automated browser and history checks pending. Generic educational model, not a brand-specific scan. No deployment or native-device validation."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "phone-workbench-redesign-20261012",
+  "createdAt": "2026-10-12T17:02:28.022Z",
+  "title": "More detailed phone internals and a refined learning workbench",
+  "summary": "Replaced plain internal blocks with detailed component assemblies and refined the Phone Lab layout for smaller screens.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone model renderer",
+    "Phone explorer document"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-model-renderer.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Layered battery pouch with seams and markings; PCB traces, contacts, processor shield, inset memory chips, camera housings, sensor optics, speaker grille, USB recess and chassis screws."
+    },
+    {
+      "kind": "modified",
+      "detail": "Compact mobile canvas, graphite studio background, quieter selection treatment, rectangular controls, organized full-width topic rows and refined lesson typography."
+    },
+    {
+      "kind": "removed",
+      "detail": "Large all-caps battery/speaker block labels and excessive selection outlines across component polygons."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visual and regression validation",
+      "result": "not-run",
+      "detail": "Pending model rendering, interaction regression, typecheck, lint and history checks. No deployment."
+    }
+  ]
+}

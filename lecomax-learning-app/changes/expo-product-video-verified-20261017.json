@@ -1,0 +1,61 @@
+{
+  "id": "expo-product-video-verified-20261017",
+  "createdAt": "2026-10-17T21:34:16.608Z",
+  "relatedId": "expo-product-video-fix-20261017",
+  "title": "Verify Expo product video source fix",
+  "summary": "Expo source now resolves the same Cloudinary embed URLs as the website; native player state tests, mobile TypeScript and focused lint pass.",
+  "status": "successful",
+  "pages": [
+    "Expo product detail"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideoPlayer",
+    "VideoPlayback"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx",
+    "mobile/src/components/product-video.tsx",
+    "mobile/src/lib/product-video.ts",
+    "mobile/src/i18n/locales/en.json",
+    "mobile/src/i18n/locales/fr.json",
+    "tests/mobile-product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Resolve Cloudinary embed pages to video/upload H.264 MP4 before native playback. Keep URL handling inside the mobile project so EAS packaging does not depend on parent source files."
+    },
+    {
+      "kind": "added",
+      "detail": "Use native controls, inline web playback, posters until first frame, loading indicator, localized errors and retry with a fresh native player. Pause when leaving the video slide; preserve gallery arrows, counter and image viewer."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Catalog retrieval inspection",
+      "result": "passed",
+      "detail": "mobile/src/services/catalog.ts preserves product.video unchanged, confirming the Expo player requires its own render-time normalization for existing stored links."
+    },
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "node mobile/node_modules/typescript/bin/tsc --noEmit -p mobile/tsconfig.json exited zero."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Mobile ESLint passed for product-gallery.tsx, product-video.tsx and product-video.ts with no output or errors."
+    },
+    {
+      "name": "Regression checks",
+      "result": "passed",
+      "detail": "10 tests passed covering native source resolution, parity with web, loading/poster/first frame, errors/retry, off-slide pause, image URLs and existing website video/gallery checks. Native player events are mocked; this is not hardware playback verification."
+    },
+    {
+      "name": "Publication and physical-device checks",
+      "result": "not-run",
+      "detail": "No EAS update, new mobile binary or additional GitHub push performed. Installed apps are not updated by this source change. Physical Android/iPhone playback and Expo web interaction still require validation."
+    }
+  ]
+}

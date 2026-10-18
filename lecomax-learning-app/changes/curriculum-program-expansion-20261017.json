@@ -1,0 +1,63 @@
+{
+  "id": "curriculum-program-expansion-20261017",
+  "createdAt": "2026-10-17T09:30:29.361Z",
+  "relatedId": "curriculum-computer-foundations-20261017-verified",
+  "title": "Course programs and bounded AI/science foundations",
+  "summary": "Apply explicit audience, prerequisites, outcomes, workload and next steps across the catalogue; add five substantial AI/science labs and preserve existing lessons.",
+  "status": "needs-testing",
+  "pages": [
+    "Course overview",
+    "Roadmap",
+    "Lesson player",
+    "Workshops"
+  ],
+  "components": [
+    "CourseProgram",
+    "CourseWorkshop",
+    "Applied foundations"
+  ],
+  "files": [
+    "lecomax-learning-app/data/applied-foundations.ts",
+    "lecomax-learning-app/constants/course-programs.ts",
+    "lecomax-learning-app/constants/courses.ts",
+    "lecomax-learning-app/constants/course-guidance.ts",
+    "lecomax-learning-app/constants/course-workshops.ts",
+    "lecomax-learning-app/services/content.ts",
+    "lecomax-learning-app/services/course-learning.ts",
+    "lecomax-learning-app/components/CourseProgram.tsx",
+    "lecomax-learning-app/components/CourseWorkshop.tsx",
+    "lecomax-learning-app/scripts/audit-curriculum.cjs",
+    "lecomax-learning-app/tests/course-workshops.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Bounded introductory AI evaluation, evidence-based LLM applications, scripted agent execution and science investigations, each with actual exercises, rubrics and capstones."
+    },
+    {
+      "kind": "modified",
+      "detail": "All existing courses receive explicit program briefs. React preparation now precedes the Next.js guide. Workshop language is explicitly declared; original lessons remain available."
+    },
+    {
+      "kind": "added",
+      "detail": "Structural inventory identifies short exposition and missing assessments as manual-review prompts, not automatic quality scores."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First path gate",
+      "result": "passed",
+      "detail": "Computer Fundamentals was verified before this expansion; see linked report."
+    },
+    {
+      "name": "Initial expansion checks",
+      "result": "failed",
+      "detail": "One workshop test assumed every new workshop was translated. Corrected the model and UI to declare English-only instruction explicitly; a rerun is pending."
+    },
+    {
+      "name": "Pending",
+      "result": "not-run",
+      "detail": "New example execution, complete regression and export checks pending. Full historical lesson review, native-device behavior and live AI integrations are not claimed."
+    }
+  ]
+}

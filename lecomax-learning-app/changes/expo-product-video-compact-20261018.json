@@ -1,0 +1,31 @@
+{
+  "id": "expo-product-video-compact-20261018",
+  "createdAt": "2026-10-18T08:42:33.758Z",
+  "title": "Compact Expo product video gallery",
+  "summary": "Use a landscape stage for video slides and explicit player dimensions to remove the oversized dark area.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product detail"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideoPlayer"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx",
+    "mobile/src/components/product-video.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Video slides use a compact 16:9 stage; photos retain their larger stage. Explicit player width and height fill the stage on web. Playback controls, contain fitting and pagination are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Typecheck, lint and video regression tests pending. Physical devices and browser visual inspection not yet verified."
+    }
+  ]
+}

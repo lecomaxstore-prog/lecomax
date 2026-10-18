@@ -1,0 +1,54 @@
+{
+  "id": "learning-studio-resume-1791733507193",
+  "createdAt": "2026-10-11T15:45:07.193Z",
+  "title": "Learning studio, discovery and guided lesson polish",
+  "summary": "Resume the unfinished studio dashboard and connect its learning plan to course practice, with responsive discovery and stage-specific lesson guidance.",
+  "status": "needs-testing",
+  "pages": [
+    "/",
+    "/path",
+    "/course/[id]",
+    "/lesson/[id]"
+  ],
+  "components": [
+    "StudyDashboard",
+    "StudioVisual",
+    "CurriculumLibrary",
+    "LessonHeader",
+    "CourseWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/StudioVisual.tsx",
+    "lecomax-learning-app/app/(tabs)/index.tsx",
+    "lecomax-learning-app/components/CurriculumLibrary.tsx",
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/CourseWorkspace.tsx",
+    "lecomax-learning-app/app/course/[id].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Continued the interrupted home studio with classroom progress, saved session budgets, course recommendations and toolkit links; retained existing wellness and history sections."
+    },
+    {
+      "kind": "modified",
+      "detail": "Course discovery uses a coordinated green hero, code-native illustration and two-column topic grid on wide screens, retaining search and availability filters."
+    },
+    {
+      "kind": "added",
+      "detail": "Contextual instructions for understanding, examples, practice and quiz lesson stages."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Dashboard practice links now honor the requested course section rather than always opening Lessons."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Type checking, focused lint, regression tests and local responsive browser checks are pending. No deployment or native device checks."
+    }
+  ]
+}

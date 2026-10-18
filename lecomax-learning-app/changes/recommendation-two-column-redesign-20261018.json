@@ -1,0 +1,40 @@
+{
+  "id": "recommendation-two-column-redesign-20261018",
+  "createdAt": "2026-10-18T09:33:31.326Z",
+  "title": "Replace oversized recommendations with a balanced grid",
+  "summary": "Two complete products per row on phones, compact imagery and uncluttered pricing.",
+  "status": "needs-testing",
+  "relatedId": "premium-recommendations-editorial-verified-20261018",
+  "pages": [
+    "Mobile /product/[slug]"
+  ],
+  "components": [
+    "Related ProductCard",
+    "Product recommendation grid"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed clipped horizontal carousel, ivory section background and redundant related-card quick-add buttons."
+    },
+    {
+      "kind": "modified",
+      "detail": "Responsive two-column grid (three on wide screens), smaller image panels, three-line names, quiet brand labels and simple prices."
+    },
+    {
+      "kind": "fixed",
+      "detail": "All recommendation cards fit within the section; product navigation and wishlist controls remain available."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "TypeScript and lint pending. Browser inventory returned no connected browsers; live visual preview unavailable."
+    }
+  ]
+}

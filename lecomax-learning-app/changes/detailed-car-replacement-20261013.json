@@ -1,0 +1,56 @@
+{
+  "id": "detailed-car-replacement-20261013",
+  "createdAt": "2026-10-13T19:19:37.252Z",
+  "title": "Replace blocky sedan with a detailed textured concept car",
+  "summary": "Bundle the authored Khronos Car Concept GLB with interior, original materials and textures, door/hood/hatch pivots and attribution.",
+  "status": "needs-testing",
+  "pages": [
+    "/car-studio",
+    "/change-history"
+  ],
+  "components": [
+    "Detailed car asset",
+    "CarViewer",
+    "Studio runtime",
+    "Native StudioFrame",
+    "Studio bundle"
+  ],
+  "files": [
+    "lecomax-learning-app/assets/car-studio/CarConcept.glb",
+    "lecomax-learning-app/assets/car-studio/source-metadata.json",
+    "lecomax-learning-app/assets/car-studio/Khronos-marks.txt",
+    "lecomax-learning-app/assets/car-studio/provenance.json",
+    "lecomax-learning-app/features/car-studio/detailed-car.ts",
+    "lecomax-learning-app/features/car-studio/local-car.ts",
+    "lecomax-learning-app/features/car-studio/viewer.ts",
+    "lecomax-learning-app/features/car-studio/runtime.ts",
+    "lecomax-learning-app/features/car-studio/StudioFrame.tsx",
+    "lecomax-learning-app/scripts/build-car-studio.cjs",
+    "lecomax-learning-app/data/car-studio-runtime.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Detailed authored car asset: 11,778,688 bytes, 213,347 triangles, embedded textures and CC BY 4.0 attribution/provenance."
+    },
+    {
+      "kind": "removed",
+      "detail": "Primitive procedural sedan from the default experience; retained original source for historical development tests."
+    },
+    {
+      "kind": "modified",
+      "detail": "Bind authored panel pivots and actual mesh groups, preserve textured PBR materials, adapt camera and bundle asset for local loading."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Distinguish concept-car model from BMW comparison lessons; unsupported mechanical systems remain lessons without invented geometry."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending final integration",
+      "result": "not-run",
+      "detail": "Asset metadata and license reviewed; build, render, camera, pivot, mobile, interaction and history checks pending. No production deployment or physical device validation."
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "organized-courses-20261016",
+  "createdAt": "2026-10-16T21:15:09.867Z",
+  "title": "Organized courses with saved learning places",
+  "summary": "A dedicated course library groups courses by learning area, shows progress and started courses, and resumes each course in its own context.",
+  "status": "needs-testing",
+  "pages": [
+    "Learn tab",
+    "Courses",
+    "Home",
+    "My learning",
+    "Course overview",
+    "Lesson"
+  ],
+  "components": [
+    "Courses",
+    "ContinueLearning",
+    "AcademyDashboard",
+    "CourseOverview"
+  ],
+  "files": [
+    "lecomax-learning-app/services/course-learning.ts",
+    "lecomax-learning-app/app/courses.tsx",
+    "lecomax-learning-app/components/ContinueLearning.tsx",
+    "lecomax-learning-app/app/(tabs)/discover.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/app/my-learning.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Course library with four ordered subject groups, course search, All/My/Completed filters, progress bars and start/continue/outline actions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Save per-course lesson checkpoints in existing persistent drafts; preserve explicit course context when resuming shared lessons and keep previous progress."
+    },
+    {
+      "kind": "modified",
+      "detail": "Learn tab now opens organized courses. Home and My learning show a common continuation card with lesson position and saved stage; exploration remains accessible."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial typecheck",
+      "result": "failed",
+      "detail": "Found tuple spread typing errors in localized labels; replaced spreads with explicit indexed arguments. Recheck pending."
+    },
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Unit and browser checks, final typecheck/lint, and history validation pending. No deployment or physical-device testing."
+    }
+  ]
+}

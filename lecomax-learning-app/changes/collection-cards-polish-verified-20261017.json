@@ -1,0 +1,42 @@
+{
+  "id": "collection-cards-polish-verified-20261017",
+  "relatedId": "collection-cards-polish-20261017",
+  "createdAt": "2026-10-17T10:13:39.352Z",
+  "title": "Collection card layout checks completed",
+  "summary": "Local mobile layout inspected; lint and color-selector interaction pass. Product photo availability and narrow-screen page overflow remain limitations.",
+  "status": "successful",
+  "pages": [
+    "Homepage collections"
+  ],
+  "components": [
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/CollectionProductCard.tsx",
+    "components/CollectionProductCard.module.css",
+    "lecomax-learning-app/artifacts/collection-cards-mobile.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the updated shared card layout and always-visible product action below product details."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Next lint for CollectionProductCard completed without errors or warnings."
+    },
+    {
+      "name": "Local browser",
+      "result": "passed",
+      "detail": "Inspected screenshot at 390px. No document overflow at 390 or 1280px. Color selector expands on click. At 320px all section bounds stay within viewport."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Product image requests resolve to existing no-image fallback in this local browser, so original product photos were not visually verified. Document-level overflow exists at 320px outside section bounds. No production deployment or full-site regression run."
+    }
+  ]
+}

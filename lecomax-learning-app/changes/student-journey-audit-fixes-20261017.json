@@ -1,0 +1,50 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Continue after a placement lesson within the selected starting sequence, retaining original completion totals and prerequisite visibility."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Active course switching restores the selected course checkpoint; lesson visits update active course ownership."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression coverage for six learner scenarios and corrected stale My learning component test dependencies and route assertions."
+    }
+  ],
+  "summary": "Preserve placement learning order and resume the selected course without awarding completion or mastery.",
+  "id": "student-journey-audit-fixes-20261017",
+  "createdAt": "2026-10-17T09:43:35.638Z",
+  "validation": [
+    {
+      "detail": "100 checks passed; one stale My learning harness failed. Initial concurrent run also had two VM timeouts, resolved by serial execution.",
+      "result": "passed",
+      "name": "Baseline focused tests"
+    },
+    {
+      "detail": "Pending. Isolated test fixtures are not learner records. Live authentication and production deployment are not validated.",
+      "result": "not-run",
+      "name": "Fix validation and rendered browser audit"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/services/course-learning.ts",
+    "lecomax-learning-app/services/learning-roadmap.ts",
+    "lecomax-learning-app/tests/student-journeys.test.cjs",
+    "lecomax-learning-app/tests/my-learning-interaction.test.cjs"
+  ],
+  "components": [
+    "ContinueLearning",
+    "courseLearning",
+    "roadmap"
+  ],
+  "status": "needs-testing",
+  "title": "Student journey audit: placement and active path continuity",
+  "pages": [
+    "Dashboard",
+    "My learning",
+    "Roadmap",
+    "Course"
+  ]
+}

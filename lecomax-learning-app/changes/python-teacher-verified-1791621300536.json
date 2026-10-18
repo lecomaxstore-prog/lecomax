@@ -1,0 +1,60 @@
+{
+  "id": "python-teacher-verified-1791621300536",
+  "createdAt": "2026-10-10T08:35:00.536Z",
+  "title": "Python and teacher connection checks",
+  "summary": "Real Python execution and the updated teacher integration passed automated source checks.",
+  "status": "successful",
+  "pages": [
+    "More",
+    "Terminal",
+    "AI Teacher"
+  ],
+  "components": [
+    "TeacherLab",
+    "TerminalPage",
+    "MobileTeacher"
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/terminal.tsx",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Python shortcut and one-click teacher help with selected text or recent terminal transcript."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Teacher navigation now requests an explanation and prevents the terminal close callback from navigating away. New question parameters remount the teacher conversation."
+    },
+    {
+      "kind": "removed",
+      "detail": "Empty copy-example button is hidden when no example exists."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Real runtime checks",
+      "result": "passed",
+      "detail": "8 lab and terminal tests passed, including Python standard library, Unicode, errors, timeouts, variables and interactive input. Kali test skipped; node-pty emitted console cleanup diagnostics."
+    },
+    {
+      "name": "App checks",
+      "result": "passed",
+      "detail": "TypeScript noEmit and focused ESLint on all four changed files passed."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All 4 history tests passed."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Signed-in AI response and browser click-through not verified. Native phone not tested. Closing terminal for teacher help ends sessions; transcript is passed to teacher. Local PC/server required; no deployment."
+    }
+  ],
+  "relatedId": "python-teacher-help-1791621269680"
+}

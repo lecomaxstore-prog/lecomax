@@ -1,0 +1,38 @@
+{
+  "id": "mobile-footer-ivory-20261017",
+  "createdAt": "2026-10-17T10:28:04.327Z",
+  "title": "Ivory and forest-green mobile footer",
+  "summary": "Redesign the mobile footer with a warm light palette, centered brand, integrated newsletter and quieter contact details.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use ivory surfaces and dark green text, a muted trust strip, centered logo and social links, newsletter before contact, and compact contact rows. Keep desktop styling and existing destinations."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the mobile bright accent stripe and boxed newsletter treatment."
+    },
+    {
+      "kind": "added",
+      "detail": "Mobile Restons en contact heading and visible email focus outline."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks pending",
+      "result": "not-run",
+      "detail": "Responsive browser checks and lint pending. No deployment or real newsletter submission."
+    }
+  ]
+}

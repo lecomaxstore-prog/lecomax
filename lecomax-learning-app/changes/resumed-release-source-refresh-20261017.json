@@ -1,0 +1,59 @@
+{
+  "id": "resumed-release-source-refresh-20261017",
+  "createdAt": "2026-10-17T17:47:09.067Z",
+  "title": "Align learning sources with the combined release",
+  "summary": "Refresh archived source examples and explain parallel catalogue loading; repair category imports and stylesheet typing.",
+  "status": "needs-testing",
+  "relatedId": "resumed-release-compatibility-20261017",
+  "pages": [
+    "Storefront categories",
+    "Academy website lesson",
+    "Source explorer",
+    "Web terminal"
+  ],
+  "components": [
+    "CategoryTiles",
+    "Academy source snapshots",
+    "Web terminal stylesheet types"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "lecomax-learning-app/types/styles.d.ts",
+    "lecomax-learning-app/tests/academy.test.cjs",
+    "lecomax-learning-app/data/academy/lessons/academy-site-boutique.json",
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/site-source-map.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Remove duplicate category imports and declare stylesheet module typing."
+    },
+    {
+      "kind": "modified",
+      "detail": "Refresh 645 source snapshots without deleting archives; update the boutique lesson example, source fingerprints and add an Arabic explanation of parallel products/settings/promotions loading."
+    },
+    {
+      "kind": "modified",
+      "detail": "Extend the lesson harness to verify settings and promotion props from the actual page."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Website tests",
+      "result": "passed",
+      "detail": "620 passed, 5 skipped; Android back-controller and scroll-return scenarios passed."
+    },
+    {
+      "name": "Source regeneration",
+      "result": "passed",
+      "detail": "645 source files regenerated; 51 visible files and 3120 elements indexed."
+    },
+    {
+      "name": "Learning suite and production build",
+      "result": "not-run",
+      "detail": "Final reruns pending. Earlier learning run hit source drift, missing relay dependencies and VM timeouts under parallel load."
+    }
+  ]
+}

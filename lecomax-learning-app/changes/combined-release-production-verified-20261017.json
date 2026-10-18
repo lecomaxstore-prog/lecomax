@@ -1,0 +1,57 @@
+{
+  "id": "combined-release-production-verified-20261017",
+  "createdAt": "2026-10-17T20:42:25.143Z",
+  "relatedId": "combined-release-explicit-upload-fix-20261017",
+  "title": "Verify corrected website release in production",
+  "summary": "Vercel reports the corrected release Ready and assigned to lecomax.com. All seven public HTTP and authentication-boundary checks passed.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage",
+    "Boutique",
+    "Admin sign-in",
+    "Website learning",
+    "Learning mobile APIs"
+  ],
+  "components": [
+    "Vercel upload rules",
+    "Shared learning contracts",
+    "Production verification"
+  ],
+  "files": [
+    "release/latest-update-20261017/.vercelignore",
+    "artifacts/publication-20261017/verify-live.cjs",
+    "artifacts/publication-20261017/live-verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified the previously corrected explicit upload exclusions: deployment dpl_8haYmMxDrjBnACRoqiXZWXYwPART is Ready and aliased to lecomax.com and www.lecomax.com."
+    },
+    {
+      "kind": "added",
+      "detail": "Saved repeatable production HTTP checks and timestamped results. No additional application code changes or redeployment were needed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Vercel deployment inspection",
+      "result": "passed",
+      "detail": "Production deployment dpl_8haYmMxDrjBnACRoqiXZWXYwPART returned Ready; production aliases point to this release."
+    },
+    {
+      "name": "Live public HTTP checks",
+      "result": "passed",
+      "detail": "Homepage, boutique and admin returned HTML with HTTP 200. Protected learning page redirected to admin sign-in."
+    },
+    {
+      "name": "Learning API authentication boundaries",
+      "result": "passed",
+      "detail": "Progress GET, AI University POST and Agent Studio POST returned expected HTTP 401 JSON responses, without server module errors."
+    },
+    {
+      "name": "Authenticated and visual interactions",
+      "result": "not-run",
+      "detail": "No authenticated owner/admin flows, live AI generation, checkout, browser visual interactions or Android installation were exercised. This verifies the website deployment only; no new Android binary or Expo update was published. The appended history is local until the learning app is rebuilt or served from this workspace."
+    }
+  ]
+}

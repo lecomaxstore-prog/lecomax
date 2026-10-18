@@ -1,0 +1,68 @@
+{
+  "id": "expo-catalog-brand-logos-20261018-verified",
+  "createdAt": "2026-10-18T09:55:43.531Z",
+  "title": "Catalogue brand logos: assets and code verified",
+  "summary": "Add ten catalogue brand logos and show compact logos on home, catalogue, recommendations, search and wishlist cards.",
+  "status": "successful",
+  "pages": [
+    "Expo product details",
+    "Home",
+    "Catalogue",
+    "Search",
+    "Wishlist"
+  ],
+  "components": [
+    "ProductBrandMark",
+    "ProductCard",
+    "SearchProductCard",
+    "WishlistProductCard"
+  ],
+  "files": [
+    "mobile/src/components/product-brand-mark.tsx",
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/components/search-product-card.tsx",
+    "mobile/src/components/wishlist-product-card.tsx",
+    "mobile/assets/images/brands/SOURCES.md",
+    "mobile/assets/images/brands/lenovo.png",
+    "mobile/assets/images/brands/sony.png",
+    "mobile/assets/images/brands/jordan.png",
+    "mobile/assets/images/brands/baasploa.png",
+    "mobile/assets/images/brands/genai.png",
+    "mobile/assets/images/brands/kemei.png",
+    "mobile/assets/images/brands/ellesse.png",
+    "mobile/assets/images/brands/kangol.png",
+    "mobile/assets/images/brands/joma.png",
+    "mobile/assets/images/brands/emporioarmani.png",
+    "public/images/brands/lenovo.svg",
+    "public/images/brands/sony.svg",
+    "public/images/brands/jordan.svg"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Bundle Lenovo, Sony, Jordan, Baasploa, GENAI, Kemei, Ellesse, Kangol, Joma and Emporio Armani logos sourced from official brand sites or Simple Icons. Record source attribution."
+    },
+    {
+      "kind": "modified",
+      "detail": "Render compact accessible logos on product, search and wishlist cards; keep category text when brand is absent. Preserve registry overrides and offline fallback. Remove recurring registry polling now that the mark is rendered on many cards."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Asset review",
+      "result": "passed",
+      "detail": "Visually inspected all ten added logos on white surfaces. Converted white Kemei/Baasploa artwork to black with alpha preserved; selected the main Joma mark from the official header."
+    },
+    {
+      "name": "Typecheck, lint and tests",
+      "result": "passed",
+      "detail": "Mobile typecheck and ESLint for all four changed components passed. Eight brand/history tests passed."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "ATMPC remains a text fallback because no authentic logo source was verified. Device layout and interactions were not tested. No deployment."
+    }
+  ],
+  "relatedId": "expo-catalog-brand-logos-20261018"
+}

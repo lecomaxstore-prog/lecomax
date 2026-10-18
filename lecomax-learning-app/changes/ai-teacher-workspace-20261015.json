@@ -1,0 +1,65 @@
+{
+  "id": "ai-teacher-workspace-20261015",
+  "createdAt": "2026-10-15T10:21:21.417Z",
+  "title": "Personal AI teaching workspace",
+  "summary": "Adds eight teaching modes, validated interactive lessons and tests, saved sessions and concept practice memory, supported browser attachments and speech, and secure usage-limited structured generation.",
+  "status": "needs-testing",
+  "pages": [
+    "AI Teacher",
+    "Teaching workspace",
+    "Plan lesson"
+  ],
+  "components": [
+    "TutorWorkspace",
+    "TutorMedia",
+    "TutorDiagram",
+    "Progress",
+    "Tutor API"
+  ],
+  "files": [
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/TutorMedia.tsx",
+    "lecomax-learning-app/components/TutorMedia.web.tsx",
+    "lecomax-learning-app/components/TutorDiagram.tsx",
+    "lecomax-learning-app/utils/tutor-contract.ts",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/tutor.ts",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/app/plan-lesson.tsx",
+    "lib/tutor-workspace.ts",
+    "lib/tutor-budget.ts",
+    "app/api/learning-mobile/tutor/route.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Eight pedagogical modes, schema-validated roadmaps/lessons/quizzes/evaluations/revisions/challenges, lesson resume, timed tests, concept evidence and memory controls."
+    },
+    {
+      "kind": "added",
+      "detail": "Browser image/PDF/TXT attachment input and capability-detected dictation/playback; native fallback is explicit. Interactive process, timeline, linear-function and triangle diagrams."
+    },
+    {
+      "kind": "modified",
+      "detail": "Existing teacher links to workspace; plan lesson passes exact plan/step context. Progress migration, export and backup include tutor state."
+    },
+    {
+      "kind": "added",
+      "detail": "Authenticated structured provider route, validation, rate limits, daily conservative token reservations and usage telemetry without learner content."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial typecheck",
+      "result": "passed",
+      "detail": "Learning app typecheck passed before follow-up edits."
+    },
+    {
+      "name": "Pending verification",
+      "result": "not-run",
+      "detail": "New tests, final typechecks, lint, web export and history validation pending. Live provider, microphone permissions and native devices not verified. Structured responses are buffered until validated."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "product-assistants-release-prepared-20261017",
+  "createdAt": "2026-10-17T15:45:23.922Z",
+  "relatedId": "production-source-preserved-20261017",
+  "title": "Prepare product paste and writing assistants for production",
+  "summary": "Add the reviewed product assistants on top of the preserved live production source.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Products create/edit",
+    "Change History"
+  ],
+  "components": [
+    "ProductPasteImport",
+    "ProductWritingAssistant",
+    "Protected product parse and write API routes"
+  ],
+  "files": [
+    "app/admin/products/page.tsx",
+    "components/admin/ProductPasteImport.tsx",
+    "components/admin/ProductWritingAssistant.tsx",
+    "app/api/admin/products/parse/route.ts",
+    "app/api/admin/products/write/route.ts",
+    "lib/product-paste.ts",
+    "lib/product-paste-ai.ts",
+    "tests/product-paste.test.ts",
+    "tests/product-paste-ai.test.ts",
+    "tests/product-paste-interaction.test.ts",
+    "tests/product-writing.test.ts",
+    "docs/product-writing-assistant.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Paste notes with gpt-6.1-sol or use local structured parsing; preview and select fields before applying. Generate French product copy and apply individual fields without saving products automatically."
+    },
+    {
+      "kind": "modified",
+      "detail": "Integrated both components into the existing production product form, retaining existing admin controls and unrelated work."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Preliminary feature tests",
+      "result": "passed",
+      "detail": "18 local tests passed; 2 optional live API tests skipped. Final isolated release checks follow."
+    },
+    {
+      "name": "Vercel configuration",
+      "result": "passed",
+      "detail": "Existing lecomax project links to lecomaxstore-prog/lecomax main. OPENAI_API_KEY present as encrypted production server variable; value not displayed or committed."
+    },
+    {
+      "name": "Final release checks",
+      "result": "not-run",
+      "detail": "TypeScript, lint, build, deployment and authenticated production checks pending."
+    }
+  ]
+}

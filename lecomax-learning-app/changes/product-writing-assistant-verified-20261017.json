@@ -1,0 +1,67 @@
+{
+  "id": "product-writing-assistant-verified-20261017",
+  "createdAt": "2026-10-17T11:20:39.449Z",
+  "title": "Product writing assistant verified with OpenAI",
+  "summary": "Product writing drafts work through the configured OpenAI connection; local route and interaction checks passed.",
+  "status": "successful",
+  "pages": [
+    "Admin Products: create and edit"
+  ],
+  "components": [
+    "ProductWritingAssistant",
+    "Protected product writing API"
+  ],
+  "files": [
+    "components/admin/ProductWritingAssistant.tsx",
+    "app/admin/products/page.tsx",
+    "app/api/admin/products/write/route.ts",
+    "tests/product-writing.test.ts",
+    "docs/product-writing-assistant.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Expandable writing assistant with facts input, three tones, generated preview and separate apply buttons. Existing form facts are included; new product slugs update when applying a name. Editing an existing product preserves its URL."
+    },
+    {
+      "kind": "added",
+      "detail": "Admin-authorized same-origin rate-limited endpoint using existing server-only OpenAI Responses integration. Input/output validation, bounded request sizes, timeout and safe configuration/billing errors. No automatic database writes; API key never reaches browser."
+    },
+    {
+      "kind": "modified",
+      "detail": "General information form now includes AI writing before the description field. Prompt restricts output to supplied facts and rejects internal inventory tags."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Explicit JSON instruction in the input message resolves the initial live provider rejection. Added regression assertion and setup/usage documentation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated route and interaction tests",
+      "result": "passed",
+      "detail": "Six local tests cover draft fields, authorization/rate-limit short-circuiting, validation, malformed output, explicit per-field application and error handling."
+    },
+    {
+      "name": "Live synthetic OpenAI generation",
+      "result": "passed",
+      "detail": "All seven tests passed with TEST_PRODUCT_WRITING_LIVE=1 after the JSON input correction, including a real synthetic 30-litre sports bag draft. No real product was saved."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Full repository tsc --noEmit --incremental false passed. Focused lint for product editor, writing assistant and route passed without warnings or errors."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append and manifest checks passed; initial failure report and all prior reports retained."
+    },
+    {
+      "name": "Browser and deployment",
+      "result": "not-run",
+      "detail": "No connected browser for visual/authenticated end-to-end verification. No deployment performed. Local API key configuration does not prove production environment configuration."
+    }
+  ],
+  "relatedId": "product-writing-assistant-connection-failure-20261017"
+}

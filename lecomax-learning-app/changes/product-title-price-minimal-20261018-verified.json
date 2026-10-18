@@ -1,0 +1,36 @@
+{
+  "id": "product-title-price-minimal-20261018-verified",
+  "relatedId": "product-title-price-minimal-20261018",
+  "createdAt": "2026-10-18T09:05:31.321Z",
+  "title": "Minimal title and price: code checks passed",
+  "summary": "Give the title priority and reduce price clutter with smaller decimals and inline currency.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product title",
+    "Price display"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Set the title in 26px medium type (23px compact), use a 24px medium price with 16px muted decimal digits, and place currency inline on the same baseline. Preserve locale grouping, exact amount and accessible full-price label."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and product page ESLint completed without diagnostics."
+    },
+    {
+      "name": "Visual review",
+      "result": "not-run",
+      "detail": "Rendered browser/device appearance unverified. No deployment."
+    }
+  ]
+}

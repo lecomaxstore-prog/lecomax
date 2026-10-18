@@ -1,0 +1,85 @@
+{
+  "id": "additional-real-brands-20261018",
+  "createdAt": "2026-10-18T10:07:27.019Z",
+  "title": "Add 13 real brands with matching app and website logos",
+  "summary": "Expand the shared brand picker from 17 to 30 brands, with identical bundled logos for Expo and the website.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin product editor",
+    "Expo product cards and details",
+    "Website product cards and details"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Shared product brand catalogue"
+  ],
+  "files": [
+    "mobile/src/lib/product-brands.ts",
+    "mobile/src/components/product-brand-mark.tsx",
+    "mobile/assets/images/brands/SOURCES.md",
+    "tests/product-brands.test.ts",
+    "docs/product-brands.md",
+    "mobile/assets/images/brands/fila.png",
+    "public/images/brands/fila.png",
+    "public/images/brands/fila.svg",
+    "mobile/assets/images/brands/thenorthface.png",
+    "public/images/brands/thenorthface.png",
+    "public/images/brands/thenorthface.svg",
+    "mobile/assets/images/brands/zara.png",
+    "public/images/brands/zara.png",
+    "public/images/brands/zara.svg",
+    "mobile/assets/images/brands/uniqlo.png",
+    "public/images/brands/uniqlo.png",
+    "public/images/brands/uniqlo.svg",
+    "mobile/assets/images/brands/samsung.png",
+    "public/images/brands/samsung.png",
+    "public/images/brands/samsung.svg",
+    "mobile/assets/images/brands/apple.png",
+    "public/images/brands/apple.png",
+    "public/images/brands/apple.svg",
+    "mobile/assets/images/brands/xiaomi.png",
+    "public/images/brands/xiaomi.png",
+    "public/images/brands/xiaomi.svg",
+    "mobile/assets/images/brands/huawei.png",
+    "public/images/brands/huawei.png",
+    "public/images/brands/huawei.svg",
+    "mobile/assets/images/brands/hp.png",
+    "public/images/brands/hp.png",
+    "public/images/brands/hp.svg",
+    "mobile/assets/images/brands/dell.png",
+    "public/images/brands/dell.png",
+    "public/images/brands/dell.svg",
+    "mobile/assets/images/brands/asus.png",
+    "public/images/brands/asus.png",
+    "public/images/brands/asus.svg",
+    "mobile/assets/images/brands/acer.png",
+    "public/images/brands/acer.png",
+    "public/images/brands/acer.svg",
+    "mobile/assets/images/brands/jbl.png",
+    "public/images/brands/jbl.png",
+    "public/images/brands/jbl.svg"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Add Fila, The North Face, Zara, Uniqlo, Samsung, Apple, Xiaomi, Huawei, HP, Dell, ASUS, Acer, JBL. Use Simple Icons SVG source artwork and identical PNGs for app and website."
+    },
+    {
+      "kind": "modified",
+      "detail": "Expand shared defaults and Expo offline logo mapping to 30 brands; preserve previous brands, custom registry overrides and add-brand support."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Artwork download",
+      "result": "passed",
+      "detail": "All 13 source SVG requests returned successfully and were rasterized to PNG. Attribution recorded."
+    },
+    {
+      "name": "Code and visual checks",
+      "result": "not-run",
+      "detail": "Pending. Live authenticated saving, physical-device rendering and deployment not performed."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "phone-persistent-build15-log-retry-20261012",
+  "createdAt": "2026-10-12T06:04:12.230Z",
+  "status": "needs-testing",
+  "relatedId": "phone-persistent-sharing-20261012",
+  "title": "Correct Android build logging before APK verification",
+  "summary": "The first build produced a build-15 APK and seven passing native tests, but the PowerShell wrapper treated an Expo environment warning as an error and did not capture completion.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer"
+  ],
+  "components": [
+    "Android build tooling"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/build-persistent-sharing.ps1",
+    "lecomax-learning-app/artifacts/phone-persistent-build15.log",
+    "lecomax-learning-app/artifacts/phone-persistent-build15-native-tests.xml",
+    "lecomax-learning-app/docs/phone-persistent-sharing-build15.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Set NODE_ENV=production and use the actual Gradle exit status instead of treating every stderr warning as a terminating PowerShell error. Preserve the original log and retry with a separate final log."
+    },
+    {
+      "kind": "added",
+      "detail": "Document behavior, platform limits and physical-device acceptance steps."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial build wrapper",
+      "result": "failed",
+      "detail": "PowerShell returned exit 1 on the missing NODE_ENV warning. APK metadata says build 15, but completion was not captured; do not infer build success from this wrapper result."
+    },
+    {
+      "name": "Native server tests",
+      "result": "passed",
+      "detail": "JUnit XML reports seven tests, zero failures/errors, including day-long approved inactivity, stop revocation and unapproved request expiry."
+    },
+    {
+      "name": "Viewer and history tests, typecheck and lint",
+      "result": "passed",
+      "detail": "15 focused tests, TypeScript and focused ESLint passed."
+    },
+    {
+      "name": "Build retry and APK validation",
+      "result": "not-run",
+      "detail": "Retry running. Physical two-phone acceptance remains untested; no deployment."
+    }
+  ]
+}

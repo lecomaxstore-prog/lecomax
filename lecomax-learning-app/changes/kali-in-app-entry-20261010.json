@@ -1,0 +1,32 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Kali Linux appears at the top of My tools and opens the existing in-app desktop screen, including its phone-local connection."
+    }
+  ],
+  "summary": "Add a visible Kali Linux entry to More / My tools and prepare an updated Android installation for the connected phone.",
+  "id": "kali-in-app-entry-20261010",
+  "createdAt": "2026-10-09T23:51:06.940Z",
+  "validation": [
+    {
+      "detail": "TypeScript, focused lint, navigation/connection tests, signed APK installation and in-app phone checks pending.",
+      "result": "not-run",
+      "name": "Source and phone validation"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/components/KaliDesktop.tsx"
+  ],
+  "components": [
+    "More navigation",
+    "Native KaliDesktop WebView"
+  ],
+  "status": "needs-testing",
+  "title": "Open phone Kali from More inside the learning app",
+  "pages": [
+    "More / My tools",
+    "Kali desktop"
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Use terminating PowerShell errors and verify APK version metadata before copying. A concurrent log lock exposed the previous fall-through; no stale APK was delivered to USB."
+    }
+  ],
+  "summary": "Stop build 19 packaging on PowerShell errors and require release metadata version 1.0.17/code 19 before copying.",
+  "id": "build19-copy-guard-20261013",
+  "createdAt": "2026-10-12T23:18:21.788Z",
+  "relatedId": "learning-apk-build19-prepared-20261013",
+  "files": [
+    "lecomax-learning-app/artifacts/build-latest19.ps1"
+  ],
+  "components": [
+    "Android release packaging"
+  ],
+  "status": "needs-testing",
+  "validation": [
+    {
+      "detail": "Original Android build remains running. New error guard reviewed; end-to-end guard failure injection not run.",
+      "result": "not-run",
+      "name": "Guard validation"
+    }
+  ],
+  "title": "Reject stale APK copies when release execution fails",
+  "pages": [
+    "Learning app"
+  ]
+}

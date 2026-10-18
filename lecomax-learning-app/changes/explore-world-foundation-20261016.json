@@ -1,0 +1,52 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Offline Natural Earth map, sourced lesson catalog, comparison data and question-based progress architecture."
+    }
+  ],
+  "summary": "Adds module architecture, sourced content, map preparation, journal evidence model and native/web globe bridges.",
+  "id": "explore-world-foundation-20261016",
+  "createdAt": "2026-10-16T11:34:43.072Z",
+  "validation": [
+    {
+      "detail": "Converted 177 Natural Earth features.",
+      "result": "passed",
+      "name": "Map preparation"
+    },
+    {
+      "detail": "Initial sandbox attempt blocked esbuild directory access; retry required.",
+      "result": "not-run",
+      "name": "Globe build"
+    },
+    {
+      "detail": "Screen integration is in progress. No deployment or Android performance validation.",
+      "result": "not-run",
+      "name": "Application and device validation"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/features/world/content.ts",
+    "lecomax-learning-app/features/world/model.ts",
+    "lecomax-learning-app/features/world/geometry.ts",
+    "lecomax-learning-app/features/world/types.ts",
+    "lecomax-learning-app/features/world/Globe.tsx",
+    "lecomax-learning-app/features/world/Globe.web.tsx",
+    "lecomax-learning-app/features/world/globe-runtime.ts",
+    "lecomax-learning-app/features/world/countries.geojson",
+    "lecomax-learning-app/features/world/map.json",
+    "lecomax-learning-app/scripts/prepare-world-map.cjs",
+    "lecomax-learning-app/scripts/build-world.cjs",
+    "lecomax-learning-app/docs/explore-world.md"
+  ],
+  "components": [
+    "Explore World",
+    "Offline globe",
+    "Discovery journal"
+  ],
+  "status": "needs-testing",
+  "title": "Explore World foundation and offline globe",
+  "pages": [
+    "/world"
+  ]
+}

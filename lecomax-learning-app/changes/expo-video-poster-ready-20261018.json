@@ -1,0 +1,30 @@
+{
+  "id": "expo-video-poster-ready-20261018",
+  "createdAt": "2026-10-18T08:45:45.032Z",
+  "title": "Uncover ready product videos",
+  "summary": "Remove the poster when the video is ready, even if the first-frame event was missed by a cached web video.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product detail"
+  ],
+  "components": [
+    "ProductVideoPlayer"
+  ],
+  "files": [
+    "mobile/src/components/product-video.tsx",
+    "tests/mobile-product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Video readiness now removes the poster overlay and exposes native playback controls. Added a cached-video regression assertion."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Regression tests, lint and refreshed Metro bundle pending. Physical playback not visually verified."
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "phone-lab-realistic-verified-20261012",
+  "createdAt": "2026-10-12T16:54:48.518Z",
+  "title": "Refined phone model rendering and taps verified",
+  "summary": "Replaced boxy wireframe-like rendering with a rounded phone enclosure, glass display, camera lenses, hardware details and a refined mobile viewer.",
+  "status": "successful",
+  "pages": [
+    "Phone lab"
+  ],
+  "components": [
+    "Phone model renderer",
+    "Phone explorer document"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-model-renderer.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Rounded 3D extrusions, face visibility culling, layered lens optics, continuous metal frame, side buttons, port, speaker grilles, screen wallpaper, app tiles, clock and glass reflection."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced average polygon-depth sorting that hid front-screen details. Centered and separated the display and chassis in the opened view; removed full-model selection wireframes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Larger phone framing, studio-gradient background, compact segmented controls and rounded topic chips. Tapping a part or named topic brings its lesson into view. Existing lessons and saved progress preserved."
+    },
+    {
+      "kind": "fixed",
+      "detail": "The new camera hit-test exposed a glass-reflection overlay intercepting taps. Decorative reflection faces now pass through hit testing; all three language cases pass."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Phone lab regression tests",
+      "result": "passed",
+      "detail": "Four tests passed after the reflection correction, including actual front camera icon hit testing, front/back geometry, rotation, all topics, quiz feedback and progress in English/French/Arabic."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "App typecheck and focused renderer/document ESLint passed after final edits."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "Six history tests passed; all previous reports are retained."
+    },
+    {
+      "name": "Direct model visual inspection",
+      "result": "passed",
+      "detail": "Canvas draw commands replayed to SVG and rendered to PNG. Front, rear and separated views inspected; corrected screen occlusion and opened-view clipping. These artifacts are model renders, not browser screenshots."
+    },
+    {
+      "name": "Live app and physical device",
+      "result": "not-run",
+      "detail": "Live browser layout and native WebView were not visually tested. The phone remains a stylized educational model, not a model-specific photorealistic teardown. No deployment."
+    }
+  ],
+  "relatedId": "phone-lab-realistic-design-20261012"
+}

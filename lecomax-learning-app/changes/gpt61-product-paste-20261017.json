@@ -1,0 +1,39 @@
+{
+  "id": "gpt61-product-paste-20261017",
+  "createdAt": "2026-10-17T11:27:23.486Z",
+  "title": "GPT-6.1 Sol product paste assistant",
+  "summary": "Use GPT-6.1 Sol to organize pasted product notes into reviewable form fields.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Products create/edit"
+  ],
+  "components": [
+    "ProductPasteImport",
+    "Protected paste extraction endpoint",
+    "GPT-6.1 Sol extraction service"
+  ],
+  "files": [
+    "components/admin/ProductPasteImport.tsx",
+    "app/api/admin/products/parse/route.ts",
+    "lib/product-paste-ai.ts",
+    "tests/product-paste-ai.test.ts",
+    "tests/product-paste-interaction.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Protected, rate-limited server endpoint using exact gpt-6.1-sol model, low reasoning, strict JSON schema, server-only key and store:false. Extracted values must occur in the source before existing field validation."
+    },
+    {
+      "kind": "modified",
+      "detail": "AI analysis is the primary paste action; structured local parsing remains available. Shows loading/errors and disclosure; cancels stale requests when pasted text changes. Field preview and selection remain required."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Official model documentation confirmed exact ID and reasoning support. Tests, lint, typecheck and live model check pending. No deployment or browser verification."
+    }
+  ]
+}

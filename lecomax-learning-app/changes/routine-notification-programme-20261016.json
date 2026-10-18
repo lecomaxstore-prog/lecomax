@@ -1,0 +1,50 @@
+{
+  "id": "routine-notification-programme-20261016",
+  "createdAt": "2026-10-16T11:22:47.535Z",
+  "title": "Daily programme reminders, evening check-in and bedtime alert",
+  "summary": "A three-reminder preset opens the full daily checklist, asks about completion in the evening and gives bedtime a separate high-priority Android channel.",
+  "status": "needs-testing",
+  "pages": [
+    "/wellness",
+    "/wellness/notifications"
+  ],
+  "components": [
+    "RoutineProgramme",
+    "NotificationBridge",
+    "Wellness reminders"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/types.ts",
+    "lecomax-learning-app/features/wellness/data.ts",
+    "lecomax-learning-app/features/wellness/engine.ts",
+    "lecomax-learning-app/features/wellness/daily-content.ts",
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx",
+    "lecomax-learning-app/features/wellness/RoutineProgramme.tsx",
+    "lecomax-learning-app/features/wellness/TodayScreen.tsx",
+    "lecomax-learning-app/features/NotificationBridge.tsx",
+    "lecomax-learning-app/tests/wellness.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Bedtime category, opt-in morning/evening/bedtime preset using wake/sleep preferences, category-aware navigation and full daily task checklist."
+    },
+    {
+      "kind": "modified",
+      "detail": "Clear Arabic, English and French reminder messages. Bedtime has high Android importance and optional sound/vibration; browser requests persistent display where supported."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Existing saved schedules migrate with bedtime disabled; unrelated lesson notifications and completion records are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Verification pending",
+      "result": "not-run",
+      "detail": "Tests and static checks pending. No phone delivery verification, APK rebuild or deployment. Alerts respect device settings and Do Not Disturb."
+    }
+  ]
+}

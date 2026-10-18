@@ -1,0 +1,62 @@
+{
+  "id": "phone-piece-ai-teacher-verified-20261012",
+  "createdAt": "2026-10-12T17:34:36.307Z",
+  "title": "Component AI teacher navigation and mobile dialog checks passed",
+  "summary": "Reworked the component dialog with a fixed header and footer, bounded content scrolling and AI teacher actions carrying the selected lesson context.",
+  "status": "successful",
+  "pages": [
+    "Phone Lab (/phone-lab)",
+    "AI Teacher"
+  ],
+  "components": [
+    "Piece detail dialog",
+    "PhoneExplorer web/native bridge",
+    "Phone teacher navigation"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-teacher.ts",
+    "lecomax-learning-app/components/PhoneExplorer.tsx",
+    "lecomax-learning-app/components/PhoneExplorer.web.tsx",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs",
+    "lecomax-learning-app/tests/phone-teacher.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Dialog header/close button and AI action stay outside the scrolling body; opening resets body scroll and focuses close without scrolling. Reduced enlargement of tiny image regions."
+    },
+    {
+      "kind": "added",
+      "detail": "AI explain, example, quiz and custom question actions open the existing authenticated AI Teacher conversation with component name, role, example and language."
+    },
+    {
+      "kind": "added",
+      "detail": "Shared bridge validation rejects unknown component IDs, unsupported intents and empty/oversized questions. Prompts clarify that the generated illustration cannot identify real part numbers or hidden construction."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interaction and navigation tests",
+      "result": "passed",
+      "detail": "14 tests passed across phone exploration, shared teacher routing, web/native bridges, existing teacher navigation and history. Tested explain/example/quiz/custom actions, component/language context, malformed requests, blank questions, web event source checks, dialog scroll reset and existing piece interactions."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "App typecheck and focused lint passed for both PhoneExplorer wrappers, document, photo view and phone teacher helper."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "197 preceding reports passed integrity check before this verification follow-up."
+    },
+    {
+      "name": "Live browser, device and AI provider",
+      "result": "not-run",
+      "detail": "Dialog layout and crop sizing not visually verified on a live device/browser. AI provider request not sent; tests validate navigation into the existing authenticated teacher, not a live generated answer. Internet and existing teacher sign-in/provider availability are required. No deployment or APK rebuild."
+    }
+  ],
+  "relatedId": "phone-piece-ai-teacher-20261012"
+}

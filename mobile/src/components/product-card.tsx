@@ -1,3 +1,4 @@
+import { ProductBrandMark } from "@/components/product-brand-mark";
 import { localizedContent } from "@/i18n/content";
 import { useQueryClient } from "@tanstack/react-query";
 import { productTranslationOptions } from "@/lib/product-translation-query";
@@ -187,9 +188,7 @@ export const ProductCard = memo(function ProductCard({
           style={styles.details}
         >
         <View style={styles.metaRow}>
-          <Text numberOfLines={1} style={[styles.brand, related && styles.relatedBrand]}>
-            {(product.brand || localizedContent(product.category)).toUpperCase()}
-          </Text>
+          <View style={{ minHeight: 20, justifyContent: "center" }}>{product.brand ? <ProductBrandMark name={product.brand} compact /> : <Text numberOfLines={1} style={[styles.brand, related && styles.relatedBrand]}>{localizedContent(product.category).toUpperCase()}</Text>}</View>
           {(product.stock > 0 || product.preorder_enabled) && !related ? (
             <View accessibilityLabel={product.stock<=0 && product.preorder_enabled ? msg("preorder.badge") : msg("productCard.inStock")} style={styles.stock}>
               <View style={styles.stockDot} />

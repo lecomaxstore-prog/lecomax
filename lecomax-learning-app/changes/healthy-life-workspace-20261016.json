@@ -1,0 +1,53 @@
+{
+  "id": "healthy-life-workspace-20261016",
+  "createdAt": "2026-10-16T19:55:43.864Z",
+  "title": "Customizable Healthy Life workspace",
+  "summary": "Resume the unfinished workspace with editable activities, personal habits, optional plans, a persistent focus timer and weekly recorded insights.",
+  "status": "needs-testing",
+  "pages": [
+    "/wellness",
+    "/wellness/guided"
+  ],
+  "components": [
+    "HealthyLifeScreen",
+    "LifeEditors",
+    "LifeFocus",
+    "LifeAcademy",
+    "Journey storage"
+  ],
+  "files": [
+    "lecomax-learning-app/app/wellness.tsx",
+    "lecomax-learning-app/app/wellness/guided.tsx",
+    "lecomax-learning-app/features/wellness/HealthyLifeScreen.tsx",
+    "lecomax-learning-app/features/wellness/LifeEditors.tsx",
+    "lecomax-learning-app/features/wellness/LifeFocus.tsx",
+    "lecomax-learning-app/features/wellness/LifeAcademy.tsx",
+    "lecomax-learning-app/features/wellness/life-model.ts",
+    "lecomax-learning-app/features/wellness/life-lessons.ts",
+    "lecomax-learning-app/features/wellness/engine.ts",
+    "lecomax-learning-app/features/wellness/types.ts",
+    "lecomax-learning-app/tests/healthy-life.test.cjs",
+    "lecomax-learning-app/tests/healthy-life-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Editable recurring activities, per-date rescheduling, custom habits with rest/skip/undo, preview-before-apply plans, restart-persistent timer, sourced lessons, weekly summaries and confirmed local deletion."
+    },
+    {
+      "kind": "modified",
+      "detail": "Healthy Life opens at /wellness; existing guided routines remain at /wellness/guided using the same wellness store. Existing reminders remain accessible. New workspace content is English with an explicit language notice."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Week navigation moves the selected date; date validation is timezone-independent; recorded habit targets survive later goal edits; countdown rounds consistently."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation validation",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, model and interaction regressions pending. Native device and deployment untested. No deployment performed."
+    }
+  ]
+}

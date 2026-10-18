@@ -1,0 +1,82 @@
+{
+  "id": "academy-signature-redesign-20261015",
+  "createdAt": "2026-10-15T15:44:32.253Z",
+  "title": "Academy Signature: dashboard, typography and shared learning design",
+  "summary": "Implement a unified forest-and-cream interface, bundled Arabic typography, real-state dashboard, five-destination navigation, and coordinated teacher, lesson, profile and practice surfaces.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Explore",
+    "AI Teacher",
+    "Practice",
+    "Profile",
+    "Lessons",
+    "Learning paths",
+    "Settings",
+    "Onboarding",
+    "All shared Page screens"
+  ],
+  "components": [
+    "AcademyDashboard",
+    "AcademySignature",
+    "BottomTabBar",
+    "UI",
+    "TeacherUI",
+    "LessonHeader",
+    "PracticeLaunchpad"
+  ],
+  "files": [
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/app/(tabs)/_layout.tsx",
+    "lecomax-learning-app/app/(tabs)/practice.tsx",
+    "lecomax-learning-app/app/(tabs)/account.tsx",
+    "lecomax-learning-app/components/AcademySignature.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/PracticeLaunchpad.tsx",
+    "lecomax-learning-app/app/profile.tsx",
+    "lecomax-learning-app/features/AuthLayout.tsx",
+    "lecomax-learning-app/assets/fonts/IBMPlexSansArabic-Regular.ttf",
+    "lecomax-learning-app/assets/fonts/IBMPlexSansArabic-SemiBold.ttf",
+    "lecomax-learning-app/assets/fonts/OFL.txt"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Locally bundled licensed Arabic regular/semibold fonts; reusable icon, metric, tool and decorative brand components."
+    },
+    {
+      "kind": "modified",
+      "detail": "Dashboard composition, semantic theme, typography, navigation, teacher welcome, lesson header and profile. Progress and recommendations use actual existing state."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed My Learning and More from the visible bottom bar; their routes and access from Home/Profile remain."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Dark sign-in and status-bar detection updated for new palette; corrupted flashcard launchpad text replaced."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source audit",
+      "result": "passed",
+      "detail": "Inventoried all app routes and reviewed shared components, teacher, practice, course and persistence integration."
+    },
+    {
+      "name": "Initial type check",
+      "result": "failed",
+      "detail": "Found dashboard course lesson shape, title tuple and launchpad optional title errors; corrected before next validation."
+    },
+    {
+      "name": "Visual and regression validation",
+      "result": "not-run",
+      "detail": "Implementation in progress. Fresh export, browser checks, tests and native export pending. No deployment."
+    }
+  ]
+}

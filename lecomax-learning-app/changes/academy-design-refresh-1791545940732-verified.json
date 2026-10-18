@@ -1,0 +1,67 @@
+{
+  "id": "academy-design-refresh-1791545940732-verified",
+  "createdAt": "2026-10-09T11:39:58.773Z",
+  "title": "Design refresh: build and behavior checks passed",
+  "summary": "The updated academy passes TypeScript, focused lint, web export and ten history/navigation tests. Browser and native visual checks remain outstanding.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "Learning paths",
+    "Teacher",
+    "Project",
+    "More",
+    "Screens using shared UI"
+  ],
+  "components": [
+    "Home",
+    "Page",
+    "BottomTabBar",
+    "Design tokens",
+    "ProgressBar"
+  ],
+  "files": [
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/app/(tabs)/index.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the dashboard, design tokens, shared page styles and navigation changes described in the linked implementation report."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "node node_modules/typescript/bin/tsc --noEmit completed with exit code 0."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "All four changed application files passed ESLint."
+    },
+    {
+      "name": "Change history",
+      "result": "passed",
+      "detail": "Six tests passed: expansion/collapse, status/details, preview/history routing, retry, persistence, archive conflicts and immutable append behavior. Manifest check passed."
+    },
+    {
+      "name": "Learning navigation",
+      "result": "passed",
+      "detail": "Four tests passed for course search/filter recovery/next lesson, More destinations and languages, and teacher context navigation."
+    },
+    {
+      "name": "Web export",
+      "result": "passed",
+      "detail": "Expo web export completed successfully to artifacts/design-refresh-web."
+    },
+    {
+      "name": "Visual and device QA",
+      "result": "not-run",
+      "detail": "Browser automation reports no available browsers. Mobile/desktop screenshots, native device layout, large-text rendering and dark-mode visual review were not performed. No deployment was performed."
+    }
+  ],
+  "relatedId": "academy-design-refresh-1791545940732"
+}

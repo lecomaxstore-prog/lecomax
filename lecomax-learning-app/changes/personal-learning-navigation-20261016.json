@@ -1,0 +1,43 @@
+{
+  "id": "personal-learning-navigation-20261016",
+  "createdAt": "2026-10-16T11:14:50.448Z",
+  "title": "Clearer personal learning, progress and Arabic guidance",
+  "summary": "Show enrolled or started courses, resume lessons directly, and show saved course progress with clear next actions.",
+  "status": "needs-testing",
+  "pages": [
+    "/my-learning"
+  ],
+  "components": [
+    "MyLearning"
+  ],
+  "files": [
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/tests/my-learning-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "My learning now uses the personal course filter instead of showing the full catalogue."
+    },
+    {
+      "kind": "added",
+      "detail": "Direct start/resume buttons, saved-plan progress, learning-journey and lesson-list actions, and due/upcoming review labels."
+    },
+    {
+      "kind": "modified",
+      "detail": "Clear Arabic review guidance, localized study minutes, and explicit remove-from-plan button text. Unenrolling preserves completed lessons."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Baseline learning checks",
+      "result": "passed",
+      "detail": "23 existing content, progress, journey and owner-gate tests passed before these edits."
+    },
+    {
+      "name": "New interaction and static checks",
+      "result": "not-run",
+      "detail": "Pending. No native phone or bank compatibility changes; no deployment."
+    }
+  ]
+}

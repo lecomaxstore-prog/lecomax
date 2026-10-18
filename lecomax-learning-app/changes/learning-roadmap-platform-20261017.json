@@ -1,0 +1,58 @@
+{
+  "id": "learning-roadmap-platform-20261017",
+  "createdAt": "2026-10-17T08:34:14.215Z",
+  "title": "Structured learning journey and safe progress synchronization",
+  "summary": "Replace the home screen with a real-progress journey dashboard, add course selection and optional placement, and connect local progress to the revision-checked cloud API.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Onboarding",
+    "Roadmap",
+    "Lesson player"
+  ],
+  "components": [
+    "JourneyDashboard",
+    "Roadmap",
+    "ProgressSyncRunner",
+    "Progress schema"
+  ],
+  "files": [
+    "lecomax-learning-app/components/JourneyDashboard.tsx",
+    "lecomax-learning-app/components/SyncProgress.tsx",
+    "lecomax-learning-app/app/roadmap.tsx",
+    "lecomax-learning-app/app/(tabs)/index.tsx",
+    "lecomax-learning-app/app/onboarding.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/utils/journey-state.ts",
+    "lecomax-learning-app/utils/progress-sync.ts",
+    "lecomax-learning-app/services/learning-roadmap.ts",
+    "lecomax-learning-app/docs/learning-platform-audit.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Typed roadmap, module prerequisites, optional diagnostics with no completion credit, and additive journey migration."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home presents the active course, actual completion, saved lesson stage, weekly goal and review evidence; onboarding leads to course selection."
+    },
+    {
+      "kind": "added",
+      "detail": "Automatic authenticated snapshot synchronization uses revision checks and a conservative three-way merge; conflicts preserve local work."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Catalog audit",
+      "result": "passed",
+      "detail": "125 modules, 1460 indexed entries; no duplicate lesson IDs or missing module references across ten courses."
+    },
+    {
+      "name": "Typecheck and functional verification",
+      "result": "not-run",
+      "detail": "Validation in progress. Physical Android, authenticated multi-device runtime, comprehensive historical lesson quality and production deployment are not verified."
+    }
+  ]
+}

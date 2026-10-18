@@ -1,0 +1,46 @@
+{
+  "id": "phone-piece-lessons-20261013",
+  "createdAt": "2026-10-13T09:47:37.070Z",
+  "title": "Learn each phone component with one tap",
+  "summary": "Expand the phone explorer with immediate component lessons, assembly principles, connected-part navigation and offline practice in Arabic, French and English.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone lab",
+    "AI Teacher"
+  ],
+  "components": [
+    "Phone explorer document",
+    "Component lesson dialog",
+    "Phone teacher context"
+  ],
+  "files": [
+    "lecomax-learning-app/data/phone-assembly.ts",
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/utils/phone-teacher.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs",
+    "lecomax-learning-app/tests/phone-teacher.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Assembly and placement content for 25 hardware topics, related component navigation, three lesson sections, an offline role quiz, progress and next-piece controls."
+    },
+    {
+      "kind": "modified",
+      "detail": "Single taps and component picker open the lesson immediately. Redesigned responsive lesson panel; AI teacher receives trusted assembly context."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Reference review",
+      "result": "passed",
+      "detail": "Reviewed Apple iPhone 15 repair manual, camera, battery and haptic actuator documentation. Lessons distinguish general assembly from exact model procedures."
+    },
+    {
+      "name": "Implementation validation",
+      "result": "not-run",
+      "detail": "Interaction tests, content coverage, typecheck, lint and history checks pending. No deployment."
+    }
+  ]
+}

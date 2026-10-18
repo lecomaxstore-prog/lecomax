@@ -1,0 +1,83 @@
+{
+  "id": "academy-signature-integration-20261015",
+  "relatedId": "academy-signature-redesign-20261015",
+  "createdAt": "2026-10-15T15:57:42.503Z",
+  "status": "needs-testing",
+  "title": "Signature integration: localized studios, accessible tabs and native resume",
+  "summary": "Apply the shared design to Studio discovery, Python entry, course milestones and Explore; preserve resume and study-time tracking for new tab routes.",
+  "pages": [
+    "Interactive Studio",
+    "Python Studio",
+    "Explore",
+    "Course details",
+    "AI Teacher",
+    "Practice",
+    "Profile",
+    "Error recovery"
+  ],
+  "components": [
+    "CodeLab",
+    "PythonLab",
+    "CourseLessonList",
+    "CourseOverview",
+    "MobileTeacher",
+    "TeacherSheet",
+    "BottomTabBar",
+    "SchoolProvider"
+  ],
+  "files": [
+    "lecomax-learning-app/app/interactive-studio.tsx",
+    "lecomax-learning-app/app/explore.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/features/interactive/presentation.ts",
+    "lecomax-learning-app/features/interactive/CodeLab.tsx",
+    "lecomax-learning-app/features/interactive/PythonLab.tsx",
+    "lecomax-learning-app/components/CourseLessonList.tsx",
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/store/School.tsx",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/tests/academy-2-interaction.test.cjs",
+    "lecomax-learning-app/tests/resume-route.test.cjs",
+    "lecomax-learning-app/scripts/test-signature-ui.cjs",
+    "lecomax-learning-app/docs/academy-signature.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Localized Studio catalog and coding action labels; course milestone connectors; branded error recovery."
+    },
+    {
+      "kind": "modified",
+      "detail": "Teacher welcome and conversation surfaces, Explore subject icons, Python workspace entry and code editor toolbar."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Explicit aria-selected on web tabs; reduced-motion modal transitions; native route restoration and learning-time accounting include new tab routes. Adjusted existing dashboard test harness for new shared primitives."
+    }
+  ],
+  "validation": [
+    {
+      "name": "App suite and static checks",
+      "result": "passed",
+      "detail": "302 tests, type checking and full lint passed before the final route restoration adjustment; focused/final checks pending."
+    },
+    {
+      "name": "Native bundle",
+      "result": "passed",
+      "detail": "Android JavaScript export succeeded; no physical-device or APK execution claimed."
+    },
+    {
+      "name": "Browser matrix",
+      "result": "not-run",
+      "detail": "English light/dark and French light completed so far. Full matrix and final visual review still in progress. Fixture session-list response corrected after Settings fixture error."
+    },
+    {
+      "name": "Learning journey",
+      "result": "failed",
+      "detail": "Onboarding, teacher request and lesson completion passed, but isolated JavaScript worker timed out during concurrent validation. Isolated rerun pending; no runtime limit altered."
+    }
+  ]
+}

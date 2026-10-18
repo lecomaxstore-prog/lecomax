@@ -1,0 +1,48 @@
+{
+  "id": "academy-visual-fixture-correction-20261015",
+  "relatedId": "academy-visual-polish-20261015",
+  "createdAt": "2026-10-15T16:47:05.091Z",
+  "title": "Correct populated learner visual verification",
+  "summary": "Resume visual polish verification with a valid learner fixture and explicit profile assertions.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Profile",
+    "AI Teacher",
+    "Explore"
+  ],
+  "components": [
+    "Visual regression harness"
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/test-signature-ui.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Populate the required learning goal before marking fixture onboarding complete; assert saved name and visible profile heading."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "Stopped when the populated fixture omitted its required goal, preventing app initialization. Corrected fixture; fresh matrix pending.",
+      "result": "failed",
+      "name": "Initial browser run"
+    },
+    {
+      "detail": "Fresh TypeScript and full ESLint passed; all 304 tests and the six-stage browser learning journey passed.",
+      "result": "passed",
+      "name": "Static and regression checks"
+    },
+    {
+      "detail": "Fresh web export and Android Hermes export passed. Hermes required execution outside the sandbox.",
+      "result": "passed",
+      "name": "Exports"
+    },
+    {
+      "detail": "Physical-device keyboard, screen reader, native font scaling and performance remain untested. No deployment.",
+      "result": "not-run",
+      "name": "Device limits"
+    }
+  ]
+}

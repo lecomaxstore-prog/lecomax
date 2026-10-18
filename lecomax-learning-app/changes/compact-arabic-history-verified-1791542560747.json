@@ -1,0 +1,66 @@
+{
+  "id": "compact-arabic-history-verified-1791542560747",
+  "createdAt": "2026-10-09T10:42:40.747Z",
+  "title": "تحسين بطاقة التغييرات — اجتازت الفحوصات",
+  "summary": "عرض مختصر في الرئيسية، وتفاصيل كاملة عند الضغط، مع محاذاة صحيحة للنصوص العربية والإنجليزية. سجل التغييرات السابق محفوظ بالكامل.",
+  "status": "successful",
+  "pages": [
+    "Home dashboard",
+    "Change History"
+  ],
+  "components": [
+    "ChangesMade",
+    "ChangeReportCard"
+  ],
+  "files": [
+    "lecomax-learning-app/components/ChangeHistory.tsx",
+    "lecomax-learning-app/docs/change-history.md",
+    "lecomax-learning-app/tests/change-history-interaction.test.cjs",
+    "lecomax-learning-app/.expo/types/router.d.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "The latest report starts collapsed instead of consuming the dashboard with technical details."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home titles and summaries use at most two lines when collapsed; expansion restores the complete text and details."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Arabic and Latin report text use their own reading direction instead of forcing English text into the Arabic interface direction."
+    },
+    {
+      "kind": "modified",
+      "detail": "Smaller Home title and more readable timestamp text improve the mobile card hierarchy. All historical reports remain unchanged."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Removed a duplicated trailing fragment from generated Expo route declarations after verifying that the retained declaration parses correctly."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interaction and persistence tests",
+      "result": "passed",
+      "detail": "6/6 passed, including collapsed Home, expansion, Arabic labels, English text direction, archive preservation and retry. Initial Arabic test incorrectly reused an already-expanded component; corrected the test to mount a fresh Home."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Initially blocked by duplicate generated Expo declaration content; tsc --noEmit passed after repair."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for components/ChangeHistory.tsx."
+    },
+    {
+      "name": "Visual device preview",
+      "result": "not-run",
+      "detail": "No live visual or native device verification. No deployment performed."
+    }
+  ],
+  "relatedId": "compact-arabic-history-1791542506270"
+}

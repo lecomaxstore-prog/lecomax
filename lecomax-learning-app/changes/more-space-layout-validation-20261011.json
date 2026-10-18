@@ -1,0 +1,46 @@
+{
+  "id": "more-space-layout-validation-20261011",
+  "createdAt": "2026-10-11T10:50:15.803Z",
+  "title": "Learning space checks and remaining validation",
+  "summary": "Seven interaction/history checks passed; page lint passed. Full typecheck is blocked by an existing missing Python workspace artifact.",
+  "status": "needs-testing",
+  "pages": [
+    "/more"
+  ],
+  "components": [
+    "More"
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/tests/more-screen.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recorded validation of the redesigned More page, coding/desktop routes, language switching and retained history."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interaction and history tests",
+      "result": "passed",
+      "detail": "7 tests passed, including More destinations and tools/courses switching in Arabic, English and French; immutable history and archive interactions passed."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint found no errors in app/(tabs)/more.tsx. The CJS test file is excluded by the existing lint configuration."
+    },
+    {
+      "name": "Full application typecheck",
+      "result": "failed",
+      "detail": "Existing components/MobilePythonWorkspace.tsx import cannot resolve data/python-mobile-workspace.json (TS2307). No error reported in the modified More page."
+    },
+    {
+      "name": "Visual and native-device validation",
+      "result": "not-run",
+      "detail": "No connected browser is available. HTTP 200 for /more only confirms the server response, not rendered layout. No deployment performed."
+    }
+  ],
+  "relatedId": "more-space-layout-20261011"
+}

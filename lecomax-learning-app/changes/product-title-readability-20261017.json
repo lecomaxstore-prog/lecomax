@@ -1,0 +1,29 @@
+{
+  "id": "product-title-readability-20261017",
+  "createdAt": "2026-10-17T10:20:16.144Z",
+  "title": "More readable product titles",
+  "summary": "Replace compressed uppercase product headings with natural-case typography and comfortable line spacing.",
+  "status": "needs-testing",
+  "pages": [
+    "Product details"
+  ],
+  "components": [
+    "Product heading"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Remove the heavy uppercase display style; use semibold natural-case text, 1.3 line height and smaller responsive sizes (22px on mobile for long titles). Preserve the full product title, including size and condition details."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Focused lint and responsive browser checks pending. No deployment."
+    }
+  ]
+}

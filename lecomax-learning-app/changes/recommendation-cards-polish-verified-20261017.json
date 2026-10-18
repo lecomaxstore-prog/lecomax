@@ -1,0 +1,49 @@
+{
+  "id": "recommendation-cards-polish-verified-20261017",
+  "createdAt": "2026-10-17T10:41:52.958Z",
+  "title": "Recommendation styling checks passed",
+  "summary": "Type checks, focused lint and eight recommendation/history tests passed. Visual and live interaction verification remain outstanding.",
+  "status": "successful",
+  "pages": [
+    "Product detail /produit/[slug]"
+  ],
+  "components": [
+    "ProductCarousel",
+    "RecommendationCard"
+  ],
+  "files": [
+    "components/ProductCarousel.tsx",
+    "components/ProductCarousel.module.css",
+    "components/RecommendationCard.tsx",
+    "components/RecommendationCard.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recorded static verification for the recommendation card and section styling."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Storefront and learning app TypeScript",
+      "result": "passed",
+      "detail": "Both tsc --noEmit --incremental false checks completed with exit 0."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Next lint passed for RecommendationCard.tsx and ProductCarousel.tsx without warnings or errors."
+    },
+    {
+      "name": "Recommendation and change-history tests",
+      "result": "passed",
+      "detail": "All 8 tests passed, including history expansion and archive persistence."
+    },
+    {
+      "name": "Browser and deployment",
+      "result": "not-run",
+      "detail": "No connected browser available. Local dev compilation completed but remote font/catalogue requests failed with EACCES. Responsive appearance and live wishlist/navigation were not browser verified. No deployment or verified preview."
+    }
+  ],
+  "relatedId": "recommendation-cards-polish-20261017"
+}

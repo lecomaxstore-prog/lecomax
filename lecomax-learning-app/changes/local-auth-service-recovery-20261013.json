@@ -1,0 +1,54 @@
+{
+  "id": "local-auth-service-recovery-20261013",
+  "createdAt": "2026-10-13T14:41:30.683Z",
+  "title": "Restored local browser authentication connection",
+  "summary": "The configured local authentication API on port 3002 was stopped. Restarted the existing managed development launcher; database verification, API reachability and browser login checks pass.",
+  "status": "successful",
+  "pages": [
+    "Sign in",
+    "Session recovery"
+  ],
+  "components": [
+    "Local learning API",
+    "Expo development server",
+    "OwnerGate"
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/scripts/local-api.cjs",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Operational recovery: restarted the existing API at 127.0.0.1:3002 and Expo web at localhost:8081. No authentication bypass, credentials change, learning-data reset or application logic change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Configuration and database",
+      "result": "passed",
+      "detail": "Existing startup check verified owner authentication configuration and session database."
+    },
+    {
+      "name": "Local services and browser CORS",
+      "result": "passed",
+      "detail": "API returns expected unauthenticated 401 JSON; app returns 200. Headless Edge displays password login form and successfully reaches the API cross-origin."
+    },
+    {
+      "name": "Authentication tests",
+      "result": "passed",
+      "detail": "15 tests passed across API-origin, OwnerGate recovery and session state machine."
+    },
+    {
+      "name": "User session",
+      "result": "not-run",
+      "detail": "No password entered and no real user session changed. Existing browser should Retry; an expired session may require signing in. Local servers must remain running."
+    }
+  ],
+  "preview": {
+    "path": "/",
+    "label": "Open current app",
+    "verifiedAt": "2026-10-13T14:41:30.683Z"
+  }
+}

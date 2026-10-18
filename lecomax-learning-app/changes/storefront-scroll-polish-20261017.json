@@ -1,0 +1,33 @@
+{
+  "id": "storefront-scroll-polish-20261017",
+  "createdAt": "2026-10-17T10:57:00.731Z",
+  "title": "Refined storefront scrolling",
+  "summary": "Softened the page scrollbar and improved section-scroll spacing and reduced-motion behavior.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront pages"
+  ],
+  "components": [
+    "Global scroll styles"
+  ],
+  "files": [
+    "app/globals.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replaced vivid green scrollbar with rounded sage-green thumb, pale track and darker hover/drag feedback; slim touch scrollbar and stable desktop gutter."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Added 96px scroll padding for sticky-header clearance and disabled CSS smooth scrolling under reduced-motion preferences. Added system-color scrollbar fallback for forced-colors mode."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Static checks pending. Native touch/trackpad scrolling and visual appearance unverified without a connected browser. No deployment."
+    }
+  ]
+}

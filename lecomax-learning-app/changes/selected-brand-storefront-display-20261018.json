@@ -1,0 +1,56 @@
+{
+  "id": "selected-brand-storefront-display-20261018",
+  "createdAt": "2026-10-18T10:05:38.722Z",
+  "title": "Show the saved product brand across the website",
+  "summary": "Preserve selected brands in website product cards and render the same brand logos used by Expo.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin products",
+    "Website catalogue and home",
+    "Website recommendations",
+    "Website product details"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "ProductCard",
+    "CollectionProductCard",
+    "RecommendationCard",
+    "apiToCard"
+  ],
+  "files": [
+    "lib/products.ts",
+    "lib/product-brand-client.ts",
+    "components/ProductBrandMark.tsx",
+    "components/ProductCard.tsx",
+    "components/CollectionProductCard.tsx",
+    "components/RecommendationCard.tsx",
+    "components/admin/ProductBrandPicker.tsx",
+    "tests/product-brand-display.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "apiToCard no longer drops the saved brand, allowing website product lists to show the selected identity."
+    },
+    {
+      "kind": "added",
+      "detail": "Render matching brand logos on standard, collection and recommendation cards. Share registry requests across cards and refresh on window focus after cache expiry."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remember failed logo URLs to avoid repeatedly alternating between unavailable remote and bundled logos."
+    },
+    {
+      "kind": "modified",
+      "detail": "Admin selection explains which brand will appear on the app and site after saving. Expo already preserves the API brand and renders ProductBrandMark; no mobile code changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression and type checks",
+      "result": "not-run",
+      "detail": "Pending. Authenticated save/upload, live website visual verification, native device rendering and deployment have not been performed."
+    }
+  ]
+}

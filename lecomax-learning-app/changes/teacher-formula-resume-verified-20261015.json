@@ -1,0 +1,65 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Local KaTeX MathML rendering on web and script-disabled native WebView, with plain-text fallback for unsupported formulas."
+    },
+    {
+      "kind": "modified",
+      "detail": "Teacher response parsing recognizes display and parenthesized LaTeX outside code fences."
+    }
+  ],
+  "summary": "Formatted fractions and roots render in the teacher conversation; regression checks and web/Android exports pass.",
+  "id": "teacher-formula-resume-verified-20261015",
+  "createdAt": "2026-10-15T16:17:45.086Z",
+  "validation": [
+    {
+      "name": "Regression suite",
+      "result": "passed",
+      "detail": "304 tests passed, including formula parsing/rendering and history interaction/persistence tests."
+    },
+    {
+      "name": "Static checks",
+      "result": "passed",
+      "detail": "TypeScript typecheck and focused ESLint for TeacherFormula, TeacherMessage, teacher-math and teacher-markdown passed."
+    },
+    {
+      "name": "Web and Android exports",
+      "result": "passed",
+      "detail": "Fresh web export and Android Hermes export passed. Initial sandboxed Hermes invocation was permission denied; approved retry succeeded."
+    },
+    {
+      "name": "Browser learning journey",
+      "result": "passed",
+      "detail": "Real browser UI verified fraction/root MathML, no viewport overflow, lesson completion, code exercise success/errors, flashcard review and persisted state after reopening. Formula screenshot visually reviewed. Authentication and teacher response were fixtures."
+    },
+    {
+      "name": "Physical devices and deployment",
+      "result": "not-run",
+      "detail": "No physical Android/iOS rendering, native WebView scrolling or large-text formula checks; no live paid provider call and no deployment."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherFormula.tsx",
+    "lecomax-learning-app/components/TeacherFormula.web.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx",
+    "lecomax-learning-app/utils/teacher-math.ts",
+    "lecomax-learning-app/utils/teacher-markdown.ts",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/scripts/test-production-journey.cjs",
+    "lecomax-learning-app/tests/teacher-math.test.cjs"
+  ],
+  "components": [
+    "TeacherMessage",
+    "TeacherFormula",
+    "teacherBlocks"
+  ],
+  "status": "successful",
+  "title": "Teacher formula display verified on web",
+  "pages": [
+    "AI Teacher",
+    "Contextual lesson teacher"
+  ],
+  "relatedId": "teacher-formula-resume-20261015"
+}

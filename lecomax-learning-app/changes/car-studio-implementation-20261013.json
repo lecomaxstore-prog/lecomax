@@ -1,0 +1,71 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Bundled Three.js viewer, touch orbit/pan/zoom, mesh raycasting, camera presets, conditional visual modes, paint and labels; loading budget and disposal."
+    },
+    {
+      "kind": "added",
+      "detail": "12 English/French/Darija lessons, levels, manual written tour, text/geometry quizzes, interactive schematic diagrams, existing local persistence."
+    },
+    {
+      "kind": "modified",
+      "detail": "More links to the studio. Visible Change History restored through the studio footer under current reporting instructions; earlier reports preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Asset provenance and exact GLB delivery contract. No vehicle asset downloaded, no placeholder car, no deployment."
+    }
+  ],
+  "summary": "Integrated studio with capability-gated Three.js viewer, 12 multilingual system lessons, five illustrative simulations and local progress. Licensed BMW F90 facelift geometry remains missing.",
+  "id": "car-studio-implementation-20261013",
+  "createdAt": "2026-10-13T14:20:42.912Z",
+  "validation": [
+    {
+      "detail": "Typecheck, lint, regression, browser and asset-fixture checks pending.",
+      "result": "not-run",
+      "name": "Static and interaction validation"
+    },
+    {
+      "detail": "No licensed vehicle model available. Real Android/iOS gestures, performance and authentic geometry cannot yet be verified.",
+      "result": "not-run",
+      "name": "BMW geometry and devices"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/car-studio.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/change-history.tsx",
+    "lecomax-learning-app/features/car-studio/CarStudioScreen.tsx",
+    "lecomax-learning-app/features/car-studio/StudioFrame.tsx",
+    "lecomax-learning-app/features/car-studio/StudioFrame.web.tsx",
+    "lecomax-learning-app/features/car-studio/frame-types.ts",
+    "lecomax-learning-app/features/car-studio/runtime.ts",
+    "lecomax-learning-app/features/car-studio/viewer.ts",
+    "lecomax-learning-app/features/car-studio/vehicle.ts",
+    "lecomax-learning-app/features/car-studio/simulations.ts",
+    "lecomax-learning-app/features/car-studio/studio.css",
+    "lecomax-learning-app/data/car-studio-runtime.json",
+    "lecomax-learning-app/scripts/build-car-studio.cjs",
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/tsconfig.json",
+    "lecomax-learning-app/docs/car-studio.md",
+    "lecomax-learning-app/docs/change-history.md"
+  ],
+  "components": [
+    "CarStudioScreen",
+    "StudioFrame",
+    "CarViewer",
+    "Engineering simulations",
+    "Change History"
+  ],
+  "status": "needs-testing",
+  "title": "3D Car Studio: viewer architecture and automotive learning",
+  "pages": [
+    "/car-studio",
+    "/(tabs)/more",
+    "/change-history"
+  ]
+}

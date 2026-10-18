@@ -1,0 +1,49 @@
+{
+  "id": "personal-learning-verified-20261016",
+  "createdAt": "2026-10-16T11:16:42.074Z",
+  "title": "Personal learning navigation verified",
+  "summary": "Show enrolled or started courses, resume lessons directly, and show saved course progress with clear next actions.",
+  "status": "successful",
+  "pages": [
+    "/my-learning"
+  ],
+  "components": [
+    "MyLearning"
+  ],
+  "files": [
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/tests/my-learning-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "My learning now uses the personal course filter instead of showing the full catalogue."
+    },
+    {
+      "kind": "added",
+      "detail": "Direct start/resume buttons, saved-plan progress, learning-journey and lesson-list actions, and due/upcoming review labels."
+    },
+    {
+      "kind": "modified",
+      "detail": "Clear Arabic review guidance, localized study minutes, and explicit remove-from-plan button text. Unenrolling preserves completed lessons."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interaction checks",
+      "result": "passed",
+      "detail": "Personal catalogue filtering, start/resume routes, generated plan progress, project action, due/upcoming reviews, English/Arabic/French actions, empty state and preservation of progress on unenrollment verified in DOM tests. Six history tests passed."
+    },
+    {
+      "name": "Static checks",
+      "result": "passed",
+      "detail": "Learning app TypeScript and focused ESLint passed."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No physical-device or visual browser QA. No new APK or deployment. Banking warning remains unresolved and remote-control features unchanged."
+    }
+  ],
+  "relatedId": "personal-learning-review-correction-20261016"
+}

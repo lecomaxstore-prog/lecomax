@@ -1,0 +1,52 @@
+{
+  "id": "earth-space-lab-earth-20261016",
+  "createdAt": "2026-10-16T11:58:35.278Z",
+  "title": "Textured Earth Explorer and scene lifecycle",
+  "summary": "Adds NASA Earth imagery, sunlight, optional atmosphere/cloud effects, smooth camera focus, hotspots and an interactive day/night activity.",
+  "status": "needs-testing",
+  "pages": [
+    "/world"
+  ],
+  "components": [
+    "Earth Explorer",
+    "WorldFrame",
+    "Graphics runtime"
+  ],
+  "files": [
+    "lecomax-learning-app/features/world/earth-runtime.ts",
+    "lecomax-learning-app/features/world/earth.html",
+    "lecomax-learning-app/features/world/graphics.ts",
+    "lecomax-learning-app/features/world/science.ts",
+    "lecomax-learning-app/features/world/Globe.tsx",
+    "lecomax-learning-app/features/world/Globe.web.tsx",
+    "lecomax-learning-app/features/world/WorldFrame.tsx",
+    "lecomax-learning-app/features/world/WorldFrame.web.tsx",
+    "lecomax-learning-app/assets/world/earth-2048.jpg",
+    "lecomax-learning-app/assets/world/README.md",
+    "lecomax-learning-app/scripts/build-world.cjs",
+    "lecomax-learning-app/scripts/build-world-lab.cjs",
+    "lecomax-learning-app/data/world-runtime.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Adds historical NASA surface texture, optional illustrative cloud/limb effects, lit hemispheres, geographic search, hotspots, a country panel and a real day/night check."
+    },
+    {
+      "kind": "modified",
+      "detail": "Adds event-driven 30 fps animation scheduling, background/focus lifecycle messages, automatic frame height and WebGL-to-2D recovery."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Offline bundle",
+      "result": "passed",
+      "detail": "Earth bundle generated successfully, approximately 1.10 MB."
+    },
+    {
+      "name": "Phase-one interaction and Android checks",
+      "result": "not-run",
+      "detail": "Browser/type checks are running. Existing headless Android QA emulator started. No production deployment."
+    }
+  ]
+}

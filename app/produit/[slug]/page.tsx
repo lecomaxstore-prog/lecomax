@@ -1,3 +1,4 @@
+import ProductBrandMark from "@/components/ProductBrandMark";
 import { RETURN_POLICY } from "@/lib/return-policy";
 ﻿import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -388,9 +389,7 @@ export default async function ProductPage({
           <div className="product-summary-enter relative z-[60] mb-3 flex min-h-7 items-center justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
               <span aria-hidden="true" className="h-px w-7 shrink-0 bg-[#3ecf4c]" />
-              <p className="truncate text-[10px] font-black uppercase tracking-[0.32em] text-neutral-400">
-                {product.subCategory}
-              </p>
+              <ProductBrandMark name={product.brand || product.subCategory} />
             </div>
             {displayReviewCount > 0 && (
               <RatingSummaryPopover

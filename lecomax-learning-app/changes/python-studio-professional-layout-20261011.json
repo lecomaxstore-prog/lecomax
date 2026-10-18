@@ -1,0 +1,47 @@
+{
+  "id": "python-studio-professional-layout-20261011",
+  "createdAt": "2026-10-11T10:58:09.397Z",
+  "title": "A compact, neutral Python editor layout",
+  "summary": "Replaced stacked green controls with a single app bar, an environment dropdown, underline tabs and a unified editor panel.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "TeacherLab",
+    "PythonStudio",
+    "PythonEditor"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/data/python-mobile-workspace.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Consolidated runtime selection, PC Python mode and closing into one compact app bar. Removed the separate runtime button row and advanced-mode banner."
+    },
+    {
+      "kind": "modified",
+      "detail": "Introduced neutral gray light/dark surfaces, underline panel tabs, smaller editor font, restrained green actions, an integrated filename bar and desktop content width cap."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Repaired corrupted Arabic and French secondary labels and kept filename/count/code direction LTR. Added Arabic label assertions to the existing interaction test."
+    },
+    {
+      "kind": "modified",
+      "detail": "Default workspace uses light theme unless the saved preference explicitly selects dark; editor height adapts to the viewport."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Pending build, typecheck, lint and interaction tests. Browser visual verification unavailable because browser inventory is empty; native device verification not performed."
+    }
+  ]
+}

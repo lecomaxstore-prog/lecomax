@@ -1,0 +1,54 @@
+{
+  "id": "promotion-card-brand-logos-20261018-verified",
+  "createdAt": "2026-10-18T10:13:25.879Z",
+  "title": "Promotions brand logos: code checks passed",
+  "summary": "Home Promotions and promotion cards now use shared real brand logos. Typechecks, lint and brand/history regressions passed.",
+  "status": "successful",
+  "pages": [
+    "Expo home Promotions",
+    "Expo promotion cards"
+  ],
+  "components": [
+    "HomePromotionSection",
+    "PromotionCard",
+    "ProductBrandMark"
+  ],
+  "files": [
+    "mobile/src/components/home-promotion-section.tsx",
+    "mobile/src/components/promotion-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Append verification results for Promotions logo display, preserving earlier reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Typechecks",
+      "result": "passed",
+      "detail": "Mobile and learning app tsc --noEmit completed successfully."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for home-promotion-section.tsx and promotion-card.tsx with no warnings."
+    },
+    {
+      "name": "Brand regression tests",
+      "result": "passed",
+      "detail": "7 tests passed, including all 30 bundled logo pairs, brand preservation and registry behavior."
+    },
+    {
+      "name": "History verification",
+      "result": "passed",
+      "detail": "6 archive and interaction tests passed; pre-follow-up history check validated 518 reports."
+    },
+    {
+      "name": "Live visual and device checks",
+      "result": "not-run",
+      "detail": "The rendered Promotions layout and physical-device display were not checked. No deployment."
+    }
+  ],
+  "relatedId": "promotion-card-brand-logos-20261018"
+}

@@ -1,0 +1,36 @@
+{
+  "id": "lenovo-red-logo-20261018",
+  "createdAt": "2026-10-18T09:57:25.489Z",
+  "title": "Red Lenovo brand logo",
+  "summary": "Replace the black Lenovo mark with red and white artwork across the app.",
+  "status": "needs-testing",
+  "pages": [
+    "Product details",
+    "Home",
+    "Catalogue",
+    "Recommendations",
+    "Search",
+    "Wishlist"
+  ],
+  "components": [
+    "ProductBrandMark"
+  ],
+  "files": [
+    "public/images/brands/lenovo.svg",
+    "mobile/assets/images/brands/lenovo.png",
+    "mobile/assets/images/brands/SOURCES.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Color the existing Lenovo vector red with an opaque white backing for the lettering; regenerate the shared bundled PNG. Preserve logo shape and dimensions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Asset review",
+      "result": "not-run",
+      "detail": "Pending visual inspection and history validation. No deployment."
+    }
+  ]
+}

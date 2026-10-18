@@ -1,0 +1,67 @@
+{
+  "id": "academy-branding-completed-20261016",
+  "createdAt": "2026-10-16T13:41:15.288Z",
+  "title": "Complete ACADEMY screen and native service branding",
+  "summary": "Replace the typographic-apostrophe branding across learning screens, lab headers, sharing prompts and native Android labels.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning dashboard",
+    "Settings",
+    "More",
+    "Phone sharing",
+    "Android launcher"
+  ],
+  "components": [
+    "App branding",
+    "Android release configuration",
+    "Phone remote service"
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/phone-share.tsx",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app/settings.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/components/InternetPhoneViewer.web.tsx",
+    "lecomax-learning-app/components/PhoneInvitation.tsx",
+    "lecomax-learning-app/components/PhonePairingScanner.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/utils/pc-explorer-document.ts",
+    "lecomax-learning-app/utils/pc-model-renderer.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/phone-relay/viewer.html",
+    "lecomax-learning-app/android/app/src/main/assets/phone-remote/direct.html",
+    "lecomax-learning-app/android/app/src/main/assets/phone-remote/direct.js",
+    "lecomax-learning-app/android/app/src/main/java/com/lecomax/learning/PhoneRemotePackage.kt",
+    "lecomax-learning-app/android/app/src/main/java/com/lecomax/learning/PhoneRemoteService.kt"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Updated visible app branding and Android version to 1.0.20 (22). Existing package ID, stored learning data keys and source-site references are preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared the repeatable ACADEMY release build script."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build and validation",
+      "result": "not-run",
+      "detail": "Typecheck, history checks, native release build, APK signature and USB copy verification pending. No deployment or device installation performed."
+    }
+  ],
+  "relatedId": "academy-rename-build22-20261016"
+}

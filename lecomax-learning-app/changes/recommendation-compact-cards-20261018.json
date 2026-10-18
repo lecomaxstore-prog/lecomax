@@ -1,0 +1,44 @@
+{
+  "id": "recommendation-compact-cards-20261018",
+  "createdAt": "2026-10-18T09:36:25.953Z",
+  "title": "Unify recommendations into compact product cards",
+  "summary": "Consistent photo and information panels, shorter display titles and aligned prices.",
+  "status": "needs-testing",
+  "relatedId": "recommendation-two-column-verified-20261018",
+  "pages": [
+    "Mobile /product/[slug]"
+  ],
+  "components": [
+    "ProductCard related variant",
+    "Recommendations grid"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Unified each card with a fine border and muted information panel; reduced image height and row gaps."
+    },
+    {
+      "kind": "modified",
+      "detail": "Related display titles omit repeated leading brands and spaced dash suffixes while full original names remain in accessibility labels and product data."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed repeated NEW badges from related products; retained genuine discounts and wishlist actions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Reserved consistent title and old-price space; emphasized numeric prices with smaller localized currency and omitted zero fractional digits for integer amounts."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "TypeScript and focused lint pending; live visual preview unavailable, no deployment."
+    }
+  ]
+}

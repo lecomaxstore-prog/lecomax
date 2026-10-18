@@ -1,0 +1,71 @@
+{
+  "id": "discovery-subjects-resume-verified-20261016",
+  "createdAt": "2026-10-16T13:19:58.531Z",
+  "title": "Expanded discovery journeys verified in light and dark modes",
+  "summary": "13 guided journeys now contain 32 checkpoints. New subjects, bookmarks and persistence passed model and browser checks.",
+  "status": "successful",
+  "pages": [
+    "/discovery",
+    "/curiosity"
+  ],
+  "components": [
+    "DiscoveryPlayer",
+    "ScientificVisual",
+    "CuriosityScreen",
+    "Journey models"
+  ],
+  "files": [
+    "lecomax-learning-app/features/curiosity/subject-journeys.ts",
+    "lecomax-learning-app/features/curiosity/journeys.ts",
+    "lecomax-learning-app/features/curiosity/labs.ts",
+    "lecomax-learning-app/features/curiosity/ScientificVisual.tsx",
+    "lecomax-learning-app/features/curiosity/DiscoveryPlayer.tsx",
+    "lecomax-learning-app/features/curiosity/CuriosityScreen.tsx",
+    "lecomax-learning-app/features/curiosity/model.ts",
+    "lecomax-learning-app/tests/discovery-player.test.cjs",
+    "lecomax-learning-app/scripts/check-discovery-player.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Six sourced two-step journeys with six executable models, responsive diagrams, predictions and model-limit checkpoints; catalog lists all guided journeys."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Record journey entry before interaction, restore preferred depth, and support bookmarks for new journey IDs."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Direct TypeScript noEmit and ESLint on all seven changed application modules exited 0."
+    },
+    {
+      "name": "Focused tests",
+      "result": "passed",
+      "detail": "22 discovery, curiosity and Change History tests passed. Initial cross-context array assertion failed despite equal data; corrected the test with Array.from and reran successfully."
+    },
+    {
+      "name": "Fresh web export and browser checks",
+      "result": "passed",
+      "detail": "Expo web export passed. Headless Edge walkthroughs in light and dark themes passed: all eight AI steps and modes, French tutor handoff, six added journeys and twelve new checkpoints, bookmark reloads, preferred depth restore, Journal links and 390px overflow. Authentication was mocked. Inspected the mobile dark screenshot."
+    },
+    {
+      "name": "History preservation",
+      "result": "passed",
+      "detail": "Append-only history check passed before this linked verification; prior reports retained."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No deployment. Physical Android/iOS, real authentication, live AI answers in the four languages, and expert editorial review were not tested. Authored lesson text is English. Additional journeys are focused two-step introductions, not exhaustive subject courses."
+    }
+  ],
+  "relatedId": "discovery-subjects-resume-20261016",
+  "preview": {
+    "path": "/discovery",
+    "label": "Current interactive discovery player (not a historical snapshot)",
+    "verifiedAt": "2026-10-16T13:19:58.531Z"
+  }
+}

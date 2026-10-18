@@ -1,0 +1,63 @@
+{
+  "id": "ai-university-module-20261016",
+  "createdAt": "2026-10-16T20:23:54.890Z",
+  "title": "AI University: seven paths and working learning labs",
+  "summary": "Add 21 complete authored lessons, interactive demonstrations, performance-based progress, placement, spaced recall, portfolio CRUD and a document Q&A project.",
+  "status": "needs-testing",
+  "pages": [
+    "/ai-university",
+    "/ai-university/[id]",
+    "Home",
+    "My learning"
+  ],
+  "components": [
+    "UniversityScreen",
+    "LessonScreen",
+    "Demonstration",
+    "ProjectWorkbench",
+    "AcademyDestinations"
+  ],
+  "files": [
+    "lecomax-learning-app/features/ai-university/curriculum.ts",
+    "lecomax-learning-app/features/ai-university/Demonstration.tsx",
+    "lecomax-learning-app/features/ai-university/engine.ts",
+    "lecomax-learning-app/features/ai-university/LessonScreen.tsx",
+    "lecomax-learning-app/features/ai-university/project-contract.ts",
+    "lecomax-learning-app/features/ai-university/ProjectWorkbench.tsx",
+    "lecomax-learning-app/features/ai-university/references.ts",
+    "lecomax-learning-app/features/ai-university/retrieval.ts",
+    "lecomax-learning-app/features/ai-university/schema.ts",
+    "lecomax-learning-app/features/ai-university/UniversityScreen.tsx",
+    "lecomax-learning-app/features/ai-university/useUniversity.ts",
+    "lecomax-learning-app/app/ai-university/index.tsx",
+    "lecomax-learning-app/app/ai-university/[id].tsx",
+    "lecomax-learning-app/components/AcademyDestinations.tsx",
+    "lecomax-learning-app/app/my-learning.tsx",
+    "app/api/learning-mobile/ai-university/route.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Seven structured paths with objectives, prerequisites, beginner and technical explanations, diagrams/demos, real examples, exercises, two quizzes with choice-specific feedback, review and primary-source references per lesson. Titles/summaries and main navigation support English/French/Arabic; detailed technical content is English with an explicit notice."
+    },
+    {
+      "kind": "added",
+      "detail": "Five learning modes including the existing AI Tutor handoff; Python Studio and Agent Studio links. Checked exercises, placement recommendations, delayed-recall evidence and persistent editable/deletable project artifacts reuse School storage."
+    },
+    {
+      "kind": "added",
+      "detail": "Document Q&A provides real local lexical retrieval and an optional authenticated, rate-limited, size-bounded server model request with explicit content-sharing consent. No live provider request or deployment has been performed."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home destinations and My learning link to AI University while preserving existing navigation and progress."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation verification",
+      "result": "not-run",
+      "detail": "Typecheck, content integrity, behavioral tests, backend mocks and browser layout/flows pending."
+    }
+  ]
+}

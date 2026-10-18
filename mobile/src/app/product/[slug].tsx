@@ -1,3 +1,4 @@
+import { ProductBrandMark } from "@/components/product-brand-mark";
 import { sortProductSizes } from "@/lib/product-sizes";
 import { useQueryClient } from "@tanstack/react-query";
 import { productTranslationOptions } from "@/lib/product-translation-query";
@@ -524,7 +525,7 @@ export default function ProductScreen() {
         <View style={[styles.content, { width: contentWidth }]}>
           <View style={styles.categoryRow}>
             <View style={styles.collectionLabel}>
-              <Text numberOfLines={1} style={styles.category}>{product.brand || localizedContent(product.category)}</Text>
+              {product.brand ? <ProductBrandMark name={product.brand} /> : <Text numberOfLines={1} style={styles.category}>{localizedContent(product.category)}</Text>}
             </View>
             <View style={[styles.stockBadge, selectionUnavailable && styles.stockBadgeUnavailable]}>
               {selectionUnavailable ? (

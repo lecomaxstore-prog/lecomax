@@ -1,0 +1,51 @@
+{
+  "id": "storefront-speed-promotion-blocked-20261013",
+  "createdAt": "2026-10-12T23:01:28.822Z",
+  "title": "Verified storefront release awaiting explicit production approval",
+  "summary": "Production promotion was rejected by automatic approval review. The verified release remains ready; the live domain was not changed.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage",
+    "All storefront headers",
+    "Boutique",
+    "Product rails"
+  ],
+  "components": [
+    "Header",
+    "SearchOverlay loading boundary",
+    "ProductRail",
+    "CollectionProductCard",
+    "OurProductsGrid",
+    "Storefront refresh and settings"
+  ],
+  "files": [
+    "lib/teacher-workspace.ts",
+    "lib/teacher-web-files.ts",
+    "tests/teacher-workspace.test.ts",
+    ".vercelignore"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recorded release handoff for ready deployment dpl_5qQ5jT3jFM19yDN2Q8TMuBDK8hyQ. No additional application code changes and no production promotion occurred in this resumed session."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pre-promotion checks",
+      "result": "passed",
+      "detail": "Linked verification report records 11 passing focused tests, successful remote build, five page checks and three image checks."
+    },
+    {
+      "name": "Production promotion",
+      "result": "not-run",
+      "detail": "Automatic approval review rejected the command because changing the live production site requires explicit trusted user authorization in this session. No workaround attempted."
+    },
+    {
+      "name": "Public domain follow-up",
+      "result": "not-run",
+      "detail": "Post-promotion checks await authorization and successful promotion. Browser interaction and payment flow remain unverified."
+    }
+  ],
+  "relatedId": "storefront-speed-release-ready-verified-20261013"
+}

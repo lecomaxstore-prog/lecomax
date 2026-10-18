@@ -1,0 +1,36 @@
+{
+  "id": "product-heading-clean-layout-20261018",
+  "relatedId": "product-title-price-minimal-20261018",
+  "createdAt": "2026-10-18T09:07:54.962Z",
+  "title": "Clean storefront title and price layout",
+  "summary": "Remove surrounding rules and restore a coherent price treatment with a crisp product heading.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product heading",
+    "Brand row",
+    "Price display"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed the divider below the brand row and below the price, plus the separate small-decimal styling."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use a 23px semibold charcoal title (21px compact), consistent 28px green price digits, and readable 13px inline currency. Tightened spacing to group title and price. Locale formatting and purchase calculations are unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Typecheck and focused lint pending. Rendered appearance not verified; no deployment."
+    }
+  ]
+}

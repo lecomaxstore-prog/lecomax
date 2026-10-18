@@ -1,0 +1,29 @@
+{
+  "id": "recommendation-discount-character-fix-20261017",
+  "createdAt": "2026-10-17T10:58:07.356Z",
+  "title": "Fix broken discount badge character",
+  "summary": "Replaced the accidental question mark before recommendation discounts with a standard minus sign.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail recommendations"
+  ],
+  "components": [
+    "RecommendationCard"
+  ],
+  "files": [
+    "components/RecommendationCard.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Discount labels now use an encoding-safe ASCII minus, for example -10 %, instead of ?10 %. Pricing and sold-out priority are unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Rendered badge checks and static validation pending. No deployment."
+    }
+  ]
+}

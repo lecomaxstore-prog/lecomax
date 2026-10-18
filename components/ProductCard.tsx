@@ -1,4 +1,5 @@
 "use client";
+import ProductBrandMark from "./ProductBrandMark";
 import ProductImage from "./ProductImage";
 import CardColorOptions from "./CardColorOptions";
 import Link from "next/link";
@@ -96,6 +97,7 @@ export default function ProductCard({ product, recommendation = false }: { produ
 
       {/* Info */}
       <div className={`${styles.info} flex flex-1 flex-col`}>
+        {product.brand && <div className="mb-2"><ProductBrandMark name={product.brand} compact /></div>}
         {/* Title */}
         <h3 title={product.name} className={`${styles.title} line-clamp-2`}>
           {product.name}

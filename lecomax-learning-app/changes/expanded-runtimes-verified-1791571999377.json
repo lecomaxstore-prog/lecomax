@@ -1,0 +1,66 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Installed official Kali WSL on this PC and its Node.js 24.19.0, npm 11.19.0, Python 3.14.7, pip 26.1.2, venv and Git 2.53.0 development tools. Existing Windows Python 3.14.6, Node.js 26.7.0 and PowerShell 5.1 detected."
+    },
+    {
+      "kind": "modified",
+      "detail": "Teacher web terminal now offers Kali alongside PowerShell, Python and Node, with detected versions and setup details. Local runtime documentation covers Windows npm.cmd and Kali default root account. Started the local-only API on port 3002."
+    }
+  ],
+  "summary": "Kali WSL and development tools installed; all 15 focused tests, app typecheck, lint and local HTTP checks passed after retry.",
+  "id": "expanded-runtimes-verified-1791571999377",
+  "createdAt": "2026-10-09T18:53:19.377Z",
+  "validation": [
+    {
+      "name": "Interactive terminals",
+      "result": "passed",
+      "detail": "All five tests passed, including real PowerShell/Python/Node execution, input, state, Ctrl+C, Kali Bash and owner isolation. Automatic discovery also passed without a Python override."
+    },
+    {
+      "name": "Script runner retry",
+      "result": "passed",
+      "detail": "All four existing lab tests passed on rerun, resolving the earlier PowerShell error-output assertion failure without changing script-runner code."
+    },
+    {
+      "name": "Frontend and history",
+      "result": "passed",
+      "detail": "App typecheck and focused TeacherLab.web.tsx ESLint passed. Six history persistence/interaction tests passed. Web bundle returned HTTP 200 and contains Kali tab and runtime discovery."
+    },
+    {
+      "name": "HTTP access control",
+      "result": "passed",
+      "detail": "Local unauthenticated request returned 401 OWNER_LOGIN_REQUIRED; external-origin request returned 403 LOCAL_LAB_ONLY."
+    },
+    {
+      "name": "Kali installation",
+      "result": "passed",
+      "detail": "Package installation exited 0. Node/npm/Python/pip/Git version checks and venv help succeeded; dpkg --audit returned no issues."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No browser automation available: visual layout and signed-in browser end-to-end checks not performed. No Android/iOS embedded runtimes or deployment. node-pty emitted AttachConsole cleanup warnings during tests. Kali package triggers emitted system-bus warnings; background Linux services were not tested. Kali uses its default root account."
+    }
+  ],
+  "files": [
+    "lib/teacher-runtimes.ts",
+    "lib/teacher-terminal.ts",
+    "app/api/learning-mobile/terminal/route.ts",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/docs/local-runtimes.md",
+    "tests/teacher-terminal.test.ts"
+  ],
+  "components": [
+    "TeacherLab web",
+    "Terminal API",
+    "Runtime discovery"
+  ],
+  "status": "successful",
+  "title": "Real runtimes and Kali development tools verified",
+  "pages": [
+    "Teacher"
+  ],
+  "relatedId": "expanded-runtimes-check-1791571672788"
+}

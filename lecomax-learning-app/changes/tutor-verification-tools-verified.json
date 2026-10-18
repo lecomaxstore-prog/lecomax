@@ -1,0 +1,67 @@
+{
+  "id": "tutor-verification-tools-verified",
+  "createdAt": "2026-10-15T21:25:46.977Z",
+  "title": "Tutor verification controls tested in three languages",
+  "summary": "330 regression tests, TypeScript, lint, web export and multilingual browser checks passed. Requirements audit records live-service and verification limits.",
+  "status": "successful",
+  "pages": [
+    "/tutor",
+    "/interactive-studio"
+  ],
+  "components": [
+    "TutorTeachingCard"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TutorTeachingCard.tsx",
+    "lecomax-learning-app/tests/tutor-coach-interaction.test.cjs",
+    "lecomax-learning-app/docs/TUTOR-REQUIREMENTS-AUDIT.md",
+    "lecomax-learning-app/scripts/tutor-intelligence-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Code challenge verification now opens the executable studio instead of the code-reading practice page."
+    },
+    {
+      "kind": "added",
+      "detail": "English, French and Arabic verification guidance with JavaScript, Python and math tool links; explains manual output comparison, factual source checks and limits without awarding mastery."
+    },
+    {
+      "kind": "added",
+      "detail": "Requirements audit maps the twelve modes, teaching loop, persistence, structured UI and testing to implementation and explicit limitations."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression and interaction",
+      "result": "passed",
+      "detail": "330 tests passed, zero failures. New interaction test checks executable tool destinations and confirms no changes to pending question, concept evidence or progress when opening verification. Includes existing history interactions and archive tests. artifacts/tutor-verification-tests.log."
+    },
+    {
+      "name": "Typecheck and focused lint",
+      "result": "passed",
+      "detail": "npm run typecheck and ESLint components/TutorTeachingCard.tsx passed."
+    },
+    {
+      "name": "Web export",
+      "result": "passed",
+      "detail": "Expo web export to dist-tutor-intelligence-check completed. artifacts/tutor-verification-export.log."
+    },
+    {
+      "name": "Multilingual browser and visual checks",
+      "result": "passed",
+      "detail": "English, French and Arabic verification panel, preserved tutor evidence, hints, reload, reflection, mode switching and mocked cloud save/restore passed. No horizontal overflow at widths 320/390/768/844; screenshots inspected. artifacts/tutor-verification-browser-final.log. Initial browser attempt started before export finished and failed on a missing index.html; rerun after completed export passed."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "313 prior reports validated and preserved before appending verification."
+    },
+    {
+      "name": "Remaining limitations",
+      "result": "not-run",
+      "detail": "No live AI quality evaluation, real account cloud round trip, native device validation or deployment. Verification tools require explicit learner use; results are not automatically attached to tutor or accepted as mastery. Browser teaching replies and cloud/auth transport are synthetic."
+    }
+  ],
+  "relatedId": "tutor-verification-tools"
+}

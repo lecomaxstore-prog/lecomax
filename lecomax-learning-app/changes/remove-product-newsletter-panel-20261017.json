@@ -1,0 +1,40 @@
+{
+  "id": "remove-product-newsletter-panel-20261017",
+  "createdAt": "2026-10-17T10:31:27.276Z",
+  "title": "Remove product-page newsletter panel",
+  "summary": "Remove the Une longueur d?avance newsletter panel shown below product recommendations.",
+  "status": "successful",
+  "pages": [
+    "Product details"
+  ],
+  "components": [
+    "Product page",
+    "NewsletterSection placement"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Remove NewsletterSection import, rendering and its spacing wrapper from the product detail page. Other newsletter placements are unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Product page passes ESLint."
+    },
+    {
+      "name": "Local browser",
+      "result": "passed",
+      "detail": "At mobile width, product-newsletter-title is absent and the product H1 remains present on the Armani product page."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No full regression or production deployment."
+    }
+  ]
+}

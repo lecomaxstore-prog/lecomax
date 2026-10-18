@@ -1,0 +1,29 @@
+{
+  "id": "product-stock-label-20261018",
+  "createdAt": "2026-10-18T09:01:23.070Z",
+  "title": "Refined product availability label",
+  "summary": "Make availability easier to scan with a subtle tinted label and clear status icon.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product availability label"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replace the tiny stock dot with a green checkmark, pale green background, semibold text and balanced padding. Preorders use an amber clock and matching background; unavailable status retains its distinct red treatment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Typecheck and focused lint pending. Visual/device review not performed; no deployment."
+    }
+  ]
+}

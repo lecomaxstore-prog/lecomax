@@ -1,0 +1,38 @@
+{
+  "id": "collection-cards-polish-20261017",
+  "createdAt": "2026-10-17T10:12:30.920Z",
+  "title": "Clearer collection product cards",
+  "summary": "Improve collection cards with contained square images, consistent details and a product link below the image.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage collections"
+  ],
+  "components": [
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/CollectionProductCard.tsx",
+    "components/CollectionProductCard.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use padded object-contain images, rounded borders, aligned title and price areas, and colors below the price."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the floating image CTA that covered product photography."
+    },
+    {
+      "kind": "added",
+      "detail": "Always-visible compact product action below the details, keyboard focus outline and reduced-motion support."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Focused lint and local browser checks pending. Shared collection card styling affects all uses of this component. No deployment."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "computer-piece-lessons-20261013",
+  "createdAt": "2026-10-13T10:08:28.165Z",
+  "title": "One-tap computer component lessons",
+  "summary": "Bring the phone learning experience to laptop and desktop parts with localized assembly guidance and offline practice.",
+  "status": "needs-testing",
+  "pages": [
+    "Computer lab",
+    "AI Teacher"
+  ],
+  "components": [
+    "Computer explorer",
+    "Component dialog",
+    "Computer teacher context"
+  ],
+  "files": [
+    "lecomax-learning-app/data/computer-assembly.ts",
+    "lecomax-learning-app/utils/computer-piece-lesson.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/utils/pc-teacher.ts",
+    "lecomax-learning-app/tests/computer-piece-lessons.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Understand, Assembly and Try it sections, connected-part navigation, component quizzes, next-piece control and custom AI questions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced English-only generic assembly notes with Arabic/French/English guides distinguishing laptop soldered CPU/GPU, SO-DIMM RAM and main batteries from desktop components."
+    },
+    {
+      "kind": "modified",
+      "detail": "Photo taps, picker and component list now open lessons with one action; existing layer reveal, zoom and saved progress retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Content coverage, computer interaction tests, typecheck, lint and history verification pending. No deployment."
+    }
+  ]
+}

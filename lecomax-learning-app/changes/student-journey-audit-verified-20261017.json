@@ -1,0 +1,71 @@
+{
+  "id": "student-journey-audit-verified-20261017",
+  "relatedId": "student-journey-audit-fixes-20261017",
+  "title": "Student journey audit: local validation complete",
+  "summary": "Placement continuation and course switching verified. All 444 tests and nine grouped browser checks pass; live-account and physical-device acceptance remain outstanding.",
+  "status": "successful",
+  "pages": [
+    "Dashboard",
+    "Roadmap",
+    "My learning",
+    "Lessons",
+    "Mobile navigation",
+    "Change History"
+  ],
+  "components": [
+    "courseLearning",
+    "roadmap",
+    "Student journey regressions",
+    "Browser audit"
+  ],
+  "files": [
+    "lecomax-learning-app/services/course-learning.ts",
+    "lecomax-learning-app/services/learning-roadmap.ts",
+    "lecomax-learning-app/tests/student-journeys.test.cjs",
+    "lecomax-learning-app/tests/my-learning-interaction.test.cjs",
+    "lecomax-learning-app/scripts/audit-student-browser.cjs",
+    "lecomax-learning-app/docs/student-experience-audit-20261017.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified that selected placement order and active course checkpoints remain consistent without granting completion or mastery."
+    },
+    {
+      "kind": "added",
+      "detail": "Six-scenario regression coverage, current-build browser automation, inspected screenshots, button inventory and a detailed evidence/limitations report."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected a TypeScript union membership check and isolated the new test fixtures so test records cannot leak between cases."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated tests",
+      "result": "passed",
+      "detail": "Final full run: 444 passed, zero failed, zero skipped. Earlier harness and source-integrity failures were repaired; original logs retained."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint on both modified application services passed. CJS tests are excluded by repo ESLint and were executed by Node."
+    },
+    {
+      "name": "Web export and browser",
+      "result": "passed",
+      "detail": "Fresh Expo web export; nine grouped checks, zero captured page errors. Actual quiz/placement UI interactions, reload persistence, offline note recovery, five tab destinations, Arabic/English text and 320/390/768/1280 lesson widths."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append-only history check passed before this follow-up; final append integrity is checked separately after writing it."
+    },
+    {
+      "name": "Evidence limits",
+      "result": "not-run",
+      "detail": "Authentication responses were simulated in an isolated browser. No live credentials, production cloud restore, physical devices, multi-week real session renewal, prolonged offline token expiry or exhaustive secondary-button traversal. No deployment. See the audit report for the full matrix."
+    }
+  ],
+  "createdAt": "2026-10-17T09:52:48.845Z"
+}

@@ -1,0 +1,37 @@
+{
+  "id": "local-storefront-network-recovered-20261017",
+  "createdAt": "2026-10-17T10:18:55.738Z",
+  "title": "Local product page connection restored",
+  "summary": "Restarted the local Next.js server with network access to restore Supabase product data and image loading.",
+  "status": "successful",
+  "pages": [
+    "Local product page",
+    "Local storefront"
+  ],
+  "components": [
+    "Next.js development server",
+    "Supabase connection"
+  ],
+  "files": [
+    "package.json",
+    "lib/db-server.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replaced the restricted local server process with a network-enabled process on port 3000. Application source and database records were not changed; listed files identify the affected runtime configuration and data reader."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Product-page browser check",
+      "result": "passed",
+      "detail": "Ferrari product page returned HTTP 200 with the correct title and H1, zero captured page errors, and four checked optimized images loaded successfully."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No deployment, checkout test or full regression run. Fix applies to the local server process."
+    }
+  ]
+}

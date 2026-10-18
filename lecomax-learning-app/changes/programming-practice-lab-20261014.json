@@ -1,0 +1,52 @@
+{
+  "id": "programming-practice-lab-20261014",
+  "createdAt": "2026-10-14T09:24:28.441Z",
+  "title": "Programming Practice Lab and clearer practice navigation",
+  "summary": "Added nine multilingual programming challenges with mini-lessons, hints, explained answers, saved reasoning notes, daily selection and review filters.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "My tools",
+    "/practice-lab"
+  ],
+  "components": [
+    "PracticeLab",
+    "PracticeLaunchpad",
+    "StudyDashboard",
+    "More"
+  ],
+  "files": [
+    "app/practice-lab.tsx",
+    "features/practice/challenges.ts",
+    "features/practice/progress.ts",
+    "components/PracticeLaunchpad.tsx",
+    "components/StudyDashboard.tsx",
+    "app/(tabs)/more.tsx",
+    "tests/practice-lab.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Three JavaScript, three Python and three SQL code-reading challenges with explanations and follow-up variations."
+    },
+    {
+      "kind": "added",
+      "detail": "Local persisted attempts and reasoning notes, daily challenge, language and revisit filters, and first-try-without-hints counts that retries cannot inflate."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home and My tools group coding practice, scheduled review and speaking into Learn by doing. Home exposes this before course details."
+    },
+    {
+      "kind": "removed",
+      "detail": "Replaced the isolated speaking link with the grouped launchpad; speaking remains accessible."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation validation",
+      "result": "not-run",
+      "detail": "Content execution, state tests, typecheck, lint, browser interaction, persistence and responsive checks pending. No deployment."
+    }
+  ]
+}

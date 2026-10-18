@@ -1,0 +1,34 @@
+{
+  "id": "mobile-footer-black-restored-20261017",
+  "createdAt": "2026-10-17T10:32:50.083Z",
+  "title": "Restore black mobile footer",
+  "summary": "Keep the current mobile footer layout with a black background and readable light text.",
+  "status": "successful",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer mobile styles"
+  ],
+  "files": [
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Restore black footer and trust strip; use white wordmark, light text, subtle dark dividers and green icons. Preserve the green newsletter panel and current layout."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local browser",
+      "result": "passed",
+      "detail": "At 390px, footer and trust strip compute to rgb(10,10,10), logo text is white and footer has no horizontal overflow."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "CSS palette change only; full regression not run. No deployment."
+    }
+  ]
+}

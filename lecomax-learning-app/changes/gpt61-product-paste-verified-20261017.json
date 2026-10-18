@@ -1,0 +1,62 @@
+{
+  "id": "gpt61-product-paste-verified-20261017",
+  "createdAt": "2026-10-17T11:29:12.886Z",
+  "title": "GPT-6.1 Sol paste extraction verified",
+  "summary": "Use GPT-6.1 Sol to organize pasted product notes into reviewable form fields.",
+  "status": "successful",
+  "pages": [
+    "Admin Products create/edit"
+  ],
+  "components": [
+    "ProductPasteImport",
+    "Protected paste extraction endpoint",
+    "GPT-6.1 Sol extraction service"
+  ],
+  "files": [
+    "components/admin/ProductPasteImport.tsx",
+    "app/api/admin/products/parse/route.ts",
+    "lib/product-paste-ai.ts",
+    "tests/product-paste-ai.test.ts",
+    "tests/product-paste-interaction.test.ts",
+    "lib/product-paste.ts",
+    "tests/product-paste.test.ts",
+    "docs/product-writing-assistant.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Protected, rate-limited server endpoint using exact gpt-6.1-sol model, low reasoning, strict JSON schema, server-only key and store:false. Extracted values must occur in the source before existing field validation."
+    },
+    {
+      "kind": "modified",
+      "detail": "AI analysis is the primary paste action; structured local parsing remains available. Shows loading/errors and disclosure; cancels stale requests when pasted text changes. Field preview and selection remain required."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Explicit stock-unit text now normalizes safely; extraction prompt asks for the stock number. Added local and AI interaction coverage plus setup documentation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local automated checks",
+      "result": "passed",
+      "detail": "12 tests passed covering parsing, exact model/schema configuration, unsupported values, authorization, selected-field application and stale AI response cancellation. Optional live test skipped in the normal run."
+    },
+    {
+      "name": "Live GPT-6.1 Sol test",
+      "result": "passed",
+      "detail": "Synthetic free-form product sentence extracted name, price and stock correctly after stock-unit correction; 4/4 tests passed in the live-enabled service suite. No real product writes."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Full repository TypeScript check passed. Focused lint for paste component, AI service and endpoint passed without warnings or errors."
+    },
+    {
+      "name": "Browser and deployment",
+      "result": "not-run",
+      "detail": "No browser visual/authenticated end-to-end verification or deployment performed."
+    }
+  ],
+  "relatedId": "gpt61-product-paste-stock-test-20261017"
+}

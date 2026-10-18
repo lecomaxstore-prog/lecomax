@@ -1,0 +1,68 @@
+{
+  "id": "phone-whatsapp-invitation-verified-20261013",
+  "createdAt": "2026-10-13T21:06:42.833Z",
+  "title": "WhatsApp invitation handoff: automated and layout checks passed",
+  "summary": "WhatsApp composer, HTTPS handoff, paste-link recovery, consent and view-only regression checks passed locally. Publication, APK installation and real two-phone testing remain outstanding.",
+  "status": "successful",
+  "pages": [
+    "My remote phone (/phone)",
+    "WhatsApp invitation landing (/phone-invite.html)",
+    "Change History (/change-history)"
+  ],
+  "components": [
+    "PhoneInvitation",
+    "HTTPS invitation handoff",
+    "ResumeNavigation route filtering"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PhoneInvitation.tsx",
+    "lecomax-learning-app/utils/phone-invitation.ts",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "public/phone-invite.html",
+    "public/phone-invite.js",
+    "public/phone-invite.css",
+    "lecomax-learning-app/tests/phone-invitation.test.cjs",
+    "lecomax-learning-app/tests/phone-invitation-web.test.cjs",
+    "lecomax-learning-app/docs/phone-viewing-invitations.md",
+    "lecomax-learning-app/tests/resume-route.test.cjs",
+    "lecomax-learning-app/artifacts/check-phone-invitation-layout.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Verified handoff tests cover correct WhatsApp message encoding, unavailable-WhatsApp share-sheet fallback, received-link validation, credential-free HTTP URLs, explicit native consent, one-device handoff and no viewer input."
+    },
+    {
+      "kind": "modified",
+      "detail": "Documented exact website files to publish and Android/sign-in/Tailscale requirements; no deployment or installation is claimed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck completed with exit 0."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "components/PhoneInvitation.tsx, utils/phone-invitation.ts and utils/resume-route.ts passed."
+    },
+    {
+      "name": "Interaction, protocol-client and history regression checks",
+      "result": "passed",
+      "detail": "23 tests passed for invitation web handoff, invitation component, phone page, direct viewer and change-history UI/archive. Expanded received-link and WhatsApp-fallback checks plus resume-route protection passed in a subsequent 4-test run (24 distinct tests overall). Native host protocol sources were unchanged in this update."
+    },
+    {
+      "name": "Mobile landing layout",
+      "result": "passed",
+      "detail": "Headless installed Chrome rendered local routed fixtures at 320px English, 430px French and 390px Arabic without horizontal overflow or page errors. Arabic screenshot visually inspected. Screenshots saved under artifacts/phone-whatsapp-{en,fr,ar}.png. Initial bundled Playwright Chromium launch was unavailable; installed Chrome succeeded. These are fixtures, not a live site preview."
+    },
+    {
+      "name": "Publication and real devices",
+      "result": "not-run",
+      "detail": "No website deployment, APK build or installation. The HTTPS page must be published on lecomax.com and updated Learn installed on both signed-in Android phones with Tailscale. Physical WhatsApp/in-app-browser launch, screen permission and live two-phone capture still need testing."
+    }
+  ],
+  "relatedId": "phone-whatsapp-invitation-20261013"
+}

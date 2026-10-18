@@ -1,0 +1,69 @@
+{
+  "id": "learning-universe-experiences",
+  "createdAt": "2026-10-15T21:34:25.547Z",
+  "title": "Connected learning universe: games, galaxy, journeys and growth",
+  "summary": "Connect the existing emerald Academy with playable practice, evidence-based skill paths, tailored lesson routes and a richer review experience.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Explore",
+    "Lesson player",
+    "/games",
+    "/galaxy",
+    "/growth",
+    "/memory-studio",
+    "/my-learning"
+  ],
+  "components": [
+    "UniverseOverview",
+    "Games",
+    "Galaxy",
+    "Growth",
+    "JourneyPicker",
+    "LessonJourney",
+    "MemoryStudio",
+    "GentleReveal"
+  ],
+  "files": [
+    "lecomax-learning-app/features/universe/model.ts",
+    "lecomax-learning-app/features/universe/Games.tsx",
+    "lecomax-learning-app/features/universe/Galaxy.tsx",
+    "lecomax-learning-app/features/universe/Growth.tsx",
+    "lecomax-learning-app/features/universe/Journey.tsx",
+    "lecomax-learning-app/features/universe/Overview.tsx",
+    "lecomax-learning-app/features/universe/Motion.tsx",
+    "lecomax-learning-app/app/games.tsx",
+    "lecomax-learning-app/app/galaxy.tsx",
+    "lecomax-learning-app/app/growth.tsx",
+    "lecomax-learning-app/app/memory-studio.tsx",
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/app/explore.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Nine playable activity modes with bounded deterministic number/JavaScript challenges, answer keys, scoring, feedback and saved runs. Practice scores do not award lesson mastery."
+    },
+    {
+      "kind": "added",
+      "detail": "Knowledge Galaxy uses real course lessons and declared prerequisites; growth aggregates recorded recall, practice and project outcomes."
+    },
+    {
+      "kind": "added",
+      "detail": "Seven saved journey choices change lesson-step order and reflection or deliverable prompts; existing lesson completion gates remain."
+    },
+    {
+      "kind": "modified",
+      "detail": "Dashboard mission connects to the next lesson; home, explorer and learning pages link the universe. Memory Studio adds due estimates, difficult collection, session progress and reduced-motion-aware card transitions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Work in progress",
+      "result": "not-run",
+      "detail": "Initial typecheck found typing issues now being corrected. Full regression, multilingual browser, responsive and navigation validation pending. No deployment or native-device verification."
+    }
+  ]
+}

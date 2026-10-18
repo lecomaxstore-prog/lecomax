@@ -1,0 +1,76 @@
+{
+  "id": "arabic-typography-20261016-verified",
+  "createdAt": "2026-10-16T21:11:14.158Z",
+  "title": "Arabic typography verified on local web app",
+  "summary": "Verified clearer Arabic fonts, larger controls and revised home wording in mobile and desktop web layouts.",
+  "status": "successful",
+  "pages": [
+    "Home",
+    "Shared Arabic screens",
+    "Bottom navigation"
+  ],
+  "components": [
+    "Label",
+    "Button",
+    "BottomTabBar",
+    "UniverseOverview",
+    "JourneyPicker",
+    "Root Layout"
+  ],
+  "files": [
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/constants/design.ts",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/features/universe/Overview.tsx",
+    "lecomax-learning-app/features/universe/Journey.tsx",
+    "lecomax-learning-app/assets/fonts/NotoSansArabic-Regular.ttf",
+    "lecomax-learning-app/assets/fonts/NotoSansArabic-SemiBold.ttf",
+    "lecomax-learning-app/assets/fonts/Noto-OFL.txt",
+    "lecomax-learning-app/assets/fonts/README.md",
+    "lecomax-learning-app/scripts/arabic-typography-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a repeatable browser check for font loading, text direction, responsive wrapping, journey expansion and tutor navigation."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Verified Noto Arabic Regular and SemiBold render as actual custom fonts instead of falling back. Reviewed Arabic screenshots at 320px and 390px in light and dark themes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm run typecheck completed without errors."
+    },
+    {
+      "name": "Focused source lint",
+      "result": "passed",
+      "detail": "ESLint passed for the six modified TypeScript/TSX source files."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "Manifest check passed with all 354 reports preserved before this verification entry; all six archive and interaction tests passed."
+    },
+    {
+      "name": "Responsive browser verification",
+      "result": "passed",
+      "detail": "24 combinations: Arabic, English, French; light/dark; 320, 390, 768, 1280px. No horizontal page overflow or page errors. Verified heading direction/wrapping, five tabs, Arabic font loading, journey expansion/collapse and tutor navigation. A first test used an unsupported aria-expanded attribute; corrected the test to verify visible journey options, then reran successfully."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Used disposable Edge sessions with synthetic API authentication. Physical Android/iOS devices, real login and production deployment were not tested."
+    }
+  ],
+  "relatedId": "arabic-typography-20261016",
+  "preview": {
+    "path": "/",
+    "label": "Current academy home (not a historical snapshot)",
+    "verifiedAt": "2026-10-16T21:11:14.158Z"
+  }
+}

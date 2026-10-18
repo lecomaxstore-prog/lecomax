@@ -1,0 +1,50 @@
+{
+  "id": "product-brand-registry-20261018",
+  "createdAt": "2026-10-18T08:50:21.066Z",
+  "title": "Official ASICS logo and reusable product brands",
+  "summary": "Add the authentic ASICS logo to Expo product details and an admin brand picker with logo upload and brand creation.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details",
+    "Admin products"
+  ],
+  "components": [
+    "ProductBrandMark",
+    "ProductBrandPicker",
+    "Product brands API"
+  ],
+  "files": [
+    "mobile/src/lib/product-brands.ts",
+    "mobile/src/components/product-brand-mark.tsx",
+    "mobile/src/app/product/[slug].tsx",
+    "components/admin/ProductBrandPicker.tsx",
+    "app/admin/products/page.tsx",
+    "app/api/products/brands/route.ts",
+    "mobile/metro.config.js",
+    "public/images/brands/asics.svg",
+    "mobile/assets/images/brands/asics.png",
+    "docs/product-brands.md",
+    "tests/product-brands.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Official ASICS wordmark bundled for Expo and web admin, with accessible labels and text fallback."
+    },
+    {
+      "kind": "added",
+      "detail": "Protected persistent brand registry using separate existing settings rows; admin select, create and logo upload/URL editor. Legacy product brands are preserved."
+    },
+    {
+      "kind": "modified",
+      "detail": "Expo product brand row renders registered logos and refreshes the registry. Optional local Metro proxy routes new brands API to the local backend."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending verification",
+      "result": "not-run",
+      "detail": "Typecheck, lint, registry tests and API read/auth checks pending. No production deployment, native install, or authenticated brand write performed."
+    }
+  ]
+}

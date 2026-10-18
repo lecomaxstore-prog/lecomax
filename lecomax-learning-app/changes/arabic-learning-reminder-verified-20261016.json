@@ -1,0 +1,79 @@
+{
+  "id": "arabic-learning-reminder-verified-20261016",
+  "createdAt": "2026-10-16T13:36:10.003Z",
+  "title": "Arabic discovery and reminder reliability verified",
+  "summary": "Arabic and English browser flows pass; reminder scheduling, permissions, renewal and rollback pass automated checks.",
+  "status": "successful",
+  "pages": [
+    "/discovery",
+    "/settings"
+  ],
+  "components": [
+    "DiscoveryPlayer",
+    "LearningReminderSettings",
+    "LearningReminderRenewal",
+    "Notification service"
+  ],
+  "files": [
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/app/settings.tsx",
+    "lecomax-learning-app/services/notifications.ts",
+    "lecomax-learning-app/features/LearningReminderSettings.tsx",
+    "lecomax-learning-app/features/LearningReminderRenewal.tsx",
+    "lecomax-learning-app/features/curiosity/DiscoveryPlayer.tsx",
+    "lecomax-learning-app/features/curiosity/DiscoveryUI.tsx",
+    "lecomax-learning-app/features/curiosity/arabic-ai.ts",
+    "lecomax-learning-app/features/curiosity/arabic-labs.ts",
+    "lecomax-learning-app/tests/release.test.cjs",
+    "lecomax-learning-app/tests/learning-reminder-reliability.test.cjs",
+    "lecomax-learning-app/tests/arabic-discovery.test.cjs",
+    "lecomax-learning-app/scripts/check-arabic-discovery.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Complete authored Arabic text for the eight-step AI discovery, Arabic experiment explanations and controls; teacher language defaults to interface language."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Serialize reminder saves, check permission/channel, verify staged schedules before cancelling old reminders, refill low batches on app foreground and update notification language."
+    },
+    {
+      "kind": "modified",
+      "detail": "Replace generic reminder settings with pending counts, specific recovery errors, native settings link and five-second test. Collapse long step outline on small screens."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated regression tests",
+      "result": "passed",
+      "detail": "59 focused tests passed across Arabic discovery, learning reminders, release behavior, notification navigation, discovery player, wellness native/browser reminders and Change History. Eleven reminder/release tests reran successfully after preserving pending times during renewal."
+    },
+    {
+      "name": "TypeScript, lint and export",
+      "result": "passed",
+      "detail": "Final TypeScript noEmit, focused ESLint and fresh Expo web export passed. Initial lint found an unnecessary language-setting effect and a hidden status label; both corrected. A later optional-data type error was corrected and typecheck rerun."
+    },
+    {
+      "name": "Browser interaction and visual review",
+      "result": "passed",
+      "detail": "Arabic light and dark: eight steps, experiments, incorrect/correct answers, mobile overflow, Arabic tutor language, disabled native-only web notification test and daily-routine navigation passed. English discovery walkthrough passed. Auth/session APIs mocked. Arabic mobile screenshot inspected. Test selectors and mock session response were corrected during validation."
+    },
+    {
+      "name": "History",
+      "result": "passed",
+      "detail": "Append-only history check passed with all prior records retained."
+    },
+    {
+      "name": "Not verified",
+      "result": "not-run",
+      "detail": "Physical Android/iOS delivery, lock-screen behavior, OEM battery restrictions, real authentication and live AI outputs were not tested. Browser routine reminders still require an open tab. Authored Arabic expansion covers the eight-step AI journey, not every subject. No deployment or installed-app update performed."
+    }
+  ],
+  "relatedId": "arabic-learning-reminder-upgrade-20261016",
+  "preview": {
+    "path": "/discovery",
+    "label": "Current discovery player with authored Arabic AI journey",
+    "verifiedAt": "2026-10-16T13:36:10.003Z"
+  }
+}

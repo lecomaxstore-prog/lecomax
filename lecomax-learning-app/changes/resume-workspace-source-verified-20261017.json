@@ -1,0 +1,50 @@
+{
+  "id": "resume-workspace-source-verified-20261017",
+  "createdAt": "2026-10-17T17:59:43.000Z",
+  "relatedId": "resume-workspace-source-sync-20261017",
+  "title": "Verify workspace source archive and boutique lesson",
+  "summary": "Workspace snapshots now match workspace files, including the boutique lesson product-source fingerprint.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning source explorer",
+    "Boutique academy lesson"
+  ],
+  "components": [
+    "Source snapshots",
+    "Academy source fingerprints"
+  ],
+  "files": [
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/site-source-map.json",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/academy/lessons/academy-site-boutique.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Refreshed 639 workspace sources and updated the boutique lesson lib/products.ts fingerprint after verifying the product-card adapter fields against the workspace file."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Workspace full suite before final fingerprint correction",
+      "result": "failed",
+      "detail": "One academy source-drift assertion failed; all other tests passed. No timeouts remained in the serial run."
+    },
+    {
+      "name": "Focused source and curriculum verification",
+      "result": "passed",
+      "detail": "18 content, curriculum-quality and roadmap checks passed after source refresh. The complete academy test file passed after the final fingerprint correction."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Workspace learning app typecheck exited zero."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Full workspace suite not repeated after the isolated fingerprint correction. No deployment or live browser preview performed."
+    }
+  ]
+}

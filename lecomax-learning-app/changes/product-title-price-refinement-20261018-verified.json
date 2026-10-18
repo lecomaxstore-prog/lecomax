@@ -1,0 +1,36 @@
+{
+  "id": "product-title-price-refinement-20261018-verified",
+  "createdAt": "2026-10-18T09:04:03.639Z",
+  "title": "Title and price refinement: code checks passed",
+  "summary": "Refine the product heading and price hierarchy with closer spacing and a more legible currency label.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product title",
+    "Price display"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use a 24px semibold title (22px on compact screens), reduce the price from 34px bold to 28px semibold, increase currency to 12px, and tighten the title-to-price gap from 22px to 12px. Existing currency formatting and discount calculations remain unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and product page ESLint completed without diagnostics."
+    },
+    {
+      "name": "Visual review",
+      "result": "not-run",
+      "detail": "Browser/device appearance not verified. No deployment."
+    }
+  ],
+  "relatedId": "product-title-price-refinement-20261018"
+}

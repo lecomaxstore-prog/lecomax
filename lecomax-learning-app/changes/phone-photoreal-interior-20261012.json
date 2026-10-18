@@ -1,0 +1,53 @@
+{
+  "id": "phone-photoreal-interior-20261012",
+  "createdAt": "2026-10-12T17:07:54.044Z",
+  "title": "Photorealistic phone interior with interactive component lessons",
+  "summary": "Replaced the default flat interior with a bundled AI-generated realistic teardown visualization and nine accessible component hotspots.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone Lab (/phone-lab)"
+  ],
+  "components": [
+    "Phone photo view",
+    "Phone explorer document",
+    "Phone lab image assets"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/utils/phone-explorer-document.ts",
+    "lecomax-learning-app/data/phone-teardown-image.json",
+    "lecomax-learning-app/assets/phone-lab/realistic-interior-v1.png",
+    "lecomax-learning-app/assets/phone-lab/realistic-interior-v1.jpg",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Photographic materials, optical camera lenses, populated circuit boards, solder joints, battery pouch, ribbon cables and machined metal from an AI-generated educational visualization."
+    },
+    {
+      "kind": "modified",
+      "detail": "Default view opens the realistic interior with nine numbered, localized touch/keyboard lesson targets; a separate 3D diagram remains available for rotation and exploded layers."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline embedded JPEG, photo-to-diagram fallback on image failure, synchronized component selection and double-tap cover replacement."
+    },
+    {
+      "kind": "modified",
+      "detail": "Localized note clearly identifies the AI-generated conceptual component locations rather than claiming a photograph or exact teardown of a real model."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Image inspection",
+      "result": "passed",
+      "detail": "Inspected generated image and aligned target coordinates to visible components."
+    },
+    {
+      "name": "Interaction, typecheck, lint and history",
+      "result": "not-run",
+      "detail": "Pending validation. Live browser and native device not verified; no deployment."
+    }
+  ]
+}

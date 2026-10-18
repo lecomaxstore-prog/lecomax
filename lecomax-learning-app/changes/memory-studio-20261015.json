@@ -1,0 +1,53 @@
+{
+  "id": "memory-studio-20261015",
+  "createdAt": "2026-10-15T20:14:34.342Z",
+  "title": "Memory Studio: personal cards and scheduled recall",
+  "summary": "Adds editable personal flashcards, four recall ratings, persisted SM-2-based review scheduling and entry points from Home and personal lessons.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Memory Studio",
+    "Personal lesson"
+  ],
+  "components": [
+    "MemoryStudio",
+    "AcademyDashboard",
+    "SchoolProvider",
+    "Progress"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/flashcards.ts",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/app/memory-studio.tsx",
+    "lecomax-learning-app/app/plan-lesson.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/store/School.tsx",
+    "lecomax-learning-app/utils/resume-route.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Personal question/answer and cloze-style prompts with reveal-before-rating, collection search and paginated display."
+    },
+    {
+      "kind": "added",
+      "detail": "Validated additive progress migration with card scheduling parameters and review events; self-ratings do not inflate mastery."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home and personal lesson notes link to Memory Studio. Existing progress, authentication, navigation and courses retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, scheduler, migration and interaction tests pending."
+    },
+    {
+      "name": "Release limits",
+      "result": "not-run",
+      "detail": "No deployment, live AI call, device check or cloud migration. Cards are user-authored; no AI card generation, matching games or memory palace added."
+    }
+  ]
+}

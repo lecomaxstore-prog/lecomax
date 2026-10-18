@@ -1,0 +1,94 @@
+{
+  "id": "detailed-car-replacement-verified-20261013",
+  "createdAt": "2026-10-13T19:28:29.780Z",
+  "title": "Detailed car replacement verified in the current app",
+  "summary": "Authored textured car replaces the blocky sedan with cockpit, opening panels and verified local app integration.",
+  "status": "successful",
+  "pages": [
+    "/car-studio",
+    "/change-history"
+  ],
+  "components": [
+    "Detailed car asset",
+    "CarViewer",
+    "Studio runtime",
+    "Native StudioFrame",
+    "Studio bundle"
+  ],
+  "files": [
+    "lecomax-learning-app/assets/car-studio/CarConcept.glb",
+    "lecomax-learning-app/assets/car-studio/source-metadata.json",
+    "lecomax-learning-app/assets/car-studio/Khronos-marks.txt",
+    "lecomax-learning-app/assets/car-studio/provenance.json",
+    "lecomax-learning-app/features/car-studio/detailed-car.ts",
+    "lecomax-learning-app/features/car-studio/local-car.ts",
+    "lecomax-learning-app/features/car-studio/viewer.ts",
+    "lecomax-learning-app/features/car-studio/runtime.ts",
+    "lecomax-learning-app/features/car-studio/StudioFrame.tsx",
+    "lecomax-learning-app/scripts/build-car-studio.cjs",
+    "lecomax-learning-app/data/car-studio-runtime.json",
+    "lecomax-learning-app/assets/car-studio/CC-BY-4.0.txt",
+    "lecomax-learning-app/assets/car-studio/README.md",
+    "lecomax-learning-app/features/car-studio/car-asset.ts",
+    "lecomax-learning-app/docs/car-studio.md",
+    "lecomax-learning-app/scripts/detailed-car-smoke.cjs",
+    "lecomax-learning-app/scripts/car-studio-smoke.cjs",
+    "lecomax-learning-app/scripts/car-studio-app-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "109 authored mesh primitives and 213347 triangles with original textures, licensed source asset, provenance and visible attribution."
+    },
+    {
+      "kind": "modified",
+      "detail": "Door/hood/hatch pivots, cockpit camera, showroom framing, glazing and paint-normal rendering; six actual visual groups with BMW lessons identified as comparisons."
+    },
+    {
+      "kind": "removed",
+      "detail": "Procedural sedan from default rendering; source retained for previous development tests."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Transform anchors preserve children during cutaway; shared-material adjustment runs once; test harness now awaits imported model readiness and excludes unsupported Chassis."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build, TypeScript and lint",
+      "result": "passed",
+      "detail": "Studio bundle build (16415445 bytes), typecheck and focused ESLint passed."
+    },
+    {
+      "name": "Focused tests",
+      "result": "passed",
+      "detail": "10 car-studio/change-history/change-history-interaction tests passed."
+    },
+    {
+      "name": "Model and visual verification",
+      "result": "passed",
+      "detail": "Detailed smoke passed SHA-256, 109 meshes/213347 triangles, six groups, zero external requests, opening/closing hinges, cockpit, isolate, paint, X-ray, raycasting, pause/disposal and 320/390/844px layouts. Desktop/mobile/open/cockpit screenshots inspected."
+    },
+    {
+      "name": "Multilingual and GLB regression",
+      "result": "passed",
+      "detail": "EN/FR/AR learning, quizzes, progress, guided tour, simulation/layout and GLB fixture rendering/interaction/recovery passed."
+    },
+    {
+      "name": "Live app integration",
+      "result": "passed",
+      "detail": "localhost:8082 navigation, imported canvas, saved/restored progress and visible history passed using synthetic auth. Initial reload timeout resolved in test with an explicit model-ready wait; rerun passed."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No physical Android/iOS GPU or memory tests, APK rebuild or deployment. Detailed concept car is not a production BMW replica. Six visual groups modeled; other systems remain lessons. Viewer bundle about 16.4 MB."
+    }
+  ],
+  "relatedId": "detailed-car-replacement-20261013",
+  "preview": {
+    "path": "/car-studio",
+    "label": "Current detailed 3D car (not a historical snapshot)",
+    "verifiedAt": "2026-10-13T19:28:29.780Z"
+  }
+}

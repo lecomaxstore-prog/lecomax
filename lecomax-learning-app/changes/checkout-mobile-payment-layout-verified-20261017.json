@@ -1,0 +1,50 @@
+{
+  "id": "checkout-mobile-payment-layout-verified-20261017",
+  "createdAt": "2026-10-17T11:10:55.297Z",
+  "title": "Mobile payment layout static checks passed",
+  "summary": "Contain PayPal stacking and improve mobile checkout reassurance readability.",
+  "status": "successful",
+  "pages": [
+    "Checkout /checkout"
+  ],
+  "components": [
+    "PayPal panel",
+    "Checkout reassurance banner"
+  ],
+  "files": [
+    "app/checkout/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Isolated the PayPal panel in a z-index 0 stacking context to contain SDK layering under the fixed header. Replaced misspelled cash-payment default heading with payment-neutral text; custom admin heading remains supported."
+    },
+    {
+      "kind": "modified",
+      "detail": "Mobile reassurance becomes three padded horizontal rows with 12px text and 20px line height; desktop retains three columns. Added rounded panel, larger heading and non-shrinking decorative icons."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "No errors; one existing serverPricing hook dependency warning."
+    },
+    {
+      "name": "Stacking and responsive source inspection",
+      "result": "passed",
+      "detail": "Header uses sticky z-40; PayPal panel now uses relative isolate z-0. Reassurance uses one mobile column and three columns at sm breakpoint."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append and manifest checks passed, preserving previous reports."
+    },
+    {
+      "name": "Browser and payment validation",
+      "result": "not-run",
+      "detail": "No connected browser available. Live PayPal overlap, mobile appearance and payment processing remain untested. Not deployed."
+    }
+  ],
+  "relatedId": "checkout-mobile-payment-layout-20261017"
+}

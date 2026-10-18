@@ -1,0 +1,45 @@
+{
+  "id": "storefront-speed-release-packaging-fix-20261013",
+  "createdAt": "2026-10-12T22:44:51.465Z",
+  "title": "Correct missing shared utility in production upload",
+  "summary": "The staged build failed before domain promotion because the website backend imports a learning-app utility excluded from upload. Include only that required file.",
+  "status": "failed",
+  "pages": [
+    "Storefront homepage",
+    "All storefront headers",
+    "Boutique",
+    "Product rails"
+  ],
+  "components": [
+    "Header",
+    "SearchOverlay loading boundary",
+    "ProductRail",
+    "CollectionProductCard",
+    "OurProductsGrid",
+    "Storefront refresh and settings"
+  ],
+  "files": [
+    ".vercelignore",
+    "lib/teacher-workspace.ts",
+    "lecomax-learning-app/utils/web-studio.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Allowlist only lecomax-learning-app/utils/web-studio.ts in the Vercel upload while keeping the rest of the learning app excluded. Copy the dependency into the isolated release package. No domain promotion occurred."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First remote build",
+      "result": "failed",
+      "detail": "Deployment dpl_2GSSrSD1YZoVJDRfqJ6Xb7RJULFb could not resolve ../lecomax-learning-app/utils/web-studio.ts from lib/teacher-workspace.ts."
+    },
+    {
+      "name": "Corrected remote build",
+      "result": "not-run",
+      "detail": "Retry pending. Existing production remains on dpl_2xN3GMSY1ZLaWjtfydCdvxQcoymY."
+    }
+  ],
+  "relatedId": "storefront-speed-release-started-20261013"
+}

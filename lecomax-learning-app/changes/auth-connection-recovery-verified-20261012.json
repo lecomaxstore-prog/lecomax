@@ -1,0 +1,65 @@
+{
+  "id": "auth-connection-recovery-verified-20261012",
+  "createdAt": "2026-10-12T16:20:50.218Z",
+  "title": "Session recovery verified and local services restored",
+  "summary": "Local API and web app respond again. Session recovery and the return-to-sign-in interaction passed automated checks.",
+  "status": "successful",
+  "pages": [
+    "Sign in",
+    "Session verification",
+    "Protected routes including Change History"
+  ],
+  "components": [
+    "OwnerGate",
+    "Owner session client"
+  ],
+  "files": [
+    "lecomax-learning-app/services/owner-session.ts",
+    "lecomax-learning-app/features/OwnerGate.tsx",
+    "tests/owner-session.test.ts",
+    "lecomax-learning-app/tests/owner-gate-recovery.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified recoverable session retries and safe return to sign-in. Local API port 3002 and web port 8081 are running."
+    },
+    {
+      "kind": "added",
+      "detail": "Interaction regression test for Retry failure and Back to sign in, with protected content remaining hidden."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "12 of 12 tests passed, including storage recovery, repeated network failure and returning to sign-in.",
+      "result": "passed",
+      "name": "Session regression tests"
+    },
+    {
+      "detail": "JSDOM rendered OwnerGate; Retry error remains recoverable and Back to sign in shows the email field without exposing protected children.",
+      "result": "passed",
+      "name": "Recovery button interaction"
+    },
+    {
+      "detail": "npm.cmd run typecheck and npx.cmd eslint services/owner-session.ts features/OwnerGate.tsx passed.",
+      "result": "passed",
+      "name": "TypeScript and focused ESLint"
+    },
+    {
+      "detail": "6 tests passed for report retention, archive recovery and visible history interactions.",
+      "result": "passed",
+      "name": "Change History tests"
+    },
+    {
+      "detail": "GET /change-history on localhost:8081 returned 200. Protected sessions endpoint on 127.0.0.1:3002 returned expected unauthenticated 401 with Access-Control-Allow-Origin http://localhost:8081.",
+      "result": "passed",
+      "name": "Local HTTP checks"
+    },
+    {
+      "detail": "No browser UI surface was available. Real owner credentials, authenticated Change History preview and native devices were not tested. No deployment performed.",
+      "result": "not-run",
+      "name": "Manual sign-in and device validation"
+    }
+  ],
+  "relatedId": "auth-connection-recovery-20261012"
+}

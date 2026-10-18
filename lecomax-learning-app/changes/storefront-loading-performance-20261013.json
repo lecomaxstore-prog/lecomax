@@ -1,0 +1,52 @@
+{
+  "id": "storefront-loading-performance-20261013",
+  "createdAt": "2026-10-12T22:16:47.328Z",
+  "title": "Faster storefront image selection and initial content",
+  "summary": "Removed duplicate hero images and delayed content visibility; parallelized optional homepage data and bounded its response time.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage",
+    "Pages using ScrollReveal"
+  ],
+  "components": [
+    "Hero banner",
+    "Product grid",
+    "ScrollReveal",
+    "Homepage server data"
+  ],
+  "files": [
+    "components/ResponsiveHeroImage.tsx",
+    "components/HeroBanner.tsx",
+    "components/ScrollReveal.tsx",
+    "components/OurProductsGrid.tsx",
+    "app/page.tsx",
+    "app/globals.css",
+    "tests/storefront-loading-performance.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "One responsive picture selects desktop OR mobile hero; mutually exclusive preload hints replace two eager image elements and duplicate backdrop layers. Supported remote images use the existing optimizer, with original-source fallback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Hero headline, action buttons and image appear without entrance delays. Catalogue is visible in initial HTML; scroll effects progressively enhance only offscreen content."
+    },
+    {
+      "kind": "modified",
+      "detail": "Ecomedia read starts alongside catalogue/settings requests, and optional banner/post reads have 1.8-second timeouts."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Public baseline",
+      "result": "passed",
+      "detail": "curl HTTP 200: uncompressed HTML 603935 bytes, TTFB 3.301s, total 12.901s; compressed request 54011 bytes, TTFB 3.132s, total 4.295s. These are single-request environment-specific observations, not browser Core Web Vitals. Public HTML contained four hero image elements."
+    },
+    {
+      "name": "Pending code validation",
+      "result": "not-run",
+      "detail": "Focused regression tests, lint and TypeScript/build checks pending. Changes not deployed; no production speed improvement claimed."
+    }
+  ]
+}

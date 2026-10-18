@@ -1,4 +1,5 @@
 "use client";
+import ProductBrandPicker from "@/components/admin/ProductBrandPicker";
 import AdminToggle from "@/components/admin/AdminToggle";
 import AdminLoading from "@/components/admin/AdminLoading";
 import ProductSizeGuideEditor from "@/components/admin/ProductSizeGuideEditor";
@@ -870,11 +871,7 @@ export default function ProductsPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-neutral-600 uppercase tracking-wider mb-1.5">Marque</label>
-                  <input type="text" value={form.brand}
-                    onChange={(e) => setForm({ ...form, brand: e.target.value })}
-                    placeholder="ex: Nike, Adidas…"
-                    className="w-full border border-neutral-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-black bg-neutral-50 focus:bg-white transition-all" />
+                  <ProductBrandPicker value={form.brand} onChange={brand => setForm(current => ({ ...current, brand }))} existingNames={products.map(product => product.brand)} />
                 </div>
               </div>
               <div>

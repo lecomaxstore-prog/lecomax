@@ -1,0 +1,73 @@
+{
+  "id": "laptop-realistic-chip-reveal-verified-20261013",
+  "createdAt": "2026-10-12T22:08:52.892Z",
+  "title": "Laptop CPU/GPU reveal: verification results",
+  "summary": "18 automated tests passed for realistic chip reveal, details, restoration, learning progress, zoom panning and history retention.",
+  "status": "successful",
+  "pages": [
+    "Computer lab / laptop"
+  ],
+  "components": [
+    "Photo viewer",
+    "Removal layers",
+    "Component details"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/pc-layer-explorer.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/data/laptop-explorer.ts",
+    "lecomax-learning-app/data/laptop-revealed.json",
+    "lecomax-learning-app/assets/computer-lab/laptop-uncovered-v2.png",
+    "lecomax-learning-app/tests/pc-layers.test.cjs",
+    "lecomax-learning-app/tests/pc-chip-reveal.test.cjs",
+    "lecomax-learning-app/assets/computer-lab/laptop-uncovered-v2.jpg",
+    "lecomax-learning-app/assets/computer-lab/laptop-uncovered-v2.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Generated realistic uncovered laptop asset, CPU/GPU hotspots and reveal/restore button. Selecting CPU or GPU reveals its cooling layer automatically."
+    },
+    {
+      "kind": "modified",
+      "detail": "Cooler and battery removal use photographic-style image regions instead of striped teaching tiles. Other simulated removal tiles retain a diagram label with a plain background."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Laptop GPU is now available in the picker, lessons, close-ups and understood progress. CPU/GPU details describe soldered laptop chips instead of desktop socket/card installation."
+    },
+    {
+      "kind": "added",
+      "detail": "Saved the exact built-in imagegen prompt and original PNG; embedded an optimized quality-90 JPEG in the offline document."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regression and interaction tests",
+      "result": "passed",
+      "detail": "18 tests passed after final JPEG integration: CPU/GPU reveal and close-ups in en/fr/ar, restore behavior, GPU progress, layers, pan controls and change-history tests."
+    },
+    {
+      "name": "Typecheck",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed."
+    },
+    {
+      "name": "Source lint",
+      "result": "passed",
+      "detail": "Modified utility TypeScript files passed ESLint. The data file is ignored by repository lint configuration but passed TypeScript compilation."
+    },
+    {
+      "name": "Generated asset inspection",
+      "result": "passed",
+      "detail": "Visually inspected full generated image and aligned CPU/GPU region coordinates to visible packages. Educational illustration, not verified machine photography."
+    },
+    {
+      "name": "Rendered browser/device validation",
+      "result": "not-run",
+      "detail": "Browser inventory empty and in-app browser unavailable. No browser layout, physical phone gestures or live app preview claimed. Not deployed."
+    }
+  ],
+  "relatedId": "laptop-realistic-chip-reveal-20261013"
+}

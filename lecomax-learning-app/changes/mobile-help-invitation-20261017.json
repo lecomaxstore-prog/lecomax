@@ -1,0 +1,33 @@
+{
+  "id": "mobile-help-invitation-20261017",
+  "createdAt": "2026-10-17T10:53:51.321Z",
+  "title": "Animated mobile help invitation every 30 seconds",
+  "summary": "The mobile help icon periodically reveals a Besoin d?aide ? speech bubble.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile storefront"
+  ],
+  "components": [
+    "ChatWidget"
+  ],
+  "files": [
+    "components/ChatWidget.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a white speech bubble with soft green border, shadow and pointer. It first appears after 30 seconds and repeats every 30 seconds, visible for about six seconds with a gentle slide/fade."
+    },
+    {
+      "kind": "modified",
+      "detail": "Uses the existing launcher label and click target; opening chat or hiding the launcher removes the invitation and resets the cycle. Reduced-motion users get a static timed reveal without movement or fades."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Static validation pending. Live animation timing and touch behavior not browser verified. No deployment."
+    }
+  ]
+}

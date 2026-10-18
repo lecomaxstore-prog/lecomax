@@ -1,0 +1,35 @@
+{
+  "id": "teacher-visual-polish-1791735483001",
+  "createdAt": "2026-10-11T16:18:03.001Z",
+  "title": "Refined AI teacher conversation layout",
+  "summary": "Emerald header, compact practice shortcuts, clear message cards and a lighter composer for the teacher screen.",
+  "status": "needs-testing",
+  "pages": [
+    "/teacher"
+  ],
+  "components": [
+    "AIHeader",
+    "TeacherIcon",
+    "TeacherShell",
+    "TeacherChat",
+    "TeacherMessage"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherMessage.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Restyled the teacher header and controls, replaced the two oversized tool buttons with compact side-by-side shortcuts, and refined conversation cards, type sizing and composer spacing."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, history checks and responsive browser review pending. No deployment or native-device verification."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "mobile-footer-compact-design-20261017",
+  "createdAt": "2026-10-17T10:29:56.063Z",
+  "title": "Compact mobile footer redesign",
+  "summary": "Reorganize the mobile footer around a compact brand row, a dark green newsletter panel and two-column navigation.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replace ivory styling with neutral white, place logo beside social links, shorten mobile introduction, feature the newsletter in dark green, compact contact rows and arrange expandable links in two columns."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove accumulated mobile CSS overrides in favor of a single coherent mobile stylesheet."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Lint",
+      "result": "passed",
+      "detail": "Footer.tsx passes ESLint."
+    },
+    {
+      "name": "Browser checks",
+      "result": "not-run",
+      "detail": "Responsive layout and interactions pending. Desktop content and newsletter backend unchanged; no deployment."
+    }
+  ]
+}

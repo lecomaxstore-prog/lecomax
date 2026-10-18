@@ -1,0 +1,33 @@
+{
+  "id": "cart-confirmation-toast-polish-20261017",
+  "createdAt": "2026-10-17T10:59:18.967Z",
+  "title": "Clearer add-to-cart confirmation",
+  "summary": "Replaced the cramped dark notification with a light, readable success card.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail"
+  ],
+  "components": [
+    "ProductActions add-to-cart toast"
+  ],
+  "files": [
+    "components/ProductActions.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "White surface, soft green border, larger check icon, balanced 360px responsive width, clearer title and concise supporting text."
+    },
+    {
+      "kind": "added",
+      "detail": "Atomic polite screen-reader announcement and decorative icon hidden from assistive technology. Existing dismissal timing, reduced-motion handling and pointer pass-through retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "DOM checks and static validation pending. No browser visual verification or deployment."
+    }
+  ]
+}

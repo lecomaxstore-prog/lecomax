@@ -1,0 +1,43 @@
+{
+  "id": "brand-release-github-vercel-20261018",
+  "createdAt": "2026-10-18T10:17:33.470Z",
+  "title": "Prepare brand catalogue release for GitHub and Vercel",
+  "summary": "Isolate the 30-brand picker, shared logos and product/promotion display from unrelated local work using the latest GitHub main.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin products",
+    "Website product cards and details",
+    "Expo product and promotion cards"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Product brands API"
+  ],
+  "files": [
+    "components/admin/ProductBrandPicker.tsx",
+    "components/ProductBrandMark.tsx",
+    "app/api/products/brands/route.ts",
+    "mobile/src/lib/product-brands.ts",
+    "mobile/src/components/home-promotion-section.tsx",
+    "mobile/src/components/promotion-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepare an isolated release based on origin/main e4432483, preserving existing production behavior and applying only brand picker, registry and logo display changes. Include the complete append-only history archive."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Isolated brand regressions",
+      "result": "passed",
+      "detail": "7 brand/display tests passed in the release checkout."
+    },
+    {
+      "name": "Build and publication",
+      "result": "not-run",
+      "detail": "Typecheck, GitHub push and production deployment are in progress; no successful deployment is claimed by this record."
+    }
+  ]
+}

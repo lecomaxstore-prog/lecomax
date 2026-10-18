@@ -1,0 +1,57 @@
+{
+  "id": "device-time-wellness-1791543106257",
+  "createdAt": "2026-10-09T10:51:46.257Z",
+  "title": "روتين صحي حسب وقت جهازك",
+  "summary": "تحديث تلقائي للوقت، واقتراحات تراعي مواعيد نومك واستيقاظك، ونصائح عملية مع مصادر صحية موثوقة.",
+  "status": "needs-testing",
+  "pages": [
+    "Home routine card",
+    "Daily wellness routine"
+  ],
+  "components": [
+    "JourneyProvider",
+    "DailyRoutineCard",
+    "TodayScreen",
+    "TimelyAdvice",
+    "Routine scheduling"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/useJourney.tsx",
+    "lecomax-learning-app/features/wellness/routine.ts",
+    "lecomax-learning-app/features/wellness/TodayScreen.tsx",
+    "lecomax-learning-app/features/wellness/DailyRoutineCard.tsx",
+    "lecomax-learning-app/features/wellness/TimelyAdvice.tsx",
+    "lecomax-learning-app/tests/wellness.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "تحديث الوقت من جهازك كل ٣٠ ثانية وعند العودة للتطبيق، وإعادة مزامنة التذكيرات عند تغيّر المنطقة الزمنية أو التوقيت الصيفي."
+    },
+    {
+      "kind": "modified",
+      "detail": "اقتراحات حسب موعد الاستيقاظ والنوم، بما يشمل الاستيقاظ ليلًا، دون اقتراح إفطار أو تمرين لتعويض مهام قديمة أثناء وقت الراحة."
+    },
+    {
+      "kind": "added",
+      "detail": "عرض وقت الجهاز ونصيحة مناسبة للوقت مع روابط CDC للنوم وWHO للتغذية والحركة. لا يتم تفعيل الإشعارات أو تغيير أوقات التذكير المحفوظة تلقائيًا."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated validation",
+      "result": "not-run",
+      "detail": "Pending wellness tests, TypeScript, lint and history integrity."
+    },
+    {
+      "name": "Advice source review",
+      "result": "passed",
+      "detail": "Reviewed CDC About Sleep and WHO Healthy diet / Physical activity guidance; linked those sources in the app."
+    },
+    {
+      "name": "Device notification delivery",
+      "result": "not-run",
+      "detail": "No device notification delivery or live visual validation. Browser reminders require the app tab to remain open; native delivery depends on permissions and OS scheduling."
+    }
+  ]
+}

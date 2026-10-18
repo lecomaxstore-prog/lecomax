@@ -1,0 +1,67 @@
+{
+  "id": "resume-release-validation-complete-20261017",
+  "createdAt": "2026-10-17T17:58:59.348Z",
+  "relatedId": "resumed-release-source-refresh-20261017",
+  "title": "Verify resumed combined release",
+  "summary": "The combined website release builds and its storefront and learning regression checks pass after dependency isolation and source refresh.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage and boutique",
+    "Admin learning lessons",
+    "Learning source explorer",
+    "Change History"
+  ],
+  "components": [
+    "Release build",
+    "Source archive",
+    "Lesson regression checks"
+  ],
+  "files": [
+    "release/latest-update-20261017/.eslintrc.json",
+    "release/latest-update-20261017/components/OurProductsGrid.tsx",
+    "release/latest-update-20261017/lecomax-learning-app/data/project.json",
+    "release/latest-update-20261017/lecomax-learning-app/data/site-source-map.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Refreshed release source snapshots against the release checkout: 645 files, 51 visible source files and 3120 elements. Preserved existing archives."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Verified the resumed homepage/category merge fixes and existing corrected sectionRef binding together with isolated release lint configuration."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Website regression",
+      "result": "passed",
+      "detail": "620 passed, 5 skipped; Android back-controller and scroll-return scenarios passed."
+    },
+    {
+      "name": "Release learning regression",
+      "result": "passed",
+      "detail": "444 passed, zero failed or skipped, using test concurrency 1."
+    },
+    {
+      "name": "Learning TypeScript",
+      "result": "passed",
+      "detail": "Both workspace and release learning app typecheck commands exited zero."
+    },
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Final npm build exited zero; 223 pages generated, lint and TypeScript completed. Existing lint warnings remain. Service credentials absent: build used explicit non-secret placeholders."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Zero errors, two existing homepage image warnings."
+    },
+    {
+      "name": "Deployment and live browser checks",
+      "result": "not-run",
+      "detail": "No deployment performed. No authenticated production service or browser interaction checks performed. No preview claimed."
+    }
+  ]
+}

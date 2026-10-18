@@ -1,0 +1,73 @@
+{
+  "id": "interactive-learning-studio-20261015",
+  "createdAt": "2026-10-15T11:00:03.976Z",
+  "title": "Interactive Learning Studio: staged implementation",
+  "summary": "Connects isolated coding tools, deterministic math and quizzes, flashcards, whiteboard and guided projects to learning progress and opt-in AI help.",
+  "status": "needs-testing",
+  "pages": [
+    "Interactive Learning Studio",
+    "Practice Lab",
+    "Home",
+    "Python Studio"
+  ],
+  "components": [
+    "CodeLab",
+    "Runtime",
+    "StudyLabs",
+    "Projects",
+    "Mentor",
+    "PythonStudio",
+    "PracticeLaunchpad"
+  ],
+  "files": [
+    "lecomax-learning-app/features/interactive/CodeEditor.tsx",
+    "lecomax-learning-app/features/interactive/CodeEditor.web.tsx",
+    "lecomax-learning-app/features/interactive/CodeLab.tsx",
+    "lecomax-learning-app/features/interactive/empty.js",
+    "lecomax-learning-app/features/interactive/Mentor.tsx",
+    "lecomax-learning-app/features/interactive/model.ts",
+    "lecomax-learning-app/features/interactive/Preview.tsx",
+    "lecomax-learning-app/features/interactive/Preview.web.tsx",
+    "lecomax-learning-app/features/interactive/Projects.tsx",
+    "lecomax-learning-app/features/interactive/PythonLab.tsx",
+    "lecomax-learning-app/features/interactive/PythonLab.web.tsx",
+    "lecomax-learning-app/features/interactive/react-entry.js",
+    "lecomax-learning-app/features/interactive/runtime-document.ts",
+    "lecomax-learning-app/features/interactive/Runtime.tsx",
+    "lecomax-learning-app/features/interactive/Runtime.web.tsx",
+    "lecomax-learning-app/features/interactive/StudyLabs.tsx",
+    "lecomax-learning-app/features/interactive/worker-entry.js",
+    "lecomax-learning-app/app/interactive-studio.tsx",
+    "lecomax-learning-app/app/practice-lab.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PracticeLaunchpad.tsx",
+    "lecomax-learning-app/scripts/build-interactive.cjs",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Offline bundled QuickJS/TypeScript/SQLite execution in disposable workers, bounded output, cancellation, runtime tests, source snapshots and execution history."
+    },
+    {
+      "kind": "added",
+      "detail": "HTML/CSS preview; actual React static rendering with explicit non-hydrated limitations; guided Next.js tasks."
+    },
+    {
+      "kind": "added",
+      "detail": "Expression parser, graph and motion experiment, explicit quiz grading, SM-2 flashcards, SVG whiteboard, evidence-based guided projects and consent-gated contextual mentor."
+    },
+    {
+      "kind": "modified",
+      "detail": "Adds Home and Practice Lab navigation and persistent Python execution history. No previous tool removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks pending",
+      "result": "not-run",
+      "detail": "Unit/integration, browser, lint and typechecks pending. Native device behavior, live paid AI, full React hydration, Next.js server execution, and hard Python WASM memory limits are not verified or implemented. No deployment."
+    }
+  ]
+}

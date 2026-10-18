@@ -1,0 +1,71 @@
+{
+  "id": "academy-2-resume-verified-20261015",
+  "createdAt": "2026-10-15T10:09:45.610Z",
+  "relatedId": "academy-2-validation-repairs-20261015",
+  "title": "Academy 2.0: resumed checks passed, performance still open",
+  "summary": "All 278 learning tests, 11 backend checks, both TypeScript checks, focused lint and fresh web export passed. Large web bundle and external integration validation remain open.",
+  "status": "successful",
+  "pages": [
+    "Source explorer",
+    "Boutique lesson",
+    "Curriculum",
+    "Wellness"
+  ],
+  "components": [
+    "Source library",
+    "CurriculumLibrary",
+    "DailyActionPlan"
+  ],
+  "files": [
+    "lecomax-learning-app/data/academy/lessons/academy-site-boutique.json",
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/site-source-map.json",
+    "lecomax-learning-app/data/source/",
+    "lecomax-learning-app/tests/curriculum-library-interaction.test.cjs",
+    "lecomax-learning-app/tests/wellness-daily-interaction.test.cjs",
+    "lecomax-learning-app/tests/source-lesson.test.cjs",
+    "lecomax-learning-app/docs/ACADEMY-2.0.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Correct stale test dependencies and current wellness action label; refresh generated source snapshots and reviewed source fingerprint. No production deployment."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Source-control interaction test resolves current indexed line locations instead of stale hardcoded line numbers."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented actual resumed validation and release limitations in the Academy implementation audit."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Learning suite",
+      "result": "passed",
+      "detail": "278/278 tests; includes Academy interactions, backup route and change-history persistence/interactions. Simulated DOM/native fixtures."
+    },
+    {
+      "name": "Backend selection",
+      "result": "passed",
+      "detail": "11/11 tests from tests/learning-backup.test.ts and tests/learning-coaching.test.ts."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "Root and learning-app tsc --noEmit passed; focused ESLint on Academy report TypeScript files passed."
+    },
+    {
+      "name": "Web export",
+      "result": "passed",
+      "detail": "Fresh Expo web export to dist-academy-resume-check; main entry 95,664,858 bytes, uncompressed. Loading performance remains unresolved."
+    },
+    {
+      "name": "External integrations and preview",
+      "result": "not-run",
+      "detail": "No live AI generation, database migration, real-device testing, authenticated browser preview or deployment. No verified preview link."
+    }
+  ]
+}

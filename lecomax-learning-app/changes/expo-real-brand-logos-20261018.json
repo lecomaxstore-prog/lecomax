@@ -1,0 +1,46 @@
+{
+  "id": "expo-real-brand-logos-20261018",
+  "createdAt": "2026-10-18T09:50:16.680Z",
+  "title": "Real product brand logos",
+  "summary": "Display bundled Puma, Adidas, Nike, New Balance, Reebok and Under Armour marks beside stock status.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "ProductBrandMark"
+  ],
+  "files": [
+    "mobile/src/components/product-brand-mark.tsx",
+    "mobile/assets/images/brands/SOURCES.md",
+    "public/images/brands/puma.svg",
+    "mobile/assets/images/brands/puma.png",
+    "public/images/brands/adidas.svg",
+    "mobile/assets/images/brands/adidas.png",
+    "public/images/brands/nike.svg",
+    "mobile/assets/images/brands/nike.png",
+    "public/images/brands/newbalance.svg",
+    "mobile/assets/images/brands/newbalance.png",
+    "public/images/brands/reebok.svg",
+    "mobile/assets/images/brands/reebok.png",
+    "public/images/brands/underarmour.svg",
+    "mobile/assets/images/brands/underarmour.png"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Bundle six real brand marks from Simple Icons with SVG originals, PNG app assets and source attribution."
+    },
+    {
+      "kind": "modified",
+      "detail": "Match names case-insensitively and ignore spaces/hyphens for bundled marks. Preserve admin HTTPS logo overrides, fall back to bundled marks on remote failure, and keep text for unknown brands. Preserve ASICS."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Pending asset inspection, typecheck, lint and brand tests. Not deployed."
+    }
+  ]
+}

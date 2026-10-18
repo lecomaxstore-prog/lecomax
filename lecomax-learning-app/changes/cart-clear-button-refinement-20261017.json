@@ -1,0 +1,33 @@
+{
+  "id": "cart-clear-button-refinement-20261017",
+  "createdAt": "2026-10-17T11:07:06.309Z",
+  "title": "Clearer empty-cart button",
+  "summary": "Refined the cart footer action with readable text, a larger trash icon and restrained red styling.",
+  "status": "needs-testing",
+  "pages": [
+    "Cart /panier"
+  ],
+  "components": [
+    "CartPage footer"
+  ],
+  "files": [
+    "app/panier/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replaced tiny uppercase pill styling with 13px sentence-case text, a 17px icon, rounded corners, subtle red surface and a 44px minimum touch target. Improved item-count contrast."
+    },
+    {
+      "kind": "added",
+      "detail": "Explicit button type, decorative icon semantics and reduced-motion support; existing confirmation flow retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks pending",
+      "result": "not-run",
+      "detail": "Focused lint and history checks pending. No browser verification or deployment."
+    }
+  ]
+}

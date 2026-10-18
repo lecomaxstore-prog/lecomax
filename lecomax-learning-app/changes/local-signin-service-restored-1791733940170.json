@@ -1,0 +1,43 @@
+{
+  "id": "local-signin-service-restored-1791733940170",
+  "createdAt": "2026-10-11T15:52:20.170Z",
+  "title": "Local sign-in connection restored",
+  "summary": "Restarted the missing local learning API with network access to the existing authentication database.",
+  "status": "successful",
+  "pages": [
+    "Owner sign-in",
+    "/change-history"
+  ],
+  "components": [
+    "Local learning API",
+    "OwnerGate"
+  ],
+  "files": [
+    "scripts/start-teacher-lab.mjs",
+    "scripts/start-notification-api.mjs",
+    "lecomax-learning-app/services/auth.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Operational recovery: started the existing backend on 127.0.0.1:3002. The initial sandboxed process could not reach PostgreSQL (EACCES); replaced that process with a network-enabled local backend. No authentication code, credentials or account settings changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Authentication configuration and database",
+      "result": "passed",
+      "detail": "node scripts/check-learning-owner.mjs passed with network access; session table read verified."
+    },
+    {
+      "name": "Real browser-to-backend connection",
+      "result": "passed",
+      "detail": "A fresh Edge browser on localhost:8081/change-history sent an empty JSON request to the real local auth API without interception. Received expected HTTP 400 INVALID_INPUT, replacing the unavailable connection/503. CORS preflight returned 204 with the correct localhost origin."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "User password was not supplied or tested. Successful account sign-in remains for the user to verify. Backend must remain running; no production deployment or native device check."
+    }
+  ]
+}

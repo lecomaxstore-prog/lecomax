@@ -1,0 +1,41 @@
+{
+  "id": "learning-apk-build21-prepared-20261016",
+  "createdAt": "2026-10-15T22:58:35.905Z",
+  "title": "Latest learning update prepared for Android build 21",
+  "summary": "Package current learning universe, tutor, Academy and studio updates as version 1.0.19 for USB delivery.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning app",
+    "Games",
+    "Growth",
+    "Change History"
+  ],
+  "components": [
+    "Android release",
+    "Browser validation"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/scripts/universe-browser.cjs",
+    "lecomax-learning-app/artifacts/build-latest21.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Increment Android version to 1.0.19 / 21 and prepare release build from current sources."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Correct browser expectation to 390 points: the test deliberately makes one mismatch, which deducts 10 points from 400."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Release validation",
+      "result": "not-run",
+      "detail": "Source regression, browser rerun, native build, signature and USB hash verification pending. No deployment or physical-device installation claimed."
+    }
+  ]
+}

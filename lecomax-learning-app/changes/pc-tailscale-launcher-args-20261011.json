@@ -1,0 +1,40 @@
+{
+  "id": "pc-tailscale-launcher-args-20261011",
+  "createdAt": "2026-10-11T12:24:04.454Z",
+  "title": "Tailscale host selection launcher fix",
+  "summary": "Start My PC now forwards command-line arguments so the Tailscale address can be selected directly from the launcher.",
+  "status": "successful",
+  "relatedId": "pc-tailscale-4g-path-20261011",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "PC remote launcher"
+  ],
+  "files": [
+    "Start My PC.cmd"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Forward %* to start-pc-remote.mjs, enabling Start My PC.cmd --host=100.x.x.x for Tailscale sessions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Script inspection",
+      "result": "passed",
+      "detail": "Launcher forwards all arguments to the Node helper."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Change history check passed."
+    },
+    {
+      "name": "Real device session",
+      "result": "not-run",
+      "detail": "Requires the user’s Tailscale-connected Windows PC and phone."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "organized-courses-20261016-verified",
+  "createdAt": "2026-10-16T21:21:12.031Z",
+  "title": "Organized courses and saved-place navigation verified",
+  "summary": "Course groups, status filters, search and per-course continuation verified for new and returning learners in Arabic, English and French.",
+  "status": "successful",
+  "pages": [
+    "Learn tab",
+    "Courses",
+    "Home",
+    "My learning",
+    "Course overview",
+    "Lesson"
+  ],
+  "components": [
+    "Courses",
+    "ContinueLearning",
+    "AcademyDashboard",
+    "CourseOverview"
+  ],
+  "files": [
+    "lecomax-learning-app/services/course-learning.ts",
+    "lecomax-learning-app/app/courses.tsx",
+    "lecomax-learning-app/components/ContinueLearning.tsx",
+    "lecomax-learning-app/app/(tabs)/discover.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/tests/course-learning.test.cjs",
+    "lecomax-learning-app/scripts/organized-courses-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Repeatable unit and browser checks for independent course checkpoints, shared lessons, completion, legacy progress and reload persistence."
+    },
+    {
+      "kind": "modified",
+      "detail": "Compact mobile course controls, clearer Arabic progress counts, and consistent started-course detection on the home and learning screens."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resolved initial TypeScript label/optional-value errors and verified course-aware resume links with saved lesson stages."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Typecheck and focused lint",
+      "result": "passed",
+      "detail": "TypeScript passed after corrections. ESLint passed for all eight affected application source files. git diff --check passed."
+    },
+    {
+      "name": "Progress, course library and history tests",
+      "result": "passed",
+      "detail": "20 tests passed: complete category coverage, fresh progress, separate checkpoints after JSON reload, shared-lesson ownership, completion/next lesson, legacy data, existing course navigation and six change-history/archive tests."
+    },
+    {
+      "name": "Browser checks",
+      "result": "passed",
+      "detail": "24 viewport cases at 320, 390, 768 and 1280px across Arabic/English/French, new/light and returning/dark states. Checked search, categories, all/my/completed views, save/remove, course-context resume, saved practice stage, reload persistence, switching courses, and Arabic home resume. No page errors or horizontal overflow."
+    },
+    {
+      "name": "Visual review",
+      "result": "passed",
+      "detail": "Reviewed Arabic new/returning library and course-list screenshots. Reduced mobile filter spacing and used explicit Arabic completed-count wording to avoid reversed slash fractions."
+    },
+    {
+      "name": "History preservation",
+      "result": "passed",
+      "detail": "Manifest validated with 356 reports before this follow-up. Append-only reports preserved."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Browser testing uses isolated profiles with synthetic authentication. No physical Android/iOS devices, real-account login or production deployment tested. Existing progress without recorded course context uses available lesson history; no start dates are invented."
+    }
+  ],
+  "relatedId": "organized-courses-20261016",
+  "preview": {
+    "path": "/courses",
+    "label": "Current organized courses (not a historical snapshot)",
+    "verifiedAt": "2026-10-16T21:21:12.031Z"
+  }
+}

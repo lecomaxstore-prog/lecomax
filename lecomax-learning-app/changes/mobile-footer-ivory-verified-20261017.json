@@ -1,0 +1,47 @@
+{
+  "id": "mobile-footer-ivory-verified-20261017",
+  "relatedId": "mobile-footer-ivory-20261017",
+  "createdAt": "2026-10-17T10:28:29.314Z",
+  "title": "New mobile footer checked locally",
+  "summary": "Ivory mobile footer reviewed at phone widths; desktop dark styling retained.",
+  "status": "successful",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css",
+    "lecomax-learning-app/artifacts/footer-ivory-mobile.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified new mobile palette, centered brand, integrated newsletter, contact rows and link groups."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Lint",
+      "result": "passed",
+      "detail": "Footer.tsx passes ESLint."
+    },
+    {
+      "name": "Responsive browser",
+      "result": "passed",
+      "detail": "No footer overflow at 320, 390, 768 and 1280px. Confirmed ivory below 768px and dark background at desktop breakpoints. Inspected 390px screenshot."
+    },
+    {
+      "name": "Interactions",
+      "result": "passed",
+      "detail": "Pointer expansion reveals navigation links; Enter collapses them. Intercepted newsletter success correctly disables email input; no actual subscription sent."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No physical-device or full-site regression. Screenshot includes fixed header/chat overlays. No deployment."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "learning-apk-build21-dependency-retry-20261016",
+  "createdAt": "2026-10-15T23:02:53.382Z",
+  "relatedId": "learning-apk-build21-prepared-20261016",
+  "title": "Build 21 staging dependency corrected after packaging failure",
+  "summary": "The first Android bundle could not resolve KaTeX in the staging directory. The build script now copies the installed math renderer before packaging.",
+  "status": "needs-testing",
+  "pages": [
+    "Tutor",
+    "Learning app",
+    "Change History"
+  ],
+  "components": [
+    "Android build",
+    "Math rendering",
+    "Browser verification"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/build-latest21.ps1",
+    "lecomax-learning-app/artifacts/build21-first-attempt.log",
+    "lecomax-learning-app/scripts/universe-browser.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Synchronize KaTeX and set the Windows system-tool PATH for repeatable staged builds."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First Android attempt",
+      "result": "failed",
+      "detail": "Metro could not resolve katex from utils/teacher-math.ts; no APK from this attempt was delivered."
+    },
+    {
+      "name": "Source checks",
+      "result": "passed",
+      "detail": "335 tests, TypeScript and focused universe ESLint checks passed."
+    },
+    {
+      "name": "Browser checks",
+      "result": "passed",
+      "detail": "Existing local web export: 16 routes at 4 widths in English, Arabic and French; nine game modes and persistence checked. Corrected the mismatch-penalty expectation to 390 points."
+    },
+    {
+      "name": "Retry and device",
+      "result": "not-run",
+      "detail": "Android retry, signing and USB verification pending; physical device not tested."
+    }
+  ]
+}

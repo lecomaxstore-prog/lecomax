@@ -1,0 +1,52 @@
+{
+  "id": "android-python-resume-20261010",
+  "createdAt": "2026-10-10T09:14:19.696Z",
+  "title": "Offline Python APK build resumed",
+  "summary": "Resumed version 1.0.6 build 8 from the separate short-path copy; source checks passed and native build is pending.",
+  "status": "needs-testing",
+  "relatedId": "android-python-build-retry-1791622533105",
+  "pages": [
+    "Python",
+    "Terminal",
+    "AI Teacher",
+    "Changes Made"
+  ],
+  "components": [
+    "PhonePythonLab",
+    "PhonePython native module",
+    "Android release build"
+  ],
+  "files": [
+    "lecomax-learning-app/docs/android-python.md",
+    "lecomax-learning-app/native/python/PhonePythonDeviceCheck.kt",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Resumed the interrupted Android release workflow using the existing C:\\lc-python-20261010\\app copy. Expo Android prebuild completed."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "5 CPython unit tests passed during this resumed session.",
+      "result": "passed",
+      "name": "Python runner"
+    },
+    {
+      "detail": "9 focused interaction/history tests passed; all 74 prior reports validated.",
+      "result": "passed",
+      "name": "UI and history"
+    },
+    {
+      "detail": "Typecheck and focused ESLint completed with exit code 0.",
+      "result": "passed",
+      "name": "TypeScript and lint"
+    },
+    {
+      "detail": "Gradle release and instrumentation builds in progress. No new APK installed or published.",
+      "result": "not-run",
+      "name": "APK and device"
+    }
+  ]
+}

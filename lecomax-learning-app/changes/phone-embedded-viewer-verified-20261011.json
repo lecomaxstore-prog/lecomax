@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Open pairing and remote screen inside Android app, avoiding session loss caused by switching from browser to app."
+    },
+    {
+      "kind": "added",
+      "detail": "Other-phone approval instructions, same-address navigation restriction, connection failure state and explicit/background/back disconnect handling. Browser fallback for web."
+    }
+  ],
+  "summary": "Replaced the Android external-browser handoff with an embedded viewer and explicit instructions to approve on the other phone.",
+  "id": "phone-embedded-viewer-verified-20261011",
+  "createdAt": "2026-10-11T21:29:40.270Z",
+  "validation": [
+    {
+      "detail": "11 focused phone-viewer and history tests passed. After focus/navigation safeguards, both modified phone tests, TypeScript and focused ESLint passed again.",
+      "result": "passed",
+      "name": "Automated checks"
+    },
+    {
+      "detail": "OTA delivery to Android runtime 1.0.10 is next. Two-phone capture, approval and remote control still need physical acceptance. Backgrounding or leaving the viewer intentionally disconnects.",
+      "result": "not-run",
+      "name": "Physical acceptance and publication"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/components/PhoneViewer.web.tsx",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/docs/phone-remote.md"
+  ],
+  "components": [
+    "Phone",
+    "PhoneViewer"
+  ],
+  "status": "successful",
+  "title": "Embedded phone viewer passes automated checks",
+  "pages": [
+    "My remote phone"
+  ],
+  "relatedId": "phone-embedded-viewer-20261011"
+}

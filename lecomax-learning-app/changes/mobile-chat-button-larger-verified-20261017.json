@@ -1,0 +1,40 @@
+{
+  "id": "mobile-chat-button-larger-verified-20261017",
+  "createdAt": "2026-10-17T10:49:33.122Z",
+  "title": "Larger mobile help button checks passed",
+  "summary": "CSS parsing, focused lint, learning app type check and six history tests passed; visual verification remains pending.",
+  "status": "successful",
+  "pages": [
+    "Mobile storefront"
+  ],
+  "components": [
+    "ChatWidget"
+  ],
+  "files": [
+    "components/ChatWidget.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recorded validation for the enlarged mobile chat launcher."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Static checks",
+      "result": "passed",
+      "detail": "PostCSS syntax parsing, ChatWidget lint and learning app TypeScript check passed."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All 6 history tests passed."
+    },
+    {
+      "name": "Browser and touch verification",
+      "result": "not-run",
+      "detail": "No connected browser available. Live appearance and tapping were not verified. No deployment."
+    }
+  ],
+  "relatedId": "mobile-chat-button-larger-20261017"
+}

@@ -1,0 +1,102 @@
+{
+  "id": "additional-real-brands-20261018-verified",
+  "createdAt": "2026-10-18T10:08:04.579Z",
+  "title": "30-brand catalogue: artwork and code checks passed",
+  "summary": "Verified the 13 added logos visually and confirmed all 30 app/web logo pairs are identical. Focused tests and typechecks passed.",
+  "status": "successful",
+  "pages": [
+    "Admin product editor",
+    "Expo product cards and details",
+    "Website product cards and details"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Shared product brand catalogue"
+  ],
+  "files": [
+    "mobile/src/lib/product-brands.ts",
+    "mobile/src/components/product-brand-mark.tsx",
+    "mobile/assets/images/brands/SOURCES.md",
+    "tests/product-brands.test.ts",
+    "docs/product-brands.md",
+    "mobile/assets/images/brands/fila.png",
+    "public/images/brands/fila.png",
+    "public/images/brands/fila.svg",
+    "mobile/assets/images/brands/thenorthface.png",
+    "public/images/brands/thenorthface.png",
+    "public/images/brands/thenorthface.svg",
+    "mobile/assets/images/brands/zara.png",
+    "public/images/brands/zara.png",
+    "public/images/brands/zara.svg",
+    "mobile/assets/images/brands/uniqlo.png",
+    "public/images/brands/uniqlo.png",
+    "public/images/brands/uniqlo.svg",
+    "mobile/assets/images/brands/samsung.png",
+    "public/images/brands/samsung.png",
+    "public/images/brands/samsung.svg",
+    "mobile/assets/images/brands/apple.png",
+    "public/images/brands/apple.png",
+    "public/images/brands/apple.svg",
+    "mobile/assets/images/brands/xiaomi.png",
+    "public/images/brands/xiaomi.png",
+    "public/images/brands/xiaomi.svg",
+    "mobile/assets/images/brands/huawei.png",
+    "public/images/brands/huawei.png",
+    "public/images/brands/huawei.svg",
+    "mobile/assets/images/brands/hp.png",
+    "public/images/brands/hp.png",
+    "public/images/brands/hp.svg",
+    "mobile/assets/images/brands/dell.png",
+    "public/images/brands/dell.png",
+    "public/images/brands/dell.svg",
+    "mobile/assets/images/brands/asus.png",
+    "public/images/brands/asus.png",
+    "public/images/brands/asus.svg",
+    "mobile/assets/images/brands/acer.png",
+    "public/images/brands/acer.png",
+    "public/images/brands/acer.svg",
+    "mobile/assets/images/brands/jbl.png",
+    "public/images/brands/jbl.png",
+    "public/images/brands/jbl.svg"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Append verification results for the 13 additional brands without changing previous reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Brand tests",
+      "result": "passed",
+      "detail": "7 tests passed, including shared catalogue coverage, byte-identical PNGs for all 30 brands, saved brand preservation, registry request sharing and API validation."
+    },
+    {
+      "name": "Typechecks",
+      "result": "passed",
+      "detail": "Mobile and learning app tsc --noEmit and scoped website tsc using artifacts/brand-parity-tsconfig.json passed."
+    },
+    {
+      "name": "Visual artwork inspection",
+      "result": "passed",
+      "detail": "Rendered and inspected artifacts/additional-brand-logos-check.png. All 13 new marks are visible, legible and fit within the artwork tiles. This is an asset contact sheet, not a live application preview."
+    },
+    {
+      "name": "Change history",
+      "result": "passed",
+      "detail": "6 history interaction/archive tests passed; pre-follow-up check validated 516 reports."
+    },
+    {
+      "name": "Live application and deployment",
+      "result": "not-run",
+      "detail": "Live authenticated brand selection/saving and physical-device rendering not tested. No deployment."
+    },
+    {
+      "name": "Mobile focused lint",
+      "result": "passed",
+      "detail": "ESLint passed without warnings for the shared brand catalogue and Expo ProductBrandMark."
+    }
+  ],
+  "relatedId": "additional-real-brands-20261018"
+}

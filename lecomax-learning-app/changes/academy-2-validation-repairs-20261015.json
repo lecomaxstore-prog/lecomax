@@ -1,0 +1,51 @@
+{
+  "id": "academy-2-validation-repairs-20261015",
+  "createdAt": "2026-10-15T10:07:49.964Z",
+  "relatedId": "academy-2-personal-learning-20261015",
+  "title": "Academy validation: refresh source snapshots and UI test fixtures",
+  "summary": "Refresh embedded project sources and reviewed boutique lesson fingerprint; align curriculum and wellness interaction fixtures with current UI.",
+  "status": "needs-testing",
+  "pages": [
+    "Source explorer",
+    "Boutique lesson",
+    "Curriculum",
+    "Wellness"
+  ],
+  "components": [
+    "Source library",
+    "CurriculumLibrary",
+    "DailyActionPlan"
+  ],
+  "files": [
+    "lecomax-learning-app/data/academy/lessons/academy-site-boutique.json",
+    "lecomax-learning-app/data/project.json",
+    "lecomax-learning-app/data/loaders.ts",
+    "lecomax-learning-app/data/site-source-map.json",
+    "lecomax-learning-app/data/source/",
+    "lecomax-learning-app/tests/curriculum-library-interaction.test.cjs",
+    "lecomax-learning-app/tests/wellness-daily-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Correct stale test dependencies and current wellness action label; refresh generated source snapshots and reviewed source fingerprint. No production deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial learning suite",
+      "result": "failed",
+      "detail": "274/278 passed; two stale source snapshots and two outdated UI fixtures."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Root and learning-app tsc --noEmit passed."
+    },
+    {
+      "name": "Retest",
+      "result": "not-run",
+      "detail": "Full suite and focused lint pending. Existing web entry is 95,649,469 bytes; performance remains unresolved."
+    }
+  ]
+}

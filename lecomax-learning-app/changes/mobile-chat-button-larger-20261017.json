@@ -1,0 +1,29 @@
+{
+  "id": "mobile-chat-button-larger-20261017",
+  "createdAt": "2026-10-17T10:49:12.252Z",
+  "title": "Larger mobile help button",
+  "summary": "Increased the floating mobile help button and chat icon for easier recognition and tapping.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile storefront"
+  ],
+  "components": [
+    "ChatWidget"
+  ],
+  "files": [
+    "components/ChatWidget.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Increased mobile button from 48px to 64px and inner green circle from 34px to 50px, with a 27px chat glyph and stronger shadow. Preserved icon-only layout, unread badge and accessible label."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Static checks pending. Browser visual and touch verification unavailable; not deployed."
+    }
+  ]
+}

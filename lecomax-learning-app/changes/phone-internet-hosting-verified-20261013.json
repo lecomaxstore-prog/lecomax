@@ -1,0 +1,102 @@
+{
+  "id": "phone-internet-hosting-verified-20261013",
+  "createdAt": "2026-10-13T21:27:40.948Z",
+  "title": "Internet sharing preparation verified; Render hosting configuration ready",
+  "summary": "Completed relay/app integration and local verification, including account-free recipient approval and confirmed Stop retries. Added a paid Render Starter deployment configuration; no service or APK has been deployed.",
+  "status": "successful",
+  "pages": [
+    "My remote phone",
+    "Internet phone sharing",
+    "Recipient screen sharing consent",
+    "WhatsApp invitation landing"
+  ],
+  "components": [
+    "OwnerGate",
+    "PhoneInternetInvitation",
+    "InternetPhoneViewer",
+    "PhoneRemoteModule",
+    "PhoneRemoteService",
+    "Internet relay"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app/phone-internet.tsx",
+    "lecomax-learning-app/app/phone-share.tsx",
+    "lecomax-learning-app/features/OwnerGate.tsx",
+    "lecomax-learning-app/utils/phone-internet.ts",
+    "lecomax-learning-app/components/PhoneInternetInvitation.tsx",
+    "lecomax-learning-app/components/InternetPhoneViewer.tsx",
+    "lecomax-learning-app/components/InternetPhoneViewer.web.tsx",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "app/api/learning-mobile/phone-invitations/route.ts",
+    "public/phone-invite.js",
+    "lecomax-learning-app/phone-relay/server.cjs",
+    "lecomax-learning-app/phone-relay/internet.cjs",
+    "lecomax-learning-app/phone-relay/internet-viewer.js",
+    "lecomax-learning-app/phone-relay/internet-viewer.html",
+    "lecomax-learning-app/phone-relay/Dockerfile",
+    "lecomax-learning-app/phone-relay/.dockerignore",
+    "lecomax-learning-app/phone-relay/.env.example",
+    "lecomax-learning-app/phone-relay/package.json",
+    "lecomax-learning-app/docs/phone-internet-hosting.md",
+    "lecomax-learning-app/tests/phone-internet-relay.test.cjs",
+    "lecomax-learning-app/tests/phone-internet-flow.test.cjs",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/phone-relay/package-lock.json",
+    "lecomax-learning-app/phone-relay/render.yaml",
+    "lecomax-learning-app/docs/phone-remote.md",
+    "lecomax-learning-app/tests/owner-gate-recovery.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Retain cancellation credentials and show Stop not confirmed when an embedded viewer ends while offline; allow authenticated HTTP revocation retry."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Recipient links are not redirected by saved navigation or stale learning notifications. All other routes still require owner authentication."
+    },
+    {
+      "kind": "modified",
+      "detail": "Install the relay-specific declared ws dependency, add its lockfile and use npm ci in Docker. Correct test mocks and Node lint globals after initial validation failures."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepare a Render Starter Blueprint for one Frankfurt Docker service, manual deployments, fixed phone.lecomax.com domain, health check and secret prompt. Add pricing references and setup instructions. No purchases or deployments performed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused app, relay and history regression tests",
+      "result": "passed",
+      "detail": "23/23 Node tests pass: owner-only backend creation, guest route boundary, explicit capture consent, decline/stop, offline stop retry, one-use publisher token, expiry, frame delivery, view-only enforcement, viewer reconnect, capture-loss revocation, existing Tailscale flow and append-only history persistence/interactions."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint on changed app routes, gate, components, utility and relay sources exited 0."
+    },
+    {
+      "name": "Native Android source compile",
+      "result": "passed",
+      "detail": "Existing compile-phone-invitation-android.ps1 compiled native phone sources against cached Android/React/OkHttp dependencies. Only deprecation/parameter-name warnings. This is not an APK build or installation."
+    },
+    {
+      "name": "Native regression suite",
+      "result": "passed",
+      "detail": "Existing test-phone-invitation-native.ps1 completed 13 JUnit tests successfully."
+    },
+    {
+      "name": "Hosting configuration local checks",
+      "result": "passed",
+      "detail": "Render YAML parsed, local Docker/context/COPY inputs exist, one instance and auto deploy off verified. No Render remote schema validation or Docker image build performed."
+    },
+    {
+      "name": "Hosting and physical phones",
+      "result": "not-run",
+      "detail": "No Render account/service creation, charge, Git push, DNS/TLS change, website deployment, APK build or installation. Physical WhatsApp launch, Android capture, Wi-Fi/mobile switching, lock/rotation and end-to-end remote viewing remain untested. No live preview claimed."
+    }
+  ],
+  "relatedId": "phone-internet-hosting-prepared-20261013"
+}

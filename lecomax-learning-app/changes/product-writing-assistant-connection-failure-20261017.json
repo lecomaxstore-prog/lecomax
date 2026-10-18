@@ -1,0 +1,34 @@
+{
+  "id": "product-writing-assistant-connection-failure-20261017",
+  "createdAt": "2026-10-17T11:20:23.129Z",
+  "title": "Product writing connection test identified JSON request issue",
+  "summary": "Initial live test failed; diagnosis found that JSON mode required JSON to be requested in the input message.",
+  "status": "failed",
+  "pages": [
+    "Admin Products: create and edit"
+  ],
+  "components": [
+    "ProductWritingAssistant",
+    "Protected product writing API"
+  ],
+  "files": [
+    "components/admin/ProductWritingAssistant.tsx",
+    "app/admin/products/page.tsx",
+    "app/api/admin/products/write/route.ts",
+    "tests/product-writing.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded the initial live connection failure and diagnosis. Local tests and typecheck passed; live request correction followed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial live synthetic generation",
+      "result": "failed",
+      "detail": "Initial request returned 503. Elevated diagnosis returned provider HTTP 400: input messages must request JSON for json_object mode. Corrected and retested in the subsequent report."
+    }
+  ],
+  "relatedId": "product-writing-assistant-20261017"
+}

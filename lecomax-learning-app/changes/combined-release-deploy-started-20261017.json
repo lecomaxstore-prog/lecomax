@@ -1,0 +1,38 @@
+{
+  "id": "combined-release-deploy-started-20261017",
+  "createdAt": "2026-10-17T18:01:31.940Z",
+  "relatedId": "resume-release-validation-complete-20261017",
+  "title": "Publish tested combined website release",
+  "summary": "User authorized production deployment of the validated combined website release.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront",
+    "Admin",
+    "Website learning"
+  ],
+  "components": [
+    "Vercel production release"
+  ],
+  "files": [
+    "release/latest-update-20261017/package.json",
+    "release/latest-update-20261017/vercel.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Submit the prepared combined release to the existing lecomax production project."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local release checks",
+      "result": "passed",
+      "detail": "Production build and type checking passed; 620 website tests passed with 5 skipped; 444 learning tests passed."
+    },
+    {
+      "name": "Production deployment and live checks",
+      "result": "not-run",
+      "detail": "Submission and post-deployment verification pending. This deploy targets the Next.js website, not a new Android binary or Expo update."
+    }
+  ]
+}

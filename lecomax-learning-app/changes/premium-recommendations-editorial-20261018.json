@@ -1,0 +1,40 @@
+{
+  "id": "premium-recommendations-editorial-20261018",
+  "createdAt": "2026-10-18T09:31:24.763Z",
+  "title": "Premium editorial product recommendations",
+  "summary": "A more substantial redesign with large photography, borderless cards and a warm neutral section.",
+  "status": "needs-testing",
+  "relatedId": "product-recommendation-polish-verified-20261018",
+  "pages": [
+    "Mobile product /product/[slug]"
+  ],
+  "components": [
+    "Related ProductCard",
+    "Recommendation carousel"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replaced compact cards with 72%-width editorial carousel cards, matching snap spacing, larger photography and refined typography."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed enclosing card borders and white card bodies."
+    },
+    {
+      "kind": "added",
+      "detail": "Warm ivory section, forest-green heading and fine price divider with 44px controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "TypeScript, lint and history validation pending; live visual preview and device interaction not performed."
+    }
+  ]
+}

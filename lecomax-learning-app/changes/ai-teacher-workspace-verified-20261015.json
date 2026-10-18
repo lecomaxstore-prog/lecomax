@@ -1,0 +1,96 @@
+{
+  "id": "ai-teacher-workspace-verified-20261015",
+  "createdAt": "2026-10-15T10:46:58.530Z",
+  "title": "AI teaching workspace: web checks pass; native compilation blocked",
+  "summary": "All 294 tests, both TypeScript checks and focused lint passed. Saved browser checks and web/Android JavaScript exports passed; Hermes bytecode compilation remains blocked by a Windows permission error.",
+  "status": "failed",
+  "pages": [
+    "AI Teacher",
+    "Teaching workspace",
+    "Plan lesson"
+  ],
+  "components": [
+    "TutorWorkspace",
+    "TutorMedia",
+    "TutorDiagram",
+    "Progress",
+    "Tutor API"
+  ],
+  "files": [
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/TutorMedia.tsx",
+    "lecomax-learning-app/components/TutorMedia.web.tsx",
+    "lecomax-learning-app/components/TutorDiagram.tsx",
+    "lecomax-learning-app/utils/tutor-contract.ts",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/tutor.ts",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/app/plan-lesson.tsx",
+    "lib/tutor-workspace.ts",
+    "lib/tutor-budget.ts",
+    "app/api/learning-mobile/tutor/route.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Eight pedagogical modes, schema-validated roadmaps/lessons/quizzes/evaluations/revisions/challenges, lesson resume, timed tests, concept evidence and memory controls."
+    },
+    {
+      "kind": "added",
+      "detail": "Browser image/PDF/TXT attachment input and capability-detected dictation/playback; native fallback is explicit. Interactive process, timeline, linear-function and triangle diagrams."
+    },
+    {
+      "kind": "modified",
+      "detail": "Existing teacher links to workspace; plan lesson passes exact plan/step context. Progress migration, export and backup include tutor state."
+    },
+    {
+      "kind": "added",
+      "detail": "Authenticated structured provider route, validation, rate limits, daily conservative token reservations and usage telemetry without learner content."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "Rerun npm.cmd test: 294 passed, 0 failed. Evidence: artifacts/tutor-resume-final-tests.log. Includes tutor contract, route, budget, memory and change-history tests.",
+      "result": "passed",
+      "name": "Learning app suite"
+    },
+    {
+      "detail": "Resumed root npx.cmd tsc --noEmit and learning app npm.cmd run typecheck passed.",
+      "result": "passed",
+      "name": "TypeScript"
+    },
+    {
+      "detail": "ESLint passed for tutor screen, media/diagram components, contract/memory/progress/resume helpers, service, MobileTeacher, plan lesson, backend workspace/budget and tutor route.",
+      "result": "passed",
+      "name": "Focused lint"
+    },
+    {
+      "detail": "Reran scripts/test-tutor-browser.cjs against the saved web export with mocked provider: lesson, feedback, clarification context, quiz gate, reload, failure/retry, TXT attachment, cancellation, simulated microphone denial and English/Arabic phone layout passed with no page errors. Evidence: artifacts/tutor/browser-results.json.",
+      "result": "passed",
+      "name": "Browser interactions"
+    },
+    {
+      "detail": "Reviewed completed prior-run tutor-web-export.log and tutor-android-js-export.log: dist-tutor-check and dist-tutor-android-js-check exported successfully. Android JavaScript entry approximately 97 MB; bundle performance remains unresolved. Exports precede this verification report.",
+      "result": "passed",
+      "name": "Web and Android JavaScript exports"
+    },
+    {
+      "detail": "Prior-run tutor-android-export.log records hermesc.exe permission denied. JavaScript export success does not verify Hermes compilation, an APK build or native device behavior.",
+      "result": "failed",
+      "name": "Android Hermes bytecode"
+    },
+    {
+      "detail": "Live paid AI provider, real microphone/speech permissions, native device behavior and production deployment not verified. No persistent live preview confirmed; no preview link attached.",
+      "result": "not-run",
+      "name": "External and device validation"
+    },
+    {
+      "name": "History integrity before append",
+      "result": "passed",
+      "detail": "change-report.cjs --check validated all 283 existing reports before appending this linked verification. No prior reports removed or rewritten."
+    }
+  ],
+  "relatedId": "ai-teacher-workspace-20261015"
+}

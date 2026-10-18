@@ -1,0 +1,45 @@
+{
+  "id": "expo-product-video-fix-20261017",
+  "createdAt": "2026-10-17T21:32:32.034Z",
+  "relatedId": "product-video-publication-verified-20261017",
+  "title": "Fix Cloudinary product videos in Expo",
+  "summary": "The Expo player independently passed stored HTML embed URLs to expo-video; normalize these links and add native playback feedback.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product detail"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideoPlayer",
+    "VideoPlayback"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx",
+    "mobile/src/components/product-video.tsx",
+    "mobile/src/lib/product-video.ts",
+    "mobile/src/i18n/locales/en.json",
+    "mobile/src/i18n/locales/fr.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Resolve Cloudinary embed pages to video/upload H.264 MP4 before native playback. Keep URL handling inside the mobile project so EAS packaging does not depend on parent source files."
+    },
+    {
+      "kind": "added",
+      "detail": "Use native controls, inline web playback, posters until first frame, loading indicator, localized errors and retry with a fresh native player. Pause when leaving the video slide; preserve gallery arrows, counter and image viewer."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Inspection",
+      "result": "passed",
+      "detail": "Read SDK 57 documentation and installed expo-video types. Found direct unnormalized uri and unused poster in Expo gallery."
+    },
+    {
+      "name": "Mobile checks and device playback",
+      "result": "not-run",
+      "detail": "Checks pending. No EAS update or binary has been published."
+    }
+  ]
+}

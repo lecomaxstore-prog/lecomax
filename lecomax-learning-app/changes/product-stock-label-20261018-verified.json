@@ -1,0 +1,35 @@
+{
+  "id": "product-stock-label-20261018-verified",
+  "createdAt": "2026-10-18T09:01:45.879Z",
+  "title": "Product availability label: code checks passed",
+  "summary": "Make availability easier to scan with a subtle tinted label and clear status icon.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product availability label"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replace the tiny stock dot with a green checkmark, pale green background, semibold text and balanced padding. Preorders use an amber clock and matching background; unavailable status retains its distinct red treatment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and product page ESLint completed without diagnostics."
+    },
+    {
+      "name": "Visual/device review",
+      "result": "not-run",
+      "detail": "Appearance has not been verified in a browser or on a physical device. No deployment."
+    }
+  ],
+  "relatedId": "product-stock-label-20261018"
+}

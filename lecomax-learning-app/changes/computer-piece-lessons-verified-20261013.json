@@ -1,0 +1,66 @@
+{
+  "id": "computer-piece-lessons-verified-20261013",
+  "createdAt": "2026-10-13T10:10:58.093Z",
+  "title": "Laptop and desktop lessons verified",
+  "summary": "Bring the phone learning experience to laptop and desktop parts with localized assembly guidance and offline practice.",
+  "status": "successful",
+  "pages": [
+    "Computer lab",
+    "AI Teacher"
+  ],
+  "components": [
+    "Computer explorer",
+    "Component dialog",
+    "Computer teacher context"
+  ],
+  "files": [
+    "lecomax-learning-app/data/computer-assembly.ts",
+    "lecomax-learning-app/utils/computer-piece-lesson.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/utils/pc-photo-runtime.ts",
+    "lecomax-learning-app/utils/pc-teacher.ts",
+    "lecomax-learning-app/tests/computer-piece-lessons.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Understand, Assembly and Try it sections, connected-part navigation, component quizzes, next-piece control and custom AI questions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced English-only generic assembly notes with Arabic/French/English guides distinguishing laptop soldered CPU/GPU, SO-DIMM RAM and main batteries from desktop components."
+    },
+    {
+      "kind": "modified",
+      "detail": "Photo taps, picker and component list now open lessons with one action; existing layer reveal, zoom and saved progress retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Computer regressions",
+      "result": "passed",
+      "detail": "13 existing tests passed for CPU/GPU reveal, restoring layers, zoom/pan/click suppression, saved progress and trusted teacher context in three languages."
+    },
+    {
+      "name": "New learning interactions",
+      "result": "passed",
+      "detail": "5 tests passed covering all 28 laptop/desktop lessons, localized device-specific assembly, one-action opening, sections, wrong/correct quiz answers, related/next navigation, focus, progress and validated custom questions."
+    },
+    {
+      "name": "History retention",
+      "result": "passed",
+      "detail": "6 history tests passed; immutable reports and archive interactions preserved."
+    },
+    {
+      "name": "Static validation",
+      "result": "passed",
+      "detail": "App typecheck and focused ESLint passed after adding explicit validation for missing assembly entries. Initial typecheck flagged possibly undefined guides; corrected before final checks."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Browser visual QA, physical devices and live AI responses were not tested. Automated tests cover teacher routing/context. No deployment."
+    }
+  ],
+  "relatedId": "computer-piece-lessons-20261013"
+}

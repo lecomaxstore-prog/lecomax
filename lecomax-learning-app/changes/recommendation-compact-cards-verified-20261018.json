@@ -1,0 +1,47 @@
+{
+  "id": "recommendation-compact-cards-verified-20261018",
+  "createdAt": "2026-10-18T09:36:58.074Z",
+  "title": "Compact recommendation cards pass automated checks",
+  "summary": "Mobile typecheck, focused lint and history checks passed; rendered appearance still requires visual confirmation.",
+  "status": "successful",
+  "relatedId": "recommendation-compact-cards-20261018",
+  "pages": [
+    "Mobile /product/[slug]"
+  ],
+  "components": [
+    "ProductCard related variant",
+    "Recommendations grid"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded automated verification of compact recommendation cards."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for product-card.tsx and product/[slug].tsx."
+    },
+    {
+      "name": "Whitespace and history",
+      "result": "passed",
+      "detail": "git diff --check and change-report.cjs --check passed."
+    },
+    {
+      "name": "Visual verification and deployment",
+      "result": "not-run",
+      "detail": "No connected browser preview available. No device interaction or deployment performed."
+    }
+  ]
+}

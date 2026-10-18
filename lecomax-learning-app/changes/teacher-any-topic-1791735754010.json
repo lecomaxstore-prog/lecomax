@@ -1,0 +1,45 @@
+{
+  "id": "teacher-any-topic-1791735754010",
+  "createdAt": "2026-10-11T16:22:34.010Z",
+  "title": "Teach any subject without automatic project context",
+  "summary": "General questions now default to any topic, with no automatic project source retrieval or unrelated learning record.",
+  "status": "needs-testing",
+  "pages": [
+    "/teacher",
+    "/api/learning-mobile/teacher"
+  ],
+  "components": [
+    "TeacherChat",
+    "AIEmptyState",
+    "mobileTeacherInstructions",
+    "Teacher API"
+  ],
+  "files": [
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lib/mobile-teacher-prompt.ts",
+    "app/api/learning-mobile/teacher/route.ts",
+    "lecomax-learning-app/tests/teacher-route.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Teacher instructions cover any subject and follow subject changes. Default topic, welcome suggestions and placeholder now support general learning."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed implicit repository retrieval and automatic assessment context from ordinary questions. Explicit lesson/file help remains available."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for non-programming questions, subject changes and explicit-only source selection."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Focused tests, typecheck and lint pending. Live model behavior and deployment not tested."
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Move base desktop colors into the footer CSS module so the mobile light override has deterministic precedence; opt mobile footer into only light color scheme."
+    }
+  ],
+  "summary": "Remove competing dark footer utilities and explicitly keep the mobile footer in the light color scheme shown in the reference.",
+  "id": "mobile-footer-light-colors-20261018",
+  "createdAt": "2026-10-18T08:33:53.379Z",
+  "validation": [
+    {
+      "detail": "Lint, stylesheet verification and history integrity pending. Physical phone and production deployment not tested.",
+      "result": "not-run",
+      "name": "Validation pending"
+    }
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "status": "needs-testing",
+  "title": "Consistent light mobile footer",
+  "pages": [
+    "Storefront pages: mobile footer"
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Correct strict indexed-access checks and preserve a working resume action when a saved plan has no visited lesson. Loading failures expose retry."
+    },
+    {
+      "kind": "added",
+      "detail": "Repeatable provider-contract failure checks and disposable Edge browser validation with synthetic authentication; no user records or credentials used."
+    },
+    {
+      "kind": "modified",
+      "detail": "Document actual architecture, first-slice scope, changed files and verification limits. No existing history records removed or rewritten."
+    }
+  ],
+  "summary": "Validated diagnostics, recommendations, saved progress and recall navigation across Arabic, English and French; live services and native devices remain unverified.",
+  "id": "academy-3-connected-journey-verified",
+  "createdAt": "2026-10-15T20:43:00.106Z",
+  "validation": [
+    {
+      "detail": "npm test: 321 tests passed, zero failures. artifacts/academy-3-tests.log.",
+      "result": "passed",
+      "name": "Full regression suite"
+    },
+    {
+      "detail": "9 tests passed after final formatting, including the additional generation contract test. Its initial harness argument-index error was corrected. Invalid designs and provider failures do not produce fallback courses.",
+      "result": "passed",
+      "name": "Final focused scenarios and React interaction tests"
+    },
+    {
+      "detail": "npm run typecheck and focused ESLint passed after correcting strict indexed access. CJS test files are ignored by existing lint configuration and were executed with node --test.",
+      "result": "passed",
+      "name": "TypeScript and source lint"
+    },
+    {
+      "detail": "Expo web export succeeded in dist-academy-3-check, including the learning-journey route. This is a local test export, not deployment.",
+      "result": "passed",
+      "name": "Web export"
+    },
+    {
+      "detail": "learning-journey-smoke.cjs passed in disposable Edge profiles: Arabic, English and French; 320x568, 390x844, 844x390, 768x1024; reduced motion requested; no horizontal overflow or page errors. Verified assessment, actual local storage, reload and Memory Studio navigation using fixture content and mocked authentication. Arabic and English screenshots inspected.",
+      "result": "passed",
+      "name": "Browser flow and layout"
+    },
+    {
+      "detail": "Append workflow preserved previous records; --check passed before appending this follow-up. Final manifest check follows.",
+      "result": "passed",
+      "name": "Change history"
+    },
+    {
+      "detail": "No live provider generation, semantic expert evaluation, real cloud round trip, native device or signed build verification. Existing owner authentication, AI credentials and reachable backend are required. No deployment performed. This is the first connected slice, not all nine phases.",
+      "result": "not-run",
+      "name": "Live services and native devices"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/utils/academy.ts",
+    "lecomax-learning-app/utils/learning-journey.ts",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/study-plan.ts",
+    "lecomax-learning-app/app/learning-journey.tsx",
+    "lecomax-learning-app/app/study-plan.tsx",
+    "lecomax-learning-app/app/plan-lesson.tsx",
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/tests/learning-journey.test.cjs",
+    "lecomax-learning-app/tests/fixtures/learning-journey.cjs",
+    "lecomax-learning-app/tests/academy-2-interaction.test.cjs",
+    "lecomax-learning-app/docs/academy-3-first-journey.md",
+    "lecomax-learning-app/scripts/learning-journey-smoke.cjs"
+  ],
+  "status": "successful",
+  "components": [
+    "LearningJourney",
+    "School progress schema",
+    "AcademyDashboard",
+    "AI study-plan generation"
+  ],
+  "relatedId": "academy-3-connected-journey",
+  "title": "Verify the connected learning journey",
+  "pages": [
+    "/learning-journey",
+    "/study-plan",
+    "/plan-lesson",
+    "/tutor",
+    "/"
+  ]
+}

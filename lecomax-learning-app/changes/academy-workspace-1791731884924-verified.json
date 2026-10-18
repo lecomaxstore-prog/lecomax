@@ -1,0 +1,69 @@
+{
+  "id": "academy-workspace-1791731884924-verified",
+  "createdAt": "2026-10-11T15:22:32.736Z",
+  "title": "Professional academy workspace verified",
+  "summary": "Verified the resumed course redesign, focused course sections, responsive layouts and navigation in the local web app.",
+  "status": "successful",
+  "relatedId": "academy-workspace-1791731884924",
+  "pages": [
+    "/course/[id]"
+  ],
+  "components": [
+    "CourseWorkspace",
+    "CourseOverview",
+    "CourseLessonList"
+  ],
+  "files": [
+    "lecomax-learning-app/components/CourseWorkspace.tsx",
+    "lecomax-learning-app/app/course/[id].tsx",
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/components/CourseLessonList.tsx",
+    "lecomax-learning-app/scripts/academy-workspace-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected a JSX closing tag and non-tuple title spread identified during type checking."
+    },
+    {
+      "kind": "added",
+      "detail": "Repeatable browser smoke checks using disposable progress and intercepted synthetic authentication, with screenshots for the overview, lessons and workshop."
+    },
+    {
+      "kind": "modified",
+      "detail": "Completed verification of the prior unfinished course-professional-redesign-1791727656966 header, next-lesson action and progress filters."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint for CourseOverview, CourseLessonList, CourseWorkspace and app/course/[id].tsx passed after corrections."
+    },
+    {
+      "name": "Course and history tests",
+      "result": "passed",
+      "detail": "11 tests passed: course-flow, course-workshops, change-history and change-history-interaction, including stored progress, workshop drafts and history persistence."
+    },
+    {
+      "name": "Browser interactions and responsive layout",
+      "result": "passed",
+      "detail": "24 checks: Arabic, English and French; light and dark themes; widths 320, 390, 768 and 1280. Section navigation and workshop expansion preserved in all language/theme combinations. English checks also verified progress filters, search preservation and start-course navigation. No page errors. Initial harness authentication and French label failures were corrected before the passing run."
+    },
+    {
+      "name": "Visual inspection",
+      "result": "passed",
+      "detail": "Reviewed Arabic mobile overview, lessons and expanded practice screenshots plus English dark overview. No clipping seen in reviewed screenshots."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No production deployment, Android/iOS device test or live authentication/backend validation. Browser authentication was intercepted with synthetic data. Other course-specific content was not visually reviewed."
+    }
+  ],
+  "preview": {
+    "path": "/course/academy-foundations",
+    "label": "Current academy course (local web verified; not a historical snapshot)",
+    "verifiedAt": "2026-10-11T15:22:32.736Z"
+  }
+}

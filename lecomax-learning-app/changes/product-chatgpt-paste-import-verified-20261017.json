@@ -1,0 +1,59 @@
+{
+  "id": "product-chatgpt-paste-import-verified-20261017",
+  "createdAt": "2026-10-17T11:23:50.285Z",
+  "title": "ChatGPT paste import verified",
+  "summary": "Paste labeled text or JSON, review detected fields and fill the product form without an API call.",
+  "status": "successful",
+  "pages": [
+    "Admin Products create/edit"
+  ],
+  "components": [
+    "ProductPasteImport",
+    "Product editor",
+    "Product paste parser"
+  ],
+  "files": [
+    "app/admin/products/page.tsx",
+    "components/admin/ProductPasteImport.tsx",
+    "lib/product-paste.ts",
+    "tests/product-paste.test.ts",
+    "tests/product-paste-interaction.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Open-by-default ChatGPT paste panel above link import. Supports French/English labels, JSON, bold labels, headings and two-column tables, with field preview and selection before applying."
+    },
+    {
+      "kind": "added",
+      "detail": "Maps product name, brand, description, category, MAD price, original price, stock, tags and kg weight. Missing/empty fields are preserved; unsupported fields, currencies and ambiguous units produce warnings. No external AI call, persistence or publishing."
+    },
+    {
+      "kind": "modified",
+      "detail": "Applying a pasted name derives a slug only for new products; existing product URLs remain intact. Existing link import and writing assistant remain available."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Parser and interaction tests",
+      "result": "passed",
+      "detail": "Seven tests passed: labeled multiline text, JSON, markdown tables/headings, zero stock, invalid values/units, omitted fields, selected-field application and invalidation of stale previews."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Full repository TypeScript check passed. Product editor, paste component and parser lint passed without warnings or errors."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Manifest check passed and all existing reports retained."
+    },
+    {
+      "name": "Browser and deployment",
+      "result": "not-run",
+      "detail": "No visual browser verification or deployment. Import accepts labeled text/JSON rather than interpreting unrestricted prose; unsupported fields are reported for manual entry."
+    }
+  ],
+  "relatedId": "product-chatgpt-paste-import-20261017"
+}

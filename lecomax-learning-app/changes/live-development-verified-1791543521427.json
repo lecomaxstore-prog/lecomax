@@ -1,0 +1,51 @@
+{
+  "id": "live-development-verified-1791543521427",
+  "createdAt": "2026-10-09T10:58:41.427Z",
+  "title": "تحديثات مباشرة أثناء التطوير",
+  "summary": "تهيئة تشغيل التطبيق لمتابعة تعديلات الملفات تلقائيًا دون الحاجة إلى تحديث يدوي في كل مرة.",
+  "status": "successful",
+  "pages": [
+    "Local development preview"
+  ],
+  "components": [
+    "Expo development launcher"
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/docs/change-history.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "مشغّل تطوير يزيل إعداد CI الموروث ويستخدم وضع التطوير حتى لا يتوقف Metro عن مراقبة تغييرات الملفات."
+    },
+    {
+      "kind": "modified",
+      "detail": "أوامر npm start وnpm run web تستخدم المشغّل الجديد. التحديث المباشر خاص بمعاينة التطوير؛ بعض التغييرات قد تتطلب إعادة تحميل تلقائية."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live Metro hot updates",
+      "result": "passed",
+      "detail": "Connected to ws://localhost:8088/hot, registered the served web bundle, then appended a real history report. Received non-initial update with one modified module followed by update-done, without requesting a page reload."
+    },
+    {
+      "name": "Development launcher",
+      "result": "passed",
+      "detail": "Mocked child launch verified removal of inherited CI=true, preservation of unrelated variables, NODE_ENV=development and forwarding --web. Node syntax check passed."
+    },
+    {
+      "name": "History regression and TypeScript",
+      "result": "passed",
+      "detail": "6/6 change-history tests and tsc --noEmit passed."
+    },
+    {
+      "name": "User-visible browser state",
+      "result": "not-run",
+      "detail": "No browser session available to UI tools. Server delivery is verified; client display/Fast Refresh preference is not. Static exports and production builds do not receive local edits."
+    }
+  ],
+  "relatedId": "live-development-updates-1791543496617"
+}

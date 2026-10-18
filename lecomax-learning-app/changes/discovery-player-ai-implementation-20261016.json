@@ -1,0 +1,49 @@
+{
+  "id": "discovery-player-ai-implementation-20261016",
+  "createdAt": "2026-10-16T12:30:07.932Z",
+  "title": "Interactive AI discovery player",
+  "summary": "Adds eight functional AI steps, local simulations, checkpoints, persistent resume and active-step Tutor context.",
+  "status": "needs-testing",
+  "pages": [
+    "/discovery",
+    "/curiosity",
+    "/tutor"
+  ],
+  "components": [
+    "DiscoveryPlayer",
+    "Journey models",
+    "TutorWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/features/curiosity/journeys.ts",
+    "lecomax-learning-app/features/curiosity/labs.ts",
+    "lecomax-learning-app/features/curiosity/player-model.ts",
+    "lecomax-learning-app/features/curiosity/DiscoveryPlayer.tsx",
+    "lecomax-learning-app/app/discovery.tsx",
+    "lecomax-learning-app/features/curiosity/CuriosityScreen.tsx",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/app/tutor.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Eight-step AI journey with eight learning views, parameter calculations, independent checkpoints and persistent per-step evidence."
+    },
+    {
+      "kind": "modified",
+      "detail": "Tutor sessions retain active discovery step and bounded experiment/checkpoint context. Existing catalog routes expose the player."
+    }
+  ],
+  "validation": [
+    {
+      "name": "AI-first validation gate",
+      "result": "not-run",
+      "detail": "Unit tests, typecheck, lint and browser interaction checks pending before expanding other topics."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "English authored content. AI supports existing language settings but requires network. No live AI or physical Android verification yet."
+    }
+  ]
+}

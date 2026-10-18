@@ -1,0 +1,81 @@
+{
+  "id": "curiosity-universe-verification-20261016",
+  "createdAt": "2026-10-16T12:24:30.925Z",
+  "title": "Curiosity Universe verified on web and Android exports",
+  "summary": "21 discoveries, AI experiment, persistent journal and contextual Tutor handoff pass focused checks. Live AI and physical-device validation remain outstanding.",
+  "status": "successful",
+  "pages": [
+    "/curiosity",
+    "/",
+    "/more",
+    "/tutor",
+    "/change-history"
+  ],
+  "components": [
+    "CuriosityScreen",
+    "AcademyDashboard",
+    "TutorWorkspace",
+    "TutorSession"
+  ],
+  "files": [
+    "lecomax-learning-app/features/curiosity/catalog.ts",
+    "lecomax-learning-app/features/curiosity/model.ts",
+    "lecomax-learning-app/features/curiosity/CuriosityScreen.tsx",
+    "lecomax-learning-app/app/curiosity.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/docs/curiosity-universe.md",
+    "lecomax-learning-app/features/curiosity/PredictionLab.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/tests/curiosity.test.cjs",
+    "lecomax-learning-app/scripts/check-curiosity-app.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Interactive parameter/loss experiment, source-linked catalog, conceptual flows, 10 exploration modes, 21 retrieval questions, bookmarks, named collections, related concept map and due reviews."
+    },
+    {
+      "kind": "modified",
+      "detail": "Dashboard and More navigation expose Curiosity Universe. Tutor sessions preserve discovery ID, source context, journey stages and component explanations. Existing auth, cost controls, persistence and backups are reused."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Strict TypeScript indexing, backup recovery route, render-time clock handling and collection names matching inherited object keys. Corrupt journals are preserved and cannot be silently overwritten."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Typecheck and focused lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint on curiosity features, route, navigation and Tutor changes passed."
+    },
+    {
+      "name": "Focused automated tests",
+      "result": "passed",
+      "detail": "11 curiosity/change-history tests and 17 Tutor workspace/intelligence/budget regression tests passed; includes backup round-trip and bounded discovery context."
+    },
+    {
+      "name": "Browser interactions",
+      "result": "passed",
+      "detail": "Disposable Edge tests passed in light and dark themes: mode selection, component nodes, weight prediction, incorrect/correct answers, bookmarking, collection creation, full reload persistence, map links, 390px overflow and contextual Tutor handoff. Auth mocked; no live AI response or cloud writes."
+    },
+    {
+      "name": "Builds",
+      "result": "passed",
+      "detail": "Web export and Android JavaScript and Hermes bytecode exports passed. Initial sandbox denied Hermes execution; permitted retry passed. No APK installation or release deployment."
+    },
+    {
+      "name": "Remaining validation and scope",
+      "result": "not-run",
+      "detail": "No physical Android performance, screen-reader, expert editorial or live authenticated model-response test. Bundled catalog is English. AI language options are generated translations. Catalog has introductory manufacturing/history coverage and conceptual diagrams, not full 3D/anatomical models or an exhaustive encyclopedia."
+    }
+  ],
+  "relatedId": "curiosity-universe-implementation-20261016",
+  "preview": {
+    "path": "/curiosity",
+    "label": "Current Curiosity Universe (verified export; not a historical snapshot)",
+    "verifiedAt": "2026-10-16T12:24:30.925Z"
+  }
+}

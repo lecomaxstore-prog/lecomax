@@ -1,0 +1,122 @@
+{
+  "id": "admin-premium-verification-20261017",
+  "createdAt": "2026-10-17T17:32:44.854Z",
+  "title": "Admin redesign verified locally; staging checks remain",
+  "summary": "Production build, type checks, lint, API contracts and responsive browser checks passed. Two unrelated lesson harness failures and live integration verification remain.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/abandoned-carts",
+    "/admin/accept-invite",
+    "/admin/activity",
+    "/admin/ads",
+    "/admin/analytics",
+    "/admin/announcement",
+    "/admin/app-releases",
+    "/admin/approvals",
+    "/admin/banners",
+    "/admin/broadcast",
+    "/admin/categories",
+    "/admin/chat-kb",
+    "/admin/checkout",
+    "/admin/client-data",
+    "/admin/coupons",
+    "/admin/customers",
+    "/admin/dashboard",
+    "/admin/ecomedia",
+    "/admin/how-it-was-built",
+    "/admin/learning-app",
+    "/admin/loyalty",
+    "/admin/media",
+    "/admin/messages",
+    "/admin/mobile-app",
+    "/admin/newsletter",
+    "/admin/orders",
+    "/admin/pages",
+    "/admin/products",
+    "/admin/promotions",
+    "/admin/push",
+    "/admin/recordings",
+    "/admin/returns",
+    "/admin/reviews",
+    "/admin/roles",
+    "/admin/settings",
+    "/admin/shipping",
+    "/admin/size-guide",
+    "/admin/smart-assistant",
+    "/admin/staff",
+    "/admin/stock",
+    "/admin/studio",
+    "/admin/support",
+    "/admin/trustpilot"
+  ],
+  "components": [
+    "AdminLayout",
+    "Analytics StatCard",
+    "Messages"
+  ],
+  "files": [
+    "app/admin/admin-premium.css",
+    "app/admin/layout.tsx",
+    "app/admin/analytics/page.tsx",
+    "app/admin/messages/page.tsx",
+    "scripts/smoke-admin-premium.mjs",
+    "docs/admin-premium-redesign-20261017.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Finalized system typography and preserved white headings on dark page surfaces."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Show contact mutation failures inside the mobile message-detail overlay as well as the page."
+    },
+    {
+      "kind": "added",
+      "detail": "Local-only regression browser test and route inventory/validation documentation. All prior history preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Final production build completed with exit 0. Restricted external fetches emitted EACCES warnings; no production deployment."
+    },
+    {
+      "name": "Lint and TypeScript",
+      "result": "passed",
+      "detail": "Root lint exit 0 with existing warnings; root and learning-app type checks exit 0."
+    },
+    {
+      "name": "Responsive browser verification",
+      "result": "passed",
+      "detail": "40 admin routes at nine widths 320?1280px, populated dashboard/drawer/editor checks, settings tabs, filters, pagination, support and role editor passed using local fixtures. Screenshots reviewed; fixtures are not real business data."
+    },
+    {
+      "name": "Failure-path browser checks",
+      "result": "passed",
+      "detail": "Message load failure/retry/update failure, failed logout, inert drawer/Escape, no runtime exceptions, and overflow checks at 320?2560px passed. Writes intercepted."
+    },
+    {
+      "name": "API contract audit",
+      "result": "passed",
+      "detail": "180 calls and 183 routes checked with zero failures."
+    },
+    {
+      "name": "Full root test suite",
+      "result": "failed",
+      "detail": "607 passed, 2 failed, 5 skipped of 614 tests. Untouched learning-guided test harness rejects existing ../LessonTeacher import. Separate Android back tests passed."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "Six append-retention, storage and UI interaction tests passed; manifest check passed before this append and is checked again afterward."
+    },
+    {
+      "name": "Live workflow and deployment validation",
+      "result": "not-run",
+      "detail": "No production CRUD, email/payment/push delivery, Clarity authentication or real-device keyboard testing. Full dark content theme and exhaustive academy/invitation/print checks are deferred. No deployment."
+    }
+  ],
+  "relatedId": "admin-premium-redesign-20261017"
+}

@@ -1,0 +1,57 @@
+{
+  "id": "phone-viewing-invitation-20261013",
+  "createdAt": "2026-10-13T19:59:10.108Z",
+  "title": "Send a link to request view-only phone sharing",
+  "summary": "Adds a private Tailscale invitation from the viewing phone, explicit approval on the second Android phone, automatic viewer handoff and host-enforced view-only access.",
+  "status": "needs-testing",
+  "pages": [
+    "My remote phone (/phone)",
+    "Change History (/change-history)"
+  ],
+  "components": [
+    "PhoneInvitation",
+    "PhoneViewer",
+    "Android phone capture and invitation server"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneInvitation.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/utils/phone-invitation.ts",
+    "lecomax-learning-app/native/phone/PhoneInvitationServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteInput.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/docs/phone-viewing-invitations.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Private ten-minute, one-device viewing invitation with share/copy, explicit consent, expiry, cancellation and automatic in-app viewer connection."
+    },
+    {
+      "kind": "modified",
+      "detail": "Viewer hides remote controls for view-only sessions; Arabic, French and English explain setup and consent."
+    },
+    {
+      "kind": "fixed",
+      "detail": "View-only host rejects input even if Accessibility is enabled and excludes saved control credentials; capture starts without requiring Accessibility."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated validation",
+      "result": "not-run",
+      "detail": "TypeScript, lint, native protocol and interaction checks pending."
+    },
+    {
+      "name": "Physical phones and deployment",
+      "result": "not-run",
+      "detail": "Requires updated native Android builds and Tailscale on both phones; no installation, public deployment or two-phone test has been performed."
+    }
+  ]
+}

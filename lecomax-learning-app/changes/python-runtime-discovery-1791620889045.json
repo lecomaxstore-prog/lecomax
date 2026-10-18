@@ -1,0 +1,43 @@
+{
+  "id": "python-runtime-discovery-1791620889045",
+  "createdAt": "2026-10-10T08:28:09.045Z",
+  "title": "Connect the lab to installed Python",
+  "summary": "Fix Python execution when Windows app aliases are broken by resolving the installed Python interpreter for code runs and interactive terminals.",
+  "status": "needs-testing",
+  "pages": [
+    "Teacher practice lab",
+    "Interactive terminal"
+  ],
+  "components": [
+    "Python runtime discovery",
+    "Local lab server"
+  ],
+  "files": [
+    "lib/python-runtime.ts",
+    "lib/teacher-lab.ts",
+    "lib/teacher-runtimes.ts",
+    "scripts/start-teacher-lab.mjs",
+    "tests/teacher-lab.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Shared Python resolver with Windows Python install-manager fallback and explicit executable override."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Code execution and terminal discovery now use the same real interpreter rather than a broken Windows shortcut."
+    },
+    {
+      "kind": "modified",
+      "detail": "Python regression test exercises automatic runtime discovery."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Installed Python 3.14.6 was identified; runtime regression checks and app typecheck have not run yet. No deployment or phone validation."
+    }
+  ]
+}

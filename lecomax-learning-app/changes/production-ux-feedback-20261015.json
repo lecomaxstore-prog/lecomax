@@ -1,0 +1,51 @@
+{
+  "id": "production-ux-feedback-20261015",
+  "createdAt": "2026-10-15T12:00:04.636Z",
+  "relatedId": "production-readiness-upgrade-20261015",
+  "title": "Accurate note-save feedback and readable code direction",
+  "summary": "Aligns note feedback with successful device writes, keeps source code left-to-right, and removes an assumed identity from the sign-in greeting.",
+  "status": "needs-testing",
+  "pages": [
+    "Lesson",
+    "Sign in",
+    "Interactive Learning Studio"
+  ],
+  "components": [
+    "LessonFooter",
+    "StudyCoach",
+    "OwnerGate",
+    "CodeEditor"
+  ],
+  "files": [
+    "lecomax-learning-app/components/LessonFooter.tsx",
+    "lecomax-learning-app/components/StudyCoach.tsx",
+    "lecomax-learning-app/features/OwnerGate.tsx",
+    "lecomax-learning-app/features/interactive/CodeEditor.web.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Notes no longer always claim saved while a write is pending; recall copy points to save status."
+    },
+    {
+      "kind": "modified",
+      "detail": "Sign-in greeting is neutral before authentication; existing owner attribution retained."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Explicit LTR direction for web source editor independently of Arabic interface."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source and visual audit",
+      "result": "passed",
+      "detail": "Fresh sign-in, lesson and teacher screenshots inspected. Found fixed-name greeting and unconditional saved wording."
+    },
+    {
+      "name": "Post-change checks",
+      "result": "not-run",
+      "detail": "Rebuild, regression and three-language checks pending."
+    }
+  ]
+}

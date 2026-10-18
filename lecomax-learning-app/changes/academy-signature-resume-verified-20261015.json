@@ -1,0 +1,98 @@
+{
+  "id": "academy-signature-resume-verified-20261015",
+  "relatedId": "academy-signature-integration-20261015",
+  "createdAt": "2026-10-15T16:17:45.086Z",
+  "status": "successful",
+  "title": "Academy Signature integration and isolated runtime verified",
+  "summary": "Complete the interrupted validation: saved six-way browser matrix, fresh learning journey, code runtimes and regression suite all pass.",
+  "pages": [
+    "Interactive Studio",
+    "Python Studio",
+    "Explore",
+    "Course details",
+    "AI Teacher",
+    "Practice",
+    "Profile",
+    "Error recovery"
+  ],
+  "components": [
+    "CodeLab",
+    "PythonLab",
+    "CourseLessonList",
+    "CourseOverview",
+    "MobileTeacher",
+    "TeacherSheet",
+    "BottomTabBar",
+    "SchoolProvider"
+  ],
+  "files": [
+    "lecomax-learning-app/app/interactive-studio.tsx",
+    "lecomax-learning-app/app/explore.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/features/interactive/presentation.ts",
+    "lecomax-learning-app/features/interactive/CodeLab.tsx",
+    "lecomax-learning-app/features/interactive/PythonLab.tsx",
+    "lecomax-learning-app/components/CourseLessonList.tsx",
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/store/School.tsx",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/tests/academy-2-interaction.test.cjs",
+    "lecomax-learning-app/tests/resume-route.test.cjs",
+    "lecomax-learning-app/scripts/test-signature-ui.cjs",
+    "lecomax-learning-app/docs/academy-signature.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Localized Studio catalog and coding action labels; course milestone connectors; branded error recovery."
+    },
+    {
+      "kind": "modified",
+      "detail": "Teacher welcome and conversation surfaces, Explore subject icons, Python workspace entry and code editor toolbar."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Explicit aria-selected on web tabs; reduced-motion modal transitions; native route restoration and learning-time accounting include new tab routes. Adjusted existing dashboard test harness for new shared primitives."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression suite",
+      "result": "passed",
+      "detail": "304 tests passed, including formula parsing/rendering and history interaction/persistence tests."
+    },
+    {
+      "name": "Static checks",
+      "result": "passed",
+      "detail": "TypeScript typecheck and focused ESLint for TeacherFormula, TeacherMessage, teacher-math and teacher-markdown passed."
+    },
+    {
+      "name": "Web and Android exports",
+      "result": "passed",
+      "detail": "Fresh web export and Android Hermes export passed. Initial sandboxed Hermes invocation was permission denied; approved retry succeeded."
+    },
+    {
+      "name": "Browser learning journey",
+      "result": "passed",
+      "detail": "Real browser UI verified fraction/root MathML, no viewport overflow, lesson completion, code exercise success/errors, flashcard review and persisted state after reopening. Formula screenshot visually reviewed. Authentication and teacher response were fixtures."
+    },
+    {
+      "name": "Physical devices and deployment",
+      "result": "not-run",
+      "detail": "No physical Android/iOS rendering, native WebView scrolling or large-text formula checks; no live paid provider call and no deployment."
+    },
+    {
+      "name": "Six-way browser matrix from prior run",
+      "result": "passed",
+      "detail": "Reviewed artifacts/signature/ui-results.json recorded at 2026-10-15T15:58:38.760Z: English/French/Arabic, light/dark, 96 route visits and six five-tab navigation checks; zero browser errors. This matrix predates the formula completion."
+    },
+    {
+      "name": "Isolated code runtimes",
+      "result": "passed",
+      "detail": "Fresh isolated run passed 15 checks: JavaScript grading, incorrect code, capability isolation, TypeScript, runtime errors, loop/memory bounds, SQL queries/reset/errors, React, cancellation and disabled HTML scripts. Prior timeout did not recur; execution limits unchanged."
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "gallery-counter-minimal-20261018-verified",
+  "relatedId": "gallery-counter-minimal-20261018",
+  "createdAt": "2026-10-18T09:00:45.287Z",
+  "title": "Minimal gallery progress: code checks passed",
+  "summary": "Replace the floating badge with a centered progress line and a small padded image count below the gallery.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed the dark badge, media icon and overlay positioning."
+    },
+    {
+      "kind": "modified",
+      "detail": "Moved the count below the image onto a plain white strip, with a thin progress line and small tabular 01 / 08 typography. Single-media galleries remain hidden."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint for product-gallery.tsx completed without diagnostics."
+    },
+    {
+      "name": "Visual/device review",
+      "result": "not-run",
+      "detail": "Rendered appearance has not been verified in a browser or on a physical device. No deployment."
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "academy-build24-prepared-20261017",
+  "createdAt": "2026-10-17T09:55:15.780Z",
+  "title": "Academy 1.0.22 build 24 prepared for USB",
+  "summary": "Package the latest Academy source and student journey audit fixes as an Android update for the existing app.",
+  "status": "needs-testing",
+  "pages": [
+    "Android app",
+    "Change History"
+  ],
+  "components": [
+    "Android release",
+    "Version configuration"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml",
+    "lecomax-learning-app/artifacts/build-academy24.ps1",
+    "lecomax-learning-app/artifacts/verify-academy24.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Advance Android version to 1.0.22 (24), preserving package identity and the existing signing configuration."
+    },
+    {
+      "kind": "added",
+      "detail": "Build and verification scripts for the latest source and audit reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Android release validation",
+      "result": "not-run",
+      "detail": "Build, native tests, signing comparison and USB checksum verification pending. No deployment or physical-phone installation performed."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Delivered lecomax-learn-1.0.18-build20.apk to D:/lecomax app, preserving prior APKs. App version 1.0.18, code 20, ARM64."
+    }
+  ],
+  "summary": "Signed Android APK completed and delivered to D:/lecomax app with matching SHA-256. Physical-device and hosted internet sharing checks remain outstanding.",
+  "id": "learning-apk-build20-usb-verified-20261013",
+  "createdAt": "2026-10-13T21:47:46.558Z",
+  "validation": [
+    {
+      "detail": "Gradle BUILD SUCCESSFUL; 13 native tests, zero failures/errors. APK signature verified and matches build 11 signer. Version, sharing routes/native methods, history presence and viewer assets verified.",
+      "result": "passed",
+      "name": "Android release"
+    },
+    {
+      "detail": "Source and USB SHA-256: 61cca72ace7361868f138242290dcc2b6508bccf8b593d365733e8886e2c4bf0. APK size 206469352 bytes.",
+      "result": "passed",
+      "name": "USB copy"
+    },
+    {
+      "detail": "npm.cmd run typecheck and 18 focused history, invitation, relay and web tests passed.",
+      "result": "passed",
+      "name": "Source validation"
+    },
+    {
+      "detail": "1403 entries checked for known private values, common credential patterns and private file paths. Does not prove absence of unknown or encoded secrets.",
+      "result": "passed",
+      "name": "Archive audit"
+    },
+    {
+      "detail": "Installation, capture, WhatsApp launch and cross-network use on physical phones not tested in this resume. Internet relay/backend hosting not deployed. APK contains the prepared report; this post-build verification is in repository history and requires a future build to appear on installed devices. No UI preview claimed.",
+      "result": "not-run",
+      "name": "Physical device and hosting"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.18-build20.apk",
+    "lecomax-learning-app/artifacts/phone-internet-build20.log",
+    "lecomax-learning-app/artifacts/phone-internet-build20-native-tests.xml",
+    "lecomax-learning-app/artifacts/phone-direct-build20-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build20-secret-audit.json",
+    "lecomax-learning-app/artifacts/build20-usb-verification.json"
+  ],
+  "status": "successful",
+  "components": [
+    "Android release",
+    "Native phone capture",
+    "USB delivery"
+  ],
+  "relatedId": "learning-apk-build20-prepared-20261013",
+  "title": "Learn 1.0.18 build 20 verified and copied to USB",
+  "pages": [
+    "Learning app",
+    "My remote phone",
+    "Internet invitations",
+    "Change History"
+  ]
+}

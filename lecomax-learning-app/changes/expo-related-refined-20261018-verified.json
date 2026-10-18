@@ -1,0 +1,50 @@
+{
+  "id": "expo-related-refined-20261018-verified",
+  "createdAt": "2026-10-18T09:42:59.369Z",
+  "title": "Refined recommendation cards: code checks passed",
+  "summary": "Refine You may also like with smaller image frames, white details and a clear product arrow.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Related carousel",
+    "ProductCard related variant"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Reduce card width to reveal more products; use rounded image frames with a white borderless text area, compact typography and a 44px product detail arrow."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Keep the brand in collaboration titles so names do not start with x. Render the crossed-out original price only for discounted products, removing the stray dash."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the tinted lower panel, price divider and blank struck-through price placeholder."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "TypeScript and ESLint for both edited files completed without diagnostics."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All four history preservation and validation tests passed."
+    },
+    {
+      "name": "Visual and device interaction checks",
+      "result": "not-run",
+      "detail": "No connected browser or device was available in UI inventory. Native gestures, arrow navigation and rendered appearance remain unverified. Not deployed."
+    }
+  ],
+  "relatedId": "expo-related-refined-20261018"
+}

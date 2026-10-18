@@ -1,0 +1,35 @@
+{
+  "id": "phone-explorer-unicode-20261013",
+  "createdAt": "2026-10-13T09:27:07.299Z",
+  "title": "Repair phone explorer text encoding",
+  "summary": "Restore readable Arabic and French labels, descriptions, accessibility text and zoom symbols in the phone component explorer.",
+  "status": "needs-testing",
+  "pages": [
+    "Phone lab"
+  ],
+  "components": [
+    "Phone photo explorer",
+    "Component details dialog"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/phone-photo-view.ts",
+    "lecomax-learning-app/tests/phone-explorer.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Reversed repeated Windows-1252/UTF-8 corruption in localized strings and restored question-mark zoom labels."
+    },
+    {
+      "kind": "added",
+      "detail": "Unicode regression checks for rendered text, accessibility labels and zoom symbols in all three languages."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Verification",
+      "result": "not-run",
+      "detail": "Phone explorer interactions, typecheck, lint and history checks pending. No deployment."
+    }
+  ]
+}

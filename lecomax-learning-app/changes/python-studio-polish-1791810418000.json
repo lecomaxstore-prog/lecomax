@@ -1,0 +1,35 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Refined slate surfaces, typography, status badge, tabs, spacing, mobile save control and console presentation."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced blank live-output placeholder with localized loading, running and input guidance."
+    }
+  ],
+  "summary": "Sharper visual hierarchy, compact mobile controls and informative console loading states.",
+  "id": "python-studio-polish-1791810418000",
+  "createdAt": "2026-10-12T13:06:58.016Z",
+  "validation": [
+    {
+      "detail": "Typecheck, focused lint, Python interaction and change-history checks pending. Native device and browser visual review not yet performed.",
+      "result": "not-run",
+      "name": "Validation pending"
+    }
+  ],
+  "files": [
+    "components/PythonStudio.web.tsx",
+    "components/python-studio-design.ts"
+  ],
+  "components": [
+    "PythonStudio",
+    "pythonStudioCSS"
+  ],
+  "status": "needs-testing",
+  "title": "Refined Python Studio layout and runtime states",
+  "pages": [
+    "/terminal"
+  ]
+}

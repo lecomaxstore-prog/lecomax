@@ -1,0 +1,73 @@
+{
+  "id": "product-video-cloudinary-verified-20261017",
+  "createdAt": "2026-10-17T21:23:23.386Z",
+  "title": "Verify product video delivery and playback fix",
+  "summary": "Confirmed the HTML player-link root cause, valid H.264 delivery and JPEG posters, Chrome playback at two viewport sizes, and passing focused regression checks.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail",
+    "Admin products"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideo",
+    "Product media validation"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "components/ProductVideo.tsx",
+    "lib/product-video.ts",
+    "lib/product-api-validation.ts",
+    "app/admin/products/page.tsx",
+    "tests/product-video.test.ts",
+    "artifacts/product-video-fix/delivery.json",
+    "artifacts/product-video-fix/browser.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Public product data contains player.cloudinary.com HTML embed URLs for Asics Superblast 2 and Armani Intensely. These were passed directly to video src. Resolve existing links on read and normalize future product writes to video/upload H.264 MP4 delivery."
+    },
+    {
+      "kind": "added",
+      "detail": "Cloudinary posters, native controls, inline playback, metadata preload, loading status and retryable errors; preserve gallery navigation and prevent video scrubbing from triggering slide swipes."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression coverage for URL resolution, signed/external URL preservation, invalid links, loading/error/retry/poster fallback, and image/video switching."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live media diagnosis and delivery",
+      "result": "passed",
+      "detail": "Both affected stored URLs returned text/html. Resolved video/upload URLs returned video/mp4;codecs=avc1 and posters image/jpeg. Two existing direct Cloudinary videos also returned valid video and posters."
+    },
+    {
+      "name": "Real browser decoding",
+      "result": "passed",
+      "detail": "Chrome rendered the updated ProductVideo markup and decoded both affected videos at widths 1280 and 390; currentTime advanced with nonzero video dimensions, readyState 4 and no media error. Initial local navigation harness was aborted; direct document loading resolved that harness issue. This is isolated component playback, not a complete hydrated storefront or physical-device test."
+    },
+    {
+      "name": "Focused regression tests",
+      "result": "passed",
+      "detail": "9 video/gallery tests, 9 existing preorder/product API tests and 6 change-history tests passed. Focused lint passed without warnings."
+    },
+    {
+      "name": "Application source TypeScript",
+      "result": "passed",
+      "detail": "TypeScript check scoped to app, components and lib passed using artifacts/product-video-fix/tsconfig.json."
+    },
+    {
+      "name": "Default repository TypeScript",
+      "result": "failed",
+      "detail": "Default tsconfig includes old artifacts/publication-20261017/conflicts snapshots containing merge markers; this prevents the unscoped check. Those unrelated files were not modified."
+    },
+    {
+      "name": "Remaining validation and publication",
+      "result": "not-run",
+      "detail": "No physical Android/iPhone or Safari test, full production build, authenticated admin save, or deployment performed. Existing stored records remain intact; render-time normalization supports them and future API saves normalize embed links. History is local until the learning app is rebuilt or served locally."
+    }
+  ],
+  "relatedId": "product-video-cloudinary-fix-20261017"
+}

@@ -1,0 +1,40 @@
+{
+  "id": "admin-analytics-loading-recovery-20261013",
+  "createdAt": "2026-10-12T23:23:47.433Z",
+  "title": "Load current analytics before optional trends and recover failed requests",
+  "summary": "Remove the comparison request from the critical loading path and reduce repeated navigation badge traffic.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Analytics",
+    "Admin navigation"
+  ],
+  "components": [
+    "AnalyticsPage",
+    "Analytics API",
+    "AdminLayout",
+    "Analytics request helper"
+  ],
+  "files": [
+    "app/admin/analytics/page.tsx",
+    "app/api/analytics/route.ts",
+    "app/admin/layout.tsx",
+    "lib/analytics-fetch.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Bound analytics requests; show retry after failure; cancel obsolete period requests; prevent older responses replacing the selected period."
+    },
+    {
+      "kind": "modified",
+      "detail": "Render current analytics before requesting compact comparison totals; omit duplicate full historical views/sessions from comparison response; delay badge reads and refresh once per minute instead of every navigation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local checks",
+      "result": "not-run",
+      "detail": "TypeScript, focused lint and runtime regressions pending. No production deployment or phone browser measurement performed. Existing storefront performance fixes remain in the workspace."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "stronger-with-you-exclude-new-arrivals-20261017",
+  "createdAt": "2026-10-17T10:09:29.555Z",
+  "title": "Remove Stronger With You from Nouveaut?s",
+  "summary": "Exclude Stronger With You from new-arrivals selections and Nouveau badges while keeping catalog availability unchanged.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage",
+    "Nouveaut?s",
+    "Catalog"
+  ],
+  "components": [
+    "isNewArrivalEligible",
+    "apiToCard",
+    "MobileHome"
+  ],
+  "files": [
+    "lib/products.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Shared new-arrivals eligibility excludes Stronger With You by product name or hyphenated slug. Existing Lenovo exclusion remains in place. No products deleted."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused checks",
+      "result": "passed",
+      "detail": "Both existing new-arrivals tests pass. Direct assertions confirm Stronger With You is excluded and loses its Nouveau badge; Ferrari remains eligible."
+    },
+    {
+      "name": "Local response",
+      "result": "passed",
+      "detail": "Local homepage returned HTTP 200."
+    },
+    {
+      "name": "Visual and catalog acceptance",
+      "result": "not-run",
+      "detail": "No browser visual verification. Product API returned a non-array response, so live catalog verification was inconclusive. No deployment performed."
+    }
+  ]
+}

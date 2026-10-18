@@ -1,0 +1,45 @@
+{
+  "id": "academy-rename-build22-20261016",
+  "createdAt": "2026-10-16T13:40:58.575Z",
+  "title": "Rename the learning app to ACADEMY",
+  "summary": "Rename the Android launcher, learning headers and phone-sharing labels to ACADEMY; prepare version 1.0.20, build 22 from the current learning app.",
+  "status": "needs-testing",
+  "pages": [
+    "Learning dashboard",
+    "Settings",
+    "More",
+    "Phone sharing",
+    "Android launcher"
+  ],
+  "components": [
+    "App branding",
+    "Android release configuration",
+    "Phone remote service"
+  ],
+  "files": [
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml",
+    "lecomax-learning-app/artifacts/build-academy22.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Updated visible app branding and Android version to 1.0.20 (22). Existing package ID, stored learning data keys and source-site references are preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared the repeatable ACADEMY release build script."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build and validation",
+      "result": "not-run",
+      "detail": "Typecheck, history checks, native release build, APK signature and USB copy verification pending. No deployment or device installation performed."
+    }
+  ]
+}

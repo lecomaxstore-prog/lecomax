@@ -1,0 +1,50 @@
+{
+  "id": "python-browser-workspace-20261011",
+  "createdAt": "2026-10-11T10:19:38.650Z",
+  "title": "Isolated Python workspace and code editor",
+  "summary": "First incremental Python upgrade: browser execution, CodeMirror editor, local drafts and saved script copies, bounded console history and offline error guidance.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "TeacherLab",
+    "PythonStudio",
+    "PythonEditor"
+  ],
+  "files": [
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonEditor.web.tsx",
+    "lecomax-learning-app/utils/python-sandbox.ts",
+    "lecomax-learning-app/utils/python-errors.ts",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Browser Python runs in an opaque-origin sandbox iframe and disposable worker with startup and execution deadlines. CodeMirror provides Python highlighting, brackets, indentation, completion, search/replace, undo, shortcuts and error markers."
+    },
+    {
+      "kind": "modified",
+      "detail": "Web Python tab uses the learning workspace. Existing PC terminal runtimes, Android CPython, authentication and lesson progress remain in place. Drafts and named script copies reuse the existing progress store."
+    },
+    {
+      "kind": "added",
+      "detail": "Separate stdout/stderr, duration, stop/restart/clear/copy, last 20 runs, general error explanations and optional existing AI teacher handoff."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial type check",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck passed after CodeMirror installation and JSX correction."
+    },
+    {
+      "name": "Behavior and runtime verification",
+      "result": "not-run",
+      "detail": "Pending tests. Pre-entered input only; live input prompts, cloud script sync, full course expansion and new native editor are not included. Native and iOS device behavior untested. No deployment."
+    }
+  ]
+}

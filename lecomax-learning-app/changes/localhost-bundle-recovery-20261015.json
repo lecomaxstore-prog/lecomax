@@ -1,0 +1,53 @@
+{
+  "id": "localhost-bundle-recovery-20261015",
+  "relatedId": "academy-visual-polish-resumed-validation-20261015",
+  "createdAt": "2026-10-15T17:00:17.186Z",
+  "title": "Restore the blank localhost app",
+  "summary": "Restarted the stalled Expo server with a cleared Metro cache; the real sign-in screen now renders on localhost:8081.",
+  "status": "successful",
+  "pages": [
+    "Local app startup",
+    "Sign in"
+  ],
+  "components": [
+    "Expo development server",
+    "Local learning API",
+    "Offline car runtime"
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/data/car-studio-runtime.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Recovered the local development process that served HTML but never delivered its JavaScript bundle. Restarted the existing development workflow on port 8081 with --clear."
+    },
+    {
+      "kind": "modified",
+      "detail": "The existing startup workflow regenerated the offline car runtime and started the local learning API. No source logic was changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Actual browser rendering",
+      "result": "passed",
+      "detail": "Fresh headless Edge loaded localhost:8081, displayed the real email sign-in form, and produced a visually reviewed screenshot. No fixture authentication was used."
+    },
+    {
+      "name": "Startup",
+      "result": "passed",
+      "detail": "Owner authentication configuration and session database check passed; local API started at 127.0.0.1:3002; Metro completed the web bundle."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No credentials submitted, authenticated session or physical-device checks performed. No deployment. Local server must remain running."
+    }
+  ],
+  "preview": {
+    "path": "/",
+    "label": "Current local app",
+    "verifiedAt": "2026-10-15T17:00:17.186Z"
+  }
+}

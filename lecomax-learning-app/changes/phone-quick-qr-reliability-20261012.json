@@ -1,0 +1,66 @@
+{
+  "id": "phone-quick-qr-reliability-20261012",
+  "createdAt": "2026-10-12T06:09:58.194Z",
+  "status": "needs-testing",
+  "title": "Scan from either phone and explicitly allow instant QR connection",
+  "summary": "Add a main-screen scanner, one-use owner-authorized QR connection, camera flashlight/retry, and viewer recovery. Fix rapid taps incorrectly disconnecting an approved session.",
+  "pages": [
+    "My remote phone",
+    "Phone scanner",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneDirectServer",
+    "PhoneRemoteService",
+    "PhoneRemoteModule",
+    "PhonePairingScanner",
+    "PhoneViewer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhonePairingScanner.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/tests/phone-page.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Either idle phone can open Scan a phone directly and become the viewer. Owner taps Allow QR connection on the sharing phone to grant one scanner screen/control access without a second approval tap. Separate random QR capability expires after two minutes and is revoked when hidden, replaced, used or stopped."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Return non-authentication status codes for rapid taps, paused streaming and a locked screen, so the viewer does not revoke a valid session. Reject scanning the same phone."
+    },
+    {
+      "kind": "added",
+      "detail": "Flashlight and camera retry; viewer reload retry with same-origin in-memory token restoration after WebView process loss, without persistent token storage."
+    },
+    {
+      "kind": "modified",
+      "detail": "Repair QR translations, update recovery guidance, and prepare version 1.0.14/build 16. Preserve manual owner approval and Android capture permission."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated and native checks",
+      "result": "not-run",
+      "detail": "New regression checks, TypeScript, lint and signed Android build pending."
+    },
+    {
+      "name": "Physical acceptance",
+      "result": "not-run",
+      "detail": "No connected devices. Either phone can scan the sharing phone; a reverse invitation QR displayed on an idle viewer is not implemented. Android capture/lock/process constraints remain. No deployment."
+    }
+  ]
+}

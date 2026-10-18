@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Four speaking guides covering message planning, point/reason/example, thinking between sentences and recovering lost words."
+    },
+    {
+      "kind": "added",
+      "detail": "Three practice topics, session-only keyword notes, step navigation, reflection and repeat practice, without microphone recording."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home and My tools now link to the speaking practice page. No removals."
+    }
+  ],
+  "summary": "Added a speaking option to Home and My tools with Arabic, English and French guidance and a four-step speaking exercise.",
+  "id": "speaking-practice-added-20261014",
+  "createdAt": "2026-10-14T09:07:27.320Z",
+  "validation": [
+    {
+      "detail": "Typecheck, focused lint, change-history checks and interaction verification pending. Native devices and deployment not tested.",
+      "result": "not-run",
+      "name": "Implementation checks"
+    }
+  ],
+  "files": [
+    "app/speaking.tsx",
+    "components/SpeakingCard.tsx",
+    "components/StudyDashboard.tsx",
+    "app/(tabs)/more.tsx"
+  ],
+  "components": [
+    "Speaking",
+    "SpeakingCard",
+    "StudyDashboard",
+    "More"
+  ],
+  "status": "needs-testing",
+  "title": "Speak with clarity: lessons and guided practice",
+  "pages": [
+    "Home",
+    "My tools",
+    "/speaking"
+  ]
+}

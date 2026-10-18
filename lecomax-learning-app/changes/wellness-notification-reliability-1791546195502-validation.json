@@ -1,0 +1,66 @@
+{
+  "id": "wellness-notification-reliability-1791546195502-validation",
+  "createdAt": "2026-10-09T11:47:01.086Z",
+  "title": "Reminder fixes validated; phone delivery needs testing",
+  "summary": "TypeScript, source lint and 37 selected tests pass. Generated web and Android JavaScript bundles pass syntax checks; native bytecode and real-device delivery remain unverified.",
+  "status": "needs-testing",
+  "pages": [
+    "Wellness reminders",
+    "Healthy routine"
+  ],
+  "components": [
+    "Native notification scheduler",
+    "Browser reminder scheduler",
+    "NotificationsScreen"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx",
+    "lecomax-learning-app/tests/wellness.test.cjs",
+    "lecomax-learning-app/tests/wellness-browser.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a regression test proving UTC-offset changes replace the native weekly schedule once without duplicate rescheduling."
+    },
+    {
+      "kind": "modified",
+      "detail": "Recorded validation of the linked reminder reliability changes and the remaining device/build limitations."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "tsc --noEmit completed successfully."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "The three changed application TS/TSX files passed ESLint. Repository configuration ignores CJS tests."
+    },
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "37 unique tests passed across wellness, browser reminders, journey clock and history suites, including a subsequent 24-test wellness run with the added offset regression."
+    },
+    {
+      "name": "Platform JavaScript artifacts",
+      "result": "passed",
+      "detail": "Expo --no-bytecode generated web and Android bundles and export metadata. Both emitted JS bundles passed node --check. The exporter has not returned an exit status, so a clean export-process completion is not claimed."
+    },
+    {
+      "name": "Native bytecode",
+      "result": "failed",
+      "detail": "Windows denied execution of hermesc.exe. See the linked immutable failure report."
+    },
+    {
+      "name": "Device delivery and visual QA",
+      "result": "not-run",
+      "detail": "No real-device, background/closed-app, sound or battery-saving delivery test was performed. Browser delivery requires an open tab. No deployment or installation was performed."
+    }
+  ],
+  "relatedId": "wellness-notification-reliability-1791546195502-hermes-blocked"
+}

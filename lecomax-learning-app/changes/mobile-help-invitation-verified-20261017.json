@@ -1,0 +1,40 @@
+{
+  "id": "mobile-help-invitation-verified-20261017",
+  "createdAt": "2026-10-17T10:54:18.871Z",
+  "title": "Animated help invitation static checks passed",
+  "summary": "CSS parsing, focused lint, learning app type check and six history tests passed. Live animation verification remains pending.",
+  "status": "successful",
+  "pages": [
+    "Mobile storefront"
+  ],
+  "components": [
+    "ChatWidget"
+  ],
+  "files": [
+    "components/ChatWidget.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recorded validation for the repeating mobile help speech bubble."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Static checks",
+      "result": "passed",
+      "detail": "PostCSS syntax, ChatWidget lint and learning app TypeScript check passed."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All six history tests passed."
+    },
+    {
+      "name": "Live animation and interactions",
+      "result": "not-run",
+      "detail": "No connected browser available. The 30-second cadence, reduced-motion appearance and bubble tap behavior have not been browser verified. No deployment."
+    }
+  ],
+  "relatedId": "mobile-help-invitation-20261017"
+}

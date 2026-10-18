@@ -1,0 +1,53 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Copied ACADEMY-1.0.21-build23.apk and installation notes to D:/lecomax app, preserving earlier installers."
+    }
+  ],
+  "summary": "Delivered the latest Arabic typography and organized courses update to D:/lecomax app; USB installer matches the signed local APK.",
+  "id": "academy-build23-usb-verified-20261016",
+  "createdAt": "2026-10-16T21:36:47.439Z",
+  "validation": [
+    {
+      "detail": "Existing build log records BUILD SUCCESSFUL; native XML reports 13 tests with zero failures or errors.",
+      "result": "passed",
+      "name": "Release build and native tests"
+    },
+    {
+      "detail": "Verified signature matching build 22, package com.lecomax.learning, version 1.0.21 / 23, ARM64, latest course/history markers and both Arabic font assets.",
+      "result": "passed",
+      "name": "Installer verification"
+    },
+    {
+      "detail": "216570288 bytes; local and USB SHA256 match: 913DD1A2FD7EDD3B258DF530512E25AD8B524C558B6F70807957AC77028C46B7.",
+      "result": "passed",
+      "name": "USB integrity"
+    },
+    {
+      "detail": "Physical-phone installation and real-account login not tested. No deployment performed. This post-build report is stored in repository history for a future build; delivered APK includes the preparation report.",
+      "result": "not-run",
+      "name": "Device and delivery report availability"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/ACADEMY-1.0.21-build23.apk",
+    "lecomax-learning-app/artifacts/build23-verification.json",
+    "lecomax-learning-app/artifacts/build23-usb-verification.json",
+    "lecomax-learning-app/artifacts/verify-academy23.ps1",
+    "lecomax-learning-app/artifacts/copy-academy23-usb.ps1"
+  ],
+  "status": "successful",
+  "components": [
+    "Android release",
+    "USB delivery"
+  ],
+  "relatedId": "academy-build23-prepared-20261016",
+  "title": "ACADEMY 1.0.21 build 23 verified and copied to USB",
+  "pages": [
+    "Android application",
+    "Courses",
+    "Home",
+    "Change History"
+  ]
+}

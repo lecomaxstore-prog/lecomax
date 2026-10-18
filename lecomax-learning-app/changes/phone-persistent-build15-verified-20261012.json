@@ -1,0 +1,89 @@
+{
+  "id": "phone-persistent-build15-verified-20261012",
+  "createdAt": "2026-10-12T06:05:35.816Z",
+  "status": "successful",
+  "title": "Persistent Tailscale sharing build 15 verified and ready",
+  "summary": "Android 1.0.13/build 15 keeps approved direct sessions beyond inactivity and total-duration limits. Signed APK, 22 automated tests, TypeScript and lint passed; physical acceptance is still required.",
+  "pages": [
+    "My remote phone",
+    "Phone viewer"
+  ],
+  "components": [
+    "PhoneDirectServer",
+    "PhoneRemoteService",
+    "PhoneViewer",
+    "Direct viewer"
+  ],
+  "files": [
+    "lecomax-learning-app/native/phone/PhoneDirectServer.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/native/phone/PhoneDirectServerTest.kt",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/tests/phone-direct-viewer.test.cjs",
+    "lecomax-learning-app/tests/phone-viewer.test.cjs",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/artifacts/lecomax-learn-1.0.13-build15.apk",
+    "lecomax-learning-app/artifacts/build-persistent-sharing.ps1",
+    "lecomax-learning-app/artifacts/verify-phone-persistent-build15.cjs",
+    "lecomax-learning-app/artifacts/audit-build15.ps1",
+    "lecomax-learning-app/artifacts/phone-persistent-build15-final.log",
+    "lecomax-learning-app/artifacts/phone-direct-build15-verification.json",
+    "lecomax-learning-app/artifacts/phone-direct-build15-secret-audit.json",
+    "lecomax-learning-app/artifacts/phone-persistent-build15-native-tests.xml",
+    "lecomax-learning-app/docs/phone-persistent-sharing-build15.md"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Remove inactivity and total-duration expiry from approved direct Tailscale sessions, and remove viewer pause/reconnect deadlines."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Retain the approved service during temporary loss of the original Tailscale address; resume when that address returns. Heartbeat still pauses frames and controls during viewer absence."
+    },
+    {
+      "kind": "modified",
+      "detail": "Update English, French and Arabic session guidance and prepare Android 1.0.13/build 15. Keep explicit Stop controls, owner approval, ten-minute unapproved pairing expiry and Android capture revocation handling."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression coverage for 24-hour idle/pause/reconnect and pending approval expiry."
+    },
+    {
+      "kind": "added",
+      "detail": "Signed arm64 installation APK, native-test evidence and physical acceptance guide."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Android release build",
+      "result": "passed",
+      "detail": "Corrected wrapper returned exit 0. Gradle BUILD SUCCESSFUL in 59s: 855 tasks, 24 executed and 831 up-to-date. Existing Gradle deprecation warnings remain."
+    },
+    {
+      "name": "Native server regression tests",
+      "result": "passed",
+      "detail": "Seven JVM tests passed with zero failures/errors: 24-hour idle/pause recovery, required owner approval, bounded pairing attempts, unapproved expiry, lock and origin restrictions, and explicit-stop revocation."
+    },
+    {
+      "name": "Viewer, QR and history regressions",
+      "result": "passed",
+      "detail": "15 tests passed including simulated day-long hidden viewer and network interruption, manual disconnect and history retention/retry. TypeScript and focused ESLint passed."
+    },
+    {
+      "name": "Signed artifact verification",
+      "result": "passed",
+      "detail": "Version 1.0.13/code 15, arm64, same signing certificate as build 11; native camera/direct server present; packaged viewer matches workspace; native staging sources match; stopWithTask=false; no RECORD_AUDIO permission. SHA256 c87f87583f8011c5cfe57b551b51a10a799c1e3ef53518c0205493abdff7ba2c. All 1403 ZIP entries passed known-value/pattern/private-file credential audit; unknown or encoded secrets are outside that audit."
+    },
+    {
+      "name": "Device, delivery and history limitations",
+      "result": "not-run",
+      "detail": "No connected phone; no physical Recents, VPN-recovery or overnight acceptance. Android lock, force-stop, process death, reboot, revoked capture and rotation can stop sharing. Original Tailscale address must return. Viewer process recreation requires new pairing. Offline viewer Disconnect requires Stop on host to revoke. No deployment/OTA. APK includes the needs-testing report; later retry/final verification records are preserved in workspace history for a future build."
+    }
+  ],
+  "relatedId": "phone-persistent-build15-log-retry-20261012"
+}

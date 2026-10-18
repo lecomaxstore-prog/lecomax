@@ -1,0 +1,42 @@
+{
+  "id": "product-chatgpt-paste-import-20261017",
+  "createdAt": "2026-10-17T11:22:49.096Z",
+  "title": "Paste product information from ChatGPT",
+  "summary": "Paste labeled text or JSON, review detected fields and fill the product form without an API call.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin Products create/edit"
+  ],
+  "components": [
+    "ProductPasteImport",
+    "Product editor",
+    "Product paste parser"
+  ],
+  "files": [
+    "app/admin/products/page.tsx",
+    "components/admin/ProductPasteImport.tsx",
+    "lib/product-paste.ts",
+    "tests/product-paste.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Open-by-default ChatGPT paste panel above link import. Supports French/English labels, JSON, bold labels, headings and two-column tables, with field preview and selection before applying."
+    },
+    {
+      "kind": "added",
+      "detail": "Maps product name, brand, description, category, MAD price, original price, stock, tags and kg weight. Missing/empty fields are preserved; unsupported fields, currencies and ambiguous units produce warnings. No external AI call, persistence or publishing."
+    },
+    {
+      "kind": "modified",
+      "detail": "Applying a pasted name derives a slug only for new products; existing product URLs remain intact. Existing link import and writing assistant remain available."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Parser tests, focused lint and TypeScript pending. Browser interaction and deployment not performed."
+    }
+  ]
+}

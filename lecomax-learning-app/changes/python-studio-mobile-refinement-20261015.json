@@ -1,0 +1,45 @@
+{
+  "id": "python-studio-mobile-refinement-20261015",
+  "createdAt": "2026-10-15T17:04:41.508Z",
+  "title": "Refine Python Studio for mobile coding",
+  "summary": "Make long code readable, expose editor controls and frame the workspace more clearly.",
+  "status": "needs-testing",
+  "pages": [
+    "Python Studio",
+    "Interactive Studio"
+  ],
+  "components": [
+    "PythonStudio",
+    "PythonStudioIcon",
+    "PythonLab"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/PythonStudioIcon.tsx",
+    "lecomax-learning-app/components/python-studio-design.ts",
+    "lecomax-learning-app/features/interactive/PythonLab.web.tsx",
+    "lecomax-learning-app/tests/python-studio-interaction.test.cjs",
+    "lecomax-learning-app/data/python-mobile-workspace.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Visible line-wrap and focus-mode controls beside the file; focus mode has an exit button and Escape support. Console tab displays the actual saved run count."
+    },
+    {
+      "kind": "modified",
+      "detail": "Wrap long lines by default. Refine rounded workspace frame, compact header, translated subtitle, tab treatment, coding keys, editor height and status spacing."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Use a flex container and dynamic viewport height for the embedded web studio so its internal scrolling is constrained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, Python interaction regressions, rebuilt WebView bundle and responsive browser verification pending. Physical phone keyboard remains untested."
+    }
+  ]
+}

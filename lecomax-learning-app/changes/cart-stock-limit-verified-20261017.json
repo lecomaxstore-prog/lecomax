@@ -1,0 +1,57 @@
+{
+  "id": "cart-stock-limit-verified-20261017",
+  "createdAt": "2026-10-17T11:06:22.537Z",
+  "title": "Cart stock limits verified",
+  "summary": "Automated cart and order checks confirm stock limits; browser verification remains outstanding.",
+  "status": "successful",
+  "pages": [
+    "Product detail",
+    "Cart /panier"
+  ],
+  "components": [
+    "CartProvider",
+    "ProductActions",
+    "CartPage"
+  ],
+  "files": [
+    "lib/cart-stock-limit.ts",
+    "components/CartContext.tsx",
+    "components/ProductActions.tsx",
+    "app/panier/page.tsx",
+    "tests/cart-stock-limit.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified stock-capped cart mutations, variant limits, invalid input handling and preserved explicit preorders."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Cart, preorder and order API regression tests",
+      "result": "passed",
+      "detail": "17 tests passed, including real CartProvider mutations with stock 3, repeated adds, bulk adds, quantity edits, zero stock and variant inventory."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "node node_modules/typescript/bin/tsc --noEmit --incremental false completed successfully."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "No errors; two existing React hook dependency warnings in ProductActions."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All 6 history persistence and interaction tests passed. History manifest check passed before this verification append."
+    },
+    {
+      "name": "Browser and production",
+      "result": "not-run",
+      "detail": "No browser visual or end-to-end interaction check, mobile-native verification, or deployment performed. Current inventory snapshots still rely on refresh and server validation when stock changes."
+    }
+  ],
+  "relatedId": "cart-stock-limit-20261017"
+}

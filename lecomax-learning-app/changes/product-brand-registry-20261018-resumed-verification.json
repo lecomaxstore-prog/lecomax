@@ -1,0 +1,81 @@
+{
+  "id": "product-brand-registry-20261018-resumed-verification",
+  "createdAt": "2026-10-18T08:57:34.228Z",
+  "relatedId": "product-brand-registry-20261018",
+  "title": "Product brands: local backend and Expo connection verified",
+  "summary": "Resumed the brand picker work and verified live registry reads, unauthorized-write rejection, mobile types and focused tests. Visual and authenticated upload checks remain pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin products",
+    "Expo product details",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "ProductBrandPicker",
+    "ProductBrandMark",
+    "Product brands API",
+    "Change history"
+  ],
+  "files": [
+    "components/admin/ProductBrandPicker.tsx",
+    "app/api/products/brands/route.ts",
+    "mobile/src/components/product-brand-mark.tsx",
+    "mobile/src/lib/product-brands.ts",
+    "mobile/metro.config.js",
+    "tests/product-brands.test.ts",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added this linked verification record without rewriting the original pending report. Existing brand implementation was retained; no deployment or database write was performed."
+    }
+  ],
+  "validation": [
+    {
+      "detail": "All 4 tests passed: normalized names, legacy brands, independent persistence, authorization boundary, unsafe logo rejection and database write failure.",
+      "result": "passed",
+      "name": "Brand regression tests"
+    },
+    {
+      "detail": "GET /api/products/brands returned 200 with ASICS on both localhost:3000 backend and localhost:8081 Expo proxy. Unauthenticated POST returned 401 on both.",
+      "result": "passed",
+      "name": "Live local API"
+    },
+    {
+      "detail": "mobile: npx.cmd tsc --noEmit exited 0.",
+      "result": "passed",
+      "name": "Mobile typecheck"
+    },
+    {
+      "detail": "Brand picker and API lint exited 0 with two next/no-img-element optimization warnings.",
+      "result": "passed",
+      "name": "Admin focused lint"
+    },
+    {
+      "detail": "All 6 archive and interaction tests passed; pre-append manifest check passed with 461 reports.",
+      "result": "passed",
+      "name": "History regression tests"
+    },
+    {
+      "detail": "Admin products and ASICS SVG returned HTTP 200. Expo homepage returned HTTP 200 on retry after initial cold request timed out. HTTP checks do not verify rendered appearance.",
+      "result": "passed",
+      "name": "Local HTTP pages and asset"
+    },
+    {
+      "detail": "Blocked by existing merge-conflict snapshots in artifacts/publication-20261017/conflicts, unrelated to product brands.",
+      "result": "failed",
+      "name": "Full repository typecheck"
+    },
+    {
+      "detail": "No browser surfaces available for UI verification. Authenticated brand creation/logo upload and physical-device rendering remain untested. No production deployment.",
+      "result": "not-run",
+      "name": "Visual, authenticated and device checks"
+    },
+    {
+      "name": "Mobile focused lint",
+      "result": "passed",
+      "detail": "ESLint for product-brand-mark.tsx and product-brands.ts exited 0 without warnings."
+    }
+  ]
+}

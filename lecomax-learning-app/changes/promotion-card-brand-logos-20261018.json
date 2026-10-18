@@ -1,0 +1,37 @@
+{
+  "id": "promotion-card-brand-logos-20261018",
+  "createdAt": "2026-10-18T10:12:35.828Z",
+  "title": "Show real brand logos on Promotions cards",
+  "summary": "Replace brand text in the home Promotions rail and promotion cards with the shared Expo brand logo.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo home Promotions",
+    "Expo promotion cards"
+  ],
+  "components": [
+    "HomePromotionSection",
+    "PromotionCard",
+    "ProductBrandMark"
+  ],
+  "files": [
+    "mobile/src/components/home-promotion-section.tsx",
+    "mobile/src/components/promotion-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use the existing compact ProductBrandMark for branded promotion products, including Puma. Reuse all 30 bundled logos and custom registry overrides."
+    },
+    {
+      "kind": "modified",
+      "detail": "Keep category text for products without an assigned brand and reserve a consistent 20px row above the title."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Code checks",
+      "result": "not-run",
+      "detail": "Pending mobile typecheck, focused lint and brand regressions. Live rendered layout and physical devices not checked. No deployment."
+    }
+  ]
+}

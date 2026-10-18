@@ -1,0 +1,88 @@
+{
+  "id": "academy-2-personal-learning-20261015",
+  "createdAt": "2026-10-15T09:47:04.639Z",
+  "title": "Academy 2.0: personal learning journeys",
+  "summary": "Adds learner onboarding, universal subject discovery, validated AI starter courses, persistent learning plans and an evidence-based home dashboard. Adds a revision-checked private cloud backup integration.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Explore",
+    "My learning",
+    "Profile",
+    "Onboarding",
+    "Lesson player",
+    "Search",
+    "AI Teacher"
+  ],
+  "components": [
+    "AcademyDashboard",
+    "SchoolProvider",
+    "CloudProgress",
+    "MobileTeacher",
+    "BottomTabBar"
+  ],
+  "files": [
+    "lecomax-learning-app/utils/academy.ts",
+    "lecomax-learning-app/utils/progress.ts",
+    "lecomax-learning-app/utils/resume-route.ts",
+    "lecomax-learning-app/services/discovery.ts",
+    "lecomax-learning-app/services/study-plan.ts",
+    "lecomax-learning-app/services/teacher.ts",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "lecomax-learning-app/store/School.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/components/CloudProgress.tsx",
+    "lecomax-learning-app/app/(tabs)/index.tsx",
+    "lecomax-learning-app/app/(tabs)/_layout.tsx",
+    "lecomax-learning-app/app/(tabs)/discover.tsx",
+    "lecomax-learning-app/app/(tabs)/learning.tsx",
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/onboarding.tsx",
+    "lecomax-learning-app/app/explore.tsx",
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/app/profile.tsx",
+    "lecomax-learning-app/app/study-plan.tsx",
+    "lecomax-learning-app/app/plan-lesson.tsx",
+    "lecomax-learning-app/app/search.tsx",
+    "lecomax-learning-app/app/settings.tsx",
+    "lecomax-learning-app/app/lesson/[id].tsx",
+    "lecomax-learning-app/app/collection/[kind].tsx",
+    "lecomax-learning-app/docs/ACADEMY-2.0.md",
+    "lib/learning-mobile-validation.ts",
+    "lib/mobile-teacher-prompt.ts",
+    "lib/academy-backup.ts",
+    "app/api/learning-mobile/progress/route.ts",
+    "supabase/migrations/202610150001_academy_progress.sql"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Editable learning preferences, topic favorites, personal plans, history, analytics and structured AI lessons with exercises and quiz-gated completion."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home and five-tab navigation now connect personalized journeys while keeping existing courses, labs and projects accessible."
+    },
+    {
+      "kind": "fixed",
+      "detail": "New home removes hardcoded learner identity; study-time tracking excludes settings and hidden browser tabs."
+    },
+    {
+      "kind": "added",
+      "detail": "Private revision-checked backup endpoint and SQL migration. Migration not applied; owner-only authentication preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, unit and interaction tests pending."
+    },
+    {
+      "name": "External integrations",
+      "result": "not-run",
+      "detail": "No live paid AI generation, cloud migration, real-device validation or deployment performed."
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "ai-university-resume-verified-20261016",
+  "relatedId": "ai-university-resume-fixes-20261016",
+  "createdAt": "2026-10-16T20:30:30.280Z",
+  "title": "AI University resume: build and behavior checks passed",
+  "summary": "Verified the 21-lesson curriculum, practice versus recall progress, portfolio restoration and bounded document Q&A behavior.",
+  "status": "successful",
+  "pages": [
+    "/ai-university",
+    "/ai-university/[id]"
+  ],
+  "components": [
+    "Demonstration",
+    "LessonScreen",
+    "UniversityScreen",
+    "ProjectWorkbench",
+    "University engine"
+  ],
+  "files": [
+    "lecomax-learning-app/features/ai-university/Demonstration.tsx",
+    "lecomax-learning-app/features/ai-university/LessonScreen.tsx",
+    "lecomax-learning-app/features/ai-university/UniversityScreen.tsx",
+    "lecomax-learning-app/features/ai-university/ProjectWorkbench.tsx",
+    "lecomax-learning-app/features/ai-university/engine.ts",
+    "lecomax-learning-app/features/ai-university/project-contract.ts",
+    "lecomax-learning-app/tests/ai-university.test.cjs",
+    "lecomax-learning-app/tests/ai-university-api.test.cjs",
+    "lecomax-learning-app/tests/ai-university-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Regression coverage for all 21 exercise solutions, prerequisites, references, placement, delayed recall, serialized progress, portfolio checks, invalid drafts, local retrieval, consent UI and mocked API boundaries."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Verified the required Field props, missing review due dates and edited Q&A draft corrections recorded in the linked report."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Learning app TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck completed without errors."
+    },
+    {
+      "name": "Focused source lint",
+      "result": "passed",
+      "detail": "ESLint features/ai-university and app/ai-university: no source errors or warnings. The initial command also named a test file excluded by repository lint configuration."
+    },
+    {
+      "name": "Focused behavioral and history tests",
+      "result": "passed",
+      "detail": "13 tests passed across ai-university, ai-university-api, ai-university-interaction, change-history and change-history-interaction. An initial API harness failure was caused by VM Error realms; the harness now preserves equivalent application error behavior and all scenarios pass."
+    },
+    {
+      "name": "Web export",
+      "result": "passed",
+      "detail": "Expo web export completed in dist-ai-university-check. This is a local build, not a deployment or visually checked preview."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Live provider calls, real owner authentication integration, native devices and full browser visual/layout QA were not run. Technical lesson content remains English with translated titles/navigation and an explicit language notice. No deployment performed."
+    }
+  ]
+}

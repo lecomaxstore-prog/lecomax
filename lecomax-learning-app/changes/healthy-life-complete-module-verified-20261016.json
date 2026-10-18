@@ -1,0 +1,108 @@
+{
+  "id": "healthy-life-complete-module-verified-20261016",
+  "createdAt": "2026-10-16T20:10:15.895Z",
+  "title": "Healthy Life module: implementation and browser checks verified",
+  "summary": "58 focused tests, TypeScript, lint, web export and browser workflows pass. Native-device QA and full translation remain pending. No deployment.",
+  "status": "successful",
+  "pages": [
+    "/wellness",
+    "/wellness/notifications"
+  ],
+  "components": [
+    "LifeEditors",
+    "LifePrograms",
+    "LifeOverview",
+    "LifeFocus",
+    "LifeAcademy",
+    "Wellness reminders"
+  ],
+  "files": [
+    "lecomax-learning-app/features/wellness/life-model.ts",
+    "lecomax-learning-app/features/wellness/LifeEditors.tsx",
+    "lecomax-learning-app/features/wellness/LifePrograms.tsx",
+    "lecomax-learning-app/features/wellness/LifeOverview.tsx",
+    "lecomax-learning-app/features/wellness/HealthyLifeScreen.tsx",
+    "lecomax-learning-app/features/wellness/LifeFocus.tsx",
+    "lecomax-learning-app/features/wellness/LifeAcademy.tsx",
+    "lecomax-learning-app/features/wellness/life-lessons.ts",
+    "lecomax-learning-app/features/wellness/reminder-policy.ts",
+    "lecomax-learning-app/features/wellness/notifications.ts",
+    "lecomax-learning-app/features/wellness/notifications.web.ts",
+    "lecomax-learning-app/features/wellness/NotificationsScreen.tsx",
+    "lecomax-learning-app/features/wellness/daily-content.ts",
+    "lecomax-learning-app/tests/healthy-life.test.cjs",
+    "lecomax-learning-app/tests/healthy-life-interaction.test.cjs",
+    "lecomax-learning-app/tests/wellness.test.cjs",
+    "lecomax-learning-app/tests/wellness-browser.test.cjs",
+    "lecomax-learning-app/scripts/healthy-life-smoke.cjs",
+    "lecomax-learning-app/docs/HEALTHY-LIFE.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Optional lighter-day preview, date-specific duration changes, conflict-checked rescheduling and activity check-in undo. Planner weekday preferences and independent preference saving."
+    },
+    {
+      "kind": "added",
+      "detail": "Four self-paced exercise education paths with persisted difficulty and learning progress; daily knowledge rotation and nutrition myth/warm-up lessons with primary sources."
+    },
+    {
+      "kind": "added",
+      "detail": "Study activity opens Focus with its task; editable persistent distraction notes. Illustrated overview, labeled calendar counts and per-habit weekly insights."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Quiet hours now suppress native schedules and browser delivery/catch-up and are reflected in next-reminder previews. Quiet-hours inputs are user-controlled."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Generated plans cap durations to avoid overlapping blocks even in short waking windows. Study activities prefill the focus task and duration while preserving an unfinished timer. Conflicting moves show a specific error."
+    },
+    {
+      "kind": "modified",
+      "detail": "Compact horizontally scrollable calendar has accessible date/count labels and initially reveals today. Removed duplicated introductory content and show the English-content notice only for non-English interfaces."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented architecture, data handling, sources, runnable checks and product limitations in docs/HEALTHY-LIFE.md. Screenshots are historical captures of synthetic test data."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused automated suite",
+      "result": "passed",
+      "detail": "58 passed, 0 failed: healthy-life, wellness, clock, browser-reminder, daily-interaction and Change History tests. Added tests for quiet-hours cancellation/delivery, adaptation, protected time, small waking windows, learning data and persistence. Initial screen test needed mocks for the new components; corrected and reran successfully."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint on all 13 changed wellness source files passed. Removed an unused import found during lint."
+    },
+    {
+      "name": "Web production export",
+      "result": "passed",
+      "detail": "npx.cmd expo export --platform web --output-dir dist-healthy-life-check completed."
+    },
+    {
+      "name": "Browser interactions and layout",
+      "result": "passed",
+      "detail": "Headless Edge with synthetic auth and blocked external services: activity/habit creation, study-to-focus link, a full timer session and reflection, rest/skip, reload persistence, lighter-day application, learning-path persistence, quiet-hour save/reload. Eight sections checked at 320/390/768/1280 widths without horizontal page overflow; no page errors. Inspected phone screenshots and compacted the calendar after visual review."
+    },
+    {
+      "name": "Educational sources",
+      "result": "passed",
+      "detail": "New nutrition myth, warm-up and seated-learning content checked against NHS primary pages; each lesson and learning path provides its own source link."
+    },
+    {
+      "name": "Remaining limitations",
+      "result": "not-run",
+      "detail": "No physical Android/iOS test or deployment. New workspace remains English. Existing local AsyncStorage/browser data is not separately encrypted; privacy states this. No biometric integration or automatic AI sharing. Browser reminders need an open permitted tab; focus break prompt is foreground-only. Custom activities do not automatically create OS reminders. Existing plans may overlap newly added plans and remain editable."
+    }
+  ],
+  "relatedId": "healthy-life-complete-module-20261016",
+  "preview": {
+    "path": "/wellness",
+    "label": "Open current Healthy Life (not an archived snapshot)",
+    "verifiedAt": "2026-10-16T20:10:15.895Z"
+  }
+}

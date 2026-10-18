@@ -1,0 +1,54 @@
+{
+  "id": "agent-studio-eight-modules-20261016",
+  "createdAt": "2026-10-16T20:38:43.585Z",
+  "title": "AI Agent Studio: guided building, workflows and inspected runs",
+  "summary": "Expand Agent Studio into eight educational modules with seven projects, a connected editor, local debugger, optional server tool loop and a versioned portfolio.",
+  "status": "needs-testing",
+  "pages": [
+    "/agent-studio",
+    "/agent-studio-basics",
+    "/api/learning-mobile/agent-studio"
+  ],
+  "components": [
+    "StudioScreen",
+    "WorkflowGraph",
+    "Local workflow engine",
+    "Responses API runner",
+    "SDK export tracks"
+  ],
+  "files": [
+    "lecomax-learning-app/app/agent-studio.tsx",
+    "lecomax-learning-app/app/agent-studio-basics.tsx",
+    "lecomax-learning-app/features/agent-studio/core.ts",
+    "lecomax-learning-app/features/agent-studio/curriculum.ts",
+    "lecomax-learning-app/features/agent-studio/exports.ts",
+    "lecomax-learning-app/features/agent-studio/StudioScreen.tsx",
+    "lib/agent-studio-runtime.ts",
+    "app/api/learning-mobile/agent-studio/route.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Eight lessons with knowledge checks; six-step builder; editable node connections and optional zoomable graph; seven working local project starters; step timeline, retry injection, approvals and evaluation cases."
+    },
+    {
+      "kind": "added",
+      "detail": "Owner-authenticated, rate-limited and opt-in Responses API tool loop with server-only credentials, fixed read-only tool registry, validation, turn/token/time bounds and a disabled-by-default server switch."
+    },
+    {
+      "kind": "added",
+      "detail": "Immutable local portfolio versions and JSON exports containing configuration, recorded run, TypeScript/Python SDK teaching examples and documentation. Production status remains not deployed."
+    },
+    {
+      "kind": "modified",
+      "detail": "The Agent Studio entry opens the expanded module; the original beginner workshop and its storage are preserved at /agent-studio-basics."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "TypeScript, focused lint, behavioral and UI tests, backend failure mocks and export verification pending. Official OpenAI function-calling and SDK quickstart/state/guardrail/orchestration/tracing pages fetched on 2026-10-16. No real provider call or deployment."
+    }
+  ]
+}

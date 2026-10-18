@@ -1,0 +1,56 @@
+{
+  "id": "speaking-redesign-verified-20261014",
+  "relatedId": "speaking-redesign-20261014",
+  "createdAt": "2026-10-14T09:17:30.190Z",
+  "title": "Speaking redesign verified at phone widths",
+  "summary": "Checked the Arabic redesign in a real browser at 320, 390 and 768 pixels. Practice is visible without scrolling and tips open on demand.",
+  "status": "successful",
+  "pages": [
+    "/speaking"
+  ],
+  "components": [
+    "Speaking"
+  ],
+  "files": [
+    "app/speaking.tsx",
+    "tests/speaking-interaction.test.cjs",
+    "artifacts/speaking-visual.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Added an explicit accessible label to the practice action after the browser check exposed icon text in its name; replaced slash-based step numbering with localized wording for RTL readability."
+    },
+    {
+      "kind": "modified",
+      "detail": "Verified compact hero, expandable guidance and focused practice layout."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Typecheck and focused ESLint",
+      "result": "passed",
+      "detail": "TypeScript and ESLint passed for the redesigned screen."
+    },
+    {
+      "name": "Interactions and history",
+      "result": "passed",
+      "detail": "Speaking interaction test passed in three languages, including expand/collapse and notes retained across returning to tips; six history tests passed."
+    },
+    {
+      "name": "Browser visual check",
+      "result": "passed",
+      "detail": "Disposable Edge browser with mocked authentication: no horizontal overflow at 320/390/768; practice action above fold; accordion, practice entry and keyword input worked. Reviewed Arabic landing and practice screenshots. Final step-label wording checked by interaction test."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Native devices, dark-theme visual QA and production deployment not tested. Browser authentication was mocked; no real credentials used."
+    }
+  ],
+  "preview": {
+    "path": "/speaking",
+    "label": "Current app: redesigned speaking practice",
+    "verifiedAt": "2026-10-14T09:17:30.190Z"
+  }
+}

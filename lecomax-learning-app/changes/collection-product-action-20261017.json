@@ -1,0 +1,30 @@
+{
+  "id": "collection-product-action-20261017",
+  "createdAt": "2026-10-17T10:14:34.836Z",
+  "title": "Clearer product action button",
+  "summary": "Replace the pale product action with a dark green, high-contrast action and a circular arrow icon.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage collections"
+  ],
+  "components": [
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/CollectionProductCard.tsx",
+    "components/CollectionProductCard.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Increase action height to 46px and label size to 12px, use white text on dark green, replace diagonal text arrow with a consistent SVG arrow in a circular background, and add pointer-hover and keyboard-focus feedback. Existing reduced-motion support is retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local verification",
+      "result": "not-run",
+      "detail": "Browser rendering and focused lint pending. No deployment."
+    }
+  ]
+}

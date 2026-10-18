@@ -1,0 +1,48 @@
+{
+  "id": "academy-build23-prepared-20261016",
+  "createdAt": "2026-10-16T21:24:40.371Z",
+  "title": "Prepare ACADEMY 1.0.21 build 23 for USB",
+  "summary": "Package the latest Arabic typography and organized courses into an updated signed Android installer.",
+  "status": "needs-testing",
+  "pages": [
+    "Android application",
+    "Change History",
+    "Courses",
+    "Home"
+  ],
+  "components": [
+    "Android release configuration",
+    "Expo runtime",
+    "USB delivery"
+  ],
+  "files": [
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml",
+    "lecomax-learning-app/artifacts/build-academy23.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Advance app version to 1.0.21, Android version code to 23 and runtime to 1.0.21 so the new installer updates build 22."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepare signed ARM64 Android release using the existing local signing identity and production API origin. Intended USB target: D:/lecomax app/ACADEMY-1.0.21-build23.apk."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Previously completed feature checks",
+      "result": "passed",
+      "detail": "Arabic and course work already passed typecheck, focused lint, responsive browser checks, and progress/history tests in linked history entries."
+    },
+    {
+      "name": "Build and delivery",
+      "result": "not-run",
+      "detail": "Native build, signing/version verification and USB copy/hash verification pending. No online deployment requested."
+    }
+  ]
+}

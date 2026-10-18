@@ -1,0 +1,52 @@
+{
+  "id": "academy-build22-usb-verified-20261016",
+  "relatedId": "academy-rename-source-verified-20261016",
+  "createdAt": "2026-10-16T13:53:19.545Z",
+  "title": "ACADEMY 1.0.20 APK built and copied to USB",
+  "summary": "Signed ACADEMY build 22 is available on the ANDROID-X86 USB drive. The copied APK matches the verified local release byte for byte.",
+  "status": "successful",
+  "pages": [
+    "Android launcher",
+    "Learning app",
+    "Change History"
+  ],
+  "components": [
+    "Android release",
+    "USB artifact delivery"
+  ],
+  "files": [
+    "lecomax-learning-app/artifacts/ACADEMY-1.0.20-build22.apk",
+    "lecomax-learning-app/artifacts/build-academy22.ps1",
+    "lecomax-learning-app/artifacts/phone-internet-build22.log",
+    "lecomax-learning-app/artifacts/phone-internet-build22-native-tests.xml",
+    "lecomax-learning-app/artifacts/academy-usb-verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Built the current learning app as ACADEMY 1.0.20 (22) and copied it to D:\\lecomax app\\ACADEMY-1.0.20-build22.apk. Previous USB APKs retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Android release build",
+      "result": "passed",
+      "detail": "Gradle BUILD SUCCESSFUL; 855 tasks. All 13 PhoneDirectServerTest native tests passed, zero failures/errors."
+    },
+    {
+      "name": "APK metadata and signature",
+      "result": "passed",
+      "detail": "aapt confirms ACADEMY, com.lecomax.learning, version 1.0.20 / 22, arm64-v8a and x86_64. apksigner verification passed; certificate matches the previous build 21."
+    },
+    {
+      "name": "USB integrity",
+      "result": "passed",
+      "detail": "215962640 bytes; SHA-256 74D3109380CFF4A5D95D0C3EDDF0B0F3AA110094AD9277D412235E624A735503 matches local APK."
+    },
+    {
+      "name": "Device launch and report availability",
+      "result": "not-run",
+      "detail": "No physical-phone installation or launch was performed. APK includes source verification through academy-rename-source-verified-20261016; this post-build delivery report is in repository history and will be bundled in the next build. No deployment performed."
+    }
+  ]
+}

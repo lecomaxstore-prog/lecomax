@@ -1,0 +1,56 @@
+{
+  "id": "product-admin-details-20261018-verified",
+  "createdAt": "2026-10-18T09:17:13.049Z",
+  "title": "Admin product details: source data and code verified",
+  "summary": "Use the actual custom admin detail rows in the Expo Product details accordion.",
+  "status": "successful",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product details accordion",
+    "Admin detail tag parser"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/lib/product-details.ts",
+    "tests/product-details.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Read __detail:Key:Value tags saved by the admin editor, preserving row order, wording and colons within values."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the fixed category/brand/generated-reference/stock list from Product details. Hide the accordion when no complete custom rows exist."
+    },
+    {
+      "kind": "modified",
+      "detail": "Allow long custom labels and values to wrap. Description and other product sections are unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Parser regression tests",
+      "result": "passed",
+      "detail": "Both tests passed for saved row order/wording, embedded colons, missing data and incomplete rows."
+    },
+    {
+      "name": "Live Expo catalog data",
+      "result": "passed",
+      "detail": "HTTP 200 from localhost:8081/api/products?active=true. ASICS Superblast 2 has 17 admin detail tags, including reference 1013A142-501, condition, cushioning, drop and sole materials."
+    },
+    {
+      "name": "Mobile typecheck and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit and ESLint for the product page and parser completed without diagnostics."
+    },
+    {
+      "name": "Visual review",
+      "result": "not-run",
+      "detail": "Rendered browser/device appearance not verified. No deployment."
+    }
+  ],
+  "relatedId": "product-admin-details-20261018"
+}

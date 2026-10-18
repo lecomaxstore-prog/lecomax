@@ -1,0 +1,71 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Allow courses up to 180 seconds at the provider, with coordinated server/client deadlines; ordinary chat retains its original timeout."
+    },
+    {
+      "kind": "modified",
+      "detail": "Arabic progress text explains the wait; selected explanation language is accessible. Complete courses are validated on the server and client."
+    }
+  ],
+  "summary": "Live English courses passed with Arabic and English explanations after correcting response handling and the course-specific timeout.",
+  "id": "study-plan-generation-verified-20261016",
+  "createdAt": "2026-10-16T11:05:23.731Z",
+  "validation": [
+    {
+      "name": "Live English subject / English explanations",
+      "result": "passed",
+      "detail": "Completed in 74 seconds: three lessons, six quiz questions and three diagnostics. Complete result passed the application course validator."
+    },
+    {
+      "name": "Live English subject / Arabic explanations",
+      "result": "passed",
+      "detail": "Completed in 73 seconds: three lessons, six quiz questions and three diagnostics. English dialogue retained with natural Arabic explanations."
+    },
+    {
+      "name": "Automated regression checks",
+      "result": "passed",
+      "detail": "12 journey, course API and history tests plus 2 provider tests passed across focused runs. API tests cover authentication and invalid or missing course design."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "Root and learning-app TypeScript checks passed. Focused ESLint passed for the screen and two client services."
+    },
+    {
+      "name": "Local HTTP checks",
+      "result": "passed",
+      "detail": "Study-plan and change-history routes returned 200. Live unauthenticated teacher POST returned 401 as expected."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Authenticated browser creation/save/cancel and native device visual interaction were not tested because no browser session was available. No deployment performed."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/study-plan.tsx",
+    "lecomax-learning-app/services/study-plan.ts",
+    "lecomax-learning-app/services/teacher.ts",
+    "lib/mobile-teacher-prompt.ts",
+    "lib/learning-mobile-validation.ts",
+    "app/api/learning-mobile/teacher/route.ts",
+    "lecomax-learning-app/tests/learning-journey.test.cjs",
+    "lecomax-learning-app/scripts/check-study-plan-live.cjs",
+    "lib/ai-tutor-provider.ts",
+    "tests/ai-tutor.test.ts",
+    "lecomax-learning-app/tests/study-plan-api.test.cjs"
+  ],
+  "components": [
+    "StudyPlanScreen",
+    "teacher service",
+    "mobile teacher API"
+  ],
+  "status": "successful",
+  "title": "Verified English lesson generation and clearer Arabic",
+  "pages": [
+    "/study-plan"
+  ],
+  "relatedId": "study-plan-complete-json-20261016"
+}

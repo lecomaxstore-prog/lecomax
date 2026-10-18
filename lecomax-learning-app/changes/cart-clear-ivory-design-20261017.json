@@ -1,0 +1,29 @@
+{
+  "id": "cart-clear-ivory-design-20261017",
+  "createdAt": "2026-10-17T11:07:54.770Z",
+  "title": "Elegant ivory empty-cart action",
+  "summary": "Restyled the empty-cart button with warm ivory, burgundy accents and a framed trash icon.",
+  "status": "needs-testing",
+  "pages": [
+    "Cart /panier"
+  ],
+  "components": [
+    "CartPage empty-cart action"
+  ],
+  "files": [
+    "app/panier/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Warm ivory gradient, burgundy text, inset icon tile, rounded 16px corners, subtle border and layered shadows; 48px minimum touch target and refined hover states. Preserved keyboard focus, reduced-motion support and confirmation behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Focused lint and history integrity checks pending. Browser visual verification and deployment not performed."
+    }
+  ]
+}

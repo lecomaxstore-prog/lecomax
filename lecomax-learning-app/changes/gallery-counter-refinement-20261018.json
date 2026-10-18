@@ -1,0 +1,33 @@
+{
+  "id": "gallery-counter-refinement-20261018",
+  "createdAt": "2026-10-18T08:59:04.813Z",
+  "title": "Refined product gallery counter",
+  "summary": "Replace the white floating counter with a compact forest-green media badge and clearer typography.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added a small media icon, white active count, muted total, balanced horizontal spacing and softly rounded corners."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the floating shadow and hide the counter for galleries with one or zero media items."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Mobile typecheck and focused lint pending. Browser and physical-device visual checks unavailable; no deployment."
+    }
+  ]
+}

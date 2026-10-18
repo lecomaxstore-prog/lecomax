@@ -1,0 +1,42 @@
+{
+  "id": "collection-product-action-verified-20261017",
+  "relatedId": "collection-product-action-20261017",
+  "createdAt": "2026-10-17T10:14:59.583Z",
+  "title": "Product action appearance verified locally",
+  "summary": "Inspected the updated mobile product action: white label, dark green background and circular arrow.",
+  "status": "successful",
+  "pages": [
+    "Homepage collections"
+  ],
+  "components": [
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/CollectionProductCard.tsx",
+    "components/CollectionProductCard.module.css",
+    "lecomax-learning-app/artifacts/product-action-polished.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the updated product action in the local storefront."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "CollectionProductCard.tsx passed ESLint."
+    },
+    {
+      "name": "Browser appearance",
+      "result": "passed",
+      "detail": "Inspected screenshot at 390px viewport; measured 46px action height, white text and rgb(24,60,48) background. Card retains its product-detail destination."
+    },
+    {
+      "name": "Scope",
+      "result": "not-run",
+      "detail": "No production deployment or full browser/device regression. Product navigation destination inspected but checkout not exercised."
+    }
+  ]
+}

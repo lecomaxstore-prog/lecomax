@@ -1,0 +1,94 @@
+{
+  "id": "academy-rename-source-verified-20261016",
+  "relatedId": "academy-branding-completed-20261016",
+  "createdAt": "2026-10-16T13:43:21.736Z",
+  "title": "ACADEMY source checks passed",
+  "summary": "The renamed learning app passes TypeScript, focused lint, history interaction checks and phone viewer/QR regression tests. Android packaging and USB delivery are still pending.",
+  "status": "successful",
+  "pages": [
+    "Learning dashboard",
+    "Settings",
+    "More",
+    "Phone sharing",
+    "Android launcher"
+  ],
+  "components": [
+    "App branding",
+    "Android release configuration",
+    "Phone remote service"
+  ],
+  "files": [
+    "lecomax-learning-app/app/(tabs)/more.tsx",
+    "lecomax-learning-app/app/phone-share.tsx",
+    "lecomax-learning-app/app/phone.tsx",
+    "lecomax-learning-app/app/settings.tsx",
+    "lecomax-learning-app/app/_layout.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/components/CourseOverview.tsx",
+    "lecomax-learning-app/components/InternetPhoneViewer.web.tsx",
+    "lecomax-learning-app/components/PhoneInvitation.tsx",
+    "lecomax-learning-app/components/PhonePairingScanner.tsx",
+    "lecomax-learning-app/components/PhoneViewer.tsx",
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/StudyDashboard.tsx",
+    "lecomax-learning-app/components/TeacherLab.web.tsx",
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/utils/pc-explorer-document.ts",
+    "lecomax-learning-app/utils/pc-model-renderer.ts",
+    "lecomax-learning-app/utils/pc-photo-document.ts",
+    "lecomax-learning-app/native/phone/PhoneRemotePackage.kt",
+    "lecomax-learning-app/native/phone/PhoneRemoteService.kt",
+    "lecomax-learning-app/plugins/with-phone-remote.cjs",
+    "lecomax-learning-app/phone-relay/direct.html",
+    "lecomax-learning-app/phone-relay/direct.js",
+    "lecomax-learning-app/phone-relay/viewer.html",
+    "lecomax-learning-app/android/app/src/main/assets/phone-remote/direct.html",
+    "lecomax-learning-app/android/app/src/main/assets/phone-remote/direct.js",
+    "lecomax-learning-app/android/app/src/main/java/com/lecomax/learning/PhoneRemotePackage.kt",
+    "lecomax-learning-app/android/app/src/main/java/com/lecomax/learning/PhoneRemoteService.kt",
+    "lecomax-learning-app/app.json",
+    "lecomax-learning-app/package.json",
+    "lecomax-learning-app/package-lock.json",
+    "lecomax-learning-app/android/app/build.gradle",
+    "lecomax-learning-app/android/app/src/main/res/values/strings.xml",
+    "lecomax-learning-app/artifacts/build-academy22.ps1",
+    "lecomax-learning-app/android/app/src/main/AndroidManifest.xml"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Android accessibility label and permission description now also show ACADEMY, matching app screens and sharing notifications."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded source verification for the ACADEMY release."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck completed without errors."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for modified TypeScript and plugin files."
+    },
+    {
+      "name": "History validation and interaction",
+      "result": "passed",
+      "detail": "Manifest check passed with 341 reports; all six history tests passed, including persistence and expansion."
+    },
+    {
+      "name": "Phone viewer and QR regression",
+      "result": "passed",
+      "detail": "All 13 tests across phone-direct-viewer, phone-viewer and phone-qr passed."
+    },
+    {
+      "name": "APK and physical device",
+      "result": "not-run",
+      "detail": "Android build running. APK signature, USB copy and physical-device launch not yet verified."
+    }
+  ]
+}

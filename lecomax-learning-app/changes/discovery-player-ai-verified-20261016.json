@@ -1,0 +1,62 @@
+{
+  "id": "discovery-player-ai-verified-20261016",
+  "createdAt": "2026-10-16T12:32:26.648Z",
+  "title": "Eight-step AI journey verified before expansion",
+  "summary": "AI-only gate passed: 23 focused tests, typecheck, lint, web build and browser checks of every step and learning mode.",
+  "status": "successful",
+  "pages": [
+    "/discovery",
+    "/curiosity",
+    "/tutor"
+  ],
+  "components": [
+    "DiscoveryPlayer",
+    "Journey models",
+    "TutorWorkspace"
+  ],
+  "files": [
+    "lecomax-learning-app/features/curiosity/journeys.ts",
+    "lecomax-learning-app/features/curiosity/labs.ts",
+    "lecomax-learning-app/features/curiosity/player-model.ts",
+    "lecomax-learning-app/features/curiosity/DiscoveryPlayer.tsx",
+    "lecomax-learning-app/app/discovery.tsx",
+    "lecomax-learning-app/features/curiosity/CuriosityScreen.tsx",
+    "lecomax-learning-app/utils/tutor-memory.ts",
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/tests/discovery-player.test.cjs",
+    "lecomax-learning-app/scripts/check-discovery-player.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Eight-step AI journey with eight learning views, parameter calculations, independent checkpoints and persistent per-step evidence."
+    },
+    {
+      "kind": "modified",
+      "detail": "Tutor sessions retain active discovery step and bounded experiment/checkpoint context. Existing catalog routes expose the player."
+    }
+  ],
+  "validation": [
+    {
+      "name": "AI-first gate",
+      "result": "passed",
+      "detail": "23 discovery, catalog and Tutor tests passed. App typecheck, focused ESLint and web export passed."
+    },
+    {
+      "name": "Browser",
+      "result": "passed",
+      "detail": "All eight AI steps, eight modes, wrong/correct answers, hints, completion, bookmark, reload resume, component selection, 390px overflow and French Tutor step handoff passed with mocked authentication."
+    },
+    {
+      "name": "Untested",
+      "result": "not-run",
+      "detail": "Live AI outputs, physical Android and expert editorial review not tested. No deployment."
+    }
+  ],
+  "relatedId": "discovery-player-ai-implementation-20261016",
+  "preview": {
+    "path": "/discovery",
+    "label": "Current interactive AI discovery",
+    "verifiedAt": "2026-10-16T12:32:26.648Z"
+  }
+}

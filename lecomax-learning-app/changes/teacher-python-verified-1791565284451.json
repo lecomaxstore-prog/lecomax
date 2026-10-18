@@ -1,0 +1,58 @@
+{
+  "id": "teacher-python-verified-1791565284451",
+  "createdAt": "2026-10-09T17:01:24.451Z",
+  "title": "Verified Python support in the AI teacher",
+  "summary": "Python 3 is available in the local practice lab with real output and errors. Existing Python installation reused and local backend restarted.",
+  "status": "successful",
+  "pages": [
+    "Teacher"
+  ],
+  "components": [
+    "TeacherLab",
+    "Local lab runner",
+    "Teacher prompt"
+  ],
+  "files": [
+    "lib/teacher-lab.ts",
+    "scripts/start-teacher-lab.mjs",
+    "lib/mobile-teacher-prompt.ts",
+    "lecomax-learning-app/components/TeacherLab.tsx",
+    "lecomax-learning-app/features/MobileTeacher.tsx",
+    "tests/teacher-lab.test.ts",
+    "lecomax-learning-app/tests/teacher-lab-interaction.test.cjs",
+    "lecomax-learning-app/docs/teacher-lab.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Python selector, editable cart example, python/python3/py code-block support, real UTF-8 execution and errors using installed Python 3."
+    },
+    {
+      "kind": "modified",
+      "detail": "Local launcher resolves Python; teacher instructions describe supported Python examples and existing console limits."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Runtime checks",
+      "result": "passed",
+      "detail": "4 tests passed covering real JavaScript, PowerShell and Python execution; Python Unicode, standard library, tracebacks and loop timeout verified."
+    },
+    {
+      "name": "App checks",
+      "result": "passed",
+      "detail": "TypeScript and focused ESLint passed. 23 teacher, lab interaction, route and change-history tests passed, including Python selection, review/run and explanation draft."
+    },
+    {
+      "name": "Local availability",
+      "result": "passed",
+      "detail": "Local backend restarted with Python interpreter resolution; current teacher HTTP route returns 200. History check passed before this follow-up."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No full browser visual or owner-authenticated Python end-to-end test; UI uses mocked network and actual runtime tested separately. No live AI provider conversation or deployment. Local console limitations remain."
+    }
+  ],
+  "relatedId": "teacher-python-1791565224925"
+}

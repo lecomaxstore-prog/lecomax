@@ -1,4 +1,5 @@
 "use client";
+import ProductBrandMark from "./ProductBrandMark";
 
 import Link from "next/link";
 import ProductImage from "./ProductImage";
@@ -73,6 +74,7 @@ export default function CollectionProductCard({ product, index = 0, visibilityCl
 
         {/* Info */}
         <div className="px-3 pt-3 pb-4 flex flex-col flex-1">
+        {product.brand && <div className="mb-2"><ProductBrandMark name={product.brand} compact /></div>}
           <CardColorOptions colors={product.colors ?? []} />
           <h3 className="min-h-[36px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600">
             {product.name}

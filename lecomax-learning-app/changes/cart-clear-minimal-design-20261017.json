@@ -1,0 +1,33 @@
+{
+  "id": "cart-clear-minimal-design-20261017",
+  "createdAt": "2026-10-17T11:09:02.371Z",
+  "title": "Minimal empty-cart action",
+  "summary": "Simplified the cart action to a clean icon and understated text link.",
+  "status": "needs-testing",
+  "pages": [
+    "Cart /panier"
+  ],
+  "components": [
+    "CartPage footer action"
+  ],
+  "files": [
+    "app/panier/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed ivory gradient, burgundy tile, enclosing border and decorative shadows."
+    },
+    {
+      "kind": "modified",
+      "detail": "Neutral 13px text, standalone 18px trash icon, fine underline, red hover feedback and 44px touch target. Kept keyboard focus, reduced-motion support and confirmation flow."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Lint and history validation pending. Browser inventory returned no connected browsers, so visual verification is unavailable. No deployment."
+    }
+  ]
+}

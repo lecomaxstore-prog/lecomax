@@ -1,0 +1,39 @@
+{
+  "id": "expo-related-refined-20261018",
+  "createdAt": "2026-10-18T09:42:24.614Z",
+  "title": "Lighter, compact recommendation cards",
+  "summary": "Refine You may also like with smaller image frames, white details and a clear product arrow.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Related carousel",
+    "ProductCard related variant"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Reduce card width to reveal more products; use rounded image frames with a white borderless text area, compact typography and a 44px product detail arrow."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Keep the brand in collaboration titles so names do not start with x. Render the crossed-out original price only for discounted products, removing the stray dash."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the tinted lower panel, price divider and blank struck-through price placeholder."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Code and visual checks",
+      "result": "not-run",
+      "detail": "Pending code checks. Device visual review and gestures are unverified. Not deployed."
+    }
+  ]
+}

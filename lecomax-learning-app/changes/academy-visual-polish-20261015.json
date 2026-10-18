@@ -1,0 +1,69 @@
+{
+  "id": "academy-visual-polish-20261015",
+  "createdAt": "2026-10-15T16:34:45.019Z",
+  "title": "Visual polish: calmer surfaces and compact learning controls",
+  "summary": "Refine the existing Academy identity using actual small-screen renders: compact teacher prompts, browse-first explorer, clearer profile and responsive lesson controls.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "AI Teacher",
+    "Explore",
+    "Profile",
+    "Lessons",
+    "Practice Studio",
+    "All shared card/button screens",
+    "Bottom navigation"
+  ],
+  "components": [
+    "Card",
+    "Button",
+    "AIEmptyState",
+    "LessonHeader",
+    "BottomTabBar",
+    "CodeLab"
+  ],
+  "files": [
+    "lecomax-learning-app/components/UI.tsx",
+    "lecomax-learning-app/components/TeacherUI.tsx",
+    "lecomax-learning-app/components/LessonHeader.tsx",
+    "lecomax-learning-app/components/BottomTabBar.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/app/explore.tsx",
+    "lecomax-learning-app/app/profile.tsx",
+    "lecomax-learning-app/features/interactive/CodeLab.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Remove default card elevation, distinguish tonal/outline/text buttons, preserve loading contrast and add keyboard focus borders."
+    },
+    {
+      "kind": "modified",
+      "detail": "Compact narrow teacher prompts and home hero; wrap lesson steps for narrow screens or enlarged text; bound bottom-tab labels."
+    },
+    {
+      "kind": "modified",
+      "detail": "Make explorer goal form expandable, keep filters in an RTL-aware horizontal row, flatten nested course rows and provide clear-filter recovery."
+    },
+    {
+      "kind": "modified",
+      "detail": "Give profile identity/goal clearer hierarchy and use meaningful navigation icons."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Add native safe-area containment to fullscreen coding editor; runtime documentation remains available in an accessible disclosure."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visual audit",
+      "result": "passed",
+      "detail": "Reviewed existing English 320px explorer and lesson, Arabic 320px teacher and English profile screenshots; retained the earlier 47-route/layout inventory and design identity."
+    },
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Fresh static checks, regression suite, stateful visual checks and builds pending. Physical-device keyboards and animation performance require device testing."
+    }
+  ]
+}

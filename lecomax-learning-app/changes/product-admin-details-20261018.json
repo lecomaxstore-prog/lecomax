@@ -1,0 +1,40 @@
+{
+  "id": "product-admin-details-20261018",
+  "createdAt": "2026-10-18T09:16:46.426Z",
+  "title": "Show the product details saved in admin",
+  "summary": "Use the actual custom admin detail rows in the Expo Product details accordion.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Product details accordion",
+    "Admin detail tag parser"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/lib/product-details.ts",
+    "tests/product-details.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Read __detail:Key:Value tags saved by the admin editor, preserving row order, wording and colons within values."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the fixed category/brand/generated-reference/stock list from Product details. Hide the accordion when no complete custom rows exist."
+    },
+    {
+      "kind": "modified",
+      "detail": "Allow long custom labels and values to wrap. Description and other product sections are unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending verification",
+      "result": "not-run",
+      "detail": "Parser tests, mobile typecheck, focused lint and live product data read pending. Browser/device review unverified; no deployment."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "interactive-learning-studio-verified-20261015",
+  "createdAt": "2026-10-15T11:49:58.495Z",
+  "relatedId": "interactive-studio-review-fix-20261015",
+  "title": "Interactive studio browser and runtime verification",
+  "summary": "Verified the staged studio, preview navigation, immediate flashcard review and saved-work restoration; recorded remaining device and performance limits.",
+  "status": "successful",
+  "pages": [
+    "Interactive Learning Studio",
+    "Change History"
+  ],
+  "components": [
+    "Flashcards",
+    "CodeLab",
+    "Runtime",
+    "Projects",
+    "Mentor",
+    "ChangeHistory"
+  ],
+  "files": [
+    "lecomax-learning-app/features/interactive/StudyLabs.tsx",
+    "lecomax-learning-app/scripts/test-interactive-browser.cjs",
+    "lecomax-learning-app/docs/interactive-learning-studio.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "New cards are immediately due for review. Browser regression enforces a five-second response."
+    },
+    {
+      "kind": "modified",
+      "detail": "Browser fixture initializes only the top-frame storage, preserving opaque sandbox isolation; project verification targets the actual feedback."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded staged implementation verification and outstanding native/runtime/performance limitations. No prior reports removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser interactions",
+      "result": "passed",
+      "detail": "All 13 tools discoverable; Real JavaScript grading in app; Wrong implementation fails; AI consent and relevant context; SQLite rows and grading; TypeScript runtime; Actual React initial static rendering; HTML CSS preview; Deterministic math and partial-domain graph; Science calculation; Quiz scoring; Language answer checking; Flashcard creation and scheduling; Whiteboard shapes and progressive explanation; Project refuses unsubstantiated completion; Draft and execution history survive reload; Spaced review survives reload; Whiteboard survives reload; Responsive tool hub at 320,390,900. No page errors. Authentication and AI mocked."
+    },
+    {
+      "name": "Runtime checks",
+      "result": "passed",
+      "detail": "15 checks: actual JS/TS/SQL/React execution, incorrect solutions, errors, loop interruption, memory bound, isolation, cancellation and script-disabled preview."
+    },
+    {
+      "name": "Automated checks",
+      "result": "passed",
+      "detail": "300 existing tests passed before the flashcard correction; 12 focused studio/history tests passed afterwards. Post-fix TypeScript and focused ESLint passed; fresh web export passed."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Android/iOS devices, live AI, native Python and target-phone performance unverified. Full React hydration, Next.js server execution, full semantic TypeScript checking and hard Python memory limits remain outside this staged implementation. Export entry approximately 101 MB. Not deployed."
+    }
+  ],
+  "preview": {
+    "path": "/interactive-studio",
+    "label": "Current Interactive Learning Studio (not an archived snapshot)",
+    "verifiedAt": "2026-10-15T11:49:24.223Z"
+  }
+}

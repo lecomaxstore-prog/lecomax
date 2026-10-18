@@ -1,0 +1,52 @@
+{
+  "id": "local-car-assembly-20261013",
+  "createdAt": "2026-10-13T19:08:36.296Z",
+  "title": "Local 3D sports sedan with cabin and selectable mechanical parts",
+  "summary": "Replace the blocked embedded viewer with an original locally rendered educational vehicle, interactive panels and cockpit exploration.",
+  "status": "needs-testing",
+  "pages": [
+    "/car-studio",
+    "/change-history"
+  ],
+  "components": [
+    "Local car assembly",
+    "CarViewer",
+    "Studio runtime",
+    "Change History"
+  ],
+  "files": [
+    "lecomax-learning-app/features/car-studio/local-car.ts",
+    "lecomax-learning-app/features/car-studio/viewer.ts",
+    "lecomax-learning-app/features/car-studio/runtime.ts",
+    "lecomax-learning-app/features/car-studio/studio.css",
+    "lecomax-learning-app/data/car-studio-runtime.json",
+    "lecomax-learning-app/docs/car-studio.md",
+    "lecomax-learning-app/scripts/car-studio-smoke.cjs",
+    "lecomax-learning-app/scripts/local-car-smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Original 3D sedan with transparent glazing, four hinged doors, bonnet, boot, cabin furniture and dashboard, V8-style assembly, transmission, suspension, disc brakes, rims, tyres and connected systems."
+    },
+    {
+      "kind": "modified",
+      "detail": "Camera presets, cockpit entry, part selection with automatic cutaway, paint, modes and mobile presentation."
+    },
+    {
+      "kind": "removed",
+      "detail": "Automatic external Sketchfab SDK/embed loading from the default studio experience. Existing hosted-viewer source retained."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Default viewer no longer depends on third-party scripts/cookies. Quiz also offers text choices for occluded parts."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation validation",
+      "result": "not-run",
+      "detail": "Build, typecheck, focused lint, interaction and visual checks pending. Geometry is original illustrative teaching content, not licensed BMW CAD; no native device testing or deployment."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Beginner, expert, mistake diagnosis, alternative explanation, Feynman, real-world, memory, project and reflection modes alongside existing Socratic, exam and challenge capabilities. Structured cards and progressive hints; manual secure cloud backup controls inside tutor."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Uncertain diagnosis no longer advances. Repeated misconceptions return to concept work. AI assessment creates due cards without pretending a recall occurred. Context remains valid bounded JSON."
+    },
+    {
+      "kind": "modified",
+      "detail": "Persist recent questions, learner responses, confidence, misconceptions, next exercises and reflections. Show observed counts instead of a mastery percentage."
+    }
+  ],
+  "summary": "Extend the existing tutor with structured teaching cards, explicit modes, persisted assessment evidence and reflection.",
+  "id": "tutor-intelligence-modes",
+  "createdAt": "2026-10-15T20:48:52.526Z",
+  "validation": [
+    {
+      "detail": "Typecheck, focused regression, browser interaction and build checks pending. Live AI accuracy, real cloud round trip and native devices unverified. No deployment.",
+      "result": "not-run",
+      "name": "Validation pending"
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/app/tutor.tsx",
+    "lecomax-learning-app/components/TutorCoach.tsx",
+    "lecomax-learning-app/components/TutorTeachingCard.tsx",
+    "lecomax-learning-app/utils/tutor-contract.ts",
+    "lecomax-learning-app/utils/tutor-coach.ts",
+    "lecomax-learning-app/utils/tutor-coach-state.ts",
+    "lecomax-learning-app/utils/tutor-context.ts",
+    "lib/tutor-workspace.ts",
+    "lecomax-learning-app/tests/tutor-coach.test.cjs",
+    "lecomax-learning-app/tests/tutor-coach-interaction.test.cjs"
+  ],
+  "components": [
+    "TutorWorkspace",
+    "TutorCoach",
+    "TutorTeachingCard",
+    "Tutor contract",
+    "Server teaching instructions"
+  ],
+  "status": "needs-testing",
+  "title": "Interactive teaching modes and evidence-aware coaching",
+  "pages": [
+    "/tutor",
+    "/memory-studio"
+  ]
+}

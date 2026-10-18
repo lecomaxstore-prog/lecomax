@@ -1,0 +1,59 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Start the configured loopback API before Expo; reuse a running API and check database access first."
+    },
+    {
+      "kind": "added",
+      "detail": "Bounded readiness checks, startup errors, owned child process cleanup, regression tests and startup documentation."
+    }
+  ],
+  "summary": "The combined launcher now starts the missing API and checks the database before Expo. Localhost login requests reach the authentication service.",
+  "id": "local-login-startup-verified-20261013",
+  "createdAt": "2026-10-13T09:23:29.334Z",
+  "validation": [
+    {
+      "name": "Startup regression tests",
+      "result": "passed",
+      "detail": "3 tests passed: managed-origin restrictions, readiness failure handling, actual child startup/reuse/exit and database preflight failure."
+    },
+    {
+      "name": "Change History regression tests",
+      "result": "passed",
+      "detail": "6 retention, append and interaction tests passed; existing reports preserved."
+    },
+    {
+      "name": "Static validation",
+      "result": "passed",
+      "detail": "App TypeScript check and focused ESLint no-undef/no-unused-vars checks passed. Initial standalone lint invocation omitted the Node __dirname global; corrected lint configuration passed."
+    },
+    {
+      "name": "Live local startup and login transport",
+      "result": "passed",
+      "detail": "Combined npm run web -- --port 8082 started the missing API after a successful real database check. OPTIONS returned 204, empty login 400 INVALID_INPUT, synthetic invalid login 401 INVALID_CREDENTIALS; all had the correct localhost:8082 CORS header. Frontend returned HTTP 200."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Actual owner password sign-in, browser visual interaction and native devices were not tested. Browser automation is unavailable in this session. No deployment. Database access requires network permission; the launcher reports failures and cannot guarantee availability during Internet or database outages."
+    }
+  ],
+  "files": [
+    "lecomax-learning-app/scripts/dev.cjs",
+    "lecomax-learning-app/scripts/local-api.cjs",
+    "lecomax-learning-app/tests/local-api.test.cjs",
+    "lecomax-learning-app/README.md"
+  ],
+  "components": [
+    "Development launcher",
+    "Local API readiness"
+  ],
+  "status": "successful",
+  "title": "Local login API restored and startup verified",
+  "pages": [
+    "Owner sign-in",
+    "Local development startup"
+  ],
+  "relatedId": "local-login-startup-20261013"
+}

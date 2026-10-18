@@ -1,0 +1,43 @@
+{
+  "id": "python-studio-polish-20261011",
+  "createdAt": "2026-10-11T10:52:48.800Z",
+  "title": "A focused Python workspace for mobile",
+  "summary": "Compact runtime navigation, cohesive typography, RTL layout, clear actions and expandable editor settings.",
+  "status": "needs-testing",
+  "pages": [
+    "/terminal"
+  ],
+  "components": [
+    "TeacherLab",
+    "PythonStudio"
+  ],
+  "files": [
+    "lecomax-learning-app/components/PythonStudio.web.tsx",
+    "lecomax-learning-app/components/TeacherLab.web.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replaced oversized runtime buttons with one four-column selector and a compact close control. Added a unified green palette and sans-serif workspace typography."
+    },
+    {
+      "kind": "modified",
+      "detail": "Moved the editor ahead of secondary controls; retained settings, restart, files and input options in expandable sections. Added selected panel styling and a status badge."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Applied Arabic reading direction outside the LTR code editor and localized primary actions, status and file controls."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the always-visible keyboard button; it appears when the visual viewport detects the keyboard."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Focused lint, typecheck, Python interaction and history checks pending; real browser visual review and native device checks pending."
+    }
+  ]
+}

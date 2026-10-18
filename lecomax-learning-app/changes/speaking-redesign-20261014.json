@@ -1,0 +1,38 @@
+{
+  "id": "speaking-redesign-20261014",
+  "createdAt": "2026-10-14T09:13:45.472Z",
+  "title": "A clearer speaking practice screen",
+  "summary": "Replaced the long stack of lesson cards with a compact introduction, prominent practice action, recovery phrase and expandable toolkit.",
+  "status": "needs-testing",
+  "pages": [
+    "/speaking"
+  ],
+  "components": [
+    "Speaking"
+  ],
+  "files": [
+    "app/speaking.tsx",
+    "tests/speaking-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added a dark green practice panel, compact type and spacing, RTL-aware layout, and focused practice view with return navigation."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the always-expanded lesson card stack; all guidance remains available in expandable rows."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated interaction coverage for expand/collapse and entering/leaving practice."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Redesign checks",
+      "result": "not-run",
+      "detail": "Typecheck, interaction tests, lint and visual checks pending."
+    }
+  ]
+}

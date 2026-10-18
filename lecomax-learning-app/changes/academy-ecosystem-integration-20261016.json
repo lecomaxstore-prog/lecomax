@@ -1,0 +1,54 @@
+{
+  "id": "academy-ecosystem-integration-20261016",
+  "createdAt": "2026-10-16T19:31:59.527Z",
+  "title": "Connect the academy with weekly planning and Agent Studio",
+  "summary": "Adds eight destination shortcuts, assessment-based weekly sessions, optional onboarding preferences and an executable offline agent workshop while preserving existing learning data.",
+  "status": "needs-testing",
+  "pages": [
+    "Home",
+    "Onboarding",
+    "My learning",
+    "Learning week",
+    "Agent Studio"
+  ],
+  "components": [
+    "AcademyDestinations",
+    "AcademyDashboard",
+    "LearnerProfile",
+    "weeklyAcademy",
+    "AgentStudio"
+  ],
+  "files": [
+    "lecomax-learning-app/components/AcademyDestinations.tsx",
+    "lecomax-learning-app/components/AcademyDashboard.tsx",
+    "lecomax-learning-app/app/onboarding.tsx",
+    "lecomax-learning-app/app/my-learning.tsx",
+    "lecomax-learning-app/app/academy-week.tsx",
+    "lecomax-learning-app/app/agent-studio.tsx",
+    "lecomax-learning-app/utils/academy.ts",
+    "lecomax-learning-app/utils/weekly-academy.ts",
+    "lecomax-learning-app/utils/agent-studio.ts",
+    "lecomax-learning-app/services/discovery.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Eight academy destinations, seven flexible sessions prioritizing due recall, and a bounded agent tool runner with observable trace and failure checks."
+    },
+    {
+      "kind": "modified",
+      "detail": "Onboarding supports skipping and optional interests, routine goals and accessibility notes. Existing profile shape remains readable."
+    },
+    {
+      "kind": "modified",
+      "detail": "Home, progress and search connect to the new screens. Existing lessons, consoles, authentication and wellness storage are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "Typecheck, lint, regression and interaction checks pending. No deployment, device build or live AI verification performed."
+    }
+  ]
+}

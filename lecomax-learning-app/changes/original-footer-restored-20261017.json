@@ -1,0 +1,45 @@
+{
+  "id": "original-footer-restored-20261017",
+  "relatedId": "mobile-footer-refresh-20261017",
+  "createdAt": "2026-10-17T10:34:40.517Z",
+  "title": "Restore the original black footer",
+  "summary": "Undo the footer redesigns at the owner request and restore the original black footer layout.",
+  "status": "successful",
+  "pages": [
+    "Storefront footer"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx",
+    "components/Footer.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Restore original footer classes, full introduction, Contact and Newsletter headings, original newsletter form styling, and always-visible navigation columns."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove the added mobile disclosure navigation and Footer.module.css redesign stylesheet. Earlier history records preserved. Product-page newsletter removal is not part of this rollback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Footer.tsx passes ESLint."
+    },
+    {
+      "name": "Local browser",
+      "result": "passed",
+      "detail": "390px viewport: footer background rgb(10,10,10), no disclosure controls, original Contact and Newsletter headings, one footer newsletter form and visible Nouveautes navigation link."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No full regression or real newsletter submission. No deployment."
+    }
+  ]
+}

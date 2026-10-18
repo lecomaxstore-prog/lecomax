@@ -1,0 +1,46 @@
+{
+  "id": "mission-visual-refresh-1791544223514",
+  "createdAt": "2026-10-09T11:10:23.514Z",
+  "title": "Clearer mission layout and study controls",
+  "summary": "Refresh the mission screen with a focused Arabic-friendly heading, deep green introduction, separate progress panel and a labelled activity path.",
+  "status": "needs-testing",
+  "pages": [
+    "/mission"
+  ],
+  "components": [
+    "DailyMission"
+  ],
+  "files": [
+    "lecomax-learning-app/features/DailyMission.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replaced the repeated brand heading and mixed-language mission title with a localized workshop label and a clear shopping-cart heading."
+    },
+    {
+      "kind": "added",
+      "detail": "Added a contrasting mission introduction, inset progress panel and activity-path heading."
+    },
+    {
+      "kind": "modified",
+      "detail": "Increased duration control touch targets and moved assessment details into a separate expandable section."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed assessment-detail controls from the mission introduction to reduce visual clutter."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Code and interaction checks",
+      "result": "not-run",
+      "detail": "Typecheck, focused lint, mission and change-history tests pending."
+    },
+    {
+      "name": "Visual and device checks",
+      "result": "not-run",
+      "detail": "Browser preview unavailable in this session; no native-device or deployment validation performed."
+    }
+  ]
+}

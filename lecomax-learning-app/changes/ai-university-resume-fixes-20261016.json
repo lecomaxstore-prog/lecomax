@@ -1,0 +1,49 @@
+{
+  "id": "ai-university-resume-fixes-20261016",
+  "relatedId": "ai-university-module-20261016",
+  "createdAt": "2026-10-16T20:28:54.193Z",
+  "title": "Resume AI University: compile and portfolio corrections",
+  "summary": "Finish verification of the interrupted university module and correct input contracts and edited Q&A restoration.",
+  "status": "needs-testing",
+  "pages": [
+    "/ai-university",
+    "/ai-university/[id]"
+  ],
+  "components": [
+    "Demonstration",
+    "LessonScreen",
+    "UniversityScreen",
+    "ProjectWorkbench",
+    "University engine"
+  ],
+  "files": [
+    "lecomax-learning-app/features/ai-university/Demonstration.tsx",
+    "lecomax-learning-app/features/ai-university/LessonScreen.tsx",
+    "lecomax-learning-app/features/ai-university/UniversityScreen.tsx",
+    "lecomax-learning-app/features/ai-university/ProjectWorkbench.tsx",
+    "lecomax-learning-app/features/ai-university/engine.ts",
+    "lecomax-learning-app/features/ai-university/project-contract.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Supply required input placeholders and handle missing review due dates explicitly."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Validate edited Q&A drafts before restoring inputs; preserve invalid artifacts with a visible warning. Keep Q&A projects marked as drafts after portfolio edits and clear stale mode text before a live request."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial typecheck",
+      "result": "failed",
+      "detail": "Found missing Field placeholders and possibly undefined review dueAt. Corrections await rerun."
+    },
+    {
+      "name": "New module verification",
+      "result": "not-run",
+      "detail": "Behavior, API mocks, focused lint and export checks pending. No deployment or live provider request."
+    }
+  ]
+}

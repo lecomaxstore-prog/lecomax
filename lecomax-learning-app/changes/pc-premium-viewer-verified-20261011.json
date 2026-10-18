@@ -1,0 +1,59 @@
+{
+  "id": "pc-premium-viewer-verified-20261011",
+  "createdAt": "2026-10-11T11:28:00.000Z",
+  "title": "Premium My PC viewer verified by focused checks",
+  "summary": "Verify the new remote viewer, pairing lifecycle and bridge safeguards with automated tests.",
+  "status": "successful",
+  "relatedId": "pc-premium-viewer-needs-testing-20261011",
+  "pages": [
+    "My PC"
+  ],
+  "components": [
+    "PcDesktop",
+    "Windows remote desktop viewer",
+    "PC bridge"
+  ],
+  "files": [
+    "scripts/pc-remote/index.html",
+    "scripts/pc-remote/client.js",
+    "scripts/pc-remote/input.mjs",
+    "scripts/pc-remote-server.mjs",
+    "scripts/start-pc-remote.mjs",
+    "tests/pc-remote-client.test.mjs",
+    "tests/pc-remote.test.mjs",
+    "lecomax-learning-app/tests/pc-desktop-interaction.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Harden browser-test compatibility for the module client while preserving pairing and reconnect behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused remote PC tests",
+      "result": "passed",
+      "detail": "6 tests passed: pairing recovery, URL safety, bridge authorization, session revocation, expiry, rate limiting and Stop My PC protection."
+    },
+    {
+      "name": "My PC interaction test",
+      "result": "passed",
+      "detail": "Existing React interaction test passed, including background disconnect and Tailscale/private address origin restrictions."
+    },
+    {
+      "name": "Physical Android portrait/landscape session",
+      "result": "not-run",
+      "detail": "No Android build or physical device was available in this validation run."
+    },
+    {
+      "name": "4G/5G Tailscale session",
+      "result": "not-run",
+      "detail": "No physical phone/mobile-data session was available in this validation run."
+    },
+    {
+      "name": "TypeScript check",
+      "result": "not-run",
+      "detail": "Not run yet; this report records focused verification only."
+    }
+  ]
+}

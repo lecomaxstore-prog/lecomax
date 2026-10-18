@@ -1,0 +1,33 @@
+{
+  "id": "product-inline-sizes-20261018",
+  "createdAt": "2026-10-18T09:11:37.307Z",
+  "title": "Direct size selection with compact buttons",
+  "summary": "Replace the repetitive size dropdown with visible size buttons.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo product details"
+  ],
+  "components": [
+    "Size selector"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed the duplicate selected-size trigger, expandable panel, availability count, repeated status labels and dropdown-only scrolling/dismiss handlers."
+    },
+    {
+      "kind": "modified",
+      "detail": "Render sizes as wrapping 48px-minimum buttons with a dark-green selected state and checkmark. Sold-out sizes remain disabled and struck through. Preserve the size guide, accessible selection state and quantity reset."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Typecheck and lint pending. Visual and interaction checks not performed; no deployment."
+    }
+  ]
+}

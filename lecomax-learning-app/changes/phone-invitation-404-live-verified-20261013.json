@@ -1,0 +1,57 @@
+{
+  "id": "phone-invitation-404-live-verified-20261013",
+  "createdAt": "2026-10-13T21:59:42.203Z",
+  "relatedId": "phone-invitation-404-release-prepared-20261013",
+  "title": "WhatsApp invitation 404 fixed on the live website",
+  "summary": "Published the missing invitation page and supporting assets to lecomax.com. All three public URLs now return HTTP 200 and match the tested source.",
+  "status": "successful",
+  "pages": [
+    "Phone invitation landing",
+    "My remote phone"
+  ],
+  "components": [
+    "WhatsApp invitation",
+    "Android app launch",
+    "Arabic landing page"
+  ],
+  "files": [
+    "public/phone-invite.html",
+    "public/phone-invite.js",
+    "public/phone-invite.css",
+    "lecomax-learning-app/artifacts/check-invitation-live.cjs",
+    "lecomax-learning-app/artifacts/invitation-live-verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Published three missing assets on the exact 1664-file prior production source. Existing build 20 links can open the landing page without a new APK. Vercel deployment dpl_3gzo3edEzp9CB14dxpMij944zteM promoted successfully using explicit project team."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Confirmed reported failure",
+      "result": "passed",
+      "detail": "Before deployment the public invitation HTML returned HTTP 404."
+    },
+    {
+      "name": "Focused regressions",
+      "result": "passed",
+      "detail": "Nine landing/internet-flow tests passed, including strict payload handling, app targets, consent gating, Arabic and clipboard fallback."
+    },
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Vercel Ready; compilation, type checks and 249 static pages completed. Existing repository lint warnings remain."
+    },
+    {
+      "name": "Staged and public verification",
+      "result": "passed",
+      "detail": "All three staged assets matched local source byte-for-byte. After promotion all three public assets returned 200 and exact expected content; DOM checks confirmed Android payload and Arabic RTL."
+    },
+    {
+      "name": "Physical phones and separate internet mode",
+      "result": "not-run",
+      "detail": "Actual WhatsApp-to-Android launch and two-phone screen capture remain untested. The pictured Tailscale mode still requires Learn and Tailscale on both phones. Separate no-Tailscale relay/backend was not deployed. New history is saved locally for a future app build."
+    }
+  ]
+}
