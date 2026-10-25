@@ -1,0 +1,6 @@
+# Preserve the reviewed bytes used by the offline staging migration checksum gate.
+supabase/alternatives/202610180002_seo_decoupled.sql text eol=lf
+operations/seo-vercel/supabase/migrations/20261018193508_seo_worker_run_control.sql text eol=lf
+operations/seo-vercel/supabase/migrations/202610190001_seo_ai_budget.sql text eol=lf
+operations/seo-vercel/supabase/migrations/202610190002_seo_editorial.sql text eol=lf
+operations/seo-vercel/supabase/migrations/202610190003_seo_editorial_review.sql text eol=lf

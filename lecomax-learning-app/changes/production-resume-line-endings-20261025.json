@@ -1,0 +1,51 @@
+{
+  "id": "production-resume-line-endings-20261025",
+  "createdAt": "2026-10-25T22:02:59.751Z",
+  "title": "Preserve reviewed migration checksums across Windows checkouts",
+  "summary": "Pin five reviewed staging SQL files to LF without changing SQL or approved hashes. Production release remains blocked by a credential binding mismatch.",
+  "status": "needs-testing",
+  "relatedId": "production-merge-type-corrections-20261025",
+  "pages": [
+    "Release validation",
+    "Change History"
+  ],
+  "components": [
+    "Staging migration inventory",
+    "Git checkout configuration"
+  ],
+  "files": [
+    ".gitattributes",
+    "supabase/alternatives/202610180002_seo_decoupled.sql",
+    "operations/seo-vercel/supabase/migrations/20261018193508_seo_worker_run_control.sql",
+    "operations/seo-vercel/supabase/migrations/202610190001_seo_ai_budget.sql",
+    "operations/seo-vercel/supabase/migrations/202610190002_seo_editorial.sql",
+    "operations/seo-vercel/supabase/migrations/202610190003_seo_editorial_review.sql"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Add exact-path LF checkout rules for the five migrations used by the offline staging preparation checksum gate."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Normalize local checkout line endings to the existing approved bytes; no SQL behavior, expected hash or production database changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Cause verification",
+      "result": "passed",
+      "detail": "All five files match existing pinned SHA-256 values after CRLF-to-LF conversion; raw Windows CRLF files failed."
+    },
+    {
+      "name": "Regression validation",
+      "result": "not-run",
+      "detail": "Focused staging plan tests pending."
+    },
+    {
+      "name": "Production deployment",
+      "result": "not-run",
+      "detail": "Existing hosted candidate failed public Supabase credential binding equality. No environment secrets exported or changed."
+    }
+  ]
+}

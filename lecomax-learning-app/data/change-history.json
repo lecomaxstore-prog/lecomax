@@ -1,5 +1,139 @@
 [
   {
+    "id": "production-resume-validation-20261025",
+    "createdAt": "2026-10-25T22:06:13.265Z",
+    "title": "Verify recovered release and identify the production binding blocker",
+    "summary": "790 Node tests completed with 785 passes and five skips; storefront, mobile and learning typechecks passed. Existing production remains live; the integrated production build is blocked by public Supabase key/binding equality.",
+    "status": "needs-testing",
+    "relatedId": "production-resume-line-endings-20261025",
+    "pages": [
+      "Storefront",
+      "Product gallery",
+      "SEO",
+      "Learning API",
+      "Change History"
+    ],
+    "components": [
+      "Release validation",
+      "Credential isolation",
+      "Git checkout configuration"
+    ],
+    "files": [
+      ".gitattributes",
+      "docs/production-resume-status-20261025.md",
+      "scripts/next-build.mjs",
+      "operations/seo-vercel/lib/environment-target.mjs"
+    ],
+    "changes": [
+      {
+        "kind": "fixed",
+        "detail": "Verified the LF checkout rules restore all five approved migration checksums without changing SQL or checksum enforcement."
+      },
+      {
+        "kind": "added",
+        "detail": "Record recovered integration validation and exact production configuration blocker. Earlier reports and previous-session work remain preserved."
+      }
+    ],
+    "validation": [
+      {
+        "name": "Node 24 suite",
+        "result": "passed",
+        "detail": "790 tests: 785 passed, five skipped, zero failed; includes TypeScript and CommonJS test files."
+      },
+      {
+        "name": "TypeScript",
+        "result": "passed",
+        "detail": "Storefront, mobile and learning application tsc --noEmit --incremental false completed successfully."
+      },
+      {
+        "name": "Lint",
+        "result": "passed",
+        "detail": "Direct ESLint on app, components and lib with JS/JSX/TS/TSX extensions completed without errors. npm lint is blocked by the environment policy when production configuration is absent."
+      },
+      {
+        "name": "Android and history",
+        "result": "passed",
+        "detail": "10 Android back scenarios and scroll-return scenarios passed; six change-history tests passed. Append-only history check passed with 952 reports before this follow-up."
+      },
+      {
+        "name": "Release audit",
+        "result": "passed",
+        "detail": "5343 tracked/unignored candidate files scanned: zero known-secret matches, credential-pattern matches, conflict markers or oversized files. No unresolved Git index conflicts."
+      },
+      {
+        "name": "Current production smoke",
+        "result": "passed",
+        "detail": "Homepage, selected product, robots, sitemap and search returned 200; protected products/admin/orders/learning progress returned 401. Home has canonical metadata, JSON-LD and 17 unique server-rendered product links. Isolated browser loaded 11/11 product images with no page errors; temporary storage write/read/remove passed. These checks concern the existing production deployment, not the candidate."
+      },
+      {
+        "name": "Production build",
+        "result": "failed",
+        "detail": "Prior hosted candidate 3a41427b failed applicationEnvironment at public Supabase credentialBinding equality. Metadata confirms all required production names and scopes; no shared overrides. Existing encrypted response bytes do not diagnose stored plaintext. No secrets decrypted, exported or modified this session."
+      },
+      {
+        "name": "Local production build",
+        "result": "failed",
+        "detail": "Prior synthetic build failed ENOSPC; only about 0.6 GB remained this session, so the same expensive failing build was not repeated."
+      },
+      {
+        "name": "Remaining acceptance",
+        "result": "not-run",
+        "detail": "Authenticated learning workflows, checkout/payment, candidate production browser interaction and deployment remain unverified. Reconcile approved production credential/binding pairs, then require a successful hosted build before production promotion."
+      }
+    ]
+  },
+  {
+    "id": "production-resume-line-endings-20261025",
+    "createdAt": "2026-10-25T22:02:59.751Z",
+    "title": "Preserve reviewed migration checksums across Windows checkouts",
+    "summary": "Pin five reviewed staging SQL files to LF without changing SQL or approved hashes. Production release remains blocked by a credential binding mismatch.",
+    "status": "needs-testing",
+    "relatedId": "production-merge-type-corrections-20261025",
+    "pages": [
+      "Release validation",
+      "Change History"
+    ],
+    "components": [
+      "Staging migration inventory",
+      "Git checkout configuration"
+    ],
+    "files": [
+      ".gitattributes",
+      "supabase/alternatives/202610180002_seo_decoupled.sql",
+      "operations/seo-vercel/supabase/migrations/20261018193508_seo_worker_run_control.sql",
+      "operations/seo-vercel/supabase/migrations/202610190001_seo_ai_budget.sql",
+      "operations/seo-vercel/supabase/migrations/202610190002_seo_editorial.sql",
+      "operations/seo-vercel/supabase/migrations/202610190003_seo_editorial_review.sql"
+    ],
+    "changes": [
+      {
+        "kind": "added",
+        "detail": "Add exact-path LF checkout rules for the five migrations used by the offline staging preparation checksum gate."
+      },
+      {
+        "kind": "fixed",
+        "detail": "Normalize local checkout line endings to the existing approved bytes; no SQL behavior, expected hash or production database changes."
+      }
+    ],
+    "validation": [
+      {
+        "name": "Cause verification",
+        "result": "passed",
+        "detail": "All five files match existing pinned SHA-256 values after CRLF-to-LF conversion; raw Windows CRLF files failed."
+      },
+      {
+        "name": "Regression validation",
+        "result": "not-run",
+        "detail": "Focused staging plan tests pending."
+      },
+      {
+        "name": "Production deployment",
+        "result": "not-run",
+        "detail": "Existing hosted candidate failed public Supabase credential binding equality. No environment secrets exported or changed."
+      }
+    ]
+  },
+  {
     "id": "production-merge-type-corrections-20261025",
     "createdAt": "2026-10-25T21:50:06.931Z",
     "title": "Restore deployed helper components and repair mobile merge types",

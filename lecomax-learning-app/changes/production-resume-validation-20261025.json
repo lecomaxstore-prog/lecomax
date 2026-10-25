@@ -1,0 +1,83 @@
+{
+  "id": "production-resume-validation-20261025",
+  "createdAt": "2026-10-25T22:06:13.265Z",
+  "title": "Verify recovered release and identify the production binding blocker",
+  "summary": "790 Node tests completed with 785 passes and five skips; storefront, mobile and learning typechecks passed. Existing production remains live; the integrated production build is blocked by public Supabase key/binding equality.",
+  "status": "needs-testing",
+  "relatedId": "production-resume-line-endings-20261025",
+  "pages": [
+    "Storefront",
+    "Product gallery",
+    "SEO",
+    "Learning API",
+    "Change History"
+  ],
+  "components": [
+    "Release validation",
+    "Credential isolation",
+    "Git checkout configuration"
+  ],
+  "files": [
+    ".gitattributes",
+    "docs/production-resume-status-20261025.md",
+    "scripts/next-build.mjs",
+    "operations/seo-vercel/lib/environment-target.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified the LF checkout rules restore all five approved migration checksums without changing SQL or checksum enforcement."
+    },
+    {
+      "kind": "added",
+      "detail": "Record recovered integration validation and exact production configuration blocker. Earlier reports and previous-session work remain preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node 24 suite",
+      "result": "passed",
+      "detail": "790 tests: 785 passed, five skipped, zero failed; includes TypeScript and CommonJS test files."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Storefront, mobile and learning application tsc --noEmit --incremental false completed successfully."
+    },
+    {
+      "name": "Lint",
+      "result": "passed",
+      "detail": "Direct ESLint on app, components and lib with JS/JSX/TS/TSX extensions completed without errors. npm lint is blocked by the environment policy when production configuration is absent."
+    },
+    {
+      "name": "Android and history",
+      "result": "passed",
+      "detail": "10 Android back scenarios and scroll-return scenarios passed; six change-history tests passed. Append-only history check passed with 952 reports before this follow-up."
+    },
+    {
+      "name": "Release audit",
+      "result": "passed",
+      "detail": "5343 tracked/unignored candidate files scanned: zero known-secret matches, credential-pattern matches, conflict markers or oversized files. No unresolved Git index conflicts."
+    },
+    {
+      "name": "Current production smoke",
+      "result": "passed",
+      "detail": "Homepage, selected product, robots, sitemap and search returned 200; protected products/admin/orders/learning progress returned 401. Home has canonical metadata, JSON-LD and 17 unique server-rendered product links. Isolated browser loaded 11/11 product images with no page errors; temporary storage write/read/remove passed. These checks concern the existing production deployment, not the candidate."
+    },
+    {
+      "name": "Production build",
+      "result": "failed",
+      "detail": "Prior hosted candidate 3a41427b failed applicationEnvironment at public Supabase credentialBinding equality. Metadata confirms all required production names and scopes; no shared overrides. Existing encrypted response bytes do not diagnose stored plaintext. No secrets decrypted, exported or modified this session."
+    },
+    {
+      "name": "Local production build",
+      "result": "failed",
+      "detail": "Prior synthetic build failed ENOSPC; only about 0.6 GB remained this session, so the same expensive failing build was not repeated."
+    },
+    {
+      "name": "Remaining acceptance",
+      "result": "not-run",
+      "detail": "Authenticated learning workflows, checkout/payment, candidate production browser interaction and deployment remain unverified. Reconcile approved production credential/binding pairs, then require a successful hosted build before production promotion."
+    }
+  ]
+}
