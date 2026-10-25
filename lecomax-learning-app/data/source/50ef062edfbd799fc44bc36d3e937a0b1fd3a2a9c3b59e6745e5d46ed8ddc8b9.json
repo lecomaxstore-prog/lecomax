@@ -1,0 +1,1 @@
+{"content":"import type { Metadata } from \"next\";\nimport { privatePageMetadata } from \"@/lib/seo\";\n\nexport const metadata: Metadata = { title: \"Confirmation de commande\", ...privatePageMetadata };\n\nexport default function ThankYouLayout({ children }: { children: React.ReactNode }) {\n  return children;\n}\n"}

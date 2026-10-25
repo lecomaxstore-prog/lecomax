@@ -1,0 +1,25 @@
+-- PREPARED ONLY. Explicit production migration approval required before invocation.
+-- Run verify-bundle.cjs first. This wrapper includes exactly the pinned alternative.
+\set ON_ERROR_STOP on
+\if :{?seo_approval}
+  select :'seo_approval' = 'APPROVED_DECOUPLED_202610180002' as approval_valid \gset
+\else
+  \set approval_valid false
+\endif
+\if :approval_valid
+  select current_database()='postgres' and current_user='postgres' and not pg_is_in_recovery()
+    and :'PORT'='5432'
+    and ((:'HOST'='db.yddqwgdgeljkzfsmtein.supabase.co' and :'USER'='postgres')
+      or (:'HOST'='aws-0-eu-west-1.pooler.supabase.com' and :'USER'='postgres.yddqwgdgeljkzfsmtein')) as identity_valid \gset
+  \if :identity_valid
+    set transaction_timeout='120s';
+    set idle_in_transaction_session_timeout='15s';
+    \ir migration.sql
+  \else
+    \echo 'STOP: database/role identity mismatch'
+    select 1/0 as identity_guard_failed;
+  \endif
+\else
+  \echo 'STOP: explicit migration approval acknowledgement required'
+  select 1/0 as approval_guard_failed;
+\endif

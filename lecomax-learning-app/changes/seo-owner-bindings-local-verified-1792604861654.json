@@ -1,0 +1,52 @@
+{
+  "id": "seo-owner-bindings-local-verified-1792604861654",
+  "createdAt": "2026-10-21T17:47:41.654Z",
+  "title": "Hidden-input binding procedure validated locally",
+  "summary": "Local syntax and synthetic binding checks pass. Production remains 11/14 configured; exact original owner credentials required before remote creation.",
+  "status": "needs-testing",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ],
+  "components": [
+    "Secure credential input",
+    "Binding contract"
+  ],
+  "files": [
+    "scripts/complete-production-bindings.cjs",
+    "scripts/complete-production-bindings.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Exact UTF-8 SHA256 derivation using repository policy; owner attestation, hidden prompts, stdin transport, no plaintext persistence, source/literal preflight, create-only writes and preservation reconciliation."
+    },
+    {
+      "kind": "added",
+      "detail": "Each owner execution automatically appends a sanitized Change History report and checks history integrity."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node and PowerShell syntax",
+      "result": "passed",
+      "detail": "Both scripts parse successfully."
+    },
+    {
+      "name": "Synthetic contract",
+      "result": "passed",
+      "detail": "Exact hashes match; incorrect key role, port 6543, URL host override and empty credential rejected. No network used."
+    },
+    {
+      "name": "Production execution",
+      "result": "not-run",
+      "detail": "Owner must enter original values through hidden prompts. No bindings created, secrets replaced, migrations or deployment."
+    },
+    {
+      "name": "Full environment/build",
+      "result": "not-run",
+      "detail": "Blocked on missing bindings and secure execution context for write-only ADMIN_SESSION_SECRET. No repeat of previously blocked build."
+    }
+  ],
+  "relatedId": "seo-owner-bindings-procedure-1792604839356"
+}

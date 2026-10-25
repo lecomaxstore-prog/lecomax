@@ -1,0 +1,54 @@
+{
+  "id": "seo-preview-branch-project-scope-blocked-20261023",
+  "relatedId": "seo-preview-access-provenance-gate-20261023",
+  "createdAt": "2026-10-23T06:37:06.517Z",
+  "title": "Preview branch audit identifies service secret in the wrong Vercel project",
+  "summary": "The new Preview secret is in lecomax; isolated lecomax-seo-staging retains its older broad secret. Recovery branch and exact secure override instructions recorded. No deployment performed.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Recovery Preview",
+    "Change History"
+  ],
+  "components": [
+    "Vercel branch environment audit",
+    "Supabase isolation gate"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/branch-scope-audit.cjs",
+    "artifacts/seo-preview-resume-20261023/branch-scope-1792737329231.json",
+    "docs/seo-preview-branch-scope-20261023.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added read-only audit of both Vercel projects including shared variables and exact branch precedence, plus secure correction instructions. Application and remote configuration unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate identity",
+      "result": "passed",
+      "detail": "Clean correction/seo-abcd-utf8-20261023 at 8a12abcce38c0dc557a9ef9f86c3ce3dd113e863."
+    },
+    {
+      "name": "Environment scopes",
+      "result": "passed",
+      "detail": "Both shared inventories empty with complete pagination. Storefront URL/anon key scoped to agent/storefront-order-readiness; absent for recovery branch. Staging general URL and public JWT identify tyltharlnbxrxibuxyye."
+    },
+    {
+      "name": "Service-key use",
+      "result": "passed",
+      "detail": "Source inspection confirms products/categories APIs require service key; removing it would break unchanged candidate."
+    },
+    {
+      "name": "Isolation gate",
+      "result": "failed",
+      "detail": "New secret is in different project. Intended staging service secret provenance remains unresolved and broad; Supabase Auth mail/outbound hooks not certified. Deployment stopped."
+    },
+    {
+      "name": "Hosted Preview acceptance",
+      "result": "not-run",
+      "detail": "No deployment URL. No HTTP/browser Preview tests, orders, messages or production changes."
+    }
+  ]
+}

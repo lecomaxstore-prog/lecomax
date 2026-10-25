@@ -1,0 +1,83 @@
+{
+  "id": "seo-readonly-verified-1792762322573",
+  "relatedId": "seo-readonly-boundary-1792761294587",
+  "createdAt": "2026-10-23T13:32:02.576Z",
+  "title": "Verify restricted SEO Preview candidate locally",
+  "summary": "Local read-only restrictions pass security, build, HTTP and browser validation. Hosted credentials and real staging acceptance remain unexecuted; no deployment or SMTP change.",
+  "status": "successful",
+  "pages": [
+    "Homepage",
+    "Boutique",
+    "Product and category pages",
+    "Sitemaps and robots",
+    "Denied auth/cart/checkout/admin/API surfaces"
+  ],
+  "components": [
+    "Preview middleware",
+    "Server fetch boundary",
+    "Browser Supabase transport",
+    "Root layout",
+    "Local image delivery",
+    "Prepared hosted acceptance"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/lib/seo-preview-readonly.mjs",
+    ".recovery-seo-preview-isolated/instrumentation.ts",
+    ".recovery-seo-preview-isolated/middleware.ts",
+    ".recovery-seo-preview-isolated/lib/supabase.ts",
+    ".recovery-seo-preview-isolated/app/layout.tsx",
+    ".recovery-seo-preview-isolated/next.config.js",
+    ".recovery-seo-preview-isolated/tests/seo-preview-readonly.test.mjs",
+    "artifacts/seo-preview-resume-20261023/readonly-storefront-acceptance.cjs",
+    "operations/seo/readonly-preview-acceptance.json",
+    "operations/seo/verify-readonly-preview.mjs",
+    "operations/seo/readonly-preview-readiness-20261023.md",
+    "operations/seo/readonly-preview-evidence-20261023.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Fail-closed GET/HEAD route and staging REST allowlists, restrictive browser policy and separate disabled hosted acceptance plan."
+    },
+    {
+      "kind": "modified",
+      "detail": "Disable Preview browser auth transport/session restoration and side-effect layout components; serve local images directly in Preview. Existing production behavior and email guards retained."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Cover posts sitemap shards and Unicode product slugs, preserve encoded local image paths, and verify actual browser image decoding. Corrected harness export/networkidle issues; rebuilt after sandbox font denial."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Synthetic production-mode build and TypeScript",
+      "result": "passed",
+      "detail": "226 pages; final TypeScript check passed. Existing lint warnings remain."
+    },
+    {
+      "name": "Regression and safety suites",
+      "result": "passed",
+      "detail": "120 regression, 19 credential isolation, 18 email safety, 12 verifier/error handling, 13 read-only boundary and 2 fixture transport tests."
+    },
+    {
+      "name": "Fixture acceptance and browser images",
+      "result": "passed",
+      "detail": "37 checks, including four browser pages with no page errors or unexpected routed requests, product-image decoding, and 30 image response hashes."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "2588 original recovery files and 30 repaired images unchanged; 127 service consumers retain selectors. Production untouched."
+    },
+    {
+      "name": "Provider metadata",
+      "result": "passed",
+      "detail": "Read-only audit confirms staging identity/scopes/disable flags and disabled Auth email settings. No credential values read."
+    },
+    {
+      "name": "Hosted operations",
+      "result": "not-run",
+      "detail": "Hosted credential verifier, actual staging-backed acceptance and deployment require separate authorization. No provider-wide SMTP isolation or OS egress firewall claim."
+    }
+  ]
+}

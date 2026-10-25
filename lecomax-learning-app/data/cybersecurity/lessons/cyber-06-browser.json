@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-06-browser",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-06",
+  "title": {
+    "en": "XSS and CSRF: two different browser trust failures",
+    "ar": "XSS وCSRF: فهم حدود الثقة في المتصفح",
+    "fr": "XSS and CSRF: two different browser trust failures"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-06-injection"
+  ],
+  "objectives": [
+    "Distinguish reflected, stored and DOM-based XSS.",
+    "Choose context-appropriate output handling instead of unsafe HTML insertion.",
+    "Validate a state-changing request with method, origin and session-bound CSRF protection."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Learn why interpreting untrusted text as markup differs from accepting an unwanted authenticated request. The demonstrations use only a local page and synthetic session data.",
+  "sections": [
+    {
+      "title": "XSS turns content into browser instructions",
+      "text": "Cross-site scripting occurs when untrusted content reaches an execution-capable browser context without an appropriate boundary. Reflected XSS returns request input in a response; stored XSS persists it and later serves it to another viewer; DOM-based XSS can arise entirely through client-side source-to-sink handling. The categories can overlap. In the lab, vulnerableGreeting concatenates a name into an HTML paragraph. A name containing markup becomes an element rather than visible text. The necessary conditions are attacker influence over content, a dangerous insertion context and a browser path that interprets the result. Demonstrating an inserted element is evidence of HTML injection; demonstrating script execution requires an execution-capable context, which should remain harmless and local."
+    },
+    {
+      "title": "Observe safely and identify the sink",
+      "text": "Open /xss?mode=unsafe on the local lab and enter a harmless markup marker such as <b>LAB MARKER</b>. The result renders bold instead of displaying the characters literally. The page explains that its unsafe mode is intentionally isolated and contains no real accounts. For an execution demonstration, the lab instructions use only an event handler that changes the local demo-status text; it does not read cookies, make external requests or collect data. In source review, follow the untrusted value to innerHTML or an equivalent unsafe sink. The DOM regression verifies that unsafe output creates an element and safe output preserves literal text. It does not claim a full browser policy test, since the Node test environment is not your production browser."
+    },
+    {
+      "title": "Encoding depends on context",
+      "text": "The corrected greeting escapes HTML text metacharacters before creating the paragraph. In ordinary React text children, prefer rendering the string directly so React treats it as text. Do not use dangerouslySetInnerHTML for untrusted content merely to preserve formatting. If rich HTML is a real requirement, use a maintained sanitizer with a restricted policy and test the supported markup. HTML text encoding is not a universal JavaScript, CSS or URL sanitizer. A link destination needs a permitted URL scheme and destination policy; a script context should not receive interpolated untrusted values. Content Security Policy can reduce some consequences, but it is defense in depth rather than a replacement for safe sinks."
+    },
+    {
+      "title": "CSRF does not require reading the response",
+      "text": "Cross-site request forgery exploits a browser attaching credentials to a request that the user did not intend to authorize. For example, a state-changing endpoint might accept a cookie-authenticated POST initiated from another site. The other site may not be able to read the response, yet the unwanted state change can still occur. This is why CORS is not a complete CSRF defense. The preconditions depend on credential attachment, accepted request formats, SameSite behavior and server checks. A GET endpoint that changes state is particularly troublesome because ordinary navigation can trigger it. CSRF and XSS are distinct: XSS can run within your origin and may defeat defenses intended only for cross-site requests."
+    },
+    {
+      "title": "Build the request check in layers",
+      "text": "The local secureCsrf function requires POST, an exact expected origin and a token matching the current synthetic session. The unsafe demonstration is the absence of those checks: the test shows a change would be accepted by a naive handler, then verifies the secure function rejects wrong method, foreign origin and wrong token. In production, generate unpredictable session-bound tokens, decide how legitimate clients without an Origin header are handled, and avoid silently accepting a missing value as proof of trust. Use Secure, HttpOnly and appropriate SameSite cookie settings as complementary controls. Rotate or invalidate the session as needed. Do not use a constant public token, and do not let the browser supply the server’s expected origin."
+    },
+    {
+      "title": "Test the property rather than a single payload",
+      "text": "For XSS, assert that malicious-looking input appears as text, no unexpected element exists and a normal name still renders correctly. For CSRF, assert a permitted same-origin request succeeds while wrong-origin, wrong-token and inappropriate-method cases fail before any mutation. Record the authenticated identity and expected state before and after the attempted change. Check that a rejected request does not partially update a record. Do not use production accounts or browser credentials in these labs. Prevention combines safe rendering APIs, explicit state-changing routes, session/cookie policy and regression tests at the affected boundary. Darija: XSS كيبدل النص لتعليمات داخل الصفحة؛ CSRF كيستغل طلب جا مع جلسة صحيحة ولكن بلا نية المستخدم."
+    }
+  ],
+  "examples": [
+    {
+      "id": "xss-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableGreeting(name) { return '<p>Hello ' + name + '</p>'; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "xss-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureGreeting(name) { return '<p>Hello ' + escapeHtml(name) + '</p>'; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    },
+    {
+      "id": "csrf",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureCsrf({ method, origin, token }, session, expectedOrigin) {\n  if (method !== 'POST') reject('POST required', 405);\n  if (origin !== expectedOrigin) reject('Origin rejected', 403);\n  if (!session || typeof token !== 'string' || token !== session.csrf) reject('CSRF token rejected', 403);\n  return true;\n}",
+      "annotations": [
+        {
+          "lines": "1-6",
+          "label": "Check method, exact expected origin and the session-bound token before a mutation. The surrounding route must authenticate the session."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "render",
+      "difficulty": 2,
+      "task": "Predict the difference between rendering <b>LAB MARKER</b> with each greeting function.",
+      "hints": [
+        "An element and literal angle brackets are different observations."
+      ],
+      "solution": "Unsafe: a b element appears.\nSafe: the literal string <b>LAB MARKER</b> appears as text.",
+      "walkthrough": "The safe function changes interpretation while preserving the user-visible value. This encoding is for an HTML text context only.",
+      "expectedResult": "A DOM-shape comparison."
+    },
+    {
+      "id": "csrf",
+      "difficulty": 2,
+      "task": "Build a four-row matrix for valid request, foreign origin, wrong token and GET.",
+      "hints": [
+        "Every denied case must occur before mutation."
+      ],
+      "solution": "Valid POST + expected origin + session token -> allowed\nForeign origin -> 403\nWrong token -> 403\nGET -> 405",
+      "walkthrough": "The positive control confirms the feature remains usable; the negative cases exercise independent gates.",
+      "expectedResult": "Four assertions and unchanged state on rejection."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-06-browser-q1",
+      "question": "Does every HTML injection prove script execution?",
+      "options": [
+        "No; show the actual execution-capable context.",
+        "Yes; any bold text means JavaScript executed."
+      ],
+      "correctIndex": 0,
+      "explanation": "Evidence must distinguish markup from executable behavior.",
+      "answerExplanations": [
+        "Correct. Evidence must distinguish markup from executable behavior.",
+        "Not quite. Evidence must distinguish markup from executable behavior."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q2",
+      "question": "What should ordinary React use for an untrusted name?",
+      "options": [
+        "Unreviewed dangerouslySetInnerHTML.",
+        "A text child."
+      ],
+      "correctIndex": 1,
+      "explanation": "Text rendering keeps the value out of markup interpretation.",
+      "answerExplanations": [
+        "Not quite. Text rendering keeps the value out of markup interpretation.",
+        "Correct. Text rendering keeps the value out of markup interpretation."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q3",
+      "question": "Is HTML text encoding a universal URL sanitizer?",
+      "options": [
+        "No; contexts need different rules.",
+        "Yes; one escaping function fixes every sink."
+      ],
+      "correctIndex": 0,
+      "explanation": "URLs and script contexts have different semantics.",
+      "answerExplanations": [
+        "Correct. URLs and script contexts have different semantics.",
+        "Not quite. URLs and script contexts have different semantics."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q4",
+      "question": "Does CSRF require reading the response?",
+      "options": [
+        "Yes; unreadable responses cannot cause harm.",
+        "No; an unwanted state change can be enough."
+      ],
+      "correctIndex": 1,
+      "explanation": "Request side effects can occur without response access.",
+      "answerExplanations": [
+        "Not quite. Request side effects can occur without response access.",
+        "Correct. Request side effects can occur without response access."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q5",
+      "question": "Does CORS alone prevent CSRF?",
+      "options": [
+        "No; it primarily controls browser response access.",
+        "Yes; all cross-site requests are prevented."
+      ],
+      "correctIndex": 0,
+      "explanation": "Some requests can be sent even when their responses are unreadable.",
+      "answerExplanations": [
+        "Correct. Some requests can be sent even when their responses are unreadable.",
+        "Not quite. Some requests can be sent even when their responses are unreadable."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q6",
+      "question": "Should GET change an account email?",
+      "options": [
+        "Yes; cookies make navigation intentional.",
+        "No; use a protected state-changing operation."
+      ],
+      "correctIndex": 1,
+      "explanation": "Safe method semantics reduce unwanted action surfaces.",
+      "answerExplanations": [
+        "Not quite. Safe method semantics reduce unwanted action surfaces.",
+        "Correct. Safe method semantics reduce unwanted action surfaces."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q7",
+      "question": "Is a constant CSRF token a useful secret proof?",
+      "options": [
+        "No; it is predictable and not session-bound.",
+        "Yes; the field name is enough."
+      ],
+      "correctIndex": 0,
+      "explanation": "The proof must distinguish a legitimate session flow.",
+      "answerExplanations": [
+        "Correct. The proof must distinguish a legitimate session flow.",
+        "Not quite. The proof must distinguish a legitimate session flow."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q8",
+      "question": "Can XSS undermine some CSRF defenses?",
+      "options": [
+        "No; these risks cannot interact.",
+        "Yes; same-origin script may act within the trusted page."
+      ],
+      "correctIndex": 1,
+      "explanation": "Different controls can share a compromised origin boundary.",
+      "answerExplanations": [
+        "Not quite. Different controls can share a compromised origin boundary.",
+        "Correct. Different controls can share a compromised origin boundary."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q9",
+      "question": "What is the local execution marker allowed to change?",
+      "options": [
+        "Only the fictional page’s demo-status text.",
+        "Real browser credentials and external accounts."
+      ],
+      "correctIndex": 0,
+      "explanation": "The demonstration is scoped to harmless local effects.",
+      "answerExplanations": [
+        "Correct. The demonstration is scoped to harmless local effects.",
+        "Not quite. The demonstration is scoped to harmless local effects."
+      ]
+    },
+    {
+      "id": "cyber-06-browser-q10",
+      "question": "What must a rejected mutation test verify?",
+      "options": [
+        "Only that an error message is printed.",
+        "The state remains unchanged."
+      ],
+      "correctIndex": 1,
+      "explanation": "An error after partial modification is not a safe rejection.",
+      "answerExplanations": [
+        "Not quite. An error after partial modification is not a safe rejection.",
+        "Correct. An error after partial modification is not a safe rejection."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can distinguish reflected, stored and DOM-based XSS.",
+    "I can choose context-appropriate output handling instead of unsafe HTML insertion.",
+    "I can validate a state-changing request with method, origin and session-bound CSRF protection."
+  ],
+  "recap": [
+    "Distinguish reflected, stored and DOM-based XSS.",
+    "Choose context-appropriate output handling instead of unsafe HTML insertion.",
+    "Validate a state-changing request with method, origin and session-bound CSRF protection."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP XSS prevention",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP CSRF prevention",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Two separate failure paths",
+    "steps": [
+      {
+        "title": "XSS source",
+        "detail": "Untrusted name reaches an HTML interpretation sink."
+      },
+      {
+        "title": "XSS boundary",
+        "detail": "Render text or use an explicitly reviewed rich-content policy."
+      },
+      {
+        "title": "CSRF source",
+        "detail": "Another site initiates a request carrying ambient credentials."
+      },
+      {
+        "title": "CSRF boundary",
+        "detail": "Check method, origin and session-bound proof before changing state."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Sink",
+      "An operation that interprets or uses a value in a security-sensitive context."
+    ],
+    [
+      "Ambient credentials",
+      "Credentials a browser attaches without the caller explicitly writing them into the request."
+    ],
+    [
+      "CSRF token",
+      "An unpredictable value bound to the legitimate session/request flow."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node security-labs/server.cjs",
+    "badge": "Browser boundary defender"
+  }
+}

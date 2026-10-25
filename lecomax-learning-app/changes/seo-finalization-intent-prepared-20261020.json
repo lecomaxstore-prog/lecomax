@@ -1,0 +1,35 @@
+{
+  "id": "seo-finalization-intent-prepared-20261020",
+  "createdAt": "2026-10-20T09:03:06.320Z",
+  "title": "Preserve worker finalization intent and deadline diagnostics",
+  "summary": "Bounded finalization retries retain the original outcome; deadline expiry is recorded during transport and before subsequent RPCs.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync"
+  ],
+  "components": [
+    "SEO worker recovery"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/finalization-retry.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Retry original finalization arguments without reclassifying successful or partial work as failed; retain uncertain acknowledgement semantics."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Record budget exhaustion when deadline expires during transport or before the next RPC."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Offline validation",
+      "result": "not-run",
+      "detail": "Focused regression, type checks, lint and isolated build pending. No hosted writes or paid requests."
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "product-gallery-release-authorized-20261025",
+  "relatedId": "product-gallery-verified-20261025",
+  "createdAt": "2026-10-25T11:11:26.248Z",
+  "title": "Product gallery Production release authorized",
+  "summary": "Exact certified one-file candidate cleared fresh Production preflight. One deployment authorized; live acceptance pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Product image viewer"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "artifacts/product-gallery-20261025/source/components/ProductGallery.tsx",
+    "artifacts/product-gallery-20261025/release.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepare one controlled release of 7de379fa06cf06df33048de02be43f8be30eb1c509183f5bcb6fc64612086a44. No candidate edits or local rebuild."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Preflight",
+      "result": "passed",
+      "detail": "Approved source and evidence hashes verified. Correct team/project, current READY baseline dpl_6iS9N6cqRM5kMqPPa4ixajqkCVnT, 2055 files, only ProductGallery delta, no newer release and unchanged configuration."
+    },
+    {
+      "name": "Live acceptance",
+      "result": "not-run",
+      "detail": "Pending deployment. Prior local harness testing does not establish live product hydration; physical-device and human screen-reader tests remain unperformed."
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "seo-final-readiness-write-guard-prepared-20261021",
+  "createdAt": "2026-10-21T13:14:32.508Z",
+  "title": "Staging manual SEO write gap identified",
+  "summary": "AI editorial flags do not gate manual SEO mutations. Preparing a local staging/preview denial guard; no hosted change authorized or performed.",
+  "status": "needs-testing",
+  "relatedId": "seo-approved-fix-deployment-verified-20261021",
+  "pages": [
+    "SEO admin",
+    "Change History"
+  ],
+  "components": [
+    "Admin mutation guard"
+  ],
+  "files": [
+    "lib/api-security.ts",
+    "tests/seo-editorial-api.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Preparing explicit staging/preview denial for seo:* mutation guards, preserving reads and production behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source inspection",
+      "result": "passed",
+      "detail": "Manual editorial and legacy SEO POST routes call protectAdminMutation but do not consult a staging mutation gate; SEO_EDITORIAL_ENABLED controls AI generation."
+    },
+    {
+      "name": "Regression tests",
+      "result": "not-run",
+      "detail": "Will test owner/editor valid requests are rejected before any database RPC."
+    },
+    {
+      "name": "Hosted fix",
+      "result": "not-run",
+      "detail": "Staging deployment requires separate approval. Prior full write-disable claims are corrected; no hosted mutation probe executed."
+    }
+  ]
+}

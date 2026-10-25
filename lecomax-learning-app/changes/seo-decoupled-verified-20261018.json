@@ -1,0 +1,81 @@
+{
+  "id": "seo-decoupled-verified-20261018",
+  "relatedId": "seo-decoupled-implementation-20261018",
+  "createdAt": "2026-10-18T19:08:49.992Z",
+  "title": "Decoupled SEO verified locally; production remains unchanged",
+  "summary": "Durable background synchronization passed deliberate SEO failures and commerce regression tests. Node 24 candidate build and dashboard browser checks passed. Production rollout requires separate approval.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "/produit/[slug]",
+    "/[category]",
+    "/change-history"
+  ],
+  "components": [
+    "SEO synchronization queue",
+    "Scheduled worker",
+    "Admin synchronization status",
+    "Metadata fallback",
+    "Inventory regression",
+    "Change History"
+  ],
+  "files": [
+    "supabase/alternatives/202610180002_seo_decoupled.sql",
+    "supabase/verification/seo-decoupled-postflight.sql",
+    "scripts/seo-sync-worker.mjs",
+    "scripts/test-seo-decoupled.mjs",
+    "scripts/test-seo-concurrency.cjs",
+    "scripts/test-preorder-sql.mjs",
+    "scripts/prepare-seo-decoupled-candidate.cjs",
+    "scripts/smoke-seo-dashboard.mjs",
+    "tests/seo-sync.test.ts",
+    "app/api/admin/seo/route.ts",
+    "app/admin/seo/page.tsx",
+    "lib/seo-store.ts",
+    "lib/product-share.ts",
+    "docs/seo-decoupled-rollout-20261018.md",
+    "docs/seo-decoupled-readiness-20261018.md",
+    "docs/seo-system.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Standalone SQL replacement, durable latest-state queue, separate scheduler worker, leases, atomic completion, exponential retries, failure recovery and read-only postflight."
+    },
+    {
+      "kind": "modified",
+      "detail": "Admin synchronization counts, heartbeat, stale/unavailable warnings and sanitized retry errors; scoped isolated candidate and rollout/environment/monitoring/recovery instructions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Current-fact metadata fallback prevents stale stored content. Restored the root preorderEnabled mapping already present in the previous candidate after TypeScript exposed its absence. Corrected local concurrency harness address formatting; sandbox font/process limitations resolved for validation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Actual SQL and worker failure injection",
+      "result": "passed",
+      "detail": "PGlite tests passed backfill, updates, deletion, queue outage catch-up, retries through eight attempts, lease recovery, stale tokens, duplicate prevention, permanent metadata, approval conflicts, grants/RLS and migration rerun. Existing checkout/inventory/coupon/preorder suite passed with queue and generation deliberately broken."
+    },
+    {
+      "name": "Multi-connection PostgreSQL 18.6",
+      "result": "passed",
+      "detail": "Synthetic localhost cluster: product creation and stock writes succeeded while SEO tables held exclusive locks; concurrent workers claimed distinct jobs, blocked reconciliation timed out, stale acknowledgement rejected. Cluster stopped. Production PostgreSQL 17 not tested."
+    },
+    {
+      "name": "Application and history tests",
+      "result": "passed",
+      "detail": "46 distinct focused application tests; 26 focused tests on isolated candidate; six history tests. Root and learning-app TypeScript passed. Focused ESLint passed. Candidate hashes verified; original migration hash preserved."
+    },
+    {
+      "name": "Node 24 build and browser",
+      "result": "passed",
+      "detail": "Isolated Next.js 15.5.24 production build passed under Node 24.22.0 with placeholder credentials and reused dependencies. Existing unrelated lint/workspace warnings remain. Browser fixtures passed synchronization health/error states and editor/bulk/history at 375, 768 and 1440px; mobile screenshot inspected."
+    },
+    {
+      "name": "Hosted acceptance and deployment",
+      "result": "not-run",
+      "detail": "No production migration, data mutation, deployment or hosted scheduler activation. Real Supabase/PostgREST/Auth, payments, clean Linux installation and production load still require hosted validation and separate rollout approval. No preview link is claimed."
+    }
+  ]
+}

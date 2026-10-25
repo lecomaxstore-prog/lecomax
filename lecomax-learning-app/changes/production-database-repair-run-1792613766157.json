@@ -1,0 +1,32 @@
+{
+  "id": "production-database-repair-run-1792613766157",
+  "relatedId": "production-database-repair-prepared-20261021",
+  "createdAt": "2026-10-21T20:16:06.159Z",
+  "title": "Authorized Production database credential repair run",
+  "summary": "VERCEL_CONFIGURATION_REPAIRED_NOT_DEPLOYED",
+  "status": "needs-testing",
+  "pages": [
+    "Production operations",
+    "Change History"
+  ],
+  "components": [
+    "Production database credentials"
+  ],
+  "files": [
+    "scripts/repair-production-database.cjs",
+    "scripts/verify-production-credentials.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "URI write: ACKNOWLEDGED_SENSITIVE_VALUE_NOT_READABLE. Binding write: ACKNOWLEDGED. No deployment, migration, SQL write or session signer modification."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Database and provider checks",
+      "result": "passed",
+      "detail": "Database: READ_ONLY_QUERY_TLS_CERTIFICATE_AND_HOSTNAME_PASS. Binding: EXACT_HASH_READBACK_PASS. Failure: none. Sensitive URI bytes cannot be independently read back; runtime deployment remains untested."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "id": "seo-canary-once-prepared-20261019",
+  "createdAt": "2026-10-19T09:11:57.010Z",
+  "title": "Approved isolated one-request canary prepared",
+  "summary": "Existing preparation script gains an explicit single-use mode; exact token count and local SQL reservation gate the one approved request.",
+  "status": "needs-testing",
+  "relatedId": "seo-resume-readiness-verified-20261019",
+  "pages": [
+    "Admin SEO",
+    "Change History"
+  ],
+  "components": [
+    "Local canary runner"
+  ],
+  "files": [
+    "scripts/prepare-seo-canary.mjs",
+    "scripts/seo-canary-once.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Single-use interlock, Luna-only model access check, read-only product confirmation, token-count cost gate, isolated PGlite budget, no retry or Mirai."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Syntax",
+      "result": "passed",
+      "detail": "Both scripts passed node --check. Paid request pending preflight."
+    }
+  ]
+}

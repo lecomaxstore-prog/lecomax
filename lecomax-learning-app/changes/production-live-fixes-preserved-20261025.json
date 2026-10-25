@@ -1,0 +1,55 @@
+{
+  "id": "production-live-fixes-preserved-20261025",
+  "createdAt": "2026-10-25T21:36:15.815Z",
+  "title": "Preserve fixes deployed after the GitHub production baseline",
+  "summary": "Keep production checkout safety, keyboard-accessible overlays, mobile first paint and deferred chat while merging the newer local UI, SEO and gallery behavior.",
+  "status": "needs-testing",
+  "relatedId": "production-integration-resumed-20261025",
+  "pages": [
+    "Home",
+    "Product gallery",
+    "Bestsellers",
+    "Learning change history"
+  ],
+  "components": [
+    "Production integration",
+    "ProductGallery",
+    "Collection selectors",
+    "SEO test fixtures"
+  ],
+  "files": [
+    "app/checkout/page.tsx",
+    "app/panier/page.tsx",
+    "lib/use-cart-calculation.ts",
+    "app/globals.css",
+    "components/Header.tsx",
+    "components/SearchOverlay.tsx",
+    "components/ProductGallery.tsx",
+    "app/produit/[slug]/page.tsx",
+    "app/layout.tsx",
+    "components/ChatWidget.tsx",
+    "components/CategoryTiles.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Preserve deployed cart quote validation, retry feedback, address invalidation and keyboard focus containment for navigation/search/gallery."
+    },
+    {
+      "kind": "modified",
+      "detail": "Combine deployed responsive images and mobile rendering improvements with local category styling, SEO alt text, gallery aspect ratio and product UI."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live baseline",
+      "result": "passed",
+      "detail": "Vercel alias independently identifies READY deployment dpl_J7dK2eR7mrcymqAkXmfeT3qrgNat; compared with retained product-gallery-20261025 source snapshot."
+    },
+    {
+      "name": "Checks",
+      "result": "not-run",
+      "detail": "Final integrated build, tests, push and deployment remain pending. Earlier pass results predate this correction."
+    }
+  ]
+}

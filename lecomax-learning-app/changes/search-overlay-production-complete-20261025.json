@@ -1,0 +1,57 @@
+{
+  "id": "search-overlay-production-complete-20261025",
+  "relatedId": "search-overlay-release-authorized-20261025",
+  "createdAt": "2026-10-25T08:08:27.475Z",
+  "title": "Search overlay accessibility released and verified on Production",
+  "summary": "One exact certified-source deployment is READY and serves lecomax.com. Live search accessibility and storefront preservation checks passed.",
+  "status": "successful",
+  "pages": [
+    "Storefront search",
+    "Homepage",
+    "Boutique",
+    "Product pages",
+    "Cart and checkout entry points"
+  ],
+  "components": [
+    "SearchOverlay",
+    "Header preservation"
+  ],
+  "files": [
+    "artifacts/search-overlay-20261025/source/components/SearchOverlay.tsx",
+    "artifacts/search-overlay-20261025/receipt.json",
+    "artifacts/search-overlay-20261025/production-complete.json",
+    "artifacts/search-overlay-20261025/live-search.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Released the previously certified SearchOverlay modal focus lifecycle and backdrop-only mousedown preventDefault correction. No new application changes."
+    },
+    {
+      "kind": "added",
+      "detail": "Sanitized single-deployment receipt and read-only live acceptance evidence; previous reports preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production identity and scope",
+      "result": "passed",
+      "detail": "READY dpl_6iS9N6cqRM5kMqPPa4ixajqkCVnT serves lecomax.com. All 2055 uploaded files match certified source d2b2638c95f1c3e1082762084391bd170bf632afd337ab683065dd9b4d095050. Only SearchOverlay differs from rollback dpl_8wg4bKgDpwtRDpvo1TZ5rCdkowNk. Configuration unchanged."
+    },
+    {
+      "name": "Live Search Overlay",
+      "result": "passed",
+      "detail": "320/375/390/1440px: opening focus, Tab/Shift+Tab, background isolation, Escape, touch close, desktop backdrop, immediate reopen, closed Tab exclusion, scroll/inert restoration, real search suggestions, loading/empty states and product-link navigation. No page or hydration errors."
+    },
+    {
+      "name": "Storefront preservation",
+      "result": "passed",
+      "detail": "Homepage/boutique/product/cart/checkout routes, canonical metadata, structured data, robots/sitemaps, product images/contrast, deferred chat UI and Mobile Menu accessibility passed. Other 2054 source files unchanged, preserving payment/shipping/SEO A-D/performance logic. SEO E remains on hold."
+    },
+    {
+      "name": "Manual and transactional limitations",
+      "result": "not-run",
+      "detail": "No physical-device or human screen-reader test. Read-only live browser checks block mutation requests; no purchases, payments, database mutations or customer messaging tested. Performance preserved by identical source and UI smoke checks; no new performance benchmark. Local Change History appended; certified deployment source intentionally unchanged, so these new reports require a later learning-app release to reach other devices."
+    }
+  ]
+}

@@ -1,0 +1,275 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-05",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-05",
+  "title": {
+    "en": "Discovery: inventory an attack surface without guessing",
+    "ar": "اكتشاف الثغرات: الجرد وفرضيات الاختبار",
+    "fr": "Discovery: inventory an attack surface without guessing"
+  },
+  "contentLanguage": "en",
+  "difficulty": 1,
+  "prerequisites": [
+    "cyber-04"
+  ],
+  "objectives": [
+    "Build an inventory of routes, roles, data and dependencies.",
+    "Form testable hypotheses with positive and negative controls.",
+    "Prioritize findings by credible impact and uncertainty."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Use a fictional local shop to turn routes, roles and data flows into a prioritized test plan. Fingerprinting is evidence gathering, not proof of a vulnerability.",
+  "sections": [
+    {
+      "title": "An attack surface is a set of reachable decisions",
+      "text": "The attack surface includes routes, file uploads, background jobs, dependencies, administration interfaces, deep links and external integrations. A route that only reads data can still disclose another customer’s records. A scheduled import can process untrusted supplier data even though no browser directly calls it. Begin with a table containing entry point, permitted roles, input, sensitive operation and evidence source. In Cedar Cart, useful entries are product search, order reads, checkout and a fictional payment webhook. Add whether each entry is implemented, deprecated or only documented. An old endpoint left running after a migration is a common inventory failure because the team may no longer test it."
+    },
+    {
+      "title": "Passive observations have limits",
+      "text": "Public documentation, normal page requests and your own source tree can reveal frameworks, script names or response headers. That information helps choose questions, but banners can be removed, changed by a proxy or deliberately misleading. A missing version header does not establish that software is current; a displayed version is not proof that a particular vulnerable feature is reachable. In a local repository, lockfiles and runtime configuration provide stronger dependency evidence. Do not convert a list of exposed names into a list of confirmed vulnerabilities. Record the observation, its source and confidence separately from any proposed exploitability claim."
+    },
+    {
+      "title": "Map roles before changing inputs",
+      "text": "Create synthetic Alice, Bob and Administrator roles and document expected permissions. Alice should read her orders but not Bob’s; a staff-only operation should reject both ordinary customers. Keep a legitimate success request as a positive control so a failing test is not merely caused by a broken server. Change one relevant property at a time, such as the order identifier, and compare the result. If you change the token, method, path and body simultaneously, you cannot tell which difference caused the response. This controlled method is more informative than sending a large collection of random strings and treating every unusual status as a weakness."
+    },
+    {
+      "title": "A hypothesis needs an observable consequence",
+      "text": "A useful hypothesis is customer-controlled price changes the server-calculated order total. Its test sends the same product and quantity with a different client price, then checks the authoritative total. The invariant is that the trusted catalog determines price. A vague hypothesis such as the checkout looks insecure cannot be evaluated. Define the expected safe behavior before running the request, and include the smallest evidence needed to distinguish safe from unsafe. For a data leak, one synthetic record is enough. For availability-sensitive behavior, use small controlled inputs in the lab rather than trying to exhaust a real service. The boundary and expected consequence should be clear to someone who never saw your screen."
+    },
+    {
+      "title": "Risk is contextual, not theatrical",
+      "text": "Prioritization considers who can reach the weakness, required privileges, repeatability, data sensitivity, affected customers and existing containment. An unauthenticated path to customer addresses may outrank a minor configuration inconsistency. A library advisory with no reachable affected feature may still require an upgrade, but its immediate risk should be described accurately. Include uncertainty and the assumptions behind the rating. Avoid using tool severity as the only business argument. A reproducible finding with modest impact is more actionable than a severe label attached to an unverified scanner response. When several symptoms share one root cause, such as missing ownership constraints, explain the shared repair and retest representative entry points."
+    },
+    {
+      "title": "Document assets without turning the exercise into a scan of strangers",
+      "text": "The local exercise inventories routes from security-labs/server.cjs and ordinary requests to 127.0.0.1:4177. It does not enumerate public hosts or follow third-party redirects. For your own production projects, Module 17 restricts the first pass to source/configuration review and ordinary non-invasive checks. New active testing belongs in staging with a separate approved plan. Keep findings and tool output in a local report with environment, timestamp and revision. Redact session tokens even for a staging system because reports often travel farther than source access. Darija: شنو لاحظنا؟ شنو كنظنو؟ وشنو ثبتناه؟ هاد الثلاثة خاصهم يبقاو مفروقين."
+    },
+    {
+      "title": "Common mistakes and a repeatable next step",
+      "text": "Do not assume all 500 responses are exploitable; a server error can still be a useful robustness finding without proving data access. Do not assume a 403 means the whole feature is secure; another route or method may lack the same control. Do not mark an asset covered just because it appears in a diagram. Attach a test or explicit review result to each row, and leave untested rows visibly pending. The output of discovery is a small prioritized plan, not a promise of total security. In the next module you apply that plan to concrete classes of failure and connect each observation to its code-level cause."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "matrix",
+      "difficulty": 1,
+      "task": "Create an access matrix for Alice, Bob and Admin against order-a, order-b and an admin action.",
+      "hints": [
+        "Do not infer administrator access to customer data unless the policy explicitly grants it."
+      ],
+      "solution": "Alice: order-a allowed; order-b denied; admin action denied\nBob: order-a denied; order-b allowed; admin action denied\nAdmin: admin action allowed; customer-order access requires a separately stated policy",
+      "walkthrough": "A role title does not define every permission. The matrix makes implicit assumptions visible.",
+      "expectedResult": "A matrix containing both allowed and denied cases."
+    },
+    {
+      "id": "hypothesis",
+      "difficulty": 2,
+      "task": "Write a checkout test that changes only the client price.",
+      "hints": [
+        "Keep productId and quantity constant."
+      ],
+      "solution": "Baseline: bag, quantity 1, posted price 4990\nProbe: bag, quantity 1, posted price 1\nExpected authoritative total in both: 4990",
+      "walkthrough": "If the total follows the posted price, the server trusted the wrong authority. If both are rejected for authentication, first repair the test setup.",
+      "expectedResult": "A single-variable comparison with an expected total."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-05-q1",
+      "question": "A server banner names a framework. Is a specific vulnerability confirmed?",
+      "options": [
+        "No; review version, feature and reachability.",
+        "Yes; the name alone proves exploitability."
+      ],
+      "correctIndex": 0,
+      "explanation": "Fingerprinting is an observation, not a complete finding.",
+      "answerExplanations": [
+        "Correct. Fingerprinting is an observation, not a complete finding.",
+        "Not quite. Fingerprinting is an observation, not a complete finding."
+      ]
+    },
+    {
+      "id": "cyber-05-q2",
+      "question": "Why preserve a legitimate success request?",
+      "options": [
+        "It is unnecessary once an error appears.",
+        "It distinguishes a denied case from a broken setup."
+      ],
+      "correctIndex": 1,
+      "explanation": "Positive controls make negative evidence interpretable.",
+      "answerExplanations": [
+        "Not quite. Positive controls make negative evidence interpretable.",
+        "Correct. Positive controls make negative evidence interpretable."
+      ]
+    },
+    {
+      "id": "cyber-05-q3",
+      "question": "Which hypothesis is testable?",
+      "options": [
+        "Changing client price changes the trusted order total.",
+        "The checkout feels unsafe."
+      ],
+      "correctIndex": 0,
+      "explanation": "The first statement predicts an observable invariant violation.",
+      "answerExplanations": [
+        "Correct. The first statement predicts an observable invariant violation.",
+        "Not quite. The first statement predicts an observable invariant violation."
+      ]
+    },
+    {
+      "id": "cyber-05-q4",
+      "question": "Should every 500 response be labeled a data breach?",
+      "options": [
+        "Yes; every server error exposes records.",
+        "No; demonstrate the actual effect."
+      ],
+      "correctIndex": 1,
+      "explanation": "Status alone does not establish impact.",
+      "answerExplanations": [
+        "Not quite. Status alone does not establish impact.",
+        "Correct. Status alone does not establish impact."
+      ]
+    },
+    {
+      "id": "cyber-05-q5",
+      "question": "An old route is absent from the UI but still live. Is it in the surface?",
+      "options": [
+        "Yes; reachable endpoints still need review.",
+        "No; only visible buttons matter."
+      ],
+      "correctIndex": 0,
+      "explanation": "A client can call a route directly.",
+      "answerExplanations": [
+        "Correct. A client can call a route directly.",
+        "Not quite. A client can call a route directly."
+      ]
+    },
+    {
+      "id": "cyber-05-q6",
+      "question": "What makes a severity argument useful?",
+      "options": [
+        "Only a dramatic vulnerability name.",
+        "Prerequisites, affected assets, impact and uncertainty."
+      ],
+      "correctIndex": 1,
+      "explanation": "Risk depends on the actual deployment and consequences.",
+      "answerExplanations": [
+        "Not quite. Risk depends on the actual deployment and consequences.",
+        "Correct. Risk depends on the actual deployment and consequences."
+      ]
+    },
+    {
+      "id": "cyber-05-q7",
+      "question": "Should one probe change token, path and quantity together?",
+      "options": [
+        "Usually no; isolate the variable being tested.",
+        "Yes; more changes always produce stronger evidence."
+      ],
+      "correctIndex": 0,
+      "explanation": "Multiple changes make causality ambiguous.",
+      "answerExplanations": [
+        "Correct. Multiple changes make causality ambiguous.",
+        "Not quite. Multiple changes make causality ambiguous."
+      ]
+    },
+    {
+      "id": "cyber-05-q8",
+      "question": "Does a removed version header prove patching?",
+      "options": [
+        "Yes; hidden software is up to date.",
+        "No; inspect stronger version evidence."
+      ],
+      "correctIndex": 1,
+      "explanation": "Visibility and patch status are independent.",
+      "answerExplanations": [
+        "Not quite. Visibility and patch status are independent.",
+        "Correct. Visibility and patch status are independent."
+      ]
+    },
+    {
+      "id": "cyber-05-q9",
+      "question": "Where should active tests of a real project begin?",
+      "options": [
+        "In an explicitly scoped staging environment.",
+        "Against every discovered public dependency."
+      ],
+      "correctIndex": 0,
+      "explanation": "Discovery does not expand authorization.",
+      "answerExplanations": [
+        "Correct. Discovery does not expand authorization.",
+        "Not quite. Discovery does not expand authorization."
+      ]
+    },
+    {
+      "id": "cyber-05-q10",
+      "question": "How should untested inventory rows be represented?",
+      "options": [
+        "As secure until someone complains.",
+        "As pending with explicit coverage limits."
+      ],
+      "correctIndex": 1,
+      "explanation": "An inventory is not proof that tests occurred.",
+      "answerExplanations": [
+        "Not quite. An inventory is not proof that tests occurred.",
+        "Correct. An inventory is not proof that tests occurred."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can build an inventory of routes, roles, data and dependencies.",
+    "I can form testable hypotheses with positive and negative controls.",
+    "I can prioritize findings by credible impact and uncertainty."
+  ],
+  "recap": [
+    "Build an inventory of routes, roles, data and dependencies.",
+    "Form testable hypotheses with positive and negative controls.",
+    "Prioritize findings by credible impact and uncertainty."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP Web Security Testing Guide",
+      "url": "https://owasp.org/www-project-web-security-testing-guide/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "From surface to finding",
+    "steps": [
+      {
+        "title": "Inventory",
+        "detail": "Route, role, input, sensitive operation and version."
+      },
+      {
+        "title": "Hypothesis",
+        "detail": "Name the business invariant that could fail."
+      },
+      {
+        "title": "Controlled comparison",
+        "detail": "One legitimate request and one bounded denied case."
+      },
+      {
+        "title": "Prioritized evidence",
+        "detail": "Record observed impact, confidence and remediation."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Attack surface",
+      "The set of exposed inputs and security-relevant operations."
+    ],
+    [
+      "Fingerprinting",
+      "Inferring technology from observable evidence."
+    ],
+    [
+      "Positive control",
+      "A legitimate case confirming the test setup works."
+    ]
+  ],
+  "lab": null
+}

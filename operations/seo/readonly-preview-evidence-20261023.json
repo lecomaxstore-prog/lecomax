@@ -1,0 +1,45 @@
+{
+  "at": "2026-10-23T13:32:02.570Z",
+  "localReady": true,
+  "hostedReady": false,
+  "deployed": false,
+  "hostedVerifierExecuted": false,
+  "realStagingAcceptanceExecuted": false,
+  "sourceManifest": "artifacts/seo-preview-resume-20261023/readonly-candidate-manifest-1792762353494.json",
+  "build": {
+    "pages": 226,
+    "syntheticOnly": true,
+    "report": "artifacts/seo-preview-resume-20261023/readonly-validation-fixture-build-1792762132545.log.json"
+  },
+  "types": "artifacts/seo-preview-resume-20261023/derived-types-1792762245381.log.json",
+  "tests": {
+    "regressions": 120,
+    "credentialIsolation": 19,
+    "emailSafety": 18,
+    "verifierAndErrorHandling": 12,
+    "readonlySecurity": 13,
+    "fixtureTransport": 2
+  },
+  "logs": {
+    "regressions": "artifacts/seo-preview-resume-20261023/derived-regressions-1792761366706.log.json",
+    "credentials": "artifacts/seo-preview-resume-20261023/derived-security-1792761371851.log.json",
+    "email": "artifacts/seo-preview-resume-20261023/continuation-email-1792761372430.log.json",
+    "verifierSynthetic": "artifacts/seo-preview-resume-20261023/continuation-gates-1792761373152.log.json",
+    "readonly": "artifacts/seo-preview-resume-20261023/readonly-validation-readonly-1792761923119.log.json"
+  },
+  "acceptance": "artifacts/seo-preview-resume-20261023/readonly-acceptance-1792762256038.json",
+  "acceptanceChecks": 37,
+  "browserPages": 4,
+  "images": 30,
+  "preservation": "artifacts/seo-preview-resume-20261023/continuation-preservation-1792762249655.json",
+  "vercelMetadata": "artifacts/seo-preview-resume-20261023/resume-metadata-1792761503395.json",
+  "supabaseAuthMetadata": "artifacts/seo-preview-resume-20261023/auth-only-final-1792761545939.json",
+  "limitations": [
+    "All app validation used synthetic staging fixtures; no hosted verifier or real staging data acceptance.",
+    "Build allows existing Google Fonts downloads; fixture transport prevents application service requests.",
+    "No operating-system egress firewall or provider-wide email non-delivery guarantee.",
+    "Intermediate test-harness transpilation error, browser networkidle timeout, font sandbox denial and Preview image-optimizer failure were corrected/retested; retained earlier logs are not final outcomes.",
+    "Existing lint warnings remain; no deployment or SMTP/secrets/provider changes."
+  ],
+  "historyReports": 781
+}

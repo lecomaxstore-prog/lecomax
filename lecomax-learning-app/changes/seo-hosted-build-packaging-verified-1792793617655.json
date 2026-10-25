@@ -1,0 +1,70 @@
+{
+  "id": "seo-hosted-build-packaging-verified-1792793617655",
+  "relatedId": "seo-hosted-build-packaging-prepared-1792787938100",
+  "createdAt": "2026-10-23T22:13:37.647Z",
+  "title": "SEO Preview packaging repair passed local validation",
+  "summary": "The 1212-file payload preserves real course validation and builds 226 pages. TypeScript, 167 regressions, 37 local acceptance checks and 30 corrected images pass. No deployment submitted.",
+  "status": "successful",
+  "pages": [
+    "SEO staging Preview",
+    "Learning course validation",
+    "Change History"
+  ],
+  "components": [
+    "Filtered deployment package",
+    "Course validator"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/repair-hosted-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/inspect-failed-build.cjs",
+    "artifacts/seo-preview-resume-20261023/validate-hosted-repair.cjs",
+    "artifacts/seo-preview-resume-20261023/test-hosted-repair.cjs",
+    "artifacts/seo-preview-resume-20261023/audit-hosted-repair.cjs",
+    "artifacts/seo-preview-resume-20261023/finalize-hosted-repair.cjs",
+    "artifacts/seo-preview-resume-20261023/hosted-build-repair/payload.json",
+    "artifacts/seo-preview-resume-20261023/hosted-build-repair/request.json",
+    "artifacts/seo-preview-resume-20261023/hosted-build-repair/certificate.json",
+    "docs/seo-hosted-build-packaging-repair-20261024.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Add exactly six omitted course references and two build/runtime imports. Original 1204 payload files and 2601 recovery-source hashes remain unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "Preserve failed hosted logs, new file manifest and checksum, isolated full lifecycle build, regression/route/browser/image evidence and guard hashes."
+    },
+    {
+      "kind": "removed",
+      "detail": "Only disposable webpack/download caches and redundant prior validation dependencies were cleared for disk recovery; no source, images, reports, old manifests or attempt guards removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Course validation",
+      "result": "passed",
+      "detail": "635429 checks; 48 modules, 192 lessons, 3 languages."
+    },
+    {
+      "name": "Production lifecycle and TypeScript",
+      "result": "passed",
+      "detail": "npm ci, npm run build (226 static pages), explicit tsc; Windows Node 24.22.0. Initial font/resource failures retained."
+    },
+    {
+      "name": "SEO/security and runtime acceptance",
+      "result": "passed",
+      "detail": "167 regressions, 37 fixture-backed checks, 4 browser pages and 30 original image hashes. Initial missing test-support failures retained and corrected outside the payload."
+    },
+    {
+      "name": "Packaging integrity",
+      "result": "passed",
+      "detail": "288 traces, no outside/missing files, no unsafe payload paths or secret-pattern findings; all recovery and guard hashes match. Payload SHA-256 e04c877a42ddbad8c5be5a2bddf9919bd072cddefc75aa32e9d6159d49054e6c"
+    },
+    {
+      "name": "Hosted acceptance and migration-dependent tests",
+      "result": "not-run",
+      "detail": "No new deployment, credential verifier rerun, database migration, secrets change, production operation, IndexNow/worker/cron/payment activation or Release E. Requires separate authorization for one new protected staging Preview attempt."
+    }
+  ]
+}

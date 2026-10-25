@@ -1,0 +1,33 @@
+{
+  "id": "batch1-bootstrap-dialect-compat-pending-20261024",
+  "createdAt": "2026-10-24T18:35:40.014Z",
+  "relatedId": "batch1-bootstrap-draft04-schema-blocked-20261024",
+  "title": "Validate a separate Draft-07 compatibility representation",
+  "summary": "Fresh official schema matches saved hash. Preserve originals; change only the dialect declaration in a validation-only copy to interpret numeric bounds and conditional keywords.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout staging placeholder",
+    "/change-history"
+  ],
+  "components": [
+    "Bootstrap validation"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/compatibility-draft07-schema.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/official-schema-refreshed.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-config.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Separate validation-only representation; no source constraints removed or rewritten."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Constraint equivalence and artifact validation",
+      "result": "not-run",
+      "detail": "Pending; no upload."
+    }
+  ]
+}

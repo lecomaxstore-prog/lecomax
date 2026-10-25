@@ -1,0 +1,66 @@
+{
+  "id": "seo-acceptance-gap-review-1792844344873",
+  "relatedId": "seo-hosted-final-acceptance-1792843649208",
+  "createdAt": "2026-10-24T12:19:04.872Z",
+  "title": "SEO acceptance gaps classified and offline coverage expanded",
+  "summary": "83 focused tests and 20 offline checks pass. Preview restrictions preserved; provider access, representative hosted coverage and production scope remain unresolved. Preview and Production NO-GO.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO protected Preview",
+    "Search",
+    "Product pages",
+    "Login",
+    "Cart",
+    "Change History"
+  ],
+  "components": [
+    "SEO acceptance evidence",
+    "Product structured data",
+    "Preview security policy"
+  ],
+  "files": [
+    "docs/seo-acceptance-gap-review-20261024.md",
+    "artifacts/seo-preview-resume-20261023/acceptance-gaps-20261024.cjs",
+    "artifacts/seo-preview-resume-20261023/acceptance-gap-focused-20261024.log",
+    "artifacts/seo-preview-resume-20261023/acceptance-gaps-results-1792844258934.json",
+    "artifacts/seo-preview-resume-20261023/record-acceptance-gap-review.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only root-cause report, source-executed offline search/schema/static-render checks, console classification and production readiness handoff. No application repair demonstrated; no recovery source, payload, guard or provider settings changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regressions",
+      "result": "passed",
+      "detail": "83 tests, zero failures; search, catalogue, stock schema, sitemap/category/CMS and Preview security suites."
+    },
+    {
+      "name": "Additional offline acceptance",
+      "result": "passed",
+      "detail": "20 checks: 12 stock/image schema cases, six actual search-handler checks and initial login/empty-cart static rendering with mocked dependencies; zero network calls."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "1212 payload files, 2601 recovery hashes and consumed guards preserved; 288 traces; certified payload digest matches."
+    },
+    {
+      "name": "Console classification",
+      "result": "passed",
+      "detail": "185 saved entries: 178 intentional Preview 403s, seven CSP-blocked Vercel feedback scripts, zero unclassified."
+    },
+    {
+      "name": "Provider and full release acceptance",
+      "result": "not-run",
+      "detail": "Fresh Vercel read unconfirmed; both connected Supabase accounts deny staging access. READY supported only by saved provider evidence. Hosted stock/image/search coverage, exact production diff and rollback target unresolved. No deployment; Release E on hold."
+    },
+    {
+      "name": "Build and TypeScript",
+      "result": "not-run",
+      "detail": "Reused inspected certified successful build/TypeScript evidence for unchanged application source. Initial additional-harness dependency-resolution failure corrected; final 20-check run passes."
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "createdAt": "2026-10-21T10:13:56.654Z",
+  "status": "successful",
+  "pages": [
+    "SEO release readiness",
+    "Change History"
+  ],
+  "components": [
+    "Read-only release verification",
+    "Recovery rehearsal",
+    "Release gates"
+  ],
+  "id": "seo-final-independent-preflight-verified-20261021",
+  "relatedId": "seo-final-independent-preflight-prepared-20261021",
+  "title": "Current schema, isolation and candidate integrity verified",
+  "summary": "Fresh read-only staging/production checks passed; 2123 pinned source files match. Vercel access now returns 403 and hosted acceptance stays blocked.",
+  "files": [
+    "scripts/seo-final-database-preflight.cjs",
+    "operations/seo/final-release-gates-20261021.json",
+    "docs/seo-resume-browser-acceptance-20261021.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Completed independent production schema preflight and concrete release/access/approval gates; retained historical evidence separately."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production schema and pinned migrations",
+      "result": "passed",
+      "detail": "TLS and database read-only enforced. Six hashes match; no SEO collisions; catalogue keys valid; no existing commerce trigger SEO dependency."
+    },
+    {
+      "name": "Staging and public GET checks",
+      "result": "passed",
+      "detail": "24 public tables use RLS, no anon/auth grants, zero AI budgets. Six staging GETs protected and three production GETs returned 200."
+    },
+    {
+      "name": "Candidate/dependency evidence",
+      "result": "passed",
+      "detail": "2123 reviewed files match. Fresh runtime audit zero; full audit 7 high/2 moderate build-tool findings remain. 291 retained server traces have no affected package matches."
+    },
+    {
+      "name": "Tool validation",
+      "result": "passed",
+      "detail": "Syntax and focused ESLint passed; read-only execution completed."
+    },
+    {
+      "name": "Hosted acceptance/current deployment",
+      "result": "not-run",
+      "detail": "Vercel API 403 and no connected browser. Current production revision, environment bindings and hosted UI cannot be certified; no writes or release occurred."
+    }
+  ]
+}

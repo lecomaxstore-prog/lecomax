@@ -1,0 +1,32 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Add ApiKeysOnly mode, French explanations and exact-existing-value attestation. Skip database derivation and source readback in this mode. Preserve existing credentials, bindings, schedules and deployment."
+    }
+  ],
+  "summary": "Limit owner input and binding creation to the two missing Supabase API-key bindings; do not request the database credential again.",
+  "id": "production-api-keys-only-20261021",
+  "createdAt": "2026-10-21T20:20:00.407Z",
+  "validation": [
+    {
+      "detail": "Syntax, transport and two-key derivation checks pending. Live keys not supplied or tested.",
+      "result": "not-run",
+      "name": "Validation"
+    }
+  ],
+  "files": [
+    "scripts/complete-production-bindings.ps1",
+    "scripts/complete-production-bindings.cjs"
+  ],
+  "components": [
+    "PowerShell credential input",
+    "Create-only binding setup"
+  ],
+  "status": "needs-testing",
+  "title": "Two-key hidden Production binding setup",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ]
+}

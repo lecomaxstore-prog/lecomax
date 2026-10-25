@@ -1,0 +1,38 @@
+{
+  "id": "seo-staging-runtime-repair-prepared-20261021",
+  "createdAt": "2026-10-20T23:30:52.946Z",
+  "title": "Synthetic staging runtime schema repair prepared",
+  "summary": "Add missing sitemap and storefront read contracts while preserving default-deny RLS and service-role read-only access. No hosted changes yet.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging",
+    "Sitemap",
+    "Product and category pages",
+    "Change History"
+  ],
+  "components": [
+    "Synthetic catalogue schema",
+    "Dependency compatibility"
+  ],
+  "files": [
+    "operations/seo/staging-runtime-repair.sql",
+    "scripts/test-seo-staging-runtime.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Guarded additive staging-only SQL for product fields, category ordering, and six empty supporting tables; correct synthetic category relations."
+    },
+    {
+      "kind": "added",
+      "detail": "Executable SQL/grant tests and offline Nodemailer MIME compatibility checks for original and proposed versions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local and hosted runtime",
+      "result": "not-run",
+      "detail": "SQL, tests and hosted verification pending; no deployment authorized."
+    }
+  ]
+}

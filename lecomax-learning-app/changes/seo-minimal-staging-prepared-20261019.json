@@ -1,0 +1,33 @@
+{
+  "id": "seo-minimal-staging-prepared-20261019",
+  "createdAt": "2026-10-19T12:15:31.355Z",
+  "title": "Prepared offline SEO-only staging dependency plan",
+  "summary": "Pinned the five-file chain and synthetic catalogue contract; excluded production data and active integrations. No SQL execution or deployment.",
+  "status": "needs-testing",
+  "relatedId": "seo-staging-gate-readiness-20261019",
+  "pages": [
+    "SEO Engine staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "Offline dependency inventory",
+    "Staging acceptance plan"
+  ],
+  "files": [
+    "scripts/prepare-seo-minimal-staging.cjs",
+    "tests/seo-minimal-staging.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added fail-closed hash-pinned inventory, synthetic-only restore manifest and acceptance cases; rejects execution flags and preserves previous candidates."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local validation",
+      "result": "not-run",
+      "detail": "Static manifest and regression checks pending. No migrations will be applied."
+    }
+  ]
+}

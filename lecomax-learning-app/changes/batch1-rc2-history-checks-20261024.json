@@ -1,0 +1,59 @@
+{
+  "id": "batch1-rc2-history-checks-20261024",
+  "relatedId": "batch1-rc2-handoff-verified-20261024",
+  "createdAt": "2026-10-24T17:21:02.603Z",
+  "title": "Verify RC2 completion history and preservation",
+  "summary": "History persistence/interaction tests 6/6, TypeScript and focused lint passed. Certified RC2 package still verifies. Gate A remains approval-only; deployment remains unauthorized.",
+  "status": "successful",
+  "pages": [
+    "/change-history"
+  ],
+  "components": [
+    "Change History validation",
+    "RC2 evidence"
+  ],
+  "files": [
+    "lecomax-learning-app/changes/batch1-rc2-handoff-verified-20261024.json",
+    "lecomax-learning-app/data/change-history.json",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/HISTORY-VALIDATION.md",
+    "artifacts/batch1-release-preparation-20261024/finalize-history-verification.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Linked validation follow-up preserving the original RC2 completion entry and every earlier history report."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Change History schema and retention",
+      "result": "passed",
+      "detail": "CLI --check passed with 821 reports after RC2 completion append; prior reports retained."
+    },
+    {
+      "name": "History persistence and interaction tests",
+      "result": "passed",
+      "detail": "node --test lecomax-learning-app/tests/change-history.test.cjs lecomax-learning-app/tests/change-history-interaction.test.cjs: 6/6 passed, exit 0; expansion/collapse, navigation, retry/remount, archive preservation and append CLI rejection checks."
+    },
+    {
+      "name": "Learning app TypeScript",
+      "result": "passed",
+      "detail": "node node_modules/typescript/bin/tsc --noEmit --project lecomax-learning-app/tsconfig.json: exit 0."
+    },
+    {
+      "name": "Focused history lint",
+      "result": "passed",
+      "detail": "ESLint components/ChangeHistory.tsx, store/ChangeHistory.tsx and utils/change-history.ts: exit 0."
+    },
+    {
+      "name": "Certified package final verification",
+      "result": "passed",
+      "detail": "Existing prepare-candidate-v2.cjs verify passed again: 1506 files and unchanged certified source/archive hashes."
+    },
+    {
+      "name": "Deployment and device preview",
+      "result": "not-run",
+      "detail": "No deployment or provider mutation authorized/performed; no current-app or hosted preview claimed."
+    }
+  ]
+}

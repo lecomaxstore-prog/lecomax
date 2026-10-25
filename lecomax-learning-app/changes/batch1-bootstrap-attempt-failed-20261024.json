@@ -1,0 +1,55 @@
+{
+  "id": "batch1-bootstrap-attempt-failed-20261024",
+  "createdAt": "2026-10-24T17:57:43.844Z",
+  "relatedId": "batch1-bootstrap-artifact-verified-20261024",
+  "title": "Single static bootstrap attempt rejected by CLI schema",
+  "summary": "Validator correction passes 16 tests, but CLI rejected public in local vercel.json. The one authorized attempt is consumed. Zero deployments; Production, SEO and staging snapshots unchanged.",
+  "status": "failed",
+  "pages": [
+    "Checkout staging placeholder (not deployed)",
+    "/change-history"
+  ],
+  "components": [
+    "Static bootstrap deployment",
+    "Post-attempt reconciliation"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap.test.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/upload/vercel.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/FINAL-REPORT.md",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/final-verification.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/attempt-start.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/attempt-result.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/deploy-stdout.txt",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/deploy-stderr.txt"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Preserved the one-attempt receipt, CLI failure output, exact before/after comparisons and final report. No retry or provider change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "HTML regression tests",
+      "result": "passed",
+      "detail": "16/16; valid content attributes accepted and all existing unsafe-content categories rejected."
+    },
+    {
+      "name": "Complete CLI configuration/deployment",
+      "result": "failed",
+      "detail": "public:false is not accepted in local vercel.json. Preflight did not catch this schema issue; no full deployability PASS is claimed."
+    },
+    {
+      "name": "Provider and source preservation",
+      "result": "passed",
+      "detail": "Zero deployments; Production/SEO/staging snapshots equal; 19 exact Preview values, all protection, Hobby, artifact hashes, RC2 archive and 169 dirty hashes unchanged."
+    },
+    {
+      "name": "Hosted content/authentication",
+      "result": "not-run",
+      "detail": "No deployment created. New bootstrap authorization required before another attempt; RC2 remains blocked."
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "seo-preview-binding-runtime-audit-20261023",
+  "relatedId": "seo-preview-branch-project-scope-blocked-20261023",
+  "createdAt": "2026-10-23T06:47:16.449Z",
+  "title": "Staging public binding verified; candidate runtime does not enforce bindings",
+  "summary": "Existing URL, anon key and public binding can remain inherited. Service-secret provenance and Auth email isolation remain unresolved; scoped minimal correction documented without remote changes.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Recovery Preview",
+    "Change History"
+  ],
+  "components": [
+    "Environment binding audit",
+    "Staging Auth isolation"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/binding-audit.cjs",
+    "artifacts/seo-preview-resume-20261023/binding-audit-1792737919339.json",
+    "docs/seo-preview-binding-audit-20261023.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added sanitized binding comparisons, Auth settings and bounded database metadata findings; clarified minimal manual branch override and actual candidate binding usage."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Effective branch configuration",
+      "result": "passed",
+      "detail": "Five Supabase entries inherited from general Preview; zero shared variables; staging URL and public fingerprint match; staging Auth settings GET 200."
+    },
+    {
+      "name": "Candidate preservation and binding call sites",
+      "result": "passed",
+      "detail": "Candidate clean at 8a12abcce38c0dc557a9ef9f86c3ce3dd113e863. Binding helpers exist but candidate runtime/build do not call them; root workspace guards not imported."
+    },
+    {
+      "name": "Side-effect metadata",
+      "result": "passed",
+      "detail": "Inspected payment/indexing/worker flags disabled, tutor budget zero, no Vercel staging crons or external provider credentials; no staging Edge Functions, public/auth non-internal triggers or pg_cron/pg_net/http extensions."
+    },
+    {
+      "name": "Complete isolation",
+      "result": "not-run",
+      "detail": "Service secret withheld; service binding format alone cannot establish provenance. Auth signup disabled but Email provider enabled; delivery destination unverified."
+    },
+    {
+      "name": "Preview deployment and acceptance",
+      "result": "not-run",
+      "detail": "Stopped before any deployment or mutation. No Preview URL."
+    }
+  ]
+}

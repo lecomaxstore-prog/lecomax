@@ -1,0 +1,40 @@
+{
+  "id": "seo-hosted-acceptance-hardening-prepared-20261020",
+  "relatedId": "seo-hosted-acceptance-prepared-20261020",
+  "createdAt": "2026-10-20T12:08:01.341Z",
+  "title": "Bind staging probes to verified immutable deployment identity",
+  "summary": "Require independent production identities and a read-only Vercel metadata preflight before sending staging sessions; reject incomplete hosting inventories.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Hosted staging acceptance",
+    "/change-history"
+  ],
+  "components": [
+    "Hosting evidence",
+    "Staging acceptance tooling"
+  ],
+  "files": [
+    "scripts/seo-hosting-evidence.cjs",
+    "scripts/seo-staging-acceptance.cjs",
+    "tests/seo-hosting-evidence.test.cjs",
+    "tests/seo-staging-acceptance.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verify deployment ID, project, immutable URL, revision and ready state before session-bearing GET requests. Sanitize errors and distinguish operator attestations from live metadata."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reject malformed or paginated environment inventories and include external integration control names without values."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local checks",
+      "result": "not-run",
+      "detail": "Synthetic regression, type, lint and isolated build checks pending. No hosted request or write authorized by this report."
+    }
+  ]
+}

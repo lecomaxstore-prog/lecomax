@@ -1,0 +1,59 @@
+{
+  "id": "seo-verifier-only-hosted-pass-1792764159582",
+  "createdAt": "2026-10-23T14:02:39.581Z",
+  "title": "Protected verifier passed; storefront remains undeployed",
+  "summary": "Resumed the existing checkpoint, verified staging credentials with one hosted read, and intentionally stopped the protected build before publication. The single-use authorization is consumed.",
+  "status": "successful",
+  "pages": [
+    "Changes Made / Change History",
+    "SEO staging release gates"
+  ],
+  "components": [
+    "Protected build-only verifier",
+    "Append-only audit history"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/submit-verifier-only.mjs",
+    "artifacts/seo-preview-resume-20261023/verifier-only-package/build-only.mjs",
+    "artifacts/seo-preview-resume-20261023/verifier-only-submission.json",
+    "artifacts/seo-preview-resume-20261023/verifier-only-inspection-1792764132082.json",
+    "artifacts/seo-preview-resume-20261023/handoff-inventory-20261023.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added sanitized submission, inspection, preparation and checkpoint inventory evidence. No application implementation changes or deletions."
+    },
+    {
+      "kind": "modified",
+      "detail": "Consumed the existing durable single-submission guard through the one authorized protected staging Preview build. No storefront, public verifier endpoint, production deployment, secret changes or database writes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checkpoint integrity",
+      "result": "passed",
+      "detail": "All 2601 files match the prior manifest; candidate branch preparation/seo-preview-credential-20261023 remains at 8a12abcee38c0dc557a9ef9f86c3ce3dd113e863. Preserved 137 tracked modifications and 15 untracked candidate entries."
+    },
+    {
+      "name": "Local verifier tests",
+      "result": "passed",
+      "detail": "Seven synthetic checks passed with zero real network requests, including repeat refusal and credential redaction."
+    },
+    {
+      "name": "Previous attempt investigation",
+      "result": "passed",
+      "detail": "Prior rejected command was prepare mode, not execute. No guard, receipt or prepared payload existed before this run. Authenticated inventory showed the same four older staging project deployments, no Preview verifier. Exact prior auto-review reason unavailable. Unchanged prepare and execute commands were approved by automatic review this session."
+    },
+    {
+      "name": "Hosted verifier",
+      "result": "passed",
+      "detail": "dpl_ETkbwDs3iQfzJriCjeWAETqhoaP3: Preview identity, credential binding and staging target passed; exactly one GET returned 200. Intentional stop marker present; deployment ERROR; public false; aliases empty; aliasAssigned false; builds empty. No raw logs, secret values or credential fingerprints saved."
+    },
+    {
+      "name": "Real storefront and release acceptance",
+      "result": "not-run",
+      "detail": "Staging-backed storefront/browser acceptance and protected storefront Preview deployment remain separate gates. Production not authorized; Release E on hold. Failed verifier deployment is not an application preview."
+    }
+  ]
+}

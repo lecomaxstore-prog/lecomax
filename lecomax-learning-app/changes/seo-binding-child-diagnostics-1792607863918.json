@@ -1,0 +1,53 @@
+{
+  "id": "seo-binding-child-diagnostics-1792607863918",
+  "createdAt": "2026-10-21T18:37:43.918Z",
+  "title": "Diagnose local credential-contract rejection before hosting writes",
+  "summary": "Child failed ENVIRONMENT_ISOLATION_REQUIRED before Vercel calls. No bindings created; added field-specific diagnostics and local-only validation mode.",
+  "status": "successful",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ],
+  "components": [
+    "Credential contract diagnostics",
+    "Hidden-input launcher"
+  ],
+  "files": [
+    "scripts/complete-production-bindings.cjs",
+    "scripts/complete-production-bindings.ps1",
+    "artifacts/seo-owner-bindings-1792607638266.json",
+    "artifacts/seo-binding-child-failure-check-1792607761519.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace generic policy rejection with safe field-specific format/role/project or database scheme, port, database, SSL, query and identity codes; no input values logged or normalized."
+    },
+    {
+      "kind": "added",
+      "detail": "ValidateOnly hidden-input mode checks locally without Vercel requests. Existing create-only resumability preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Historical failure",
+      "result": "passed",
+      "detail": "Launcher child-result at 18:34 UTC; child credential-contract failure at 18:33:58 UTC. No specific input retained, so exact offending field cannot be recovered from the old report."
+    },
+    {
+      "name": "Vercel preservation",
+      "result": "passed",
+      "detail": "All three bindings absent; prior environment metadata and count unchanged."
+    },
+    {
+      "name": "Local verification",
+      "result": "passed",
+      "detail": "Node syntax and Windows PowerShell UTF8 self-test pass. Synthetic valid contract, missing verify-full, wrong port and wrong role diagnostics pass."
+    },
+    {
+      "name": "Production execution",
+      "result": "not-run",
+      "detail": "No real credentials retained or requested during investigation. No remote configuration writes, deployment or migrations."
+    }
+  ]
+}

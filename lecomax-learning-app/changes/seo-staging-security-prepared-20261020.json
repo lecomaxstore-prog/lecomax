@@ -1,0 +1,70 @@
+{
+  "id": "seo-staging-security-prepared-20261020",
+  "createdAt": "2026-10-20T13:55:47.039Z",
+  "title": "Staging authentication and indexing isolation prepared",
+  "summary": "Separate API keys from user JWTs; centralize fail-closed IndexNow submission and block additional staging outbound integrations. Local changes only; validation pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront product publishing",
+    "Admin authentication",
+    "Staging configuration",
+    "Learning app Change History"
+  ],
+  "components": [
+    "Supabase REST headers",
+    "SEO worker",
+    "IndexNow",
+    "Environment policy",
+    "Auth email and mobile push"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/supabase-headers.mjs",
+    "lib/indexnow.mjs",
+    "lib/product-discovery.ts",
+    "middleware.ts",
+    "lib/admin-access.ts",
+    "lib/supabase-service-headers.ts",
+    "operations/seo-vercel/lib/handler.mjs",
+    "scripts/verify-storefront-release.mjs",
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "lib/mobile-campaigns.ts",
+    "lib/mobile-push-receipts.ts",
+    "app/api/account/password-reset/route.ts",
+    "lib/supabase.ts",
+    "lib/admin-settings-access.ts",
+    "app/api/admin/auth/session/route.ts",
+    "operations/seo/staging-app.env.example",
+    ".env.example",
+    "operations/seo/staging-vercel.json",
+    "tests/admin-access.test.ts",
+    "operations/seo-vercel/tests/environment-isolation.test.mjs",
+    "tests/indexnow-safety.test.ts",
+    "tests/supabase-key-compatibility.test.ts",
+    "tests/environment-clients.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Shared Supabase API-key headers and guarded IndexNow transport with offline regression tests."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Modern opaque keys no longer become Bearer tokens in direct runtime REST calls. IndexNow requires explicit consistent production identity, opt-in, key and canonical host."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reject inherited staging outbound credentials, cron/manual worker configuration; block browser Auth messaging and Expo delivery outside production; remove implicit production owner-email authorization fallback; disable Git deployment in staging template."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed built-in IndexNow verification-key fallback and password-reset production URL fallback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Offline regression, types and focused lint",
+      "result": "not-run",
+      "detail": "Prepared before validation. No hosted reads/writes, migrations, deployment, worker activation, paid APIs or actual IndexNow requests."
+    }
+  ]
+}

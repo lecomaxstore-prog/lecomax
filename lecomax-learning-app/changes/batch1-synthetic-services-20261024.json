@@ -1,0 +1,56 @@
+{
+  "id": "batch1-synthetic-services-20261024",
+  "relatedId": "batch1-staging-config-verification-20261024",
+  "createdAt": "2026-10-24T14:52:03Z",
+  "title": "Batch 1 local synthetic checkout services added",
+  "summary": "Added fail-closed staging-only synthetic quote, order and side-effect services with local tests; hosted configuration remains unconfigured and the build correctly rejected missing environment isolation.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "staging synthetic services"
+  ],
+  "files": [
+    "lib/staging-synthetic.ts",
+    "tests/staging-synthetic.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added staging-only synthetic free/paid/failed/timeout quotes, COD and PayPal order simulations, and no-send email/SMS/inventory responses."
+    },
+    {
+      "kind": "added",
+      "detail": "Added fail-closed tests requiring APP_ENV=staging, NEXT_PUBLIC_APP_ENV=staging and STAGING_SYNTHETIC_ENABLED=true."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Synthetic service tests",
+      "result": "passed",
+      "detail": "2/2 tests pass with no network or external side effects."
+    },
+    {
+      "name": "Staging isolation tests",
+      "result": "passed",
+      "detail": "5/5 environment and outbound isolation tests pass."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "tsc --noEmit --incremental false completed without diagnostics."
+    },
+    {
+      "name": "Production-equivalent build",
+      "result": "failed",
+      "detail": "Build stopped safely with ENVIRONMENT_ISOLATION_REQUIRED because hosted staging environment variables are not configured; course validation still passed 635429 checks. No validator was bypassed."
+    },
+    {
+      "name": "Hosted deployment",
+      "result": "not-run",
+      "detail": "No Vercel variables or deployment changes were made."
+    }
+  ]
+}

@@ -11,6 +11,7 @@ test("built-in legacy images upgrade without replacing custom artwork", () => {
   assert.equal(resolveSocialImage(" https://cdn.example.com/custom.jpg "), "https://cdn.example.com/custom.jpg");
   assert.equal(resolveSocialImage("/images/custom-share.jpg"), "/images/custom-share.jpg");
   assert.equal(resolveSocialImage("https://lecomax.com/images/social/lecomax-share-v2.jpg"), OFFICIAL_SOCIAL_IMAGE);
+  assert.equal(resolveSocialImage("https://lecomax.com/images/social/lecomax-share-v3.jpg?v=old"), OFFICIAL_SOCIAL_IMAGE);
 });
 
 test("share metadata matches the published, lightweight JPEG asset", async () => {

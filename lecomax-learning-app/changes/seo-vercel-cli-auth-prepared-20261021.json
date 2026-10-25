@@ -1,0 +1,57 @@
+{
+  "id": "seo-vercel-cli-auth-prepared-20261021",
+  "createdAt": "2026-10-21T10:24:43.665Z",
+  "title": "Vercel CLI-managed authentication prepared",
+  "summary": "Replace direct cached OAuth reads in 11 active SEO operational scripts with a shared CLI API adapter; validation pending. Historical release copies are preserved.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging acceptance",
+    "Release operations"
+  ],
+  "components": [
+    "Vercel authentication",
+    "Acceptance tooling"
+  ],
+  "files": [
+    "scripts/configure-seo-staging-hosting.cjs",
+    "scripts/seo-final-readiness.cjs",
+    "scripts/seo-first-deployment-audit.cjs",
+    "scripts/seo-first-deployment-status.cjs",
+    "scripts/seo-first-upload-receipt.cjs",
+    "scripts/seo-real-session-acceptance.cjs",
+    "scripts/seo-runtime-hosted-acceptance.cjs",
+    "scripts/seo-runtime-hosting.cjs",
+    "scripts/seo-sixth-readonly.cjs",
+    "scripts/vercel-cli-api.cjs",
+    "scripts/verify-seo-hosting-readonly.cjs",
+    "scripts/verify-seo-staging-environment.cjs",
+    "tests/vercel-cli-api.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "CLI owns OAuth refresh; requests use shell-free argument arrays and JSON stdin; no cached access-token reads, token argv, raw diagnostic output or mutation retries."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression coverage for endpoint restrictions, secret-safe input/output, parsing and direct-cache-reader prevention."
+    }
+  ],
+  "validation": [
+    {
+      "name": "New adapter and migrated scripts",
+      "result": "not-run",
+      "detail": "Unit, syntax, lint and live read-only verification pending. No mutating operational script executed."
+    },
+    {
+      "name": "Existing CLI account access",
+      "result": "passed",
+      "detail": "vercel whoami succeeded and vercel api /v2/user returned HTTP 200 outside the network sandbox. No token printed."
+    },
+    {
+      "name": "Hosted browser availability",
+      "result": "failed",
+      "detail": "Connected browser inventory empty; in-app browser creation reports unavailable."
+    }
+  ]
+}

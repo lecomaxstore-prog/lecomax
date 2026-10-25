@@ -1,0 +1,58 @@
+{
+  "id": "seo-email-isolation-prepared-1792755504586",
+  "relatedId": "seo-hosted-safety-plan-1792755128169",
+  "createdAt": "2026-10-23T11:38:24.585Z",
+  "status": "needs-testing",
+  "title": "Staging Mailpit isolation policy and manual SMTP setup prepared",
+  "summary": "Fresh read-only audits preserve disabled Auth controls. Seven policy/identity and 18 application email tests pass. Mailpit, network enforcement and Supabase SMTP changes remain unexecuted.",
+  "pages": [
+    "SEO Recovery Preview",
+    "Email isolation",
+    "Change History"
+  ],
+  "components": [
+    "SMTP capture preparation",
+    "Application email guards",
+    "Vercel identity provenance"
+  ],
+  "files": [
+    "operations/seo/email-isolation-plan.json",
+    "operations/seo/email-isolation-policy.cjs",
+    "operations/seo/email-isolation-policy.test.cjs",
+    "docs/seo-staging-email-isolation-readiness-20261023.md",
+    "artifacts/seo-preview-resume-20261023/record-email-isolation-preparation.cjs",
+    "artifacts/seo-preview-resume-20261023/seo-email-isolation-prepared-1792755504586-evidence.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared a nonexecutable Mailpit policy with no forwarding/relay options, required TLS/auth, private UI and external IPv4/IPv6 outbound denial. Added negative synthetic policy and provider identity tests."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented exact staging Dashboard setup, costs/dependencies, private credential handling, post-change evidence and separate external approval boundaries. Candidate source and build preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Synthetic isolation policy and identity tests",
+      "result": "passed",
+      "detail": "7 tests passed; rejects forwarding/relay, insecure settings, lost egress denial and mismatched project/team/deployment. No SMTP process or hosted verifier invoked."
+    },
+    {
+      "name": "Existing application email suppression",
+      "result": "passed",
+      "detail": "18 tests passed including Resend, staff invitation and executable sender inventory."
+    },
+    {
+      "name": "Fresh hosted read-only audit and preservation",
+      "result": "passed",
+      "detail": "Correct Vercel project/team; disabled Auth/provider/hooks/notifications unchanged, SMTP absent. All 2588 recovery files and 30 image hashes preserved."
+    },
+    {
+      "name": "Actual non-delivery enforcement",
+      "result": "not-run",
+      "detail": "No host selected or provisioned, image digest unselected, firewall uninstalled, TLS/SMTP integration untested. Requires separate approval; no secrets or provider settings changed."
+    }
+  ]
+}

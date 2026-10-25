@@ -1,0 +1,47 @@
+{
+  "id": "seo-preview-edge-build-correction-20261023",
+  "relatedId": "seo-derived-preview-credential-prepared-20261023",
+  "createdAt": "2026-10-23T07:51:04.943Z",
+  "title": "Build exposed Node-only hashing in Edge middleware; shared policy correction prepared",
+  "summary": "Full candidate build failed on node:crypto through admin-access. Added async Web Crypto selector for middleware using the same fail-closed policy. Validation pending; no deployment.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin access",
+    "SEO Recovery Preview",
+    "Change History"
+  ],
+  "components": [
+    "Edge middleware",
+    "Supabase credential validation"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/lib/seo-preview-credential.mjs",
+    ".recovery-seo-preview-isolated/lib/seo-preview-credential-policy.mjs",
+    ".recovery-seo-preview-isolated/lib/supabase-service-key-edge.ts",
+    ".recovery-seo-preview-isolated/lib/admin-access.ts",
+    ".recovery-seo-preview-isolated/tests/admin-access.test.ts",
+    ".recovery-seo-preview-isolated/tests/seo-preview-credential.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Removed Node crypto from the middleware dependency graph without weakening project, binding, environment or no-fallback validation."
+    },
+    {
+      "kind": "added",
+      "detail": "Added actual Edge selector parity and rejection test."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First candidate production build",
+      "result": "failed",
+      "detail": "node:crypto unsupported in Edge; local network isolation also blocked Google font downloads. Evidence: continuation-build-1792741637438.log."
+    },
+    {
+      "name": "Corrected build",
+      "result": "not-run",
+      "detail": "Pending. Local validation permits font hosts only; no application service requests or live credentials."
+    }
+  ]
+}

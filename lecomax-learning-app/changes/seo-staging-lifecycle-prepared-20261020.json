@@ -1,0 +1,30 @@
+{
+  "id": "seo-staging-lifecycle-prepared-20261020",
+  "createdAt": "2026-10-20T15:16:03.111Z",
+  "title": "Prepared isolated full npm staging build verification",
+  "summary": "Added a disposable upload-copy harness to exercise npm prebuild and build without changing the reviewed candidate.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging release",
+    "Learning app /change-history"
+  ],
+  "components": [
+    "Isolated build verification"
+  ],
+  "files": [
+    "scripts/verify-seo-staging-lifecycle.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Copies hash-verified upload files and runs Node 24 npm lifecycle with synthetic configuration, disabled integrations and application fetch tripwire, followed by HTTP checks."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Full lifecycle",
+      "result": "not-run",
+      "detail": "Execution follows this preparation report; clean Linux installation and hosted acceptance remain separate."
+    }
+  ]
+}

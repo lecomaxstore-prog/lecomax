@@ -1,0 +1,41 @@
+{
+  "id": "seo-worker-deadline-prepared-20261019",
+  "createdAt": "2026-10-19T21:39:06.848Z",
+  "title": "Bound AI generation after slow claims and report deferred work",
+  "summary": "Recheck provider time reserve after a durable claim and mark AI budget/batch cutoffs in run finalization.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync"
+  ],
+  "components": [
+    "SEO worker handler",
+    "AI worker"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/lib/seo-ai-worker.mjs",
+    "operations/seo-vercel/tests/ai-deadline.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Do not start generation after slow claim consumes provider/persistence reserve; retain lease for existing recovery."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Persist AI time and batch cutoffs as partial runs rather than completed queue drains."
+    },
+    {
+      "kind": "added",
+      "detail": "Synthetic deadline, settlement and partial-status regressions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Tests",
+      "result": "not-run",
+      "detail": "Pending; no worker activation, hosted writes or paid requests."
+    }
+  ]
+}

@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-11",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-11",
+  "title": {
+    "en": "Next.js security: protect every server entry point",
+    "ar": "أمان Next.js: حماية كل نقطة دخول للخادم",
+    "fr": "Next.js security: protect every server entry point"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-10"
+  ],
+  "objectives": [
+    "Protect Route Handlers and Server Actions with server-side identity and permission checks.",
+    "Keep private values out of client props, public environment variables and shared caches.",
+    "Review uploads, image destinations and deployment boundaries in an App Router project."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "The website installed in this workspace uses Next.js 15.5.24. This lesson separates durable security rules from version-specific file conventions and provides a tested Route Handler factory without connecting it to production data.",
+  "sections": [
+    {
+      "title": "Start with the actual version and entry points",
+      "text": "An App Router project can expose page rendering, Route Handlers and Server Actions. Inventory these alongside background jobs and webhooks. The installed website version inspected for this lesson is 15.5.24, while framework documentation may describe newer releases and terminology such as Proxy. Do not rename middleware.ts or copy a new configuration convention without checking the installed version and migration guidance. The stable rule is that every operation using sensitive data must verify its own authority. A navigation redirect is a user-experience boundary, not a complete authorization system. Keep dependency patching and framework security advisories in the maintenance workflow; a course example cannot freeze the security status of a version indefinitely."
+    },
+    {
+      "title": "Server Components and Client Components disclose different things",
+      "text": "A Server Component can access a server-side data source without shipping its database client into the browser. However, anything serialized into a response or passed as props to a Client Component can become visible to the recipient. Query only what is needed and map explicit DTOs. A component named PrivateOrders is not private merely because of its name or file location. Check the caller before fetching private records and ensure caching does not reuse one user’s result for another. Mark genuinely server-only modules using the framework-supported mechanism in the real application, and review imports when moving shared helpers. Secrets should remain behind the server boundary, not become convenient shared constants."
+    },
+    {
+      "title": "Server Actions are remotely invoked mutations",
+      "text": "A function used as a Server Action is an entry point to a server operation. Its arguments remain untrusted even if they originate from your own form. Validate the session, permitted action, record relationship and input values inside the action or a correctly enforced shared data layer. Do not accept role, owner or price as authority from FormData. The UI may hide an action from unauthorized users, but a caller can still attempt the underlying request. Framework origin-related safeguards help particular request mechanisms; they do not decide whether Alice owns an order or whether a coupon is eligible. Model failures before database writes and handle retries according to an explicit business contract."
+    },
+    {
+      "title": "Read the Route Handler factory",
+      "text": "The provided createOrderGET factory accepts two dependencies: session validation and an owner-constrained database lookup. It returns a normal Request-to-Response handler, so tests can supply synthetic identities and records without needing a live database or Next.js server. The handler denies absent sessions, validates a bounded order-id grammar, passes actor.id to findOwned and returns only id and totalCents. staffNote is deliberately present in the internal type but absent from the response. All responses use private, no-store to avoid this example becoming a shared private-data cache. A dependency failure returns a safe 503 rather than a successful empty order. The dependency contract is explicit: a real implementation must validate the session and parameterize the owner query."
+    },
+    {
+      "title": "Compare the vulnerable pattern",
+      "text": "A route that reads id from the URL and returns db.order.findUnique({where:{id}}) without identity or ownership checks is vulnerable even if an admin page is the only place linking to it. The same problem appears when a Server Action trusts formData.get(ownerId) or a browser-provided price. The corrected factory makes the identity and owner relationship unavoidable in its interface. Its tests verify no session, wrong owner, valid owner, invalid id, missing record and dependency failure. They also verify the safe response omits staffNote. These are handler tests, not an assertion that the existing public website uses this factory or that its complete Next.js runtime has been assessed."
+    },
+    {
+      "title": "Environment, database and upload boundaries",
+      "text": "A NEXT_PUBLIC-prefixed environment value is intended for browser availability and must not hold a database service-role key or provider secret. Server environment values still need restricted access, redaction and rotation. Use a least-privilege database role where possible, parameterized queries and ownership constraints; server-only execution does not make unsafe SQL safe. For uploads, enforce authorization and size limits before expensive processing, quarantine content and use a real bounded decoder rather than trusting an extension. For images or import URLs, configure a narrow set of remote sources and avoid accepting arbitrary destinations. An image optimizer or server-side fetcher can create network authority beyond the browser, so review redirects and resource limits as part of the feature."
+    },
+    {
+      "title": "Headers, caching and deployment review",
+      "text": "Test the actual deployed response headers rather than assuming a configuration file was applied. CSP must fit the application’s rendering and script strategy; request-specific nonces need correct propagation and caching behavior. Do not cache a response carrying user-specific information under a public key. Preview deployments may expose unfinished features and require their own access controls and secret separation. Confirm old deployments, debug routes and source maps are handled according to policy. A production rollout should include authorization regression tests, dependency review, safe error behavior and rollback or forward-fix planning. Never change middleware, headers and database policy all at once without identifying which boundary each change is meant to enforce."
+    },
+    {
+      "title": "Practical review and common mistakes",
+      "text": "For a real App Router project, list every route.ts and server mutation, record its session source and authorization rule, then inspect serialized responses and cache policy. A missing test is a coverage gap, not proof of insecurity or safety. Common beginner mistakes are trusting the admin UI, assuming server code cannot leak data, exposing secrets with NEXT_PUBLIC and equating a TypeScript type with runtime validation. Darija: الكود فالخادم ماشي بوحدو ضمان؛ خاص التحقق من المستخدم والمدخلات والصلاحيات فكل عملية حساسة. Use the factory as a pattern to understand and test, then integrate through the actual project’s authentication and database contracts."
+    }
+  ],
+  "examples": [
+    {
+      "id": "unsafe-next",
+      "filename": "unsafe-route.ts",
+      "language": "typescript",
+      "code": "export async function GET(request: Request) {\n  const id = new URL(request.url).searchParams.get(\"id\");\n  return Response.json(await db.order.findUnique({ where: { id } }));\n}",
+      "annotations": [
+        {
+          "lines": "1-4",
+          "label": "Deliberately incomplete vulnerable excerpt: db represents the project data client, and no caller or ownership boundary is enforced. It is for comparison, not a runnable standalone route."
+        }
+      ]
+    },
+    {
+      "id": "safe-next",
+      "filename": "security-labs/next-order-route.ts",
+      "language": "typescript",
+      "code": "export type Actor = { id: string };\nexport type Order = { id: string; ownerId: string; totalCents: number; staffNote: string };\nexport type Dependencies = {\n  session: (request: Request) => Promise<Actor | null>;\n  findOwned: (id: string, ownerId: string) => Promise<Order | null>;\n};\nexport function createOrderGET(deps: Dependencies) {\n  return async function GET(request: Request): Promise<Response> {\n    const headers = { 'Cache-Control': 'private, no-store' };\n    try {\n      const actor = await deps.session(request);\n      if (!actor) return Response.json({ message: 'Authentication required' }, { status: 401, headers });\n      const id = new URL(request.url).searchParams.get('id');\n      if (!id || !/^order-[a-z0-9]{1,40}$/.test(id))\n        return Response.json({ message: 'Invalid order id' }, { status: 400, headers });\n      const order = await deps.findOwned(id, actor.id);\n      if (!order) return Response.json({ message: 'Not found' }, { status: 404, headers });\n      return Response.json({ id: order.id, totalCents: order.totalCents }, { headers });\n    } catch {\n      return Response.json({ message: 'Request could not be completed' }, { status: 503, headers });\n    }\n  };\n}\n// In an App Router route module, export GET = createOrderGET(realDependencies).\n// realDependencies must validate sessions and perform a parameterized owner-constrained query.\n// This factory is executable in tests; it is not connected to the real shop.\n",
+      "annotations": [
+        {
+          "lines": "1-6",
+          "label": "Define the dependency contract: validated identity and owner-constrained lookup."
+        },
+        {
+          "lines": "7-18",
+          "label": "Reject missing identity and invalid selection, authorize the record and map an explicit response."
+        },
+        {
+          "lines": "19-25",
+          "label": "Fail safely on dependency errors; real integration must supply trustworthy dependencies."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "handler",
+      "difficulty": 3,
+      "task": "Execute the handler tests and explain why staffNote must never appear in the successful JSON.",
+      "hints": [
+        "The internal type and public DTO intentionally differ."
+      ],
+      "solution": "Owner success -> id,totalCents only\nWrong owner -> 404\nNo session -> 401\nInvalid id -> 400\nDependency failure -> 503",
+      "walkthrough": "The response mapper is an independent disclosure boundary after authorization. Tests use real Request/Response objects with fake dependencies.",
+      "expectedResult": "Five handler behaviors and a forbidden-field assertion."
+    },
+    {
+      "id": "action",
+      "difficulty": 3,
+      "task": "Review a Server Action that accepts ownerId and price from FormData. State the trusted replacements.",
+      "hints": [
+        "FormData is untrusted even when your form generated it."
+      ],
+      "solution": "ownerId <- verified session\nprice <- server catalog\nquantity <- bounded runtime validation\nwrite <- authorized database transaction",
+      "walkthrough": "The action receives intent while server-owned sources provide authority.",
+      "expectedResult": "A corrected authority map for a mutation."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-11-q1",
+      "question": "Which installed website version was inspected?",
+      "options": [
+        "Next.js 15.5.24.",
+        "An assumed latest version without inspection."
+      ],
+      "correctIndex": 0,
+      "explanation": "Version-sensitive conventions must match the workspace.",
+      "answerExplanations": [
+        "Correct. Version-sensitive conventions must match the workspace.",
+        "Not quite. Version-sensitive conventions must match the workspace."
+      ]
+    },
+    {
+      "id": "cyber-11-q2",
+      "question": "Does an admin-only page link protect the linked API?",
+      "options": [
+        "Yes; callers cannot invoke hidden routes.",
+        "No; the API must enforce its own policy."
+      ],
+      "correctIndex": 1,
+      "explanation": "Direct requests bypass navigation.",
+      "answerExplanations": [
+        "Not quite. Direct requests bypass navigation.",
+        "Correct. Direct requests bypass navigation."
+      ]
+    },
+    {
+      "id": "cyber-11-q3",
+      "question": "Are Server Action arguments trusted because the function is on the server?",
+      "options": [
+        "No; callers influence those arguments.",
+        "Yes; server placement validates all inputs."
+      ],
+      "correctIndex": 0,
+      "explanation": "Execution location does not establish input authority.",
+      "answerExplanations": [
+        "Correct. Execution location does not establish input authority.",
+        "Not quite. Execution location does not establish input authority."
+      ]
+    },
+    {
+      "id": "cyber-11-q4",
+      "question": "Can a Client Component prop reveal a server-loaded secret?",
+      "options": [
+        "No; props inherit server secrecy.",
+        "Yes; serialization crosses the client boundary."
+      ],
+      "correctIndex": 1,
+      "explanation": "What is sent determines disclosure.",
+      "answerExplanations": [
+        "Not quite. What is sent determines disclosure.",
+        "Correct. What is sent determines disclosure."
+      ]
+    },
+    {
+      "id": "cyber-11-q5",
+      "question": "Where should a service-role key live?",
+      "options": [
+        "In restricted server configuration, never a public client value.",
+        "In NEXT_PUBLIC_SERVICE_KEY."
+      ],
+      "correctIndex": 0,
+      "explanation": "Public configuration is client-accessible.",
+      "answerExplanations": [
+        "Correct. Public configuration is client-accessible.",
+        "Not quite. Public configuration is client-accessible."
+      ]
+    },
+    {
+      "id": "cyber-11-q6",
+      "question": "What does findOwned receive in the factory?",
+      "options": [
+        "An owner id trusted from JSON.",
+        "The id and validated actor.id."
+      ],
+      "correctIndex": 1,
+      "explanation": "The data query must enforce the caller relationship.",
+      "answerExplanations": [
+        "Not quite. The data query must enforce the caller relationship.",
+        "Correct. The data query must enforce the caller relationship."
+      ]
+    },
+    {
+      "id": "cyber-11-q7",
+      "question": "Why omit staffNote from the DTO?",
+      "options": [
+        "It is not required for the customer response.",
+        "TypeScript automatically encrypts omitted fields."
+      ],
+      "correctIndex": 0,
+      "explanation": "Explicit selection prevents unnecessary disclosure.",
+      "answerExplanations": [
+        "Correct. Explicit selection prevents unnecessary disclosure.",
+        "Not quite. Explicit selection prevents unnecessary disclosure."
+      ]
+    },
+    {
+      "id": "cyber-11-q8",
+      "question": "Should session-store failure grant access?",
+      "options": [
+        "Yes; availability overrides identity verification.",
+        "No; return a safe failure."
+      ],
+      "correctIndex": 1,
+      "explanation": "The required security check did not succeed.",
+      "answerExplanations": [
+        "Not quite. The required security check did not succeed.",
+        "Correct. The required security check did not succeed."
+      ]
+    },
+    {
+      "id": "cyber-11-q9",
+      "question": "Do handler unit tests prove the production site was assessed?",
+      "options": [
+        "No; deployment integration is a separate claim.",
+        "Yes; any test covers all deployed routes."
+      ],
+      "correctIndex": 0,
+      "explanation": "Evidence is scoped to the executed factory.",
+      "answerExplanations": [
+        "Correct. Evidence is scoped to the executed factory.",
+        "Not quite. Evidence is scoped to the executed factory."
+      ]
+    },
+    {
+      "id": "cyber-11-q10",
+      "question": "Can private data be unsafe even with a correct query?",
+      "options": [
+        "No; database authorization is the only boundary.",
+        "Yes; serialization or shared caching can leak it."
+      ],
+      "correctIndex": 1,
+      "explanation": "Security spans the complete response flow.",
+      "answerExplanations": [
+        "Not quite. Security spans the complete response flow.",
+        "Correct. Security spans the complete response flow."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can protect Route Handlers and Server Actions with server-side identity and permission checks.",
+    "I can keep private values out of client props, public environment variables and shared caches.",
+    "I can review uploads, image destinations and deployment boundaries in an App Router project."
+  ],
+  "recap": [
+    "Protect Route Handlers and Server Actions with server-side identity and permission checks.",
+    "Keep private values out of client props, public environment variables and shared caches.",
+    "Review uploads, image destinations and deployment boundaries in an App Router project."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "Next.js authentication",
+      "url": "https://nextjs.org/docs/app/guides/authentication",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "Next.js data security",
+      "url": "https://nextjs.org/docs/app/guides/data-security",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "App Router security boundaries",
+    "steps": [
+      {
+        "title": "Entry point",
+        "detail": "Page, Route Handler or Server Action receives a request."
+      },
+      {
+        "title": "Trusted identity",
+        "detail": "Validate the actual session, not a client-supplied role."
+      },
+      {
+        "title": "Data access",
+        "detail": "Constrain the operation by owner, role and business state."
+      },
+      {
+        "title": "Serialization and cache",
+        "detail": "Expose an intentional DTO and avoid shared private responses."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Server Action",
+      "A remotely invoked server mutation requiring input and permission checks."
+    ],
+    [
+      "Server Component",
+      "A server-rendered component whose serialized output can still disclose data."
+    ],
+    [
+      "Public environment value",
+      "Build/runtime configuration intentionally available to client code."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Next.js boundary defender"
+  }
+}

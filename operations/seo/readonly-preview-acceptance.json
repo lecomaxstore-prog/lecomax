@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 2,
+  "mode": "prepared-not-executed",
+  "authorized": false,
+  "deploymentUrl": null,
+  "vercelProjectId": "prj_jPniwpH4s81bhISVReUKTQN0GwvD",
+  "vercelTeamId": "team_yFLUcpSvgQi8EQuvuorOZW7w",
+  "supabaseOrigin": "https://tyltharlnbxrxibuxyye.supabase.co",
+  "candidate": ".recovery-seo-preview-isolated",
+  "deploymentConfiguration": "artifacts/seo-preview-resume-20261023/resume-preview-config.json",
+  "preconditions": [
+    "Separate explicit authorization for hosted execution; this file grants none.",
+    "Identify protected hosted runtime and its verified project/team/Preview identity through provider metadata, not caller-supplied environment claims.",
+    "Use the saved successful hosted verifier evidence. Its single-use guard is consumed. Never execute the verifier again.",
+    "Verify immutable deployment belongs to exact staging project, uses derived candidate, excludes local fixture build and has deployment protection.",
+    "Select existing approved synthetic staging product/category; abort if data provenance is unverified, absent or contains production/customer data. Do not create test data.",
+    "Refresh safe environment metadata and public-key binding immediately before execution.",
+    "Accepted narrow SEO-only scope: SMTP sink is not a requirement; no email/auth workflows or direct provider API testing. Preserve disabled Auth settings.",
+    "Authenticated browser must use a fresh context with serviceWorkers blocked and routing registered before first navigation. Permit only GET/HEAD to the immutable staging deployment; deny all other origins, methods and WebSockets. No protection bypass secret in files, URLs or chat.",
+    "Do not loosen deployment protection to run the optional unauthenticated HTTP harness. Use a reviewed protected browser session instead; a 401/redirect is a failed precondition."
+  ],
+  "networkPolicy": {
+    "applicationMethods": [
+      "GET",
+      "HEAD"
+    ],
+    "supabaseMethods": [
+      "GET",
+      "HEAD"
+    ],
+    "supabasePaths": [
+      "/rest/v1/products",
+      "/rest/v1/categories",
+      "/rest/v1/settings",
+      "/rest/v1/promotions",
+      "/rest/v1/reviews",
+      "/rest/v1/banners",
+      "/rest/v1/announcements",
+      "/rest/v1/ecomedia_posts",
+      "/rest/v1/shipping_zones",
+      "/rest/v1/pages"
+    ],
+    "deny": [
+      "All other database hosts",
+      "All unapproved origins",
+      "Cross-origin redirects",
+      "Auth mutations",
+      "Orders or checkout submission",
+      "Payment SDK/network",
+      "Analytics and tracking writes",
+      "IndexNow",
+      "Email providers",
+      "Admin/cron/worker application routes",
+      "WebSocket connections"
+    ],
+    "note": "Browser routing must block side effects before navigation. Inspect any additional read dependency before adding it. The separate verifier has its own single fixed privileged Auth GET and is not covered by this acceptance allowlist."
+  },
+  "checks": [
+    {
+      "page": "homepage",
+      "path": "/",
+      "assertions": [
+        "HTTP 200",
+        "Expected staging catalogue product visible",
+        "No hydration/runtime errors",
+        "Production canonical retained",
+        "No synthetic fixture title"
+      ]
+    },
+    {
+      "page": "Boutique",
+      "path": "/boutique/",
+      "assertions": [
+        "HTTP 200",
+        "Settings and promotions reads succeed against staging",
+        "Expected catalogue product visible",
+        "No suppressed loader errors or broad fallback"
+      ]
+    },
+    {
+      "page": "category",
+      "pathFrom": "approved staging category slug",
+      "assertions": [
+        "HTTP 200",
+        "Only matching category products",
+        "Canonical and pagination correct"
+      ]
+    },
+    {
+      "page": "product",
+      "pathFrom": "approved staging product slug",
+      "assertions": [
+        "HTTP 200",
+        "Name/price/stock match approved staging record",
+        "Image loads",
+        "Product schema and canonical correct",
+        "Unknown product returns 404"
+      ]
+    },
+    {
+      "page": "SEO endpoints",
+      "paths": [
+        "/sitemap.xml",
+        "/sitemaps/static/",
+        "/sitemaps/products/0/",
+        "/sitemaps/categories/0/",
+        "/robots.txt",
+        "/sitemaps/pages/0/",
+        "/sitemaps/posts/0/"
+      ],
+      "assertions": [
+        "Correct status/content type",
+        "Canonical production URLs",
+        "No staging/private URLs in sitemap content",
+        "robots.txt Disallow: /; all responses X-Robots-Tag noindex, nofollow, noarchive",
+        "Validate each sitemap shard without navigating to its production loc URLs",
+        "Production canonical URLs are inspected as strings, never fetched"
+      ]
+    },
+    {
+      "page": "repaired images",
+      "manifest": "artifacts/seo-preview-resume-20261023/image-corrections.json",
+      "assertions": [
+        "All 30 return 200",
+        "Response bytes match recorded hashes"
+      ]
+    },
+    {
+      "page": "Denied surfaces",
+      "paths": [
+        "/panier/",
+        "/connexion/",
+        "/checkout/",
+        "/admin/",
+        "/contact/",
+        "/api/orders",
+        "/api/auth/login",
+        "/api/cron/review-followups"
+      ],
+      "assertions": [
+        "GET returns 403 without handler execution",
+        "Never submit a POST to the hosted environment; mutation checks remain synthetic-only"
+      ]
+    },
+    {
+      "page": "Browser isolation",
+      "assertions": [
+        "Homepage, Boutique, category and product hydrate without page errors",
+        "No successful non-read, external-origin or WebSocket requests",
+        "All displayed assets must be local; remote production/CDN assets remain blocked",
+        "All 30 repaired image hashes match; inspect Product JSON-LD and expected staging data",
+        "Do not claim Google indexing or rich-results outcomes from a noindex Preview"
+      ]
+    }
+  ],
+  "evidence": [
+    "UTC timestamps",
+    "Provider-attested project/deployment identity",
+    "Candidate source manifest",
+    "Pass/fail and HTTP status per route",
+    "Allowed/blocked network counts without headers or queries",
+    "No secret values, credential fingerprints, account response bodies or session cookies"
+  ],
+  "stopConditions": [
+    "Unexpected project, origin or redirect",
+    "Missing protected runtime",
+    "Credential verifier failure",
+    "Unverified staging data provenance",
+    "Any attempted delivery/payment/database mutation",
+    "Unexpected secret in output",
+    "Page error or failed assertion"
+  ],
+  "hostedCredentialVerifierPassed": true,
+  "dataProvenanceApproved": false,
+  "deploymentId": null,
+  "providerVerifiedDeploymentHostname": null,
+  "providerIdentityEvidence": null,
+  "sourceManifestEvidence": "artifacts/seo-preview-resume-20261023/readonly-candidate-manifest-1792762353494.json",
+  "productPath": null,
+  "categoryPath": null,
+  "expectedProductName": null,
+  "hostedVerifierEvidence": "artifacts/seo-preview-resume-20261023/verifier-only-inspection-1792764132082.json",
+  "cartDisplay": {
+    "supported": false,
+    "expectedStatus": 403,
+    "reason": "Current candidate blocks /panier/; do not broaden scope or submit checkout."
+  }
+}

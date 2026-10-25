@@ -1,0 +1,111 @@
+# dependencies
+node_modules/
+mobile/.expo/
+mobile/.env*.local
+.pnp
+.pnp.js
+
+# Next.js build output
+.next/
+.next-dev/
+.next-broken-*/
+out/
+mobile/.expo/
+mobile/dist*/
+mobile/android/
+mobile/ios/
+.expo/
+
+# production
+build/
+dist/
+
+# environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*
+!.env.example
+!mobile/.env.example
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+.vercel
+.env*.local
+
+# Supabase CLI local link/cache data
+supabase/.temp/
+
+# Android release signing and generated artifacts
+*.apk
+*.aab
+*.jks
+*.keystore
+credentials.json
+local.properties
+google-services.json
+mobile/.credentials/
+release/android/
+
+# Local browser-inspection context exported by the integrated browser
+lib/Attached Element Context from Integrated.txt
+
+# Local design and verification screenshots taken while iterating on mobile UI
+mobile/*.png
+release/*.tar
+release/
+
+# Private source snapshot generated at build time
+.source-library/
+
+# Local release worktrees, build backups, and audit output
+release/
+.next-dev-*/
+supabase_error.json
+fluid-release.patch
+mobile/latest-build-audit.json
+
+# EAS archives this Git repository from its root. Preserve both app sources,
+# but omit local agent context, build credentials and disposable QA data.
+.agents/
+.codex/
+.aws/
+.credentials/
+.android-qa/
+.npm-cache/
+.owner-auth-qa/
+lecomax-learning-app/dist-*/
+*.p8
+*.p12
+*.pem
+*.key
+*.idsig
+lecomax-learning-app/android/
+lecomax-learning-app/ios/
+lecomax-learning-app/dist-web/
+lecomax-learning-app/artifacts/
+lecomax-learning-app/scripts/
+lecomax-learning-app/tests/
+lecomax-learning-app/docs/
+lecomax-learning-app/expo-env.d.ts
+# Firebase client configuration is needed by the existing storefront build.
+!mobile/google-services.json

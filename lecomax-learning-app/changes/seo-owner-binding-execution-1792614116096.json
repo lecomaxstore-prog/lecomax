@@ -1,0 +1,36 @@
+{
+  "id": "seo-owner-binding-execution-1792614116096",
+  "createdAt": "2026-10-21T20:21:56.098Z",
+  "title": "Owner-assisted production binding execution",
+  "summary": "Create-only binding run; consult validation for partial results. No deployment or migration.",
+  "status": "needs-testing",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ],
+  "components": [
+    "Credential bindings"
+  ],
+  "files": [
+    "scripts/complete-production-bindings.cjs",
+    "scripts/complete-production-bindings.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Created binding names: NEXT_PUBLIC_SUPABASE_KEY_BINDING, SUPABASE_SERVICE_KEY_BINDING. Verified names: APP_ENV, NEXT_PUBLIC_APP_ENV, SEO_RUNTIME_ENV, NEXT_PUBLIC_SITE_URL, SEO_SYNC_ENABLED, SEO_MANUAL_SYNC_ENABLED, SEO_AI_ENABLED, SEO_EDITORIAL_ENABLED, SEO_MIRAI_FALLBACK_ENABLED, INDEXNOW_ENABLED, NEXT_PUBLIC_SUPABASE_KEY_BINDING, SUPABASE_SERVICE_KEY_BINDING."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Execution",
+      "result": "passed",
+      "detail": "Binding readback and preservation checks completed; source equality relies on owner attestation where Vercel withholds values."
+    },
+    {
+      "name": "Production build and runtime",
+      "result": "not-run",
+      "detail": "Full environment remains unavailable locally; admin signer readback withheld. No runtime login, deployment or migration."
+    }
+  ]
+}

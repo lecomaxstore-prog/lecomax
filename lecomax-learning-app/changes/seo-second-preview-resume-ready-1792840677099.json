@@ -1,0 +1,50 @@
+{
+  "id": "seo-second-preview-resume-ready-1792840677099",
+  "relatedId": "seo-preflight-safe-status-correction-1792840007764",
+  "createdAt": "2026-10-24T11:17:57.100Z",
+  "title": "Second protected SEO Preview cleared for one manual attempt",
+  "summary": "New-token preflight pass inspected; independent fresh staging GET audit confirms no second deployment. Exact payload and reviewed launcher hashes match. Launcher not executed.",
+  "status": "successful",
+  "pages": [
+    "SEO staging Preview",
+    "Change History"
+  ],
+  "components": [
+    "Manual protected staging launcher",
+    "Read-only preflight"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/run-second-protected-preview.ps1",
+    "artifacts/seo-preview-resume-20261023/second-preview-attempt.mjs",
+    "artifacts/seo-preview-resume-20261023/second-preview-audit-1792840651393.json",
+    "artifacts/seo-preview-resume-20261023/second-preview-403-diagnostic-1792840539328.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Append verification checkpoint after token-scope correction. Existing launcher, payload, recovery source, receipts and guards unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh provider reconciliation",
+      "result": "passed",
+      "detail": "GET-only audit with existing CLI credential confirms exact project/team, all-deployment protection, no bypass/Git, empty crons, Preview-only credentials, disabled flags and no newer staging deployment. User-run masked new-token preflight pass also saved. No secret values retrieved."
+    },
+    {
+      "name": "Payload and preservation",
+      "result": "passed",
+      "detail": "1212 files checked by SHA-256/SHA-1/size; certificate, manifest/request bytes and 2601 recovery hashes match. Payload e04c877a42ddbad8c5be5a2bddf9919bd072cddefc75aa32e9d6159d49054e6c. First guards intact; second guard absent; original 403 attempt retains zero uploads/creation calls."
+    },
+    {
+      "name": "Reviewed launcher",
+      "result": "passed",
+      "detail": "All five original preparation launcher/audit/test hashes match. Masked temporary token input; child removes credential environment, parent clears credential/BSTR in finally. Exact staging-only payload, full fresh preflight, exclusive fixed guard directory and unchanged retry-free adapter/transport. No guard reset required."
+    },
+    {
+      "name": "Hosted second build and acceptance",
+      "result": "not-run",
+      "detail": "No deployment executed. Manual one-use attempt only; hosted Linux build and staging read-only acceptance remain pending. Initial sandbox audit failed; approved external-network GET-only audit passed, both records retained."
+    }
+  ]
+}

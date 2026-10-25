@@ -1,0 +1,51 @@
+{
+  "id": "product-video-full-gallery-verified-20261025",
+  "relatedId": "product-video-full-gallery-20261025",
+  "createdAt": "2026-10-25T19:53:59.587Z",
+  "title": "Larger product video gallery verified",
+  "summary": "Video frames now use the larger photo stage with stable gallery navigation.",
+  "status": "successful",
+  "pages": [
+    "Product detail /product/[slug]"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx",
+    "artifacts/verify-product-video-size-fixture.cjs",
+    "artifacts/product-video-size-validation.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Video gallery now shares the responsive photo height, removing the short forced 16:9 stage while retaining contain fitting without cropping."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed video-to-photo gallery height changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd --prefix mobile run typecheck passed."
+    },
+    {
+      "name": "Browser sizing and navigation",
+      "result": "passed",
+      "detail": "Isolated Edge test with synthetic product and intercepted local 1280x720 MP4: frames measured 320x358, 390x437 and 490x490. Next/previous media retained gallery navigation position. Video metadata loaded successfully."
+    },
+    {
+      "name": "Whitespace and history integrity",
+      "result": "passed",
+      "detail": "git diff --check and change-report --check passed; append-only follow-up checked again after append."
+    },
+    {
+      "name": "Validation limitations",
+      "result": "not-run",
+      "detail": "Original remote test clip failed to load; real product video playback and native devices not verified. Local fixture verifies rendering and size only. Initial offscreen video-height assertion was invalid because the paged video leaves view; corrected to measure gallery navigation position. No deployment."
+    }
+  ]
+}

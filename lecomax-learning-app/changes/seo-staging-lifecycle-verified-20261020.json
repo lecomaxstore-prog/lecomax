@@ -1,0 +1,66 @@
+{
+  "id": "seo-staging-lifecycle-verified-20261020",
+  "createdAt": "2026-10-20T15:25:21.408Z",
+  "title": "Full staging build, browser and database rehearsal verified",
+  "summary": "Closed the npm lifecycle validation gap; verified unchanged candidate, responsive editor and native database permissions. Read-only hosted checks identify empty Supabase and absent Vercel project. Deployment remains blocked.",
+  "status": "successful",
+  "relatedId": "seo-staging-lifecycle-prepared-20261020",
+  "pages": [
+    "SEO dashboard and editorial editor",
+    "Learning app /change-history",
+    "Staging release preparation"
+  ],
+  "components": [
+    "Isolated npm build harness",
+    "SEO web UI",
+    "Local PostgreSQL/PostgREST rehearsal",
+    "Hosted read-only readiness"
+  ],
+  "files": [
+    "scripts/verify-seo-staging-lifecycle.cjs",
+    "docs/seo-staging-owner-runbook-20261020.md",
+    "artifacts/seo-staging-autonomous-completion-20261020.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Reusable hash-verified disposable upload-copy build harness with synthetic environment and preserved retry evidence."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated existing owner runbook with fresh full lifecycle, browser, database and hosted read-only findings; no candidate or production application change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate regression",
+      "result": "passed",
+      "detail": "161 application/auth/isolation/SEO, 71 worker and four email tripwire tests; TypeScript and focused ESLint pass. 150 candidate hashes unchanged."
+    },
+    {
+      "name": "Full npm lifecycle and HTTP",
+      "result": "passed",
+      "detail": "Node 24.22.0 prebuild and build passed, including 635429 course checks and 230 static pages; eight HTTP checks passed. Initial public-font sandbox failure retained."
+    },
+    {
+      "name": "Browser fixtures",
+      "result": "passed",
+      "detail": "Nine scenarios; 375/768/1440 widths, mobile and desktop screenshots inspected. Fixture APIs only; no hosted session claim."
+    },
+    {
+      "name": "Local database and REST",
+      "result": "passed",
+      "detail": "13 PostgreSQL 17.11/PostgREST 16.5 checks passed, including RLS, JWT restrictions, concurrency and synthetic restore. Services stopped."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "Six archive/UI/append tests passed. Existing reports retained."
+    },
+    {
+      "name": "Hosted readiness",
+      "result": "not-run",
+      "detail": "Only read-only inventory performed: Vercel project absent; staging Supabase empty. Hosted Auth/key provenance, provisioning, Linux installation and deployment acceptance pending owner gates."
+    }
+  ]
+}

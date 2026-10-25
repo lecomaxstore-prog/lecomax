@@ -1,0 +1,47 @@
+{
+  "id": "search-overlay-verified-20261025",
+  "relatedId": "search-overlay-backdrop-correction-20261025",
+  "createdAt": "2026-10-25T07:59:37.734Z",
+  "title": "Search overlay accessibility candidate verified locally",
+  "summary": "Corrected touch focus fallback and completed mobile/desktop validation against a successful production build. Not deployed; separate approval required.",
+  "status": "successful",
+  "pages": [
+    "Storefront search"
+  ],
+  "components": [
+    "SearchOverlay"
+  ],
+  "files": [
+    "artifacts/search-overlay-20261025/source/components/SearchOverlay.tsx",
+    "artifacts/search-overlay-20261025/browser.cjs",
+    "artifacts/search-overlay-20261025/smoke.cjs",
+    "artifacts/search-overlay-20261025/certification.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Complete modal focus lifecycle: input focus, dynamic Tab/Shift+Tab trap, Escape from all controls, background/late-portal isolation, trigger return including touch fallback, responsive input transfer, hidden-exit inertness, original overflow priority/inert restoration."
+    },
+    {
+      "kind": "added",
+      "detail": "Isolated test evidence, source inventory and certification. No other application files changed; Header, ProductGallery, search API/routing/style/French content and all prior production fixes preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Exact source and build",
+      "result": "passed",
+      "detail": "READY baseline/rollback dpl_8wg4bKgDpwtRDpvo1TZ5rCdkowNk; 2055 source files, only SearchOverlay differs. Candidate d2b2638c95f1c3e1082762084391bd170bf632afd337ab683065dd9b4d095050. Corrected build/types/lint exit 0; existing image lint warning only."
+    },
+    {
+      "name": "Browser accessibility and functionality",
+      "result": "passed",
+      "detail": "59 checks at 320/375/390/1440; real public API responses, suggestions, results, controlled loading/empty/error states, keyboard result activation, touch scroll, menu handoff, breakpoint focus, Escape, original inert/overflow restoration and focused axe. Supplemental touch close/backdrop/hidden exclusion passed, zero page/unexpected console errors; expected isolated-service console warnings recorded."
+    },
+    {
+      "name": "Environment and manual limitations",
+      "result": "not-run",
+      "detail": "No physical-device or human screen-reader test. Local search API returns 500 with intentionally disconnected loopback database. Public API GET responses used only in browser harness; loading/empty/error states and navigation probes are browser-only. No mocks or credentials in candidate. Result-link Enter activation, exact href and close behavior checked with navigation prevented in harness; input ArrowDown/Enter routing checked against browser-only document probe. No local end-to-end database-backed product navigation. Existing focused image lint warning retained; full build also reports pre-existing warnings in unchanged files; no dependencies, CSS, API, product catalogue, payment, database or configuration changes."
+    }
+  ]
+}

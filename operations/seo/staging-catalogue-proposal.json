@@ -1,0 +1,37 @@
+{
+  "status": "proposal-only-not-applied",
+  "targetRef": "tyltharlnbxrxibuxyye",
+  "productionRefForbidden": "yddqwgdgeljkzfsmtein",
+  "scope": "Synthetic SEO contract only; not a production catalogue or recovery replica",
+  "preconditions": ["Management identity and isolation verified", "Separate hosted-write approval", "Both tables absent; refuse replacement or IF NOT EXISTS", "Exact migration owner reviewed"],
+  "tables": {
+    "products": {
+      "columns": {"id": "text primary key", "name": "text not null", "slug": "text not null unique", "active": "boolean not null default false", "description": "text", "category": "text", "brand": "text", "images": "jsonb not null default '[]'::jsonb", "stock": "integer not null default 0"},
+      "checks": ["id LIKE 'seo-fixture-%'", "slug LIKE 'seo-fixture-%'", "jsonb_typeof(images) = 'array'", "stock >= 0"],
+      "rows": [
+        {"id":"seo-fixture-fr","name":"Casque de test","slug":"seo-fixture-fr","active":true,"description":"Exemple synthétique sans vente réelle.","category":"Audio test","brand":"Fixture","images":[],"stock":2},
+        {"id":"seo-fixture-ar","name":"سماعة تجريبية","slug":"seo-fixture-ar","active":true,"description":"بيانات تجريبية فقط وليست منتجا للبيع.","category":"Audio test","brand":"Fixture","images":[],"stock":3},
+        {"id":"seo-fixture-inactive","name":"Inactive fixture","slug":"seo-fixture-inactive","active":false,"description":null,"category":null,"brand":null,"images":[],"stock":0}
+      ]
+    },
+    "categories": {
+      "columns": {"id": "integer primary key", "name": "text not null", "slug": "text not null unique", "active": "boolean not null default false", "description": "text", "image": "text"},
+      "checks": ["id IN (910001,910002)", "slug LIKE 'seo-fixture-%'"],
+      "rows": [
+        {"id":910001,"name":"Audio test","slug":"seo-fixture-category-fr","active":true,"description":null,"image":null},
+        {"id":910002,"name":"فئة تجريبية","slug":"seo-fixture-category-ar","active":true,"description":"اختبار محلي","image":null}
+      ]
+    }
+  },
+  "security": {
+    "rls": "enabled on both tables",
+    "initialPolicies": [],
+    "revokeAllFrom": ["PUBLIC", "anon", "authenticated", "service_role"],
+    "serviceRoleGrant": ["SELECT"],
+    "writes": "Fixture owner only; no public write policy, trigger, webhook, sequence or identity column",
+    "defaultPrivileges": "Do not alter project-wide defaults implicitly; explicitly revoke all on each created table in the same transaction",
+    "limits": "No prices, orders, payments, customers, Auth data or production copies. No full storefront/checkout compatibility claim."
+  },
+  "acceptance": ["Five pinned migrations apply after fixtures", "IDs cast correctly to text", "FR/AR and null optional fields survive projection", "Inactive rows excluded from active metadata", "Stock-only update does not enqueue metadata work", "No direct API-role writes including TRUNCATE/TRIGGER/REFERENCES/MAINTAIN", "No inherited or PUBLIC grants reopen access"],
+  "execution": "No runner or automatic apply path is supplied; explicit approval and independently verified target required"
+}

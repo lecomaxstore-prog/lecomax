@@ -1,0 +1,46 @@
+{
+  "id": "product-gallery-verified-20261025",
+  "relatedId": "product-gallery-validation-blockers-20261025",
+  "createdAt": "2026-10-25T11:00:42.872Z",
+  "title": "Product gallery accessibility candidate verified locally",
+  "summary": "One-file modal focus correction passed focused keyboard/touch checks, TypeScript, lint and standard build. Ready for separate deployment approval; not deployed.",
+  "status": "successful",
+  "pages": [
+    "Product image viewer"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "artifacts/product-gallery-20261025/source/components/ProductGallery.tsx",
+    "artifacts/product-gallery-20261025/browser.cjs",
+    "artifacts/product-gallery-20261025/certification.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Initial focus, dynamic Tab/Shift+Tab containment, background and late-portal isolation, exact opener return, inert/overflow priority restoration and unmount cleanup. Focus lifetime independent of image changes. No media, product content, image optimization or purchasing logic changes."
+    },
+    {
+      "kind": "added",
+      "detail": "Exact diff, complete candidate inventory and sanitized build/browser/preservation evidence. Root application worktree changes preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Gallery browser regression",
+      "result": "passed",
+      "detail": "44 checks at 320/375/390/1440 including original defect reproduction, keyboard/arrow navigation without focus reset, repeated touch close, main-gallery swipe, zoom/pan, single image, no clipping, unmount cleanup. Zero browser console/page errors in the component harness."
+    },
+    {
+      "name": "Build and preservation",
+      "result": "passed",
+      "detail": "TypeScript, focused lint and standard Production build exit 0; focused lint has no warnings. Eleven gallery/cart/delivery tests pass. Actual-build Search Overlay close/backdrop regressions pass. All other 2054 files match READY production dpl_6iS9N6cqRM5kMqPPa4ixajqkCVnT, preserving SEO, Checkout, Mobile Menu and Search Overlay. Candidate 7de379fa06cf06df33048de02be43f8be30eb1c509183f5bcb6fc64612086a44."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No physical-device or human screen-reader test. Gallery browser checks use the exact component in a separate React StrictMode harness with real Next Image, unchanged application image configuration/CSS and public product images. Full database-backed product-page hydration and purchasing are not exercised locally because database services remain intentionally disconnected. Search preservation checks run against the actual standard local Production build with read-only public search responses forwarded in the browser; no fixtures, credentials or harness files enter candidate source. Existing unrelated full-build lint warnings and Node module-type warnings remain. The initial build failed on sandbox EACCES for Google Fonts; the normal unchanged build succeeded with network permission. Initial standalone harness setup failure preserved. No deployment, migrations, secrets, payment logic or staging infrastructure changes. SEO Release E remains on hold."
+    }
+  ]
+}

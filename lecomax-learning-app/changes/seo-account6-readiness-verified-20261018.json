@@ -1,0 +1,69 @@
+{
+  "id": "seo-account6-readiness-verified-20261018",
+  "createdAt": "2026-10-18T21:33:13.728Z",
+  "relatedId": "seo-manual-run-control-20261018",
+  "title": "Verify Node 24 SEO build and shared worker safety",
+  "summary": "Local production-mode build, SEO tests and PostgreSQL concurrency passed. Read-only hosting checks refreshed; production rollout remains on hold.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "/api/admin/seo/sync",
+    "/change-history"
+  ],
+  "components": [
+    "SEO release validation",
+    "Shared worker run control",
+    "Production rollout documentation"
+  ],
+  "files": [
+    "docs/seo-account6-readiness-20261018.md",
+    "artifacts/seo-account6/build.cjs",
+    "artifacts/seo-account6/hosting-details.cjs",
+    "artifacts/seo-account6/run-control-preflight.cjs",
+    "artifacts/seo-account6/font-probe.cjs",
+    "artifacts/seo-account6/record.cjs",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added Account 6 validation artifacts and approval-gated rollout report; closed the inherited manual-sync verification report."
+    },
+    {
+      "kind": "modified",
+      "detail": "Appended the verification report to the learning app history. Application behavior, typography, migrations, candidate source and disabled SEO scheduler were preserved; no removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node 24 production-mode build",
+      "result": "passed",
+      "detail": "Next.js 15.5.24 built release/seo-manual-20261018 with exit 0 and 228 generated pages. Uses placeholder service configuration and existing caches, not a hosted production build."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Root no-emit typecheck, candidate build type validation and focused SEO/worker lint passed."
+    },
+    {
+      "name": "SEO and worker regression",
+      "result": "passed",
+      "detail": "30 SEO regression tests, 14 worker adapter/SQL integration tests, decoupled SQL suite and commerce SQL with injected SEO failures passed."
+    },
+    {
+      "name": "PostgreSQL concurrency",
+      "result": "passed",
+      "detail": "Final native PostgreSQL 18.6 run passed single-run acquisition, stale-token rejection, SKIP LOCKED claims and stock writes while SEO locks were held. Initial initdb timeout failures retained."
+    },
+    {
+      "name": "Read-only hosting and backup",
+      "result": "passed",
+      "detail": "Verified website deployment/project and Node 24, Hobby plan, 34 candidate hashes, both migration collision checks and backup checksum/full read/schema comparison. No secrets printed or production writes made."
+    },
+    {
+      "name": "Production acceptance",
+      "result": "not-run",
+      "detail": "NO-GO: backup was 172.2 minutes old; dedicated hosted worker, secrets, clean hosted build, actual RPC timeout, real admin/browser tests, monitoring and phase approvals remain outstanding. SEO cron remains disabled; no live preview certified."
+    }
+  ]
+}

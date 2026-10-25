@@ -1,0 +1,45 @@
+{
+  "id": "promotion-red-verified-20261025",
+  "createdAt": "2026-10-25T12:02:46.898Z",
+  "title": "Red promotion accents verified locally",
+  "summary": "Use red sale accents for the promotion rail and discounted product badges.",
+  "status": "successful",
+  "pages": [
+    "Homepage promotion section",
+    "Product cards"
+  ],
+  "components": [
+    "ProductRail",
+    "ProductCard"
+  ],
+  "files": [
+    "components/ProductCard.module.css",
+    "components/ProductRail.tsx",
+    "components/ProductRail.module.css",
+    "app/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Deep red discount badges with bold white percentages; explicit promotion rail styling makes heading and eyebrow red. Prices and promotion eligibility unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile and desktop",
+      "result": "passed",
+      "detail": "At 390px and 1440px, heading is deep red and discount badges have deep red backgrounds with white text. No horizontal overflow; mobile screenshot inspected."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Exit 0; two existing no-img-element warnings in homepage Ecomedia markup, zero errors."
+    },
+    {
+      "name": "Scope",
+      "result": "not-run",
+      "detail": "Local preview only. No production deployment or physical-device test."
+    }
+  ],
+  "relatedId": "promotion-red-prepared-20261025"
+}

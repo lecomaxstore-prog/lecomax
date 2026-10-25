@@ -1,0 +1,49 @@
+{
+  "id": "batch1-bootstrap-draft04-schema-blocked-20261024",
+  "createdAt": "2026-10-24T18:26:43.275Z",
+  "relatedId": "batch1-bootstrap-draft04-pending-20261024",
+  "title": "Official schema fails its declared Draft-04 dialect",
+  "summary": "Draft-04 registration fixed the harness lookup, but the downloaded official schema uses incompatible exclusiveMinimum syntax. All 16 HTML tests pass; configuration tests cannot run and the attempt remains unused.",
+  "status": "failed",
+  "pages": [
+    "Checkout staging placeholder",
+    "/change-history"
+  ],
+  "components": [
+    "Bootstrap schema validation"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-config.test.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/official-vercel-schema.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/draft04-failure.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/DRAFT04-BLOCKED-REPORT.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded exact schema incompatibility and preserved no-upload stop evidence."
+    }
+  ],
+  "validation": [
+    {
+      "name": "HTML regressions",
+      "result": "passed",
+      "detail": "16/16 passed."
+    },
+    {
+      "name": "Official Draft-04 schema validation",
+      "result": "failed",
+      "detail": "retryAfterSeconds uses exclusiveMinimum without required minimum; config cases did not execute."
+    },
+    {
+      "name": "Artifact preservation",
+      "result": "passed",
+      "detail": "All four inventory hashes checked."
+    },
+    {
+      "name": "Deployment and fresh provider checks",
+      "result": "not-run",
+      "detail": "Stopped on test failure as required; attempt remains unused."
+    }
+  ]
+}

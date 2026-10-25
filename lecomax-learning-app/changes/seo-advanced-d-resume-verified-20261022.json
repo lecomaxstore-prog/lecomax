@@ -1,0 +1,56 @@
+{
+  "id": "seo-advanced-d-resume-verified-20261022",
+  "relatedId": "seo-advanced-d-prepared-20261022",
+  "createdAt": "2026-10-22T18:29:49.997Z",
+  "title": "Advanced SEO D: recovered validation and local review commit",
+  "summary": "Preserved eight-file guarded IndexNow candidate as 32cbebd0. GO for release review only; deployment and activation remain unauthorized.",
+  "status": "successful",
+  "pages": [
+    "Product publication",
+    "IndexNow API",
+    "Change History"
+  ],
+  "components": [
+    "SEO recovery and release evidence"
+  ],
+  "files": [
+    "release/seo-advanced-d-20261022/app/api/indexnow/route.ts",
+    "release/seo-advanced-d-20261022/lib/indexnow.mjs",
+    "release/seo-advanced-d-20261022/lib/product-discovery.ts",
+    "release/seo-advanced-d-20261022/operations/seo-vercel/lib/environment-target.mjs",
+    "release/seo-advanced-d-20261022/scripts/sitemap-release-urls.mjs",
+    "release/seo-advanced-d-20261022/scripts/verify-storefront-release.mjs",
+    "release/seo-advanced-d-20261022/tests/indexnow-safety.test.ts",
+    "release/seo-advanced-d-20261022/tests/seo-advanced-indexnow.test.ts",
+    "docs/seo-advanced-de-resume-20261022.md",
+    "scripts/seo-de-resume-evidence.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added immutable file/hash inventory, local review commit, continuation handoff and linked verification report; no runtime source rewrite in this session."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovered checks",
+      "result": "passed",
+      "detail": "Retained 118 tests, TypeScript, full lint, synthetic production build and browser evidence; current file hashes verified."
+    },
+    {
+      "name": "Source and dependencies",
+      "result": "passed",
+      "detail": "All 2,124 pinned staging files and six migration hashes verified; root direct installed dependency versions match lockfile; clean local candidate worktree."
+    },
+    {
+      "name": "Production acceptance",
+      "result": "not-run",
+      "detail": "No deployment, production migration, secret change, flag activation, indexing submission or data import. E real authenticated workflow, hosted database/cache recovery and paid provider acceptance remain unverified. Shared dependency junction and existing browser server limit clean-install evidence."
+    },
+    {
+      "name": "Recovered whitespace",
+      "result": "passed",
+      "detail": "Recovered diff whitespace check passed."
+    }
+  ]
+}

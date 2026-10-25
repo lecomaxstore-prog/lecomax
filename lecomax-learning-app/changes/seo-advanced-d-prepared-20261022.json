@@ -1,0 +1,42 @@
+{
+  "id": "seo-advanced-d-prepared-20261022",
+  "createdAt": "2026-10-22T18:00:37.227Z",
+  "title": "Advanced SEO D: prepared",
+  "summary": "Recovered guarded IndexNow transport and entrypoints onto verified A+B+C. No deployment, migration, flag activation or paid call.",
+  "status": "needs-testing",
+  "pages": [
+    "Product",
+    "Category/CMS",
+    "SEO administration",
+    "Change History"
+  ],
+  "components": [
+    "Recovered advanced SEO candidate"
+  ],
+  "files": [
+    "release\\seo-advanced-d-20261022\\app\\api\\indexnow\\route.ts",
+    "release\\seo-advanced-d-20261022\\lib\\indexnow.mjs",
+    "release\\seo-advanced-d-20261022\\lib\\product-discovery.ts",
+    "release\\seo-advanced-d-20261022\\operations\\seo-vercel\\lib\\environment-target.mjs",
+    "release\\seo-advanced-d-20261022\\scripts\\verify-storefront-release.mjs",
+    "release\\seo-advanced-d-20261022\\tests\\indexnow-safety.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recovered guarded IndexNow transport and entrypoints onto verified A+B+C. No deployment, migration, flag activation or paid call."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Provenance",
+      "result": "passed",
+      "detail": "Recovered exact pinned staging files; unrelated application/authentication/configuration changes excluded."
+    },
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Integration checks pending; E additionally requires schema and real authenticated workflow acceptance."
+    }
+  ]
+}

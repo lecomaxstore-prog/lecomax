@@ -1,0 +1,80 @@
+{
+  "id": "seo-controlled-rollout-refreshed-decision-20261018",
+  "relatedId": "seo-rollout-handover-20261018",
+  "createdAt": "2026-10-18T18:43:22.492Z",
+  "title": "Refresh production SEO evidence and prepare bounded approval plan",
+  "summary": "Fresh read-only backup and schema checks passed; Node 24 tests/build and hosted negative-access probes passed. Prepare a 120-second migration wrapper and separate read-only acceptance gates. No production mutation or deployment.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO rollout operations",
+    "/admin/seo",
+    "/change-history"
+  ],
+  "components": [
+    "Read-only hosted checks",
+    "Backup verification",
+    "Node 24 compatibility",
+    "Migration approval procedure"
+  ],
+  "files": [
+    "scripts/verify-seo-hosted-readonly.cjs",
+    "scripts/compare-seo-backup-data.cjs",
+    "supabase/verification/seo-approved-session-procedure.psql",
+    "docs/seo-production-decision-20261018.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "GET-only hosted probes and read-only transaction-deadline validation; no mutation RPCs invoked."
+    },
+    {
+      "kind": "added",
+      "detail": "Fresh immutable read-only production backup, archive comparison, and timestamped schema/preflight evidence."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared original-migration wrapper with 120-second total transaction and 15-second idle limits; original SQL unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "Final approval decision, timing-specific acceptance matrix, stopping conditions and bounded recovery limits."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh backup",
+      "result": "passed",
+      "detail": "18:37:25 UTC backup, 1686628 bytes, 1233 entries, full archive read and repeated SHA-256 checks passed. Exact new snapshot not restored; old restored backup retained."
+    },
+    {
+      "name": "Schema and preflight",
+      "result": "passed",
+      "detail": "1114 schema blocks match latest archive; 34 products, 4 categories, 6 orders, 8 Auth users; no SEO collision/ledger entry. Last activity check found no >60s transactions or lock waits."
+    },
+    {
+      "name": "Hosted read-only probes",
+      "result": "passed",
+      "detail": "Seven GET probes passed. Invalid Auth token 403, anonymous/invalid Admin API 401, Admin redirect 307, real service PostgREST read 200. No positive user/Admin session exercised."
+    },
+    {
+      "name": "Hosted transaction deadline",
+      "result": "passed",
+      "detail": "Only own READ ONLY session terminated at 1003 ms with PostgreSQL 25P04 after SET LOCAL transaction_timeout=1000ms; no persistent setting or record changed."
+    },
+    {
+      "name": "Node 24",
+      "result": "passed",
+      "detail": "Official Node 24.22.0 SHA-256 verified; candidate 23 tests and production build exit 0. Existing local dependencies/placeholders used; clean Linux hosted install and credential values unverified."
+    },
+    {
+      "name": "Archive comparison",
+      "result": "passed",
+      "detail": "113 COPY sections compared. Catalogue/order content unchanged; Auth/session/analytics/cron differences recorded. Initial stdout-option error corrected locally; no row contents exposed."
+    },
+    {
+      "name": "Migration, deployment and persistence writes",
+      "result": "not-run",
+      "detail": "No migration/deployment/canary/ledger change. New SEO REST/SQL acceptance requires migration; real draft-save/approve/reset/cache checks require separate mutation approval. Recovery actions also require explicit approval."
+    }
+  ]
+}

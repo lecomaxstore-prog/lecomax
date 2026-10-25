@@ -1,0 +1,62 @@
+{
+  "id": "seo-browser-resume-verified-20261021",
+  "createdAt": "2026-10-21T10:01:46.244Z",
+  "title": "Local SEO browser acceptance recovered and verified",
+  "summary": "All nine real Chrome fixture groups passed after running outside the restricted process sandbox. Local application, SQL, operations and security/history suites passed; hosted editorial and production remain NO-GO.",
+  "status": "successful",
+  "relatedId": "seo-browser-resume-evidence-prepared-20261021",
+  "pages": [
+    "SEO editorial workspace",
+    "Product and category SEO",
+    "Staging acceptance",
+    "Change History"
+  ],
+  "components": [
+    "Browser harness",
+    "Release handoff",
+    "Append-only history"
+  ],
+  "files": [
+    "scripts/smoke-seo-editorial-workspace.mjs",
+    "docs/seo-resume-browser-acceptance-20261021.md",
+    "artifacts/seo-resume-source-comparison-20261021.json",
+    "artifacts/seo-editorial-browser/run-2zo3ci/result.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Completed validation of interrupted GPU/CDP remediation in an approved local process context; no browser security protection disabled."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded source hashes, Chrome/Node versions, diagnostic stages and a release handoff distinguishing local evidence from historical hosted results."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Real Chrome local fixture",
+      "result": "passed",
+      "detail": "9 groups, including save/review/publish/rollback, RTL, conflicts and 375/768/1440 overflow checks; no runtime exceptions. Mock API, no hosted auth or database."
+    },
+    {
+      "name": "Local suites",
+      "result": "passed",
+      "detail": "86 application, 71 worker/SQL, 28 operational and 18 security/history tests passed. Syntax and focused ESLint passed."
+    },
+    {
+      "name": "Source comparison and visuals",
+      "result": "passed",
+      "detail": "Five tested UI/library files match staging worktree. Mobile and desktop historical fixture screenshots inspected; no deployed-byte assertion."
+    },
+    {
+      "name": "Hosted browser and editorial writes",
+      "result": "not-run",
+      "detail": "Protected hosted browser acceptance pending; hosted synthetic writes require explicit owner approval. Production remains NO-GO. No remote mutations, deployment, push or merge."
+    },
+    {
+      "name": "Full build and dependency audit",
+      "result": "not-run",
+      "detail": "Harness-only change; retained prior build/audit evidence, including nine development-tool findings, is documented without claiming a fresh build or audit."
+    }
+  ]
+}

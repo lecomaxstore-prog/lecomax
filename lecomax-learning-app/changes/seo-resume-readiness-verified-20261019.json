@@ -1,0 +1,73 @@
+{
+  "id": "seo-resume-readiness-verified-20261019",
+  "createdAt": "2026-10-19T09:05:45.972Z",
+  "title": "SEO production build and OpenAI readiness verified locally",
+  "summary": "Node 24 production build passed; model metadata access confirmed. Conservative cost accounting fixed and disabled one-product canary prepared. No paid calls or production changes.",
+  "status": "successful",
+  "relatedId": "seo-resume-budget-preparation-20261019",
+  "pages": [
+    "Admin SEO",
+    "Change History"
+  ],
+  "components": [
+    "OpenAI provider",
+    "Budget settlement",
+    "Offline canary preparation",
+    "Release packaging"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/tests/ai-provider.test.mjs",
+    "scripts/prepare-seo-canary.mjs",
+    "docs/seo-resume-readiness-20261019.md",
+    "release/seo-worker-openai-reviewed-20261019/lib/seo-ai-provider.mjs",
+    "artifacts/seo-openai/reviewed-worker-package.json",
+    "artifacts/seo-openai/model-access.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Conservative 1.25x non-cached input accounting prevents releasing allowance against an estimate that omits cache-write pricing."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline disabled canary plan for existing Baasploa running-shoe product; isolated single request proposal capped at .01, explicit approval required."
+    },
+    {
+      "kind": "added",
+      "detail": "Separate reviewed worker package and readiness report preserve all preceding candidates and reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production build",
+      "result": "passed",
+      "detail": "Node 24.22.0, placeholder credentials, exit 0; artifacts/seo-openai/build-1792363523353.json. Hosted build not tested."
+    },
+    {
+      "name": "TypeScript and ESLint",
+      "result": "passed",
+      "detail": "Website candidate passed both; existing lint warnings remain."
+    },
+    {
+      "name": "SEO, SDK, worker and SQL",
+      "result": "passed",
+      "detail": "67 baseline tests; six focused provider/SQL tests after correction. Mocked generation only."
+    },
+    {
+      "name": "Model metadata access",
+      "result": "passed",
+      "detail": "Read-only GET returned HTTP 200 and matching identifiers for Luna and Sol; zero generating requests."
+    },
+    {
+      "name": "History regression tests",
+      "result": "passed",
+      "detail": "Six history/archive/interaction tests passed; no browser preview claimed."
+    },
+    {
+      "name": "Production and paid canary",
+      "result": "not-run",
+      "detail": "No deployment, production migrations, data writes, cron activation or paid request. Hosted authentication, backup freshness, response quality and latency remain gates."
+    }
+  ]
+}

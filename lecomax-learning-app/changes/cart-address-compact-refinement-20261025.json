@@ -1,0 +1,33 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "White compact card with 16px corners, larger recipient name, aligned location and phone rows, simple Edit action with explicit button role."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the Selected label, large icon tile, tinted Edit background and phone divider to reduce height and visual clutter."
+    }
+  ],
+  "summary": "Refined the delivery card after feedback: stronger name, aligned detail rows and less decoration.",
+  "id": "cart-address-compact-refinement-20261025",
+  "createdAt": "2026-10-25T21:03:12.188Z",
+  "validation": [
+    {
+      "detail": "Typecheck, lint and browser checks pending. No deployment performed.",
+      "result": "not-run",
+      "name": "Validation pending"
+    }
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/cart.tsx"
+  ],
+  "components": [
+    "DeliveryAddress"
+  ],
+  "status": "needs-testing",
+  "title": "Simpler compact delivery address",
+  "pages": [
+    "Mobile cart"
+  ]
+}

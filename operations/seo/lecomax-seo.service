@@ -1,0 +1,23 @@
+[Unit]
+Description=LECOMAX asynchronous SEO reconciliation
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=lecomax-seo
+Group=lecomax-seo
+WorkingDirectory=/opt/lecomax-seo
+EnvironmentFile=/etc/lecomax-seo/worker.env
+ExecStart=/usr/bin/node /opt/lecomax-seo/scripts/seo-sync-worker.mjs --run
+TimeoutStartSec=240
+TimeoutStopSec=10
+KillMode=control-group
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=lecomax-seo

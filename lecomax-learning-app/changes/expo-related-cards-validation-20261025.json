@@ -1,0 +1,51 @@
+{
+  "id": "expo-related-cards-validation-20261025",
+  "createdAt": "2026-10-25T13:38:23.744Z",
+  "title": "Vérification technique des cartes recommandées Expo",
+  "summary": "TypeScript et lint réussis ; largeur contrôlée de 320 à 1024px. Vérification visuelle encore à effectuer.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductCard related",
+    "Product detail recommendation carousel"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Largeur responsive pour deux cartes entières, espacement 12px, cartes arrondies avec fond image doux, titres sur deux lignes et ancien prix sous le prix courant."
+    },
+    {
+      "kind": "added",
+      "detail": "Bouton Voir les détails de 44px sur chaque recommandation, avec libellé accessible et navigation existante."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "tsc --noEmit exited 0."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "Both modified TSX files passed."
+    },
+    {
+      "name": "Responsive width calculation",
+      "result": "passed",
+      "detail": "Two cards plus horizontal padding and gap fit at 320, 375, 390, 430, 520, 768 and 1024px."
+    },
+    {
+      "name": "Browser visual QA",
+      "result": "not-run",
+      "detail": "Playwright could not acquire browser profile: browser already in use. Native device QA and deployment not performed."
+    }
+  ],
+  "relatedId": "expo-related-cards-refinement-20261025"
+}

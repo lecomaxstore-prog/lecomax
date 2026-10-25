@@ -1,0 +1,70 @@
+{
+  "id": "seo-staging-config-verified-20261020",
+  "relatedId": "seo-staging-config-prepared-20261020",
+  "createdAt": "2026-10-20T17:57:26.270Z",
+  "title": "Staging Vercel configuration verified; Auth and build blockers remain",
+  "summary": "Next.js settings and 20 staging-only variables verified. Direct staging keys and fresh signing secret configured; no deployment or hosted database writes. Auth URL, provisioning and fresh build remain blocked.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging hosting",
+    "SEO administration",
+    "Change History"
+  ],
+  "components": [
+    "Vercel build settings",
+    "Staging environment isolation",
+    "Supabase Auth inspection"
+  ],
+  "files": [
+    "scripts/configure-seo-staging-hosting.cjs",
+    "docs/seo-staging-configured-handoff-20261020.md",
+    "docs/seo-staging-owner-runbook-20261020.md",
+    "docs/seo-staging-configuration-matrix-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Dedicated staging Vercel project: Next.js, Node 24.x, storefront root, npm ci, npm run build; 20 Production/Preview variables with staging identity and disabled side effects. Service and independent admin secrets marked sensitive."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Configuration guard corrected to inspect the observed shared-environment data array and pagination; earlier fail-closed attempt made no writes."
+    },
+    {
+      "kind": "added",
+      "detail": "Latest checkpoint and evidence documenting Auth localhost URL, empty schema, partial hosted Auth inspection, reserved unprovisioned owner identity, disk-space blocker and separate approval gates. No existing source, history or evidence removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Project identity and configuration",
+      "result": "passed",
+      "detail": "Exact project/team and domain checked before mutation; build settings and 20 variable metadata entries independently read back. Git disconnected, all-deployment protection retained. Secret values not decrypted for readback."
+    },
+    {
+      "name": "Key provenance and isolation validator",
+      "result": "passed",
+      "detail": "Keys obtained from authenticated staging project API through CLI; staging ref and role claims checked; bindings and applicationEnvironment passed in memory. No production credential reuse."
+    },
+    {
+      "name": "Local regression",
+      "result": "passed",
+      "detail": "161 application, 71 worker, 4 email, 6 history tests; TypeScript; focused lint with two existing warnings; 9 browser fixture and 13 local PostgreSQL/PostgREST checks passed."
+    },
+    {
+      "name": "Supabase hosted read-only checks",
+      "result": "passed",
+      "detail": "Separate staging organization and healthy project; zero public tables, users, buckets, migrations, Edge Functions, public triggers, foreign servers, subscriptions or outbound extensions. Security advisor has no findings; empty-schema result is not RLS acceptance."
+    },
+    {
+      "name": "Fresh full build",
+      "result": "failed",
+      "detail": "Prebuild passed 635429 course checks; Google Fonts blocked by sandbox. Retry stopped at 1 GB disk guard with about 935 MB free. Prior successful build remains historical. Fresh HTTP smoke and clean Linux npm ci not run."
+    },
+    {
+      "name": "Hosted Auth and deployment acceptance",
+      "result": "not-run",
+      "detail": "Partial read-only inspection found localhost Site URL, no redirects and email confirmations enabled; full SMTP/SMS/providers/hooks not independently verified. No schema/users provisioned, deployment or real login performed."
+    }
+  ]
+}

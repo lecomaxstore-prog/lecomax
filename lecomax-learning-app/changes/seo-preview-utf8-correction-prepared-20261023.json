@@ -1,0 +1,42 @@
+{
+  "id": "seo-preview-utf8-correction-prepared-20261023",
+  "createdAt": "2026-10-23T05:52:30.726Z",
+  "title": "SEO recovery: verified image-path defect and isolated correction",
+  "summary": "Vercel authentication works with authorized network access. Current live alias resolves to Release D. Original recovery has 30 corrupt UTF-8 image paths; prepare separate correction without changing original source or production.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront product images",
+    "SEO recovery Preview"
+  ],
+  "components": [
+    "Product image assets",
+    "Release source integrity"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/audit.cjs",
+    "artifacts/seo-recovery-abcd-manifest.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added read-only source integrity audit and isolated correction checkout. Original recovery SHA and manifest are retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovery SEO manifest",
+      "result": "passed",
+      "detail": "All 18 SHA-256 hashes match; recovery checkout clean."
+    },
+    {
+      "name": "Baseline file paths",
+      "result": "failed",
+      "detail": "30 image paths differ from original Git tree due to UTF-8 filename corruption; image blobs match."
+    },
+    {
+      "name": "Corrected candidate",
+      "result": "not-run",
+      "detail": "Correction, build, lint, types and image acceptance pending. No deployment or configuration mutation."
+    }
+  ]
+}

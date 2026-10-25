@@ -1,0 +1,70 @@
+{
+  "id": "seo-minimal-production-verified-held-20261022",
+  "relatedId": "seo-minimal-production-prepared-20261022",
+  "createdAt": "2026-10-22T09:55:23.834Z",
+  "status": "needs-testing",
+  "title": "Minimal production candidate verified; changed authentication configuration blocks release",
+  "summary": "Three-file source candidate passes types, lint, build, 94 regressions and 18 local browser cases. Fresh encrypted backup restored successfully. Production secret configuration changed since live deployment and needs secure runtime verification.",
+  "pages": [
+    "Storefront layout",
+    "FR/AR product and category pages",
+    "Production release safety"
+  ],
+  "components": [
+    "RootLayout",
+    "CategoryTiles",
+    "Fallback image",
+    "Production configuration",
+    "Recovery"
+  ],
+  "files": [
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png",
+    "artifacts/seo-minimal-production-20261022/candidate-manifest.json",
+    "artifacts/seo-minimal-production-20261022/final-verification.json",
+    "docs/seo-minimal-production-release-20261022.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Credentialed manifest, category srcset encoding and placeholder isolated on production baseline. Production tracking behavior retained. No runtime removals, dependency changes or advanced SEO additions."
+    },
+    {
+      "kind": "added",
+      "detail": "Hash-pinned candidate, validation evidence and fresh encrypted read-only production backup with local restore verification. No deployment, production data writes or migrations."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate integrity",
+      "result": "passed",
+      "detail": "All 2578 source hashes unchanged after validation; exactly three changed/added files; four production crons match live provider."
+    },
+    {
+      "name": "TypeScript, full ESLint, production build",
+      "result": "passed",
+      "detail": "Exit 0 with baseline dependencies. Existing lint warnings retained. Earlier sandbox font failure and missing synthetic Resend key corrected in test harness only; failed logs preserved."
+    },
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "94 tests passed, zero failed/skipped; four Change History tests passed."
+    },
+    {
+      "name": "Local storefront and SEO",
+      "result": "passed",
+      "detail": "18 route/viewport cases with synthetic FR/AR products/categories; canonical/metadata/JSON-LD/images/layout plus robots/sitemap/manifest passed. Raw failed all-network verdict retained; only Vercel-hosted script 404s classified as unavailable localhost integration. CSP and blocked external calls remain visible."
+    },
+    {
+      "name": "Backup and restore",
+      "result": "passed",
+      "detail": "Fresh TLS-verified read-only snapshot; encrypted archive checks passed; 110 tables and sequences matched isolated local restore; cluster stopped. Storage/platform/offsite and same-major recovery not certified."
+    },
+    {
+      "name": "Production configuration and deployment",
+      "result": "not-run",
+      "detail": "Production OWNER_DATABASE_URL and ADMIN_SESSION_SECRET were changed after the current deployment. Actual sensitive values cannot be read from provider; current owner authentication with those exact values remains unverified. Database binding comparison passed. No credentials overwritten; no production deployment or live candidate acceptance."
+    }
+  ]
+}

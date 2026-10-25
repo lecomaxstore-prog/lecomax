@@ -1,0 +1,53 @@
+{
+  "id": "seo-final-rollout-preparation-20261018",
+  "relatedId": "seo-decoupled-verified-20261018",
+  "createdAt": "2026-10-18T19:16:23.321Z",
+  "title": "Prepare guarded asynchronous SEO production rollout",
+  "summary": "Read-only production and backup verification, pinned operations bundle and disabled scheduler configuration prepared. No production schema, data or deployment changed.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/produit/[slug]",
+    "/change-history"
+  ],
+  "components": [
+    "Migration execution guard",
+    "Worker scheduler",
+    "Production readiness"
+  ],
+  "files": [
+    "scripts/verify-seo-decoupled-production.cjs",
+    "scripts/verify-seo-hosting-readonly.cjs",
+    "supabase/verification/seo-approved-session-procedure.psql",
+    "operations/seo/apply.psql",
+    "operations/seo/verify-bundle.cjs",
+    "operations/seo/manifest.json",
+    "operations/seo/migration.sql",
+    "operations/seo/postflight.sql",
+    "operations/seo/lecomax-seo.service",
+    "operations/seo/lecomax-seo.timer",
+    "operations/seo/worker.env.example"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only verification scripts and checksum-pinned migration/scheduler bundle; worker activation defaults off."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Retired synchronous psql wrapper now errors before its historical include. Original SQL preserved unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Read-only Supabase and hosting checks",
+      "result": "passed",
+      "detail": "Schema compatibility, no SEO collisions, 34 products/4 categories, matching current live deployment, expected GET-only authorization denials, backup checksum and archive read verified. Schema parser corrected for Windows newlines; 1114 actual blocks match."
+    },
+    {
+      "name": "Local rollout guards",
+      "result": "not-run",
+      "detail": "Real psql refusal tests pending. Hosted scheduler and production writes remain unexecuted. Automatic review rejected a fresh sensitive backup export; existing backup verified instead."
+    }
+  ]
+}

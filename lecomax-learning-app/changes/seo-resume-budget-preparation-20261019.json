@@ -1,0 +1,31 @@
+{
+  "id": "seo-resume-budget-preparation-20261019",
+  "createdAt": "2026-10-18T22:47:27.859Z",
+  "title": "Conservative OpenAI cache-write accounting prepared",
+  "summary": "Include the maximum published input cache-write rate before releasing budget reservations. Prior candidates preserved; AI remains disabled.",
+  "status": "needs-testing",
+  "relatedId": "seo-openai-preparation-20261019",
+  "pages": [
+    "Admin SEO"
+  ],
+  "components": [
+    "AI budget settlement"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/tests/ai-provider.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Charge non-cached input at 1.25 times the standard input rate in conservative estimates; preserve cache-hit discount."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Prior implementation baseline",
+      "result": "passed",
+      "detail": "67 local Node 24 tests passed before this correction. New focused verification pending; no paid calls."
+    }
+  ]
+}

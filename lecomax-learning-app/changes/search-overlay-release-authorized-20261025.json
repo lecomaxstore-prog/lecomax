@@ -1,0 +1,36 @@
+{
+  "id": "search-overlay-release-authorized-20261025",
+  "relatedId": "search-overlay-verified-20261025",
+  "createdAt": "2026-10-25T08:02:22.891Z",
+  "title": "Search overlay production release authorized",
+  "summary": "One deployment of the exact certified candidate authorized. Final production preflight and live acceptance pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront search"
+  ],
+  "components": [
+    "SearchOverlay"
+  ],
+  "files": [
+    "artifacts/search-overlay-20261025/source/components/SearchOverlay.tsx",
+    "artifacts/search-overlay-20261025/release.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepare one controlled production release of d2b2638c95f1c3e1082762084391bd170bf632afd337ab683065dd9b4d095050 without source changes or local rebuild."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Saved certification",
+      "result": "passed",
+      "detail": "59 browser checks, supplemental backdrop/touch checks, TypeScript, focused lint and build exit 0."
+    },
+    {
+      "name": "Production acceptance",
+      "result": "not-run",
+      "detail": "Pending fresh live baseline verification, deployment and read-only live tests. Physical-device and human screen-reader checks remain unperformed."
+    }
+  ]
+}

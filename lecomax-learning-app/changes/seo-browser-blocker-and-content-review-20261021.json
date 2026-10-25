@@ -1,0 +1,63 @@
+{
+  "id": "seo-browser-blocker-and-content-review-20261021",
+  "createdAt": "2026-10-21T09:42:05.258Z",
+  "title": "Browser blocker confirmed and FR/AR editorial rules verified",
+  "summary": "Attempted real browser acceptance with installed Chrome and Edge; both failed to establish a DevTools WebSocket. Completed offline FR/AR quality tests and preserved the hosted write boundary.",
+  "status": "needs-testing",
+  "relatedId": "seo-browser-and-release-decision-20261021",
+  "pages": [
+    "SEO staging",
+    "SEO admin",
+    "Editorial workspace",
+    "Product pages",
+    "Category pages",
+    "Change History"
+  ],
+  "components": [
+    "Browser smoke harness",
+    "Editorial quality rules",
+    "Production migration package"
+  ],
+  "files": [
+    "scripts/smoke-seo-editorial-workspace.mjs",
+    "operations/seo/staging-editorial-acceptance.json",
+    "artifacts/seo-production-migration-compatibility-20261021.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared isolated bilingual synthetic editorial fixture and verified all six migration hashes without execution."
+    },
+    {
+      "kind": "modified",
+      "detail": "Recorded Chrome and Edge DevTools connection failures as unverified browser acceptance; no browser result was claimed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser connection",
+      "result": "failed",
+      "detail": "Installed Chrome and Edge were found, but both smoke runs ended with Chrome reported a DevTools WebSocket error. No hosted UI, console or responsive result claimed."
+    },
+    {
+      "name": "FR/AR editorial quality",
+      "result": "passed",
+      "detail": "Eight offline quality suites passed, covering facts, language, Arabic leakage, evidence, units, duplicates, revisions and provider isolation."
+    },
+    {
+      "name": "Migration compatibility",
+      "result": "passed",
+      "detail": "All six approved decoupled migration hashes match; production execution remains false."
+    },
+    {
+      "name": "Hosted editorial write",
+      "result": "not-run",
+      "detail": "Requires explicit approval to enable synchronization or perform isolated hosted writes."
+    },
+    {
+      "name": "Dependency review",
+      "result": "passed",
+      "detail": "Runtime audit remains 0 vulnerabilities; nine development-tool findings remain without safe non-breaking remediation."
+    }
+  ]
+}

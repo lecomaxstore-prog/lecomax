@@ -25,7 +25,7 @@ import { HeaderActionButton } from "@/components/header-action-button";
 import { Screen } from "@/components/screen";
 import { SearchProductCard } from "@/components/search-product-card";
 import { typography } from "@/constants/theme";
-import { useCategories, useProducts, useSettings } from "@/hooks/use-catalog";
+import { useCategories, useProducts, useSettings, useTrendingSlugs } from "@/hooks/use-catalog";
 import { useScrollReturn } from "@/hooks/use-scroll-return";
 import { categoryCampaignImage } from "@/lib/category-campaign-images";
 import { imageUrl, money } from "@/lib/format";
@@ -70,6 +70,8 @@ export default function SearchScreen() {
   const [sort, setSort] = useState<Sort>("popular");
   const [stockOnly, setStockOnly] = useState(false);
   const [promotionOnly, setPromotionOnly] = useState(false);
+  const discoveryMode = !debouncedQuery && !promotionOnly;
+  const trendingQuery = useTrendingSlugs(discoveryMode);
   const listRef = useRef<FlatList<Product>>(null);
   const scrollReturn = useScrollReturn(listRef, JSON.stringify([debouncedQuery, sort, stockOnly, promotionOnly]));
 
@@ -145,6 +147,12 @@ export default function SearchScreen() {
     [productsQuery.data],
   );
   const products = useMemo(() => {
+    if (discoveryMode) {
+      const bySlug = new Map((productsQuery.data ?? []).map(product => [product.slug, product]));
+      return [...new Set(trendingQuery.data ?? [])].slice(0, 4)
+        .map(slug => bySlug.get(slug))
+        .filter((product): product is Product => Boolean(product && product.active !== false && product.stock > 0));
+    }
     const ranked = searchProductIndex(searchIndex, debouncedQuery);
     const filtered = ranked.filter((product) => {
       const matchesPromotion =
@@ -169,15 +177,10 @@ export default function SearchScreen() {
       );
     });
 
-    if (debouncedQuery || promotionOnly) return sorted;
-    const trends = sorted.filter(
-      (product) => product.featured || product.newArrival,
-    );
-    return (trends.length ? trends : sorted).slice(0, 8);
-  }, [debouncedQuery, searchIndex, promotionOnly, sort, stockOnly]);
+    return sorted;
+  }, [debouncedQuery, searchIndex, promotionOnly, sort, stockOnly, discoveryMode, productsQuery.data, trendingQuery.data]);
 
   const searching = query.trim() !== debouncedQuery;
-  const discoveryMode = !debouncedQuery && !promotionOnly;
   const activeFilterCount =
     Number(stockOnly) + Number(sort !== "popular") + Number(promotionOnly);
 
@@ -540,21 +543,21 @@ export default function SearchScreen() {
           </View>
         }
         ListEmptyComponent={
-          productsQuery.isPending ? (
+          productsQuery.isPending || (discoveryMode && trendingQuery.isPending) ? (
             <View style={styles.skeletonGrid}>
               {[0, 1, 2, 3].map((item) => (
                 <View key={item} style={styles.skeletonCard} />
               ))}
             </View>
-          ) : productsQuery.isError ? (
+          ) : productsQuery.isError || (discoveryMode && trendingQuery.isError) ? (
             <EmptyState
               icon="cloud-offline-outline"
               title={msg("checkoutScreen.connectionFailedUppercase")}
               description={msg("search.productsCouldNotBeLoaded")}
               action={msg("notifications.tryAgainUppercase")}
-              onPress={() => void productsQuery.refetch()}
+              onPress={() => { void productsQuery.refetch(); if (discoveryMode) void trendingQuery.refetch(); }}
             />
-          ) : (
+          ) : discoveryMode ? null : (
             <EmptyState
               icon="search-outline"
               title={msg("search.noResultsUppercase")}

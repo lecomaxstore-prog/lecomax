@@ -1,0 +1,37 @@
+{
+  "id": "localhost-catalog-photos-verified-20261025",
+  "relatedId": "localhost-public-catalog-verified-20261025",
+  "createdAt": "2026-10-25T11:47:25.454Z",
+  "title": "Local product photos visually confirmed",
+  "summary": "Visible homepage product cards show their real product photos.",
+  "status": "successful",
+  "pages": [
+    "Local homepage product carousel"
+  ],
+  "components": [
+    "Local preview verification"
+  ],
+  "files": [
+    "artifacts/local-public-catalog/verify.cjs",
+    "artifacts/local-public-catalog/images.cjs",
+    "artifacts/local-public-catalog/images-check.png"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Strengthened browser photo validation to check visible product-size images instead of brand logos."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visible product photos",
+      "result": "passed",
+      "detail": "Browser inspection confirmed loaded natural widths and screenshot displays jacket, football shirt, shoes and Ferrari shirt."
+    },
+    {
+      "name": "Test correction",
+      "result": "passed",
+      "detail": "Initial stricter wait included horizontally off-screen lazy-loaded carousel images and timed out; scoped check to viewport. No application change required."
+    }
+  ]
+}

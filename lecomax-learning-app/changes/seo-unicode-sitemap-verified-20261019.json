@@ -1,0 +1,57 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Both duplicate audit paths compare NFC-normalized text while preserving accents and Arabic marks; related records use kind and ID identity; noncanonical numeric shard aliases return 404 before querying."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression cases for canonical French/Arabic equivalence, distinct marks, inactive entries, cross-kind IDs and malformed shard numbers."
+    }
+  ],
+  "summary": "88 distinct local tests passed across SEO, worker, editorial SQL, dashboard and history. Static checks passed; hosted isolation and publication remain incomplete.",
+  "id": "seo-unicode-sitemap-verified-20261019",
+  "createdAt": "2026-10-19T20:34:12.084Z",
+  "validation": [
+    {
+      "name": "Focused regressions",
+      "result": "passed",
+      "detail": "79 selected SEO/API/indexing/worker/provider/editorial tests including disposable PGlite review chain; 3 dashboard tests; 6 history tests. Mocked provider transport only."
+    },
+    {
+      "name": "TypeScript and ESLint",
+      "result": "passed",
+      "detail": "Root nonincremental no-emit and learning-app typecheck passed. Focused lint passed; initial cleanup warning corrected and rerun clean."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "598 reports validated before these two append-only follow-ups. Final integrity check follows."
+    },
+    {
+      "name": "Hosted and visual acceptance",
+      "result": "not-run",
+      "detail": "No hosted writes, production connection, paid request, worker activation, deployment, new build or browser preview. Staging isolation/PG17 runtime acceptance and editorial publication remain incomplete."
+    }
+  ],
+  "files": [
+    "lib/seo-engine.ts",
+    "app/sitemaps/[kind]/[page]/route.ts",
+    "tests/seo-engine.test.ts",
+    "tests/seo-sitemap.test.ts",
+    "docs/seo-continuation-unicode-dashboard-20261019.md"
+  ],
+  "components": [
+    "SEO audit",
+    "Related links",
+    "Sitemap shards"
+  ],
+  "status": "successful",
+  "title": "Canonical multilingual duplicate checks and sitemap routes — local validation passed",
+  "pages": [
+    "SEO dashboard",
+    "Sitemap",
+    "Change History"
+  ],
+  "relatedId": "seo-unicode-sitemap-prepared-20261019"
+}

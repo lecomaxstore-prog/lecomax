@@ -1,0 +1,41 @@
+{
+  "id": "seo-postgres-concurrency-blocked-20261019",
+  "createdAt": "2026-10-19T12:28:59.933Z",
+  "relatedId": "seo-full-chain-pglite-verified-20261019",
+  "title": "Native concurrency blocked pending disposable cluster setup",
+  "summary": "PostgreSQL 18.6 installed; active service listens on all interfaces with unverified data. Twelve historical test clusters stopped. No database connection or provisioning performed.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Engine validation",
+    "Change History"
+  ],
+  "components": [
+    "Local PostgreSQL readiness"
+  ],
+  "files": [
+    "docs/seo-postgres-concurrency-availability-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded read-only availability findings, runner gaps, exact conditional setup instructions and required approval."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Binary and local service inventory",
+      "result": "passed",
+      "detail": "PostgreSQL 18.6; active service uses Program Files data directory, wildcard port 5432. Twelve old test clusters report no server running."
+    },
+    {
+      "name": "Disposable target verification and concurrency",
+      "result": "not-run",
+      "detail": "No suitable running disposable target verified. Provisioning requires separate approval; no database connection attempted."
+    },
+    {
+      "name": "Existing runners",
+      "result": "passed",
+      "detail": "Inspected: auto-provision clusters and cover two/four migrations, not current full v3 chain."
+    }
+  ]
+}

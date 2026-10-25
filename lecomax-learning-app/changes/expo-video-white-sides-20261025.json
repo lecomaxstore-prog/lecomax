@@ -1,0 +1,30 @@
+{
+  "id": "expo-video-white-sides-20261025",
+  "createdAt": "2026-10-25T14:05:16.799Z",
+  "title": "Remove dark sides from product videos",
+  "summary": "Match the Expo product video player and its surrounding frame to the white product gallery.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductVideoPlayer",
+    "VideoPlayback"
+  ],
+  "files": [
+    "mobile/src/components/product-video.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace the dark player frame with white and explicitly set the video surface to white, removing dark letterboxing around portrait videos. Preserve contain fitting and native playback controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks pending",
+      "result": "not-run",
+      "detail": "Mobile typecheck, lint and browser verification pending. No deployment."
+    }
+  ]
+}

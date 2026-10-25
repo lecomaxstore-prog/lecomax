@@ -1,0 +1,40 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Both duplicate audit paths compare NFC-normalized text while preserving accents and Arabic marks; related records use kind and ID identity; noncanonical numeric shard aliases return 404 before querying."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression cases for canonical French/Arabic equivalence, distinct marks, inactive entries, cross-kind IDs and malformed shard numbers."
+    }
+  ],
+  "summary": "Normalize equivalent Unicode in duplicate audits, preserve cross-kind related links, and reject duplicate sitemap page aliases.",
+  "id": "seo-unicode-sitemap-prepared-20261019",
+  "createdAt": "2026-10-19T20:30:59.174Z",
+  "validation": [
+    {
+      "detail": "Pending local checks. No hosted writes, paid requests, migration changes, deployment or preview.",
+      "result": "not-run",
+      "name": "Focused regression and compilation"
+    }
+  ],
+  "files": [
+    "lib/seo-engine.ts",
+    "app/sitemaps/[kind]/[page]/route.ts",
+    "tests/seo-engine.test.ts",
+    "tests/seo-sitemap.test.ts"
+  ],
+  "components": [
+    "SEO audit",
+    "Related links",
+    "Sitemap shards"
+  ],
+  "status": "needs-testing",
+  "title": "Canonical multilingual duplicate checks and sitemap routes",
+  "pages": [
+    "SEO dashboard",
+    "Sitemap",
+    "Change History"
+  ]
+}

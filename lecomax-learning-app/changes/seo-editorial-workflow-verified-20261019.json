@@ -1,0 +1,75 @@
+{
+  "id": "seo-editorial-workflow-verified-20261019",
+  "createdAt": "2026-10-19T20:51:49.074Z",
+  "title": "Bilingual editorial workflow verified locally: 113 passing regressions",
+  "summary": "Persistent revisions, exact-version review, owner publication, conflict-safe rollback and late-AI/legacy-path protection implemented locally. Hosted execution remains blocked.",
+  "status": "successful",
+  "pages": [
+    "SEO dashboard",
+    "Product detail",
+    "Change History"
+  ],
+  "components": [
+    "Editorial workspace",
+    "Editorial API",
+    "SQL workflow",
+    "Published editorial reader"
+  ],
+  "files": [
+    "operations/seo-vercel/supabase/migrations/202610190004_seo_editorial_workflow.sql",
+    "operations/seo-vercel/tests/editorial-workflow-sql.test.mjs",
+    "lib/seo-editorial.ts",
+    "lib/seo-editorial-store.ts",
+    "app/api/admin/seo/editorial/route.ts",
+    "app/admin/seo/EditorialWorkspace.tsx",
+    "app/admin/seo/page.tsx",
+    "app/admin/seo/EditorialReview.tsx",
+    "app/produit/[slug]/page.tsx",
+    "tests/product-indexing.test.ts",
+    "lib/admin-policy.ts",
+    "app/api/admin/seo/route.ts",
+    "tests/seo-api.test.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-editorial-store.test.ts",
+    "tests/seo-editorial-workspace.test.ts",
+    "docs/seo-editorial-workflow-handoff-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Append-only bilingual revisions and events; source/version-bound draft save/import/review, owner-only publication and snapshot rollback. UI preserves conflicted text, supports explicit rebase and history, and public product descriptions use current approved French content."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Shared admin-policy mapping now admits authorized editors. Final SQL guard blocks legacy manual/routine-AI approval/reset once editorial revisions exist, preventing bypass of reviewed owner publication. Noneditorial entities retain legacy behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Final selected regressions",
+      "result": "passed",
+      "detail": "113 tests passed, zero failed/skipped: 88 prior selected cases plus 25 new cases (9 SQL, 9 API, 2 public-reader, 5 component-hook). All providers mocked; SQL uses disposable in-memory PGlite only."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Root no-emit/nonincremental and learning-app typecheck exited 0."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "All changed runtime/test TS/TSX/MJS files checked; exit 0, no warnings."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "Six persistence/interaction tests passed and 602 reports validated before this append. Final integrity check follows."
+    },
+    {
+      "name": "Hosted/browser acceptance",
+      "result": "not-run",
+      "detail": "No hosted writes, production connection, deployment, provider call, worker activation, new production build or browser preview. PG17 simultaneous-session, actual-owner PostgREST, human linguistic and staging isolation acceptance remain pending."
+    }
+  ],
+  "relatedId": "seo-editorial-workflow-correction-20261019"
+}

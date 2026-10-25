@@ -3,6 +3,8 @@ import test from "node:test";
 import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import ts from "typescript";
+import * as policy from '../operations/seo-vercel/lib/environment-target.mjs';
+import { configEnvironment } from './helpers/config-environment.ts';
 
 function load(file: string, context: Record<string, unknown>) {
   const exports: any = {};
@@ -12,13 +14,14 @@ function load(file: string, context: Record<string, unknown>) {
   return exports;
 }
 
-test("translation preflight and responses allow app origins without allowing unrelated sites", async () => {
+test("translation preflight and responses allow app origins without allowing unrelated sites", async (t) => {
+  t.after(configEnvironment());
   class NextResponse extends Response {
     static next() { return new NextResponse(null); }
   }
   const { middleware } = load("middleware.ts", {
-    process: { env: {} },
-    require: (name: string) => name === "next/server" ? { NextResponse } : name.endsWith("edge-rate-limit") ? { edgeRateLimit: () => null } : {},
+    process: { env: process.env },
+    require: (name: string) => name === "next/server" ? { NextResponse } : name.endsWith("edge-rate-limit") ? { edgeRateLimit: () => null } : name.endsWith('environment-target.mjs') ? policy : {},
   });
   for (const origin of ["http://localhost:8081", "https://app.lecomax.com", "https://untrusted.invalid"]) {
     for (const method of ["OPTIONS", "GET", "POST"]) {

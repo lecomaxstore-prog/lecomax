@@ -1,0 +1,11 @@
+[Unit]
+Description=Reconcile LECOMAX SEO every five minutes
+
+[Timer]
+OnCalendar=*-*-* *:00/5:00 UTC
+AccuracySec=1s
+Persistent=true
+Unit=lecomax-seo.service
+
+[Install]
+WantedBy=timers.target

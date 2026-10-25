@@ -1,0 +1,42 @@
+{
+  "id": "seo-second-preview-403-diagnostic-1792837599127",
+  "createdAt": "2026-10-24T10:26:39.119Z",
+  "title": "Read-only diagnostic prepared for second Preview HTTP 403",
+  "summary": "Preserved failed attempt and guards; added masked-token GET-only endpoint/status diagnostics. Exact denied endpoint and token permission cause remain pending same-token verification.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging Preview",
+    "Change History"
+  ],
+  "components": [
+    "Read-only Vercel token diagnostic"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/diagnose-second-preview-403.mjs",
+    "artifacts/seo-preview-resume-20261023/verify-second-preview-readonly.ps1",
+    "artifacts/seo-preview-resume-20261023/test-second-preview-403.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Standalone diagnostic compares original project-only verifier with expanded preflight using the same token, records sanitized endpoint/status only and stops at first preflight failure. No deployment transport invocation or source/guard changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Syntax and synthetic security checks",
+      "result": "passed",
+      "detail": "Node and PowerShell parse passed. Mocked team HTTP 403 identifies exact endpoint; GET-only, no failed response-body parsing, no token output, no retry, four token-format gates verified; zero live network calls."
+    },
+    {
+      "name": "Certified preservation",
+      "result": "passed",
+      "detail": "1212 payload files and 2601 recovery hashes verified; first guards intact; second guard absent. SHA-256 e04c877a42ddbad8c5be5a2bddf9919bd072cddefc75aa32e9d6159d49054e6c."
+    },
+    {
+      "name": "Same-token live diagnosis",
+      "result": "not-run",
+      "detail": "Manual token cleared by prior launcher. Historical GET_FAILED_403 omitted endpoint. Account role, token scope/expiration and exact denied endpoint cannot be distinguished without same-token diagnostic. Preview NO-GO; separate authorization required for any retry."
+    }
+  ]
+}

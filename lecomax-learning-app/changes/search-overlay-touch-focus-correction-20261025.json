@@ -1,0 +1,41 @@
+{
+  "id": "search-overlay-touch-focus-correction-20261025",
+  "relatedId": "search-overlay-prepared-20261025",
+  "createdAt": "2026-10-25T07:44:00.731Z",
+  "title": "Search touch-close focus correction",
+  "summary": "Supplemental desktop touch testing found body focus after close. Corrected fallback and retained first-build evidence; corrected source needs revalidation.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront search"
+  ],
+  "components": [
+    "SearchOverlay"
+  ],
+  "files": [
+    "artifacts/search-overlay-20261025/source/components/SearchOverlay.tsx",
+    "artifacts/search-overlay-20261025/smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Do not treat body/documentElement as a valid opening control; use the visible header search trigger when touch did not focus a control. Capture dialog roots for reliable cleanup and remove introduced ref-cleanup lint warnings."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial candidate",
+      "result": "passed",
+      "detail": "Production build/types/lint exit 0 and 59 browser checks passed. Existing image lint warning; two cleanup-ref warnings addressed by this correction."
+    },
+    {
+      "name": "Supplemental touch close",
+      "result": "failed",
+      "detail": "At 1440px touch emulation, closing could leave focus on body. Candidate withheld; correction requires build and focused revalidation."
+    },
+    {
+      "name": "Harness limitation",
+      "result": "not-run",
+      "detail": "Earlier result-link navigation timeout preserved: local catalogue is deliberately disconnected. Keyboard activation/href and close behavior tested separately; input shortcut routing uses a browser-only destination probe."
+    }
+  ]
+}

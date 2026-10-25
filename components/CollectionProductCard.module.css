@@ -9,13 +9,13 @@
 }
 
 .media {
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 5;
   background: #f6f7f5;
 }
 
 .image {
-  padding: 34px 10px 12px;
-  mix-blend-mode: multiply;
+  padding: 2px;
+  object-position: center;
 }
 
 .info {
@@ -73,7 +73,7 @@
 @media (min-width: 640px) {
   .info { padding: 16px; }
   .title { font-size: 14px; }
-  .image { padding: 38px 16px 16px; }
+  .image { padding: 4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

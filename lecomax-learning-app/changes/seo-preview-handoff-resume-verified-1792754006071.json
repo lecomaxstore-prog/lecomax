@@ -1,0 +1,61 @@
+{
+  "id": "seo-preview-handoff-resume-verified-1792754006071",
+  "relatedId": "seo-preview-final-gates-prepared-20261023",
+  "createdAt": "2026-10-23T11:13:26.071Z",
+  "title": "Recovery validation completed locally; hosted Preview gates remain blocked",
+  "summary": "Fresh fixture build, TypeScript, security/email/regression checks and 30 image HTTP checks pass. Added verifier edge-case coverage, safe audit script and corrected staging deployment review. No deployment.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Recovery Preview",
+    "Storefront",
+    "Account email safety",
+    "Change History"
+  ],
+  "components": [
+    "Runtime credential verifier",
+    "Offline acceptance harness",
+    "Preview deployment review"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/tests/seo-preview-runtime-check.test.mjs",
+    "artifacts/seo-preview-resume-20261023/fixture-storefront-acceptance.cjs",
+    "artifacts/seo-preview-resume-20261023/resume-safe-metadata.cjs",
+    "artifacts/seo-preview-resume-20261023/resume-preview-config.json",
+    "artifacts/seo-preview-resume-20261023/record-resume-final.cjs",
+    "docs/seo-preview-handoff-resume-20261023.md",
+    "artifacts/seo-preview-resume-20261023/resume-final-evidence.json",
+    "artifacts/seo-preview-resume-20261023/resume-deployment-review.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added missing-binding, wrong-fingerprint, conflicting-context, redirected-success and cancellation-failure verifier tests; added metadata-only audit that never requests sensitive credential values."
+    },
+    {
+      "kind": "modified",
+      "detail": "Fixture acceptance now records safe page status and fixture-presence diagnostics. Prepared review plan targeting derived candidate and empty-cron configuration; old evidence preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh local checks",
+      "result": "passed",
+      "detail": "120 regression, 19 credential, 18 email, 12 verifier/strict-loader, 2 fixture transport tests. Fresh build generated 226 pages. Sequential TypeScript passed. 13 fixture HTTP checks and all 30 repaired images passed; 491 browser JS files had no synthetic privileged key matches."
+    },
+    {
+      "name": "Initial fixture acceptance",
+      "result": "failed",
+      "detail": "Homepage assertion failed against inherited build; other checks passed. Fresh fixture build and full rerun passed. Initial evidence preserved; precise initial failure cause not established."
+    },
+    {
+      "name": "Recovery preservation",
+      "result": "passed",
+      "detail": "2588 original files unchanged; 134 tracked derived changes and 12 untracked candidate files inventoried; 30 repaired image hashes match."
+    },
+    {
+      "name": "Hosted gates",
+      "result": "not-run",
+      "detail": "Fresh Vercel metadata and Supabase Auth management audit attempts failed in current session. Saved earlier audits only; staging connector URL newly confirmed. Hosted credential verification, actual staging-backed acceptance and non-delivery guarantee remain unverified. No public preview link or deployment."
+    }
+  ]
+}

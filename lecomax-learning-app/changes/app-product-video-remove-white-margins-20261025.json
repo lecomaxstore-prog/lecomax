@@ -1,0 +1,34 @@
+{
+  "id": "app-product-video-remove-white-margins-20261025",
+  "createdAt": "2026-10-25T19:58:44.155Z",
+  "title": "Remove white margins from app product videos",
+  "summary": "Videos and loading posters fill the product gallery edge to edge.",
+  "status": "needs-testing",
+  "pages": [
+    "App /product/[slug]"
+  ],
+  "components": [
+    "VideoPlayback"
+  ],
+  "files": [
+    "mobile/src/components/product-video.tsx",
+    "tests/mobile-product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Use cover fitting for videos and posters to eliminate letterboxing, clipping overflow within the gallery. Different aspect ratios may crop video edges."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use a dark backing during loading instead of white; update existing player regression to check video and poster fitting."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending verification",
+      "result": "not-run",
+      "detail": "TypeScript, player regression and browser fitting checks pending. No deployment."
+    }
+  ]
+}

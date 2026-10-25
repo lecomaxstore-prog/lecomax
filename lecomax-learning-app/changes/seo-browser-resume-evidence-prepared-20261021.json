@@ -1,0 +1,41 @@
+{
+  "id": "seo-browser-resume-evidence-prepared-20261021",
+  "createdAt": "2026-10-21T09:58:29.296Z",
+  "title": "SEO browser recovery and traceable fixture evidence",
+  "summary": "Validated interrupted GPU flags outside the restricted process sandbox; added source hashes, browser/runtime versions and failure stages to local browser evidence.",
+  "status": "needs-testing",
+  "relatedId": "seo-browser-cdp-remediation-prepared-20261021",
+  "pages": [
+    "SEO editorial workspace",
+    "Change History"
+  ],
+  "components": [
+    "Local browser acceptance harness"
+  ],
+  "files": [
+    "scripts/smoke-seo-editorial-workspace.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Browser result records exact source hashes and runtime versions; failures identify the execution stage without credentials."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovered browser fixture",
+      "result": "passed",
+      "detail": "run-USbZKf: 9 interaction groups passed outside process sandbox; restricted runs timed out at Page.enable. Synthetic local UI only."
+    },
+    {
+      "name": "Evidence additions",
+      "result": "not-run",
+      "detail": "Pending syntax, lint and browser execution after instrumentation change."
+    },
+    {
+      "name": "Local regression suites",
+      "result": "passed",
+      "detail": "86 application tests and 71 worker/SQL tests passed; no hosted database or provider calls."
+    }
+  ]
+}

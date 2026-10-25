@@ -1,0 +1,50 @@
+{
+  "id": "product-contrast-production-complete-20261025",
+  "relatedId": "product-contrast-release-authorized-20261025",
+  "createdAt": "2026-10-25T06:56:41.193Z",
+  "title": "Product information contrast deployed and verified",
+  "summary": "Exactly one authorized production attempt; dpl_DVhkLXqsqieeJ5du2vXetyaZCsCL READY and serving lecomax.com. All 2055 remote source files match candidate 40d35613f6de1d2df08e434485585f57296227d5c16c2f905d24f8ea8fcfac37. Only four text-neutral-400 to text-neutral-600 substitutions in app/produit/[slug]/page.tsx; other 2054 files unchanged.",
+  "status": "successful",
+  "pages": [
+    "/produit/[slug]",
+    "/",
+    "/boutique",
+    "/panier",
+    "/checkout"
+  ],
+  "components": [
+    "Product information paragraphs",
+    "Storefront release"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Deployed darker tax/shipping, tracking, delivery and returns text only; French content, sizes, layout and business logic preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Deployment and source identity",
+      "result": "passed",
+      "detail": "Exactly one authorized production attempt; dpl_DVhkLXqsqieeJ5du2vXetyaZCsCL READY and serving lecomax.com. All 2055 remote source files match candidate 40d35613f6de1d2df08e434485585f57296227d5c16c2f905d24f8ea8fcfac37. Only four text-neutral-400 to text-neutral-600 substitutions in app/produit/[slug]/page.tsx; other 2054 files unchanged. Previous READY production / rollback: dpl_5zqUhyi9tycxPeDbADQWkn9u31DY. Configuration and environment metadata unchanged."
+    },
+    {
+      "name": "Actual live contrast and visual checks",
+      "result": "passed",
+      "detail": "390px/1440px, light/dark preferences: 7.8139:1 white and 7.4862:1 neutral-50. No CSS injection. Text, font sizes and paragraph dimensions match baseline; screenshots inspected. Initial mismatched browser settings produced a 10px width assertion; matching baseline mobile/consent settings resolved it without application changes."
+    },
+    {
+      "name": "Storefront, SEO and preservation",
+      "result": "passed",
+      "detail": "18 read-only checks passed; zero page/console errors. Homepage, boutique, category, product, mobile navigation, images, cart/checkout entry, canonicals, titles, Product JSON-LD, robots.txt and sitemaps checked. Checkout/security and previous performance code preserved by exact hashes."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No real payments/orders, authenticated purchases, database changes, migrations or secrets/configuration writes. No physical-device or screen-reader testing; no new performance benchmark. No rollback needed. SEO Release E remains on hold. Learning-app history preview not checked or deployed."
+    }
+  ]
+}

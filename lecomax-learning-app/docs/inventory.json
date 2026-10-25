@@ -1,0 +1,806 @@
+{
+  "version": 1,
+  "academy": {
+    "version": 1,
+    "moduleCount": 48,
+    "lessonCount": 192,
+    "modules": [
+      {
+        "id": "module-00-learning-tools",
+        "order": 0,
+        "icon": "🧭",
+        "color": "#16A34A",
+        "lessonIds": [
+          "lesson-00-01-learning-map",
+          "lesson-00-02-terminal-files",
+          "lesson-00-03-vscode",
+          "lesson-00-04-node-npm"
+        ]
+      },
+      {
+        "id": "module-01-internet-web",
+        "order": 1,
+        "icon": "🌐",
+        "color": "#2563EB",
+        "lessonIds": [
+          "lesson-01-01-client-server",
+          "lesson-01-02-http",
+          "lesson-01-03-dns-https",
+          "lesson-01-04-api-fetch"
+        ]
+      },
+      {
+        "id": "module-02-git-github",
+        "order": 2,
+        "icon": "🌿",
+        "color": "#F97316",
+        "lessonIds": [
+          "lesson-02-01-snapshot",
+          "lesson-02-02-branches",
+          "lesson-02-03-remotes-pr",
+          "lesson-02-04-safety"
+        ]
+      },
+      {
+        "id": "module-03-html-accessibility",
+        "order": 3,
+        "icon": "🏗️",
+        "color": "#EA580C",
+        "lessonIds": [
+          "lesson-03-01-document-semantics",
+          "lesson-03-02-actions-keyboard",
+          "lesson-03-03-forms",
+          "lesson-03-04-media-tables"
+        ]
+      },
+      {
+        "id": "module-04-css",
+        "order": 4,
+        "icon": "🎨",
+        "color": "#7C3AED",
+        "lessonIds": [
+          "lesson-04-01-cascade",
+          "lesson-04-02-box-model",
+          "lesson-04-03-flex-grid",
+          "lesson-04-04-tokens-states"
+        ]
+      },
+      {
+        "id": "module-05-responsive-tailwind",
+        "order": 5,
+        "icon": "📱",
+        "color": "#06B6D4",
+        "lessonIds": [
+          "lesson-05-01-mobile-first",
+          "lesson-05-02-ui-ux",
+          "lesson-05-03-tailwind",
+          "lesson-05-04-responsive-component"
+        ]
+      },
+      {
+        "id": "module-06-javascript-foundations",
+        "order": 6,
+        "icon": "⚡",
+        "color": "#EAB308",
+        "lessonIds": [
+          "lesson-06-01-values",
+          "lesson-06-02-control-flow",
+          "lesson-06-03-strings-nullish",
+          "lesson-06-04-errors-modules"
+        ]
+      },
+      {
+        "id": "module-07-js-data-problem-solving",
+        "order": 7,
+        "icon": "🧩",
+        "color": "#A855F7",
+        "lessonIds": [
+          "lesson-07-01-functions",
+          "lesson-07-02-arrays",
+          "lesson-07-03-objects",
+          "lesson-07-04-problem-solving"
+        ]
+      },
+      {
+        "id": "module-08-dom-forms-storage",
+        "order": 8,
+        "icon": "🖱️",
+        "color": "#EC4899",
+        "lessonIds": [
+          "lesson-08-01-dom-events",
+          "lesson-08-02-form-submit",
+          "lesson-08-03-localstorage",
+          "lesson-08-04-accessible-widget"
+        ]
+      },
+      {
+        "id": "async-fetch-errors",
+        "order": 9,
+        "icon": "⏳",
+        "color": "#f59e0b",
+        "lessonIds": [
+          "async-event-loop-promises",
+          "async-await-try-catch",
+          "fetch-http-json",
+          "resilient-remote-ui"
+        ]
+      },
+      {
+        "id": "typescript-contracts",
+        "order": 10,
+        "icon": "🔷",
+        "color": "#3178c6",
+        "lessonIds": [
+          "ts-inference-primitives",
+          "ts-objects-unions",
+          "ts-generics-unknown",
+          "ts-react-api-contracts"
+        ]
+      },
+      {
+        "id": "react-fundamentals",
+        "order": 11,
+        "icon": "⚛️",
+        "color": "#61dafb",
+        "lessonIds": [
+          "react-jsx-components",
+          "react-props-composition",
+          "react-lists-conditions",
+          "react-events-data-flow"
+        ]
+      },
+      {
+        "id": "react-state-forms-hooks",
+        "order": 12,
+        "icon": "🪝",
+        "color": "#0891b2",
+        "lessonIds": [
+          "react-state-immutability",
+          "react-controlled-forms",
+          "react-effects-cleanup",
+          "react-context-custom-hooks"
+        ]
+      },
+      {
+        "id": "nextjs-app-router",
+        "order": 13,
+        "icon": "▲",
+        "color": "#111111",
+        "lessonIds": [
+          "next-files-routes-project",
+          "next-layouts-metadata",
+          "next-dynamic-routes",
+          "next-special-files-navigation"
+        ]
+      },
+      {
+        "id": "nextjs-server-data",
+        "order": 14,
+        "icon": "🖥️",
+        "color": "#334155",
+        "lessonIds": [
+          "next-server-client-boundary",
+          "next-cache-revalidation",
+          "next-route-handlers",
+          "next-middleware-cookies"
+        ]
+      },
+      {
+        "id": "sql-data-modeling",
+        "order": 15,
+        "icon": "🗃️",
+        "color": "#2563eb",
+        "lessonIds": [
+          "sql-tables-types-keys",
+          "sql-relations-normalization",
+          "sql-select-joins-aggregates",
+          "sql-transactions-indexes"
+        ]
+      },
+      {
+        "id": "supabase-platform",
+        "order": 16,
+        "icon": "⚡",
+        "color": "#16b277",
+        "lessonIds": [
+          "supabase-clients-crud",
+          "supabase-auth-sessions",
+          "supabase-rls-policies",
+          "supabase-storage-realtime"
+        ]
+      },
+      {
+        "id": "ecommerce-architecture",
+        "order": 17,
+        "icon": "🛒",
+        "color": "#a855f7",
+        "lessonIds": [
+          "commerce-catalog-variants-stock",
+          "commerce-cart-money",
+          "commerce-checkout-orders",
+          "commerce-payments-idempotency"
+        ]
+      },
+      {
+        "id": "authentication-security-privacy",
+        "order": 18,
+        "icon": "🛡️",
+        "color": "#ef4444",
+        "lessonIds": [
+          "security-authn-authz-permissions",
+          "security-validation-threats",
+          "security-cookies-secrets-headers",
+          "security-privacy-data-lifecycle"
+        ]
+      },
+      {
+        "id": "quality-engineering",
+        "order": 19,
+        "icon": "🧪",
+        "color": "#7C3AED",
+        "lessonIds": [
+          "test-strategy",
+          "git-advanced",
+          "systematic-debugging",
+          "safe-refactoring"
+        ]
+      },
+      {
+        "id": "web-quality",
+        "order": 20,
+        "icon": "♿",
+        "color": "#2563EB",
+        "lessonIds": [
+          "seo-metadata",
+          "accessible-interface",
+          "performance-core-web-vitals",
+          "quality-audit"
+        ]
+      },
+      {
+        "id": "email-systems",
+        "order": 21,
+        "icon": "✉️",
+        "color": "#DB2777",
+        "lessonIds": [
+          "resend-transactional",
+          "nodemailer-smtp",
+          "imap-inbox",
+          "emailjs-browser"
+        ]
+      },
+      {
+        "id": "paypal-payments",
+        "order": 22,
+        "icon": "💳",
+        "color": "#003087",
+        "lessonIds": [
+          "paypal-order-lifecycle",
+          "paypal-webhook",
+          "refund-workflow",
+          "payment-idempotency"
+        ]
+      },
+      {
+        "id": "notifications",
+        "order": 23,
+        "icon": "🔔",
+        "color": "#EA580C",
+        "lessonIds": [
+          "web-push-subscription",
+          "service-worker-notification",
+          "whatsapp-webhook",
+          "notification-orchestration"
+        ]
+      },
+      {
+        "id": "openai-integration",
+        "order": 24,
+        "icon": "🤖",
+        "color": "#059669",
+        "lessonIds": [
+          "openai-server-call",
+          "ai-safety",
+          "ai-cost-control",
+          "ai-output-validation"
+        ]
+      },
+      {
+        "id": "analytics-growth",
+        "order": 25,
+        "icon": "📈",
+        "color": "#0891B2",
+        "lessonIds": [
+          "analytics-event-contract",
+          "analytics-consent",
+          "funnel-analysis",
+          "ethical-growth-experiment"
+        ]
+      },
+      {
+        "id": "deployment-operations",
+        "order": 26,
+        "icon": "🚀",
+        "color": "#111827",
+        "lessonIds": [
+          "github-release-workflow",
+          "vercel-environments",
+          "namecheap-dns",
+          "monitoring-backups"
+        ]
+      },
+      {
+        "id": "final-store-capstone",
+        "order": 27,
+        "icon": "🏆",
+        "color": "#16A34A",
+        "lessonIds": [
+          "capstone-architecture",
+          "capstone-catalog",
+          "capstone-purchase",
+          "capstone-production"
+        ]
+      },
+      {
+        "id": "design-foundations",
+        "order": 28,
+        "icon": "palette",
+        "color": "#ec4899",
+        "lessonIds": [
+          "color-theory-brand",
+          "accessible-color-states",
+          "typography-reading",
+          "design-tokens-system"
+        ]
+      },
+      {
+        "id": "layout-mastery",
+        "order": 29,
+        "icon": "layout",
+        "color": "#8b5cf6",
+        "lessonIds": [
+          "layout-principles",
+          "flex-grid-containers",
+          "responsive-navigation",
+          "page-layout-blueprints"
+        ]
+      },
+      {
+        "id": "conversion-ux",
+        "order": 30,
+        "icon": "cursor",
+        "color": "#f97316",
+        "lessonIds": [
+          "customer-research-journey",
+          "value-proposition-trust",
+          "product-page-conversion",
+          "cart-checkout-friction"
+        ]
+      },
+      {
+        "id": "content-photography",
+        "order": 31,
+        "icon": "camera",
+        "color": "#06b6d4",
+        "lessonIds": [
+          "brand-voice-copy",
+          "product-descriptions",
+          "product-photography",
+          "short-product-video"
+        ]
+      },
+      {
+        "id": "merchandising-pricing",
+        "order": 32,
+        "icon": "tag",
+        "color": "#eab308",
+        "lessonIds": [
+          "product-selection-demand",
+          "unit-economics-pricing",
+          "offers-bundles-discounts",
+          "catalog-merchandising"
+        ]
+      },
+      {
+        "id": "ecommerce-seo",
+        "order": 33,
+        "icon": "search",
+        "color": "#22c55e",
+        "lessonIds": [
+          "keyword-intent-research",
+          "technical-onpage-seo",
+          "product-schema-merchant",
+          "content-authority-links"
+        ]
+      },
+      {
+        "id": "discovery-reputation",
+        "order": 34,
+        "icon": "globe",
+        "color": "#14b8a6",
+        "lessonIds": [
+          "local-seo-profile",
+          "reviews-reputation",
+          "international-seo-localization",
+          "free-shopping-surfaces"
+        ]
+      },
+      {
+        "id": "organic-acquisition",
+        "order": 35,
+        "icon": "users",
+        "color": "#3b82f6",
+        "lessonIds": [
+          "channel-audience-strategy",
+          "organic-content-engine",
+          "community-ugc",
+          "influencers-partnerships"
+        ]
+      },
+      {
+        "id": "paid-acquisition",
+        "order": 36,
+        "icon": "megaphone",
+        "color": "#ef4444",
+        "lessonIds": [
+          "paid-unit-economics",
+          "campaign-structure",
+          "creative-testing",
+          "attribution-remarketing"
+        ]
+      },
+      {
+        "id": "sales-service",
+        "order": 37,
+        "icon": "message",
+        "color": "#a855f7",
+        "lessonIds": [
+          "ethical-sales-funnel",
+          "objections-chat",
+          "crm-pipeline",
+          "support-returns-recovery"
+        ]
+      },
+      {
+        "id": "retention-loyalty",
+        "order": 38,
+        "icon": "heart",
+        "color": "#db2777",
+        "lessonIds": [
+          "lifecycle-email",
+          "segmentation-automation",
+          "loyalty-referral",
+          "cohort-retention-analysis"
+        ]
+      },
+      {
+        "id": "business-operations",
+        "order": 39,
+        "icon": "briefcase",
+        "color": "#334155",
+        "lessonIds": [
+          "finance-dashboard",
+          "inventory-suppliers",
+          "legal-trust-checklist",
+          "growth-90-day-capstone"
+        ]
+      },
+      {
+        "id": "beginner-code-labs",
+        "order": 40,
+        "icon": "code",
+        "color": "#10b981",
+        "lessonIds": [
+          "read-code-symbols",
+          "variables-conditions",
+          "functions-arrays",
+          "debug-first-errors"
+        ]
+      },
+      {
+        "id": "next-routing-lab",
+        "order": 41,
+        "icon": "link",
+        "color": "#2563eb",
+        "lessonIds": [
+          "page-route-link",
+          "dynamic-product-route",
+          "shared-layout-metadata",
+          "loading-error-navigation"
+        ]
+      },
+      {
+        "id": "supabase-build-lab",
+        "order": 42,
+        "icon": "database",
+        "color": "#3ecf8e",
+        "lessonIds": [
+          "supabase-project-schema",
+          "supabase-client-crud",
+          "supabase-auth-rls",
+          "supabase-lab-storage-realtime"
+        ]
+      },
+      {
+        "id": "ui-build-lab",
+        "order": 43,
+        "icon": "layout",
+        "color": "#f43f5e",
+        "lessonIds": [
+          "wireframe-to-html",
+          "color-type-spacing-code",
+          "responsive-grid-product",
+          "ui-states-polish"
+        ]
+      },
+      {
+        "id": "china-sourcing",
+        "order": 44,
+        "icon": "package",
+        "color": "#dc2626",
+        "lessonIds": [
+          "sourcing-product-spec",
+          "find-verify-suppliers",
+          "rfq-samples-negotiation",
+          "safe-order-contract-payment"
+        ]
+      },
+      {
+        "id": "import-quality-logistics",
+        "order": 45,
+        "icon": "ship",
+        "color": "#0f766e",
+        "lessonIds": [
+          "compliance-before-order",
+          "incoterms-freight",
+          "quality-inspection-aql",
+          "customs-landed-cost-risk"
+        ]
+      },
+      {
+        "id": "seo-client-action-lab",
+        "order": 46,
+        "icon": "target",
+        "color": "#7c3aed",
+        "lessonIds": [
+          "search-console-baseline",
+          "rank-product-categories",
+          "client-acquisition-sprints",
+          "weekly-growth-review"
+        ]
+      },
+      {
+        "id": "zero-to-hero-capstone",
+        "order": 47,
+        "icon": "rocket",
+        "color": "#111827",
+        "lessonIds": [
+          "capstone-week-1-foundation",
+          "capstone-week-4-product",
+          "capstone-week-7-launch",
+          "capstone-week-10-grow"
+        ]
+      }
+    ]
+  },
+  "sources": [
+    {
+      "file": "app/admin/how-it-was-built/course/backend-guides.ts",
+      "exports": {
+        "backendGuides": 3
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/backend-practice.ts",
+      "exports": {
+        "backendPractice": 3
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/beginner-guides.ts",
+      "exports": {
+        "nextjsGuide": 4,
+        "pythonGuide": 4
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/beginner-path.ts",
+      "exports": {
+        "STARTER_LESSONS": 10,
+        "STARTER_KEY": "string"
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/beginner-practice.ts",
+      "exports": {
+        "STARTER_PRACTICE": 10
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/daily-code.ts",
+      "exports": {
+        "DAILY_CODE": 14
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/daily-lessons.ts",
+      "exports": {
+        "DAILY_LESSONS": 14
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/daily-path.ts",
+      "exports": {
+        "DAILY_PATH": 102,
+        "emptySession": 3
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/daily-tests.ts",
+      "exports": {
+        "DAILY_TEST_VERSION": "number",
+        "DAILY_TESTS": 14
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/hour-workshop.ts",
+      "exports": {
+        "HOUR_PLAN": 5,
+        "EMPTY_WORKBOOK": 4,
+        "DAILY_CHALLENGES": 14
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/journey.ts",
+      "exports": {
+        "JOURNEY": 8
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/course/shop-missions.ts",
+      "exports": {
+        "SHOP_MISSIONS": 5
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/learning/backup.ts",
+      "exports": {
+        "BACKUP_LIMIT": "number"
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/learning/click-flows.ts",
+      "exports": {
+        "clickFlows": 7
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/learning/coaching.ts",
+      "exports": {
+        "comparisons": 4,
+        "analogies": 12,
+        "advancedNotes": 12,
+        "removalNotes": 12
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/learning/lessons.ts",
+      "exports": {
+        "lessons": 12
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/learning/practice.ts",
+      "exports": {
+        "labForLesson": 8,
+        "labs": 4
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/learning/reading.ts",
+      "exports": {
+        "readings": 12,
+        "predictionIsYes": 12
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/learning/resources.ts",
+      "exports": {
+        "roadmap": 11,
+        "glossary": 26,
+        "flows": 2,
+        "errors": 8,
+        "projects": 5,
+        "finalSteps": 17
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/page.tsx",
+      "exports": {
+        "UI": 3,
+        "EXT_BG": 7,
+        "PHASES": 17,
+        "PHASE_TR": 17,
+        "STEP_TR": 14,
+        "SITE_PAGES": 45,
+        "TECH": 20,
+        "BC": 13,
+        "ENV": 15,
+        "ITEMS": 102,
+        "TB": 7,
+        "TAB_IDS": 17,
+        "TAB_GROUPS": 3,
+        "FileIcon_colors": 7,
+        "PagesSection_pages": 45,
+        "LearningResourcesSection_learningPath": 7,
+        "LearningResourcesSection_practicalTracks": 8,
+        "LearningResourcesSection_codingLoop": 6,
+        "LearningResourcesSection_firstComponent": 6,
+        "LearningResourcesSection_checklist": 5,
+        "LearningResourcesSection_palette": 8,
+        "TabIcon_common": 5,
+        "HowItWasBuiltPage_LANG_FLAGS": 3,
+        "GuideSection_items": 6,
+        "DebugSection_issues": 7,
+        "DebugSection_colors": 5,
+        "SupabaseSection_steps": 6,
+        "DeploySection_steps": 6,
+        "CoursSection_modules": 5,
+        "MentorSection_curriculum": 5
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/CodeCoachGame.tsx",
+      "exports": {
+        "TEXT": 3,
+        "BASE_LEVELS": 15,
+        "EXTENDED_TOPICS": 85,
+        "LEVELS": 100
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/FirstShopLab.tsx",
+      "exports": {
+        "SYMBOLS": 12
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/CodingTutor.tsx",
+      "exports": {}
+    },
+    {
+      "file": "app/admin/how-it-was-built/SourceLearningPaths.tsx",
+      "exports": {
+        "paths": 6
+      }
+    },
+    {
+      "file": "app/admin/how-it-was-built/SourceMap.tsx",
+      "exports": {}
+    },
+    {
+      "file": "lib/micro-learning-curriculum.ts",
+      "exports": {
+        "MICRO_LEARNING_TIPS": 102
+      }
+    },
+    {
+      "file": "lib/ai-tutor-course.ts",
+      "exports": {
+        "TUTOR_LANGUAGES": 4,
+        "TUTOR_COURSE": 9,
+        "TUTOR_LESSONS": 55
+      }
+    },
+    {
+      "file": "lib/source-code-guide.ts",
+      "exports": {}
+    },
+    {
+      "file": "lib/source-connections.ts",
+      "exports": {
+        "inspectSourceConnections_result": 3
+      }
+    }
+  ]
+}

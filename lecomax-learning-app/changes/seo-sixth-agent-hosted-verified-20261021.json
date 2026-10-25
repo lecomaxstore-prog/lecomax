@@ -1,0 +1,62 @@
+{
+  "id": "seo-sixth-agent-hosted-verified-20261021",
+  "createdAt": "2026-10-21T00:03:13.811Z",
+  "title": "Existing SEO staging deployment verified READY with 23 passing HTTP checks",
+  "summary": "Recovered the exact approved deployment, verified its Linux build, protected hosted SEO/catalogue behavior and staging isolation. Full session/browser acceptance and production launch remain NO-GO.",
+  "status": "successful",
+  "relatedId": "seo-sixth-agent-hosted-harness-20261021",
+  "pages": [
+    "SEO staging",
+    "Product and category pages",
+    "Sitemaps",
+    "Admin SEO",
+    "Change History"
+  ],
+  "components": [
+    "Protected acceptance harness",
+    "Read-only release evidence",
+    "Production release handoff"
+  ],
+  "files": [
+    "scripts/seo-runtime-hosted-acceptance.cjs",
+    "scripts/seo-sixth-readonly.cjs",
+    "docs/seo-sixth-agent-release-handoff-20261021.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "32-character temporary credential and bounded edge propagation handling; immutable target plus explicit staging-alias check. All created acceptance credentials revoked."
+    },
+    {
+      "kind": "added",
+      "detail": "Sanitized GET-only production/staging metadata audit and exact release handoff. No production changes, deployed application edits, dependency changes, new deployment, commit or push."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Existing hosted deployment",
+      "result": "passed",
+      "detail": "dpl_9PVLNqN3YRoSmDgi4T5D9o81Svcv READY; Linux Next 15.5.28 build completed. Final hosted-acceptance-1792540890899.json: 23/23 passed; anonymous protection retained."
+    },
+    {
+      "name": "Staging isolation and REST",
+      "result": "passed",
+      "detail": "20 names and 18 readable environment values verified in both scopes; ten service-role reads and eight anonymous denials passed. Two stored sensitive values withheld. No external service activated."
+    },
+    {
+      "name": "Local regression checks",
+      "result": "passed",
+      "detail": "161 application/security tests, 71 worker tests and candidate TypeScript passed in isolated dependency candidate. Focused ESLint and syntax checks passed for both operational scripts."
+    },
+    {
+      "name": "Hosted browser and real role acceptance",
+      "result": "not-run",
+      "detail": "No connected browser surface. App login remains disabled; owner/editor/viewer/revoked/expired sessions, editorial writes and full commerce remain unverified."
+    },
+    {
+      "name": "Production readiness",
+      "result": "not-run",
+      "detail": "NO-GO. Current production deployment/revision observed read-only; secret values withheld. Require session/browser acceptance, production-specific six-migration review, backup/restore, rollback ownership and explicit release approval. Nine retained development-tool advisories need assessment."
+    }
+  ]
+}

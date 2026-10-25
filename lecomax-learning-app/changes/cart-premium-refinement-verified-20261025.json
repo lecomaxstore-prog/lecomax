@@ -1,0 +1,72 @@
+{
+  "id": "cart-premium-refinement-verified-20261025",
+  "relatedId": "cart-premium-refinement-20261025",
+  "createdAt": "2026-10-25T19:25:26.055Z",
+  "title": "Premium cart layout verified",
+  "summary": "Cart styling and core cart controls verified in an isolated mobile browser session.",
+  "status": "successful",
+  "pages": [
+    "Storefront /cart"
+  ],
+  "components": [
+    "CartItem",
+    "DeliveryAddress",
+    "CartHeader",
+    "CartScreen"
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/cart.tsx",
+    "artifacts/verify-cart-premium.cjs",
+    "artifacts/cart-premium-validation.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified ivory background, refined green typography, larger image panel, category above product title, subtle card shadow, compact address styling, promotion field and pricing summary."
+    },
+    {
+      "kind": "modified",
+      "detail": "Favourite and removal controls sit beneath the product image; quantity controls retain 44px targets."
+    },
+    {
+      "kind": "added",
+      "detail": "Sticky payment action displays quoted total; secure checkout text is used while no quote is available to avoid showing a false zero total."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed address/order divider for a cleaner section transition."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd --prefix mobile run typecheck passed after final source edits."
+    },
+    {
+      "name": "Diff whitespace",
+      "result": "passed",
+      "detail": "git diff --check passed for the cart source."
+    },
+    {
+      "name": "Responsive browser checks",
+      "result": "passed",
+      "detail": "Headless Edge at 320, 390, 490 and 768px: populated cart rendered without document horizontal overflow. Screenshots captured; 320px and 390px visually inspected."
+    },
+    {
+      "name": "Cart interactions",
+      "result": "passed",
+      "detail": "Quantity increased and decreased with persisted state verified; favourite saved; remove dialog opened and Keep item retained the cart."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append-only history check passed before follow-up and is rerun after append."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Browser uses synthetic address/cart and intercepted catalogue/quote responses, including image-unavailable fallback. Native devices, actual product image rendering, live backend quote changes, promotion submission and payment submission not tested. No deployment."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "trending-most-clicked-20261025",
+  "createdAt": "2026-10-25T14:00:53.895Z",
+  "title": "Trending now uses the most viewed products",
+  "summary": "Replace featured/new catalogue discovery with a maximum of four products ranked by recorded recent product views.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo Search /search",
+    "GET /api/recommendations"
+  ],
+  "components": [
+    "SearchScreen",
+    "useTrendingSlugs",
+    "Recommendations API"
+  ],
+  "files": [
+    "app/api/recommendations/route.ts",
+    "mobile/src/services/catalog.ts",
+    "mobile/src/hooks/use-catalog.ts",
+    "mobile/src/app/(tabs)/search.tsx",
+    "tests/trending-clicks.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Trending uses descending recorded product_views across the recent 30-day window, excludes unavailable products and never fills with unclicked catalogue products. Paginate analytics rows before ranking."
+    },
+    {
+      "kind": "added",
+      "detail": "Separate most-viewed API mode and mobile query; reject old API responses without the mode marker. Preserve existing wishlist recommendations and full search/catalogue."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "Route regression tests, mobile typecheck, focused lint and browser checks pending. Uses existing recorded website product views; no new mobile analytics collection or database changes. Deployment not performed."
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "productionProject": "prj_g5xbDC0WX1RSXf6znHsAS7XvhLBb",
+  "productionSupabaseRef": "yddqwgdgeljkzfsmtein",
+  "containsSecretValues": false,
+  "authorizedToApply": false,
+  "requiredPublicConfiguration": {
+    "APP_ENV": "production",
+    "NEXT_PUBLIC_APP_ENV": "production",
+    "SEO_RUNTIME_ENV": "production",
+    "NEXT_PUBLIC_SITE_URL": "https://lecomax.com",
+    "NEXT_PUBLIC_SUPABASE_URL": "https://yddqwgdgeljkzfsmtein.supabase.co"
+  },
+  "requiredSecretsAndBindings": {
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "Retain independently verified production anon key; never staging key",
+    "SUPABASE_SERVICE_ROLE_KEY": "Retain independently verified production service key; never staging key",
+    "NEXT_PUBLIC_SUPABASE_KEY_BINDING": "production-ref:SHA256(exact production anon key bytes)",
+    "SUPABASE_SERVICE_KEY_BINDING": "production-ref:SHA256(exact production service key bytes)",
+    "ADMIN_SESSION_SECRET": "New dedicated >=32 character secret independent from database keys; authenticate/retest admin sessions after change",
+    "OWNER_DATABASE_URL": "Retain verified production URL; port 5432, sslmode=verify-full, no other query overrides",
+    "OWNER_DATABASE_BINDING": "production-ref:SHA256(exact OWNER_DATABASE_URL bytes)",
+    "ADMIN_EMAIL": "Retain reviewed owner identity"
+  },
+  "initialSeoFlags": {
+    "SEO_SYNC_ENABLED": "false",
+    "SEO_MANUAL_SYNC_ENABLED": "false",
+    "SEO_AI_ENABLED": "false",
+    "SEO_EDITORIAL_ENABLED": "false",
+    "SEO_MIRAI_FALLBACK_ENABLED": "false",
+    "INDEXNOW_ENABLED": "false"
+  },
+  "preserveExisting": [
+    "PAYPAL_ENABLED",
+    "PAYPAL_ENVIRONMENT",
+    "PAYPAL_CLIENT_SECRET",
+    "PAYPAL_WEBHOOK_ID",
+    "NEXT_PUBLIC_PAYPAL_CLIENT_ID",
+    "RESEND_API_KEY",
+    "PRIVATE_EMAIL_PASS",
+    "VAPID_PRIVATE_KEY",
+    "NEXT_PUBLIC_VAPID_PUBLIC_KEY",
+    "VAPID_SUBJECT",
+    "CRON_SECRET",
+    "LEARNING_CRON_SECRET",
+    "OWNER_EMAIL",
+    "OWNER_PASSWORD_HASH",
+    "OWNER_TRUST_PROXY",
+    "SESSION_SECRET",
+    "existing AI/learning/Redis keys"
+  ],
+  "criticalNotes": [
+    "Do not copy staging PAYPAL_ENABLED=false into production or disable existing jobs.",
+    "Missing candidate-required names observed: APP_ENV,NEXT_PUBLIC_APP_ENV,NEXT_PUBLIC_SITE_URL,NEXT_PUBLIC_SUPABASE_KEY_BINDING,SUPABASE_SERVICE_KEY_BINDING,ADMIN_SESSION_SECRET,OWNER_DATABASE_BINDING.",
+    "SEO_EDITORIAL_ENABLED controls AI editorial generation, not production manual editorial API writes. Local guard denies all staging/preview SEO mutations; no env-only override provided.",
+    "Production secret bytes withheld by hosting API; missing readback is not evidence that existing secrets are absent."
+  ]
+}

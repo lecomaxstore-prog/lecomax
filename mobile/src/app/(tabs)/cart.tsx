@@ -123,39 +123,6 @@ const CartItem = memo(function CartItem({
               </View>
             )}
           </View>
-
-        </View>
-
-        <View style={styles.productDetails}>
-          <View style={styles.productHeading}>
-            <Text maxFontSizeMultiplier={1.25} style={styles.productName}>
-              {line.product.name}
-            </Text>
-              <PreorderNotice item={{ ...line.product, fulfillment_type: line.fulfillment_type }} />
-          </View>
-
-          <Text style={styles.category}>
-            {(line.product.brand || line.product.category).toUpperCase()}
-          </Text>
-          {options ? <Text style={styles.options}>{options}</Text> : null}
-          <View style={styles.deliveryLine}>
-            <Ionicons
-              color={unavailable ? colors.danger : colors.primaryDark}
-              name={unavailable ? "alert-circle-outline" : "car-outline"}
-              size={15}
-            />
-            <Text
-              numberOfLines={2}
-              style={[
-                styles.deliveryText,
-                unavailable && styles.unavailableText,
-              ]}
-            >
-              {unavailable
-                ? msg("cart.itemOrVariantUnavailable")
-                : msg("delivery.estimate", { estimate })}
-            </Text>
-          </View>
           <View style={styles.productActions}>
             <AnimatedPressable
               accessibilityLabel={
@@ -187,6 +154,40 @@ const CartItem = memo(function CartItem({
               />
             </AnimatedPressable>
           </View>
+        </View>
+
+        <View style={styles.productDetails}>
+          <Text style={styles.category}>
+            {(line.product.brand || line.product.category).toUpperCase()}
+          </Text>
+          <View style={styles.productHeading}>
+            <Text maxFontSizeMultiplier={1.25} style={styles.productName}>
+              {line.product.name}
+            </Text>
+              <PreorderNotice item={{ ...line.product, fulfillment_type: line.fulfillment_type }} />
+          </View>
+
+
+          {options ? <Text style={styles.options}>{options}</Text> : null}
+          <View style={styles.deliveryLine}>
+            <Ionicons
+              color={unavailable ? colors.danger : colors.primaryDark}
+              name={unavailable ? "alert-circle-outline" : "car-outline"}
+              size={15}
+            />
+            <Text
+              numberOfLines={2}
+              style={[
+                styles.deliveryText,
+                unavailable && styles.unavailableText,
+              ]}
+            >
+              {unavailable
+                ? msg("cart.itemOrVariantUnavailable")
+                : msg("delivery.estimate", { estimate })}
+            </Text>
+          </View>
+
         </View>
       </View>
 
@@ -277,11 +278,12 @@ function DeliveryAddress({
         {address ? (
           <AnimatedPressable
             accessibilityLabel={msg("cart.editDeliveryAddress")}
+            accessibilityRole="button"
             haptic={false}
             onPress={onEdit}
             style={styles.addressEditButton}
           >
-            <Ionicons name="create-outline" size={14} color="#4E6252" />
+            <Ionicons name="create-outline" size={16} color="#244A38" />
             <Text style={styles.addressEditText}>{msg("profile.edit")}</Text>
           </AnimatedPressable>
         ) : null}
@@ -297,28 +299,21 @@ function DeliveryAddress({
           style={styles.addressCard}
         >
           <View style={styles.addressCardHeader}>
-            <View style={styles.addressLocationIcon}>
-              <Ionicons name="location-outline" size={22} color="#244B34" />
-            </View>
             <View style={styles.addressCopy}>
-              <Text style={styles.addressEyebrow}>{msg("cart.deliverToThisAddressUppercase")}</Text>
               <Text style={styles.addressName}>{address.name}</Text>
             </View>
-            <View style={styles.addressSelectedIcon}>
-              <Ionicons color="#FFFFFF" name="checkmark" size={14} />
-            </View>
+            <Ionicons color="#365A3E" name="checkmark-circle" size={20} />
           </View>
           <View style={styles.addressDetails}>
-            <Text style={styles.addressLine}>{address.address}</Text>
-            <Text style={styles.addressCity}>{address.city}</Text>
+            <Ionicons name="location-outline" size={17} color="#748074" style={{ marginTop: 2 }} />
+            <View style={styles.addressCopy}>
+              <Text style={styles.addressLine}>{address.address}</Text>
+              <Text style={styles.addressCity}>{address.city}</Text>
+            </View>
           </View>
           <View style={styles.addressContact}>
-            <Ionicons name="call-outline" size={14} color="#637362" />
+            <Ionicons name="call-outline" size={16} color="#748074" />
             <Text style={styles.addressPhone}>{address.phone}</Text>
-            <View style={styles.addressSelectedBadge}>
-              <View style={styles.addressSelectedDot} />
-              <Text style={styles.addressSelectedText}>{msg("cart.selected")}</Text>
-            </View>
           </View>
         </AnimatedPressable>
       ) : (
@@ -705,7 +700,7 @@ export default function CartScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <CheckoutProgress currentStep={1} />
+          <CheckoutProgress currentStep={1} compact />
           <DeliveryAddress
             address={activeAddress}
             notice={addressNotice}
@@ -923,8 +918,11 @@ export default function CartScreen() {
               !activeAddress && styles.checkoutButtonDisabled,
             ]}
           >
+            <View style={styles.checkoutCopy}>
             <Text style={[styles.checkoutButtonText, !activeAddress && styles.checkoutTextDisabled]}>
               {msg("checkoutScreen.continueToPaymentText")}</Text>
+            <Text style={[styles.checkoutTotal, !activeAddress && styles.checkoutTextDisabled]}>{calculation ? money(total) : msg("common.secureCheckout")}</Text>
+            </View>
             <Ionicons color={activeAddress ? colors.white : "#858D86"} name="arrow-forward" size={20} />
           </AnimatedPressable>
           <View style={styles.checkoutReassurance}>
@@ -1088,10 +1086,10 @@ function TrustItem({
 
 const styles = StyleSheet.create({
   flex: { flex: 1, minHeight: 0 },
-  scroll: { flex: 1, minHeight: 0 },
+  scroll: { flex: 1, minHeight: 0, backgroundColor: "#F8F7F3" },
   header: {
-    minHeight: 60,
-    paddingHorizontal: 16,
+    minHeight: 72,
+    paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1110,17 +1108,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
   },
   headerCopy: { alignItems: "center" },
-  headerTitle: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 18,
-    letterSpacing: -0.35,
-  },
+  headerTitle: { color: "#183D2D", fontFamily: typography.semibold, fontSize: 17, letterSpacing: 1.8 },
   headerSubtitle: {
-    marginTop: 3,
+    marginTop: 5,
     color: colors.secondaryText,
     fontFamily: typography.regular,
-    fontSize: 11,
+    fontSize: 12,
   },
   headerSecure: {
     width: 40,
@@ -1164,7 +1157,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     lineHeight: 14,
   },
-  section: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 16 },
+  section: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 8 },
   sectionHeader: {
     minHeight: 32,
     flexDirection: "row",
@@ -1185,19 +1178,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 12,
   },
-  orderTitle: {
-    color: "#2D3A30",
-    fontFamily: typography.medium,
-    fontSize: 20,
-    lineHeight: 28,
-    letterSpacing: -0.5,
-  },
-  orderCount: {
-    color: "#7D8475",
-    fontFamily: typography.regular,
-    fontSize: 11,
-    lineHeight: 18,
-  },
+  orderTitle: { color: "#182D23", fontFamily: typography.semibold, fontSize: 24, lineHeight: 30, letterSpacing: -0.8 },
+  orderCount: { color: "#5C685E", fontFamily: typography.medium, fontSize: 11, lineHeight: 18, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12, backgroundColor: "#EBEEE5", overflow: "hidden" },
   textAction: {
     minWidth: 66,
     minHeight: 44,
@@ -1214,44 +1196,22 @@ const styles = StyleSheet.create({
     fontFamily: typography.bold,
     fontSize: 12,
   },
-  addressCard: {
-    minHeight: 88,
-    marginTop: 13,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-    borderWidth: 1,
-    borderColor: "#CCDCC6",
-    borderRadius: 20,
-    backgroundColor: "#F8FAF5",
-  },
-  addressHeading: { flex: 1, color: "#25362A", fontFamily: typography.semibold, fontSize: 17, lineHeight: 24, letterSpacing: -0.45 },
-  addressEditButton: { minHeight: 44, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5, borderRadius: 14, backgroundColor: "#F2F5EE", marginLeft: 10 },
-  addressEditText: { color: "#4E6252", fontFamily: typography.medium, fontSize: 11 },
+  addressCard: { marginTop: 8, padding: 18, borderWidth: 1, borderColor: "#DEE5DA", borderRadius: 16, backgroundColor: "#FFFFFF" },
+  addressHeading: { flex: 1, color: "#25362A", fontFamily: typography.semibold, fontSize: 16, lineHeight: 24, letterSpacing: -0.3 },
+  addressEditButton: { minHeight: 44, paddingHorizontal: 8, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 6, borderRadius: 10, marginLeft: 10 },
+  addressEditText: { color: "#244A38", fontFamily: typography.semibold, fontSize: 13},
   addressCardHeader: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
   addressCopy: { minWidth: 0, flex: 1 },
-  addressLocationIcon: { width: 42, height: 46, alignItems: "center", justifyContent: "center", borderRadius: 14, backgroundColor: "#E8EFDF" },
-  addressEyebrow: { fontFamily: typography.semibold, fontSize: 8, letterSpacing: 0.8, color: "#687B60", marginBottom: 4 },
-  addressSelectedIcon: { width: 22, height: 22, borderRadius: 11, backgroundColor: "#365A3E", alignItems: "center", justifyContent: "center" },
-  addressDetails: { marginTop: 13 },
-  addressCity: { fontFamily: typography.medium, color: "#485844", fontSize: 12, lineHeight: 19, marginTop: 2 },
-  addressSelectedBadge: { flexDirection: "row", alignItems: "center", gap: 5, marginLeft: "auto", paddingHorizontal: 8, paddingVertical: 5, borderRadius: 8, backgroundColor: "#EAF1E3" },
-  addressSelectedDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: "#547744" },
-  addressSelectedText: { color: "#4F6B42", fontFamily: typography.medium, fontSize: 9 },
+  addressDetails: { marginTop: 10, flexDirection: "row", alignItems: "flex-start", gap: 9 },
+  addressCity: { fontFamily: typography.regular, color: "#59665C", fontSize: 14, lineHeight: 21 },
   addAddressIcon: { width: 28, height: 28, borderRadius: 9, backgroundColor: "#EDF2E7", alignItems: "center", justifyContent: "center" },
-  addressName: {
-    color: "#253D2D",
-    fontFamily: typography.semibold,
-    fontSize: 16,
-    lineHeight: 22,
-    letterSpacing: -0.3,
-  },
-  addressContact: { marginTop: 13, paddingTop: 11, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: "#DDE5D6", flexDirection: "row", alignItems: "center", flexWrap: "wrap", gap: 7 },
-  addressPhone: { color: "#52634B", fontFamily: typography.medium, fontSize: 11, lineHeight: 18, fontVariant: ["tabular-nums"] },
+  addressName: { color: "#203D2C", fontFamily: typography.semibold, fontSize: 18, lineHeight: 25, letterSpacing: -0.4 },
+  addressContact: { marginTop: 9, flexDirection: "row", alignItems: "center", gap: 10 },
+  addressPhone: { flexShrink: 1, color: "#3C5545", fontFamily: typography.medium, fontSize: 13, lineHeight: 20, fontVariant: ["tabular-nums"] },
   addressLine: {
-    color: "#52634B",
+    color: "#59665C",
     fontFamily: typography.regular,
-    fontSize: 12,
+    fontSize: 14,
     lineHeight: 21,
   },
   missingAddress: {
@@ -1279,26 +1239,26 @@ const styles = StyleSheet.create({
   },
   addAddress: {
     minHeight: 48,
-    marginTop: 10,
-    paddingHorizontal: 12,
+    marginTop: 6,
+    paddingHorizontal: 4,
     paddingVertical: 9,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 9,
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: "#E5E9DF",
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "transparent",
   },
   addAddressText: {
     flex: 1,
     color: "#465D3F",
     fontFamily: typography.medium,
-    fontSize: 11,
+    fontSize: 12,
   },
-  divider: { height: 1, marginHorizontal: 18, backgroundColor: colors.border },
-  orderSection: { paddingHorizontal: 18, paddingTop: 20 },
+  divider: { height: 0, marginHorizontal: 20 },
+  orderSection: { paddingHorizontal: 20, paddingTop: 14 },
   countBadge: {
     minHeight: 28,
     paddingHorizontal: 10,
@@ -1312,73 +1272,31 @@ const styles = StyleSheet.create({
     fontFamily: typography.black,
     fontSize: 8,
   },
-  product: {
-    marginTop: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: "#E7E9E0",
-    borderRadius: 18,
-    backgroundColor: "#FFFFFF",
-  },
+  product: { marginTop: 12, padding: 16, borderWidth: 1, borderColor: "#E6E7DF", borderRadius: 22, backgroundColor: "#FFFFFF", shadowColor: "#243C2D", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.035, shadowRadius: 14 },
   productTop: { flexDirection: "row" },
-  productImage: {
-    width: 84,
-    height: 104,
-    overflow: "hidden",
-    borderRadius: 12,
-    backgroundColor: colors.surface,
-  },
+  productImage: { width: 100, height: 134, padding: 8, overflow: "hidden", borderRadius: 14, backgroundColor: "#F6F5F0" },
   imageFallback: { flex: 1, alignItems: "center", justifyContent: "center", gap: 7, padding: 8 },
   imageFallbackText: { fontFamily: typography.regular, fontSize: 9, lineHeight: 13, color: "#7F8777", textAlign: "center" },
-  productDetails: { minWidth: 0, flex: 1, marginLeft: 12 },
+  productDetails: { minWidth: 0, flex: 1, marginLeft: 16 },
   productHeading: { alignItems: "stretch" },
-  productName: {
-    minWidth: 0,
-    color: colors.text,
-    fontFamily: typography.medium,
-    fontSize: 13,
-    lineHeight: 20,
-  },
-  productActions: { flexDirection: "row", alignSelf: "flex-end", marginTop: 8, gap: 6 },
-  iconButton: {
-    width: 44,
-    height: 44,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 12,
-    backgroundColor: "#F7F8F4",
-  },
-  category: {
-    marginTop: 7,
-    color: colors.secondaryText,
-    fontFamily: typography.semibold,
-    fontSize: 9,
-    letterSpacing: 0.55,
-  },
+  productName: { minWidth: 0, color: "#182D23", fontFamily: typography.semibold, fontSize: 15, lineHeight: 22, letterSpacing: -0.2 },
+  productActions: { flexDirection: "row", alignSelf: "center", marginTop: 6, gap: 4 },
+  iconButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center", borderRadius: 22, backgroundColor: "#F8F8F4" },
+  category: { marginBottom: 7, color: "#7A806D", fontFamily: typography.medium, fontSize: 9, letterSpacing: 1.2 },
   options: {
     marginTop: 4,
     color: colors.secondaryText,
-    fontFamily: typography.medium,
-    fontSize: 10.5,
-  },
-  deliveryLine: {
-    marginTop: 8,
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 7,
-  },
-  deliveryText: {
-    minWidth: 0,
-    flex: 1,
-    color: "#61745B",
     fontFamily: typography.regular,
-    fontSize: 10,
-    lineHeight: 16,
+    fontSize: 12,
+  },
+  deliveryLine: { marginTop: 12, flexDirection: "row", alignItems: "flex-start", gap: 6 },
+  deliveryText: {
+    minWidth: 0, flex: 1, color: "#466552", fontFamily: typography.regular, fontSize: 11, lineHeight: 16,
   },
   unavailableText: { color: colors.danger },
   productBottom: {
-    marginTop: 14,
-    paddingTop: 12,
+    marginTop: 12,
+    paddingTop: 14,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1387,71 +1305,29 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },
-  linePrice: {
-    color: colors.text,
-    fontFamily: typography.black,
-    fontSize: 18,
-  },
-  linePricePromotion: { color: colors.text },
-  oldPrice: {
-    marginTop: 3,
-    color: "#8A8E8B",
-    fontFamily: typography.medium,
-    fontSize: 10,
-    textDecorationLine: "line-through",
-  },
-  quantity: {
-    height: 44,
-    flexDirection: "row",
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#D5D9D5",
-    borderRadius: 12,
-  },
-  quantityButton: {
-    width: 40,
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.white,
-  },
+  linePrice: { color: "#193C2D", fontFamily: typography.semibold, fontSize: 23, letterSpacing: -0.7 },
+  linePricePromotion: { color: "#193C2D" },
+  oldPrice: { marginTop: 4, color: "#7C847D", fontFamily: typography.regular, fontSize: 11, textDecorationLine: "line-through" },
+  quantity: { height: 44, flexDirection: "row", overflow: "hidden", borderWidth: 1, borderColor: "#E2E5DC", borderRadius: 12, backgroundColor: "#F7F8F3" },
+  quantityButton: { width: 44, height: "100%", alignItems: "center", justifyContent: "center", backgroundColor: "transparent" },
   quantityPressed: { backgroundColor: colors.surface },
   quantityValue: {
-    width: 38,
+    width: 30,
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    borderLeftWidth: 0,
+    borderRightWidth: 0,
     borderColor: colors.border,
   },
   quantityText: {
     color: colors.text,
-    fontFamily: typography.black,
+    fontFamily: typography.semibold,
     fontSize: 14,
   },
-  couponSection: { paddingHorizontal: 18, paddingVertical: 20 },
-  fieldLabel: {
-    marginBottom: 10,
-    color: "#74806D",
-    fontFamily: typography.medium,
-    fontSize: 9,
-    letterSpacing: 1,
-  },
-  couponControl: {
-    minHeight: 56,
-    paddingLeft: 12,
-    paddingRight: 5,
-    paddingVertical: 5,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 9,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E2E6DB",
-    borderRadius: 16,
-    backgroundColor: "#FAFBF7",
-  },
+  couponSection: { paddingHorizontal: 20, paddingVertical: 22 },
+  fieldLabel: { marginBottom: 10, color: "#636D5E", fontFamily: typography.medium, fontSize: 10, letterSpacing: 1.2 },
+  couponControl: { minHeight: 56, paddingLeft: 12, paddingRight: 5, paddingVertical: 5, flexDirection: "row", alignItems: "center", gap: 9, overflow: "hidden", borderWidth: 1, borderColor: "#E2E5DC", borderRadius: 14, backgroundColor: "#FFFFFF" },
   couponControlSuccess: {
     borderColor: "#A7D9B5",
     backgroundColor: "#F5FBF7",
@@ -1461,13 +1337,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF9F9",
   },
   couponInput: {
-    minWidth: 0,
-    height: 44,
-    flex: 1,
-    color: colors.text,
-    fontFamily: typography.regular,
-    fontSize: 11,
-    backgroundColor: "transparent",
+    minWidth: 0, height: 44, flex: 1, color: colors.text, fontFamily: typography.regular,
+    fontSize: 13, backgroundColor: "transparent",
   },
   applyCoupon: {
     minWidth: 86,
@@ -1502,15 +1373,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.semibold,
     fontSize: 9,
   },
-  summary: {
-    marginHorizontal: 18,
-    paddingHorizontal: 18,
-    paddingVertical: 18,
-    borderWidth: 1,
-    borderRadius: 18,
-    borderColor: "#E6E9DE",
-    backgroundColor: "#F8FAF4",
-  },
+  summary: { marginHorizontal: 20, padding: 20, borderWidth: 1, borderRadius: 20, borderColor: "#E2E5DC", backgroundColor: "#FFFFFF" },
   summaryRow: {
     minHeight: 36,
     flexDirection: "row",
@@ -1553,12 +1416,7 @@ const styles = StyleSheet.create({
     fontFamily: typography.medium,
     fontSize: 14,
   },
-  taxLabel: {
-    marginTop: 3,
-    color: "#7D8774",
-    fontFamily: typography.regular,
-    fontSize: 9,
-  },
+  taxLabel: { marginTop: 4, color: "#707B68", fontFamily: typography.regular, fontSize: 11 },
   totalValue: {
     color: "#294B36",
     fontFamily: typography.semibold,
@@ -1575,13 +1433,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   trustItem: { minWidth: 0, flex: 1, alignItems: "center", gap: 6 },
-  trustText: {
-    color: "#77826C",
-    fontFamily: typography.regular,
-    fontSize: 8,
-    lineHeight: 11,
-    textAlign: "center",
-  },
+  trustText: { color: "#68745F", fontFamily: typography.regular, fontSize: 10, lineHeight: 14, textAlign: "center" },
   trustDivider: { width: StyleSheet.hairlineWidth, height: 22, backgroundColor: "#E5E9DE" },
   undo: {
     minHeight: 50,
@@ -1614,38 +1466,17 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   sticky: {
-    flexShrink: 0,
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    backgroundColor: "rgba(255,255,255,0.98)",
+    flexShrink: 0, paddingHorizontal: 20, paddingTop: 12, borderTopWidth: 1,
+    borderTopColor: "#E1E7E2", backgroundColor: "#FFFFFF",
   },
-  checkoutButton: {
-    minHeight: 54,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: 12,
-    borderRadius: 14,
-    backgroundColor: "#183D29",
-  },
+  checkoutButton: { minHeight: 66, paddingHorizontal: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, borderRadius: 18, backgroundColor: "#193E2D" },
+  checkoutCopy: { flex: 1, minWidth: 0, gap: 4 },
+  checkoutTotal: { color: "#DFE8DD", fontFamily: typography.medium, fontSize: 12, fontVariant: ["tabular-nums"] },
   checkoutButtonDisabled: { backgroundColor: "#E8ECE6" },
   checkoutTextDisabled: { color: "#737C73" },
-  checkoutButtonText: {
-    color: colors.white,
-    fontFamily: typography.semibold,
-    fontSize: 14,
-    flex: 1,
-  },
+  checkoutButtonText: { color: colors.white, fontFamily: typography.semibold, fontSize: 14 },
   checkoutReassurance: { marginTop: 9, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 5 },
-  checkoutButtonHint: {
-    color: "#737C73",
-    fontFamily: typography.medium,
-    fontSize: 10,
-    textAlign: "center",
-  },
+  checkoutButtonHint: { color: "#737C73", fontFamily: typography.medium, fontSize: 11, textAlign: "center" },
   empty: {
     flexGrow: 1,
     width: "100%",

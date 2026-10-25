@@ -1,0 +1,51 @@
+{
+  "id": "seo-vercel-hobby-verified-20261018",
+  "createdAt": "2026-10-18T19:32:50.668Z",
+  "title": "Verify daily Hobby-compatible SEO worker",
+  "summary": "12 local adapter and SQL tests passed; daily schedule remains disabled and production unchanged.",
+  "status": "successful",
+  "pages": [
+    "SEO worker operations",
+    "/change-history"
+  ],
+  "components": [
+    "Vercel Cron worker"
+  ],
+  "files": [
+    "operations/seo-vercel/vercel.json",
+    "operations/seo-vercel/schedule.hobby.json",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/handler.test.mjs",
+    "operations/seo-vercel/tests/sql-integration.test.mjs",
+    "operations/seo-vercel/README.md",
+    "operations/seo-vercel/package.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use 60-second function limit, 45-second work budget, 10-second RPC limits and no new claims with less than 30 seconds remaining; retain max 100 jobs and durable retries/idempotency."
+    },
+    {
+      "kind": "added",
+      "detail": "Disabled daily Hobby schedule proposal and offline adapter-to-SQL integration tests. Document daily retry/freshness limits and existing admin 15-minute warning."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node 24 worker tests",
+      "result": "passed",
+      "detail": "12/12 tests including real local SQL persistence, idempotent repeats, durable retry, failure-isolated product creation and stock writes, batch cap and deadline deferral. Initial injection fixture corrected to retain SQL argument names; migration unchanged."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "No lint output for modified handler/tests."
+    },
+    {
+      "name": "Hosted operation",
+      "result": "not-run",
+      "detail": "No deployment or production changes. Daily Hobby cron proposal only. Real runtime, delivery, credentials and integration require approved deployment; legacy admin 15-minute freshness warning documented."
+    }
+  ],
+  "relatedId": "seo-vercel-hobby-preparation-20261018"
+}

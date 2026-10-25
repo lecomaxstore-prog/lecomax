@@ -1,0 +1,31 @@
+{
+  "id": "seo-native-v3-concurrency-prepared-20261019",
+  "createdAt": "2026-10-19T12:40:29.341Z",
+  "relatedId": "seo-postgres-concurrency-blocked-20261019",
+  "title": "Authorized one-cluster v3 concurrency harness prepared",
+  "summary": "Fresh SCRAM-authenticated loopback cluster, exclusive one-run reservation, pinned five migrations and synthetic multi-session checks. Execution pending.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Engine validation",
+    "Change History"
+  ],
+  "components": [
+    "Native PostgreSQL concurrency"
+  ],
+  "files": [
+    "scripts/test-seo-v3-concurrency.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added isolated full-chain runner with identity and emptiness checks, three sessions, bounded queries and exact-cluster shutdown."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Native execution",
+      "result": "not-run",
+      "detail": "Pending authorized run; no cluster created yet."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "seo-editorial-browser-prepared-20261019",
+  "createdAt": "2026-10-19T21:01:45.077Z",
+  "title": "Protect unsaved editorial navigation and product-only suggestion imports",
+  "summary": "Guard product switching/closing while edits or saves are pending, and expose scoped suggestion IDs through the editorial read endpoint. Add isolated actual-React browser coverage.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO dashboard",
+    "Editorial API",
+    "Change History"
+  ],
+  "components": [
+    "Editorial workspace",
+    "Catalogue selection",
+    "Suggestion access",
+    "Browser regression"
+  ],
+  "files": [
+    "app/admin/seo/page.tsx",
+    "app/admin/seo/EditorialWorkspace.tsx",
+    "app/api/admin/seo/editorial/route.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-editorial-workspace.test.ts",
+    "scripts/smoke-seo-editorial-workspace.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Dirty product switch/close requires explicit discard; busy operations block selection changes. Product editors obtain only current completed suggestion IDs without category/budget permissions."
+    },
+    {
+      "kind": "added",
+      "detail": "Optional suggestion failure preserves manual drafting; paginated history skips suggestion queries; browser fixture exercises navigation, save/conflict/rebase, FR/AR import, consent, publication controls and rollback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local tests and browser",
+      "result": "not-run",
+      "detail": "Pending. Browser uses a fresh profile and loopback-only fixtures, no real sessions or hosted APIs."
+    },
+    {
+      "name": "Staging read-only",
+      "result": "passed",
+      "detail": "Fresh MCP: PostgreSQL 17.11, read-only role/session, empty public tables, migrations, functions and Storage buckets; no foreign servers/subscriptions/cron/network queues. Platform/external isolation still unverified."
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "seo-hybrid-preparation-20261019",
+  "createdAt": "2026-10-18T22:03:35.145Z",
+  "title": "Hybrid SEO portability and draft reuse",
+  "summary": "Preserved current-fact fallback and durable asynchronous queue; added pinned alternate-host support and reuse of current AI/manual drafts. Local only.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin SEO",
+    "Product and category SEO"
+  ],
+  "components": [
+    "SEO generation",
+    "Manual Sync",
+    "Bounded worker"
+  ],
+  "files": [
+    "app/api/admin/seo/route.ts",
+    "app/api/admin/seo/sync/route.ts",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/node-server.mjs",
+    "tests/seo-api.test.ts",
+    "tests/seo-manual-sync.test.ts",
+    "tests/seo-hybrid-store.test.ts",
+    "operations/seo-vercel/tests/handler.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Portable Node host adapter and explicitly pinned HTTPS worker origin; production opt-in preserves Vercel preview denial."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reuse durable current AI/manual drafts instead of regenerating or overwriting them."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused hybrid verification",
+      "result": "not-run",
+      "detail": "Pending tests, types and lint. No production changes or migration edits."
+    }
+  ]
+}

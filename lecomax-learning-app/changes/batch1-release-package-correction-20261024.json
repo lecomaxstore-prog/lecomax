@@ -1,0 +1,44 @@
+{
+  "id": "batch1-release-package-correction-20261024",
+  "relatedId": "batch1-release-package-prepared-20261024",
+  "createdAt": "2026-10-24T16:18:05.685Z",
+  "title": "Correct release package dependency omissions",
+  "summary": "First clean package failed validation due to four omitted baseline dependencies. RC2 includes those exact pinned files; first archive and failure evidence retained.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "release package",
+    "build validation"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/prepare-candidate-v2.cjs",
+    "artifacts/batch1-release-preparation-20261024/validate-candidate-v2.cjs",
+    "artifacts/batch1-release-preparation-20261024/rc2/source-manifest.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Added pinned README, existing IndexNow environment helper, mobile order test fixture and atomic webhook SQL test fixture to RC2. No application source logic changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First package validation",
+      "result": "failed",
+      "detail": "Course prebuild referenced missing README; tests required existing IndexNow helper, mobile order source and SQL fixture. Preserved all first-attempt logs."
+    },
+    {
+      "name": "RC2 packaged tests",
+      "result": "passed",
+      "detail": "76/76 (10 synthetic, 39 checkout/security, 27 SEO) passed against RC2 files."
+    },
+    {
+      "name": "RC2 full isolated build",
+      "result": "not-run",
+      "detail": "Running; final status will be appended separately."
+    }
+  ]
+}

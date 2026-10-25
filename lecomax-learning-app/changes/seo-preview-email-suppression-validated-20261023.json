@@ -1,0 +1,72 @@
+{
+  "id": "seo-preview-email-suppression-validated-20261023",
+  "relatedId": "seo-preview-email-suppression-prepared-20261023",
+  "createdAt": "2026-10-23T07:59:04.831Z",
+  "title": "Preview application email suppression passes; upstream delivery remains unverified",
+  "status": "needs-testing",
+  "summary": "17 synthetic email tests and local signup suppression passed. SMTP/Hook and hosted binding remain blocking gates. No real mail or deployment.",
+  "pages": [
+    "SEO Recovery Preview",
+    "Account authentication",
+    "Admin staff",
+    "Order notifications",
+    "Change History"
+  ],
+  "components": [
+    "Email policy",
+    "Browser Auth transport",
+    "Server mail guards"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/lib/seo-preview-email.mjs",
+    ".recovery-seo-preview-isolated/app/api/messages/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/[id]/route.ts",
+    ".recovery-seo-preview-isolated/app/api/auth/signup/route.ts",
+    ".recovery-seo-preview-isolated/app/api/account/password-reset/route.ts",
+    ".recovery-seo-preview-isolated/app/api/admin/staff/resend-invite/route.ts",
+    ".recovery-seo-preview-isolated/app/api/admin/staff/route.ts",
+    ".recovery-seo-preview-isolated/app/api/admin/staff/[id]/route.ts",
+    ".recovery-seo-preview-isolated/app/api/inbox/reply/route.ts",
+    ".recovery-seo-preview-isolated/app/api/newsletter/send/route.ts",
+    ".recovery-seo-preview-isolated/app/api/send-confirmation/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/[id]/notify/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/[id]/trustpilot/route.ts",
+    ".recovery-seo-preview-isolated/app/api/cron/review-followups/route.ts",
+    ".recovery-seo-preview-isolated/lib/supabase.ts",
+    ".recovery-seo-preview-isolated/tests/seo-preview-email.test.mjs",
+    "docs/seo-preview-continuation-20261023.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added synthetic transport and actual route-handler tests and precise local binding/upstream SMTP inspection instructions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Test harness initially read main-workspace files; corrected it to resolve candidate source relative to the test module. No application change was needed for that harness failure."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Application mail isolation",
+      "result": "passed",
+      "detail": "17/17 synthetic tests; actual local signup returns 403 SEO_PREVIEW_EMAIL_SUPPRESSED before side effects. No real recipients or service calls."
+    },
+    {
+      "name": "Production compatibility",
+      "result": "passed",
+      "detail": "120 recovery tests and production mail/transport branch tests passed."
+    },
+    {
+      "name": "Upstream email isolation",
+      "result": "not-run",
+      "detail": "Email provider and signups disabled; zero Edge Functions. Managed SMTP and Send Email Hook configuration inaccessible through connected tools; no browser session. Direct public Auth calls remain outside app guards."
+    },
+    {
+      "name": "Hosted binding equality",
+      "result": "not-run",
+      "detail": "Preview-only key scope confirmed. New binding absent at audit; user had not saved it. Masked helper parity passed using synthetic input and mocked clipboard."
+    }
+  ]
+}

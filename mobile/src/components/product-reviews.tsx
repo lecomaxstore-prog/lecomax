@@ -335,23 +335,6 @@ export const ProductReviews = memo(function ProductReviews({
 
   return (
     <View style={styles.section}>
-      <View style={styles.headingRow}>
-        <View>
-          <Text style={styles.eyebrow}>
-            {msg("productReviews.lecomaxCommunityUppercase")}
-          </Text>
-          <Text accessibilityRole="header" style={styles.heading}>
-            {msg("productReviews.customerReviews")}
-          </Text>
-        </View>
-        <View style={styles.verifiedHeader}>
-          <Ionicons name="shield-checkmark" size={15} color={palette.green} />
-          <Text style={styles.verifiedHeaderText}>
-            {msg("productReviews.verifiedPurchasesUppercase")}
-          </Text>
-        </View>
-      </View>
-
       {total > 0 ? (
         <View style={styles.summary}>
           <View style={styles.score}>
@@ -386,7 +369,7 @@ export const ProductReviews = memo(function ProductReviews({
             <Ionicons
               name="chatbubble-ellipses-outline"
               size={21}
-              color="#7B8278"
+              color="#294331"
             />
           </View>
           <View style={styles.emptySummaryCopy}>
@@ -413,7 +396,7 @@ export const ProductReviews = memo(function ProductReviews({
           }}
           style={styles.writeReviewButton}
         >
-          <Ionicons name={reviewOpen ? "close-outline" : "create-outline"} size={18} color="#294331" />
+          <Ionicons name={reviewOpen ? "close-outline" : "create-outline"} size={18} color="#FFFFFF" />
           <Text style={styles.writeReviewText}>
             {msg(reviewOpen ? "productReviews.closeReviewForm" : "productReviews.writeAReview")}
           </Text>
@@ -689,7 +672,7 @@ export const ProductReviews = memo(function ProductReviews({
                     </Text>
                   </View>
 
-                  {review.verified_purchase !== false ? (
+                  {review.verified_purchase === true ? (
                     <View style={styles.verifiedBadgePill}>
                       <Ionicons
                         name="checkmark-circle"
@@ -776,79 +759,42 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     backgroundColor: palette.white,
   },
-  headingRow: {
-    alignItems: "flex-start",
-    gap: 10,
-  },
-  eyebrow: {
-    color: palette.greenDark,
-    fontFamily: typography.black,
-    fontSize: 8,
-    letterSpacing: 1.8,
-  },
-  heading: {
-    marginTop: 7,
-    color: palette.ink,
-    fontFamily: typography.black,
-    fontSize: 24,
-    lineHeight: 30,
-    letterSpacing: -0.6,
-  },
-  verifiedHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    maxWidth: "100%",
-    paddingHorizontal: 9,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: "#EFF7F1",
-  },
-  verifiedHeaderText: {
-    flexShrink: 1,
-    color: palette.greenDark,
-    fontFamily: typography.bold,
-    fontSize: 9,
-    lineHeight: 13,
-    letterSpacing: 0.6,
-  },
   summary: {
-    marginTop: 24,
+    marginTop: 4,
     padding: 20,
     borderRadius: 24,
     flexDirection: "row",
     backgroundColor: palette.canvas,
   },
   emptySummary: {
-    marginTop: 20,
-    minHeight: 76,
-    paddingVertical: 18,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#DFE2DA",
-    flexDirection: "row",
+    paddingTop: 8,
+    paddingBottom: 4,
+    paddingHorizontal: 16,
     alignItems: "center",
-    backgroundColor: "transparent",
+    gap: 12,
   },
   emptySummaryIcon: {
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "transparent",
+    backgroundColor: "#EFF7F1",
   },
-  emptySummaryCopy: { minWidth: 0, flex: 1, marginLeft: 12 },
+  emptySummaryCopy: { width: "100%", maxWidth: 340, gap: 6 },
   emptySummaryTitle: {
     color: "#29392D",
     fontFamily: typography.semibold,
-    fontSize: 14,
-    lineHeight: 22,
+    fontSize: 17,
+    lineHeight: 24,
+    textAlign: "center",
   },
   emptySummaryText: {
-    marginTop: 5,
     color: palette.muted,
     fontFamily: typography.regular,
-    fontSize: 12,
-    lineHeight: 18,
+    fontSize: 13,
+    lineHeight: 21,
+    textAlign: "center",
   },
   score: { width: "42%", justifyContent: "center" },
   scoreValue: {
@@ -958,11 +904,11 @@ const styles = StyleSheet.create({
   },
   writeReviewButton: {
     marginTop: 20, minHeight: 48, paddingHorizontal: 16, paddingVertical: 12,
-    borderWidth: 1, borderColor: "#DDE3D6", borderRadius: 8,
+    borderRadius: 10,
     flexDirection: "row", alignItems: "center", justifyContent: "center",
-    gap: 9, backgroundColor: "#F8FAF5",
+    gap: 9, backgroundColor: "#294331",
   },
-  writeReviewText: { color: "#294331", fontFamily: typography.semibold, fontSize: 12 },
+  writeReviewText: { color: "#FFFFFF", fontFamily: typography.semibold, fontSize: 14 },
   purchaseEyebrow: {
     color: "#79816F", fontFamily: typography.medium,
     fontSize: 8, lineHeight: 14, letterSpacing: 2,

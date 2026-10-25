@@ -1,0 +1,36 @@
+{
+  "id": "seo-http-concurrency-prepared-20261020",
+  "createdAt": "2026-10-20T09:29:59.470Z",
+  "relatedId": "seo-pg17-rest-prepared-20261020",
+  "title": "Exercise competing editorial writes over real HTTP",
+  "summary": "Strengthen the isolated PostgREST rehearsal with simultaneous requests using the same editorial revision.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Local database acceptance"
+  ],
+  "components": [
+    "PostgREST acceptance harness"
+  ],
+  "files": [
+    "scripts/seo-local-rest-checks.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Submit two concurrent HTTP mutations, require one success and one explicit revision conflict, then verify stale replay and one revision increment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh native rehearsal",
+      "result": "failed",
+      "detail": "Sandbox pg_ctl failed before startup with restricted-token error 87. Fixed loopback-only retry outside sandbox underway; prior successful logs are historical."
+    },
+    {
+      "name": "HTTP concurrency",
+      "result": "not-run",
+      "detail": "New concurrent HTTP assertion pending native execution."
+    }
+  ]
+}

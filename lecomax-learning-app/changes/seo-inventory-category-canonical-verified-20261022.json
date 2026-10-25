@@ -1,0 +1,49 @@
+{
+  "id": "seo-inventory-category-canonical-verified-20261022",
+  "relatedId": "seo-inventory-category-canonical-prepared-20261022",
+  "createdAt": "2026-10-22T11:42:01.976Z",
+  "status": "successful",
+  "title": "Isolated category-canonical candidate validated; deployment awaits authorization",
+  "summary": "Local commit 8254f94d1b766a98d51cb41247d53fa8eda6b176 passes 7 focused tests, TypeScript, focused lint and a production-mode synthetic build. No production changes.",
+  "pages": [
+    "category-canonical",
+    "Change History"
+  ],
+  "components": [
+    "Isolated release candidate",
+    "Verification and rollback manifest"
+  ],
+  "files": [
+    "release/seo-category-canonical-20261022/app/[category]/page.tsx",
+    "release/seo-category-canonical-20261022/tests/seo-category-urls.test.ts",
+    "artifacts/seo-release-inventory-20261022/category-canonical-release-manifest.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Pinned validated local commit, full source hashes, exact patch, scope and rollback reference. Preserved dependencies, auth/middleware, existing schedules and unrelated work."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused tests",
+      "result": "passed",
+      "detail": "node --test tests/seo-category-urls.test.ts; 7 passed, zero failed."
+    },
+    {
+      "name": "Types, lint and build",
+      "result": "passed",
+      "detail": "All exit 0; Node 24.22.0/Next 15.5.24 build uses synthetic read-only data. Existing warnings retained."
+    },
+    {
+      "name": "Source scope",
+      "result": "passed",
+      "detail": "Clean isolated worktree, direct child of live commit; 2 changed source/test files; no config/dependency/cron changes."
+    },
+    {
+      "name": "Production acceptance",
+      "result": "not-run",
+      "detail": "No deployment, activation, schema/data writes or live smoke rerun. Runtime configuration and changed-path live postflight require separately authorized release."
+    }
+  ]
+}

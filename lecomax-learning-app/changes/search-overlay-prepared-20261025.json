@@ -1,0 +1,34 @@
+{
+  "id": "search-overlay-prepared-20261025",
+  "createdAt": "2026-10-25T07:35:51.557Z",
+  "title": "Search overlay modal keyboard correction prepared",
+  "summary": "Isolated one-file candidate based on verified current Mobile Menu production. Local validation pending; not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront search"
+  ],
+  "components": [
+    "SearchOverlay"
+  ],
+  "files": [
+    "artifacts/search-overlay-20261025/source/components/SearchOverlay.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Add input focus, dynamic Tab/Shift+Tab containment, background isolation including late portals, Escape at any control, conditional trigger restoration, responsive input handoff, and exact prior body overflow/inert cleanup. Hidden exit-animation controls inert. Remove unconditional overflow resets and input-only Escape handler. Existing search requests, routing, labels, styles and animations preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Baseline and scope",
+      "result": "passed",
+      "detail": "Current READY dpl_8wg4bKgDpwtRDpvo1TZ5rCdkowNk verified against 2055 source hashes. Only SearchOverlay differs; Header and ProductGallery unchanged."
+    },
+    {
+      "name": "Local browser, types, lint and build",
+      "result": "not-run",
+      "detail": "Pending. No production deployment authorized. No physical device or human screen-reader test."
+    }
+  ]
+}

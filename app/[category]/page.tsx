@@ -15,6 +15,8 @@ import { sanitizePageHtml } from "@/lib/site-pages";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount } from "@/lib/shipping-config";
 import { serializeJsonLd } from "@/lib/seo";
+import { seoPath } from "@/lib/seo-engine";
+import { getSeoContent } from "@/lib/seo-store";
 import { createPublicSupabaseClient } from "@/lib/supabase-server";
 
 const valid = new Set(categories.map((c) => c.slug));
@@ -104,30 +106,31 @@ export async function generateMetadata({
     if (!page) return {};
     const title = page.meta_title || page.title;
     const description = page.meta_description || `Découvrez ${page.title} sur L'ecomax.`;
-    return { title, description, alternates: { canonical: `${SITE_URL}/${page.slug}/` }, openGraph: { type: "website", locale: "fr_MA", url: `${SITE_URL}/${page.slug}/`, title, description } };
+    return { title, description, alternates: { canonical: `${SITE_URL}${seoPath("category", page.slug)}` }, openGraph: { type: "website", locale: "fr_MA", url: `${SITE_URL}${seoPath("category", page.slug)}`, title, description } };
   }
   const meta = categoryMeta[category] ?? {
     title: `${cat.label} | L'ecomax`,
     description: cat.description,
     keywords: [],
   };
-  const description = meta.description.replace(/\{\{shipping\}\}/g, shippingAmount);
+  const seo = await getSeoContent("category", { name: cat.label, slug: category, description: cat.description });
+  const description = seo.description;
   return {
-    title: meta.title,
+    title: { absolute: seo.title },
     description,
     keywords: meta.keywords,
-    alternates: { canonical: `${SITE_URL}/${category}/` },
+    alternates: { canonical: `${SITE_URL}${seoPath("category", category)}` },
     openGraph: {
       type: "website",
       locale: "fr_MA",
-      url: `${SITE_URL}/${category}/`,
-      title: meta.title,
+      url: `${SITE_URL}${seoPath("category", category)}`,
+      title: seo.title,
       description,
       images: [{ url: cat.hero.startsWith("http") ? cat.hero : `${SITE_URL}${cat.hero}`, width: 1200, height: 630, alt: cat.label }],
     },
     twitter: {
       card: "summary_large_image",
-      title: meta.title,
+      title: seo.title,
       description,
     },
   };
@@ -188,27 +191,28 @@ export default async function CategoryPage({
   const subCategories = [...new Set([...subCategoriesFromDb, ...staticSubs])];
 
   const newCount = list.filter((p) => p.badge === "Nouveau").length;
+  const categorySeo = await getSeoContent("category", { name: cat.label, slug: category, description: cat.description });
   const promoCount = list.filter((p) => p.oldPrice).length;
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "@id": `${SITE_URL}/${category}/#breadcrumb`,
+    "@id": `${SITE_URL}${seoPath("category", category)}#breadcrumb`,
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Accueil", "item": SITE_URL },
-      { "@type": "ListItem", "position": 2, "name": cat.label, "item": `${SITE_URL}/${category}/` },
+      { "@type": "ListItem", "position": 2, "name": cat.label, "item": `${SITE_URL}${seoPath("category", category)}` },
     ],
   };
 
   const categoryPageSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    "name": categoryMeta[category]?.title ?? `${cat.label} | L'ecomax`,
-    "description": (categoryMeta[category]?.description ?? cat.description).replace(/\{\{shipping\}\}/g, shippingAmount),
-    "url": `${SITE_URL}/${category}/`,
+    "name": categorySeo.title,
+    "description": categorySeo.description,
+    "url": `${SITE_URL}${seoPath("category", category)}`,
     "inLanguage": "fr-MA",
     "numberOfItems": list.length,
-    "breadcrumb": { "@id": `${SITE_URL}/${category}/#breadcrumb` },
+    "breadcrumb": { "@id": `${SITE_URL}${seoPath("category", category)}#breadcrumb` },
   };
 
   return (
@@ -219,7 +223,7 @@ export default async function CategoryPage({
       <section className="relative h-[58vh] min-h-[380px] bg-black overflow-hidden">
         <Image
           src={cat.hero}
-          alt={cat.label}
+          alt={categorySeo.imageAlt}
           fill
           priority
           sizes="100vw"
@@ -228,7 +232,7 @@ export default async function CategoryPage({
         />
         <Image
           src={cat.heroMobile}
-          alt={cat.label}
+          alt={categorySeo.imageAlt}
           fill
           priority
           sizes="100vw"

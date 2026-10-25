@@ -1,0 +1,44 @@
+{
+  "id": "seo-release2-a-prepared-20261022",
+  "createdAt": "2026-10-22T12:14:41.178Z",
+  "title": "Official SEO Release 2A: prepared",
+  "summary": "Recovered approved A changes on 1f17d9e8c54f960b8ba873dfe0974075ed8a9e4a; candidate ac1c6fa09c2482648a0d9ed08d8e71a9980a1a50. Fresh release checks and live deployment verification pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Sitemap",
+    "Category/CMS",
+    "Product SEO",
+    "Change History"
+  ],
+  "components": [
+    "Sequential production release",
+    "Source and deployment verification"
+  ],
+  "files": [
+    "release\\seo-sitemap-candidate-20261022\\app\\sitemap.xml\\route.ts",
+    "release\\seo-sitemap-candidate-20261022\\app\\sitemaps\\[kind]\\[page]\\route.ts",
+    "release\\seo-sitemap-candidate-20261022\\app\\sitemaps\\static\\route.ts",
+    "release\\seo-sitemap-candidate-20261022\\lib\\sitemap-data.ts",
+    "release\\seo-sitemap-candidate-20261022\\tests\\seo-sitemap.test.ts",
+    "scripts/seo-release2.cjs",
+    "scripts/seo-release2-live.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recovered approved A changes on 1f17d9e8c54f960b8ba873dfe0974075ed8a9e4a; candidate ac1c6fa09c2482648a0d9ed08d8e71a9980a1a50. Fresh release checks and live deployment verification pending. No database migration, configuration or unrelated feature activation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source scope and preservation",
+      "result": "passed",
+      "detail": "Exact approved delta and cumulative candidate hashes; original branches preserved."
+    },
+    {
+      "name": "Release validation",
+      "result": "not-run",
+      "detail": "Fresh tests, types, lint, build and live checks pending."
+    }
+  ]
+}

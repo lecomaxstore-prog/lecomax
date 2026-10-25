@@ -1,0 +1,37 @@
+{
+  "id": "seo-certified-payload-prepared-1792766736080",
+  "createdAt": "2026-10-23T14:45:36.080Z",
+  "title": "Validate filtered Preview with certified course content",
+  "summary": "Preparing isolated build validation without shipping migration tooling or skipping course correctness checks.",
+  "status": "needs-testing",
+  "pages": [
+    "Protected SEO Preview",
+    "Change History"
+  ],
+  "components": [
+    "Deployment packaging",
+    "Course build validation"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/prepare-certified-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/validate-certified-payload.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Local full course generation/validation copy and deployment hash certificate; isolated clean-install build harness."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interruption investigation",
+      "result": "passed",
+      "detail": "Prior command rejected before execution because automatic review hit usage limit; no side effects from rejected command."
+    },
+    {
+      "name": "Filtered build",
+      "result": "not-run",
+      "detail": "Clean install and production build pending. No deployment authorized."
+    }
+  ]
+}

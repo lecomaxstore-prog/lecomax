@@ -1,0 +1,53 @@
+{
+  "id": "product-video-menu-verification-20261025",
+  "createdAt": "2026-10-25T14:11:29.237Z",
+  "title": "Product video menu restrictions checked",
+  "summary": "Website markup and running Expo web player expose the requested menu restrictions; mobile TypeScript and lint passed after a DOM typing correction.",
+  "status": "needs-testing",
+  "pages": [
+    "Website /produit/[slug]",
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductVideo",
+    "VideoPlayback"
+  ],
+  "files": [
+    "components/ProductVideo.tsx",
+    "mobile/src/components/product-video.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Use standard getAttribute/setAttribute calls for Expo web controlslist to support the installed TypeScript DOM definitions while preserving existing control restrictions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Website browser markup",
+      "result": "passed",
+      "detail": "Rendered actual ProductVideo component in Edge: controlsList nodownload noplaybackrate, controls enabled and playsInline enabled. Evidence: artifacts/video-menu-20261025/website-result.json."
+    },
+    {
+      "name": "Expo web browser attributes",
+      "result": "passed",
+      "detail": "Initial running varsity page check confirmed nofullscreen nodownload noplaybackrate with native controls enabled. After the equivalent DOM typing correction, repeat navigation timed out waiting for video; final repeat not completed."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "Initial mobile typecheck rejected controlsList DOM typing; corrected to standard attribute methods. Final mobile typecheck and focused ESLint exited 0. Website component ESLint and git diff --check passed."
+    },
+    {
+      "name": "History",
+      "result": "passed",
+      "detail": "925 reports valid before follow-up and all four history tests passed. Final manifest checked after append."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Actual clip playback remains unavailable in headless Edge (format error). Native Android menu and iOS devices not tested; Android settings disabled in code, iOS system controls unchanged. controlsList behavior depends on browser support. No deployment."
+    }
+  ],
+  "relatedId": "product-video-menu-20261025"
+}

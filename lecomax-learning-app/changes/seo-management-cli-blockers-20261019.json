@@ -1,0 +1,55 @@
+{
+  "id": "seo-management-cli-blockers-20261019",
+  "createdAt": "2026-10-19T18:10:54.797Z",
+  "relatedId": "seo-staging-management-followup-20261019",
+  "title": "Production CLI link detected; offline guard and synthetic schema proposed",
+  "summary": "Management plugin remains uninstalled; no usable CLI session verified. Added offline wrong-target detection, synthetic-only catalogue proposal and documented read permission requirements.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "CLI target guard",
+    "Synthetic catalogue proposal",
+    "Management authorization diagnosis"
+  ],
+  "files": [
+    "scripts/check-seo-cli-target.cjs",
+    "operations/seo/staging-catalogue-proposal.json",
+    "docs/seo-management-cli-blockers-20261019.md",
+    "docs/seo-staging-readiness-audit-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added advisory read-only CLI target guard, explicit synthetic schema proposal and prioritized access/security checklist."
+    },
+    {
+      "kind": "modified",
+      "detail": "Linked existing readiness report to new findings without removing historical evidence."
+    }
+  ],
+  "validation": [
+    {
+      "name": "New tooling and proposal",
+      "result": "passed",
+      "detail": "Syntax and focused ESLint passed; guard correctly blocks recorded production link; JSON structure and synthetic ID/slug uniqueness checked without SQL."
+    },
+    {
+      "name": "Management and CLI discovery",
+      "result": "passed",
+      "detail": "Plugin installed=false; no CLI found in checked PATH/install/cache locations; environment and checked token-file presence absent. OS credential store not inspected."
+    },
+    {
+      "name": "Usable management authorization",
+      "result": "not-run",
+      "detail": "No connected grant available; documented required scopes are not a diagnosis of missing scopes in an existing token."
+    },
+    {
+      "name": "Synthetic schema execution",
+      "result": "not-run",
+      "detail": "Proposal only; hosted permission changes and migrations remain unauthorized."
+    }
+  ]
+}

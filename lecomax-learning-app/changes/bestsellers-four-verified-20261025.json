@@ -1,0 +1,64 @@
+{
+  "id": "bestsellers-four-verified-20261025",
+  "createdAt": "2026-10-25T13:11:59.369Z",
+  "title": "Four-product bestseller selection verified",
+  "summary": "Show GENAI, Lenovo LP40 Pro, Lenovo GM2 Pro and the sac banane in that order on both bestseller surfaces.",
+  "status": "successful",
+  "pages": [
+    "Homepage /",
+    "/bestsellers"
+  ],
+  "components": [
+    "Homepage bestseller rail",
+    "BestsellersPage",
+    "selectBestsellers"
+  ],
+  "files": [
+    "lib/bestseller-eligibility.ts",
+    "app/page.tsx",
+    "app/bestsellers/page.tsx",
+    "tests/bestseller-selection.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replace featured/badge-based selection with an ordered allowlist of the four catalogue slugs."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove other products and fallback fillers from bestseller collections only. Missing live entries are omitted; no products are deleted from the shop."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for requested order, duplicates, missing products and unrelated exclusions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Selection regression tests",
+      "result": "passed",
+      "detail": "Two tests passed: requested-only order from shuffled catalogue, exclusion of unrelated products, deduplication, no fillers and original product data retained."
+    },
+    {
+      "name": "Shared integration review",
+      "result": "passed",
+      "detail": "Homepage rail and /bestsellers both use the same ordered selector with the active catalogue."
+    },
+    {
+      "name": "Lint",
+      "result": "passed",
+      "detail": "No errors; two existing next/no-img-element warnings in the homepage community section."
+    },
+    {
+      "name": "Learning typecheck and history tests",
+      "result": "passed",
+      "detail": "Learning app typecheck and all four change-history tests passed."
+    },
+    {
+      "name": "Live catalogue and deployment",
+      "result": "not-run",
+      "detail": "Product slugs confirmed against repository catalogue. Live database/browser availability not checked; inactive or absent products are omitted. No deployment performed."
+    }
+  ],
+  "relatedId": "bestsellers-four-20261025"
+}

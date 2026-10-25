@@ -125,6 +125,10 @@ export default function SearchOverlay({ open, onClose }: Props) {
   const [activeIndex, setActiveIndex] = useState(-1);
   const desktopInput = useRef<HTMLInputElement>(null);
   const mobileInput = useRef<HTMLInputElement>(null);
+  const mobileDialog = useRef<HTMLDivElement>(null);
+  const desktopDialog = useRef<HTMLDivElement>(null);
+  const closeRef = useRef(onClose);
+  useEffect(() => { closeRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
     try {
@@ -148,16 +152,80 @@ export default function SearchOverlay({ open, onClose }: Props) {
       setVisible(true);
       setQuery("");
       setActiveIndex(-1);
-      document.body.style.overflow = "hidden";
-      const focusTimer = window.setTimeout(() => (window.innerWidth < 768 ? mobileInput : desktopInput).current?.focus(), 120);
-      return () => window.clearTimeout(focusTimer);
+      return;
     }
     const closeTimer = window.setTimeout(() => setVisible(false), 240);
-    document.body.style.overflow = "";
     return () => window.clearTimeout(closeTimer);
   }, [open]);
 
-  useEffect(() => () => { document.body.style.overflow = ""; }, []);
+  useEffect(() => {
+    if (!open || !visible) return;
+    const trigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const mobileRoot = mobileDialog.current;
+    const desktopRoot = desktopDialog.current;
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const dialog = () => (mobile.matches ? mobileDialog : desktopDialog).current;
+    const focusInput = () => (mobile.matches ? mobileInput : desktopInput).current?.focus({ preventScroll: true });
+    const items = () => Array.from(dialog()?.querySelectorAll<HTMLElement>(
+      'a[href], button, input, select, textarea, [tabindex]'
+    ) ?? []).filter(element => element.tabIndex >= 0 && !element.matches(":disabled") &&
+      !element.closest("[inert]") && element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden");
+    focusInput();
+    const previousInert = new Map<HTMLElement, boolean>();
+    const isolate = () => {
+      let branch: HTMLElement | null = dialog();
+      while (branch?.parentElement) {
+        for (const sibling of Array.from(branch.parentElement.children)) {
+          if (!(sibling instanceof HTMLElement) || sibling === branch || sibling === mobileDialog.current || sibling === desktopDialog.current) continue;
+          if (!previousInert.has(sibling)) previousInert.set(sibling, sibling.inert);
+          sibling.inert = true;
+        }
+        if (branch.parentElement === document.body) break;
+        branch = branch.parentElement;
+      }
+    };
+    isolate();
+    const observer = new MutationObserver(isolate);
+    observer.observe(document.body, { childList: true, subtree: true });
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeRef.current();
+      } else if (event.key === "Tab") {
+        const controls = items(), first = controls[0], last = controls[controls.length - 1];
+        if (!first || !dialog()?.contains(document.activeElement) ||
+          (event.shiftKey ? document.activeElement === first : document.activeElement === last)) {
+          event.preventDefault();
+          (event.shiftKey ? last : first)?.focus();
+        }
+      }
+    };
+    const onFocusIn = (event: FocusEvent) => {
+      if (event.target instanceof Node && !dialog()?.contains(event.target)) focusInput();
+    };
+    const onBreakpointChange = () => { isolate(); focusInput(); };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("focusin", onFocusIn);
+    mobile.addEventListener("change", onBreakpointChange);
+    const previousOverflow = document.body.style.getPropertyValue("overflow");
+    const previousPriority = document.body.style.getPropertyPriority("overflow");
+    document.body.style.setProperty("overflow", "hidden");
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
+      mobile.removeEventListener("change", onBreakpointChange);
+      previousInert.forEach((value, element) => { element.inert = value; });
+      if (previousOverflow) document.body.style.setProperty("overflow", previousOverflow, previousPriority);
+      else document.body.style.removeProperty("overflow");
+      // Do not steal focus when navigation has already placed it elsewhere.
+      if (document.activeElement === document.body || mobileRoot?.contains(document.activeElement) || desktopRoot?.contains(document.activeElement)) {
+        const destination = trigger?.isConnected && trigger !== document.body && trigger !== document.documentElement && trigger.getClientRects().length && !trigger.closest("[inert]") ? trigger :
+          document.querySelector<HTMLElement>('header button[aria-label="Recherche"]');
+        destination?.focus({ preventScroll: true });
+      }
+    };
+  }, [open, visible]);
 
   useEffect(() => {
     if (!visible) return;
@@ -204,7 +272,6 @@ export default function SearchOverlay({ open, onClose }: Props) {
   };
   const chooseTerm = (term: string) => { setQuery(term); setActiveIndex(-1); (window.innerWidth < 768 ? mobileInput : desktopInput).current?.focus(); };
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === "Escape") { event.preventDefault(); onClose(); return; }
     if (event.key === "ArrowDown" && results.length) { event.preventDefault(); setActiveIndex((current) => Math.min(results.length - 1, current + 1)); }
     if (event.key === "ArrowUp" && results.length) { event.preventDefault(); setActiveIndex((current) => Math.max(-1, current - 1)); }
     if (event.key === "Enter") { event.preventDefault(); submitSearch(); }
@@ -223,7 +290,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
 
   return (
     <>
-      <div className="so-mobile fixed inset-0 z-[9999] bg-white" role="dialog" aria-modal="true" aria-label="Recherche de produits">
+      <div ref={mobileDialog} inert={!open} aria-hidden={!open} className="so-mobile fixed inset-0 z-[9999] bg-white" role="dialog" aria-modal="true" aria-label="Recherche de produits">
         <div className={`flex h-full flex-col transition-transform duration-300 ${open ? "translate-y-0" : "translate-y-full"}`}>
           <div className="search-mobile-header flex shrink-0 items-center justify-between px-5">
             <Link href="/" onClick={onClose} aria-label="L’ecomax — Accueil"><Logo showWordmark className="scale-90 origin-left" /></Link>
@@ -262,7 +329,7 @@ export default function SearchOverlay({ open, onClose }: Props) {
         </div>
       </div>
 
-      <div className={`so-desktop fixed inset-0 z-[9999] bg-black/60 backdrop-blur-[7px] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`} onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }} role="dialog" aria-modal="true" aria-label="Recherche de produits">
+      <div ref={desktopDialog} inert={!open} aria-hidden={!open} className={`so-desktop fixed inset-0 z-[9999] bg-black/60 backdrop-blur-[7px] transition-opacity duration-200 ${open ? "opacity-100" : "opacity-0"}`} onMouseDown={(event) => { if (event.target === event.currentTarget) { event.preventDefault(); onClose(); } }} role="dialog" aria-modal="true" aria-label="Recherche de produits">
         <div className={`search-desktop-panel mx-auto mt-5 max-h-[calc(100vh-40px)] w-[calc(100%-40px)] max-w-[1120px] overflow-hidden rounded-[26px] border border-white/30 bg-white shadow-[0_30px_100px_rgba(0,0,0,0.35)] transition-all duration-300 ${open ? "translate-y-0 scale-100 opacity-100" : "-translate-y-5 scale-[0.98] opacity-0"}`}>
           <div className="flex h-[82px] items-center gap-5 border-b border-neutral-100 px-7">
             <Link href="/" onClick={onClose} aria-label="L’ecomax — Accueil" className="shrink-0"><Logo showWordmark /></Link>

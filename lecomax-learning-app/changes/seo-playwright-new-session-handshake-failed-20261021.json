@@ -1,0 +1,43 @@
+{
+  "id": "seo-playwright-new-session-handshake-failed-20261021",
+  "createdAt": "2026-10-21T11:18:59.182Z",
+  "relatedId": "seo-playwright-connectivity-repaired-20261021",
+  "title": "New session confirms Playwright MCP handshake timeout",
+  "summary": "Corrected launcher is loaded, but MCP initialization times out after 30 seconds and browser tools are omitted. Staging acceptance remains blocked.",
+  "status": "failed",
+  "pages": [
+    "SEO staging acceptance",
+    "Change History"
+  ],
+  "components": [
+    "Playwright MCP diagnostics",
+    "Acceptance handoff"
+  ],
+  "files": [
+    "docs/seo-playwright-handshake-blocker-20261021.md",
+    "artifacts/seo-playwright-handshake-diagnostic-20261021.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added sanitized host startup evidence and a targeted recovery handoff; no application or configuration changes, removals or fixes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Host configuration",
+      "result": "passed",
+      "detail": "Host-context codex.cmd mcp get playwright confirms enabled STDIO npx.cmd configuration."
+    },
+    {
+      "name": "MCP startup and tool exposure",
+      "result": "failed",
+      "detail": "Host logs show approximately 30-second initialize handshake timeouts at 11:17:19Z and 11:17:40Z; tool catalog omits the unready client. No Playwright browser tools exposed."
+    },
+    {
+      "name": "Hosted desktop/mobile acceptance",
+      "result": "not-run",
+      "detail": "All requested browser checks remain pending. No staging navigation, authentication attempt or protected access occurred."
+    }
+  ]
+}

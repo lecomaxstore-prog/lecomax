@@ -1,0 +1,44 @@
+{
+  "id": "batch1-bootstrap-compat-wrapper-blocked-20261024",
+  "createdAt": "2026-10-24T18:36:25.720Z",
+  "relatedId": "batch1-bootstrap-dialect-compat-pending-20261024",
+  "title": "Schema compatibility passes; CLI wrapper assertion blocks final preflight",
+  "summary": "22 regressions passed with original constraints preserved. CLI validateConfig returned null but wrapper expected undefined. No upload; same attempt unused.",
+  "status": "failed",
+  "pages": [
+    "Checkout staging placeholder",
+    "/change-history"
+  ],
+  "components": [
+    "Bootstrap local verification"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-config.test.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/compatibility-draft07-schema.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/official-schema-refreshed.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/COMPATIBILITY-HANDOFF.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Documented constraint-preserving compatibility and exact wrapper failure; preserved originals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "HTML and configuration regressions",
+      "result": "passed",
+      "detail": "22/22 passed."
+    },
+    {
+      "name": "CLI wrapper",
+      "result": "failed",
+      "detail": "Actual validateConfig return null; wrapper incorrectly asserted undefined. Remaining integrity checks not reached."
+    },
+    {
+      "name": "Provider and deployment",
+      "result": "not-run",
+      "detail": "Stopped before upload; unused attempt preserved."
+    }
+  ]
+}

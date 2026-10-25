@@ -1,0 +1,65 @@
+{
+  "id": "seo-three-fixes-integrated-verified-20261021",
+  "relatedId": "seo-three-fixes-integrated-prepared-20261021",
+  "createdAt": "2026-10-21T12:11:25.693Z",
+  "status": "successful",
+  "title": "Isolated staging three-fix package validated locally",
+  "summary": "Exact candidate passes types, lint, 27 regressions, production build and 18 browser route/viewport checks. Hosted deployment remains unchanged; approval and post-deployment tests are required.",
+  "pages": [
+    "Storefront shared layout",
+    "Home and boutique",
+    "FR/AR category and product pages"
+  ],
+  "components": [
+    "RootLayout",
+    "CategoryTiles",
+    "Placeholder image"
+  ],
+  "files": [
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Integrated only the reviewed credentialed manifest, encoded single-URL srcset and missing placeholder into the isolated staging worktree; no dependencies, isolation or authentication changed."
+    },
+    {
+      "kind": "added",
+      "detail": "Added exact source inventory, small three-file archive, local browser evidence and rollback handoff at docs/seo-staging-fix-integration-20261021.md in the main workspace. No removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source integrity",
+      "result": "passed",
+      "detail": "2124 upload files match worktree and built snapshot; exactly two baseline files changed, one image added, 2121 unchanged; 40 direct dependency versions match lockfile."
+    },
+    {
+      "name": "TypeScript, focused ESLint and regressions",
+      "result": "passed",
+      "detail": "Types/lint exit 0; 27 candidate tests plus four Change History tests passed."
+    },
+    {
+      "name": "Production-mode build",
+      "result": "passed",
+      "detail": "Next 15.5.28 / Node 24.22.0, synthetic isolated local environment; unrelated existing lint warnings retained."
+    },
+    {
+      "name": "Final local browser matrix",
+      "result": "passed",
+      "detail": "18 routes/viewports passed, all images decoded, no HTTP failures/page exceptions/overflow; manifest, SEO, JSON-LD, robots/sitemaps and navigation passed. Synthetic realtime is intentionally CSP-blocked. Initial first-process AVIF stall did not recur in a fresh unchanged server; evidence retained and cold hosted retest required."
+    },
+    {
+      "name": "Deployment identity",
+      "result": "passed",
+      "detail": "Fresh CLI alias resolution: dpl_9PVLNqN3YRoSmDgi4T5D9o81Svcv READY, protection all; authenticated immutable browser still shows old manifest. No deployment performed."
+    },
+    {
+      "name": "Hosted fixes/admin/editorial/production",
+      "result": "not-run",
+      "detail": "Hosted fixes need separately approved deployment and verification. Normal admin login and bounded hosted write approval remain required; production gates unchanged. No live learning preview."
+    }
+  ]
+}

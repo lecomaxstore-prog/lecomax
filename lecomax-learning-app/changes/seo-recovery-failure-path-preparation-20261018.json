@@ -1,0 +1,30 @@
+{
+  "id": "seo-recovery-failure-path-preparation-20261018",
+  "createdAt": "2026-10-18T18:23:54.039Z",
+  "relatedId": "seo-controlled-production-readiness-20261018",
+  "title": "Prepare bounded recovery failure-path validation",
+  "summary": "Add a fixed localhost-only rehearsal for lock timeout and atomic rollback; preserve the completed recovery evidence.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO rollout operations"
+  ],
+  "components": [
+    "Bounded database recovery validation"
+  ],
+  "files": [
+    "scripts/verify-seo-bounded-recovery.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Test a lock on the second catalogue table so the first trigger disable must roll back; no production target accepted."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local failure-path execution",
+      "result": "not-run",
+      "detail": "Pending isolated PostgreSQL rehearsal. No production operations authorized or performed."
+    }
+  ]
+}

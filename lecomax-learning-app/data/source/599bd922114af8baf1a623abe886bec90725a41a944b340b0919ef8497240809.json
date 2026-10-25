@@ -1,0 +1,1 @@
+{"content":"import {NextRequest} from 'next/server';\nimport {ownerAuthRoute} from '@/lib/owner-auth-server';\nexport const runtime='nodejs';\nexport async function POST(req:NextRequest){return ownerAuthRoute(req,'logout');}\n"}

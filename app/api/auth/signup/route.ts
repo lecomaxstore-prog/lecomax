@@ -11,9 +11,10 @@ const supabaseAdmin = createClient(
   { auth: { autoRefreshToken: false, persistSession: false } }
 );
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.APP_ENV === "production" && process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function POST(req: NextRequest) {
+  if (!resend) return NextResponse.json({ error: "EMAIL_DISABLED" }, { status: 503 });
   const body = await readJsonLimited(req, 16 * 1024).catch(() => null);
   if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "Données invalides." }, { status: 400 });
   const { email, password, prenom, nom } = body as {

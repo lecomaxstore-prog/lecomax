@@ -1,0 +1,54 @@
+{
+  "id": "seo-final-checkout-risk-hold-20261018",
+  "relatedId": "seo-controlled-rollout-refreshed-decision-20261018",
+  "createdAt": "2026-10-18T18:47:42.734Z",
+  "title": "Hold SEO trigger activation: inventory failure coupling confirmed locally",
+  "summary": "Backup under 15 minutes, exact production identity and preflight verified. Exact SQL passes a bounded local rehearsal, but injected SEO failure rejects stock updates. Recommend deferring synchronous triggers.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO migration operations",
+    "Checkout and inventory risk review",
+    "/change-history"
+  ],
+  "components": [
+    "Transaction rehearsal",
+    "Recovery behavior",
+    "Final migration gate"
+  ],
+  "files": [
+    "scripts/verify-seo-transaction-recovery.mjs",
+    "docs/seo-migration-final-hold-20261018.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Isolated exact-SQL timing and failure injection test verifies stock-write failure coupling and recovery preserving an unrelated business trigger."
+    },
+    {
+      "kind": "added",
+      "detail": "Final HOLD report enumerates exact scope, fresh evidence, intentional SEO disable effects, and a separately reviewed phased alternative."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Backup, target and preflight",
+      "result": "passed",
+      "detail": "18:37:25 UTC archive still under 15 minutes; checksum and 1114 schema blocks match. Exact official project verified with TLS at 18:46:54 UTC; no SEO collisions/ledger entry, no >60s transactions or lock waiters."
+    },
+    {
+      "name": "Exact SQL and wrapper scope",
+      "result": "passed",
+      "detail": "Original migration hash unchanged; wrapper includes only original file. Isolated 38-record backfill committed in 22 ms with planned limits. No unrelated workspace changes included."
+    },
+    {
+      "name": "Stock failure and recovery",
+      "result": "passed",
+      "detail": "Injected SEO failure rejects stock decrement. Exact recovery restores synthetic stock writes, preserves unrelated audit trigger, disables only named SEO triggers and denies SEO save RPC. Initial synthetic function parameter-name error corrected before passing run."
+    },
+    {
+      "name": "Production execution and no-interruption guarantee",
+      "result": "not-run",
+      "detail": "No migration, deployment or data change. Real hosted checkout/recovery/load remains untested; recovery locks may fail. SEO synchronization/editing intentionally stops under recovery. Recommend NO-GO for current synchronous-trigger activation."
+    }
+  ]
+}

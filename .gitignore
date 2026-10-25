@@ -89,3 +89,25 @@ mobile/latest-build-audit.json
 .owner-auth-qa/
 .teacher-workspaces/
 .pc-remote/
+
+# Local validation snapshots, recovery archives and browser captures
+/projects/
+/.gitignore_append.txt
+/lighthouse-report.json
+/artifacts/
+/.worktrees/
+/.playwright-mcp/
+/.recovery*/
+/.recovery.tar
+/recovery.patch
+/artifacts-live-*
+/lecomax-learning-app/dist*/
+/lecomax-learning-app/artifacts/
+/lecomax-learning-app/.*.json
+/lecomax-learning-app/*report*.json
+/lecomax-learning-app/*verified*.json
+/lecomax-learning-app/*.tmp.json
+/lecomax-learning-app/autolink-test.json
+/lecomax-learning-app/daily-action-*.json
+.vercel
+.env*.local

@@ -1,0 +1,60 @@
+{
+  "id": "seo-worker-deadline-verified-20261019",
+  "relatedId": "seo-worker-deadline-prepared-20261019",
+  "createdAt": "2026-10-19T21:42:20.175Z",
+  "title": "Worker deadline and partial-run recovery verified locally",
+  "summary": "142 SEO tests, 9 browser scenarios, TypeScript and focused ESLint pass. Slow claims cannot start generation without time reserve; AI cutoffs persist partial status. Hosted staging and production remain NO-GO.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync"
+  ],
+  "components": [
+    "SEO worker handler",
+    "AI worker",
+    "SQL run status"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/lib/seo-ai-worker.mjs",
+    "operations/seo-vercel/tests/ai-deadline.test.mjs",
+    "operations/seo-vercel/tests/sql-integration.test.mjs",
+    "docs/seo-worker-readiness-handoff-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Post-claim time reserve protects provider start and settlement; expired non-finalization RPCs fail before transport."
+    },
+    {
+      "kind": "fixed",
+      "detail": "AI time and batch limits use durable partial status rather than completed status."
+    },
+    {
+      "kind": "added",
+      "detail": "Three synthetic regressions and SQL assertions for both partial flags; concise readiness handoff."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated validation",
+      "result": "passed",
+      "detail": "21 focused cases; 142 regression cases with no failures/skips; subsequent SQL partial-status assertions passed. Counts are not added across overlapping runs."
+    },
+    {
+      "name": "Browser and static checks",
+      "result": "passed",
+      "detail": "9 real Chrome synthetic scenarios; root and learning TypeScript; focused ESLint; changed worker ESM syntax checks."
+    },
+    {
+      "name": "Staging read-only inventory",
+      "result": "passed",
+      "detail": "Read-only PG17.11, empty public schema, zero foreign servers/subscriptions, no cron/http queue relations, empty security advisors. Not isolation or migration acceptance."
+    },
+    {
+      "name": "Build and hosted limitations",
+      "result": "not-run",
+      "detail": "Fresh build below 1GB capacity guard; prior build retained and unchanged application sources compared. PG17/PostgREST, Auth/SMTP/SMS/hooks/external isolation, backup/restore and real provider acceptance unresolved. No production access, hosted writes, deployments, activation, paid calls or secret changes."
+    }
+  ]
+}

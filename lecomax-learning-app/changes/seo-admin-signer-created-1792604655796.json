@@ -1,0 +1,51 @@
+{
+  "id": "seo-admin-signer-created-1792604655796",
+  "relatedId": "seo-admin-signer-approved-prepared-1792604576674",
+  "createdAt": "2026-10-21T17:44:15.795Z",
+  "title": "Approved production admin signer created securely",
+  "summary": "Independent random ADMIN_SESSION_SECRET added once as Sensitive in Production only. Existing settings and deployment preserved; re-login takes effect only after a separately approved deployment.",
+  "status": "successful",
+  "pages": [
+    "Production admin authentication",
+    "Change History"
+  ],
+  "components": [
+    "Vercel production environment"
+  ],
+  "files": [
+    "scripts/create-approved-production-admin-secret.cjs",
+    "artifacts/seo-approved-admin-secret-reconciled-1792604639959.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Created ADMIN_SESSION_SECRET using 48 cryptographically random bytes encoded as base64url. Value sent via stdin, never printed or persisted locally."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Handle Vercel created receipt as an object or array. Initial post-create parser error retained; read-only reconciliation confirmed exactly one addition and no retry occurred."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production scope and storage",
+      "result": "passed",
+      "detail": "Exactly one ADMIN_SESSION_SECRET, sensitive storage, Production only, no branch/custom scope. Metadata verified; secret readback unavailable."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "All earlier environment metadata, production alias and four crons unchanged. No deployment or migration."
+    },
+    {
+      "name": "Syntax",
+      "result": "passed",
+      "detail": "Corrected script passes node --check."
+    },
+    {
+      "name": "Runtime authentication and complete release",
+      "result": "not-run",
+      "detail": "No deployment; live sessions unchanged. Three credential bindings still absent. Production build and authenticated staging acceptance remain blocked."
+    }
+  ]
+}

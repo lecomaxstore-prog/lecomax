@@ -1,0 +1,48 @@
+{
+  "id": "batch1-checkout-implementation-20261024",
+  "createdAt": "2026-10-24T13:21:53.981Z",
+  "title": "Batch 1 : calcul de livraison fiable et reprise apr?s erreur",
+  "summary": "Candidat local isol? issu de la r?vision Production audit?e ddf12f4a. Livraison inconnue distincte de la gratuit?, erreurs de devis s?par?es des commandes, nouvelle validation ? chaque reprise ou changement d?adresse. Aucun d?ploiement.",
+  "status": "needs-testing",
+  "pages": [
+    "/panier",
+    "/checkout"
+  ],
+  "components": [
+    "CartPage",
+    "CheckoutPage",
+    "useCartCalculation",
+    "CartQuoteFeedback"
+  ],
+  "files": [
+    "release/batch1-checkout-20261024/app/panier/page.tsx",
+    "release/batch1-checkout-20261024/app/checkout/page.tsx",
+    "release/batch1-checkout-20261024/lib/use-cart-calculation.ts",
+    "release/batch1-checkout-20261024/components/CartQuoteFeedback.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Livraison et total ? confirmer lorsque le devis manque; annonce de gratuit? r?serv?e ? un devis confirm?."
+    },
+    {
+      "kind": "added",
+      "detail": "Retour accessible en fran?ais et bouton de reprise du calcul."
+    },
+    {
+      "kind": "modified",
+      "detail": "Identit? du devis incluant reprise et adresse; conservation des protections Production, d?lai de 15 secondes, annulation et validation serveur."
+    },
+    {
+      "kind": "removed",
+      "detail": "Copie persistante des erreurs de devis dans les erreurs de commande et ?couteur focus redondant."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation du candidat",
+      "result": "not-run",
+      "detail": "Tests synth?tiques, TypeScript, build et contr?les de pr?servation ? ex?cuter. Aucune transaction r?elle ni modification de service autoris?e."
+    }
+  ]
+}

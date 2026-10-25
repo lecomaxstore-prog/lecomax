@@ -3,26 +3,42 @@
 import { useState } from "react";
 import { productVideoMedia } from "@/lib/product-video";
 
-export default function ProductVideo({ url, poster, autoPlay = false }: { url: string; poster?: string; autoPlay?: boolean }) {
+export default function ProductVideo({ url, poster, autoPlay = true, onAspectRatio }: { url: string; poster?: string; autoPlay?: boolean; onAspectRatio?: (ratio: number) => void }) {
   const media = productVideoMedia(url, poster);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(media.error ?? "");
   const [attempt, setAttempt] = useState(0);
   const [posterFailed, setPosterFailed] = useState(false);
+  const [fallbackFailed, setFallbackFailed] = useState(false);
+  const displayPoster = posterFailed ? (fallbackFailed ? undefined : poster) : media.poster;
   return (
-    <div className="absolute inset-0 h-full w-full bg-neutral-100">
-      {/* Probe the poster so a missing Cloudinary derivative falls back to a product photo. */}
-      {media.poster && !posterFailed && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={media.poster} alt="" hidden onError={() => setPosterFailed(true)} />
+    <div className="absolute inset-0 isolate h-full w-full overflow-hidden bg-neutral-100">
+      {/* Fill unused space without cropping the product or decoding a second video. */}
+      {displayPoster && (
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={displayPoster}
+            alt=""
+            onError={() => posterFailed ? setFallbackFailed(true) : setPosterFailed(true)}
+            className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl"
+          />
+          <div className="absolute inset-0 bg-white/25" />
+        </div>
       )}
       <video
         key={`${media.src}-${attempt}`}
         src={media.src || undefined}
-        poster={posterFailed ? poster : media.poster}
-        controls playsInline preload="metadata"
+        poster={displayPoster}
+        controls={false} playsInline preload="metadata"
+        disablePictureInPicture
+        disableRemotePlayback
         autoPlay={autoPlay} muted={autoPlay} loop={autoPlay}
         onLoadStart={() => { setLoading(true); }}
+        onLoadedMetadata={(event) => {
+          const { videoWidth, videoHeight } = event.currentTarget;
+          if (videoWidth > 0 && videoHeight > 0) onAspectRatio?.(videoWidth / videoHeight);
+        }}
         onLoadedData={() => setLoading(false)}
         onCanPlay={() => setLoading(false)}
         onPlaying={() => { setLoading(false); setError(""); }}

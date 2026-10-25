@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-19T21:11:38.685Z",
+  "purpose": "Offline six-migration editorial review inventory; not hosted execution approval",
+  "executable": false,
+  "hostedWritesAllowed": false,
+  "workerEnabled": false,
+  "aiEnabled": false,
+  "initialBudgetUsd": 0,
+  "migrations": [
+    {
+      "order": 1,
+      "file": "supabase/alternatives/202610180002_seo_decoupled.sql",
+      "sha256": "1f084348a0702a9ae6f5a2a52a59537c544d8b8aa2dc7e86e6fe38c33a725445"
+    },
+    {
+      "order": 2,
+      "file": "operations/seo-vercel/supabase/migrations/20261018193508_seo_worker_run_control.sql",
+      "sha256": "39b1ad24d16124cddbb2d49052fd0d185b67681418e4a6dc0a3dd4ea1f2cf079"
+    },
+    {
+      "order": 3,
+      "file": "operations/seo-vercel/supabase/migrations/202610190001_seo_ai_budget.sql",
+      "sha256": "5087b11fb0b5692ba76b467aa3b6075e1919f59faef1358006e6e3422f426b63"
+    },
+    {
+      "order": 4,
+      "file": "operations/seo-vercel/supabase/migrations/202610190002_seo_editorial.sql",
+      "sha256": "a88e6c5ae6d75805a1f01436a7e7fed77ee9e3a0a4855344504c8ba3712c2004"
+    },
+    {
+      "order": 5,
+      "file": "operations/seo-vercel/supabase/migrations/202610190003_seo_editorial_review.sql",
+      "sha256": "f975fd04b40bf8b5cc4895bbdbe65cdb2640a0ce3549d5b4c69d244ad6d19030"
+    },
+    {
+      "order": 6,
+      "file": "operations/seo-vercel/supabase/migrations/202610190004_seo_editorial_workflow.sql",
+      "sha256": "4f44c9abecc7c9d2e08ba821972c23d2a37d461f330df57c94682dc37aba88e8"
+    }
+  ],
+  "dependencies": {
+    "roles": [
+      "anon",
+      "authenticated",
+      "service_role"
+    ],
+    "tables": {
+      "products": [
+        "id",
+        "name",
+        "slug",
+        "active",
+        "description",
+        "brand",
+        "category",
+        "images",
+        "stock"
+      ],
+      "categories": [
+        "id",
+        "name",
+        "slug",
+        "active"
+      ]
+    }
+  },
+  "limitations": [
+    "Synthetic dependencies do not reproduce production schema or Auth",
+    "Hosted PG17.11, PostgREST, isolation and recovery acceptance still required",
+    "Old five-file plans and pins remain unchanged"
+  ]
+}

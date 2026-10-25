@@ -1,0 +1,44 @@
+{
+  "id": "seo-final-validation-type-race-20261021",
+  "relatedId": "seo-vercel-cli-auth-prepared-20261021",
+  "createdAt": "2026-10-21T10:34:48.867Z",
+  "title": "Standalone type check collided with build-generated files",
+  "summary": "The initial standalone TypeScript run failed because the simultaneous build regenerated .next/types. The production-mode build subsequently passed; a sequential standalone check is pending.",
+  "status": "failed",
+  "pages": [
+    "SEO staging acceptance"
+  ],
+  "components": [
+    "Candidate validation",
+    "Build-generated TypeScript definitions"
+  ],
+  "files": [
+    "scripts/seo-dependency-validation.cjs",
+    "scripts/validate-seo-staging-rc.cjs",
+    "artifacts/seo-dependency-remediation-20261021/types-1792578486475.log",
+    "artifacts/seo-dependency-remediation-20261021/build-1792578499112.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Validation execution order corrected: finish the build before retrying standalone TypeScript. No application change or suppression of diagnostics."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial standalone TypeScript",
+      "result": "failed",
+      "detail": "Exit 2 with TS6053 missing .next/types files during concurrent regeneration. Original log retained."
+    },
+    {
+      "name": "Production-mode isolated build",
+      "result": "passed",
+      "detail": "Exit 0 at 2026-10-21T10:32:31.834Z; synthetic environment and outbound fetch blocked. Existing lint warnings retained."
+    },
+    {
+      "name": "Sequential standalone TypeScript",
+      "result": "not-run",
+      "detail": "Pending completion after successful build."
+    }
+  ]
+}

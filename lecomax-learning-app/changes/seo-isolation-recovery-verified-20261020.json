@@ -1,0 +1,76 @@
+{
+  "id": "seo-isolation-recovery-verified-20261020",
+  "relatedId": "seo-isolation-recovery-prepared-20261020",
+  "createdAt": "2026-10-20T11:52:48.476Z",
+  "title": "Verify recovered SEO isolation and close local endpoint bypass",
+  "summary": "Local Node24 tests, PostgreSQL/PostgREST acceptance, production build and built-app HTTP checks passed. Hosted release remains NO-GO.",
+  "status": "successful",
+  "pages": [
+    "Storefront",
+    "/admin/seo",
+    "Owner learning",
+    "/change-history"
+  ],
+  "components": [
+    "Environment policy",
+    "Supabase clients",
+    "SEO worker",
+    "Build and staging configuration"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "lib/supabase.ts",
+    "operations/seo-vercel/tests/environment-isolation.test.mjs",
+    "tests/environment-clients.test.ts",
+    ".env.example",
+    "lib/admin-session.ts",
+    "scripts/next-build.mjs",
+    "docs/seo-isolation-recovery-handoff-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Reject local PostgreSQL query target overrides, repeated TLS parameters and custom Vercel targets labelled production; validate browser destinations and key roles before SDK initialization."
+    },
+    {
+      "kind": "added",
+      "detail": "Executable client-transport and offline-validator regressions; detailed recovery handoff and retained evidence."
+    },
+    {
+      "kind": "modified",
+      "detail": "Document required explicit environment and credential bindings, disabled automation, independent admin secret; clear unsafe/invalid owner examples and obsolete comments. No real dotenv, hosted configuration or migration files changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node24 regressions",
+      "result": "passed",
+      "detail": "71 final worker tests and 137 application/security/history tests, 208 distinct tests; overlapping correction reruns not added. Initial new test path mistake and lint naming error corrected; failed logs retained."
+    },
+    {
+      "name": "Native PostgreSQL 17.11 / PostgREST 16.5",
+      "result": "passed",
+      "detail": "13 synthetic checks including RLS/RPC permissions, concurrency, publication/rollback, expired/invalid JWTs, French/Arabic roundtrip and synthetic dump/restore. Sandbox token error preserved; reviewed retry passed; services stopped."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Root Next.js and Expo learning app TypeScript with no incremental writes; focused lint passed after test variable rename."
+    },
+    {
+      "name": "Isolated build and HTTP smoke",
+      "result": "passed",
+      "detail": "Build exit 0 at 2026-10-20T11:50:01.196Z; storefront 200, unauthenticated SEO API 401 and disabled cron 503/noindex; test server stopped. Synthetic keys, blocked runtime fetches; public Google Fonts permitted on retry. Initial network and smoke-harness encoding failures retained."
+    },
+    {
+      "name": "Append-only history",
+      "result": "passed",
+      "detail": "Pre-append integrity check: 630 reports valid. Final append/check and history tests recorded in verification.json."
+    },
+    {
+      "name": "Hosted readiness / human acceptance / production recovery",
+      "result": "not-run",
+      "detail": "NO-GO: hosted identity/Auth/integration/Vercel evidence, staging acceptance, current backup/PITR and approved restore, human FR/AR review and candidate scope remain owner gates. No deployment, hosted writes, worker activation or paid requests."
+    }
+  ]
+}

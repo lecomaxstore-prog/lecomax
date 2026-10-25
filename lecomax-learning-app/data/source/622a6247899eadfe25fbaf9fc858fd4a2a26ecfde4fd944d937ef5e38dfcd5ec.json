@@ -1,0 +1,1 @@
+{"content":"export type SeedReview = {\n  id: string;\n  author_name: string;\n  city: string | null;\n  rating: number;\n  title: string | null;\n  body: string;\n  color: string | null;\n  created_at: string;\n};\n\n// No synthetic customer reviews. Empty products remain unrated.\nconst SEED_REVIEWS: Record<string, SeedReview[]> = {};\nexport default SEED_REVIEWS;\n"}

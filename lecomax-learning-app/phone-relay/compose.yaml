@@ -1,0 +1,23 @@
+services:
+  relay:
+    build: .
+    restart: unless-stopped
+    environment:
+      PHONE_RELAY_KEY: ${PHONE_RELAY_KEY:?Set a random 64-character hex key}
+    expose:
+      - "8091"
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      PHONE_RELAY_DOMAIN: ${PHONE_RELAY_DOMAIN:?Set your relay domain}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  caddy_data:
+  caddy_config:

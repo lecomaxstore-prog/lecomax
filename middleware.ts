@@ -4,6 +4,8 @@ import { getAdminAccess } from "@/lib/admin-access";
 import { adminApiPermission, hasAdminPermission } from "@/lib/admin-policy";
 import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/admin-session";
+import { applicationEnvironment } from "./operations/seo-vercel/lib/environment-target.mjs";
+import { supabaseHeaders } from "./operations/seo-vercel/lib/supabase-headers.mjs";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -27,7 +29,8 @@ async function loadMaintenanceMode(): Promise<boolean> {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/settings?key=eq.maintenance_mode&select=value`,
       {
-        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+        headers: supabaseHeaders(SUPABASE_ANON_KEY),
+        redirect: "error",
         signal: AbortSignal.timeout(1500),
       }
     );
@@ -96,6 +99,7 @@ const ROUTE_PERMISSIONS: Record<string, string | null | undefined> = {
   "analytics":       "analytics.view",
   "recordings":      "recordings.view",
   "products":        "products.view",
+  "seo":             "products.view",
   "orders":          "orders.view",
   "customers":       "customers.view",
   "client-data":     "customers.view",
@@ -166,6 +170,14 @@ function mobileCorsHeaders(req: NextRequest, response: NextResponse, pathname: s
 }
 
 export async function middleware(req: NextRequest) {
+  try {
+    await applicationEnvironment(process.env);
+  } catch {
+    return NextResponse.json({ error: "ENVIRONMENT_ISOLATION_REQUIRED" }, { status: 503 });
+  }
+  if (process.env.APP_ENV !== "production" && req.nextUrl.pathname.startsWith("/api/cron/")) {
+    return NextResponse.json({ error: "SCHEDULES_DISABLED" }, { status: 503 });
+  }
   const pathname = req.nextUrl.pathname.replace(/\/+$/, "") || "/";
   const limited = edgeRateLimit(req, pathname);
   if (limited) return MOBILE_LEARNING_API.test(pathname) ? mobileCorsHeaders(req, limited, pathname) : limited;

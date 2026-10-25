@@ -1,0 +1,80 @@
+{
+  "id": "seo-preview-binding-saved-readiness-20261023",
+  "relatedId": "seo-preview-edge-build-verified-20261023",
+  "createdAt": "2026-10-23T08:12:33.732Z",
+  "status": "needs-testing",
+  "title": "Both Preview variables confirmed; rebuilt candidate passes local checks with two external safety gates unresolved",
+  "summary": "Verified Preview-only Sensitive scope; equality unreadable. Approved 988 MiB cache cleanup enabled a fresh 225-page build. Local tests pass; upstream non-delivery and data-backed acceptance remain unverified. No deployment.",
+  "pages": [
+    "SEO Recovery Preview",
+    "Admin middleware",
+    "Account email safety",
+    "Storefront",
+    "Change History"
+  ],
+  "components": [
+    "Vercel configuration audit",
+    "Supabase Auth audit",
+    "Isolated candidate validation"
+  ],
+  "files": [
+    "docs/seo-preview-binding-saved-20261023.md",
+    "artifacts/seo-preview-resume-20261023/refresh-preview-metadata.cjs",
+    "artifacts/seo-preview-resume-20261023/refresh-auth-and-key.ps1",
+    "artifacts/seo-preview-resume-20261023/auth-audit-tail.txt",
+    "artifacts/seo-preview-resume-20261023/smoke-continuation.cjs",
+    "artifacts/seo-preview-resume-20261023/record-binding-saved-checkpoint.cjs",
+    "artifacts/seo-preview-resume-20261023/binding-saved-readiness-1792743153735.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added GET-only audit scripts, refreshed readiness evidence and user-facing checkpoint instructions. Application selector/email changes from the previous checkpoint remain unchanged."
+    },
+    {
+      "kind": "removed",
+      "detail": "With explicit owner approval, removed only .recovery-seo-abcd-corrected/.next/cache after path/link/active-build checks; reclaimed 1,035,690,264 bytes."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Audit now distinguishes unreadable Sensitive binding from invalid format. Smoke harness continues independent checks after a page timeout."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Hosted scope and side-effect controls",
+      "result": "passed",
+      "detail": "Correct project/team; both new variables Preview-only, unrestricted by branch. Existing legacy secret metadata unchanged. Payment/indexing/worker flags false; Vercel cron empty; pg_cron absent."
+    },
+    {
+      "name": "Credential identity and exact equality",
+      "result": "not-run",
+      "detail": "Owner attested staging provenance/helper generation. Both hosted values Sensitive and unavailable for readback; no independent equality claim and no credential changes."
+    },
+    {
+      "name": "Fresh build / TypeScript / lint",
+      "result": "passed",
+      "detail": "First build failed ENOSPC and concurrent typecheck saw disappearing generated files. After approved cleanup, full synthetic Preview production build passed with 225 pages; sequential TypeScript passed; build lint passed with existing warnings."
+    },
+    {
+      "name": "Isolation/email/recovery",
+      "result": "passed",
+      "detail": "19 credential tests (18 original plus Edge test), 17 email tests, 120 regression tests. Web Crypto Edge middleware compiles; no Preview legacy-key fallback."
+    },
+    {
+      "name": "Preservation and local runtime",
+      "result": "passed",
+      "detail": "2,588 preserved recovery files unchanged; 30 images HTTP 200 with matching hashes; 491 browser JS files contain neither synthetic privileged secret; signup blocked with 403."
+    },
+    {
+      "name": "Upstream email non-delivery",
+      "result": "not-run",
+      "detail": "Management GET confirms email/signup, Send Email Hook and account-security email notifications disabled; no custom SMTP configured. Default transport is not a verified sink. No real-email probes."
+    },
+    {
+      "name": "Offline storefront acceptance",
+      "result": "failed",
+      "detail": "Home/cart/login 200. Boutique 500 with intentionally blocked database traffic; preceding timeout evidence retained. Data-backed and visual acceptance remain outstanding."
+    }
+  ]
+}

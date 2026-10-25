@@ -1,0 +1,70 @@
+{
+  "id": "product-gallery-production-complete-20261025",
+  "relatedId": "product-gallery-release-authorized-20261025",
+  "createdAt": "2026-10-25T11:24:37.915Z",
+  "title": "Product gallery accessibility released and verified live",
+  "summary": "One exact certified-source deployment is READY on lecomax.com. Real product-page integration, gallery accessibility and storefront preservation checks passed.",
+  "status": "successful",
+  "pages": [
+    "Product pages and image viewer",
+    "Homepage",
+    "Boutique",
+    "Cart and checkout entry points"
+  ],
+  "components": [
+    "ProductGallery",
+    "Search Overlay and Mobile Menu preservation"
+  ],
+  "files": [
+    "artifacts/product-gallery-20261025/source/components/ProductGallery.tsx",
+    "artifacts/product-gallery-20261025/receipt.json",
+    "artifacts/product-gallery-20261025/live-gallery.cjs",
+    "artifacts/product-gallery-20261025/production-complete.json",
+    "artifacts/product-gallery-20261025/handoff-provider-check.cjs",
+    "artifacts/product-gallery-20261025/handoff-provider-result.json",
+    "artifacts/product-gallery-20261025/handoff-gallery-extra.cjs",
+    "artifacts/product-gallery-20261025/handoff-gallery-extra-result.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Released only the certified ProductGallery modal focus lifecycle: initial focus, Tab containment, background isolation, opener restoration and exact inert/scroll cleanup. No additional application changes."
+    },
+    {
+      "kind": "added",
+      "detail": "Sanitized deployment receipt and actual live product-page acceptance evidence. Prior local harness limitations remain historically accurate; live integration now separately checked."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Exact Production release",
+      "result": "passed",
+      "detail": "READY dpl_J7dK2eR7mrcymqAkXmfeT3qrgNat serves lecomax.com. All 2055 uploaded files match approved candidate 7de379fa06cf06df33048de02be43f8be30eb1c509183f5bcb6fc64612086a44. Only ProductGallery differs from verified rollback dpl_6iS9N6cqRM5kMqPPa4ixajqkCVnT. Project/environment metadata unchanged; one submission."
+    },
+    {
+      "name": "Live Gallery",
+      "result": "passed",
+      "detail": "39 checks across 320/375/390/1440px and two real public product pages: rendering/images, initial focus, Tab/Shift+Tab, Escape, focus return, background isolation, previous/next, zoom/pan, touch close/swipe, scroll/inert restoration and no clipping. Zero gallery console/page errors."
+    },
+    {
+      "name": "Storefront preservation",
+      "result": "passed",
+      "detail": "Search Overlay, Mobile Menu, homepage/boutique/product/cart/checkout routes, product contrast/images, deferred chat UI, canonical/SEO metadata, robots and XML sitemaps passed. All other 2054 source files unchanged. Payment/shipping/database logic preserved; SEO E remains on hold."
+    },
+    {
+      "name": "Remaining limitations",
+      "result": "not-run",
+      "detail": "No physical-device or human screen-reader testing. Live browser verification covers two real database-backed public product pages and their hydration/interactions, not every product, authenticated state or purchase flow. All mutation requests blocked; no orders, payments, customer-account or inventory changes. Performance preserved by source identity and UI checks, without a new performance benchmark. New Change History reports are saved locally; the exact approved deployment source was not changed to bundle them."
+    },
+    {
+      "name": "Independent provider and supplemental browser verification",
+      "result": "passed",
+      "detail": "Project lecomax; team lecomaxstore-4321s-projects; Production created 2026-10-25T11:12:05.645Z; prior rollback independently READY. Project settings unchanged and saved certification evidence hashes verified. Fullscreen empty-area clicks preserve the modal as designed; mouse close and actual wheel scrolling after close pass at 320/375/390/1440px."
+    },
+    {
+      "name": "Supplemental test selector correction",
+      "result": "passed",
+      "detail": "First supplemental run stopped because generic dialog locator matched both gallery and cookie consent. Scoped locator to the named gallery; unchanged application then passed all four widths. This was a test-selector error, not an application failure."
+    }
+  ]
+}

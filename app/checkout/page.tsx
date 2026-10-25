@@ -1,6 +1,7 @@
 "use client";
 import { RETURN_POLICY } from "@/lib/return-policy";
 import { safeLocalStorage, safeSessionStorage } from "@/lib/browser-storage";
+import CartQuoteFeedback from "@/components/CartQuoteFeedback";
 import PreorderNotice from "@/components/PreorderNotice";
 import { preorderCopy } from "@/lib/preorder-copy";
 
@@ -423,9 +424,6 @@ export default function CheckoutPage() {
   } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
-  const [shippingQuote, setShippingQuote] = useState<ShippingQuote | null>(null);
-  const [shippingQuoteLoading, setShippingQuoteLoading] = useState(false);
-  const [shippingQuoteRevision, setShippingQuoteRevision] = useState(0);
   // EcoClub loyalty discount
   const [loyaltyTier, setLoyaltyTier] = useState<"Bronze" | "Silver" | "Gold">("Bronze");
   const [loyaltyDiscountPct, setLoyaltyDiscountPct] = useState(0); // 0, 30, or 50
@@ -584,8 +582,10 @@ export default function CheckoutPage() {
   const serverPricing = useCartCalculation({
     items: items.map(item => ({ slug: item.slug, quantity: item.quantity, price: item.price, color: item.color, size: item.size })),
     city: form.ville, email: form.email, couponId: couponApplied?.id, paymentProvider: payment === "paypal" ? "paypal" : "cod",
-  }, siteSettings);
+  }, siteSettings, JSON.stringify([form.adresse, form.codePostal]));
   const calculation = serverPricing.quote;
+  const shippingQuoteLoading = serverPricing.loading;
+  const shippingQuote: ShippingQuote | null = calculation ? { cost: calculation.shipping, freeThreshold: calculation.freeThreshold, estimatedDays: calculation.estimatedDays, zoneName: calculation.zoneName, zoneId: null } : null;
   const total = calculation?.subtotal ?? localSubtotal;
   const shippingConfig = shippingConfigFromSettings(siteSettings);
   const defaultFreeAbove = shippingQuote?.freeThreshold ?? shippingConfig.freeThreshold;
@@ -628,19 +628,6 @@ export default function CheckoutPage() {
   const paymentFee = calculation?.paymentFee ?? 0;
   const grandTotal = calculation?.total ?? 0;
   const selectedAddress = savedAddresses.find((address) => address.id === selectedAddressId) ?? null;
-
-  useEffect(() => {
-    const refresh = () => serverPricing.refresh();
-    window.addEventListener("focus", refresh);
-    return () => window.removeEventListener("focus", refresh);
-  }, []);
-
-  useEffect(() => {
-    setShippingQuoteLoading(serverPricing.loading);
-    setShippingQuote(calculation ? { cost: calculation.shipping, freeThreshold: calculation.freeThreshold,
-      estimatedDays: calculation.estimatedDays, zoneName: calculation.zoneName, zoneId: null } : null);
-    if (serverPricing.error) setOrderError(serverPricing.error);
-  }, [calculation, serverPricing.loading, serverPricing.error]);
 
   // Keep paypalDataRef in sync with latest state so PayPal callbacks are never stale
   paypalDataRef.current = { form, items: items.map(item => ({ ...item, price: calculation?.items.find(line => line.slug === item.slug && line.color === item.color && line.size === item.size)?.price ?? item.price })), subtotal: total, minimumOrder, shippingReady, grandTotal, shipping, estimatedDays: calculation?.estimatedDays ?? "", paymentFee, couponApplied, discount };
@@ -710,7 +697,7 @@ export default function CheckoutPage() {
             return Promise.reject(new Error("Minimum order not met"));
           }
           if (!quoteReady) {
-            setOrderError("Veuillez patienter pendant le calcul des frais de livraison.");
+            // Shared quote feedback owns this recoverable state, as for COD.
             paypalFormErrorRef.current = true;
             return Promise.reject(new Error("Shipping quote unavailable"));
           }
@@ -886,7 +873,7 @@ export default function CheckoutPage() {
     if (loading || submittingOrder.current) return;
     if (!codEnabled) { setOrderError("Le paiement à la livraison est temporairement indisponible."); return; }
     if (!minimumOrderMet) { setOrderError(`Le montant minimum de commande est de ${formatMAD(minimumOrder)}.`); return; }
-    if (!shippingReady) { setOrderError("Veuillez patienter pendant le calcul des frais de livraison."); return; }
+    if (!shippingReady) return; // Quote feedback owns this recoverable state.
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
 
@@ -1484,11 +1471,11 @@ export default function CheckoutPage() {
                     Livraison
                     {shippingQuote?.zoneName && <small className="mt-0.5 block text-[10px] text-neutral-400">{shippingQuote.zoneName}</small>}
                   </span>
-                  <span className={`shrink-0 font-medium tabular-nums ${shipping === 0 ? "text-emerald-700" : "text-black"}`}>
-                    {shippingQuoteLoading ? "Calcul…" : shipping === 0 ? "Offerte" : formatMAD(shipping)}
+                  <span className={`shrink-0 font-medium tabular-nums ${calculation && shipping === 0 ? "text-emerald-700" : "text-black"}`}>
+                    {shippingQuoteLoading ? "Calcul…" : !calculation ? "À confirmer" : shipping === 0 ? "Offerte" : formatMAD(shipping)}
                   </span>
                 </div>
-                {form.ville.trim() && (
+                {calculation && form.ville.trim() && (
                   <p className="text-[10px] text-neutral-400">Délai estimé : <strong className="text-neutral-600">{shippingEstimate}</strong></p>
                 )}
                 {shipping > 0 && defaultFreeAbove > 0 && (
@@ -1524,6 +1511,8 @@ export default function CheckoutPage() {
                   <span className="text-[24px] font-semibold tracking-[-0.035em] tabular-nums text-emerald-900">{calculation ? formatMAD(grandTotal) : "—"}</span>
                 </div>
               </div>
+
+              <div className="px-5 pb-3 sm:px-6"><CartQuoteFeedback loading={serverPricing.loading} error={serverPricing.error} ready={Boolean(calculation)} refresh={serverPricing.refresh} /></div>
 
               {/* CTA */}
               <div className="px-5 pb-5 pt-3">

@@ -1,0 +1,353 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-06-server-inputs",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-06",
+  "title": {
+    "en": "SSRF, path traversal and command injection: constrain authority",
+    "ar": "SSRF واجتياز المسارات وحقن الأوامر",
+    "fr": "SSRF, path traversal and command injection: constrain authority"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-06-access"
+  ],
+  "objectives": [
+    "Explain server-side URL, path and command trust boundaries.",
+    "Replace arbitrary destinations with constrained identifiers.",
+    "Test rejected inputs while documenting model and deployment limits."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "These three local exercises use policy models: they do not fetch arbitrary URLs, read arbitrary files or execute shell commands. Learn exactly what the model proves before applying the controls to a real service.",
+  "sections": [
+    {
+      "title": "SSRF: the server becomes the requester",
+      "text": "Server-side request forgery occurs when a caller influences where a server makes a request beyond its intended authority. A product-image importer may accept a URL and fetch it from a network position different from the browser’s. The risk can include internal services, sensitive metadata or unintended external interactions. The necessary conditions are caller-controlled destination data, a server-side fetch and insufficient destination/redirect/connection policy. The lab vulnerableAsset function only returns a parsed destination; it performs no network request. Pass a synthetic internal-looking URL and observe that the unsafe policy accepts arbitrary destinations. This demonstrates the policy gap, not access to any real internal service."
+    },
+    {
+      "title": "Correct the URL authority, not just the spelling",
+      "text": "safeAsset accepts a known asset id and maps it to a developer-owned URL. Unknown ids and complete supplied URLs are rejected. This is stronger than trying to blacklist a few host strings when the business feature only needs a fixed catalog. A real arbitrary-URL fetcher requires more: permit schemes and ports, resolve and constrain addresses, handle redirects with revalidation, limit bytes and time, avoid credential forwarding, and enforce network egress restrictions. IPv6, alternate representations, DNS changes and proxies can defeat naive string checks. The test proves the id mapping rejects unapproved choices; it does not prove an unimplemented HTTP client follows those network controls. Prevent the feature from accepting more authority than it actually needs."
+    },
+    {
+      "title": "Path traversal: a filename becomes a location decision",
+      "text": "A file-serving route may combine a public directory with a caller’s path. Parent-directory segments or absolute paths can escape the intended location after normalization. The virtual lab contains only /public/readme.txt and /private/fake-secret.txt in a JavaScript object. vulnerableFile resolves an input relative to /public, so ../private/fake-secret.txt reaches the fictional private entry. No filesystem file is opened. The root cause is granting the caller path-selection authority where the feature needed only document selection. Impact in a real service depends on reachable files and the process identity; do not infer arbitrary host access from this in-memory model."
+    },
+    {
+      "title": "Correct file selection and understand the real filesystem",
+      "text": "secureFile accepts only a known document id and maps it to the public virtual entry. Unknown names, traversal strings and absolute paths fail. If a real feature requires user-selected paths, resolve canonical paths inside a controlled base directory, verify containment and account for symlinks and race conditions. A string-prefix test can be wrong when /public-other shares a prefix with /public. URL decoding and filesystem normalization are different steps, so test encoded inputs at the HTTP boundary as well as the file API. Keep private files outside the publicly served tree. The regression asserts that the public id works and traversal does not; deployment tests must additionally exercise the real file-serving configuration."
+    },
+    {
+      "title": "Command injection: shell syntax is not an argument",
+      "text": "A command-building function that concatenates a filename into a shell string gives special characters to a shell interpreter. The lab vulnerableCommand returns a string such as convert name;echo LAB output.png but never executes it. The semicolon illustrates a second-command boundary in shells that recognize that syntax. Do not run the returned string. The secureCommand model accepts a narrow image identifier and returns a structured executable/argument plan with shell:false. In a real implementation, prefer a library API; when spawning is necessary, use a fixed executable, an argument array, no shell and resource limits. Argument injection can still exist even without a shell if a tool interprets a leading hyphen as an option."
+    },
+    {
+      "title": "Observe, fix and prevent all three classes",
+      "text": "For each model, record the input, the unsafe interpreted destination or plan, and the fixed rejection. Keep a positive control: bag-image, readme and bag.png should still work. Rejection tests include full URLs in an id field, parent-directory paths, absolute paths, shell separators and option-like filenames. These cases are useful because they challenge the authority granted to input rather than merely checking a single forbidden word. Code review should look for fetch with untrusted destinations, path concatenation and shell construction. Darija: المستخدم يختار معرّف مسموح، ماشي عنوان أو مسار أو أمر بلا حدود. A passing policy model is a starting point; connection-time network behavior, symlinks and real process isolation require separate integration evidence."
+    }
+  ],
+  "examples": [
+    {
+      "id": "ssrf-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableAsset(input) { return new URL(input).href; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "ssrf-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function safeAsset(input) {\n  // Policy model only: no HTTP requests are performed by either function.\n  const urls = { 'bag-image': 'https://assets.example.invalid/bag.png' };\n  if (typeof input !== 'string' || !Object.hasOwn(urls, input)) reject('Unknown asset');\n  return urls[input];\n}",
+      "annotations": [
+        {
+          "lines": "1-6",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    },
+    {
+      "id": "path-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableFile(input) { return virtualFiles[path.posix.resolve('/public', input)] || null; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "path-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureFile(input) {\n  const allowed = { readme: '/public/readme.txt' };\n  if (typeof input !== 'string' || !Object.hasOwn(allowed, input)) reject('Unknown document', 404);\n  return virtualFiles[allowed[input]];\n}",
+      "annotations": [
+        {
+          "lines": "1-5",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    },
+    {
+      "id": "command-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableCommand(input) { return 'convert ' + input + ' output.png'; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "command-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureCommand(input) {\n  // Returns an argument plan, never spawns a shell or process.\n  if (typeof input !== 'string' || !/^[a-z0-9_-]{1,30}\\.png$/.test(input)) reject('Invalid image identifier');\n  return { executable: 'image-tool', args: ['--input', input, '--output', 'output.png'], shell: false };\n}",
+      "annotations": [
+        {
+          "lines": "1-5",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "authority",
+      "difficulty": 2,
+      "task": "Run the three policy comparisons and record which ones perform real network, file or process operations.",
+      "hints": [
+        "Read the function bodies before making claims."
+      ],
+      "solution": "SSRF: URL parsing only\nTraversal: virtual object lookup only\nCommand: string/argument plan only\nAll three: no external effects",
+      "walkthrough": "The lab isolates interpreter decisions while avoiding uncontrolled side effects. Accurate labeling is part of the exercise.",
+      "expectedResult": "Three observations with explicit limits."
+    },
+    {
+      "id": "regressions",
+      "difficulty": 2,
+      "task": "Write one positive and two negative cases for each corrected helper.",
+      "hints": [
+        "A rejected arbitrary URL is not proof of DNS rebinding protection."
+      ],
+      "solution": "safeAsset: bag-image allowed; full URL and unknown id rejected\nsecureFile: readme allowed; ../private/fake-secret.txt and /private/fake-secret.txt rejected\nsecureCommand: bag.png allowed; x;echo LAB and --help.png rejected",
+      "walkthrough": "The tests prove the functions accept a narrow input language and preserve known legitimate behavior.",
+      "expectedResult": "Nine policy cases."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-06-server-inputs-q1",
+      "question": "Does vulnerableAsset contact a remote server?",
+      "options": [
+        "No; it is a destination-policy model.",
+        "Yes; parsing a URL sends a request."
+      ],
+      "correctIndex": 0,
+      "explanation": "The example deliberately performs no network I/O.",
+      "answerExplanations": [
+        "Correct. The example deliberately performs no network I/O.",
+        "Not quite. The example deliberately performs no network I/O."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q2",
+      "question": "Why prefer an asset id for a fixed image catalog?",
+      "options": [
+        "It automatically encrypts the database.",
+        "It gives the caller less destination authority."
+      ],
+      "correctIndex": 1,
+      "explanation": "The feature does not need arbitrary URL selection.",
+      "answerExplanations": [
+        "Not quite. The feature does not need arbitrary URL selection.",
+        "Correct. The feature does not need arbitrary URL selection."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q3",
+      "question": "Is blocking only the string localhost a complete SSRF defense?",
+      "options": [
+        "No; address forms, resolution and redirects matter.",
+        "Yes; internal destinations have only that name."
+      ],
+      "correctIndex": 0,
+      "explanation": "String blacklists do not model actual connection destinations.",
+      "answerExplanations": [
+        "Correct. String blacklists do not model actual connection destinations.",
+        "Not quite. String blacklists do not model actual connection destinations."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q4",
+      "question": "What does the traversal model read?",
+      "options": [
+        "A real machine secret file.",
+        "A fictional entry in a JavaScript object."
+      ],
+      "correctIndex": 1,
+      "explanation": "The virtual fixture demonstrates resolution without host-file access.",
+      "answerExplanations": [
+        "Not quite. The virtual fixture demonstrates resolution without host-file access.",
+        "Correct. The virtual fixture demonstrates resolution without host-file access."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q5",
+      "question": "Is a shared path prefix always containment?",
+      "options": [
+        "No; sibling names and canonicalization can mislead it.",
+        "Yes; startsWith proves directory ownership."
+      ],
+      "correctIndex": 0,
+      "explanation": "Filesystem boundaries need stronger reasoning.",
+      "answerExplanations": [
+        "Correct. Filesystem boundaries need stronger reasoning.",
+        "Not quite. Filesystem boundaries need stronger reasoning."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q6",
+      "question": "Can a symlink affect a real file-serving policy?",
+      "options": [
+        "No; only dot-dot segments matter.",
+        "Yes; resolved targets can differ from apparent paths."
+      ],
+      "correctIndex": 1,
+      "explanation": "Real filesystem semantics exceed the simple model.",
+      "answerExplanations": [
+        "Not quite. Real filesystem semantics exceed the simple model.",
+        "Correct. Real filesystem semantics exceed the simple model."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q7",
+      "question": "Does shell:false eliminate every argument risk?",
+      "options": [
+        "No; tools can still interpret options.",
+        "Yes; all supplied arguments become harmless."
+      ],
+      "correctIndex": 0,
+      "explanation": "Shell parsing and target-program option parsing are different layers.",
+      "answerExplanations": [
+        "Correct. Shell parsing and target-program option parsing are different layers.",
+        "Not quite. Shell parsing and target-program option parsing are different layers."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q8",
+      "question": "Should the returned unsafe command string be executed?",
+      "options": [
+        "Yes; execution is required to understand the separator.",
+        "No; inspect it as a teaching model only."
+      ],
+      "correctIndex": 1,
+      "explanation": "The demonstrated boundary does not require spawning a shell.",
+      "answerExplanations": [
+        "Not quite. The demonstrated boundary does not require spawning a shell.",
+        "Correct. The demonstrated boundary does not require spawning a shell."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q9",
+      "question": "Which is a valid positive command-model input?",
+      "options": [
+        "bag.png.",
+        "--help.png."
+      ],
+      "correctIndex": 0,
+      "explanation": "The accepted identifier grammar excludes option-like leading hyphens.",
+      "answerExplanations": [
+        "Correct. The accepted identifier grammar excludes option-like leading hyphens.",
+        "Not quite. The accepted identifier grammar excludes option-like leading hyphens."
+      ]
+    },
+    {
+      "id": "cyber-06-server-inputs-q10",
+      "question": "What remains after policy tests pass?",
+      "options": [
+        "Nothing; production behavior is proven.",
+        "Real network, filesystem and process integration checks as applicable."
+      ],
+      "correctIndex": 1,
+      "explanation": "Evidence must match the layer actually exercised.",
+      "answerExplanations": [
+        "Not quite. Evidence must match the layer actually exercised.",
+        "Correct. Evidence must match the layer actually exercised."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can explain server-side URL, path and command trust boundaries.",
+    "I can replace arbitrary destinations with constrained identifiers.",
+    "I can test rejected inputs while documenting model and deployment limits."
+  ],
+  "recap": [
+    "Explain server-side URL, path and command trust boundaries.",
+    "Replace arbitrary destinations with constrained identifiers.",
+    "Test rejected inputs while documenting model and deployment limits."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP SSRF prevention",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP OS command injection defense",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/OS_Command_Injection_Defense_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Reduce the authority of input",
+    "steps": [
+      {
+        "title": "Untrusted choice",
+        "detail": "A caller supplies a URL, path or filename."
+      },
+      {
+        "title": "Dangerous interpreter",
+        "detail": "Network routing, filesystem resolution or shell parsing gives it more authority."
+      },
+      {
+        "title": "Constrained identifier",
+        "detail": "Map a known id to a fixed destination or use a structured argument API."
+      },
+      {
+        "title": "Deployment boundary",
+        "detail": "Test real redirects, symlinks and process restrictions separately."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "SSRF",
+      "A server-side request directed beyond its intended destination policy."
+    ],
+    [
+      "Path traversal",
+      "Escaping an intended file location through path interpretation."
+    ],
+    [
+      "Command injection",
+      "Untrusted data changing shell command structure."
+    ]
+  ],
+  "lab": {
+    "kind": "model",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Server input defender"
+  }
+}

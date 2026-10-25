@@ -1,0 +1,41 @@
+{
+  "id": "seo-production-env-additions-prepared-20261021",
+  "createdAt": "2026-10-21T17:32:16.109Z",
+  "relatedId": "seo-official-launch-gate-blocked-20261021",
+  "title": "Authorized Production-only configuration additions",
+  "summary": "Prepared create-only settings and securely readable credential bindings. Admin secret generation excluded because live fallback signer means existing sessions would be invalidated.",
+  "status": "needs-testing",
+  "pages": [
+    "Production environment",
+    "Change History"
+  ],
+  "components": [
+    "Vercel environment configuration"
+  ],
+  "files": [
+    "scripts/configure-seo-production-env.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Exact project/team verification, ten authorized literal settings, conditional exact-value fingerprint derivation, create-only API writes, scope/readback and unchanged configuration checks. No deployment, SQL or secret rotation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Syntax",
+      "result": "passed",
+      "detail": "Node syntax validation passed."
+    },
+    {
+      "name": "Admin compatibility",
+      "result": "passed",
+      "detail": "Live revision d9d1d7a uses ADMIN_SESSION_SECRET || SUPABASE_SERVICE_ROLE_KEY; independent new signer would reject old sessions. Generation excluded under owner condition."
+    },
+    {
+      "name": "Remote configuration",
+      "result": "not-run",
+      "detail": "Awaiting execution and readback; no success claimed."
+    }
+  ]
+}

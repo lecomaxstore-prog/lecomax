@@ -1,0 +1,74 @@
+{
+  "id": "seo-browser-and-release-decision-20261021",
+  "createdAt": "2026-10-21T00:20:21.024Z",
+  "title": "Final staging acceptance and production decision recorded",
+  "summary": "Rechecked READY staging, preserved hosted SEO/auth results, verified migration hashes and production-only read-only compatibility. Browser and hosted editorial writes remain blocked by unavailable browser and explicit write boundary.",
+  "status": "successful",
+  "relatedId": "seo-auth-and-recovery-verified-20261021",
+  "pages": [
+    "SEO staging",
+    "Product pages",
+    "Category pages",
+    "Sitemaps",
+    "SEO admin",
+    "Change History"
+  ],
+  "components": [
+    "Browser acceptance",
+    "Migration compatibility",
+    "Dependency review",
+    "Recovery readiness"
+  ],
+  "files": [
+    "artifacts/seo-production-migration-compatibility-20261021.json",
+    "operations/seo/staging-editorial-acceptance.json",
+    "scripts/smoke-seo-editorial-workspace.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only production migration compatibility evidence confirms all six approved migration hashes and no execution."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded browser limitation and attempted isolated editorial workspace browser check without claiming success."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Existing deployment",
+      "result": "passed",
+      "detail": "Deployment remains READY with all-deployment protection; prior 23/23 hosted HTTP checks and genuine session authorization remain valid."
+    },
+    {
+      "name": "SEO metadata and routes",
+      "result": "passed",
+      "detail": "Prior protected checks cover FR/AR product/category pages, canonicals, JSON-LD, sitemaps, robots and catalogue APIs."
+    },
+    {
+      "name": "Migration compatibility",
+      "result": "passed",
+      "detail": "Six ordered decoupled migration hashes match the approved manifest; no production migration, synthetic prerequisite or superseded trigger migration executed."
+    },
+    {
+      "name": "Dependency audit",
+      "result": "passed",
+      "detail": "Runtime audit has zero vulnerabilities. Nine development-tool findings remain; compatible remediation would require major Tailwind/ESLint changes or an unavailable braces patch."
+    },
+    {
+      "name": "Browser/mobile/desktop",
+      "result": "not-run",
+      "detail": "No browser surface available; local Chrome fixture attempt failed with DevTools WebSocket error. No hosted visual, hydration, console or network claim."
+    },
+    {
+      "name": "Editorial save/publish/rollback",
+      "result": "not-run",
+      "detail": "No SEO documents exist while sync is disabled. Hosted writes were not authorized."
+    },
+    {
+      "name": "Production release",
+      "result": "not-run",
+      "detail": "Requires owner approval for browser/session/editorial gates, production secret binding review, fresh recovery rehearsal, monitoring/rollback ownership and exact production deployment/migration approval."
+    }
+  ]
+}

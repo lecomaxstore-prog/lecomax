@@ -1,0 +1,38 @@
+{
+  "id": "seo-second-preview-launcher-prepared-1792794106364",
+  "createdAt": "2026-10-23T22:21:46.364Z",
+  "title": "Second protected SEO Preview launcher prepared",
+  "summary": "Separate manual one-use launcher pins the repaired 1212-file certificate and preserves the consumed first attempt. Provider audit and focused validation pending; no deployment executed.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging Preview",
+    "Change History"
+  ],
+  "components": [
+    "Manual staging launcher",
+    "Retry-free deployment transport"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/second-preview-attempt.mjs",
+    "artifacts/seo-preview-resume-20261023/second-preview-hosted-check.mjs",
+    "artifacts/seo-preview-resume-20261023/run-second-protected-preview.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Masked temporary token, exact certificate and file verification, GET-only staging checks, paginated history gate and exclusive second-attempt directory. Existing payload, recovery source and consumed guards unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Payload and preservation",
+      "result": "passed",
+      "detail": "1212 files, 2601 recovery hashes, five consumed guard hashes; 288 traces with no missing/outside files."
+    },
+    {
+      "name": "Launcher validation",
+      "result": "not-run",
+      "detail": "Final synthetic tests and live metadata audit pending. Launcher is never executed by Codex."
+    }
+  ]
+}

@@ -9,5 +9,5 @@ const result = await sharp(source)
   .flatten({ background: "#12372D" })
   .toColourspace("srgb")
   .jpeg({ quality: 88, mozjpeg: true })
-  .toFile("public/images/social/lecomax-share-v3.jpg");
+  .toFile("public/images/social/lecomax-share-v4.jpg");
 console.log(JSON.stringify(result));

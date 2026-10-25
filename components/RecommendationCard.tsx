@@ -1,7 +1,7 @@
 "use client";
-import ProductBrandMark from "./ProductBrandMark";
 
 import Image from "next/image";
+import ProductBrandMark from "./ProductBrandMark";
 import Link from "next/link";
 import styles from "./RecommendationCard.module.css";
 import { formatMAD, type CardProduct } from "@/lib/products";

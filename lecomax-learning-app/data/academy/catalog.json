@@ -1,0 +1,69 @@
+[
+  {
+    "id": "academy-foundations",
+    "title": {
+      "ar": "أساسيات المطوّر: من الصفر إلى حل مشكلة",
+      "en": "Developer foundations: from zero to problem solving",
+      "fr": "Fondations : de zéro à la résolution de problèmes"
+    },
+    "summary": {
+      "ar": "أربعة دروس مفصلة فالدارجة: الحاسوب، الملفات، الأدوات والخوارزميات. جزء من المسار الأول، ماشي المسار كامل.",
+      "en": "Four detailed Darija lessons: computers, files, tools and algorithms. An introductory unit of track one.",
+      "fr": "Quatre leçons détaillées en darija : ordinateur, fichiers, outils et algorithmes."
+    },
+    "lessonIds": [
+      "academy-computer",
+      "academy-files",
+      "academy-workspace",
+      "academy-algorithms"
+    ]
+  },
+  {
+    "id": "academy-html-document",
+    "title": {
+      "ar": "HTML: أول صفحة منتج دلالية",
+      "en": "HTML: a semantic product page",
+      "fr": "HTML : une page produit sémantique"
+    },
+    "summary": {
+      "ar": "مستند كامل وشرح البنية والمسارات والوصول.",
+      "en": "A complete document with structure, paths and accessibility explained.",
+      "fr": "Un document complet avec structure, chemins et accessibilité."
+    },
+    "lessonIds": [
+      "academy-html-document"
+    ]
+  },
+  {
+    "id": "academy-javascript-values",
+    "title": {
+      "ar": "JavaScript: القيم والأنواع والتحويل",
+      "en": "JavaScript: values, types and conversion",
+      "fr": "JavaScript : valeurs, types et conversions"
+    },
+    "summary": {
+      "ar": "شرح القيم الأولية والمراجع والمدخلات مع اختبارات حدود.",
+      "en": "Primitives, references and input handling with boundary tests.",
+      "fr": "Valeurs primitives, références et validation des entrées."
+    },
+    "lessonIds": [
+      "academy-js-values"
+    ]
+  },
+  {
+    "id": "academy-real-website",
+    "title": {
+      "ar": "افهم موقعي الحقيقي — ملفا بملف ودالة بدالة",
+      "en": "UNDERSTAND MY REAL WEBSITE — FILE BY FILE, FUNCTION BY FUNCTION",
+      "fr": "COMPRENDRE MON VRAI SITE — FICHIER PAR FICHIER, FONCTION PAR FONCTION"
+    },
+    "summary": {
+      "ar": "الدرس المتاح: app/boutique/page.tsx وتدفق بيانات المنتجات. باقي ملفات الموقع مازال خاصها شرح مفصل.",
+      "en": "Available: app/boutique/page.tsx and its product data flow. Remaining website files still need detailed lessons.",
+      "fr": "Disponible : app/boutique/page.tsx et son flux de produits. Les autres fichiers restent à expliquer."
+    },
+    "lessonIds": [
+      "academy-site-boutique"
+    ]
+  }
+]

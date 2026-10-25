@@ -40,6 +40,7 @@ function isYouTube(url: string): boolean {
 export default function ProductGallery({
   images,
   name,
+  imageAlt,
   badge,
   discount,
   colors,
@@ -49,6 +50,7 @@ export default function ProductGallery({
 }: {
   images: string[];
   name: string;
+  imageAlt?: string;
   badge?: string;
   discount?: number;
   colors?: string[];
@@ -59,6 +61,7 @@ export default function ProductGallery({
   // active: index into images, or "video" sentinel
   const [active, setActive] = useState<number | "video">(0);
   const [videoPlaybackKey, setVideoPlaybackKey] = useState(0);
+  const [videoDimensions, setVideoDimensions] = useState<{ url: string; ratio: number } | null>(null);
   const [mainControlsVisible, setMainControlsVisible] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
@@ -66,6 +69,8 @@ export default function ProductGallery({
   const [mounted, setMounted] = useState(false);
   const { color: selectedColor } = useProductColor();
   const thumbsRef = useRef<HTMLDivElement>(null);
+  const lightboxRef = useRef<HTMLDivElement>(null);
+  const lightboxTrigger = useRef<HTMLButtonElement | null>(null);
   const touchStartX = useRef<number | null>(null);
   const dragRef = useRef<{ x: number; y: number; panX: number; panY: number } | null>(null);
 
@@ -136,10 +141,61 @@ export default function ProductGallery({
 
   useEffect(() => {
     if (!lightboxOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const dialog = lightboxRef.current;
+    if (!dialog) return;
+    const trigger = lightboxTrigger.current;
+    const controls = () => Array.from(dialog.querySelectorAll<HTMLElement>(
+      'a[href], button, input, select, textarea, [tabindex]'
+    )).filter(element => element.tabIndex >= 0 && !element.matches(":disabled") &&
+      !element.closest("[inert]") && element.getClientRects().length > 0 && getComputedStyle(element).visibility !== "hidden");
+    const focusFirst = () => (controls()[0] ?? dialog).focus({ preventScroll: true });
+    focusFirst();
+    const previousInert = new Map<HTMLElement, boolean>();
+    const isolate = () => {
+      for (const sibling of Array.from(document.body.children)) {
+        if (!(sibling instanceof HTMLElement) || sibling === dialog) continue;
+        if (!previousInert.has(sibling)) previousInert.set(sibling, sibling.inert);
+        sibling.inert = true;
+      }
+    };
+    isolate();
+    const observer = new MutationObserver(isolate);
+    observer.observe(document.body, { childList: true });
+    const handleTab = (event: KeyboardEvent) => {
+      if (event.key !== "Tab") return;
+      const items = controls(), first = items[0], last = items[items.length - 1];
+      if (!first || !dialog.contains(document.activeElement) ||
+        (event.shiftKey ? document.activeElement === first : document.activeElement === last)) {
+        event.preventDefault();
+        (event.shiftKey ? last ?? dialog : first ?? dialog).focus();
+      }
+    };
+    const containFocus = (event: FocusEvent) => {
+      if (event.target instanceof Node && !dialog.contains(event.target)) focusFirst();
+    };
+    const previousOverflow = document.body.style.getPropertyValue("overflow");
+    const previousPriority = document.body.style.getPropertyPriority("overflow");
+    document.body.style.setProperty("overflow", "hidden");
+    document.addEventListener("keydown", handleTab);
+    document.addEventListener("focusin", containFocus);
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("keydown", handleTab);
+      document.removeEventListener("focusin", containFocus);
+      previousInert.forEach((value, element) => { element.inert = value; });
+      if (previousOverflow) document.body.style.setProperty("overflow", previousOverflow, previousPriority);
+      else document.body.style.removeProperty("overflow");
+      if ((document.activeElement === document.body || dialog.contains(document.activeElement)) &&
+        trigger?.isConnected && trigger.getClientRects().length && !trigger.closest("[inert]")) {
+        trigger.focus({ preventScroll: true });
+      }
+    };
+  }, [lightboxOpen]);
+
+  useEffect(() => {
+    if (!lightboxOpen) return;
     const handleKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeLightbox();
+      if (event.key === "Escape") { event.preventDefault(); closeLightbox(); }
       if (event.key === "ArrowLeft") changeLightboxImage(-1);
       if (event.key === "ArrowRight") changeLightboxImage(1);
       if (event.key === "+" || event.key === "=") setZoom((value) => Math.min(4, value + 0.5));
@@ -147,7 +203,6 @@ export default function ProductGallery({
     };
     window.addEventListener("keydown", handleKey);
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKey);
     };
   }, [changeLightboxImage, closeLightbox, lightboxOpen]);
@@ -211,7 +266,8 @@ export default function ProductGallery({
       {/* Main view */}
       <div
         data-main-gallery-img
-        className="group relative aspect-square touch-pan-y overflow-hidden bg-neutral-100"
+        className="group relative touch-pan-y overflow-hidden bg-neutral-100"
+        style={{ aspectRatio: active === "video" && videoDimensions && videoDimensions.url === video ? Math.min(1, videoDimensions.ratio) : 1 }}
         onMouseEnter={() => setMainControlsVisible(true)}
         onMouseLeave={() => setMainControlsVisible(false)}
         onClick={() => setMainControlsVisible(true)}
@@ -226,25 +282,25 @@ export default function ProductGallery({
           isYouTube(video) ? (
             <iframe
               key={`${video}-${videoPlaybackKey}`}
-              src={`https://www.youtube.com/embed/${getYouTubeId(video)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(video)}&controls=1&rel=0&modestbranding=1&vq=hd1080`}
+              src={`https://www.youtube.com/embed/${getYouTubeId(video)}?autoplay=1&mute=1&loop=1&playlist=${getYouTubeId(video)}&controls=0&rel=0&modestbranding=1&vq=hd1080`}
               title={`${name} — vidéo du produit`}
               allow="autoplay; encrypted-media; picture-in-picture"
               allowFullScreen
               className="absolute inset-0 w-full h-full border-0"
             />
           ) : (
-          <ProductVideo key={`${video}-${videoPlaybackKey}`} url={video} poster={safeImages[0]} autoPlay />
+          <ProductVideo key={`${video}-${videoPlaybackKey}`} url={video} poster={safeImages[0]} autoPlay onAspectRatio={(ratio) => setVideoDimensions({ url: video, ratio })} />
           )
         ) : (
           <button
             type="button"
-            onClick={() => setLightboxOpen(true)}
+            onClick={(event) => { lightboxTrigger.current = event.currentTarget; setLightboxOpen(true); }}
             aria-label={`Agrandir l'image de ${name}`}
             className="absolute inset-0 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-black"
           >
             <Image
               src={activeImage}
-              alt={name}
+              alt={imageAlt || name}
               fill
               sizes="(min-width: 1024px) 55vw, 100vw"
               className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
@@ -389,6 +445,8 @@ export default function ProductGallery({
       </div>
       {mounted && lightboxOpen && typeof active === "number" && createPortal(
         <div
+          ref={lightboxRef}
+          tabIndex={-1}
           role="dialog"
           aria-modal="true"
           aria-label={`Galerie agrandie de ${name}`}
@@ -458,7 +516,7 @@ export default function ProductGallery({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={activeImage}
-              alt={`${name}, vue ${active + 1}`}
+              alt={`${imageAlt || name}, vue ${active + 1}`}
               draggable={false}
               className="h-full w-full select-none object-contain p-4 pb-24 pt-16 transition-transform duration-200 ease-out sm:p-8 sm:pb-28 sm:pt-20"
               style={{ transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})` }}

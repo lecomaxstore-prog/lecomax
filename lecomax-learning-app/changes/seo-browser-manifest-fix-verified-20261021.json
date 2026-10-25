@@ -1,0 +1,63 @@
+{
+  "createdAt": "2026-10-21T11:52:14.057Z",
+  "status": "failed",
+  "pages": [
+    "Storefront home",
+    "FR/AR product and category routes",
+    "Learning app Change History"
+  ],
+  "components": [
+    "RootLayout",
+    "CategoryTiles",
+    "Product fallback image"
+  ],
+  "files": [
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png",
+    "docs/seo-final-browser-acceptance-20261021.md",
+    "artifacts/seo-browser-acceptance-20261021/local-output-verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added final protected-browser evidence and release handoff. Preserved existing local manifest/srcset/placeholder fixes and every prior report. No further application logic changes or removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Standalone tsc --noEmit --incremental false and ESLint on app/layout.tsx and components/CategoryTiles.tsx exited 0."
+    },
+    {
+      "name": "Focused regression",
+      "result": "passed",
+      "detail": "30 tests passed; zero failures/skips. Catalogue, rendering/loading, indexing, sitemap and Change History."
+    },
+    {
+      "name": "Isolated production-mode build",
+      "result": "passed",
+      "detail": "Exit 0; 234/234 static pages. Synthetic root-workspace snapshot with runtime fetch blocked, not the pinned release candidate. Initial restricted font-fetch failure retained; retry passed."
+    },
+    {
+      "name": "Built manifest and source integrity",
+      "result": "passed",
+      "detail": "Generated HTML has exactly one credentialed manifest link; three source/asset hashes match the build snapshot."
+    },
+    {
+      "name": "Hosted public browser acceptance",
+      "result": "failed",
+      "detail": "Six routes passed desktop and two mobile layout/exception checks; metadata, JSON-LD parsing, navigation, robots and sitemap checks passed. Hosted placeholder 400/404, srcset warnings and anonymous manifest CSP failure remain. All fixes are local only; staging NO-GO."
+    },
+    {
+      "name": "Admin/editorial and production release",
+      "result": "not-run",
+      "detail": "Admin normal login required; hosted mutations and deployment not authorized. Human FR/AR, configuration, recovery and operator gates remain. Production NO-GO. No live learning-app preview verified."
+    }
+  ],
+  "id": "seo-browser-manifest-fix-verified-20261021",
+  "relatedId": "seo-browser-manifest-fix-prepared-20261021",
+  "title": "Credentialed manifest verified in build output",
+  "summary": "Exactly one credentialed manifest link appears in generated HTML. Finished protected public browser checks and recorded NO-GO gates; no deployment or hosted write."
+}

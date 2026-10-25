@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { protectAdminMutation } from "@/lib/api-security";
 import { readJsonLimited } from "@/lib/request-body";
-import { extractProductWithAI } from "@/lib/product-paste-ai";
+import { extractProductWithAI, extractProductDetailsWithAI } from "@/lib/product-paste-ai";
 import { openAIErrorCode } from "@/lib/openai-server";
 
 export const runtime = "nodejs";
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Collez entre 10 et 20 000 caractères d’informations produit." }, { status: 400 });
   }
   try {
-    return NextResponse.json(await extractProductWithAI(input.text.trim()), { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json(await (input.mode === "details" ? extractProductDetailsWithAI(input.text.trim()) : extractProductWithAI(input.text.trim())), { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const code = openAIErrorCode(error);
     const provider = error as { status?: number; code?: string };

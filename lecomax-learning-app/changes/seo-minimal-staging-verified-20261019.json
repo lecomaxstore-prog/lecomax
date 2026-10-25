@@ -1,0 +1,65 @@
+{
+  "id": "seo-minimal-staging-verified-20261019",
+  "createdAt": "2026-10-19T12:19:32.654Z",
+  "title": "Offline SEO staging plan verified; hosted rollout remains blocked",
+  "summary": "79 SEO/tooling and 6 history tests pass; TypeScript and ESLint pass. Staging is read-only and empty. Vercel metadata returns 403; no migrations, paid calls or deployment.",
+  "status": "needs-testing",
+  "relatedId": "seo-minimal-staging-prepared-20261019",
+  "pages": [
+    "SEO Engine staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "Offline dependency inventory",
+    "Staging acceptance plan"
+  ],
+  "files": [
+    "scripts/prepare-seo-minimal-staging.cjs",
+    "tests/seo-minimal-staging.test.cjs",
+    "docs/seo-continuation-minimal-staging-20261019.md",
+    "artifacts/seo-minimal-staging/plan-1792412132155.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded verified offline dependency map and synthetic-only manifest, reproducible acceptance cases and precise remaining blockers. No runtime or SQL source changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "SEO and offline plan tests",
+      "result": "passed",
+      "detail": "76 existing regression cases plus 3 new scope/drift/execution-refusal cases; mocked providers only."
+    },
+    {
+      "name": "Change History tests",
+      "result": "passed",
+      "detail": "6 persistence and interaction cases passed; prior reports preserved."
+    },
+    {
+      "name": "TypeScript and ESLint",
+      "result": "passed",
+      "detail": "Root TypeScript and full Next lint exit 0; existing image warnings. New tooling syntax and focused lint pass."
+    },
+    {
+      "name": "Migration and artifact integrity",
+      "result": "passed",
+      "detail": "Five pinned migration hashes and transaction boundaries, seven operational bundle entries, 99 release entries and eight comparison entries verified; no SQL executed."
+    },
+    {
+      "name": "Read-only staging inventory",
+      "result": "passed",
+      "detail": "Read-only role on PostgreSQL 17.11, no public tables/functions, no Edge Functions or migrations; empty security advisor results. Platform isolation remains unverified."
+    },
+    {
+      "name": "Vercel access",
+      "result": "failed",
+      "detail": "Sandbox EACCES distinguished from actual GET-only alias lookup HTTP 403 outside sandbox."
+    },
+    {
+      "name": "Build, SQL execution, hosted acceptance and paid generation",
+      "result": "not-run",
+      "detail": "No new build: runtime mismatch and limited disk; no runtime source change. Migration execution prohibited by current task. No hosted write, provider request or preview."
+    }
+  ]
+}

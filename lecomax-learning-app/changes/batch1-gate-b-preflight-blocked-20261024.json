@@ -1,0 +1,52 @@
+{
+  "id": "batch1-gate-b-preflight-blocked-20261024",
+  "relatedId": "batch1-gate-a-verified-20261024",
+  "createdAt": "2026-10-24T17:32:37.690Z",
+  "title": "Stop Gate B before upload: first deployment would target Production",
+  "summary": "Gate A values, protection, Hobby plan and RC2 integrity reverified. Official Vercel first-deployment rule conflicts with Preview-only authorization. Zero uploads or deployment attempts; hosted acceptance not run.",
+  "status": "failed",
+  "pages": [
+    "/checkout",
+    "/panier",
+    "/change-history"
+  ],
+  "components": [
+    "Gate B mandatory preflight",
+    "Vercel target verification"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/gate-a.cjs",
+    "artifacts/batch1-release-preparation-20261024/record-gate-b-blocker.cjs",
+    "artifacts/batch1-release-preparation-20261024/gate-b/PREFLIGHT-BLOCKED.md",
+    "artifacts/batch1-release-preparation-20261024/gate-b/preflight-blocked.json",
+    "artifacts/batch1-release-preparation-20261024/gate-a/gate-b-preflight-values.json",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/provider-gate-b-before.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Sanitized final preflight evidence and mandatory stop report. No deployment, upload, provider mutation or withdrawal."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected prior Gate B readiness assessment: first-deployment Production classification applies even with explicit Preview target. Gate A remains valid; archive unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Configuration and archive",
+      "result": "passed",
+      "detail": "19 exact approved Preview-only values, all protection, correct IDs, Hobby and certified RC2 hash confirmed."
+    },
+    {
+      "name": "Preview-only first-deployment guarantee",
+      "result": "failed",
+      "detail": "Official provider documentation explicitly says first deployment is Production even with --target=preview; target project has zero deployments. Stopped before upload."
+    },
+    {
+      "name": "Hosted build and acceptance",
+      "result": "not-run",
+      "detail": "No deployment ID/URL, runtime, build logs or acceptance results exist. Production integration remains NO-GO."
+    }
+  ]
+}

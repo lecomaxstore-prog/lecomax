@@ -1,0 +1,36 @@
+{
+  "id": "seo-full-chain-pglite-prepared-20261019",
+  "createdAt": "2026-10-19T12:22:42.802Z",
+  "title": "Authorized in-memory SQL acceptance prepared",
+  "summary": "Existing full-chain review test passed; added schema, relationship, constraint, ordering and bilingual synthetic compatibility checks.",
+  "status": "needs-testing",
+  "relatedId": "seo-minimal-staging-verified-20261019",
+  "pages": [
+    "SEO Engine verification",
+    "Change History"
+  ],
+  "components": [
+    "PGlite acceptance tests"
+  ],
+  "files": [
+    "operations/seo-vercel/tests/full-chain-schema.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added explicit 11-table schema, RLS, index, foreign-key, constraint, migration rollback and synthetic product/category checks."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Existing full-chain review test",
+      "result": "passed",
+      "detail": "1 passed in disposable in-memory PGlite; no hosted connection."
+    },
+    {
+      "name": "New acceptance coverage",
+      "result": "not-run",
+      "detail": "Pending local execution."
+    }
+  ]
+}

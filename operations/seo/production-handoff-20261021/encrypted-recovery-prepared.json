@@ -1,0 +1,44 @@
+{
+  "id": "seo-encrypted-recovery-prepared-20261021",
+  "relatedId": "seo-encrypted-backup-auth-blocked-20261021",
+  "createdAt": "2026-10-21T17:08:06.480Z",
+  "title": "Production encrypted backup completed; isolated recovery prepared",
+  "summary": "Replacement database credential authenticated. Fresh encrypted archive integrity passed; local recovery awaits execution.",
+  "status": "needs-testing",
+  "pages": [
+    "Production recovery",
+    "Change History"
+  ],
+  "components": [
+    "Encrypted backup",
+    "Isolated recovery"
+  ],
+  "files": [
+    "scripts/seo-encrypted-local-restore.cjs",
+    "scripts/seo-encrypted-production-backup.cjs",
+    "artifacts/seo-encrypted-backup-1792602387119.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared fixed-loopback recovery from encrypted archive with independent DPAPI key recovery, table hash/sequence comparison and managed outbound extension exclusions. No migrations or production writes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production backup",
+      "result": "passed",
+      "detail": "TLS verified read-only identity. AES-256-GCM backup at 2026-10-21T17:06:27.777Z; checksums, authenticated decrypt and full archive read passed (1233 entries). No plaintext dump file saved."
+    },
+    {
+      "name": "Recovery syntax",
+      "result": "passed",
+      "detail": "Node syntax check passed."
+    },
+    {
+      "name": "Recovery and coverage",
+      "result": "not-run",
+      "detail": "Isolated restore pending; 205 Storage objects have metadata only, no binary backup. Same-major recovery and independent offsite key recovery not established."
+    }
+  ]
+}

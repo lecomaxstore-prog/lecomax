@@ -1,0 +1,53 @@
+{
+  "id": "batch1-bootstrap-artifact-verified-20261024",
+  "createdAt": "2026-10-24T17:56:16.231Z",
+  "relatedId": "batch1-bootstrap-validator-correction-pending-20261024",
+  "title": "Static bootstrap artifact validated; hosted verification pending",
+  "summary": "All 16 validator regressions pass. Two inert output files are inventoried and hashed; fresh authenticated staging preflight matches the approved baseline.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout staging placeholder",
+    "/change-history"
+  ],
+  "components": [
+    "Static bootstrap artifact",
+    "Single-attempt deployment guard"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap.test.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/manifest.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/artifact-validation.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/upload/.vercel/output/config.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/upload/.vercel/output/static/index.html",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/upload/.vercel/project.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/upload/vercel.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared only inert static HTML and security/routing configuration, plus private exact project linkage and CLI configuration."
+    },
+    {
+      "kind": "modified",
+      "detail": "Deployment preflight now requires the newly verified provider snapshot and exact-value readback to be less than 15 minutes old."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression and local artifact",
+      "result": "passed",
+      "detail": "16/16 cases; parsed tag/attribute allowlist; two output files; hashes and RC2 archive match; 169 dirty files preserved."
+    },
+    {
+      "name": "Provider preflight",
+      "result": "passed",
+      "detail": "Zero deployments; Hobby/all; exact 19 Preview-only values; no aliases/resources/Git/shared variables."
+    },
+    {
+      "name": "Deployment and hosted acceptance",
+      "result": "not-run",
+      "detail": "Single authorized attempt not yet executed."
+    }
+  ]
+}

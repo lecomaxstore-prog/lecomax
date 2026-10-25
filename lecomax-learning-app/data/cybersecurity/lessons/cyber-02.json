@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-02",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-02",
+  "title": {
+    "en": "Operating systems: processes, permissions and evidence",
+    "ar": "أنظمة التشغيل: العمليات والصلاحيات والسجلات",
+    "fr": "Operating systems: processes, permissions and evidence"
+  },
+  "contentLanguage": "en",
+  "difficulty": 1,
+  "prerequisites": [
+    "cyber-01"
+  ],
+  "objectives": [
+    "Explain users, processes, services and file permissions.",
+    "Inspect your own lab process safely with PowerShell or Linux.",
+    "Preserve useful logs without collecting secrets."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Understand what runs a program, which identity it uses, and where to look when behavior is unexpected. All commands in this chapter are read-only or create a new lab folder.",
+  "sections": [
+    {
+      "title": "Programs become processes",
+      "text": "A program is stored code; a process is a running instance with memory, open files and an operating-system identity. Starting two terminals can create two processes from the same executable. A process identifier, or PID, identifies an instance for a period of time, not a permanent application identity. When the local Node server listens on port 4177, the operating system associates the listening socket with its process. The process can read only what its identity and permissions allow, except where additional privileges or vulnerabilities change that boundary. Running a development server as administrator makes an ordinary application mistake potentially affect many more files. Start the course lab as your normal user and keep it separate from personal documents and production credentials."
+    },
+    {
+      "title": "Files, directories and permissions",
+      "text": "A path names a location, but the rules for interpreting it depend on the operating system and API. Windows paths commonly include a drive and backslashes; web URLs use forward slashes and follow URL parsing rules. Linux permissions describe read, write and execute access for owner, group and others. Execute permission on a directory permits traversal; it does not mean the directory is a program. Windows access-control lists can grant and deny rights to users and groups, including inherited entries. A file extension does not establish whether content is safe. Permission to read a directory is also not a reason to publish it through a web server. Keep public assets, private configuration and uploaded untrusted files in separate locations with explicit serving rules."
+    },
+    {
+      "title": "Shells interpret syntax",
+      "text": "PowerShell, Bash and the Windows command prompt are different shells. A terminal window hosts a shell; it is not itself the language. Quoting rules decide whether characters become literal arguments, variable expansion or command syntax. This is why concatenating a web input into a shell command is dangerous: data may become executable syntax. For the read-only commands below, type the exact argument rather than pasting unknown command fragments from a website. Get-Location and pwd report your current directory; they do not change it. Get-ChildItem and ls list entries. A process command line can contain a secret supplied as an argument, so avoid posting an unredacted terminal screenshot when troubleshooting."
+    },
+    {
+      "title": "A repeatable Windows inspection",
+      "text": "Open PowerShell without administrator elevation. Get-Location confirms the directory. New-Item -ItemType Directory -Path ./security-notes creates a dedicated folder; if it already exists, inspect it instead of deleting it. Get-Process -Name node shows running Node processes, but more than one may belong to different projects. After starting the lab, Get-NetTCPConnection -LocalPort 4177 -State Listen identifies the owning PID when permissions and the platform allow it. Compare that PID with the lab startup output before stopping anything. Get-Acl ./security-notes displays its access control. These are observations, not automatic repairs. If a command is unavailable, use Get-Help for the installed PowerShell version; do not download an arbitrary replacement executable."
+    },
+    {
+      "title": "A repeatable Linux inspection",
+      "text": "In a Linux terminal, pwd and id establish directory and identity. mkdir -p ./security-notes creates the lab directory. ls -ld ./security-notes displays its permission bits and owner. ps -eo pid,user,comm lists process identities without dumping their full command arguments. ss -ltn shows listening TCP endpoints; 127.0.0.1:4177 is loopback, whereas 0.0.0.0:4177 listens on all IPv4 interfaces. No root privileges are needed to understand the output, although some process details require additional permissions. Do not use chmod 777 as a generic fix: it broadens access rather than diagnosing which actor needs which operation. The task is to identify the minimum required permission and test that legitimate work still succeeds."
+    },
+    {
+      "title": "Services, logs and timestamps",
+      "text": "A service is a long-running background workload managed by the operating system or another supervisor. Its configuration can differ from a program launched in your terminal: different identity, working directory, environment and restart policy. This explains why a program may work manually but fail after deployment. Logs record observations such as startup, denied access and application errors. A log timestamp needs a timezone; use UTC in incident evidence and keep the original timestamp rather than rewriting the file. Windows Event Viewer and Linux journalctl provide system evidence when accessible, while the course lab writes its own startup message. Absence of a message does not prove an event never occurred: logging may have been disabled, rotated or routed elsewhere."
+    },
+    {
+      "title": "Troubleshooting and safe evidence",
+      "text": "If port 4177 is already in use, identify the listener before choosing a different documented lab port; do not kill every node process. If access is denied, record the identity, path and attempted operation before changing permissions. If a log includes a token, redact the token in the copy used for discussion and store the original only when necessary with access controls. The practical assignment is an inventory of your own lab, not a search through unrelated users’ files. Darija: العملية هي البرنامج وهو خدام؛ والصلاحيات كتحدد شنو يقدر يقرا ويبدل. Knowing that relationship makes deployment and incident-response lessons easier because every action has an operating-system actor."
+    }
+  ],
+  "examples": [
+    {
+      "id": "windows",
+      "filename": "inspection.ps1",
+      "language": "powershell",
+      "code": "Get-Location\nGet-Process -Name node\nGet-NetTCPConnection -LocalPort 4177 -State Listen\nGet-Acl ./security-notes",
+      "annotations": [
+        {
+          "lines": "1",
+          "label": "Identify the working directory before interpreting relative paths."
+        },
+        {
+          "lines": "2-3",
+          "label": "Correlate the Node process with the listening lab socket."
+        },
+        {
+          "lines": "4",
+          "label": "Read the directory access rules without changing them."
+        }
+      ]
+    },
+    {
+      "id": "linux",
+      "filename": "inspection.sh",
+      "language": "shell",
+      "code": "pwd\nid\nls -ld ./security-notes\nps -eo pid,user,comm\nss -ltn",
+      "annotations": [
+        {
+          "lines": "1-2",
+          "label": "Establish path and operating-system identity."
+        },
+        {
+          "lines": "3",
+          "label": "Inspect directory ownership and permission bits."
+        },
+        {
+          "lines": "4-5",
+          "label": "Inspect processes and TCP listeners without stopping them."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "inventory",
+      "difficulty": 1,
+      "task": "Record the lab working directory, process ID, listening address and account identity. Do not include environment variables or full process arguments.",
+      "hints": [
+        "Correlate the port owner with the startup process."
+      ],
+      "solution": "Working directory: repository/security-labs\nAccount: normal user\nListener: 127.0.0.1:4177\nPID: observed locally, not a fixed number",
+      "walkthrough": "The exact PID differs each run. The important result is the relationship between the process, identity and loopback listener.",
+      "expectedResult": "A four-field inventory with no secrets."
+    },
+    {
+      "id": "permissions",
+      "difficulty": 2,
+      "task": "Explain why changing every file to world-writable is a poor response to a log-file permission error.",
+      "hints": [
+        "Identify the writer and required operation."
+      ],
+      "solution": "Identify service identity -> inspect directory ACL -> grant only required write access to the log location -> retest -> record change.",
+      "walkthrough": "Changing the entire project would broaden the impact of unrelated processes. A targeted permission change repairs the actual boundary.",
+      "expectedResult": "A minimally scoped remediation plan."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-02-q1",
+      "question": "Two terminals run the same Node program. Must their PIDs match?",
+      "options": [
+        "No; they are separate process instances.",
+        "Yes; a PID names the program file."
+      ],
+      "correctIndex": 0,
+      "explanation": "PIDs identify running instances, not stored code.",
+      "answerExplanations": [
+        "Correct. PIDs identify running instances, not stored code.",
+        "Not quite. PIDs identify running instances, not stored code."
+      ]
+    },
+    {
+      "id": "cyber-02-q2",
+      "question": "What does 127.0.0.1 mean for this listener?",
+      "options": [
+        "Every device on Wi-Fi can connect.",
+        "Connections remain on the same host."
+      ],
+      "correctIndex": 1,
+      "explanation": "Loopback is a host-local address.",
+      "answerExplanations": [
+        "Not quite. Loopback is a host-local address.",
+        "Correct. Loopback is a host-local address."
+      ]
+    },
+    {
+      "id": "cyber-02-q3",
+      "question": "Does changing a filename to .png make its contents an image?",
+      "options": [
+        "No; inspect and decode the content.",
+        "Yes; the extension determines the bytes."
+      ],
+      "correctIndex": 0,
+      "explanation": "A filename is caller-controlled metadata.",
+      "answerExplanations": [
+        "Correct. A filename is caller-controlled metadata.",
+        "Not quite. A filename is caller-controlled metadata."
+      ]
+    },
+    {
+      "id": "cyber-02-q4",
+      "question": "What is the first response to access denied?",
+      "options": [
+        "Make the whole project world-writable.",
+        "Inspect identity, resource and attempted operation."
+      ],
+      "correctIndex": 1,
+      "explanation": "Diagnose the failed permission before broadening access.",
+      "answerExplanations": [
+        "Not quite. Diagnose the failed permission before broadening access.",
+        "Correct. Diagnose the failed permission before broadening access."
+      ]
+    },
+    {
+      "id": "cyber-02-q5",
+      "question": "Can a process command line expose a secret?",
+      "options": [
+        "Yes; arguments may contain tokens.",
+        "No; only environment files hold secrets."
+      ],
+      "correctIndex": 0,
+      "explanation": "Evidence collection must avoid unnecessary sensitive arguments.",
+      "answerExplanations": [
+        "Correct. Evidence collection must avoid unnecessary sensitive arguments.",
+        "Not quite. Evidence collection must avoid unnecessary sensitive arguments."
+      ]
+    },
+    {
+      "id": "cyber-02-q6",
+      "question": "A service fails but a terminal run succeeds. What should you compare?",
+      "options": [
+        "Only the source code filename.",
+        "Identity, working directory and configuration."
+      ],
+      "correctIndex": 1,
+      "explanation": "Launch contexts can differ even for identical code.",
+      "answerExplanations": [
+        "Not quite. Launch contexts can differ even for identical code.",
+        "Correct. Launch contexts can differ even for identical code."
+      ]
+    },
+    {
+      "id": "cyber-02-q7",
+      "question": "Does no log entry prove no event happened?",
+      "options": [
+        "No; coverage and retention may be incomplete.",
+        "Yes; all actions are always logged."
+      ],
+      "correctIndex": 0,
+      "explanation": "Logging is a configured observation channel.",
+      "answerExplanations": [
+        "Correct. Logging is a configured observation channel.",
+        "Not quite. Logging is a configured observation channel."
+      ]
+    },
+    {
+      "id": "cyber-02-q8",
+      "question": "Should the lab run as administrator by default?",
+      "options": [
+        "Yes; it prevents all security errors.",
+        "No; use a normal account."
+      ],
+      "correctIndex": 1,
+      "explanation": "Privilege increases the impact of application mistakes.",
+      "answerExplanations": [
+        "Not quite. Privilege increases the impact of application mistakes.",
+        "Correct. Privilege increases the impact of application mistakes."
+      ]
+    },
+    {
+      "id": "cyber-02-q9",
+      "question": "A port is occupied. Should you terminate every Node process?",
+      "options": [
+        "No; identify the owning process first.",
+        "Yes; all Node processes belong to the lab."
+      ],
+      "correctIndex": 0,
+      "explanation": "Other projects may be running legitimately.",
+      "answerExplanations": [
+        "Correct. Other projects may be running legitimately.",
+        "Not quite. Other projects may be running legitimately."
+      ]
+    },
+    {
+      "id": "cyber-02-q10",
+      "question": "What should an incident timestamp preserve?",
+      "options": [
+        "Only the day of the month.",
+        "Its original value and timezone context."
+      ],
+      "correctIndex": 1,
+      "explanation": "Time correlation requires an unambiguous clock context.",
+      "answerExplanations": [
+        "Not quite. Time correlation requires an unambiguous clock context.",
+        "Correct. Time correlation requires an unambiguous clock context."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can explain users, processes, services and file permissions.",
+    "I can inspect your own lab process safely with PowerShell or Linux.",
+    "I can preserve useful logs without collecting secrets."
+  ],
+  "recap": [
+    "Explain users, processes, services and file permissions.",
+    "Inspect your own lab process safely with PowerShell or Linux.",
+    "Preserve useful logs without collecting secrets."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "PowerShell Get-Process",
+      "url": "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-process",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "Ubuntu command-line introduction",
+      "url": "https://ubuntu.com/tutorials/command-line-for-beginners",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "What authority does a request inherit?",
+    "steps": [
+      {
+        "title": "Terminal user",
+        "detail": "Your normal operating-system identity starts Node."
+      },
+      {
+        "title": "Node process",
+        "detail": "The process inherits permissions and opens a loopback socket."
+      },
+      {
+        "title": "File or socket operation",
+        "detail": "The operating system checks permissions at the resource boundary."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Process",
+      "A running program instance."
+    ],
+    [
+      "PID",
+      "A temporary process identifier."
+    ],
+    [
+      "ACL",
+      "An access-control list assigning resource permissions."
+    ],
+    [
+      "Service",
+      "A supervised background workload."
+    ]
+  ],
+  "lab": null
+}

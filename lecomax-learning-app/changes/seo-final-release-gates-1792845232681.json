@@ -1,0 +1,58 @@
+{
+  "id": "seo-final-release-gates-1792845232681",
+  "relatedId": "seo-acceptance-gap-review-1792844344873",
+  "createdAt": "2026-10-24T12:33:52.681Z",
+  "title": "Current Production A–D evidence and exact rollback anchor verified",
+  "summary": "Vercel access restored; current Production already contains A–D. Live canonical/sitemap/image/InStock/OutOfStock checks pass. No new deployment needed; restrictive Preview promotion remains NO-GO and staging database authorization unresolved.",
+  "status": "successful",
+  "pages": [
+    "Production SEO",
+    "Protected SEO Preview",
+    "Change History"
+  ],
+  "components": [
+    "Release evidence",
+    "Source preservation",
+    "Rollback planning"
+  ],
+  "files": [
+    "docs/seo-final-release-gates-20261024.md",
+    "artifacts/seo-preview-resume-20261023/final-release-provider-audit.cjs",
+    "artifacts/seo-preview-resume-20261023/final-release-public-audit.cjs",
+    "artifacts/seo-preview-resume-20261023/final-release-source-audit.cjs",
+    "artifacts/seo-preview-resume-20261023/final-release-flags.cjs",
+    "artifacts/seo-preview-resume-20261023/record-final-release-gates.cjs",
+    "artifacts/seo-preview-resume-20261023/final-release-provider-1792844886086.json",
+    "artifacts/seo-preview-resume-20261023/final-release-public-1792844934616.json",
+    "artifacts/seo-preview-resume-20261023/final-release-source-1792845045046.json",
+    "artifacts/seo-preview-resume-20261023/final-release-flags-1792845098875.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only provider/public/source evidence, exact current Production rollback anchor, access diagnosis and final scoped A–D decision. No application repair, deployment, configuration change or mutation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Current provider identity",
+      "result": "passed",
+      "detail": "Authenticated CLI GET verifies Production and Preview READY, exact project/team and lecomax.com alias. Network sandbox EACCES resolved using approved read-only access; no token extraction."
+    },
+    {
+      "name": "Production SEO",
+      "result": "passed",
+      "detail": "12 public HTML pages: 200, matching canonical, index/follow, title and description; six Product schemas with MAD prices, images and both InStock/OutOfStock observed. Four sitemap shards and six image samples pass. Login/cart noindex observed."
+    },
+    {
+      "name": "Preservation comparison",
+      "result": "passed",
+      "detail": "1095 Production files identical to committed recovery baseline. Working recovery: 960 identical, 135 changed, zero missing; seven SEO files identical. Existing 83/20 offline checks reused."
+    },
+    {
+      "name": "Remaining limitations",
+      "result": "not-run",
+      "detail": "Independent staging DB denied to current accounts; real payments, runtime egress, rollback rehearsal and full integration audit not performed. No current learning UI preview. No new Production artifact approved; Release E on hold."
+    }
+  ]
+}

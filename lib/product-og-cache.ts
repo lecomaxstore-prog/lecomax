@@ -9,7 +9,8 @@ export function productOgSnapshot(product: ProductShareData): ProductShareData {
   return {
     slug: product.slug, name: product.name, description: "", category: product.category,
     price: product.price, oldPrice: product.oldPrice, discount: product.discount,
-    stock: product.stock === 0 ? 0 : 1, image: product.image, imageUrl: product.imageUrl,
+    stock: typeof product.stock === "number" ? (product.stock > 0 ? 1 : 0) : undefined,
+    preorderEnabled: product.preorderEnabled, image: product.image, imageUrl: product.imageUrl,
   };
 }
 
@@ -18,7 +19,7 @@ const renderCached = unstable_cache(async (snapshot: string) => {
   const { renderProductOgImage } = await import("./product-og-renderer");
   const response = await renderProductOgImage(JSON.parse(snapshot));
   return Buffer.from(await response.arrayBuffer()).toString("base64");
-}, ["product-og-png-v1"], { revalidate: 86400 });
+}, ["product-og-png-v2-premium"], { revalidate: 86400 });
 
 // Coalesce cold requests inside a Fluid instance; never retain failed promises.
 const pending = new Map<string, Promise<string>>();

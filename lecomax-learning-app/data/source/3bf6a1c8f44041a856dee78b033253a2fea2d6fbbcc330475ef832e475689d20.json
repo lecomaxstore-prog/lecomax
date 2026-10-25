@@ -1,0 +1,1 @@
+{"content":"import type { Metadata } from \"next\";\nimport { privatePageMetadata } from \"@/lib/seo\";\n\nexport const metadata: Metadata = { title: \"Maintenance\", ...privatePageMetadata };\n\nexport default function MaintenanceLayout({ children }: { children: React.ReactNode }) {\n  return <div className=\"maintenance-page\">{children}</div>;\n}\n"}

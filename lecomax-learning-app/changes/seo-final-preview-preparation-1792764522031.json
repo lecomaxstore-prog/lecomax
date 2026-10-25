@@ -1,0 +1,76 @@
+{
+  "id": "seo-final-preview-preparation-1792764522031",
+  "createdAt": "2026-10-23T14:08:42.031Z",
+  "relatedId": "seo-verifier-only-hosted-pass-1792764159582",
+  "title": "Prepare protected SEO Preview release for separate approval",
+  "summary": "Preserved the candidate and completed read-only release preparation. No deployment or hosted verifier rerun. Real staging storefront acceptance remains pending.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO protected Preview release",
+    "Homepage, Boutique, products, categories, sitemaps and robots",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Deployment procedure",
+    "Read-only acceptance checklist",
+    "Rollback procedure"
+  ],
+  "files": [
+    "operations/seo/final-protected-preview-20261023.md",
+    "operations/seo/readonly-preview-acceptance.json",
+    "artifacts/seo-preview-resume-20261023/final-preview-control-audit.cjs",
+    "artifacts/seo-preview-resume-20261023/final-preview-control-audit-1792764375214.json",
+    "artifacts/seo-preview-resume-20261023/final-preview-candidate-inventory.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Exact staging-only Git-free CLI procedure, side-effect review, protection audit, complete candidate changed-file inventory and guarded cleanup/rollback instructions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Removed stale instruction to rerun the hosted credential verifier from acceptance plan. Referenced saved PASS evidence and marked cart page unsupported because current policy returns 403."
+    },
+    {
+      "kind": "modified",
+      "detail": "Recorded current acceptance gates without changing application implementation, authorization, provider settings or secrets."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate preservation",
+      "result": "passed",
+      "detail": "2601 file hashes match; 137 tracked modifications and 15 untracked files preserved. Actual Git HEAD 8a12abcce38c0dc557a9ef9f86c3ce3dd113e863."
+    },
+    {
+      "name": "Focused security suites",
+      "result": "passed",
+      "detail": "62 tests, zero failures; synthetic credential/email/readonly/verifier/error handling only. Hosted single-use verifier was not run."
+    },
+    {
+      "name": "Authenticated staging metadata",
+      "result": "passed",
+      "detail": "Correct project/team, all-deployment protection, zero project protection exceptions, no Git connection, empty crons/shared env; dedicated keys sensitive Preview-only; disable flags match."
+    },
+    {
+      "name": "Existing build evidence",
+      "result": "passed",
+      "detail": "Unchanged-candidate prior 226-page fixture build and TypeScript passed. Not rerun; not real staging acceptance."
+    },
+    {
+      "name": "Preparation consistency",
+      "result": "passed",
+      "detail": "Acceptance remains unauthorized, uses saved verifier PASS, removes rerun instruction; deployment config has empty crons and Git disabled."
+    },
+    {
+      "name": "Real hosted acceptance",
+      "result": "not-run",
+      "detail": "Separate deployment approval, final upload/identity recheck, authenticated browser access and staging data provenance required. No hosted storefront exists from this task. Native dependency hooks and team integration behavior are not an exhaustive egress guarantee."
+    },
+    {
+      "name": "CLI help",
+      "result": "passed",
+      "detail": "Required deploy options verified from installed help and official docs; help process also reported an unrelated sandbox cache-update permission error. No deployment attempted."
+    }
+  ]
+}

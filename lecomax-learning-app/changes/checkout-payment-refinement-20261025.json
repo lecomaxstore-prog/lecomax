@@ -1,0 +1,43 @@
+{
+  "id": "checkout-payment-refinement-20261025",
+  "createdAt": "2026-10-25T19:15:30.204Z",
+  "title": "Clearer mobile checkout payment layout",
+  "summary": "Compact progress, readable order details and refined payment selection.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront checkout /checkout"
+  ],
+  "components": [
+    "CheckoutScreen",
+    "OrderSummary",
+    "PaymentMethodRow"
+  ],
+  "files": [
+    "mobile/src/screens/checkout-screen.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use existing compact progress; reduce summary padding, soften page background, enlarge small labels and strengthen selected payment border."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Move product price below details to avoid squeezing long product names on narrow screens."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove duplicate quantity label and unused trailing-column styles."
+    },
+    {
+      "kind": "added",
+      "detail": "Add a bag icon to the order summary heading."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "TypeScript and browser checks pending. No deployment or payment submission."
+    }
+  ]
+}

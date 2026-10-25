@@ -1,0 +1,20 @@
+import type { Reference } from './schema';
+export const references:Record<string,Reference>={
+  history:{title:'Original Dartmouth research proposal (1955)',url:'https://www-formal.stanford.edu/jmc/history/dartmouth/dartmouth.html',checked:'2026-10-16',scope:'Proposal for the 1956 summer project.'},
+  alexnet:{title:'ImageNet Classification with Deep Convolutional Neural Networks (2012)',url:'https://papers.nips.cc/paper_files/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html',checked:'2026-10-16',scope:'Original image-classification paper.'},
+  health:{title:'WHO: ethics and governance of AI for health',url:'https://www.who.int/publications/i/item/9789240029200',checked:'2026-10-16',scope:'Health-system ethics and governance, not individualized medical guidance.'},
+  statistics:{title:'Python statistics library',url:'https://docs.python.org/3/library/statistics.html',checked:'2026-10-16',scope:'Mean, median and statistical functions.'},
+  security:{title:'OWASP: risks in LLM applications',url:'https://owasp.org/projects/top-10-for-large-language-model-applications',checked:'2026-10-16',scope:'Application threats including prompt injection and excessive agency.'},
+  transformer:{title:'Attention Is All You Need (2017)',url:'https://arxiv.org/abs/1706.03762',checked:'2026-10-16',scope:'Original Transformer architecture; not a specification for every modern model.'},
+  neural:{title:'Google ML Crash Course: neural networks',url:'https://developers.google.com/machine-learning/crash-course/neural-networks',checked:'2026-10-16',scope:'Neural-network fundamentals.'},
+  python:{title:'Python language tutorial',url:'https://docs.python.org/3/tutorial/',checked:'2026-10-16',scope:'Python basics; the linked tutorial assumes some programming familiarity.'},
+  json:{title:'Python JSON library',url:'https://docs.python.org/3/library/json.html',checked:'2026-10-16',scope:'JSON encoding, decoding and limits.'},
+  async:{title:'Python coroutines and tasks',url:'https://docs.python.org/3/library/asyncio-task.html',checked:'2026-10-16',scope:'Async scheduling, cancellation and tasks.'},
+  prompts:{title:'OpenAI: prompt engineering',url:'https://developers.openai.com/api/docs/guides/prompt-engineering',checked:'2026-10-16',scope:'Instructions, context and API text generation. Model availability changes.'},
+  schema:{title:'OpenAI: Structured Outputs',url:'https://developers.openai.com/api/docs/guides/structured-outputs',checked:'2026-10-16',scope:'Schema-constrained responses; handle refusal and incomplete responses separately.'},
+  tools:{title:'OpenAI: function calling',url:'https://developers.openai.com/api/docs/guides/function-calling',checked:'2026-10-16',scope:'Model tool requests and application-side execution.'},
+  streaming:{title:'OpenAI: streaming responses',url:'https://developers.openai.com/api/docs/guides/streaming-responses',checked:'2026-10-16',scope:'Typed delta, completion and failure events.'},
+  embeddings:{title:'OpenAI: vector embeddings',url:'https://developers.openai.com/api/docs/guides/embeddings',checked:'2026-10-16',scope:'Vector similarity and retrieval. Check current models and prices before deployment.'},
+  mcp:{title:'MCP architecture overview',url:'https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture',checked:'2026-10-16',scope:'Versioned 2026-07-28 architecture; protocol versions must be negotiated, not guessed.'},
+  risk:{title:'NIST AI Risk Management Framework',url:'https://www.nist.gov/itl/ai-risk-management-framework',checked:'2026-10-16',scope:'Risk management throughout an AI system lifecycle; not a medical approval.'},
+};

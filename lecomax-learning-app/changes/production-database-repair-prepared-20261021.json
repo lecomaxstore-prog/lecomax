@@ -1,0 +1,37 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Add explicit repair mode, automatic password URI encoding and verify-full, validation before writes, scope and drift checks, no retry receipt, sanitized diagnostics and append-only execution history. No reset, deployment or SQL writes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Extend existing hidden-input launcher with repair switch and French guidance. Original read-only mode retained."
+    }
+  ],
+  "summary": "Prepared hidden password input and narrowly scoped Production URI/binding repair after read-only TLS validation. Not executed against Production.",
+  "id": "production-database-repair-prepared-20261021",
+  "createdAt": "2026-10-21T20:04:44.905Z",
+  "validation": [
+    {
+      "detail": "Mock failure/success tests and syntax checks pending. Real reset, hidden password entry, TLS connection and provider mutations not performed.",
+      "result": "not-run",
+      "name": "Repair workflow"
+    }
+  ],
+  "files": [
+    "scripts/repair-production-database.cjs",
+    "scripts/verify-production-credentials.ps1",
+    "tests/production-database-repair.test.cjs"
+  ],
+  "components": [
+    "Secure PowerShell repair",
+    "Vercel database configuration"
+  ],
+  "status": "needs-testing",
+  "title": "Authorized database credential repair workflow",
+  "pages": [
+    "Production operations",
+    "Change History"
+  ]
+}

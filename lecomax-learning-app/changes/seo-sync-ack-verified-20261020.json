@@ -1,0 +1,40 @@
+{
+  "id": "seo-sync-ack-verified-20261020",
+  "relatedId": "seo-sync-ack-prepared-20261020",
+  "createdAt": "2026-10-20T09:33:28.863Z",
+  "title": "Synchronization acknowledgement correction verified",
+  "summary": "Both worker copies reject malformed completion responses without replaying the job.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync",
+    "Local database acceptance"
+  ],
+  "components": [
+    "SEO workers",
+    "Local acceptance and recovery"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-sync-worker.mjs",
+    "scripts/seo-sync-worker.mjs",
+    "operations/seo-vercel/tests/sync-acknowledgement.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Both worker copies reject malformed completion responses without replaying the job."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Executed local verification",
+      "result": "passed",
+      "detail": "144 SEO/worker tests plus six history tests passed; root and learning TypeScript and focused lint passed."
+    },
+    {
+      "name": "Production and hosted acceptance",
+      "result": "not-run",
+      "detail": "NO-GO. No hosted writes/deployment/paid calls. Real Auth sessions, platform isolation, protected production recovery and human FR/AR acceptance remain unverified. Local synthetic recovery is not production recovery."
+    }
+  ]
+}

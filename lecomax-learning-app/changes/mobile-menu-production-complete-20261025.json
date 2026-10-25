@@ -1,0 +1,56 @@
+{
+  "id": "mobile-menu-production-complete-20261025",
+  "relatedId": "mobile-menu-release-authorized-20261025",
+  "createdAt": "2026-10-25T07:30:36.908Z",
+  "title": "Mobile menu accessibility released and verified on production",
+  "summary": "One authorized deployment reached READY and serves lecomax.com. Exact one-file source delta and focused live checks passed.",
+  "status": "successful",
+  "pages": [
+    "Storefront shared header",
+    "Homepage",
+    "Boutique",
+    "Product pages",
+    "Cart and checkout entry points"
+  ],
+  "components": [
+    "Header",
+    "Mobile navigation drawer"
+  ],
+  "files": [
+    "components/Header.tsx",
+    "artifacts/mobile-menu-20261025/receipt.json",
+    "artifacts/mobile-menu-20261025/production-complete.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Released certified closed-drawer exclusion, modal focus containment, Escape and focus restoration, inert/scroll preservation and 320px header sizing."
+    },
+    {
+      "kind": "added",
+      "detail": "Sanitized release receipt, live interaction evidence and append-only completion report. No other application files, configuration or database changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Deployment identity and source preservation",
+      "result": "passed",
+      "detail": "READY dpl_8wg4bKgDpwtRDpvo1TZ5rCdkowNk serves lecomax.com; one creation attempt. All 2055 uploaded source hashes match a4e66c955df0f8c8899bcc1b41a4dd3a7d7c78f403236a3b9caf286bb92eddde; only Header.tsx differs. Environment metadata and cron configuration unchanged. Previous READY rollback dpl_DVhkLXqsqieeJ5du2vXetyaZCsCL."
+    },
+    {
+      "name": "Live menu and accessibility",
+      "result": "passed",
+      "detail": "38 checks passed: 320/375/390px keyboard, opening focus, Tab/Shift+Tab, background isolation, Escape, focus return, touch navigation, desktop resize, search handoff. Touch swipe and original scroll/inert preservation passed. No horizontal clipping; focused axe zero violations. Closed-state incomplete reviewed against certified unchanged semantics."
+    },
+    {
+      "name": "Storefront, SEO and prior fixes",
+      "result": "passed",
+      "detail": "18 storefront checks passed at 390/1440. Homepage, boutique, category, product, cart and checkout entry points; optimized category images; robots/sitemap/product sitemap; product metadata/canonical/schema and contrast preserved. Chat launcher/panel/minimize passed with writes blocked."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No physical devices, human screen reader, real orders/payments/customer messages or new performance benchmark. Chat session creation deliberately blocked. SEO Release E remains on hold."
+    }
+  ]
+}

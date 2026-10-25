@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-09",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-09",
+  "title": {
+    "en": "Authentication: passwords, sessions, tokens and recovery",
+    "ar": "أمان الحسابات والجلسات واسترجاع الوصول",
+    "fr": "Authentication: passwords, sessions, tokens and recovery"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-08"
+  ],
+  "objectives": [
+    "Explain password hashing, MFA and session lifecycle.",
+    "Distinguish JWT verification, OAuth authorization and identity protocols.",
+    "Design single-use password recovery and bounded abuse controls."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Authentication establishes identity; recovery and session lifecycle are part of that same system. Use a maintained authentication implementation for production, while learning the mechanisms and failure modes here.",
+  "sections": [
+    {
+      "title": "A login is a protocol, not one comparison",
+      "text": "A user presents evidence of identity, the server verifies it, and the system creates a bounded authenticated session. Failure paths matter as much as success: unknown user, wrong password, unavailable identity store and repeated attempts must preserve the policy. Avoid different public messages that unnecessarily reveal whether an email is registered. Rate-limit abusive attempts using appropriate account and network signals, while considering shared networks and recovery for legitimate users. The local actor selector deliberately skips identity proof so you can study authorization separately. It must never be copied as a real login endpoint. Production authentication should use a maintained provider or library with a reviewed configuration rather than a home-grown password comparison."
+    },
+    {
+      "title": "Hashing is different from encryption",
+      "text": "A password hash is a one-way verification representation, not encrypted text intended to be decrypted. Use a password-specific slow hashing scheme such as Argon2id through a maintained implementation, with its recommended parameters and a unique salt. A salt prevents identical passwords from producing a shared precomputed target; it is not a secret password substitute. Fast general-purpose hashes such as a single SHA-256 operation are inappropriate for password storage because guessing can be cheap. A pepper, when used, is a separate secret with a rotation and recovery plan. Do not log raw passwords, reset tokens or complete authentication request bodies. Exact cost parameters should be benchmarked and checked against current guidance, not frozen in a course snippet forever."
+    },
+    {
+      "title": "Sessions need a beginning, expiry and end",
+      "text": "An opaque session identifier should be unpredictable, bound to server-side session state and rotated when authentication or privilege changes. Browser cookies commonly use HttpOnly, Secure and an appropriate SameSite policy. Idle expiry and absolute expiry answer different lifecycle questions. Logout should invalidate the server-side session, not merely remove a button. Changing a password or detecting account takeover may require revoking other sessions. A session store outage should not fall back to granting access. In the lab, sessions are in memory and vanish on restart; that is a transparent fixture limitation, not a durable production session design."
+    },
+    {
+      "title": "JWT is a format, not automatic trust",
+      "text": "A JSON Web Token may contain claims and a signature, but decoding its base64url payload is not verification. A receiver must use a permitted algorithm and trusted key, verify the signature and validate relevant issuer, audience, expiry and not-before semantics. A token signed for a different service should not be accepted merely because a signature can be verified. Claims can become stale after a role change, and short expiry does not instantly revoke an already issued token. Refresh-token rotation and reuse detection help manage longer sessions, but require server-side state and a clear compromise response. Never put a server signing key in a mobile bundle or NEXT_PUBLIC variable."
+    },
+    {
+      "title": "MFA, OAuth and redirects",
+      "text": "Multi-factor authentication combines independent factors; adding a second password is not the same as adding a possession factor. Phishing-resistant methods can reduce some credential-replay risks, but enrollment and recovery must also be protected. OAuth delegates authorization to access resources; OpenID Connect adds an identity layer commonly used for login. For public clients such as mobile apps, use an appropriate authorization-code flow with PKCE and exact registered redirect handling through a maintained SDK. The client cannot keep a client secret confidential. Validate state and transaction binding as required by the flow, and never treat an arbitrary deep-link query parameter as a verified account identity."
+    },
+    {
+      "title": "Recovery is an authentication boundary",
+      "text": "A password-reset endpoint that accepts only userId and newPassword lets a caller choose whose account to change. The vulnerableReset model illustrates that missing proof. The corrected consumeReset receives a random token whose digest is stored with a user binding, expiry and used flag. It rejects unknown, expired and previously used tokens, then consumes the record before reporting the user identity authorized for the reset. The local in-memory function is single-process teaching code; a real database must consume and change the password atomically to avoid concurrent replay. Generate high-entropy tokens, avoid user enumeration in reset-request responses, rate-limit requests and never expose the token digest as a usable credential."
+    },
+    {
+      "title": "Verify lifecycle and recovery behavior",
+      "text": "The regression matrix includes valid token, wrong token, expiry and reuse. Add integration tests for logout invalidation, changed roles, MFA recovery and unavailable session storage in the actual authentication stack. Separate an expired credential from an unauthorized object: a valid login can still be forbidden to read another user’s order. Common mistakes include storing raw passwords, trusting decoded JWT claims, letting client input set a role and implementing recovery as an unprotected convenience route. Darija: استرجاع كلمة السر هو حتى هو تسجيل دخول بطريقة أخرى؛ خاصو دليل، مدة صلاحية، ومنع إعادة الاستعمال."
+    }
+  ],
+  "examples": [
+    {
+      "id": "reset-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableReset(input) { return { userId: input.userId, passwordChanged: true }; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "reset-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function consumeReset(token, records, now = Date.now()) {\n  const digest = crypto.createHash('sha256').update(String(token)).digest('hex');\n  const item = records.get(digest);\n  if (!item || item.expires <= now || item.used) reject('Reset link invalid', 400);\n  item.used = true;\n  return item.userId;\n}",
+      "annotations": [
+        {
+          "lines": "1-7",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "reset",
+      "difficulty": 2,
+      "task": "Create a synthetic reset record, consume its token, then attempt reuse and expiry.",
+      "hints": [
+        "Store a digest, not the raw token.",
+        "Use a fixed test clock for boundaries."
+      ],
+      "solution": "Valid token -> bound user\nSecond use -> denied\nExpired token -> denied\nWrong token -> denied",
+      "walkthrough": "The test exercises possession, lifetime and single-use state. Production concurrency requires an atomic persistent operation.",
+      "expectedResult": "Four deterministic cases."
+    },
+    {
+      "id": "jwt",
+      "difficulty": 2,
+      "task": "List why a decoded token with role=admin is insufficient evidence.",
+      "hints": [
+        "Decoding is not signature verification."
+      ],
+      "solution": "Verify permitted algorithm/key, signature, issuer, audience, expiry and current authorization policy.",
+      "walkthrough": "Even a valid signature does not automatically grant every operation or reflect a recent role revocation.",
+      "expectedResult": "A verification and authorization checklist."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-09-q1",
+      "question": "Is a single fast SHA-256 hash suitable password storage?",
+      "options": [
+        "No; use a password-specific slow hashing implementation.",
+        "Yes; any hash has equal guessing cost."
+      ],
+      "correctIndex": 0,
+      "explanation": "Password hashing must make large-scale guessing expensive.",
+      "answerExplanations": [
+        "Correct. Password hashing must make large-scale guessing expensive.",
+        "Not quite. Password hashing must make large-scale guessing expensive."
+      ]
+    },
+    {
+      "id": "cyber-09-q2",
+      "question": "Is a salt normally a secret authentication factor?",
+      "options": [
+        "Yes; knowing it logs a user in.",
+        "No; it supplies uniqueness."
+      ],
+      "correctIndex": 1,
+      "explanation": "Salt and secret proof have different roles.",
+      "answerExplanations": [
+        "Not quite. Salt and secret proof have different roles.",
+        "Correct. Salt and secret proof have different roles."
+      ]
+    },
+    {
+      "id": "cyber-09-q3",
+      "question": "Does decoding a JWT verify its signature?",
+      "options": [
+        "No; verification is a separate operation.",
+        "Yes; readable JSON proves authenticity."
+      ],
+      "correctIndex": 0,
+      "explanation": "Encoding carries no authenticity guarantee.",
+      "answerExplanations": [
+        "Correct. Encoding carries no authenticity guarantee.",
+        "Not quite. Encoding carries no authenticity guarantee."
+      ]
+    },
+    {
+      "id": "cyber-09-q4",
+      "question": "Can a mobile app keep a server signing key secret?",
+      "options": [
+        "Yes; release builds make keys unrecoverable.",
+        "No; the bundle is client-accessible."
+      ],
+      "correctIndex": 1,
+      "explanation": "Public clients cannot protect embedded server secrets.",
+      "answerExplanations": [
+        "Not quite. Public clients cannot protect embedded server secrets.",
+        "Correct. Public clients cannot protect embedded server secrets."
+      ]
+    },
+    {
+      "id": "cyber-09-q5",
+      "question": "Does removing a logout button invalidate a session?",
+      "options": [
+        "No; server-side credential state must be revoked as designed.",
+        "Yes; the UI controls all requests."
+      ],
+      "correctIndex": 0,
+      "explanation": "A caller can continue sending requests independently.",
+      "answerExplanations": [
+        "Correct. A caller can continue sending requests independently.",
+        "Not quite. A caller can continue sending requests independently."
+      ]
+    },
+    {
+      "id": "cyber-09-q6",
+      "question": "Is an email reset route outside authentication scope?",
+      "options": [
+        "Yes; recovery is only a support feature.",
+        "No; it can grant control of the account."
+      ],
+      "correctIndex": 1,
+      "explanation": "Recovery proof must be protected like login proof.",
+      "answerExplanations": [
+        "Not quite. Recovery proof must be protected like login proof.",
+        "Correct. Recovery proof must be protected like login proof."
+      ]
+    },
+    {
+      "id": "cyber-09-q7",
+      "question": "Should a reset token work twice?",
+      "options": [
+        "No; consume it once.",
+        "Yes; expiry alone makes replay harmless."
+      ],
+      "correctIndex": 0,
+      "explanation": "Single-use state prevents repeated authorized changes.",
+      "answerExplanations": [
+        "Correct. Single-use state prevents repeated authorized changes.",
+        "Not quite. Single-use state prevents repeated authorized changes."
+      ]
+    },
+    {
+      "id": "cyber-09-q8",
+      "question": "What does an unavailable session store imply?",
+      "options": [
+        "Grant access until the store returns.",
+        "Deny or defer the protected operation."
+      ],
+      "correctIndex": 1,
+      "explanation": "Required authentication cannot fail open.",
+      "answerExplanations": [
+        "Not quite. Required authentication cannot fail open.",
+        "Correct. Required authentication cannot fail open."
+      ]
+    },
+    {
+      "id": "cyber-09-q9",
+      "question": "Is OAuth alone synonymous with user identity verification?",
+      "options": [
+        "No; distinguish delegated authorization and the identity layer.",
+        "Yes; all OAuth tokens identify every user to every service."
+      ],
+      "correctIndex": 0,
+      "explanation": "Token audience and protocol purpose matter.",
+      "answerExplanations": [
+        "Correct. Token audience and protocol purpose matter.",
+        "Not quite. Token audience and protocol purpose matter."
+      ]
+    },
+    {
+      "id": "cyber-09-q10",
+      "question": "What remains beyond the local reset model?",
+      "options": [
+        "Nothing; the model is a full production identity system.",
+        "Atomic persistent consumption and real authentication integration."
+      ],
+      "correctIndex": 1,
+      "explanation": "The fixture does not establish distributed lifecycle behavior.",
+      "answerExplanations": [
+        "Not quite. The fixture does not establish distributed lifecycle behavior.",
+        "Correct. The fixture does not establish distributed lifecycle behavior."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can explain password hashing, MFA and session lifecycle.",
+    "I can distinguish JWT verification, OAuth authorization and identity protocols.",
+    "I can design single-use password recovery and bounded abuse controls."
+  ],
+  "recap": [
+    "Explain password hashing, MFA and session lifecycle.",
+    "Distinguish JWT verification, OAuth authorization and identity protocols.",
+    "Design single-use password recovery and bounded abuse controls."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP password storage",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP forgot password",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "Expo authentication",
+      "url": "https://docs.expo.dev/guides/authentication/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Identity has a lifecycle",
+    "steps": [
+      {
+        "title": "Proof",
+        "detail": "Validate credentials or a maintained identity-provider response."
+      },
+      {
+        "title": "Session",
+        "detail": "Issue bounded state and rotate identifiers at trust changes."
+      },
+      {
+        "title": "Authorization",
+        "detail": "Check current permission for each sensitive operation."
+      },
+      {
+        "title": "Recovery and revocation",
+        "detail": "Consume reset proof once and invalidate affected sessions."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Salt",
+      "A unique value used with a password-hashing operation."
+    ],
+    [
+      "JWT",
+      "A token representation whose claims require cryptographic and semantic validation."
+    ],
+    [
+      "PKCE",
+      "A binding mechanism for an authorization-code exchange."
+    ],
+    [
+      "MFA",
+      "Authentication using independent factors."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Account lifecycle defender"
+  }
+}

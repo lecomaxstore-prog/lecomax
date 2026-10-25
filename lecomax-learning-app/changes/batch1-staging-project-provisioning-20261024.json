@@ -1,0 +1,53 @@
+{
+  "id": "batch1-staging-project-provisioning-20261024",
+  "relatedId": "batch1-final-staging-preparation-20261024",
+  "createdAt": "2026-10-24T14:44:48Z",
+  "title": "Dedicated checkout staging project provisioned and protected",
+  "summary": "Created the empty lecomax-checkout-staging Vercel project under the verified Hobby team and enabled Vercel Authentication protection; no application deployment or credentials were added.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "Vercel staging project",
+    "Deployment Protection"
+  ],
+  "files": [
+    "operations/seo/staging-app.env.example",
+    "operations/seo/staging-isolated-plan.json",
+    "operations/seo/staging-vercel.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Provisioned Vercel project lecomax-checkout-staging (prj_lWUlctiYvPY86rXH6fukXEUggXuR) in team lecomaxstore-4321s-projects."
+    },
+    {
+      "kind": "modified",
+      "detail": "Enabled Vercel Authentication protection for production deployment URLs and all previews; no source or application settings were changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Project identity",
+      "result": "passed",
+      "detail": "Vercel inspect confirms project ID prj_lWUlctiYvPY86rXH6fukXEUggXuR, owner lecomaxstore-4321's projects, Node 24.x, Other framework, created without deployment."
+    },
+    {
+      "name": "Deployment Protection",
+      "result": "passed",
+      "detail": "Vercel protection reports deploymentType prod_deployment_urls_and_all_previews and gitForkProtection true."
+    },
+    {
+      "name": "Billing precondition",
+      "result": "passed",
+      "detail": "User-confirmed active Hobby plan, two existing projects, up to 200 projects, and no upgrade purchased; no paid resource was provisioned."
+    },
+    {
+      "name": "Application deployment",
+      "result": "not-run",
+      "detail": "No deployment, domain, Git connection, credentials, database, payment, email, SMS, cron or worker configuration was added."
+    }
+  ]
+}

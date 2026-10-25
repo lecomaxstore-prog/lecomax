@@ -1,0 +1,30 @@
+{
+  "id": "seo-final-independent-preflight-prepared-20261021",
+  "createdAt": "2026-10-21T10:08:40.057Z",
+  "title": "Independent read-only production schema preflight",
+  "summary": "Added a bounded six-migration schema check that does not depend on Vercel access; current hosting credential returns 403.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO release readiness",
+    "Change History"
+  ],
+  "components": [
+    "Read-only release tooling"
+  ],
+  "files": [
+    "scripts/seo-final-database-preflight.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Fixed production identity, TLS, default read-only transactions, timeouts, six pinned migration hashes, collision/ledger and catalogue checks. Reports metadata only."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Execution",
+      "result": "not-run",
+      "detail": "Pending syntax/lint and bounded read-only run; no production change authorized."
+    }
+  ]
+}

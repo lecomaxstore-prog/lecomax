@@ -1,0 +1,1 @@
+{"content":"import { NextResponse } from \"next/server\";\nimport { isPayPalEnabled } from \"@/lib/paypal-server\";\n\nexport function GET() {\n  return NextResponse.json(\n    { enabled: isPayPalEnabled() },\n    { headers: { \"Cache-Control\": \"no-store, max-age=0\" } },\n  );\n}\n"}

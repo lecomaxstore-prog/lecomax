@@ -1,0 +1,52 @@
+{
+  "id": "seo-staging-owner-runbook-20261020",
+  "createdAt": "2026-10-20T15:09:46.685Z",
+  "title": "Recovered SEO staging checkpoint and documented isolated owner deployment",
+  "summary": "Verified unchanged candidate and upload inventory; documented CLI syntax, deployment protection and owner-controlled isolation gates. No hosted deployment or application code change.",
+  "status": "successful",
+  "pages": [
+    "Learning app /change-history",
+    "SEO staging release documentation"
+  ],
+  "components": [
+    "Staging release preparation",
+    "Vercel and Supabase owner setup"
+  ],
+  "files": [
+    "docs/seo-staging-owner-runbook-20261020.md",
+    "artifacts/seo-staging-owner-checkpoint-20261020.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added exact owner setup and conditional source deployment procedure for the dedicated Git-disconnected staging project."
+    },
+    {
+      "kind": "added",
+      "detail": "Preserved fresh hash and upload/dependency evidence without changing the candidate or prior reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate integrity",
+      "result": "passed",
+      "detail": "150 candidate hashes checked; 0 mismatches."
+    },
+    {
+      "name": "Upload and prebuild dependency inventory",
+      "result": "passed",
+      "detail": "2123 files, 709 modules including prebuild dependencies; 0 changed/additional and 0 removed upload files versus prior checkpoint."
+    },
+    {
+      "name": "CLI review",
+      "result": "passed",
+      "detail": "Installed CLI 53.4.0 help and implementation inspected; project add does not submit Git repository. PowerShell shim and update notifier errors documented with local workarounds."
+    },
+    {
+      "name": "Hosted staging and production",
+      "result": "not-run",
+      "detail": "No project created, credentials inspected, migrations executed, deployment or live preview performed. Owner evidence and approval required."
+    }
+  ],
+  "relatedId": "seo-staging-rc-verified-20261020"
+}

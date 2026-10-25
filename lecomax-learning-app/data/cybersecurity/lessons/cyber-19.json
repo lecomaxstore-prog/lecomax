@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-19",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-19",
+  "title": {
+    "en": "Professional practice: evidence, learning and responsible disclosure",
+    "ar": "الممارسة المهنية والتعلّم والإفصاح المسؤول",
+    "fr": "Professional practice: evidence, learning and responsible disclosure"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-18"
+  ],
+  "objectives": [
+    "Build a portfolio that demonstrates fixes and tested reasoning.",
+    "Communicate findings and disclosure within agreed boundaries.",
+    "Plan continued learning across code, systems and operations."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Develop a portfolio of reproducible defensive work and learn how to communicate uncertainty, scope and remediation. Completing a course is a beginning, not proof of expert competence.",
+  "sections": [
+    {
+      "title": "Professional depth comes from connected skills",
+      "text": "A security engineer needs enough programming to trace data and write repairs, enough systems knowledge to understand execution and permissions, and enough networking to locate the failed boundary. Communication connects those skills to business decisions. You do not need to memorize every payload or command to begin. Practice explaining one complete flow, such as an authenticated order read, from input through storage to response. Then deliberately test a denied case and explain why the fix works. Repeating this across different systems builds transferable reasoning. Tool familiarity is valuable, but a tool name without an evidence-based interpretation is not a demonstration of competence."
+    },
+    {
+      "title": "Build a portfolio from controlled work",
+      "text": "A good portfolio entry includes a fictional or explicitly authorized target, architecture, threat model, minimal reproduction, code repair, tests and a short report of limitations. The Cedar Cart capstone can supply such an entry without exposing customer information. Include the vulnerable and corrected behavior clearly labeled so reviewers do not mistake intentionally unsafe teaching code for a recommended library. Show how the legitimate feature still works after repair. Record dependency and runtime versions so another person can reproduce the exercise. Avoid publishing live credentials, private source or exploit details about an unremediated system without an agreed disclosure process."
+    },
+    {
+      "title": "Learn from primary guidance and actual implementations",
+      "text": "Use official framework documentation, OWASP guidance, language/runtime references and vendor advisories to check claims that change over time. Read an advisory for its affected range, prerequisites, mitigation and fixed versions, not only its severity headline. Work through intentionally vulnerable training applications in their prescribed local or hosted learning environments. PortSwigger Web Security Academy and OWASP projects provide structured educational resources, but their exercises do not authorize testing unrelated sites. Maintain a learning log of what you observed, what you initially misunderstood and which test corrected the misunderstanding. Revisiting a wrong assumption is often more valuable than collecting another badge."
+    },
+    {
+      "title": "Responsible disclosure is a communication process",
+      "text": "If you discover a suspected issue in an authorized engagement, use its agreed reporting channel and scope. For an accidental observation outside an engagement, avoid expanding access to prove a larger impact; locate the owner’s published security contact and share a minimal factual report. Follow applicable policy and seek appropriate guidance when uncertain about authorization or disclosure. Include environment, prerequisites, steps, observed versus expected behavior and a suggested repair. Coordinate publication according to the agreement and do not promise confidentiality or response times on someone else’s behalf. A clear report helps the receiver reproduce and fix the problem without exposing additional users."
+    },
+    {
+      "title": "Measure progress through independent explanation",
+      "text": "After using a solution, close it and reconstruct the test and repair from your own notes. Explain why rejected input is rejected and why legitimate input remains accepted. Ask another reviewer to follow your report without verbal help. If they cannot identify the environment or expected result, improve the report. Extend one test to a boundary case rather than copying the same example into a new file. Certifications and course completion records can document study, but they do not establish that you can assess every system. The academy certificate is a local learning-completion record with self-reported lab evidence, not an accredited qualification or professional authorization."
+    },
+    {
+      "title": "Plan a sustainable next stage",
+      "text": "Choose a focused next project: strengthen an API authorization matrix, implement a provider-specific webhook correctly in sandbox, or rehearse a backup restoration. Define a deliverable and evidence before choosing a new tool. Pair security review with ordinary software tests, code review and operational monitoring so fixes remain maintained. Keep a backlog of uncertain topics such as distributed transactions or mobile release testing instead of declaring them mastered after one paragraph. Darija: الاحتراف هو تفهم وتشرح وتصلح وتثبت النتيجة؛ ماشي تجمع أسماء الأدوات. The final capstone asks you to demonstrate that complete loop on a fictional shop."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "portfolio",
+      "difficulty": 1,
+      "task": "Outline a portfolio entry for the local IDOR repair.",
+      "hints": [
+        "Include a positive control and an explicit lab-only scope."
+      ],
+      "solution": "Scope -> architecture -> ownership invariant -> Alice/Bob reproduction -> owner-constrained fix -> denied and allowed tests -> limitations -> references",
+      "walkthrough": "The entry demonstrates an engineering loop rather than only a screenshot of a tool.",
+      "expectedResult": "A reproducible portfolio outline."
+    },
+    {
+      "id": "disclosure",
+      "difficulty": 2,
+      "task": "Draft a short report opening that avoids claiming a production breach from a local model.",
+      "hints": [
+        "Lead with what was actually observed."
+      ],
+      "solution": "In the isolated Cedar Cart fixture, the unsafe order lookup returned Bob’s synthetic order to Alice. The corrected lookup rejects that request while preserving Bob’s legitimate access. No public system was assessed.",
+      "walkthrough": "Precise scope and outcome make the report credible without dramatic unsupported claims.",
+      "expectedResult": "A bounded factual summary."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-19-q1",
+      "question": "Does knowing tool names demonstrate security competence by itself?",
+      "options": [
+        "No; explain evidence and repairs.",
+        "Yes; a tool list replaces reasoning."
+      ],
+      "correctIndex": 0,
+      "explanation": "Professional work connects observations to controls.",
+      "answerExplanations": [
+        "Correct. Professional work connects observations to controls.",
+        "Not quite. Professional work connects observations to controls."
+      ]
+    },
+    {
+      "id": "cyber-19-q2",
+      "question": "Should a portfolio expose real customer records?",
+      "options": [
+        "Yes; private data makes it more convincing.",
+        "No; use synthetic or properly authorized minimized evidence."
+      ],
+      "correctIndex": 1,
+      "explanation": "Demonstration does not require unnecessary disclosure.",
+      "answerExplanations": [
+        "Not quite. Demonstration does not require unnecessary disclosure.",
+        "Correct. Demonstration does not require unnecessary disclosure."
+      ]
+    },
+    {
+      "id": "cyber-19-q3",
+      "question": "What should vulnerable teaching code be labeled?",
+      "options": [
+        "Intentionally unsafe and confined to its lab.",
+        "Recommended production boilerplate."
+      ],
+      "correctIndex": 0,
+      "explanation": "Reviewers must understand its purpose and limits.",
+      "answerExplanations": [
+        "Correct. Reviewers must understand its purpose and limits.",
+        "Not quite. Reviewers must understand its purpose and limits."
+      ]
+    },
+    {
+      "id": "cyber-19-q4",
+      "question": "What makes a report reproducible?",
+      "options": [
+        "Only the vulnerability name.",
+        "Environment, prerequisites, steps and expected/actual results."
+      ],
+      "correctIndex": 1,
+      "explanation": "Another reviewer needs enough context to repeat the observation.",
+      "answerExplanations": [
+        "Not quite. Another reviewer needs enough context to repeat the observation.",
+        "Correct. Another reviewer needs enough context to repeat the observation."
+      ]
+    },
+    {
+      "id": "cyber-19-q5",
+      "question": "Does a training platform authorize tests on unrelated sites?",
+      "options": [
+        "No; its scope is its own learning environment.",
+        "Yes; completing a lesson grants broad permission."
+      ],
+      "correctIndex": 0,
+      "explanation": "Authorization does not transfer between targets.",
+      "answerExplanations": [
+        "Correct. Authorization does not transfer between targets.",
+        "Not quite. Authorization does not transfer between targets."
+      ]
+    },
+    {
+      "id": "cyber-19-q6",
+      "question": "What should a learner do after reading a solution?",
+      "options": [
+        "Only memorize the final code string.",
+        "Reconstruct and explain the reasoning independently."
+      ],
+      "correctIndex": 1,
+      "explanation": "Transferable understanding requires more than copying.",
+      "answerExplanations": [
+        "Not quite. Transferable understanding requires more than copying.",
+        "Correct. Transferable understanding requires more than copying."
+      ]
+    },
+    {
+      "id": "cyber-19-q7",
+      "question": "Is the academy certificate an accredited professional qualification?",
+      "options": [
+        "No; it is a local learning-completion record.",
+        "Yes; it grants permission to assess any system."
+      ],
+      "correctIndex": 0,
+      "explanation": "The certificate must not overstate its authority.",
+      "answerExplanations": [
+        "Correct. The certificate must not overstate its authority.",
+        "Not quite. The certificate must not overstate its authority."
+      ]
+    },
+    {
+      "id": "cyber-19-q8",
+      "question": "What should an advisory review include?",
+      "options": [
+        "Only the severity label.",
+        "Affected versions, prerequisites, mitigation and fixes."
+      ],
+      "correctIndex": 1,
+      "explanation": "Applicability and remediation depend on details.",
+      "answerExplanations": [
+        "Not quite. Applicability and remediation depend on details.",
+        "Correct. Applicability and remediation depend on details."
+      ]
+    },
+    {
+      "id": "cyber-19-q9",
+      "question": "How should uncertainty be handled?",
+      "options": [
+        "Record it and plan a specific follow-up test.",
+        "Hide it to appear professional."
+      ],
+      "correctIndex": 0,
+      "explanation": "Honest limits improve engineering decisions.",
+      "answerExplanations": [
+        "Correct. Honest limits improve engineering decisions.",
+        "Not quite. Honest limits improve engineering decisions."
+      ]
+    },
+    {
+      "id": "cyber-19-q10",
+      "question": "What is the final capstone meant to demonstrate?",
+      "options": [
+        "Unrestricted attacks against public shops.",
+        "Architecture review, reproduction, repair, testing and reporting."
+      ],
+      "correctIndex": 1,
+      "explanation": "The project remains fictional and controlled.",
+      "answerExplanations": [
+        "Not quite. The project remains fictional and controlled.",
+        "Correct. The project remains fictional and controlled."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can build a portfolio that demonstrates fixes and tested reasoning.",
+    "I can communicate findings and disclosure within agreed boundaries.",
+    "I can plan continued learning across code, systems and operations."
+  ],
+  "recap": [
+    "Build a portfolio that demonstrates fixes and tested reasoning.",
+    "Communicate findings and disclosure within agreed boundaries.",
+    "Plan continued learning across code, systems and operations."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "PortSwigger Web Security Academy",
+      "url": "https://portswigger.net/web-security",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP developer guide",
+      "url": "https://devguide.owasp.org/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "A professional learning loop",
+    "steps": [
+      {
+        "title": "Understand",
+        "detail": "Read the mechanism and write a precise invariant."
+      },
+      {
+        "title": "Demonstrate",
+        "detail": "Reproduce a bounded failure with synthetic evidence."
+      },
+      {
+        "title": "Repair",
+        "detail": "Implement the smallest correct control and regressions."
+      },
+      {
+        "title": "Communicate",
+        "detail": "Write a report another person can reproduce and review."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Responsible disclosure",
+      "Coordinating a minimal security report and remediation through an appropriate process."
+    ],
+    [
+      "Portfolio",
+      "A collection of reviewed work demonstrating reasoning and outcomes."
+    ],
+    [
+      "Residual risk",
+      "Risk that remains after chosen controls and limitations."
+    ]
+  ],
+  "lab": null
+}

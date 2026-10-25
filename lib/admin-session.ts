@@ -6,13 +6,13 @@
  * Token format (before base64url encoding):
  *   "<timestamp_ms>:<email>.<hmac_sha256_hex>"
  *
- * Signing key is derived from SUPABASE_SERVICE_ROLE_KEY so no new env var is needed.
+ * Signing uses a dedicated ADMIN_SESSION_SECRET, independent of database keys.
  */
 
 const ENCODER = new TextEncoder();
 
 function getKeyMaterial(): Uint8Array<ArrayBuffer> {
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const secret = process.env.ADMIN_SESSION_SECRET;
   if (!secret || secret.length < 32) throw new Error("ADMIN_SESSION_NOT_CONFIGURED");
   return ENCODER.encode(secret) as Uint8Array<ArrayBuffer>;
 }

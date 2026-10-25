@@ -1,0 +1,48 @@
+{
+  "id": "seo-release2-c-verified-20261022",
+  "relatedId": "seo-release2-c-prepared-20261022",
+  "createdAt": "2026-10-22T17:50:29.884Z",
+  "title": "Official SEO Release 2C: verified",
+  "summary": "Release C deployed and verified: dpl_EXrVzU58gZvV2pACLtsGLaKZhce1, commit 9692b1b51778c90a8a3f6fcfcac412771899032d. Cumulative approved improvements retained.",
+  "status": "successful",
+  "pages": [
+    "Sitemap",
+    "Category/CMS",
+    "Product SEO",
+    "Change History"
+  ],
+  "components": [
+    "Sequential production release",
+    "Source and deployment verification"
+  ],
+  "files": [
+    "release\\seo-official-2-c-20261022\\app\\produit\\[slug]\\page.tsx",
+    "release\\seo-official-2-c-20261022\\tests\\product-indexing.test.ts",
+    "release\\seo-official-2-c-20261022\\tests\\seo-stock-schema.test.ts",
+    "scripts/seo-release2.cjs",
+    "scripts/seo-release2-live.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Release C deployed and verified: dpl_EXrVzU58gZvV2pACLtsGLaKZhce1, commit 9692b1b51778c90a8a3f6fcfcac412771899032d. Cumulative approved improvements retained. No database migration, configuration or unrelated feature activation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh preflight",
+      "result": "passed",
+      "detail": "Focused/critical tests, TypeScript, full ESLint and production-mode synthetic build passed; exact source/upload hashes and four crons verified."
+    },
+    {
+      "name": "Live checks",
+      "result": "passed",
+      "detail": "See per-stage live.json: XML sitemap shards, canonical/schema, catalogue, images, variants/cart/checkout entry and anonymous authorization checks."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No order/payment, authenticated admin lifecycle, separate owner DB/TLS, Google indexing or manufactured unknown-stock fixture in production."
+    }
+  ]
+}

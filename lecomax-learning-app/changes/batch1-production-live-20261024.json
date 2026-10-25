@@ -1,0 +1,65 @@
+{
+  "id": "batch1-production-live-20261024",
+  "relatedId": "batch1-production-validated-20261024",
+  "createdAt": "2026-10-24T19:11:40.650Z",
+  "title": "Batch 1 checkout fixes deployed and verified on lecomax.com",
+  "summary": "One production deployment completed. Cart and checkout now show failed delivery quotes as À confirmer and recover through retry. Live source receipt confirms exactly four changed/added files; existing production configuration and services are preserved.",
+  "status": "successful",
+  "pages": [
+    "Cart /panier",
+    "Checkout /checkout",
+    "Homepage",
+    "Boutique",
+    "Product detail",
+    "Authentication entry",
+    "SEO sitemap and robots"
+  ],
+  "components": [
+    "CartQuoteFeedback",
+    "useCartCalculation",
+    "COD and PayPal checkout",
+    "Production release verification"
+  ],
+  "files": [
+    "artifacts/batch1-production-20261024/source/app/checkout/page.tsx",
+    "artifacts/batch1-production-20261024/source/app/panier/page.tsx",
+    "artifacts/batch1-production-20261024/source/lib/use-cart-calculation.ts",
+    "artifacts/batch1-production-20261024/source/components/CartQuoteFeedback.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Shared accessible French shipping feedback and retry action."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Confirmed paid/free delivery, failed-quote display, stale error recovery, cart/address recalculation, out-of-order response rejection, COD and PayPal quote guards."
+    },
+    {
+      "kind": "removed",
+      "detail": "Synthetic PayPal branch excluded from RC2 integration. No synthetic runtime handlers, bootstrap files or staging configuration deployed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Essential local checks",
+      "result": "passed",
+      "detail": "39 focused tests, TypeScript, focused lint, standard Node 24 production build and 24 browser cases passed. Initial Git sandbox and font-network failures corrected without source/security bypasses."
+    },
+    {
+      "name": "Production source and deployment",
+      "result": "passed",
+      "detail": "dpl_Aab3E2x5V8iJmxcw9L9B5b4Z7LHk READY; 2,054 uploaded source files verified against hashes; exactly three modifications and one addition. Existing environment/configuration, payment/order/auth code and SEO preserved. Rollback: dpl_CxX8Deg6R6T4prqTnHEiJVvqGu6f."
+    },
+    {
+      "name": "Direct live verification",
+      "result": "passed",
+      "detail": "Homepage, boutique, product, authentication entry, cart, checkout, canonical metadata, product stock schema, sitemap/robots and product images checked. Real read-only quotes recover after browser-only simulated failure; desktop/mobile layouts and runtime checks pass. COD/PayPal availability recorded in live evidence."
+    },
+    {
+      "name": "Untested limits",
+      "result": "not-run",
+      "detail": "No real order/payment/customer messages or inventory mutation. No screen-reader or physical-device testing. Free-shipping, timeout and stale-response edge cases tested locally, not manufactured in production."
+    }
+  ]
+}

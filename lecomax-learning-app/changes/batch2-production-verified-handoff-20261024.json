@@ -1,0 +1,68 @@
+{
+  "id": "batch2-production-verified-handoff-20261024",
+  "relatedId": "batch2-production-submitted-handoff-20261024",
+  "createdAt": "2026-10-24T20:30:25.979Z",
+  "title": "Batch 2 live: exact source and mobile checks verified",
+  "summary": "Single production deployment READY on lecomax.com. All 2054 uploaded files match the certified candidate; 19 live checks passed. Mobile lab median LCP 3.824s versus 4.448s baseline; CLS zero.",
+  "status": "successful",
+  "pages": [
+    "Production homepage",
+    "Boutique",
+    "Homme category",
+    "Product page",
+    "Cart",
+    "Checkout entry",
+    "Robots and sitemaps"
+  ],
+  "components": [
+    "Hero layout and entrance",
+    "Category image optimization",
+    "Production release verification"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/app/globals.css",
+    "artifacts/batch2-mobile-20261024/source/app/page.tsx",
+    "artifacts/batch2-mobile-20261024/source/components/CategoryTiles.tsx",
+    "artifacts/batch2-mobile-20261024/receipt.json",
+    "artifacts/batch2-mobile-20261024/live-handoff/result.json",
+    "artifacts/batch2-mobile-20261024/live-performance-summary.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Deployed certified three-file Batch 2 candidate as dpl_23Ji3SkdLo1nkiN19j9NJsvArde3. Page-wide entrance delay removed, responsive category images with fallback, narrow hero buttons and overflow fixes now live. No additional application changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Provider identity and exact artifact",
+      "result": "passed",
+      "detail": "READY on lecomax.com in lecomax project/team; 2054 remote files match candidate 79288dad7ed4757c23f1a219bf8d3bfbad9396b99175ed66a3707ace2946b48b; exactly three files differ from verified Batch 1. Configuration unchanged."
+    },
+    {
+      "name": "Live mobile, navigation and SEO",
+      "result": "passed",
+      "detail": "19 checks passed without page or console errors; homepage 320/375/390/1440 widths, CTA geometry, optimized category images, menu, boutique/product/cart/checkout entry. Public canonical URLs and JSON-LD valid; robots/sitemaps accessible. Screenshots visually inspected at 320px."
+    },
+    {
+      "name": "Mobile lab and image sizes",
+      "result": "passed",
+      "detail": "LCP 3.940/3.784/3.824s; median 3.824s, 14.0% below documented 4.448s baseline. CLS 0. Four selected 256px category AVIF bodies total 20801 bytes versus 494302 originals. Hero 23725 body bytes, 24025 transfer bytes. Not field metrics; 2.5s target unmet."
+    },
+    {
+      "name": "Batch 1 and SEO preservation",
+      "result": "passed",
+      "detail": "2051 untouched source files verified remotely; existing 39 regression and 24 checkout browser passes reused, not rerun. No payment/order/email/database/config changes. Rollback dpl_Aab3E2x5V8iJmxcw9L9B5b4Z7LHk remains prior READY target."
+    },
+    {
+      "name": "Verification harness correction",
+      "result": "passed",
+      "detail": "Initial supplementary canonical assertion incorrectly included cart/checkout inherited homepage canonical; restricted to public indexable pages and passed. No application fix or redeploy."
+    },
+    {
+      "name": "Untested limitations",
+      "result": "not-run",
+      "detail": "No real payments/orders, authenticated purchase flow, physical-device or real-user CWV checks. Learning-app history is local and not deployed. Release E remains on hold."
+    }
+  ]
+}

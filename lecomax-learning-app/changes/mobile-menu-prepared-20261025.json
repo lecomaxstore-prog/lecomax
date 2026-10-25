@@ -1,0 +1,35 @@
+{
+  "id": "mobile-menu-prepared-20261025",
+  "createdAt": "2026-10-25T07:01:28.913Z",
+  "title": "Mobile menu keyboard accessibility candidate",
+  "summary": "One-file local correction based on verified current production. Not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront shared header"
+  ],
+  "components": [
+    "Header",
+    "Mobile navigation drawer"
+  ],
+  "files": [
+    "components/Header.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Closed drawer inert/hidden semantics; modal naming, initial focus, Tab/Shift+Tab wrap, Escape close, conditional focus restoration, background isolation including late portals, desktop breakpoint cleanup. Existing visual classes, routes, French copy and scroll lock preserved. No dependencies added."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production baseline",
+      "result": "passed",
+      "detail": "READY dpl_DVhkLXqsqieeJ5du2vXetyaZCsCL; 2055 source hashes matched deployment receipt. Only Header changed."
+    },
+    {
+      "name": "Local validation",
+      "result": "not-run",
+      "detail": "Keyboard, pointer/touch, responsive rendering, TypeScript, lint and standard build pending. No deployment authorized."
+    }
+  ]
+}

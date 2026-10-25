@@ -1,0 +1,74 @@
+{
+  "id": "batch1-checkout-validation-20261024",
+  "relatedId": "batch1-checkout-implementation-20261024",
+  "createdAt": "2026-10-24T13:38:38.165Z",
+  "title": "Batch 1 verified locally; production build blocked by disk capacity",
+  "summary": "Shipping truth, retry recovery, stale-response rejection and preserved Production guards passed focused checks. Local review GO; release validation NO-GO until a complete production build succeeds. No deployment or real transactions.",
+  "status": "needs-testing",
+  "pages": [
+    "/panier",
+    "/checkout"
+  ],
+  "components": [
+    "CartPage",
+    "CheckoutPage",
+    "useCartCalculation",
+    "CartQuoteFeedback"
+  ],
+  "files": [
+    "release/batch1-checkout-20261024/app/panier/page.tsx",
+    "release/batch1-checkout-20261024/app/checkout/page.tsx",
+    "release/batch1-checkout-20261024/lib/use-cart-calculation.ts",
+    "release/batch1-checkout-20261024/components/CartQuoteFeedback.tsx",
+    "release/batch1-checkout-20261024/tests/batch1-quote.test.cjs",
+    "release/batch1-checkout-20261024/tests/batch1-browser.cjs",
+    "release/batch1-checkout-20261024/docs/batch1-handoff-20261024.md",
+    "artifacts/batch1-checkout-20261024/REPORT.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Distinct request identity also rejects reuse across A to B to A; missing quote submit attempts no longer create stale order errors."
+    },
+    {
+      "kind": "added",
+      "detail": "37 focused regressions, 24 grouped browser checks, saved synthetic evidence and detailed continuation handoff."
+    },
+    {
+      "kind": "modified",
+      "detail": "Validation is local only. Existing security/API/price rules and all earlier Change History reports are preserved. Root application edits were not overwritten."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regression tests",
+      "result": "passed",
+      "detail": "37/37, including byte-normalized Production security comparisons, quote races, timeout, retry and pricing regressions."
+    },
+    {
+      "name": "Browser acceptance",
+      "result": "passed",
+      "detail": "24 grouped checks at 320/390/768/1440 pixels, actual React, mocked APIs only; keyboard retry, disabled checkout, duplicate submissions, idempotency, reload and removal."
+    },
+    {
+      "name": "Candidate TypeScript and lint",
+      "result": "passed",
+      "detail": "No diagnostics from final tsc --noEmit --incremental false or ESLint on four changed application files; git diff --check passed."
+    },
+    {
+      "name": "Learning history regression and types",
+      "result": "passed",
+      "detail": "6/6 history tests and learning app tsc passed."
+    },
+    {
+      "name": "Production build",
+      "result": "failed",
+      "detail": "Initial Google Fonts network failure; later retry exited during compilation; bounded-memory retry failed ENOSPC. No completed final-source production artifact. Only newly generated candidate .next output/cache removed."
+    },
+    {
+      "name": "External acceptance",
+      "result": "not-run",
+      "detail": "No deployment, live backend integration, real order/payment/email/inventory writes, physical-device or screen-reader certification. Saved audit Production identity must be refreshed before release."
+    }
+  ]
+}

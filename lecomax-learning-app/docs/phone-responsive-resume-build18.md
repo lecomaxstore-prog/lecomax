@@ -1,0 +1,16 @@
+# Remote phone and app return — 1.0.16 / build 18
+
+Install the updated native Android app on both phones for the complete change. Source edits and an OTA update cannot replace the native capture service. No public deployment or installation is performed by preparing this build.
+
+- The viewer uses the available screen with a compact Back / Help / Disconnect toolbar. Instructions are collapsed. Portrait and landscape layouts preserve the remote image proportions; landscape places remote navigation beside the image. Arabic, French and English remote controls follow the app language.
+- Rotating the sharing phone resizes its existing virtual display and capture surface. It no longer ends capture solely because the orientation changed. Gestures started on the old orientation are rejected. Android below 14 uses configuration changes as the resize fallback.
+- Returning to an already authenticated app keeps the navigation mounted while the session is checked silently. Invalid/revoked credentials still sign out. Cold launch still validates a remembered login; choose Remember this device when signing in. An expired token or unavailable network can still require recovery.
+- Native navigation saves known page routes and the source-file path/line where applicable. It excludes pairing codes and authentication parameters. Reopening from the launcher restores that page; incoming links and notifications take precedence. This restores the page, not every temporary form field or scroll offset.
+- Opening My remote phone automatically reopens its securely remembered direct connection. Back pauses the viewer and preserves pairing. Explicit Disconnect waits for the host response before closing; if unreachable, the viewer reports the failure and offers retry through the same action.
+- Once approved, the sharing phone saves its paired viewer credential encrypted with an Android Keystore key in no-backup storage. Only the approved credential survives capture/process restart. Unapproved requests and QR codes are not persisted. Explicit Stop sharing, notification Stop, viewer Disconnect or Forget paired phone revokes the saved pairing. Forget remains available when capture is stopped.
+- After a sharing-phone restart, open the app and Start screen sharing, accepting Android's capture prompt. The paired viewer can then reconnect without a new QR or L'ECOMAX approval, at the same Tailscale address. No Android capture token is persisted, reused or bypassed. Reboot, force-stop, screen lock or system capture revocation can end active capture. Tailscale must remain connected. If its address changes, open the new address and pair again.
+- Hosted relay sessions retain their existing lifetime and approval behavior; persistent pairing is for direct Tailscale connections.
+
+Validation records are in Changes Made / Change History. Browser layout checks use synthetic frames, not a real remote phone. Physical two-phone tests remain required for rotation during touch, Android Keystore/reboot, screen lock, capture permission, app/process restart, remote Disconnect and OEM battery management. No continuous remote connection can operate while a phone is powered off.
+
+Android lifecycle reference: https://developer.android.com/media/grow/media-projection

@@ -1,0 +1,54 @@
+{
+  "id": "batch4-mobile-validated-20261025",
+  "relatedId": "batch4-mobile-prepared-20261025",
+  "createdAt": "2026-10-25T05:46:13.985Z",
+  "title": "Batch 4: mobile rendering candidate validated, awaiting deployment approval",
+  "summary": "One-file CSS candidate defers offscreen homepage layout. Matched live-content browser median LCP 3.856s to 3.536s (8.3%); CLS zero. Build, types, focused checks pass. Not deployed.",
+  "status": "successful",
+  "pages": [
+    "Mobile homepage",
+    "Homepage desktop and print preservation"
+  ],
+  "components": [
+    "Hero rendering path",
+    "Offscreen catalogue and homepage sections"
+  ],
+  "files": [
+    "artifacts/batch4-mobile-20261025/source/app/globals.css",
+    "artifacts/batch4-mobile-20261025/REPORT.md",
+    "artifacts/batch4-mobile-20261025/manifest.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Mobile-only content-visibility:auto and remembered intrinsic heights for homepage sections after the Hero; one application file changed, no source removals. No design, French content, JS or font changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build and focused checks",
+      "result": "passed",
+      "detail": "One production build, standalone TypeScript, focused lint and 12 loading/mobile tests passed. Compiled CSS verified. Existing prebuild normalizes line endings in 149 generated course files only; semantic content verified."
+    },
+    {
+      "name": "Browser preservation",
+      "result": "passed",
+      "detail": "320/390/768/1440px; scrolling all later sections, no overflow, load-more, chat, print, navigation, restored scroll, fragment and focus checks passed. Initial harness filter/URL errors corrected and evidence retained. No application errors observed."
+    },
+    {
+      "name": "Matched mobile measurement",
+      "result": "passed",
+      "detail": "Baseline LCP 3.928/3.856/3.804s; exact candidate CSS 3.536/3.584/3.496s. Median gain 320ms (8.3%); CLS 0 each; median long-task excess 190ms both. Live public catalogue with browser-local CSS injection, not a deployed candidate; added CSS +76 gzip bytes not simulated. No field CWV claim."
+    },
+    {
+      "name": "Source and business preservation",
+      "result": "passed",
+      "detail": "2055 files; only app/globals.css modified. Candidate dfa400bc47921486b14caa1428e79b8fc739d8599b82b22f864356aebb836984. All checkout, SEO, auth, inventory and chat source preserved. Current live/rollback dpl_6fiTe8ai9LbZfdVXv9giV1CKDMf2 READY and reconciled."
+    },
+    {
+      "name": "Excluded and approval boundary",
+      "result": "not-run",
+      "detail": "No production deployment; separate approval required for one exact-candidate attempt. No real transactions/messages, physical devices or field metrics. History preview not verified or deployed; Release E stays on hold."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "seo-sol61-astra-comparison-verified-20261019",
+  "createdAt": "2026-10-19T09:44:00.880Z",
+  "title": "Sol 6.1 and Astra comparison completed locally for USD 0.058788",
+  "summary": "Exactly one completed request per approved model; both passed automated validation. Editorial review narrowly favors Sol 6.1. Full outputs and evidence saved locally; nothing published.",
+  "status": "successful",
+  "relatedId": "seo-sol61-astra-comparison-prepared-20261019",
+  "pages": [
+    "Admin SEO (local comparison evidence)",
+    "Change History"
+  ],
+  "components": [
+    "Isolated comparison runner",
+    "Local cost reconciliation",
+    "Bilingual editorial assessment"
+  ],
+  "files": [
+    "scripts/seo-premium-approved-once.mjs",
+    "artifacts/seo-premium/assess-approved-comparison.cjs",
+    "artifacts/seo-premium/record-comparison-result.cjs",
+    "artifacts/seo-premium/approved-sol61-astra-20261019/assessment.json",
+    "artifacts/seo-premium/approved-sol61-astra-20261019/comparison.md",
+    "artifacts/seo-premium/approved-sol61-astra-20261019/result-0.json",
+    "artifacts/seo-premium/approved-sol61-astra-20261019/result-1.json",
+    "artifacts/seo-premium/approved-sol61-astra-20261019/reservation.json",
+    "artifacts/seo-premium/approved-sol61-astra-20261019/settlement.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Saved full official OpenAI responses, single-use attempt markers, source, token usage, latency, local reservation/settlement and side-by-side generated French/Arabic fields plus claim evidence. One request each to gpt-6.1-sol and gpt-6-astra; zero retries or fallback."
+    },
+    {
+      "kind": "added",
+      "detail": "Subjective one-product quality assessment: Sol 91/100 and Astra 87/100. Sol has tighter French product copy and more product-focused keywords; Astra has richer French metadata and slightly more natural shopping Arabic. Neither is a proven ranking result or broad benchmark."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Offline cost accounting reads returned cache_write_tokens=0. Actual-usage estimate is USD 0.010148 Sol plus USD 0.048640 Astra, total USD 0.058788. Original conservative USD 0.060495 settlement retained unchanged, with append-only reconciliation; invoice not verified."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live bounded comparison",
+      "result": "passed",
+      "detail": "Both requested IDs returned completed responses. Same saved source/prompts, strict schema, low reasoning and 2000-token caps. 569 input tokens each; Sol 901 output (122 reasoning), 20031ms; Astra 859 output (90 reasoning), 16765ms. Both validators passed. Maximum preflight USD 0.132375 below USD 0.15 authorization."
+    },
+    {
+      "name": "Repeat prevention and syntax",
+      "result": "passed",
+      "detail": "Second runner invocation refused before network with SINGLE_USE_DIRECTORY_EXISTS and paidRequestsThisProcess=0. Node syntax check passed after usage-field correction. No paid request repeated."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "Preparation history check passed with 568 reports. All 6 archive/CLI/interaction tests passed, including expansion, persistence, preview navigation and retry. Final manifest check follows append."
+    },
+    {
+      "name": "Limitations and untouched production",
+      "result": "not-run",
+      "detail": "No cross-catalogue/web-wide duplicate test, independent physical product verification, native-speaker panel, live ranking test or provider invoice/balance check. Credit remainder USD 49.9409667 and monthly remainder USD 4.9409667 assume exactly USD 50 initial credit and only known prior Luna usage USD 0.0002453. Existing application model default unchanged. No production migration, deployment, publish, worker/cron activation or hosted preview."
+    }
+  ]
+}

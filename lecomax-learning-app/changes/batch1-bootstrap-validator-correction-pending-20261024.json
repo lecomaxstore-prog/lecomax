@@ -1,0 +1,41 @@
+{
+  "id": "batch1-bootstrap-validator-correction-pending-20261024",
+  "createdAt": "2026-10-24T17:55:04.271Z",
+  "relatedId": "batch1-bootstrap-recovery-blocked-20261024",
+  "title": "Correct bootstrap HTML attribute validation",
+  "summary": "Bound event-handler detection to an attribute name boundary, retaining all existing unsafe-content checks. Resume preparation only in an absent or verified empty upload directory.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout staging placeholder",
+    "/change-history"
+  ],
+  "components": [
+    "Static bootstrap validator",
+    "Bootstrap preparation"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Prevent content= from matching the event-handler pattern on\\w+; retain banned tags, destination attributes, URLs and actual event handlers."
+    },
+    {
+      "kind": "added",
+      "detail": "Focused regression cases for valid inert HTML and each existing unsafe-content restriction."
+    },
+    {
+      "kind": "modified",
+      "detail": "Allow preparation to resume in the verified empty directory left by the interrupted operation, while rejecting any existing files."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regression and artifact verification",
+      "result": "not-run",
+      "detail": "Pending; no upload or deployment attempted."
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { RETURN_POLICY } from "@/lib/return-policy";
 import { BRAND_COPY } from "@/mobile/src/lib/brand-copy";
 import { useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Logo from "./Logo";
 import styles from "./Footer.module.css";
 import { useSettings } from "@/lib/use-settings";
@@ -99,10 +100,12 @@ const trustBadges = [
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
   const [email, setEmail] = useState("");
   const [newsletterStatus, setNewsletterStatus] = useState<"idle" | "loading" | "success" | "already" | "error">("idle");
   const rawSettings = useSettings();
   const siteSettings: Record<string, string> = { ...rawSettings, ...storeSettings(rawSettings) };
+  const showNewsletter = pathname !== "/" && siteSettings.enable_newsletter !== "false";
 
   const socials = DEFAULT_SOCIALS.map(s => ({ ...s, href: siteSettings[s.key] || s.defaultHref }));
   const whatsappNumber = siteSettings.whatsapp_number;
@@ -166,7 +169,7 @@ export default function Footer() {
 
       <div className={`${styles.main} max-w-7xl mx-auto px-6 py-14`}>
         {/* Brand + contact + newsletter */}
-        <div className={`${styles.intro} grid md:grid-cols-3 gap-12 pb-12 border-b border-white/10`}>
+        <div className={`${styles.intro} grid ${showNewsletter ? "md:grid-cols-3" : "md:grid-cols-2"} gap-12 pb-12 border-b border-white/10`}>
           {/* Brand */}
           <div className={styles.brand}>
             <Logo variant="light" />
@@ -221,7 +224,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          {siteSettings.enable_newsletter !== "false" && <div className={styles.newsletter}>
+          {showNewsletter && <div className={styles.newsletter}>
             <h3 className="font-black text-[11px] uppercase tracking-[0.25em] text-white/40 mb-5"><span className="md:hidden">Les bonnes trouvailles, en avant-première.</span><span className="hidden md:inline">Newsletter</span></h3>
             <p className="text-white/55 text-[13px] mb-5 leading-relaxed">
               Nouveautés, offres exclusives et invitations en avant-première.

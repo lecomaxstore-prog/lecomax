@@ -1,0 +1,53 @@
+{
+  "id": "seo-preview-utf8-build-disk-failure-20261023",
+  "relatedId": "seo-preview-utf8-correction-prepared-20261023",
+  "createdAt": "2026-10-23T06:00:21.084Z",
+  "title": "Corrected SEO candidate: disk-full build failure",
+  "summary": "Exact UTF-8 correction committed separately; tests, lint and TypeScript passed. Production build failed with ENOSPC. Disposable Next.js caches cleared and unchanged build retry started.",
+  "status": "failed",
+  "pages": [
+    "Storefront product images",
+    "SEO recovery Preview"
+  ],
+  "components": [
+    "Product image assets",
+    "Production build"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/build.log",
+    "artifacts/seo-preview-resume-20261023/image-corrections.json",
+    "artifacts/seo-preview-resume-20261023/validate.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Restored 30 exact UTF-8 filenames on isolated correction branch; content and application references unchanged."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed only disposable .next/cache directories in original and corrected recovery checkouts to recover 1.3 GB; no source, manifest, report or build-log deletion."
+    }
+  ],
+  "validation": [
+    {
+      "name": "SEO and regression suite",
+      "result": "passed",
+      "detail": "120 passed, zero failures/skips."
+    },
+    {
+      "name": "TypeScript and lint",
+      "result": "passed",
+      "detail": "Both exit 0; pre-existing lint warnings retained."
+    },
+    {
+      "name": "Production build",
+      "result": "failed",
+      "detail": "ENOSPC during webpack output; retry pending."
+    },
+    {
+      "name": "Image integrity",
+      "result": "passed",
+      "detail": "30 images decoded; 92 catalogue references resolve with exact case. Corrected tree equals current deployed Release D tree."
+    }
+  ]
+}

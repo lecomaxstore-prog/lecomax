@@ -1,0 +1,42 @@
+{
+  "id": "seo-browser-image-fixes-prepared-20261021",
+  "createdAt": "2026-10-21T11:36:36.422Z",
+  "title": "Staging browser image fixes prepared locally",
+  "summary": "Authorized Playwright sign-in enabled hosted browser acceptance. Fixed category srcset whitespace and supplied the missing neutral product image locally; deployment remains unchanged.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage",
+    "Category pages",
+    "Product cards"
+  ],
+  "components": [
+    "CategoryTiles",
+    "Product image fallback"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Percent-encode whitespace and commas in a single category source srcset URL, preserving existing escapes."
+    },
+    {
+      "kind": "added",
+      "detail": "640x640 neutral PNG at the existing product placeholder URL; no catalogue data changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Hosted browser discovery",
+      "result": "passed",
+      "detail": "Authorized controlled Chrome reached staging and reproduced image 400/404 and srcset warnings."
+    },
+    {
+      "name": "Local fixes",
+      "result": "not-run",
+      "detail": "Focused browser and source checks pending. No deployment or hosted write."
+    }
+  ]
+}

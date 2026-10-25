@@ -1,0 +1,10 @@
+const fs=require('node:fs'),cp=require('node:child_process'),path=require('node:path');
+if(process.versions.node.split('.')[0]!=='24')throw Error('Node 24 required');
+const {directory}=JSON.parse(fs.readFileSync('artifacts/seo-quality/build-candidate.json','utf8'));
+const env={};
+for(const [k,v]of Object.entries(process.env))if(/^(PATH|SystemRoot|windir|ComSpec|TEMP|TMP|USERPROFILE|APPDATA|LOCALAPPDATA|ProgramFiles|ProgramFiles\(x86\)|NUMBER_OF_PROCESSORS|PROCESSOR_ARCHITECTURE)$/i.test(k))env[k]=v;
+Object.assign(env,{NEXT_PUBLIC_SUPABASE_URL:'https://preview-build-placeholder.supabase.co',NEXT_PUBLIC_SUPABASE_ANON_KEY:'placeholder-anon',SUPABASE_SERVICE_ROLE_KEY:'placeholder-service',RESEND_API_KEY:'re_placeholder',NEXT_TELEMETRY_DISABLED:'1',SEO_AI_ENABLED:'false',SEO_EDITORIAL_ENABLED:'false',SEO_SYNC_ENABLED:'false',PAYPAL_ENABLED:'false'});
+const stamp=Date.now(),startedAt=new Date().toISOString(),logPath=`artifacts/seo-quality/build-${stamp}.log`,fd=fs.openSync(logPath,'wx');
+const result=cp.spawnSync(process.execPath,[path.resolve('node_modules/next/dist/bin/next'),'build'],{cwd:directory,env,windowsHide:true,stdio:['ignore',fd,fd]});fs.closeSync(fd);
+const report={startedAt,finishedAt:new Date().toISOString(),exitCode:result.status,errorCode:result.error?.code,node:process.version,logPath,directory,placeholderBuild:true,paidCalls:0,deployed:false};
+fs.writeFileSync(`artifacts/seo-quality/build-${stamp}.json`,JSON.stringify(report,null,2),{flag:'wx'});console.log(JSON.stringify(report));process.exitCode=result.status??1;

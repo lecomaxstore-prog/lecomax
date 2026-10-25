@@ -232,6 +232,7 @@ export async function resolveMobileAudience(
 }
 
 export async function deliverMobileCampaign(campaignId: string, actor = "system:mobile-campaign") {
+  if (process.env.APP_ENV !== "production") throw new Error("MOBILE_DELIVERY_DISABLED");
   const client = supabaseAdmin();
   const { data: notificationSetting, error: settingError } = await client
     .from("settings")

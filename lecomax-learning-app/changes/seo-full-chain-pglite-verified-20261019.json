@@ -1,0 +1,52 @@
+{
+  "id": "seo-full-chain-pglite-verified-20261019",
+  "createdAt": "2026-10-19T12:25:09.457Z",
+  "title": "Full-chain in-memory SQL acceptance passed",
+  "summary": "86 local SEO/SQL/worker tests and 6 history tests passed. All 11 tables, three foreign keys, constraints, role isolation and synthetic bilingual compatibility verified within PGlite scope.",
+  "status": "successful",
+  "relatedId": "seo-full-chain-pglite-prepared-20261019",
+  "pages": [
+    "SEO Engine verification",
+    "Change History"
+  ],
+  "components": [
+    "PGlite acceptance tests"
+  ],
+  "files": [
+    "operations/seo-vercel/tests/full-chain-schema.test.mjs",
+    "docs/seo-pglite-acceptance-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added full-chain schema and negative acceptance coverage plus detailed PASS report. No migration or runtime change needed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression and acceptance",
+      "result": "passed",
+      "detail": "86 tests, zero failures or skips; disposable in-memory PGlite, synthetic fixtures and mocked providers only."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "6 persistence and interaction cases passed."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Both exit 0."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "99 release entries, eight comparison entries and seven operational bundle entries unchanged. Existing backups untouched."
+    },
+    {
+      "name": "Native concurrency and hosted acceptance",
+      "result": "not-run",
+      "detail": "No native cluster or hosted connection allowed; multi-session PostgreSQL remains the next local verification gap."
+    }
+  ]
+}

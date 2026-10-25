@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 /** Expo acceptance is not device delivery; check provider receipts separately. */
 export async function checkMobilePushReceipts() {
+  if (process.env.APP_ENV !== "production") throw new Error("MOBILE_DELIVERY_DISABLED");
   const db = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
   const { data, error } = await db.from("mobile_push_receipts").select("ticket_id,token,created_at").eq("status", "pending")
     .lte("created_at", new Date(Date.now() - 15 * 60000).toISOString()).order("created_at").limit(1000);

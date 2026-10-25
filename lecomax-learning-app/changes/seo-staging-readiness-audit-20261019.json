@@ -1,0 +1,47 @@
+{
+  "id": "seo-staging-readiness-audit-20261019",
+  "createdAt": "2026-10-19T18:01:15.867Z",
+  "relatedId": "seo-native-v3-concurrency-verified-20261019",
+  "title": "Read-only staging audit: database checks pass; platform isolation unverified",
+  "summary": "Confirmed scoped read-only PostgreSQL 17.11 and empty application schema. Recorded default ACL risks, absent catalogue dependencies, inaccessible management settings and precise approval gates.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "Read-only infrastructure audit",
+    "Recovery and rollout gates"
+  ],
+  "files": [
+    "docs/seo-staging-readiness-audit-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added fresh evidence matrix, PostgreSQL 17 assessment, backup prerequisites and prioritized remediation gates. No hosted or runtime modifications."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Read-only database inspection",
+      "result": "passed",
+      "detail": "Scoped staging ref distinct from recorded production; read-only role and transactions; PostgreSQL 17.11; no public tables/functions, Edge Functions or migrations; inspected counts and advisors."
+    },
+    {
+      "name": "Local static validation",
+      "result": "passed",
+      "detail": "Three offline plan tests, five pinned migration hashes and seven operational bundle entries passed; no migrations executed."
+    },
+    {
+      "name": "Catalogue dependency readiness",
+      "result": "failed",
+      "detail": "public.products and public.categories absent."
+    },
+    {
+      "name": "Management identity, outbound isolation and hosted acceptance",
+      "result": "not-run",
+      "detail": "No management connection or browser; available management plugin suggested but not connected. PostgreSQL 17 execution, recovery and deployment remain unverified."
+    }
+  ]
+}

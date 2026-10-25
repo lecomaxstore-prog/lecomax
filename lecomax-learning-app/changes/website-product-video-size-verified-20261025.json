@@ -1,0 +1,54 @@
+{
+  "id": "website-product-video-size-verified-20261025",
+  "relatedId": "website-product-video-size-20261025",
+  "createdAt": "2026-10-25T19:58:08.311Z",
+  "title": "Website video sizing verified with portrait preservation",
+  "summary": "Product videos start with a full square stage; landscape metadata cannot shrink it, while portrait clips retain their taller natural layout.",
+  "status": "successful",
+  "pages": [
+    "Website /produit/[slug]"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "tests/product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace initial 16:9 stage with square sizing and cap loaded video aspect ratio at 1, giving landscape videos at least the photo-stage height."
+    },
+    {
+      "kind": "modified",
+      "detail": "Refinement to the initial report: retain dimension state and metadata callback so portrait clips preserve their existing taller stage instead of shrinking to square."
+    },
+    {
+      "kind": "modified",
+      "detail": "Existing gallery regression now checks initial square size, landscape size floor, portrait preservation, replay remounting and photo navigation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regression tests",
+      "result": "passed",
+      "detail": "node --test tests/product-video.test.ts tests/product-gallery-images.test.ts: all 9 passed after final edits."
+    },
+    {
+      "name": "Website TypeScript",
+      "result": "passed",
+      "detail": "node node_modules/typescript/bin/tsc --noEmit --incremental false completed with exit code 0."
+    },
+    {
+      "name": "Diff whitespace",
+      "result": "passed",
+      "detail": "git diff --check passed for the modified files."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "Website browser responsive layout and actual remote playback were not verified in this turn. No deployment; changes affect local website source only."
+    }
+  ]
+}

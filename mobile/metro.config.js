@@ -20,7 +20,11 @@ config.server = {
         const body = method === "GET" || method === "HEAD"
           ? undefined
           : Buffer.concat(chunks);
-        const upstream = await fetch(`${API_PROXY_TARGET}${request.url}`, {
+        // Opt-in preview for the brand registry before its API is deployed.
+        const target = request.url.split("?")[0] === "/api/products/brands"
+          ? (process.env.EXPO_BRANDS_PROXY_TARGET || API_PROXY_TARGET).replace(/\/$/, "")
+          : API_PROXY_TARGET;
+        const upstream = await fetch(`${target}${request.url}`, {
           method,
           body,
           headers: {

@@ -17,6 +17,7 @@ export function resolveSocialImage(configuredImage?: string | null): string {
   const path = image.replace(/^https?:\/\/(?:www\.)?lecomax\.com/i, "").split(/[?#]/)[0];
   return path === "/images/social/lecomax-premium-v1.jpg"
     || path === "/images/social/lecomax-share-v2.jpg"
+    || path === "/images/social/lecomax-share-v3.jpg"
     || path === "/images/lecomax logo.png"
     || path.includes("ecomax-hero-banner")
     ? OFFICIAL_SOCIAL_IMAGE : image;

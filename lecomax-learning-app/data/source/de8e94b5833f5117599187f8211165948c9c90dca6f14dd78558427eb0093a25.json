@@ -1,0 +1,1 @@
+{"content":"-- Align website and app standard delivery while preserving free-shipping rules.\nINSERT INTO public.settings (key, value, updated_at)\nVALUES ('shipping_cost', '40', now())\nON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = now();\n\nUPDATE public.shipping_zones\nSET standard_rate = 40\nWHERE active = true;\n"}

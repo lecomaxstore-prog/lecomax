@@ -1,0 +1,69 @@
+{
+  "id": "seo-environment-isolation-prepared-20261020",
+  "createdAt": "2026-10-20T11:34:55.180Z",
+  "title": "Enforce explicit database targets and disabled staging integrations",
+  "summary": "Add startup, request, client and worker guards; staging must use its own reviewed target and credential bindings.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront",
+    "/admin/seo",
+    "SEO worker /api/sync",
+    "Owner learning",
+    "/change-history"
+  ],
+  "components": [
+    "Environment policy",
+    "Supabase clients",
+    "Owner database",
+    "SEO worker",
+    "Build configuration"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/environment-isolation.test.mjs",
+    "instrumentation.ts",
+    "next.config.js",
+    "middleware.ts",
+    "lib/supabase.ts",
+    "lib/supabase-server.ts",
+    "lib/owner-auth-database.mjs",
+    "lib/admin-session.ts",
+    "lib/paypal-server.ts",
+    "app/api/admin/seo/sync/route.ts",
+    "app/layout.tsx",
+    "scripts/next-build.mjs",
+    "scripts/build-seo-editorial-isolated.cjs",
+    "scripts/seo-sync-worker.mjs",
+    "operations/seo/worker/scripts/seo-sync-worker.mjs",
+    "app/api/auth/signup/route.ts",
+    "app/api/send-confirmation/route.ts",
+    "app/api/newsletter/send/route.ts",
+    "app/api/orders/[id]/notify/route.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Explicit APP_ENV policy, exact target allowlists, reviewed SHA256 credential bindings, startup/request guards and isolated staging worker support."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remove admin signing and privileged-client fallbacks; reject live PayPal outside production and invalid payment environments. Block nonproduction external secrets, paid activation and cron endpoints."
+    },
+    {
+      "kind": "removed",
+      "detail": "Disable legacy direct RPC worker entry points and remove ordinary-build placeholder credentials."
+    },
+    {
+      "kind": "modified",
+      "detail": "Keep email routes importable when integrations are disabled; nonproduction telemetry and indexing are disabled. Existing secrets, migration files and previous reports are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regression, types, lint and isolated build",
+      "result": "not-run",
+      "detail": "Pending. No hosted acceptance, deployment, migration, worker activation or paid requests authorized."
+    }
+  ]
+}

@@ -57,6 +57,14 @@ const colors = {
   border: "#E3E6E2",
 };
 
+// Explicit merchandising order for the home "Nos produits" collection only.
+const HOME_PRODUCT_PRIORITY = [
+  "asics-superblast-2",
+  "t-shirt-puma-scuderia-ferrari-hp-replica--rouge",
+  "veste-adidas-manchester-united-2019-2020-presentation-jacket-rouge-aon",
+  "maillot-bayern-munich-domicile-20142015--adidas-climacool--taille-m",
+];
+
 export default function HomeScreen() {
   useLocale();
   const scrollRef = useRef<ScrollView>(null);
@@ -107,6 +115,11 @@ export default function HomeScreen() {
 
   const catalogProducts = useMemo(() => {
     const products = productsQuery.data ?? [];
+    const priority = HOME_PRODUCT_PRIORITY.flatMap((slug) => {
+      const product = products.find((item) => item.slug === slug);
+      return product ? [product] : [];
+    });
+    const priorityIds = new Set(priority.map((product) => product.id));
     const reserved = new Set([
       ...newArrivals.map((product) => product.id),
       ...promotionProducts.map((product) => product.id),
@@ -119,7 +132,8 @@ export default function HomeScreen() {
           (right.rating ?? 0) - (left.rating ?? 0) ||
           Date.parse(right.created_at) - Date.parse(left.created_at),
       );
-    const pool = (remaining.length ? remaining : products).slice(
+    const pool = [...priority, ...(remaining.length ? remaining : products)
+      .filter((product) => !priorityIds.has(product.id))].slice(
       0,
       rowAlignedCount(8, columns),
     );

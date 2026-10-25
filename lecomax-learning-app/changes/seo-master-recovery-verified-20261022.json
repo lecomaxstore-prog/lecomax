@@ -1,0 +1,71 @@
+{
+  "id": "seo-master-recovery-verified-20261022",
+  "relatedId": "seo-inventory-sitemap-verified-20261022",
+  "createdAt": "2026-10-22T12:05:36.073Z",
+  "status": "successful",
+  "title": "Three SEO release candidates recovered and reverified",
+  "summary": "Confirmed current production identity and preserved three existing isolated commits. Fresh local suites passed 95, 94 and 94 tests. Deployment remains unauthorized; no runtime source changes.",
+  "pages": [
+    "Sitemap index and shards",
+    "Category and CMS pages",
+    "Product metadata",
+    "Change History"
+  ],
+  "components": [
+    "SEO release engineering",
+    "Candidate integrity and regression runner",
+    "Release handoff"
+  ],
+  "files": [
+    "docs/seo-master-continuation-20261022.md",
+    "artifacts/seo-release-inventory-20261022/recover-candidates.cjs",
+    "artifacts/seo-release-inventory-20261022/recovery-1792670494446.json",
+    "artifacts/seo-official-production-20261022/status-1792670446613.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a master continuation handoff containing exact candidate SHAs/files, feature classification, validation limits, release order and rollback references."
+    },
+    {
+      "kind": "added",
+      "detail": "Added a bounded local recovery runner and fresh evidence. No candidate application files, existing reports, production settings or data were modified or removed."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Clarified release sequencing: sibling candidates must be composed onto each preceding verified live release, otherwise later deployment would remove earlier fixes. Corrected handoff count to the retained final 128-file delta."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production identity",
+      "result": "passed",
+      "detail": "Read-only Vercel check at 2026-10-22T12:00:46.607Z: READY dpl_6MURfA7hrYn5qZh5awX2hrMHkNJo, correct alias/commit and four crons. Initial restricted-network attempt failed; network-enabled check succeeded."
+    },
+    {
+      "name": "Candidate integrity",
+      "result": "passed",
+      "detail": "Three clean worktrees, exact direct parent and changed-file scope; 2581/2579/2579 source hashes and manifest digests match. Git diff whitespace checks and runner syntax check passed."
+    },
+    {
+      "name": "Focused and commerce regressions",
+      "result": "passed",
+      "detail": "Fresh 95/94/94 local tests; zero failures or skips. Synthetic/unit evidence does not establish real production payment or authenticated session success."
+    },
+    {
+      "name": "Retained type/lint/build evidence",
+      "result": "passed",
+      "detail": "Inspected nine existing successful checks from 11:30-11:36 UTC; source unchanged. Not rerun and not claimed as fresh. All 2124 pinned staging source hashes freshly verified."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Pre-append check passed with 738 reports; append is schema-validated. Post-append check recorded in final response."
+    },
+    {
+      "name": "Deployment and external acceptance",
+      "result": "not-run",
+      "detail": "No deployment, migration, feature activation or remote writes. Production owner DB/TLS/session, real unusual-slug and sitemap read compatibility, Search Console, rich results, field CWV and live history preview remain unverified."
+    }
+  ]
+}

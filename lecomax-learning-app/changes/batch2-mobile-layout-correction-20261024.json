@@ -1,0 +1,38 @@
+{
+  "id": "batch2-mobile-layout-correction-20261024",
+  "relatedId": "batch2-mobile-prepared-20261024",
+  "createdAt": "2026-10-24T20:04:37.398Z",
+  "title": "Batch 2: narrow-screen overflow traced to hero and community heading",
+  "summary": "The hero copy fix alone did not eliminate page overflow. The Ecomedia heading also forced a 345px implicit grid track. Candidate now constrains that grid and reduces its heading only below 375px.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage /"
+  ],
+  "components": [
+    "Hero copy and CTAs",
+    "Ecomedia community heading"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/app/globals.css",
+    "artifacts/batch2-mobile-20261024/source/app/page.tsx",
+    "artifacts/batch2-mobile-20261024/source/components/CategoryTiles.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Shrinkable hero copy, fluid mobile headline, wrapping CTAs; explicit single-column community grid, shrinkable children and 32px heading below 375px."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Root cause isolation",
+      "result": "passed",
+      "detail": "Live 320px document measured 365px; hero fixed in browser but community grid still overflowed. Unclipped ancestor probe identifies Ecomedia heading."
+    },
+    {
+      "name": "Final candidate",
+      "result": "not-run",
+      "detail": "Sealed three-file candidate 2a6aae57f1296f4c34224a0acdf3b5afba5078470be5ffb9dfba50394df33b7b. Build, types, lint and final browser checks pending; not deployed."
+    }
+  ]
+}

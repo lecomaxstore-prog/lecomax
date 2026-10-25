@@ -1,0 +1,93 @@
+{
+  "id": "seo-premium-editorial-verified-20261019",
+  "createdAt": "2026-10-19T09:34:50.268Z",
+  "title": "Premium editorial SEO locally verified; paid comparison awaiting approval",
+  "summary": "73 tests, TypeScript, focused lint, responsive Admin fixtures, PostgreSQL concurrency and Node 24 build passed. Astra/Sol plan maximum USD 0.132375; no paid generation or production changes.",
+  "status": "successful",
+  "relatedId": "seo-premium-editorial-prepared-20261019",
+  "pages": [
+    "Admin SEO",
+    "Product SEO review",
+    "Change History"
+  ],
+  "components": [
+    "Editorial model selection",
+    "Bilingual quality validation",
+    "Durable spending authorization",
+    "Comparison preparation"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-editorial.mjs",
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/lib/seo-ai-worker.mjs",
+    "operations/seo-vercel/supabase/migrations/202610190002_seo_editorial.sql",
+    "operations/seo-vercel/ai.env.example",
+    "operations/seo-vercel/README.md",
+    "operations/seo-vercel/tests/editorial-fixture.mjs",
+    "operations/seo-vercel/tests/editorial.test.mjs",
+    "operations/seo-vercel/tests/editorial-sql.test.mjs",
+    "app/api/admin/seo/ai/route.ts",
+    "app/admin/seo/SeoAiControl.tsx",
+    "tests/seo-ai-api.test.ts",
+    "scripts/prepare-seo-premium-comparison.mjs",
+    "scripts/prepare-seo-premium-candidate.cjs",
+    "scripts/test-seo-premium-concurrency.cjs",
+    "scripts/smoke-seo-ai-ui.mjs",
+    "docs/seo-premium-readiness-20261019.md",
+    "artifacts/seo-premium/comparison-1792401710535/plan.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Versioned editorial Luna/Sol/Astra generation with French/Arabic SEO titles, meta descriptions, keywords, product descriptions and source evidence. Legacy tested Luna/Sol path preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Length, script/language, identity, unsupported number/material/commerce and exact/near-duplicate checks. Human factual review still required; editorial publication blocked."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared append-preserving SQL for per-request owner approval, USD 5 monthly and USD 50 cumulative SEO caps, retained uncertainty, and fractional-microdollar accounting. Not applied to production."
+    },
+    {
+      "kind": "modified",
+      "detail": "Admin model selection, USD 5 cap input, explicit bounded paid-request consent and bilingual evidence review. Runtime flags remain disabled."
+    },
+    {
+      "kind": "added",
+      "detail": "Separate hashed source candidates and a non-generating Astra/Sol comparison plan on identical existing Baasploa source."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Model support/access and exact comparison cost",
+      "result": "passed",
+      "detail": "Official Astra supports Responses/Structured Outputs and low reasoning. Astra/Sol metadata checks passed. 569 counted input tokens each, 256-token margin, 2000 output-token caps; combined maximum USD 0.132375. No paid requests."
+    },
+    {
+      "name": "Regression and SQL",
+      "result": "passed",
+      "detail": "73 local Node 24 tests passed. Initial new SQL syntax and concatenation issues corrected before passing. Original integration remained covered."
+    },
+    {
+      "name": "TypeScript / lint / browser",
+      "result": "passed",
+      "detail": "Root TypeScript and focused ESLint passed. Local 390/1440px fixtures verified Arabic RTL, three-model selection, cancel/confirm payment consent and blocked premium publication. Fixture selector typo corrected."
+    },
+    {
+      "name": "Concurrent budget reservation",
+      "result": "passed",
+      "detail": "Synthetic localhost PostgreSQL passed competing claims, preserved crash reservation, stale-run rejection and independent commerce write. Initial Windows restricted-token launch failed; permitted loopback-only retry passed and server stopped."
+    },
+    {
+      "name": "Production build and preserved packages",
+      "result": "passed",
+      "detail": "New isolated candidate built with Node 24.22.0 and placeholders; build-1792402172749.json. Prior/new package manifests match; no old releases overwritten."
+    },
+    {
+      "name": "Unrun production and quality evidence",
+      "result": "not-run",
+      "detail": "No paid Astra/Sol generation, measured premium quality winner, hosted model latency, production migrations, deployment, AI activation or cron. USD 50 protection covers the SEO ledger; shared-account spend requires reconciliation. No hosted preview claimed."
+    }
+  ]
+}

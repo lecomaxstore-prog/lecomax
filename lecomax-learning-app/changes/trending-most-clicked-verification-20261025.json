@@ -1,0 +1,67 @@
+{
+  "id": "trending-most-clicked-verification-20261025",
+  "createdAt": "2026-10-25T14:04:24.375Z",
+  "title": "Most-viewed Trending verified with controlled data",
+  "summary": "Four ranking regressions and three Expo browser scenarios passed. Live analytics verification remains blocked by an unavailable response.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo Search /search",
+    "GET /api/recommendations"
+  ],
+  "components": [
+    "SearchScreen",
+    "useTrendingSlugs",
+    "Recommendations API"
+  ],
+  "files": [
+    "app/api/recommendations/route.ts",
+    "mobile/src/services/catalog.ts",
+    "mobile/src/hooks/use-catalog.ts",
+    "mobile/src/app/(tabs)/search.tsx",
+    "tests/trending-clicks.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the four-product cap, descending recorded view totals, exclusion of unclicked/unavailable items and safe behavior when the API has no data or lacks the new mode."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Ranking API regressions",
+      "result": "passed",
+      "detail": "node --test tests/trending-clicks.test.ts: 4/4 passed. Covers aggregation, ordering, cap, unavailable products, invalid counts, empty results, analytics pagination and query errors."
+    },
+    {
+      "name": "Expo browser scenarios",
+      "result": "passed",
+      "detail": "Actual Expo search page at 520px with intercepted test API responses: displayed d,b,a,c in API rank order and limited to four despite six supplied slugs; zero cards for empty data and an older catalogue-strategy API response. Evidence: artifacts/trending-clicks-20261025/browser-results.json. These were controlled fixtures, not live popularity results."
+    },
+    {
+      "name": "Mobile TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Mobile tsc --noEmit and ESLint for changed mobile files passed. Root ESLint for the recommendation route passed. git diff --check passed."
+    },
+    {
+      "name": "History validation",
+      "result": "passed",
+      "detail": "921 reports valid before this follow-up; all four history tests passed. Final manifest checked after append."
+    },
+    {
+      "name": "Full website typecheck",
+      "result": "failed",
+      "detail": "Unrelated existing components/ProductGallery.tsx(218,86) TS18047: videoDimensions is possibly null. Left existing work untouched."
+    },
+    {
+      "name": "Live analytics query",
+      "result": "failed",
+      "detail": "GET http://localhost:3000/api/recommendations?mode=most-viewed&limit=4 returned HTTP 503 Trending unavailable. Live popularity results are not verified."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "No deployment or database changes. Uses existing recorded website product views; native/mobile product opens are not currently sent to this shared analytics source. Real devices not tested. Updated backend must be deployed separately before production-backed mobile can receive the new ranking."
+    }
+  ],
+  "relatedId": "trending-most-clicked-20261025"
+}

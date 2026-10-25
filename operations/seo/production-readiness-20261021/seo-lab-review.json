@@ -1,0 +1,50 @@
+[
+  {
+    "path": "/",
+    "lang": "fr",
+    "dir": "",
+    "ogLocale": "fr_MA",
+    "hreflang": [],
+    "title": "L’ecomax | Votre marketplace lifestyle au Maroc",
+    "description": "Sublimez votre quotidien. Découvrez L’ecomax : chaussures, vêtements et accessoires pour le quotidien. Livraison partout au Maroc.",
+    "lab": {
+      "lcpMs": 952,
+      "layoutShifts": [],
+      "ttfbMs": 49.80000001192093,
+      "inp": "not measured",
+      "conditions": "single desktop Chrome sample at mobile viewport; no throttling; not field CWV"
+    }
+  },
+  {
+    "path": "/produit/seo-fixture-fr",
+    "lang": "fr",
+    "dir": "",
+    "ogLocale": "fr_MA",
+    "hreflang": [],
+    "title": "Casque de test | L'ecomax Maroc",
+    "description": "Casque de test sur L'ecomax au Maroc. Exemple synthétique sans vente réelle.",
+    "lab": {
+      "lcpMs": 716,
+      "layoutShifts": [],
+      "ttfbMs": 50.200000047683716,
+      "inp": "not measured",
+      "conditions": "single desktop Chrome sample at mobile viewport; no throttling; not field CWV"
+    }
+  },
+  {
+    "path": "/produit/seo-fixture-ar",
+    "lang": "fr",
+    "dir": "",
+    "ogLocale": "fr_MA",
+    "hreflang": [],
+    "title": "سماعة تجريبية | L'ecomax Maroc",
+    "description": "سماعة تجريبية sur L'ecomax au Maroc. بيانات تجريبية فقط وليست منتجا للبيع.",
+    "lab": {
+      "lcpMs": 824,
+      "layoutShifts": [],
+      "ttfbMs": 60.09999996423721,
+      "inp": "not measured",
+      "conditions": "single desktop Chrome sample at mobile viewport; no throttling; not field CWV"
+    }
+  }
+]

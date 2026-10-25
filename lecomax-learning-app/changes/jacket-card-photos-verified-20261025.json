@@ -1,0 +1,54 @@
+{
+  "id": "jacket-card-photos-verified-20261025",
+  "createdAt": "2026-10-25T11:58:44.610Z",
+  "title": "Improved jacket card photos verified locally",
+  "summary": "Both jacket cards now show larger, consistently framed studio-style photos on light backgrounds.",
+  "status": "successful",
+  "pages": [
+    "Homepage product cards",
+    "Boutique product cards"
+  ],
+  "components": [
+    "ProductImage",
+    "CollectionProductCard",
+    "ProductCard"
+  ],
+  "files": [
+    "components/ProductImage.tsx",
+    "public/images/products/studio/denim-sherpa-v2.webp",
+    "public/images/products/studio/varsity-rust-v2.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "AI-assisted photo edits with clean light backgrounds, larger consistent framing, and optimized WebP assets."
+    },
+    {
+      "kind": "modified",
+      "detail": "Map only the two exact original jacket image URLs to versioned card assets. Preserve original gallery photos and remote inventory; original image remains fallback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile and desktop cards",
+      "result": "passed",
+      "detail": "Both optimized assets load at 390px and 1440px; screenshots inspected and no horizontal page overflow."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint components/ProductImage.tsx exited 0."
+    },
+    {
+      "name": "Verification harness correction",
+      "result": "passed",
+      "detail": "Screenshot selectors initially assumed a link ancestor; corrected to product-card container and reran successfully."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "AI-assisted retouching can change fine texture/embroidery; original gallery photos retained. Local preview only; no deployment, production database changes, or physical-device testing."
+    }
+  ],
+  "relatedId": "jacket-card-photos-prepared-20261025"
+}

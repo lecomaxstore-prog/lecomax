@@ -1,0 +1,31 @@
+{
+  "id": "seo-preserve-production-preorder-20261018",
+  "createdAt": "2026-10-18T18:26:52.820Z",
+  "title": "Preserve production preorder metadata in SEO rollout",
+  "summary": "Comparison with the exact deployed source found preorder handling missing from the local SEO metadata changes. Restore it while retaining unknown-stock safeguards.",
+  "status": "needs-testing",
+  "pages": [
+    "/produit/[slug]"
+  ],
+  "components": [
+    "Product metadata",
+    "Product structured data"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx",
+    "tests/product-indexing.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Preserve PreOrder and preorder social metadata when explicitly enabled; available stock takes precedence and unknown stock is not claimed in stock."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Product availability regression",
+      "result": "not-run",
+      "detail": "Pending focused tests; no deployment."
+    }
+  ]
+}

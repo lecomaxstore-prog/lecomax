@@ -1,0 +1,35 @@
+{
+  "id": "batch1-bootstrap-draft04-pending-20261024",
+  "createdAt": "2026-10-24T18:26:11.368Z",
+  "relatedId": "batch1-bootstrap-config-validation-blocked-20261024",
+  "title": "Register Draft-04 and strengthen bootstrap regression checks",
+  "summary": "AJV 6.15.0 now registers its bundled Draft-04 meta-schema without changing the official schema. Static-policy tests cover unsafe routes, functions and extra executable assets.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout staging placeholder",
+    "/change-history"
+  ],
+  "components": [
+    "Bootstrap schema test harness"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-config.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Register required Draft-04 meta-schema before compiling official Vercel schema."
+    },
+    {
+      "kind": "added",
+      "detail": "Focused rejection tests for unsupported properties, external routing, redirects, middleware, cron, functions and extra files."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Schema and HTML tests",
+      "result": "not-run",
+      "detail": "Pending; unused deployment attempt not started."
+    }
+  ]
+}

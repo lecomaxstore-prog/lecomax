@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Consolidate current release decision and observed staging email_provider_disabled failure. No candidate code or production changes."
+    }
+  ],
+  "summary": "All required variable names present; exact candidate, regressions and public staging SEO checks pass. Production build and authenticated acceptance remain blocked.",
+  "id": "production-final-gates-20261021",
+  "createdAt": "2026-10-21T20:30:04.703Z",
+  "validation": [
+    {
+      "detail": "127 candidate regressions under Node24; five workspace write-boundary tests; exact 2124 source hashes and six migration hashes; all required environment names including OWNER_DATABASE_BINDING; public staging SSR/sitemaps/noindex; backup checksum and restore correspondence; four production crons; old deployment READY.",
+      "result": "passed",
+      "name": "Passed checks"
+    },
+    {
+      "detail": "Node24 complete build command attempted but environment guard stops before Next compilation because sensitive Production values are unavailable locally. No bypass or synthetic credentials.",
+      "result": "failed",
+      "name": "Production build"
+    },
+    {
+      "detail": "Observed owner login returned HTTP422 email_provider_disabled. Owner/editor/viewer/revoked/expired acceptance incomplete. No auth setting changed.",
+      "result": "failed",
+      "name": "Authenticated staging"
+    },
+    {
+      "detail": "Backup release-window freshness/RPO and credential-compatible rollback not certified after password rotation. Existing recovery limitations retained.",
+      "result": "not-run",
+      "name": "Release recovery"
+    }
+  ],
+  "files": [
+    "operations/seo/production-handoff-20261021/FINAL-GATES-20261021.md"
+  ],
+  "components": [
+    "Release gate evidence"
+  ],
+  "status": "needs-testing",
+  "title": "Final release checks: authenticated staging and build blockers",
+  "pages": [
+    "Production release operations",
+    "Change History"
+  ]
+}

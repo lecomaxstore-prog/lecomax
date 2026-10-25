@@ -532,7 +532,7 @@
   "productReviews.verifiedPurchasesUppercase": "ACHATS VÉRIFIÉS",
   "productReviews.verifiedReview": "avis vérifié",
   "productReviews.noReviews": "Aucun avis",
-  "productReviews.beTheFirstToShareYourExperience": "Soyez le premier à partager votre expérience.",
+  "productReviews.beTheFirstToShareYourExperience": "Vous avez acheté cet article ? Partagez votre avis sur sa qualité et son état pour aider les autres clients.",
   "productReviews.yourPurchaseIsConfirmed": "Votre achat est confirmé",
   "productReviews.authenticReviewsOnly": "Avis authentiques uniquement",
   "productReviews.checkingYourAccount": "Vérification de votre compte…",
@@ -560,7 +560,7 @@
   "productReviews.storeReply": "Réponse du magasin",
   "productReviews.readReply": "Lire la réponse",
   "productReviews.showLess": "Voir moins",
-  "productReviews.noReviewsYet": "Aucun avis pour le moment",
+  "productReviews.noReviewsYet": "Soyez le premier à donner votre avis",
   "productReviews.theFirstReviewWillAppearAfterAVerifiedPurchaseAndDelivery": "Le premier avis apparaîtra après un achat et une livraison vérifiés.",
   "rating.new": "Nouveau",
   "sectionHeader.viewAllUppercase": "VOIR TOUT",
@@ -1190,5 +1190,7 @@
   "auth.confirmSignIn": "Continuer vers la connexion",
   "auth.confirmResend": "Renvoyer l’email de confirmation",
   "auth.confirmResendWait": "Renvoyer dans {{seconds}} s",
-  "auth.confirmResent": "Un nouvel email de confirmation a été demandé. Vérifiez votre boîte de réception."
+  "auth.confirmResent": "Un nouvel email de confirmation a été demandé. Vérifiez votre boîte de réception.",
+  "productGallery.videoUnavailable": "Impossible de lire cette vidéo.",
+  "productGallery.retryVideo": "Réessayer"
 }

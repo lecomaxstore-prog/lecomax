@@ -22,7 +22,7 @@ import ConsentScripts from "@/components/ConsentScripts";
 import BackToTop from "@/components/BackToTop";
 import AdsDisplay from "@/components/AdsDisplay";
 import PushPrompt from "@/components/PushPrompt";
-import ChatWidget from "@/components/ChatWidget";
+import DeferredChatWidget from "@/components/DeferredChatWidget";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 import { formatShippingAmount, shippingConfigFromSettings } from "@/lib/shipping-config";
 import { getStorefrontSettings } from "@/lib/storefront-settings-server";
@@ -179,9 +179,11 @@ export default async function RootLayout({
   return (
     <html lang="fr" className={`${inter.variable} ${sora.variable}`}>
       <head>
+        {/* Protected deployments require the browser's existing session for manifest requests. */}
+        <link rel="manifest" href="/manifest.json?v=12" crossOrigin="use-credentials" />
         <meta name="theme-color" content="#3ecf4c" />
         {/* Trustpilot TrustBox widget bootstrap */}
-        <Script src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" strategy="lazyOnload" />
+        {process.env.APP_ENV === "production" && <Script src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" strategy="lazyOnload" />}
         {/* Organization + WebSite structured data — server-rendered for Googlebot */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: `{
   "@context": "https://schema.org",
@@ -263,18 +265,18 @@ export default async function RootLayout({
             <Footer />
           </AdminLayoutWrapper>
           <AdminLayoutWrapper>
-            <ChatWidget />
+            <DeferredChatWidget />
           </AdminLayoutWrapper>
           <AdminLayoutWrapper>
             <CookieBanner />
           </AdminLayoutWrapper>
           <DataCollector />
-          <ConsentScripts />
+          {process.env.APP_ENV === "production" && <ConsentScripts />}
           <BackToTop />
           <AdsDisplay />
           <PushPrompt />
-          {process.env.NODE_ENV === "production" && <SpeedInsights />}
-          {process.env.NODE_ENV === "production" && <Analytics />}
+          {process.env.APP_ENV === "production" && <SpeedInsights />}
+          {process.env.APP_ENV === "production" && <Analytics />}
           </WishlistProvider>
         </CartProvider>
       </body>

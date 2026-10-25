@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-06-access",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-06",
+  "title": {
+    "en": "Access control and IDOR: authorize the relationship",
+    "ar": "التحكم في الوصول وIDOR",
+    "fr": "Access control and IDOR: authorize the relationship"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-06-browser"
+  ],
+  "objectives": [
+    "Enforce object, function and property-level authorization.",
+    "Use trusted identity and deny cross-account reads consistently.",
+    "Write an access matrix with positive and negative regression tests."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Use Alice and Bob’s fictional orders to see why knowing an identifier does not grant permission. Authentication failures are examined further in Module 9.",
+  "sections": [
+    {
+      "title": "An identifier is a reference, not a capability by default",
+      "text": "An insecure direct object reference, or IDOR, appears when a caller can choose a record identifier and the server does not verify permission for that record. API discussions often call the same class BOLA, broken object-level authorization. Sequential numbers make discovery easier, but replacing them with UUIDs does not repair a missing authorization rule. A user might obtain an identifier through a link, notification, shared device or another endpoint. The correct invariant is that the caller is permitted to perform this action on this object, regardless of how the identifier was learned. In Cedar Cart, Alice owns order-a and Bob owns order-b. Both identifiers are intentionally visible in the lab so the exercise tests authorization rather than guessing."
+    },
+    {
+      "title": "Understand the vulnerable lookup",
+      "text": "vulnerableOrder finds a record using only id. The function has no caller identity, so it cannot distinguish Alice from Bob. Calling it with order-b returns Bob’s fixture even when the request context belongs to Alice. This is the smallest useful demonstration: two fake users, two orders and one mismatched request. The impact of a real equivalent depends on fields returned and actions permitted. A read may expose personal information; a write may alter delivery or payment state. Do not claim those additional effects unless their code paths have been tested. The local fixture returns no real addresses or payment credentials."
+    },
+    {
+      "title": "Move the relationship into the lookup",
+      "text": "secureOrder first requires an actor, then finds a row matching both id and ownerId. It returns an explicit DTO only after that check. In a relational database the equivalent constrained query should include both predicates, using parameters for values. Returning 404 for a record absent from the caller’s permitted set can avoid revealing whether a different owner has that identifier; choose a consistent documented error policy. Authentication must supply actor.id from a validated session, not from a body field or arbitrary identity header. The lab actor selector is a teaching fixture and is labeled as such. It supplies roles for comparison without pretending to implement real login."
+    },
+    {
+      "title": "Function and property permission are separate",
+      "text": "An ordinary customer should not invoke an admin-only stock adjustment even if they supply a valid product ID. That is function-level authorization. A customer allowed to edit their shipping label should not set isAdmin or paymentStatus by spreading every body property into a record. That is property-level authorization or mass-assignment protection. Use explicit permitted fields and verify each operation’s policy. Role-based access control is useful, but a role name may not fully capture tenant ownership, order state or delegated access. Define the relationship and context rather than writing one universal isLoggedIn check. If an administrator legitimately needs cross-customer access, specify and audit that privilege instead of silently granting it everywhere."
+    },
+    {
+      "title": "Read, update and bulk operations all need coverage",
+      "text": "Protecting one detail endpoint does not automatically protect an export, list filter, batch update or downloadable attachment. For each sensitive operation, state what set of objects is permitted and constrain the query accordingly. A bulk operation should not update the first permitted item before discovering a later forbidden one unless partial behavior is an explicit policy. Use a transaction or prevalidated authorized set when all-or-nothing behavior is required. Cache responses according to their authorization context; a correct database check can still be undermined if a later shared cache returns another user’s result. These adjacent boundaries explain why an access matrix is more reliable than testing a single URL once."
+    },
+    {
+      "title": "Regression and prevention",
+      "text": "The local suite verifies unauthenticated rejection, Alice reading order-a, Alice denied order-b, Bob reading order-b and a non-admin denied the admin operation. Add an assertion that denied responses contain no other customer’s fields. A secure result should not depend on the hidden button, obscure identifier or frontend route. Review new endpoints against the same matrix and centralize data-access policies where appropriate. Common mistakes include trusting ownerId from JSON, checking only that a user exists, and treating a UUID as an authorization token. Darija: معرفة رقم الطلب ماشي إذن باش تقراه؛ خاص العلاقة بين المستخدم والطلب تتراجع فالخادم."
+    }
+  ],
+  "examples": [
+    {
+      "id": "idor-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableOrder(id) { return orders.find(order => order.id === id) || null; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "idor-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureOrder(id, actor) {\n  if (!actor) reject('Authentication required', 401);\n  const order = orders.find(item => item.id === id && item.ownerId === actor.id);\n  if (!order) reject('Order not found', 404);\n  return { id: order.id, totalCents: order.totalCents, status: order.status };\n}",
+      "annotations": [
+        {
+          "lines": "1-6",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "idor",
+      "difficulty": 2,
+      "task": "Compare Alice requesting order-a and order-b in unsafe and fixed mode.",
+      "hints": [
+        "Changing the object id should not change the authenticated actor."
+      ],
+      "solution": "Unsafe: both records can be returned.\nFixed: order-a allowed; order-b denied with no Bob data.",
+      "walkthrough": "The repair evaluates the owner relationship rather than the predictability of the identifier.",
+      "expectedResult": "Two allowed/denied comparisons."
+    },
+    {
+      "id": "fields",
+      "difficulty": 2,
+      "task": "Design a shipping-label update that cannot change paymentStatus or ownerId.",
+      "hints": [
+        "Pick allowed fields instead of deleting a few forbidden ones."
+      ],
+      "solution": "Allowed input: shippingLabel\nTrusted values retained: ownerId, paymentStatus\nCheck: actor owns the order and its state permits the edit",
+      "walkthrough": "An allowlist resists future sensitive fields added to the data model. The field rule supplements rather than replaces object authorization.",
+      "expectedResult": "An explicit field policy and two rejected-property tests."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-06-access-q1",
+      "question": "Does changing sequential ids to UUIDs fix missing ownership checks?",
+      "options": [
+        "No; authorization remains required.",
+        "Yes; unpredictable references are always permission."
+      ],
+      "correctIndex": 0,
+      "explanation": "An identifier can leak or be legitimately shared.",
+      "answerExplanations": [
+        "Correct. An identifier can leak or be legitimately shared.",
+        "Not quite. An identifier can leak or be legitimately shared."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q2",
+      "question": "Which lookup enforces the ownership invariant?",
+      "options": [
+        "Match only the requested id.",
+        "Match id and the validated actor’s owner relationship."
+      ],
+      "correctIndex": 1,
+      "explanation": "The relationship supplies the missing permission boundary.",
+      "answerExplanations": [
+        "Not quite. The relationship supplies the missing permission boundary.",
+        "Correct. The relationship supplies the missing permission boundary."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q3",
+      "question": "Can actor.id come from an unverified request body?",
+      "options": [
+        "No; derive it from validated authentication.",
+        "Yes; JSON keys identify users reliably."
+      ],
+      "correctIndex": 0,
+      "explanation": "The caller controls request data.",
+      "answerExplanations": [
+        "Correct. The caller controls request data.",
+        "Not quite. The caller controls request data."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q4",
+      "question": "Should Alice be able to invoke admin stock adjustment because she is logged in?",
+      "options": [
+        "Yes; authentication grants every function.",
+        "No; the operation needs its own role policy."
+      ],
+      "correctIndex": 1,
+      "explanation": "Function-level permission is separate from identity.",
+      "answerExplanations": [
+        "Not quite. Function-level permission is separate from identity.",
+        "Correct. Function-level permission is separate from identity."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q5",
+      "question": "What prevents a profile body from setting isAdmin?",
+      "options": [
+        "An explicit permitted-field mapping and authorization.",
+        "Hiding the isAdmin input in the form."
+      ],
+      "correctIndex": 0,
+      "explanation": "Clients can submit fields not present in the UI.",
+      "answerExplanations": [
+        "Correct. Clients can submit fields not present in the UI.",
+        "Not quite. Clients can submit fields not present in the UI."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q6",
+      "question": "Why may a protected lookup return 404?",
+      "options": [
+        "To prove the entire database is empty.",
+        "To avoid exposing objects outside the caller’s permitted set."
+      ],
+      "correctIndex": 1,
+      "explanation": "Error semantics can avoid unnecessary existence disclosure.",
+      "answerExplanations": [
+        "Not quite. Error semantics can avoid unnecessary existence disclosure.",
+        "Correct. Error semantics can avoid unnecessary existence disclosure."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q7",
+      "question": "Does protecting the detail route protect every export automatically?",
+      "options": [
+        "No; each entry point needs the policy.",
+        "Yes; routes share permissions by name."
+      ],
+      "correctIndex": 0,
+      "explanation": "Bulk and alternate paths can bypass isolated checks.",
+      "answerExplanations": [
+        "Correct. Bulk and alternate paths can bypass isolated checks.",
+        "Not quite. Bulk and alternate paths can bypass isolated checks."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q8",
+      "question": "What must a denied response omit?",
+      "options": [
+        "Only the CSS classes.",
+        "Another customer’s data."
+      ],
+      "correctIndex": 1,
+      "explanation": "Confidentiality depends on response content, not only status.",
+      "answerExplanations": [
+        "Not quite. Confidentiality depends on response content, not only status.",
+        "Correct. Confidentiality depends on response content, not only status."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q9",
+      "question": "Does an admin role always imply every cross-customer permission?",
+      "options": [
+        "No; define and audit the actual policy.",
+        "Yes; no further context matters."
+      ],
+      "correctIndex": 0,
+      "explanation": "Roles are part of a policy, not a replacement for it.",
+      "answerExplanations": [
+        "Correct. Roles are part of a policy, not a replacement for it.",
+        "Not quite. Roles are part of a policy, not a replacement for it."
+      ]
+    },
+    {
+      "id": "cyber-06-access-q10",
+      "question": "What is the strongest simple regression matrix here?",
+      "options": [
+        "Only the happy path for Alice.",
+        "Unauthenticated, owner, non-owner and role-specific cases."
+      ],
+      "correctIndex": 1,
+      "explanation": "Positive and negative controls establish the intended boundary.",
+      "answerExplanations": [
+        "Not quite. Positive and negative controls establish the intended boundary.",
+        "Correct. Positive and negative controls establish the intended boundary."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can enforce object, function and property-level authorization.",
+    "I can use trusted identity and deny cross-account reads consistently.",
+    "I can write an access matrix with positive and negative regression tests."
+  ],
+  "recap": [
+    "Enforce object, function and property-level authorization.",
+    "Use trusted identity and deny cross-account reads consistently.",
+    "Write an access matrix with positive and negative regression tests."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP authorization",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP API Security 2023",
+      "url": "https://api-security.owasp.org/editions/2023/en/0x00-header/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Authorize a relationship",
+    "steps": [
+      {
+        "title": "Session",
+        "detail": "Obtain a validated caller identity."
+      },
+      {
+        "title": "Object request",
+        "detail": "Treat the chosen order id as untrusted selection."
+      },
+      {
+        "title": "Constrained lookup",
+        "detail": "Require both object id and permitted owner relationship."
+      },
+      {
+        "title": "Minimal response",
+        "detail": "Serialize only authorized public fields."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "IDOR",
+      "A direct object reference used without adequate permission checks."
+    ],
+    [
+      "BOLA",
+      "Broken object-level authorization."
+    ],
+    [
+      "Mass assignment",
+      "Applying untrusted properties broadly to an internal object."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Object authorization defender"
+  }
+}

@@ -5,6 +5,7 @@ import ProductBrandPicker from "@/components/admin/ProductBrandPicker";
 import AdminToggle from "@/components/admin/AdminToggle";
 import ProductWritingAssistant from "@/components/admin/ProductWritingAssistant";
 import ProductPasteImport from "@/components/admin/ProductPasteImport";
+import ProductDetailsImport from "@/components/admin/ProductDetailsImport";
 import AdminLoading from "@/components/admin/AdminLoading";
 import ProductSizeGuideEditor from "@/components/admin/ProductSizeGuideEditor";
 import { productSizeGuideFromTags, withProductSizeGuide, PRODUCT_SIZE_GUIDE_PREFIX, type ProductSizeGuide } from "@/mobile/src/lib/product-size-guide";
@@ -929,6 +930,7 @@ export default function ProductsPage() {
                   Ajouter
                 </button>
               </div>
+              <ProductDetailsImport key={editId ?? "new-product"} details={productDetails} onChange={setProductDetails} />
               {productDetails.length === 0 ? (
                 <p className="text-[12px] text-neutral-300 italic text-center py-4">Aucun détail ajouté</p>
               ) : (

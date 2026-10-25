@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-10-20T23:20:37.645Z",
+  "pages": [
+    "SEO staging",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Protected deployment",
+    "Dependency security"
+  ],
+  "files": [
+    "scripts/seo-first-deployment-status.cjs",
+    "scripts/seo-staging-protection-check.cjs",
+    "scripts/seo-staging-dependency-prepare.cjs",
+    "scripts/seo-dependency-validation.cjs"
+  ],
+  "id": "seo-first-protected-deployment-ready-20261021",
+  "relatedId": "seo-first-protected-deployment-start-20261021",
+  "status": "successful",
+  "title": "First protected staging deployment confirmed READY",
+  "summary": "Clean hosted build completed; the management API 403 was resolved by normal CLI token refresh. Runtime acceptance remains pending authenticated browser access.",
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Status diagnostic now records the failing management endpoint and sanitized error code; normal CLI authentication restored read access."
+    },
+    {
+      "kind": "added",
+      "detail": "Anonymous protection checks for both staging URLs. Vercel returns authentication redirects; no bypass credentials created."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Hosted deployment",
+      "result": "passed",
+      "detail": "dpl_A2Zu5TrCJ787DskFvBvtXb3jU9oG READY, staging aliases assigned, protection all, Git disconnected, cron empty. Clean Linux npm ci and full Next build passed."
+    },
+    {
+      "name": "Existing focused tests",
+      "result": "passed",
+      "detail": "242 tests passed during first deployment; retained evidence, not rerun in this continuation."
+    },
+    {
+      "name": "Runtime acceptance",
+      "result": "not-run",
+      "detail": "Application HTTP/SEO/browser checks require an authenticated Vercel browser. App password login remains disabled."
+    }
+  ]
+}

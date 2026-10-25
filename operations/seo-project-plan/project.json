@@ -1,0 +1,39 @@
+{
+  "status": "prepared-only",
+  "proposedName": "lecomax-seo-worker",
+  "teamId": "team_yFLUcpSvgQi8EQuvuorOZW7w",
+  "workerProjectId": null,
+  "mustDifferFromWebsiteProjectId": "prj_g5xbDC0WX1RSXf6znHsAS7XvhLBb",
+  "localDeploymentDirectory": "release/seo-worker-20261018",
+  "framework": null,
+  "nodeVersion": "24.x",
+  "projectRootDirectory": null,
+  "installCommand": "npm ci --ignore-scripts",
+  "buildCommand": null,
+  "outputDirectory": null,
+  "gitRepository": null,
+  "automaticGitDeployments": false,
+  "customDomains": [],
+  "maxDurationSeconds": 60,
+  "activation": false,
+  "crons": [],
+  "productionEndpointPolicy": "Dedicated production worker endpoint must reach its Bearer-authenticated handler from the website; do not alter website protection. Verify worker-only platform protection settings before deployment.",
+  "environment": [
+    {"name":"SEO_SYNC_ENABLED","target":"production","initialValue":"false","secret":false},
+    {"name":"SEO_SYNC_SUPABASE_URL","target":"production","initialValue":"https://yddqwgdgeljkzfsmtein.supabase.co","secret":false},
+    {"name":"SEO_SYNC_SERVICE_ROLE_KEY","target":"production","secret":true,"source":"Secure official Supabase project service credential; no value in this file"},
+    {"name":"CRON_SECRET","target":"production","secret":true,"source":"New independent random worker secret, at least 32 characters; no value generated here"}
+  ],
+  "websiteEnvironment": [
+    {"name":"SEO_WORKER_URL","target":"production","source":"Actual stable worker production URL ending /api/sync; never predict it from the proposed project name"},
+    {"name":"SEO_WORKER_CRON_SECRET","target":"production","secret":true,"source":"Same worker CRON_SECRET; never an admin signing secret or database credential"},
+    {"name":"SEO_MANUAL_SYNC_ENABLED","target":"production","initialValue":"false","secret":false}
+  ],
+  "separation": {
+    "VERCEL_ENV": "Platform supplied; production required",
+    "previewCredentials": "Do not copy production worker secrets into Preview or Development",
+    "workerServiceKey": "Same Supabase privilege class as existing service_role; dedicated environment name is not a reduced database privilege",
+    "authSecrets": "Preserve existing website authentication configuration; do not rotate it implicitly",
+    "platformBypass": "No bypass secret is currently supported by the website worker adapter; resolve worker-only platform access explicitly"
+  }
+}

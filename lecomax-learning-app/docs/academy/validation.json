@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "lessonCount": 7,
+  "explanationWords": {
+    "academy-algorithms": 1616,
+    "academy-computer": 1727,
+    "academy-files": 1640,
+    "academy-html-document": 1558,
+    "academy-js-values": 1700,
+    "academy-site-boutique": 1583,
+    "academy-workspace": 1681
+  },
+  "completeTracks": 0,
+  "errors": []
+}

@@ -1,0 +1,60 @@
+{
+  "id": "seo-tier-guard-verified-20261020",
+  "createdAt": "2026-10-20T10:55:16.183Z",
+  "title": "Invalid provider tiers rejected and Node24 validation passed",
+  "summary": "160 distinct regressions pass; invalid tier values cannot construct provider clients. Production remains NO-GO.",
+  "status": "successful",
+  "pages": [
+    "SEO worker /api/sync"
+  ],
+  "components": [
+    "AI provider tier validation"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/tests/ai-provider.test.mjs",
+    "docs/seo-tier-guard-handoff-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Validate a string tier against own properties of both explicit model allowlists before schema or client construction."
+    },
+    {
+      "kind": "added",
+      "detail": "Mock-only regression for inherited names, unknown names and non-string tiers; checks rejection and zero client construction."
+    },
+    {
+      "kind": "added",
+      "detail": "Updated source inventory, owner-action handoff and fresh local validation evidence; all previous reports preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression suites",
+      "result": "passed",
+      "detail": "61 worker + 99 application/history tests. Worker directory and root runner both pass on Node24; repeated invocations overlap."
+    },
+    {
+      "name": "Types and lint",
+      "result": "passed",
+      "detail": "Root and learning-app TypeScript with incremental disabled; focused ESLint."
+    },
+    {
+      "name": "Isolated Node24 build",
+      "result": "passed",
+      "detail": "Exit 0, BUILD_ID present and changed provider source matches snapshot. Synthetic credentials; runtime fetch blocked; no deployment."
+    },
+    {
+      "name": "Protected local backup integrity",
+      "result": "passed",
+      "detail": "SHA256 matches; 1233 readable archive entries. No restore, production connection or PITR verification."
+    },
+    {
+      "name": "Hosted and human acceptance",
+      "result": "not-run",
+      "detail": "No 403 retries or hosted operations. Runtime parity, Auth/isolation, PITR, ownership, RPO/RTO and human FR/AR acceptance remain blockers. No preview checked."
+    }
+  ],
+  "relatedId": "seo-tier-guard-prepared-20261020"
+}

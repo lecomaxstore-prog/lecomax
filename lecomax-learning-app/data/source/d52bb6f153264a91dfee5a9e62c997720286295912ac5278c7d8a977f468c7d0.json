@@ -1,0 +1,1 @@
+{"content":"// Shared pure implementation lives inside the Expo bundle boundary.\nexport * from \"../mobile/src/lib/store-settings.ts\";\n"}

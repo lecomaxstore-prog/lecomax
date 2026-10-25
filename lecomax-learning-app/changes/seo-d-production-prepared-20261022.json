@@ -1,0 +1,52 @@
+{
+  "id": "seo-d-production-prepared-20261022",
+  "relatedId": "seo-d-final-release-ready-20261022",
+  "createdAt": "2026-10-22T18:55:41.706Z",
+  "title": "Official Release D: authorized production preparation",
+  "summary": "Owner authorized only D ddf12f4a. Exact eight-file source prepared, 120 critical regressions passed again; production preflight and live deployment acceptance pending. E remains on hold.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront",
+    "IndexNow API",
+    "Product publication",
+    "Change History"
+  ],
+  "components": [
+    "Official production release"
+  ],
+  "files": [
+    "release/seo-advanced-d-20261022/app/api/indexnow/route.ts",
+    "release/seo-advanced-d-20261022/lib/indexnow.mjs",
+    "release/seo-advanced-d-20261022/lib/product-discovery.ts",
+    "release/seo-advanced-d-20261022/operations/seo-vercel/lib/environment-target.mjs",
+    "release/seo-advanced-d-20261022/scripts/sitemap-release-urls.mjs",
+    "release/seo-advanced-d-20261022/scripts/verify-storefront-release.mjs",
+    "release/seo-advanced-d-20261022/tests/indexnow-safety.test.ts",
+    "release/seo-advanced-d-20261022/tests/seo-advanced-indexnow.test.ts",
+    "scripts/seo-release-d-production.cjs",
+    "scripts/seo-release-d-live.cjs",
+    "scripts/seo-release-d-logs.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepare deployment of the approved IndexNow guard, canonical deduplication and private-route exclusions. Keep all flags and existing crons unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "Isolated upload manifest and bounded release verification tooling. Nine inherited files retain verified C upload line endings without changing Git content."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate integrity and critical tests",
+      "result": "passed",
+      "detail": "Pinned final manifest and all 2588 candidate hashes verified; exact eight-file Git delta from C; 120 tests passed again. Prior final TypeScript/lint/synthetic build retained unchanged."
+    },
+    {
+      "name": "Production deployment and live smoke",
+      "result": "not-run",
+      "detail": "Pending preflight, Vercel submission, READY/source receipt, public smoke and logs. No E deployment or migrations authorized."
+    }
+  ]
+}

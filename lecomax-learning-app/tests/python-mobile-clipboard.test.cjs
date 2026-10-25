@@ -1,0 +1,24 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const ts = require('typescript');
+test('native clipboard waits for its own acknowledgment, rejects failure and bounds text', async () => {
+  const listeners = new Set(), timers = new Map(), sent = []; let counter = 0;
+  const window = { ReactNativeWebView: { postMessage: text => sent.push(JSON.parse(text)) }, addEventListener: (_, fn) => listeners.add(fn), removeEventListener: (_, fn) => listeners.delete(fn) };
+  const exports = {};
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(require.resolve('../utils/python-mobile-clipboard.ts'), 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText, { exports, window, setTimeout: fn => { const id = ++counter; timers.set(id, fn); return id; }, clearTimeout: id => timers.delete(id) });
+  let resolved = false;
+  const first = exports.copyPythonMobileText('40.0').then(() => { resolved = true; });
+  for (const listener of listeners) listener({ source: {}, data: { type: 'clipboard-result', id: sent[0].id, ok: true } });
+  await Promise.resolve(); assert.equal(resolved, false);
+  for (const listener of listeners) listener({ source: null, data: { type: 'clipboard-result', id: sent[0].id, ok: true } });
+  await first; assert.equal(resolved, true); assert.equal(timers.size, 0);
+  const failed = exports.copyPythonMobileText('test');
+  for (const listener of listeners) listener({ source: null, data: { type: 'clipboard-result', id: sent[1].id, ok: false } });
+  await assert.rejects(failed, /Copy failed/);
+  const timeout = exports.copyPythonMobileText('test');
+  for (const timer of timers.values()) timer();
+  await assert.rejects(timeout, /Copy failed/); assert.equal(listeners.size, 0);
+  await assert.rejects(exports.copyPythonMobileText('x'.repeat(50001)));
+});

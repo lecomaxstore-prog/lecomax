@@ -1,0 +1,39 @@
+{
+  "id": "seo-pg17-rest-prepared-20261020",
+  "createdAt": "2026-10-20T09:20:59.224Z",
+  "title": "Native PG17 and PostgREST acceptance rehearsal",
+  "summary": "Add pinned portable PG17.11/PostgREST16.5 loopback-only testing, full current schema checks and synthetic backup/restore.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Local database acceptance"
+  ],
+  "components": [
+    "Local PostgreSQL rehearsal",
+    "PostgREST permissions",
+    "Recovery"
+  ],
+  "files": [
+    "scripts/seo-local-postgres-profile.cjs",
+    "scripts/seo-local-rest-checks.cjs",
+    "scripts/test-seo-editorial-concurrency.cjs",
+    "tests/seo-local-postgres-profile.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Fixed portable PG17.11 profile and PostgREST16.5 archive verification; isolated credentials, no env-file or hosted targets. Test 13 RLS tables, constraints/indexes, role grants, JWT failures, concurrency and synthetic dump/restore."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Attempt local cluster shutdown after uncertain startup acknowledgement; preserve all databases and logs."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Acceptance",
+      "result": "not-run",
+      "detail": "Official archives downloaded; PostgREST publisher SHA256 matched and version command succeeds with PG libpq DLL path. Rehearsal pending; production remains NO-GO."
+    }
+  ]
+}

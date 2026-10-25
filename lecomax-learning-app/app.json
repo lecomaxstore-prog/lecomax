@@ -1,0 +1,74 @@
+{
+  "expo": {
+    "name": "ACADEMY",
+    "slug": "lecomax-learn",
+    "owner": "lecomax",
+    "version": "1.0.22",
+    "scheme": "lecomax-learn",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "icon": "./assets/icon.png",
+    "android": {
+      "package": "com.lecomax.learning",
+      "versionCode": 24,
+      "blockedPermissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.SYSTEM_ALERT_WINDOW"
+      ],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#163F35"
+      },
+      "allowBackup": false,
+      "runtimeVersion": {
+        "policy": "appVersion"
+      }
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "asyncRoutes": {
+            "web": true,
+            "default": false
+          }
+        }
+      ],
+      "expo-secure-store",
+      "expo-notifications",
+      "expo-localization",
+      "./plugins/with-release-signing.cjs",
+      "./plugins/with-wifi-lab.cjs",
+      "./plugins/with-phone-python.cjs",
+      "./plugins/with-phone-remote.cjs",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow ACADEMY to scan the pairing QR code on your other phone.",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "3a50f879-e2c6-4079-ac3f-7d71ad73c123"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/3a50f879-e2c6-4079-ac3f-7d71ad73c123",
+      "requestHeaders": {
+        "expo-channel-name": "production"
+      }
+    }
+  }
+}

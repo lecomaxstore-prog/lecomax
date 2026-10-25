@@ -1,0 +1,74 @@
+{
+  "id": "seo-hosted-acceptance-completion-verified-20261020",
+  "relatedId": "seo-production-probe-lock-prepared-20261020",
+  "createdAt": "2026-10-20T12:17:21.101Z",
+  "title": "Verify staging acceptance guards and keep production execution blocked",
+  "summary": "227 distinct local tests, both TypeScript checks, focused lint and isolated build passed. Hosted staging remains blocked on connected access and reviewed configuration; production remains NO-GO.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "Hosted staging acceptance",
+    "/change-history"
+  ],
+  "components": [
+    "Hosting evidence",
+    "Staging acceptance tooling"
+  ],
+  "files": [
+    "scripts/seo-staging-acceptance.cjs",
+    "scripts/seo-hosting-evidence.cjs",
+    "scripts/seo-hosted-acceptance-readonly.cjs",
+    "tests/seo-staging-acceptance.test.cjs",
+    "tests/seo-hosting-evidence.test.cjs",
+    "tests/seo-acceptance-cli.test.cjs",
+    "operations/seo/staging-acceptance.example.json",
+    "docs/seo-hosted-staging-acceptance-20261020.md",
+    "docs/seo-hosted-completion-handoff-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Require independent production/staging identities and verify immutable Vercel deployment metadata before transmitting staging sessions; reject incomplete hosting inventories and block legacy production execution."
+    },
+    {
+      "kind": "added",
+      "detail": "Synthetic regressions, offline evidence template and owner dashboard/handoff instructions; retain historical discovery and all previous reports."
+    },
+    {
+      "kind": "modified",
+      "detail": "Explicitly distinguish live deployment metadata from operator-attested database/environment evidence and unverified database read-only transaction mode."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Application and worker regression",
+      "result": "passed",
+      "detail": "154 application/SEO/security/owner/client/history tests and 71 worker tests. Final 16-tooling-test run includes two additional CLI tests, giving 227 distinct passing tests; zero failed/skipped in final runs."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Root and learning app type checks with incremental disabled; final six tooling/test files lint clean."
+    },
+    {
+      "name": "Isolated production build",
+      "result": "passed",
+      "detail": "Node24 build completed 2026-10-20T12:16:38.399Z; BUILD_ID exists; synthetic credentials and blocked runtime fetches; no deployment. Initial font-fetch failure retained; approved retry permitted public font downloads. Shared tracing-root warning limits packaging claims."
+    },
+    {
+      "name": "Source and migration integrity",
+      "result": "passed",
+      "detail": "All six pinned migration hashes and all 51 prior runtime inventory hashes match. No runtime application or migration changes."
+    },
+    {
+      "name": "Hosted staging, production, browser/native and preview",
+      "result": "not-run",
+      "detail": "Fresh discovery reports Vercel and Supabase unconnected. Historical database findings not reverified. No hosted app/database request, settings change, paid request, deployment or activation. Native/browser source unchanged; historical checks not rerun. No preview verified."
+    },
+    {
+      "name": "Retained failed checks",
+      "result": "passed",
+      "detail": "Two test-harness issues corrected and rerun: private variable-name false positive and imported CLI bypassing main entrypoint. Initial failed logs preserved."
+    }
+  ]
+}

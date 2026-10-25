@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-03",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-03",
+  "title": {
+    "en": "Networking: follow a request across the boundaries",
+    "ar": "الشبكات: تتبّع الطلب من المتصفح إلى الخادم",
+    "fr": "Networking: follow a request across the boundaries"
+  },
+  "contentLanguage": "en",
+  "difficulty": 1,
+  "prerequisites": [
+    "cyber-02"
+  ],
+  "objectives": [
+    "Distinguish IP addresses, ports, DNS and HTTP origins.",
+    "Explain what TLS protects and what it does not.",
+    "Trace cookies and requests through a local browser/server exchange."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Build a mental model of addressing, transport and HTTP before using security tools. The interactive diagram in this lesson advances one boundary at a time; it is a visualization, not a packet capture.",
+  "sections": [
+    {
+      "title": "Addresses identify destinations; ports identify services",
+      "text": "An IP address identifies a network interface in a routing context. IPv4 uses values such as 127.0.0.1; IPv6 uses a different address format, with ::1 as its loopback address. A port distinguishes a service endpoint on that host. The URL http://127.0.0.1:4177 contains a scheme, host and explicit port; /api/orders is the path, not another server. Private-network addresses are not automatically trusted, because compromised devices and misconfigured services can exist inside a network. A router forwards traffic between networks, while a firewall applies rules about which flows are permitted. A local listener bound only to loopback reduces exposure, but it does not replace application authorization checks."
+    },
+    {
+      "title": "TCP and UDP solve different transport problems",
+      "text": "TCP provides an ordered byte stream with retransmission and connection state. It does not preserve your application message boundaries: one JSON request may arrive in several chunks. A server must therefore bound and assemble request bytes before parsing. UDP sends datagrams without TCP’s delivery and ordering guarantees; applications using it must handle the properties they need. Some modern protocols, including QUIC, build additional features over UDP. A port number alone is not proof of the application protocol or software version. A service can listen on an unusual port, and a reverse proxy can hide the backend listener. In this course you inspect one known lab endpoint, rather than guessing that every open port is a vulnerability."
+    },
+    {
+      "title": "DNS and the URL are different authorities",
+      "text": "DNS resolves names into records such as IP addresses. It helps locate a destination; it does not authenticate the application’s business rules. A browser may consult caches before asking a resolver. The URL path is not sent to the DNS resolver. Changing DNS records does not change a server’s file permissions, and finding a hostname in a certificate does not authorize testing it. DNS changes can also affect security-sensitive URL fetching: a name checked once may later resolve differently. That is why the SSRF lesson prefers a fixed asset identifier mapped to a server-controlled destination over accepting arbitrary URLs. Name validation, address validation and actual connection behavior must be considered together."
+    },
+    {
+      "title": "HTTP is a request and response protocol",
+      "text": "A request has a method, target, headers and sometimes a body. A response has a status, headers and a body. GET should retrieve information without performing an application state change; POST often submits a change but is not secure merely because it is POST. Content-Type tells the receiver how the sender represents the body, yet the server still needs to validate the parsed shape and values. Status 200 is only a protocol outcome, not proof that the caller was authorized. A 401 normally indicates missing or invalid authentication, 403 a denied permission, and 404 can avoid revealing whether a protected object exists. Your regression tests should assert both the status and the absence of another customer’s data."
+    },
+    {
+      "title": "TLS protects a channel, not every decision",
+      "text": "HTTPS carries HTTP over an authenticated encrypted channel. A certificate binds a public key to names under the certificate system’s rules; the browser checks the chain, hostname and validity. TLS helps prevent intermediaries reading or changing traffic in transit, but it does not stop a malicious authenticated user from asking the server for someone else’s order. The server decrypts the request, so sensitive data can still leak through logs, database queries or response serialization. The local lab intentionally uses HTTP on loopback to avoid pretending it has a production certificate. Never disable certificate verification in a production client as a fix for a connection error. Investigate trust roots, hostname and clock instead."
+    },
+    {
+      "title": "Origins, proxies and cookies",
+      "text": "A browser origin is the scheme, host and port together. http://localhost:4177 and http://127.0.0.1:4177 are different origins even if both reach your machine. A reverse proxy accepts a client connection and forwards an application request; forwarded client-IP headers are trustworthy only when received through a configured trusted proxy boundary. Cookies are small values associated with a browser’s cookie rules. A session cookie usually carries an opaque identifier; the server maps it to an authenticated session. HttpOnly restricts script access to a cookie, Secure limits sending it to secure transport, and SameSite affects cross-site attachment. None of these attributes proves object ownership. An ordinary browser can attach a valid session cookie to an unauthorized object request."
+    },
+    {
+      "title": "Observe before interpreting",
+      "text": "Start the lab, open its page and inspect a single request in DevTools Network. Record the URL, method, status, request Content-Type and response Content-Type. The sample command below requests only the local health endpoint. If localhost works but 127.0.0.1 does not, compare listening address, origin checks and proxy settings rather than assuming a firewall attack. If a cookie is absent, inspect its domain, path, secure requirement and same-site context. If a request never reaches the server, debug the connection first; changing database permissions cannot repair a connection refused error. Darija: العنوان كيوصلك للجهاز، والـport كيوصلك للخدمة؛ HTTPS كيحمي الطريق ولكن الصلاحيات خاصها تتراجع فالخادم."
+    }
+  ],
+  "examples": [
+    {
+      "id": "health",
+      "filename": "request.ps1",
+      "language": "powershell",
+      "code": "Invoke-WebRequest -Uri http://127.0.0.1:4177/health -Method Get",
+      "annotations": [
+        {
+          "lines": "1",
+          "label": "Issue one read-only request to the explicitly local health endpoint; inspect its status and headers."
+        }
+      ]
+    },
+    {
+      "id": "http",
+      "filename": "exchange.txt",
+      "language": "text",
+      "code": "GET /health HTTP/1.1\nHost: 127.0.0.1:4177\n\nHTTP/1.1 200 OK\nContent-Type: application/json\n\n{\"service\":\"cedar-cart-lab\"}",
+      "annotations": [
+        {
+          "lines": "1-2",
+          "label": "The request targets a path on the loopback service, not an arbitrary remote host."
+        },
+        {
+          "lines": "4-7",
+          "label": "The response declares JSON and names the lab; a 200 status alone is not a security claim."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "trace",
+      "difficulty": 1,
+      "task": "Record a health request’s method, host, port, path, status and media type.",
+      "hints": [
+        "Use only the local /health endpoint."
+      ],
+      "solution": "GET | 127.0.0.1 | 4177 | /health | 200 | application/json",
+      "walkthrough": "Each field answers a separate question. The path is not a port, and application/json describes representation rather than authorization.",
+      "expectedResult": "Six correctly classified fields."
+    },
+    {
+      "id": "origin",
+      "difficulty": 2,
+      "task": "Explain why a page on localhost may fail an origin check configured for 127.0.0.1.",
+      "hints": [
+        "Write both complete origins."
+      ],
+      "solution": "http://localhost:4177 != http://127.0.0.1:4177",
+      "walkthrough": "Origin comparison uses the host string along with scheme and port. Resolving to the same machine does not make origins identical.",
+      "expectedResult": "A correct origin comparison."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-03-q1",
+      "question": "Is /api/orders a TCP port?",
+      "options": [
+        "No; it is an HTTP path.",
+        "Yes; it selects port orders."
+      ],
+      "correctIndex": 0,
+      "explanation": "Ports are numeric transport endpoints.",
+      "answerExplanations": [
+        "Correct. Ports are numeric transport endpoints.",
+        "Not quite. Ports are numeric transport endpoints."
+      ]
+    },
+    {
+      "id": "cyber-03-q2",
+      "question": "Does HTTPS prevent Alice requesting Bob’s order?",
+      "options": [
+        "Yes; encryption decides ownership.",
+        "No; the server must authorize the object."
+      ],
+      "correctIndex": 1,
+      "explanation": "Transport protection does not enforce business permissions.",
+      "answerExplanations": [
+        "Not quite. Transport protection does not enforce business permissions.",
+        "Correct. Transport protection does not enforce business permissions."
+      ]
+    },
+    {
+      "id": "cyber-03-q3",
+      "question": "Does DNS receive the full HTTP path in ordinary name resolution?",
+      "options": [
+        "No; name resolution concerns the hostname.",
+        "Yes; it routes each application path."
+      ],
+      "correctIndex": 0,
+      "explanation": "Application paths are handled after destination selection.",
+      "answerExplanations": [
+        "Correct. Application paths are handled after destination selection.",
+        "Not quite. Application paths are handled after destination selection."
+      ]
+    },
+    {
+      "id": "cyber-03-q4",
+      "question": "Can one TCP read be assumed to contain an entire JSON body?",
+      "options": [
+        "Yes; TCP preserves JSON messages.",
+        "No; TCP is a byte stream."
+      ],
+      "correctIndex": 1,
+      "explanation": "Applications must assemble and bound the body.",
+      "answerExplanations": [
+        "Not quite. Applications must assemble and bound the body.",
+        "Correct. Applications must assemble and bound the body."
+      ]
+    },
+    {
+      "id": "cyber-03-q5",
+      "question": "Is a private IP automatically a trusted service?",
+      "options": [
+        "No; trust needs an explicit policy.",
+        "Yes; private addresses cannot be compromised."
+      ],
+      "correctIndex": 0,
+      "explanation": "Network location is not proof of authority.",
+      "answerExplanations": [
+        "Correct. Network location is not proof of authority.",
+        "Not quite. Network location is not proof of authority."
+      ]
+    },
+    {
+      "id": "cyber-03-q6",
+      "question": "Do localhost and 127.0.0.1 have the same browser origin?",
+      "options": [
+        "Yes; origin uses only the resolved IP.",
+        "No; the host components differ."
+      ],
+      "correctIndex": 1,
+      "explanation": "Origin includes the URL host, scheme and port.",
+      "answerExplanations": [
+        "Not quite. Origin includes the URL host, scheme and port.",
+        "Correct. Origin includes the URL host, scheme and port."
+      ]
+    },
+    {
+      "id": "cyber-03-q7",
+      "question": "Does HttpOnly stop a server-side IDOR?",
+      "options": [
+        "No; ownership checks remain necessary.",
+        "Yes; cookies make every object request safe."
+      ],
+      "correctIndex": 0,
+      "explanation": "Cookie script access and object authorization are different controls.",
+      "answerExplanations": [
+        "Correct. Cookie script access and object authorization are different controls.",
+        "Not quite. Cookie script access and object authorization are different controls."
+      ]
+    },
+    {
+      "id": "cyber-03-q8",
+      "question": "Should GET delete an order?",
+      "options": [
+        "Yes; the method never matters.",
+        "No; retrieval should not perform that state change."
+      ],
+      "correctIndex": 1,
+      "explanation": "Safe-method semantics support browser and security expectations.",
+      "answerExplanations": [
+        "Not quite. Safe-method semantics support browser and security expectations.",
+        "Correct. Safe-method semantics support browser and security expectations."
+      ]
+    },
+    {
+      "id": "cyber-03-q9",
+      "question": "Should a client accept any certificate to fix a TLS failure?",
+      "options": [
+        "No; investigate the trust and hostname problem.",
+        "Yes; encryption alone authenticates the server."
+      ],
+      "correctIndex": 0,
+      "explanation": "Without verification an intermediary may impersonate the destination.",
+      "answerExplanations": [
+        "Correct. Without verification an intermediary may impersonate the destination.",
+        "Not quite. Without verification an intermediary may impersonate the destination."
+      ]
+    },
+    {
+      "id": "cyber-03-q10",
+      "question": "A request is connection refused. Which boundary comes first?",
+      "options": [
+        "The database row ownership policy.",
+        "The listener and transport connection."
+      ],
+      "correctIndex": 1,
+      "explanation": "No application request reaches the handler until a connection succeeds.",
+      "answerExplanations": [
+        "Not quite. No application request reaches the handler until a connection succeeds.",
+        "Correct. No application request reaches the handler until a connection succeeds."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can distinguish IP addresses, ports, DNS and HTTP origins.",
+    "I can explain what TLS protects and what it does not.",
+    "I can trace cookies and requests through a local browser/server exchange."
+  ],
+  "recap": [
+    "Distinguish IP addresses, ports, DNS and HTTP origins.",
+    "Explain what TLS protects and what it does not.",
+    "Trace cookies and requests through a local browser/server exchange."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "MDN HTTP overview",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "MDN cookies",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Tap each boundary to trace the request",
+    "steps": [
+      {
+        "title": "URL and origin",
+        "detail": "Browser interprets scheme, hostname and port. The path belongs to HTTP."
+      },
+      {
+        "title": "Name resolution",
+        "detail": "For a hostname, DNS or a local mapping supplies an address."
+      },
+      {
+        "title": "Transport",
+        "detail": "A connection reaches the listening service. HTTPS adds TLS verification."
+      },
+      {
+        "title": "HTTP handler",
+        "detail": "Method, headers and body are parsed and validated."
+      },
+      {
+        "title": "Response",
+        "detail": "The browser receives a status, headers and content; cookie policy may update its session."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Origin",
+      "The combination of scheme, host and port."
+    ],
+    [
+      "DNS",
+      "A name-resolution system."
+    ],
+    [
+      "TLS",
+      "A protocol securing a channel against interception and tampering."
+    ],
+    [
+      "Port",
+      "A transport-layer service endpoint number."
+    ]
+  ],
+  "lab": null
+}

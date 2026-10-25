@@ -1,0 +1,55 @@
+{
+  "id": "seo-git-free-preview-preparation-20261023",
+  "relatedId": "seo-preview-resume-scope-not-visible-20261023",
+  "createdAt": "2026-10-23T07:03:23.858Z",
+  "title": "Git-free CLI Preview prepared; general Preview credential approval required",
+  "summary": "Confirmed staging has no Git link. Replaced branch-override plan with explicit staging-project CLI preparation. No deployment; service provenance and email isolation remain blocked.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Recovery Preview",
+    "Change History"
+  ],
+  "components": [
+    "Git-free deployment preparation",
+    "Staging isolation"
+  ],
+  "files": [
+    "docs/seo-git-free-preview-20261023.md",
+    "artifacts/seo-preview-resume-20261023/prepare-git-free-preview.cjs",
+    "artifacts/seo-preview-resume-20261023/git-free-plan-1792738918802.json",
+    "artifacts/seo-preview-resume-20261023/binding-audit-1792738870726.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added non-deploying source-verification/CLI plan and controlled Preview-only credential provenance proposal with explicit impact and approval gate."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Git-free workflow",
+      "result": "passed",
+      "detail": "Official CLI documentation and fresh provider metadata establish no Git integration required; staging project identity/build settings checked."
+    },
+    {
+      "name": "Source preservation",
+      "result": "passed",
+      "detail": "Clean corrected commit, 2588 manifest hashes and 30 repaired-image hashes match."
+    },
+    {
+      "name": "Public config and disabled integrations",
+      "result": "passed",
+      "detail": "Staging URL/public binding match; no shared vars; inspected side-effect flags disabled and Vercel staging cron definitions empty."
+    },
+    {
+      "name": "Credential/email isolation",
+      "result": "not-run",
+      "detail": "Secret equality/provenance unresolved; Email provider enabled, delivery sink not verified. No remote changes made."
+    },
+    {
+      "name": "Deployment",
+      "result": "not-run",
+      "detail": "Preparation-only plan created. No Git connection, Preview submission or hosted acceptance."
+    }
+  ]
+}

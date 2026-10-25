@@ -1,5 +1,12 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import { indexNowPayload, sendIndexNow } from '../lib/indexnow.mjs';
+
+// Reject unsafe submission mode before even performing the read-only live audit.
+if (process.argv.includes('--submit-indexnow') &&
+    !indexNowPayload(process.env, ['https://lecomax.com/'])) {
+  throw Error('INDEXNOW_PRODUCTION_CONFIGURATION_REQUIRED');
+}
 
 const base = 'https://lecomax.com';
 async function get(path, headers = {}) {
@@ -39,15 +46,10 @@ assert.match(css, /eco-chat-launcher-icon:?:before/);
 console.log(`Live release verified: SEO metadata, structured data, crawler access, ${urls.length} sitemap URLs, help animation and anonymous API protection.`);
 
 if (process.argv.includes('--submit-indexnow')) {
-  const source = await fs.readFile('lib/product-discovery.ts', 'utf8');
-  const key = source.match(/INDEXNOW_KEY\s*=.*?\?\?\s*"([a-z0-9]+)"/)?.[1];
+  const key = process.env.INDEXNOW_KEY;
   assert.ok(key, 'IndexNow public verification key must be configured');
   assert.equal((await (await get(`/${key}.txt`)).text()).trim(), key);
-  const response = await fetch('https://api.indexnow.org/indexnow', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ host: 'lecomax.com', key, keyLocation: `${base}/${key}.txt`, urlList: urls }),
-    signal: AbortSignal.timeout(45000),
-  });
+  const response = await sendIndexNow(urls);
   assert.ok(response.ok, `IndexNow submission failed (${response.status})`);
   console.log(`IndexNow accepted ${urls.length} URLs (HTTP ${response.status}). This is a crawl notification, not confirmation of indexing.`);
 }

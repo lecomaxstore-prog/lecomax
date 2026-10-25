@@ -1,0 +1,36 @@
+{
+  "id": "seo-account-resume-verification-prepared-1792604293001",
+  "createdAt": "2026-10-21T17:38:13.001Z",
+  "relatedId": "seo-production-env-additions-prepared-20261021",
+  "title": "Resume production checkpoint with read-only verification",
+  "summary": "Added a read-only verifier for exact Production scope and literal values, candidate hashes, recovery evidence and preservation. No hosting changes or secret rotation.",
+  "status": "needs-testing",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ],
+  "components": [
+    "Release verification"
+  ],
+  "files": [
+    "scripts/verify-seo-production-handoff.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only verification with credential values retained only in memory and redacted failure output."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Syntax",
+      "result": "passed",
+      "detail": "node --check passed."
+    },
+    {
+      "name": "Remote verification and regressions",
+      "result": "not-run",
+      "detail": "Pending checks; production build requires complete secure configuration."
+    }
+  ]
+}

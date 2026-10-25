@@ -1,0 +1,56 @@
+{
+  "id": "seo-editorial-workflow-correction-20261019",
+  "relatedId": "seo-editorial-workflow-prepared-20261019",
+  "createdAt": "2026-10-19T20:47:34.957Z",
+  "title": "Editorial permission routing corrected during regression testing",
+  "summary": "Tests exposed missing shared permission routing for the new editor endpoint. Editor access now reaches the route checks; publication and rollback remain owner-only.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO dashboard",
+    "Editorial API",
+    "Change History"
+  ],
+  "components": [
+    "Admin policy",
+    "Editorial tests"
+  ],
+  "files": [
+    "lib/admin-policy.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-editorial-store.test.ts",
+    "tests/seo-editorial-workspace.test.ts",
+    "operations/seo-vercel/tests/editorial-workflow-sql.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Registered the explicit editorial API path in shared admin permission routing while retaining handler-level view/edit and owner-only publish/rollback checks."
+    },
+    {
+      "kind": "added",
+      "detail": "API, public reader, component-hook and legacy compatibility regressions. Corrected the SQL test provider label to the allowed openai value without any provider request."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial SQL run",
+      "result": "failed",
+      "detail": "6/7 passed; one synthetic completion used an intentionally unsupported mock provider label. Fixture corrected; seven passed on rerun."
+    },
+    {
+      "name": "Initial API run",
+      "result": "failed",
+      "detail": "Seven authorization scenarios failed because the new route was not registered for staff. Fixed mapping; 9/9 API tests now pass."
+    },
+    {
+      "name": "Editor interactions",
+      "result": "passed",
+      "detail": "5/5 component-hook cases passed, including conflict text retention, explicit rebase, RTL and unmount."
+    },
+    {
+      "name": "Final regression",
+      "result": "not-run",
+      "detail": "Broader final rerun and static checks pending. Hosted operations remain blocked."
+    }
+  ]
+}

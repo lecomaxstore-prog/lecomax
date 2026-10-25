@@ -1,0 +1,52 @@
+{
+  "id": "seo-canary-once-result-20261019",
+  "createdAt": "2026-10-19T09:12:53.025Z",
+  "title": "Single approved Luna SEO canary succeeded locally",
+  "summary": "One request completed in 2.626 seconds: 1199 input / 191 output tokens, estimated USD 0.0002453. Strict bilingual schema passed; nothing published.",
+  "status": "successful",
+  "relatedId": "seo-canary-once-prepared-20261019",
+  "pages": [
+    "Admin SEO",
+    "Change History"
+  ],
+  "components": [
+    "Isolated local canary",
+    "Budget audit"
+  ],
+  "files": [
+    "scripts/prepare-seo-canary.mjs",
+    "scripts/seo-canary-once.mjs",
+    "artifacts/seo-openai/approved-canary-one-20261019/result.json",
+    "artifacts/seo-openai/approved-canary-one-20261019/preflight.json",
+    "artifacts/seo-openai/approved-canary-one-20261019/assessment.json",
+    "artifacts/seo-openai/approved-canary-one-20261019/local-budget.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Retained one authorized product result, exact usage, latency, model confirmation, cost calculation and quality review locally."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Model and cost preflight",
+      "result": "passed",
+      "detail": "Luna metadata access verified; 1199 counted input tokens, 1200 output cap, conservative maximum USD 0.000877875; isolated SQL reserved USD 0.01."
+    },
+    {
+      "name": "Single request and schema",
+      "result": "passed",
+      "detail": "Actual model gpt-6-luna; completed; 1199 input including 1196 cache-write tokens; 191 output; no retries or Mirai; schema passed."
+    },
+    {
+      "name": "Content quality",
+      "result": "passed",
+      "detail": "Source-backed choices only, no invented product claims. French title long and prose generic; Arabic keeps French product name and keywords. Editorial quality remains limited."
+    },
+    {
+      "name": "Production",
+      "result": "not-run",
+      "detail": "No production writes, publication, deployment, cron or worker activation. Local SQL budget disabled after completion. Await next approval."
+    }
+  ]
+}

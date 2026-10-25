@@ -1,0 +1,35 @@
+{
+  "id": "batch3-chat-recovery-correction-20261024",
+  "relatedId": "batch3-deferred-chat-prepared-20261024",
+  "createdAt": "2026-10-24T20:42:05.366Z",
+  "title": "Batch 3: isolate optional chat download failures",
+  "summary": "Fault injection exposed a page-wide error from the initial dynamic-loader implementation. Candidate now catches optional chunk failures, retries at most three attempts and keeps the storefront usable.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront routes"
+  ],
+  "components": [
+    "DeferredChatWidget"
+  ],
+  "files": [
+    "artifacts/batch3-mobile-20261024/source/components/DeferredChatWidget.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Explicit asynchronous import with disposal/loading guards and bounded retry replaces the throwing dynamic loader. No production change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial chunk-failure probe",
+      "result": "failed",
+      "detail": "Blocked optional chunk produced client-side application error; evidence retained in chat-chunk-failure-probe.json. Initial candidate not deployed."
+    },
+    {
+      "name": "Corrected candidate",
+      "result": "not-run",
+      "detail": "New source fdbf6e7b2d9f35c7517a72520b73a55a0b1a08f04767e9050e7a4aa896fd8c3a requires fresh build and focused failure/recovery validation."
+    }
+  ]
+}

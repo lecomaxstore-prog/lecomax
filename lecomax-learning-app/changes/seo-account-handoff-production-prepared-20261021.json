@@ -1,0 +1,62 @@
+{
+  "id": "seo-account-handoff-production-prepared-20261021",
+  "createdAt": "2026-10-21T16:53:37.709Z",
+  "relatedId": "seo-security-staging-resume-prepared-20261021",
+  "title": "Production handoff recovered and secure access setup prepared",
+  "summary": "Verified official CLI access and deployed staging security source; preserved old candidate and packaged a new 2124-file production proposal with existing crons. Fresh encrypted backup awaits secure database access. Production remains NO-GO.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO admin",
+    "Production release operations",
+    "Change History"
+  ],
+  "components": [
+    "Release candidate",
+    "Credential setup",
+    "Recovery preparation"
+  ],
+  "files": [
+    "scripts/seo-production-secret-presence.cjs",
+    "scripts/setup-production-backup-credential.ps1",
+    "scripts/seo-account-handoff-prepare.cjs",
+    "operations/seo/production-handoff-20261021/source-manifest.json",
+    "operations/seo/production-handoff-20261021/verification.json",
+    "operations/seo/production-handoff-20261021/RELEASE.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added in-memory credential-provider presence check, hidden-input CurrentUser DPAPI credential setup, immutable candidate preparation and exact gated release runbook."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resolved sandbox Vercel connectivity and recovered interrupted staging READY/upload evidence; located both drifted historical candidate files without rewriting history."
+    },
+    {
+      "kind": "modified",
+      "detail": "New proposed production package retains current staging security correction and four existing production cron pairs. No production application or secret changes applied; no removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Access and source",
+      "result": "passed",
+      "detail": "Vercel identity/project/team and production names/scopes verified; Supabase management login healthy; staging 2124 upload paths match, protection all. All six SQL hashes match; new 2124-file candidate hashes verified."
+    },
+    {
+      "name": "Packaging correction",
+      "result": "passed",
+      "detail": "First cron comparison rejected hosting-only host metadata and ordering; corrected comparison to sorted path/schedule pairs and packaging passed. No production cron change."
+    },
+    {
+      "name": "Credential setup",
+      "result": "passed",
+      "detail": "PowerShell parser validation passed. Provider check proved stored database URL is sensitive and unreadable; no secret values exported."
+    },
+    {
+      "name": "Pending gates",
+      "result": "not-run",
+      "detail": "Interactive credential setup/decryption, encrypted backup, isolated recovery, current hosted authenticated acceptance and production-configured build remain untested. No deployment or migration authorized or performed."
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "seo-hosted-final-acceptance-1792843649208",
+  "createdAt": "2026-10-24T12:07:29.208Z",
+  "title": "Hosted protected SEO acceptance completed with release blockers",
+  "summary": "READY Preview serves core SEO routes and all 30 corrected image hashes. Full acceptance and Production remain NO-GO: restricted search/login/cart/category coverage, fixture-only imagery/stock and unavailable independent database verification.",
+  "status": "failed",
+  "pages": [
+    "Protected SEO Preview",
+    "Storefront",
+    "Sitemaps",
+    "Product pages",
+    "Change History"
+  ],
+  "components": [
+    "Hosted acceptance",
+    "Browser validation",
+    "Staging isolation audit"
+  ],
+  "files": [
+    "docs/seo-final-protected-preview-acceptance-20261024.md",
+    "artifacts/seo-preview-resume-20261023/hosted-final-acceptance/audit.cjs",
+    "artifacts/seo-preview-resume-20261023/hosted-final-acceptance/safety.mjs",
+    "artifacts/seo-preview-resume-20261023/hosted-final-acceptance/http-seo-evidence.json",
+    "artifacts/seo-preview-resume-20261023/hosted-final-acceptance/browser-results.json",
+    "artifacts/seo-preview-resume-20261023/hosted-final-acceptance/image-results-utf8.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only hosted acceptance report and immutable evidence/screenshots. No application source, deployed payload, provider setting, secret or consumed guard changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Deployment and preservation",
+      "result": "passed",
+      "detail": "Exact staging deployment dpl_DtqnUXwVHUQ98YA4n5QqY3HUMgQB READY, correct project/team, payload digest and all 1212 file/2601 recovery hashes preserved. Both attempts guards retained; no deployment during audit."
+    },
+    {
+      "name": "Hosted SEO and corrected images",
+      "result": "passed",
+      "detail": "21 detailed HTTP samples, noindex/CSP on all; core routes and XML 200; Product JSON-LD parses, InStock fixture observed. 30/30 UTF-8-safe corrected images return 200 and match hashes. Initial encoding-corrupted image harness 404 evidence retained."
+    },
+    {
+      "name": "Browser",
+      "result": "passed",
+      "detail": "14 desktop/mobile route samples without page exceptions or horizontal overflow; screenshots retained. Search overlay renders, homepage-to-boutique navigation confirmed. This does not claim a clean console or complete functionality."
+    },
+    {
+      "name": "Complete storefront and SEO acceptance",
+      "result": "failed",
+      "detail": "Search API, login/cart and fixture-category URLs denied by Preview policy. Fixture products show placeholders and no Product image field. Console includes blocked APIs/manifest and CSP feedback script. Network-idle timeout retained; DOM-ready checks completed."
+    },
+    {
+      "name": "Database/production readiness",
+      "result": "not-run",
+      "detail": "Staging MCP OAuth refresh failed; independent database/stock/egress verification unavailable. All stock branches, CMS and large catalogue pagination not covered. No mutations, production action, verifier rerun or Release E activation. Production NO-GO."
+    }
+  ]
+}

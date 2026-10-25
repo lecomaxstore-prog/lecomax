@@ -1,0 +1,18 @@
+{
+  "fr": {
+    "title": "Casque de test Fixture : exemple synthétique",
+    "description": "Ce casque de test Fixture est un exemple synthétique sans vente réelle. Cette fiche sert uniquement à vérifier le contenu de test.",
+    "keywords": ["casque de test", "exemple synthétique", "casque Fixture"],
+    "productDescription": "Ce casque de test Fixture est présenté comme un exemple synthétique sans vente réelle. Son nom et sa description identifient une fiche de test. Le texte décrit uniquement cet exemple et ne lui attribue aucune caractéristique technique supplémentaire."
+  },
+  "ar": {
+    "title": "سماعة Fixture تجريبية لاختبار المحتوى",
+    "description": "هذه سماعة تجريبية من Fixture ضمن مثال اصطناعي لا يمثل عملية بيع حقيقية. تستخدم هذه الصفحة للتحقق من عرض النص التجريبي فقط.",
+    "keywords": ["سماعة تجريبية", "مثال اصطناعي", "سماعة Fixture"],
+    "productDescription": "تعرض هذه الصفحة سماعة تجريبية من Fixture في إطار مثال اصطناعي لا يمثل عملية بيع حقيقية. يوضح الاسم والوصف أن المحتوى مخصص للاختبار فقط. يقتصر هذا النص على وصف المثال التجريبي، ولا يضيف خصائص تقنية أو معلومات أخرى غير مذكورة في البيانات الأصلية."
+  },
+  "evidence": [
+    {"locale":"fr","claim":"Casque de test","sourceQuote":"Casque de test"},
+    {"locale":"ar","claim":"Fixture","sourceQuote":"Casque de test"}
+  ]
+}

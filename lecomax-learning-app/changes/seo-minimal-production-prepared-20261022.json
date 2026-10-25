@@ -1,0 +1,43 @@
+{
+  "id": "seo-minimal-production-prepared-20261022",
+  "createdAt": "2026-10-22T09:43:22.497Z",
+  "title": "Minimal production storefront candidate isolated",
+  "summary": "Production baseline plus three storefront fixes; staged tracking gates and advanced SEO features excluded. Validation pending; not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront layout",
+    "Product and category pages"
+  ],
+  "components": [
+    "RootLayout",
+    "CategoryTiles",
+    "Product fallback image"
+  ],
+  "files": [
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Ported credentialed manifest link, encoded category srcset URL and added accepted placeholder image. No removals; production baseline configuration and dependencies retained."
+    },
+    {
+      "kind": "added",
+      "detail": "Isolated worktree and immutable SHA-256 manifest in artifacts/seo-minimal-production-20261022. Learning history stays outside the three-file deployment delta."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate scope and accepted input hashes",
+      "result": "passed",
+      "detail": "Exactly three changed/added files; accepted input SHA-256 verified; layout deliberately ported to retain production behavior."
+    },
+    {
+      "name": "Types, lint, build, regression and production safety",
+      "result": "not-run",
+      "detail": "Pending actual candidate checks; no deployment or migrations authorized."
+    }
+  ]
+}

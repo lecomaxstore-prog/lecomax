@@ -1,0 +1,57 @@
+{
+  "id": "seo-inventory-sitemap-verified-20261022",
+  "relatedId": "seo-inventory-sitemap-prepared-20261022",
+  "createdAt": "2026-10-22T11:41:59.572Z",
+  "status": "successful",
+  "title": "Isolated sitemap candidate validated; deployment awaits authorization",
+  "summary": "Local commit ac1c6fa09c2482648a0d9ed08d8e71a9980a1a50 passes 8 focused tests, TypeScript, focused lint and a production-mode synthetic build. No production changes.",
+  "pages": [
+    "sitemap",
+    "Change History"
+  ],
+  "components": [
+    "Isolated release candidate",
+    "Verification and rollback manifest"
+  ],
+  "files": [
+    "release/seo-sitemap-candidate-20261022/app/sitemap.xml/route.ts",
+    "release/seo-sitemap-candidate-20261022/app/sitemaps/[kind]/[page]/route.ts",
+    "release/seo-sitemap-candidate-20261022/app/sitemaps/static/route.ts",
+    "release/seo-sitemap-candidate-20261022/lib/sitemap-data.ts",
+    "release/seo-sitemap-candidate-20261022/tests/seo-sitemap.test.ts",
+    "artifacts/seo-release-inventory-20261022/sitemap-release-manifest.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Pinned validated local commit, full source hashes, exact patch, scope and rollback reference. Preserved dependencies, auth/middleware, existing schedules and unrelated work."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused tests",
+      "result": "passed",
+      "detail": "node --test tests/seo-sitemap.test.ts; 8 passed, zero failed."
+    },
+    {
+      "name": "Types, lint and build",
+      "result": "passed",
+      "detail": "All exit 0; Node 24.22.0/Next 15.5.24 build uses synthetic read-only data. Existing warnings retained."
+    },
+    {
+      "name": "Source scope",
+      "result": "passed",
+      "detail": "Clean isolated worktree, direct child of live commit; 5 changed source/test files; no config/dependency/cron changes."
+    },
+    {
+      "name": "Production acceptance",
+      "result": "not-run",
+      "detail": "No deployment, activation, schema/data writes or live smoke rerun. Runtime configuration and changed-path live postflight require separately authorized release."
+    },
+    {
+      "name": "Compiled sitemap routes",
+      "result": "passed",
+      "detail": "Loopback index and three advertised shards return 200; three invalid/nonexistent shard paths return 404 with synthetic data."
+    }
+  ]
+}

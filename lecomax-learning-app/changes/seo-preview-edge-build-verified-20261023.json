@@ -1,0 +1,79 @@
+{
+  "id": "seo-preview-edge-build-verified-20261023",
+  "relatedId": "seo-preview-edge-build-correction-20261023",
+  "createdAt": "2026-10-23T07:59:04.831Z",
+  "title": "Corrected Edge credential selector builds; recovery and image checks preserved",
+  "status": "successful",
+  "summary": "Synthetic isolated production build generated 225 pages; 19 isolation tests, 120 regressions, TypeScript, lint and 30 image HTTP/hash checks pass. Hosted readiness remains NO-GO.",
+  "pages": [
+    "SEO Recovery Preview",
+    "Admin access",
+    "Storefront",
+    "Change History"
+  ],
+  "components": [
+    "Edge credential selector",
+    "Shared credential policy",
+    "Recovery validation"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/lib/seo-preview-credential.mjs",
+    ".recovery-seo-preview-isolated/lib/seo-preview-credential-policy.mjs",
+    ".recovery-seo-preview-isolated/lib/supabase-service-key-edge.ts",
+    ".recovery-seo-preview-isolated/lib/admin-access.ts",
+    ".recovery-seo-preview-isolated/tests/admin-access.test.ts",
+    ".recovery-seo-preview-isolated/tests/seo-preview-credential.test.mjs",
+    "docs/seo-preview-continuation-20261023.md",
+    "artifacts/seo-preview-resume-20261023/continuation-preservation-1792742136862.json",
+    "artifacts/seo-preview-resume-20261023/continuation-smoke-results-1792742213381.json",
+    "artifacts/seo-preview-resume-20261023/binding-audit-1792741700903.json",
+    "artifacts/seo-preview-resume-20261023/continuation-build-1792741872162.log.json",
+    "artifacts/seo-preview-resume-20261023/derived-types-1792742196442.log.json",
+    "artifacts/seo-preview-resume-20261023/derived-regressions-1792741866607.log.json",
+    "artifacts/seo-preview-resume-20261023/derived-security-1792741866048.log.json",
+    "artifacts/seo-preview-resume-20261023/continuation-email-1792741637462.log.json",
+    "artifacts/seo-preview-resume-20261023/derived-lint-1792741641409.log.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Shared policy keeps identical isolation rules while Edge middleware hashes with Web Crypto and Node clients use Node crypto."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded exact changed-file inventory, recovery preservation, capacity plan, build and runtime evidence; no deletion or deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build and static validation",
+      "result": "passed",
+      "detail": "Full production optimization build exit 0, 225 pages; TypeScript exit 0 and lint exit 0 with existing warnings. Synthetic Preview environment, application traffic blocked; font downloads allowed."
+    },
+    {
+      "name": "Isolation and recovery tests",
+      "result": "passed",
+      "detail": "19/19 isolation tests (18 original plus actual Edge parity/rejection), 120/120 recovery tests."
+    },
+    {
+      "name": "Preservation and images",
+      "result": "passed",
+      "detail": "2,588 preserved recovery files unchanged; 30/30 repaired images return local HTTP 200 and match SHA-256; selector inventory has no missing wiring."
+    },
+    {
+      "name": "Browser secret scan",
+      "result": "passed",
+      "detail": "491 browser JS files checked; neither synthetic privileged key nor session secret appears."
+    },
+    {
+      "name": "Offline storefront smoke limitation",
+      "result": "not-run",
+      "detail": "Home, cart and login HTTP 200. Boutique HTTP 500 because deliberately blocked database transport propagates through its data loader. No product prerender route available without data. Data-backed/browser visual acceptance remains unverified; failed smoke evidence retained."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "6/6 history persistence/interaction tests passed before these final report appends. Manifest integrity check follows."
+    }
+  ]
+}

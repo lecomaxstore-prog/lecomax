@@ -1,0 +1,300 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-04",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-04",
+  "title": {
+    "en": "Web architecture: where trusted decisions belong",
+    "ar": "بنية الويب وحدود الثقة",
+    "fr": "Web architecture: where trusted decisions belong"
+  },
+  "contentLanguage": "en",
+  "difficulty": 1,
+  "prerequisites": [
+    "cyber-03"
+  ],
+  "objectives": [
+    "Trace browser, route, service and database responsibilities.",
+    "Distinguish authentication from authorization and validation.",
+    "Design a minimal response that does not expose internal records."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Trace Cedar Cart from a browser click to an order response and learn why a frontend check is not a server security boundary.",
+  "sections": [
+    {
+      "title": "The browser is a presentation environment",
+      "text": "HTML describes structure, CSS presentation and JavaScript behavior. A user can inspect and modify their own browser state, replay a request without the interface or write a different client. Disabling a Buy button can prevent an accidental click but cannot guarantee that the server never receives quantity=-1. A frontend is therefore helpful for feedback but not authoritative about money, roles or ownership. A native React Native application has the same trust limitation: packaging code in an APK does not make requests trustworthy. Design the server as though callers can construct every allowed request themselves. This does not mean distrusting the user personally; it means enforcing business rules at the component that controls the data."
+    },
+    {
+      "title": "The backend receives a proposal, not a command to obey",
+      "text": "A route handler accepts an HTTP request, identifies the caller, validates the request structure and decides which operation is permitted. A service function applies business rules such as available stock or eligible coupon usage. A database enforces durable constraints, such as a nonnegative quantity and a unique payment-event identifier. These layers overlap deliberately. Input validation might reject a quantity string before a service sees it; a database constraint still protects writes from another service. A useful question at each layer is what invariant this component owns. Repeating the same generic check everywhere can miss a deeper rule, while placing every rule only in the browser leaves the actual write boundary unprotected."
+    },
+    {
+      "title": "Authentication, authorization and validation are not interchangeable",
+      "text": "Authentication establishes an identity through an accepted proof. Authorization decides what that identity may do to a resource in a particular context. Validation decides whether an input has an acceptable structure and value. A valid order UUID does not establish that Alice owns the order. A signed session does not grant administrator powers to every user. A correctly shaped update can still attempt to change a property that customers are not permitted to control. In the lab, selecting Alice or Bob is deliberately a test-identity selector, not a production login implementation. It helps you isolate authorization behavior without claiming to implement secure password authentication in a small example."
+    },
+    {
+      "title": "Follow one order read",
+      "text": "Alice asks for order-a. The session lookup supplies Alice’s trusted identity. The route passes only the order identifier and that identity to the data-access function. The database query is constrained by both id and ownerId. If no permitted record matches, the handler returns an appropriate denial without exposing Bob’s address. If one matches, the handler maps it into an explicit response containing only the fields this screen needs. A data-transfer object, or DTO, is that intentional response shape. Returning an entire database row because it is convenient can accidentally disclose internal notes, payment references or authentication-related data when columns are added later."
+    },
+    {
+      "title": "Server rendering does not erase client exposure",
+      "text": "Next.js Server Components can load data on the server and render a response. This can keep database credentials out of browser code, but props passed into Client Components still cross into the client. Treat serialized values as information disclosed to the user. A Server Action that changes an order is an entry point requiring its own identity, validation and authorization checks. Hiding the form is not enough. Middleware can provide broad redirects, but a data-access check close to the record protects other callers too. The dedicated Next.js module revisits these details against the project’s version so that framework vocabulary does not replace the security model."
+    },
+    {
+      "title": "Caches, errors and third parties create extra boundaries",
+      "text": "A shared response cache must not serve Alice’s private data to Bob. Cache keys and cacheability rules are part of access control, especially when a route uses authentication but a response is stored under only its path. An error should help an authorized developer investigate without exposing database connection strings to every caller. Assign a request identifier and keep detailed internal errors in controlled logs. A payment provider or email service is another independently authenticated system, not an extension of your frontend. Verify provider messages before changing order state and keep the database operation separate from unreliable network delivery using an explicit workflow."
+    },
+    {
+      "title": "Architecture review as a practical habit",
+      "text": "Draw the request path and mark every point where data or authority changes. Then test the same business operation through a direct HTTP client to see whether the server relied on a UI-only check. The expected behavior must hold even without the original page. Common beginner mistakes include equating a valid JSON schema with permission, forwarding a client role field, and assuming server rendering makes every returned value private. Darija: المتصفح كيطلب، ولكن الخادم هو اللي كيقرر شكون مسموح ليه وبأي ثمن. The exercise asks you to classify each value by its source, which is the foundation for the injection and access-control chapters."
+    }
+  ],
+  "examples": [
+    {
+      "id": "dto",
+      "filename": "order-response.js",
+      "language": "javascript",
+      "code": "function orderResponse(order) {\n  return { id: order.id, status: order.status, totalCents: order.totalCents };\n}",
+      "annotations": [
+        {
+          "lines": "1",
+          "label": "Accept an already authorized internal record; this function alone is not an authorization check."
+        },
+        {
+          "lines": "2",
+          "label": "Select explicit public fields rather than returning every database column."
+        },
+        {
+          "lines": "3",
+          "label": "End the response mapper."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "authority",
+      "difficulty": 1,
+      "task": "Classify productId, quantity, unit price, ownerId and payment status as client proposals or server/provider-authoritative values.",
+      "hints": [
+        "A client can propose a product and quantity."
+      ],
+      "solution": "Client proposal: productId, quantity\nTrusted server catalog: unit price\nValidated session: ownerId\nVerified provider event and order match: payment status",
+      "walkthrough": "The client can communicate intent without controlling every field in the resulting order.",
+      "expectedResult": "A five-field authority map."
+    },
+    {
+      "id": "dto",
+      "difficulty": 2,
+      "task": "An internal order adds staffNotes and paymentReference. Show why the DTO should remain unchanged.",
+      "hints": [
+        "Test the exact returned keys."
+      ],
+      "solution": "Expected public keys: id, status, totalCents\nRejected disclosure: staffNotes, paymentReference",
+      "walkthrough": "An explicit mapping prevents schema growth from silently widening customer-visible data. Authorization must occur before this mapping.",
+      "expectedResult": "A response contract and a negative disclosure assertion."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-04-q1",
+      "question": "Does a disabled button enforce an API rule?",
+      "options": [
+        "No; the API must check independently.",
+        "Yes; callers must use that button."
+      ],
+      "correctIndex": 0,
+      "explanation": "Requests can be constructed without the UI.",
+      "answerExplanations": [
+        "Correct. Requests can be constructed without the UI.",
+        "Not quite. Requests can be constructed without the UI."
+      ]
+    },
+    {
+      "id": "cyber-04-q2",
+      "question": "A UUID is valid. Does that establish ownership?",
+      "options": [
+        "Yes; validation is authorization.",
+        "No; check the authenticated caller’s relationship."
+      ],
+      "correctIndex": 1,
+      "explanation": "Structure and permission are different properties.",
+      "answerExplanations": [
+        "Not quite. Structure and permission are different properties.",
+        "Correct. Structure and permission are different properties."
+      ]
+    },
+    {
+      "id": "cyber-04-q3",
+      "question": "Which identity should an order lookup trust?",
+      "options": [
+        "The validated session identity.",
+        "An ownerId posted by the browser."
+      ],
+      "correctIndex": 0,
+      "explanation": "The caller can edit posted fields.",
+      "answerExplanations": [
+        "Correct. The caller can edit posted fields.",
+        "Not quite. The caller can edit posted fields."
+      ]
+    },
+    {
+      "id": "cyber-04-q4",
+      "question": "Can Client Component props expose data loaded on the server?",
+      "options": [
+        "No; all server-loaded data stays private.",
+        "Yes; serialized props cross to the client."
+      ],
+      "correctIndex": 1,
+      "explanation": "The serialization boundary determines disclosure.",
+      "answerExplanations": [
+        "Not quite. The serialization boundary determines disclosure.",
+        "Correct. The serialization boundary determines disclosure."
+      ]
+    },
+    {
+      "id": "cyber-04-q5",
+      "question": "Should an order endpoint return every database column?",
+      "options": [
+        "No; map an explicit response.",
+        "Yes; new columns are always safe."
+      ],
+      "correctIndex": 0,
+      "explanation": "A DTO prevents accidental expansion of the exposed data.",
+      "answerExplanations": [
+        "Correct. A DTO prevents accidental expansion of the exposed data.",
+        "Not quite. A DTO prevents accidental expansion of the exposed data."
+      ]
+    },
+    {
+      "id": "cyber-04-q6",
+      "question": "Does middleware remove the need for data-layer checks?",
+      "options": [
+        "Yes; every possible caller passes the same UI redirect.",
+        "No; protect the sensitive operation itself."
+      ],
+      "correctIndex": 1,
+      "explanation": "Multiple entry points can reach shared operations.",
+      "answerExplanations": [
+        "Not quite. Multiple entry points can reach shared operations.",
+        "Correct. Multiple entry points can reach shared operations."
+      ]
+    },
+    {
+      "id": "cyber-04-q7",
+      "question": "Why keep a database constraint when the form validates?",
+      "options": [
+        "Other callers and code paths can write data.",
+        "To replace all authorization checks."
+      ],
+      "correctIndex": 0,
+      "explanation": "Constraints protect durable invariants, not caller identity.",
+      "answerExplanations": [
+        "Correct. Constraints protect durable invariants, not caller identity.",
+        "Not quite. Constraints protect durable invariants, not caller identity."
+      ]
+    },
+    {
+      "id": "cyber-04-q8",
+      "question": "Can a shared cache leak private data?",
+      "options": [
+        "No; caches only store public information.",
+        "Yes; incorrect keys or cacheability can mix users."
+      ],
+      "correctIndex": 1,
+      "explanation": "Caching is part of the response security boundary.",
+      "answerExplanations": [
+        "Not quite. Caching is part of the response security boundary.",
+        "Correct. Caching is part of the response security boundary."
+      ]
+    },
+    {
+      "id": "cyber-04-q9",
+      "question": "Should public errors contain a database connection string?",
+      "options": [
+        "No; return a safe message and correlation ID.",
+        "Yes; every caller needs infrastructure details."
+      ],
+      "correctIndex": 0,
+      "explanation": "Detailed diagnostics belong in controlled logs.",
+      "answerExplanations": [
+        "Correct. Detailed diagnostics belong in controlled logs.",
+        "Not quite. Detailed diagnostics belong in controlled logs."
+      ]
+    },
+    {
+      "id": "cyber-04-q10",
+      "question": "Does the lab actor selector implement production authentication?",
+      "options": [
+        "Yes; choosing a name is secure login.",
+        "No; it supplies synthetic identities for authorization practice."
+      ],
+      "correctIndex": 1,
+      "explanation": "The course separates a teaching fixture from an identity proof.",
+      "answerExplanations": [
+        "Not quite. The course separates a teaching fixture from an identity proof.",
+        "Correct. The course separates a teaching fixture from an identity proof."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can trace browser, route, service and database responsibilities.",
+    "I can distinguish authentication from authorization and validation.",
+    "I can design a minimal response that does not expose internal records."
+  ],
+  "recap": [
+    "Trace browser, route, service and database responsibilities.",
+    "Distinguish authentication from authorization and validation.",
+    "Design a minimal response that does not expose internal records."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "Next.js data security",
+      "url": "https://nextjs.org/docs/app/guides/data-security",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "An order response crosses five boundaries",
+    "steps": [
+      {
+        "title": "Browser",
+        "detail": "Supplies an order identifier, not an authoritative owner or price."
+      },
+      {
+        "title": "Session",
+        "detail": "Supplies the validated caller identity."
+      },
+      {
+        "title": "Authorization",
+        "detail": "Checks the relationship between caller, action and order."
+      },
+      {
+        "title": "Database",
+        "detail": "Returns only a permitted record under constraints."
+      },
+      {
+        "title": "DTO and response",
+        "detail": "Discloses only the fields required by this user interface."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "DTO",
+      "An intentionally selected response data shape."
+    ],
+    [
+      "Validation",
+      "Checking the shape and admissible values of input."
+    ],
+    [
+      "Authorization",
+      "Checking permission for an action on a resource."
+    ]
+  ],
+  "lab": null
+}

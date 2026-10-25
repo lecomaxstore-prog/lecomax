@@ -1,0 +1,37 @@
+{
+  "id": "community-panel-layout-20261025",
+  "createdAt": "2026-10-25T13:08:01.954Z",
+  "title": "Balanced homepage community empty state",
+  "summary": "Fix the cramped empty-post panel and improve the mobile community heading.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage / ? Ecomedia section"
+  ],
+  "components": [
+    "Homepage Ecomedia community section"
+  ],
+  "files": [
+    "app/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace empty dark panel with a light, evenly padded state, removing the top-edge collision, nested borders and excessive shadow."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use fluid mobile heading size and relaxed line height. Add an accessible section heading and anchor scroll clearance. Reduce mobile section whitespace."
+    },
+    {
+      "kind": "removed",
+      "detail": "Hide publication-specific footer text when no publication exists; retain actual published-post rendering."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Pending empty and populated fixture browser checks, lint and history tests. No database change or deployment."
+    }
+  ]
+}

@@ -5,8 +5,7 @@ import { after } from "next/server";
 import { SITE_URL } from "@/lib/seo";
 import { deliverProductNotification } from "@/lib/product-notification";
 import { publishOfferNotification } from "@/lib/offer-notification";
-
-const INDEXNOW_KEY = process.env.INDEXNOW_KEY ?? "d724dd3eb875908a4448cca481e61afd";
+import { sendIndexNow } from "./indexnow.mjs";
 
 export type DiscoverableProduct = {
   id?: string;
@@ -80,30 +79,7 @@ function urlsChanged(change: ProductDiscoveryChange): string[] {
 }
 
 export async function submitIndexNow(urls: string[]): Promise<{ ok: boolean; status: number }> {
-  const canonicalUrls = [...new Set(urls)].flatMap((value) => {
-    try {
-      const url = new URL(value, SITE_URL);
-      return url.protocol === "https:" && url.hostname === "lecomax.com" ? [url.toString()] : [];
-    } catch {
-      return [];
-    }
-  }).slice(0, 10_000);
-
-  if (canonicalUrls.length === 0) return { ok: false, status: 400 };
-
-  const response = await fetch("https://api.indexnow.org/indexnow", {
-    method: "POST",
-    headers: { "Content-Type": "application/json; charset=utf-8" },
-    body: JSON.stringify({
-      host: "lecomax.com",
-      key: INDEXNOW_KEY,
-      keyLocation: `${SITE_URL}/${INDEXNOW_KEY}.txt`,
-      urlList: canonicalUrls,
-    }),
-    cache: "no-store",
-  });
-
-  return { ok: response.ok, status: response.status };
+  return sendIndexNow(urls);
 }
 
 /** Refresh every catalogue discovery surface and notify IndexNow after the response. */

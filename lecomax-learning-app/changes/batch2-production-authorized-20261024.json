@@ -1,0 +1,38 @@
+{
+  "id": "batch2-production-authorized-20261024",
+  "relatedId": "batch2-mobile-validated-20261024",
+  "createdAt": "2026-10-24T20:19:44.836Z",
+  "title": "Batch 2: exact validated production release authorized",
+  "summary": "One production attempt authorized for the unchanged three-file candidate. Source inventory, certified hash, passing build evidence and production configuration checked before submission.",
+  "status": "needs-testing",
+  "pages": [
+    "Production storefront lecomax.com"
+  ],
+  "components": [
+    "Page entrance and mobile layout",
+    "Category images"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/app/globals.css",
+    "artifacts/batch2-mobile-20261024/source/app/page.tsx",
+    "artifacts/batch2-mobile-20261024/source/components/CategoryTiles.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Release exact candidate 79288dad7ed4757c23f1a219bf8d3bfbad9396b99175ed66a3707ace2946b48b to existing lecomax project; no source change, migrations, credentials, payment settings or staging services."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Exact artifact and build",
+      "result": "passed",
+      "detail": "2,054 files; approved three-file delta and 2,051 unchanged files. Certified hash and final passing build match. Team slug and ID confirmed."
+    },
+    {
+      "name": "Live deployment verification",
+      "result": "not-run",
+      "detail": "Single authorized submission and live checks pending; rollback dpl_Aab3E2x5V8iJmxcw9L9B5b4Z7LHk."
+    }
+  ]
+}

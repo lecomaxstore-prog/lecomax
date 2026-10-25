@@ -1,0 +1,330 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-06-injection",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-06",
+  "title": {
+    "en": "SQL and NoSQL injection: keep data out of query structure",
+    "ar": "حقن SQL وNoSQL: فصل البيانات عن بنية الاستعلام",
+    "fr": "SQL and NoSQL injection: keep data out of query structure"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-06"
+  ],
+  "objectives": [
+    "Explain how string concatenation changes SQL grammar.",
+    "Use parameter binding and allowlisted query structure.",
+    "Reject operator-bearing document input and test both denied and legitimate queries."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Compare an actual PostgreSQL query demonstration with an explicitly labeled in-memory NoSQL operator model. Both use fictional records and have corrected functions and regression checks.",
+  "sections": [
+    {
+      "title": "SQL injection: meaning and necessary conditions",
+      "text": "SQL injection occurs when attacker-controlled text becomes part of the syntax of a database statement. The database cannot infer which characters the programmer intended as harmless data. In the vulnerable function, a product name is placed between quotes inside a query string. A quote inside the name can close that literal and introduce an expression. The necessary conditions are a reachable input, unsafe construction and an execution path using that constructed statement. Merely containing a quote is not malicious: names such as an apostrophe-bearing shop name are legitimate. Security should preserve their meaning as data rather than trying to reject all punctuation. The impact depends on query shape and database privileges; it may include unauthorized rows, changes or errors, but a particular demonstration only proves its observed effect."
+    },
+    {
+      "title": "Observe the SQL failure in a disposable database",
+      "text": "The lab creates only lab_products with two synthetic names in an in-memory PostgreSQL engine. Search for Bag first and observe one row. Next use the lab string x' OR '1'='1. The unsafe query becomes a condition that matches all fixture rows. This demonstrates a changed predicate, not a production data theft. Record the generated query and row count without adding destructive statements. Run node --test security-labs/lab.test.cjs from the repository root; the injection regression seeds the fixture, executes the unsafe query and compares it with the bound query. If the lab dependency cannot load, record that environment error; a screenshot of a query string alone is not proof the database executed it."
+    },
+    {
+      "title": "Fix the SQL boundary",
+      "text": "The corrected function returns query text containing $1 and a separate values array. The driver sends the value as a parameter, so the database evaluates it as one data value even when it contains quote characters. The same local demonstration then returns zero rows, because no product literally has that entire name. A legitimate Bag search still returns its row. Parameters protect values, not arbitrary table names, column identifiers or sort directions. For a selectable sort, map a small accepted key such as newest to a developer-owned SQL fragment; never paste the key itself into SQL. Least-privilege database credentials and safe error handling reduce consequences but do not replace parameterization. An ORM can still be vulnerable if raw query escape hatches concatenate input."
+    },
+    {
+      "title": "NoSQL injection has a different interpreter",
+      "text": "A document database may accept query objects with operators rather than SQL strings. The failure occurs when the application forwards an untrusted object where it intended a scalar username. A value shaped like {\"$ne\":null} can mean not equal to null to a document-query interpreter. Our vulnerableNoSql function is deliberately an in-memory model of that operator behavior; it is not a MongoDB server and does not prove behavior of every document database. It shows why accepting an object changes the meaning of a username lookup. The model returns both synthetic users for the operator-shaped input. The trust boundary is still data versus query structure, but escaping SQL quotes would be the wrong repair for this different interpreter."
+    },
+    {
+      "title": "Fix the document-query boundary and test it",
+      "text": "secureNoSql requires a string with a bounded username grammar and constructs the lookup using that scalar. Objects, arrays, null and operator-shaped input are rejected before query construction. In a real document database, also choose an explicit query schema and avoid spreading a request body into a filter. Test that alice returns only Alice, an unknown valid name returns none, and objects such as $ne inputs are rejected. A test that merely removes dollar signs can miss nested operators or other parser behavior. Validate the exact type expected at the API boundary. The lesson’s regression executes the model and labels its limit; a deployment using MongoDB needs integration tests against its actual driver and query API."
+    },
+    {
+      "title": "Responsible identification and future prevention",
+      "text": "During an authorized review, inspect query construction in source and trace inputs to the database driver. Prefer a small fixture showing a changed result over speculative claims based on an error banner. In the report, separate SQL execution evidence from the NoSQL model evidence. Prevention includes parameterized query APIs, explicit schemas, restricted sort/filter options, code-review rules for raw queries and negative tests for untrusted input shapes. Do not log full sensitive queries in production merely to make testing easier. Common beginner mistakes are assuming validation replaces parameter binding, assuming every quote should be banned, and claiming an in-memory model is a real database exploit. Darija: القيمة كتبقى قيمة؛ ما خاصهاش تولّي جزء من لغة الاستعلام."
+    }
+  ],
+  "examples": [
+    {
+      "id": "sql-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableQuery(name) { return \"SELECT id, name FROM lab_products WHERE name = '\" + name + \"'\"; }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "sql-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureQuery(name) {\n  if (typeof name !== 'string' || name.length > 100) reject('Invalid name');\n  return { text: 'SELECT id, name FROM lab_products WHERE name = $1', values: [name] };\n}",
+      "annotations": [
+        {
+          "lines": "1-4",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    },
+    {
+      "id": "nosql-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableNoSql(input) {\n  // A clearly labelled in-memory model of an operator-bearing document query.\n  const users = [{ name: 'alice' }, { name: 'bob' }];\n  return users.filter(u => typeof input === 'object' && input !== null && '$ne' in input ? u.name !== input.$ne : u.name === input);\n}",
+      "annotations": [
+        {
+          "lines": "1-5",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "nosql-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureNoSql(input) {\n  if (typeof input !== 'string' || !/^[a-z]{1,30}$/.test(input)) reject('A username string is required');\n  return [{ name: 'alice' }, { name: 'bob' }].filter(u => u.name === input);\n}",
+      "annotations": [
+        {
+          "lines": "1-4",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "sql",
+      "difficulty": 2,
+      "task": "Predict the unsafe and bound row counts for the fixture and the supplied local string. Then run the test.",
+      "hints": [
+        "Seed Bag and Cup only.",
+        "Inspect query text separately from parameters."
+      ],
+      "solution": "Unsafe predicate: 2 rows\nBound value: 0 rows\nLegitimate Bag query: 1 row",
+      "walkthrough": "Binding preserves the complete submitted string as one value. The unsafe expression instead changes the WHERE condition.",
+      "expectedResult": "Three row-count assertions."
+    },
+    {
+      "id": "nosql",
+      "difficulty": 2,
+      "task": "Pass {\"$ne\":null}, null, an array and alice through both model functions.",
+      "hints": [
+        "State explicitly that this is a policy model, not MongoDB execution."
+      ],
+      "solution": "Unsafe operator model: multiple users\nSecure function: reject object/null/array; allow the string alice",
+      "walkthrough": "Type validation removes the operator object from the accepted input language. A real driver still needs integration coverage.",
+      "expectedResult": "A type matrix and an honest execution label."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-06-injection-q1",
+      "question": "Does an apostrophe automatically mean hostile input?",
+      "options": [
+        "No; legitimate data can contain punctuation.",
+        "Yes; every apostrophe should be stripped."
+      ],
+      "correctIndex": 0,
+      "explanation": "The fix must preserve legitimate values while separating query structure.",
+      "answerExplanations": [
+        "Correct. The fix must preserve legitimate values while separating query structure.",
+        "Not quite. The fix must preserve legitimate values while separating query structure."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q2",
+      "question": "What does $1 represent in the corrected query?",
+      "options": [
+        "A caller-controlled SQL fragment.",
+        "A bound data value."
+      ],
+      "correctIndex": 1,
+      "explanation": "The driver binds a value without giving it grammar authority.",
+      "answerExplanations": [
+        "Not quite. The driver binds a value without giving it grammar authority.",
+        "Correct. The driver binds a value without giving it grammar authority."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q3",
+      "question": "Can value parameters choose arbitrary SQL column names?",
+      "options": [
+        "No; map identifiers through an allowlist.",
+        "Yes; values and identifiers are interchangeable."
+      ],
+      "correctIndex": 0,
+      "explanation": "Structural choices need developer-controlled mapping.",
+      "answerExplanations": [
+        "Correct. Structural choices need developer-controlled mapping.",
+        "Not quite. Structural choices need developer-controlled mapping."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q4",
+      "question": "What does the local SQL demonstration prove?",
+      "options": [
+        "The public store was breached.",
+        "The unsafe predicate returns unintended fixture rows."
+      ],
+      "correctIndex": 1,
+      "explanation": "The evidence is limited to the disposable lab.",
+      "answerExplanations": [
+        "Not quite. The evidence is limited to the disposable lab.",
+        "Correct. The evidence is limited to the disposable lab."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q5",
+      "question": "What is the NoSQL demonstration here?",
+      "options": [
+        "An in-memory operator model.",
+        "A live MongoDB assessment."
+      ],
+      "correctIndex": 0,
+      "explanation": "The environment and interpreter must be labeled accurately.",
+      "answerExplanations": [
+        "Correct. The environment and interpreter must be labeled accurately.",
+        "Not quite. The environment and interpreter must be labeled accurately."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q6",
+      "question": "Why reject a username object?",
+      "options": [
+        "Objects are always encrypted.",
+        "It can carry query structure where a scalar was intended."
+      ],
+      "correctIndex": 1,
+      "explanation": "Type confusion can give special operators meaning.",
+      "answerExplanations": [
+        "Not quite. Type confusion can give special operators meaning.",
+        "Correct. Type confusion can give special operators meaning."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q7",
+      "question": "Does an ORM guarantee injection safety for raw concatenated SQL?",
+      "options": [
+        "No; unsafe escape hatches remain unsafe.",
+        "Yes; the package name is a complete defense."
+      ],
+      "correctIndex": 0,
+      "explanation": "The actual query construction determines the boundary.",
+      "answerExplanations": [
+        "Correct. The actual query construction determines the boundary.",
+        "Not quite. The actual query construction determines the boundary."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q8",
+      "question": "Which positive control belongs in the regression?",
+      "options": [
+        "Every query is rejected.",
+        "A legitimate Bag search still returns one row."
+      ],
+      "correctIndex": 1,
+      "explanation": "A repair should preserve intended functionality.",
+      "answerExplanations": [
+        "Not quite. A repair should preserve intended functionality.",
+        "Correct. A repair should preserve intended functionality."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q9",
+      "question": "Is removing dollar signs a complete document-query strategy?",
+      "options": [
+        "No; validate types and construct explicit filters.",
+        "Yes; all possible operators use one flat string."
+      ],
+      "correctIndex": 0,
+      "explanation": "Nested structures and interpreter rules make ad hoc stripping unreliable.",
+      "answerExplanations": [
+        "Correct. Nested structures and interpreter rules make ad hoc stripping unreliable.",
+        "Not quite. Nested structures and interpreter rules make ad hoc stripping unreliable."
+      ]
+    },
+    {
+      "id": "cyber-06-injection-q10",
+      "question": "What should a report distinguish?",
+      "options": [
+        "Only the scanner’s highest severity.",
+        "Executed SQL evidence and modeled NoSQL behavior."
+      ],
+      "correctIndex": 1,
+      "explanation": "Different evidence supports different claims.",
+      "answerExplanations": [
+        "Not quite. Different evidence supports different claims.",
+        "Correct. Different evidence supports different claims."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can explain how string concatenation changes SQL grammar.",
+    "I can use parameter binding and allowlisted query structure.",
+    "I can reject operator-bearing document input and test both denied and legitimate queries."
+  ],
+  "recap": [
+    "Explain how string concatenation changes SQL grammar.",
+    "Use parameter binding and allowlisted query structure.",
+    "Reject operator-bearing document input and test both denied and legitimate queries."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP SQL injection prevention",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP NoSQL security",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/NoSQL_Security_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "One value, two interpretations",
+    "steps": [
+      {
+        "title": "Input",
+        "detail": "A caller submits a product name or username."
+      },
+      {
+        "title": "Unsafe construction",
+        "detail": "Concatenation or an untrusted query object gives the caller structural influence."
+      },
+      {
+        "title": "Corrected boundary",
+        "detail": "Bind SQL values; require a scalar document-filter value."
+      },
+      {
+        "title": "Regression",
+        "detail": "Compare legitimate search, unknown value and injection-shaped input."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Parameter binding",
+      "Sending data separately from SQL statement structure."
+    ],
+    [
+      "Query operator",
+      "A token with special meaning to a query interpreter."
+    ],
+    [
+      "Scalar",
+      "One simple value rather than an operator-bearing object."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Query boundary defender"
+  }
+}

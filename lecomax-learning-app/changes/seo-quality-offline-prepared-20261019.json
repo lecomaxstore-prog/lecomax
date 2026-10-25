@@ -1,0 +1,62 @@
+{
+  "id": "seo-quality-offline-prepared-20261019",
+  "createdAt": "2026-10-19T10:01:57.678Z",
+  "title": "Offline editorial refinement and approval review prepared",
+  "summary": "Versioned Sol 6.1 prompts, stronger bilingual checks and a separate review-without-publication workflow. No paid calls; full validation pending.",
+  "status": "needs-testing",
+  "relatedId": "seo-sol61-astra-comparison-verified-20261019",
+  "pages": [
+    "Admin SEO",
+    "Change History"
+  ],
+  "components": [
+    "Editorial v3 prompts",
+    "Offline quality rules",
+    "Admin review checklist",
+    "Versioned queue and append-only review storage"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-editorial-quality.mjs",
+    "operations/seo-vercel/lib/seo-editorial-quality.d.mts",
+    "operations/seo-vercel/lib/seo-editorial-v3.mjs",
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/lib/seo-ai-worker.mjs",
+    "operations/seo-vercel/supabase/migrations/202610190003_seo_editorial_review.sql",
+    "operations/seo-vercel/tests/editorial-quality.test.mjs",
+    "operations/seo-vercel/tests/editorial-quality-fixtures.mjs",
+    "app/admin/seo/EditorialReview.tsx",
+    "app/admin/seo/SeoAiControl.tsx",
+    "app/api/admin/seo/ai/route.ts",
+    "tests/seo-ai-api.test.ts",
+    "scripts/evaluate-seo-quality-offline.mjs",
+    "scripts/prepare-seo-quality-check.cjs",
+    "scripts/build-seo-quality-offline.cjs",
+    "scripts/smoke-seo-ai-ui.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "French product-focused prompts and natural Arabic policy, explicit brand/model preservation, NFC character checks, hard failures versus review warnings, source/evidence feature and numeric-unit checks, stuffing and duplicate detection."
+    },
+    {
+      "kind": "modified",
+      "detail": "New editorial jobs provisionally use GPT-6.1 Sol. Astra remains optional premium. Old jobs retain v2 prompts/model selection. New source/version cache key and review storage are prepared SQL only."
+    },
+    {
+      "kind": "added",
+      "detail": "Admin source comparison, length indicators, required factual/French/Arabic/duplicate checklist and notes, approve-review or request-corrections actions with immutable decisions. Both UI and server continue blocking editorial publication."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial offline checks",
+      "result": "passed",
+      "detail": "17 focused tests and root TypeScript passed. Saved Sol/Astra outputs correctly flag full French catalogue headings in Arabic under v3. Three handcrafted shoe/bottle/charger fixtures pass hard checks. No new model generation or quality claim for revised-prompt outputs."
+    },
+    {
+      "name": "Pending wider validation",
+      "result": "not-run",
+      "detail": "Production build, browser fixture, focused lint, expanded regressions and history checks pending. No migration executed, including local SQL integration; prepared SQL requires separate review/testing approval. No provider balance or production state changed."
+    }
+  ]
+}

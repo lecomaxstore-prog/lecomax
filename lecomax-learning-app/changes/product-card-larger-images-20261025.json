@@ -1,0 +1,38 @@
+{
+  "id": "product-card-larger-images-20261025",
+  "createdAt": "2026-10-25T13:51:29.156Z",
+  "title": "Larger, cleaner storefront product images",
+  "summary": "Product and collection cards use taller photo panels and minimal image padding.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront product grids",
+    "Collection product grids"
+  ],
+  "components": [
+    "ProductCard",
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/ProductCard.tsx",
+    "components/ProductCard.module.css",
+    "components/CollectionProductCard.tsx",
+    "components/CollectionProductCard.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use consistent 4:5 photo panels with 2px mobile and 4px desktop padding; remove conflicting aspect utility classes."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remove large collection photo top padding and multiply blending so photographs remain centered and keep their original colors. Preserve contain fitting, badges, wishlist and product links."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Responsive rendering, focused lint and change-history checks pending. No deployment."
+    }
+  ]
+}

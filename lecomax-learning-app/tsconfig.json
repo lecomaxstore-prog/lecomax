@@ -1,0 +1,23 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "app/**/*.tsx",
+    "components/**/*.tsx",
+    "features/**/*.tsx",
+    "features/**/*.ts",
+    "services/**/*.ts",
+    "store/**/*.tsx",
+    "utils/**/*.ts",
+    "types/**/*.ts",
+    "constants/**/*.ts",
+    "data/loaders.ts",
+    "expo-env.d.ts",
+    ".expo/types/**/*.ts"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "seo-runtime-approved-deployment-start-20261021",
+  "createdAt": "2026-10-20T23:47:12.820Z",
+  "status": "needs-testing",
+  "relatedId": "seo-staging-runtime-candidate-prepared-20261021",
+  "title": "Approved protected staging deployment started",
+  "summary": "User explicitly authorized deployment of the reviewed runtime repair candidate only to lecomax-seo-staging. Hosted build and acceptance pending.",
+  "pages": [
+    "SEO staging",
+    "Sitemap",
+    "Catalogue",
+    "Change History"
+  ],
+  "components": [
+    "Vercel deployment",
+    "Staging isolation",
+    "Hosted acceptance"
+  ],
+  "files": [
+    "scripts/seo-runtime-hosting.cjs",
+    "scripts/verify-seo-staging-environment.cjs",
+    "artifacts/seo-staging-rc-20261020/upload-inventory-1792539666572.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Preflight now supports existing staging deployments and pins every source file to the approved 2123-file inventory. Checks exact project/team/domain, environment bindings, disabled effects, all-deployment authentication and source hash set before upload."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Environment verification",
+      "result": "passed",
+      "detail": "Exact staging project/team, all 18 readable values in both scopes, two sensitive values' storage/provenance, independent staging key bindings, disabled effects and no shared variables/integrations verified. Sensitive stored bytes remain withheld by Vercel."
+    },
+    {
+      "name": "Deployment and hosted runtime",
+      "result": "not-run",
+      "detail": "Source upload, READY status and hosted acceptance pending. No production deployment or resource mutation authorized."
+    }
+  ]
+}

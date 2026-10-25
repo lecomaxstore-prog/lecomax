@@ -44,6 +44,7 @@
     "tests",
     "out",
     "release",
-    "projects"
+    "projects",
+    "artifacts"
   ]
 }

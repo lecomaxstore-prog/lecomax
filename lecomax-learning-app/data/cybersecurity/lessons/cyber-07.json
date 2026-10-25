@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-07",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-07",
+  "title": {
+    "en": "DevTools, CORS and CSP: inspect what the browser enforces",
+    "ar": "أدوات المتصفح وCORS وCSP",
+    "fr": "DevTools, CORS and CSP: inspect what the browser enforces"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-06-exposure"
+  ],
+  "objectives": [
+    "Inspect requests, cookies and storage without exposing secrets.",
+    "Explain the difference between same-origin policy, CORS and CSRF protection.",
+    "Design and verify a minimal CSP for a known page."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Use browser evidence to distinguish a failed network request, a response-access restriction and a content-execution policy. Headers are mechanisms, not a security score by themselves.",
+  "sections": [
+    {
+      "title": "Read a request as evidence",
+      "text": "Open the local Cedar Cart page and DevTools Network, then clear earlier traffic and perform one action. Select the request and inspect its URL, method, status, request headers, body and response. Preserve the log only when you need navigation evidence; otherwise a large history makes it harder to associate action with effect. A browser console message is often a symptom, not the server’s complete error. Compare the Network response with local server output. Do not paste an entire HAR export into a public issue: it may contain cookies, tokens, bodies and private URLs. For a report, retain only the redacted fields needed to reproduce the behavior."
+    },
+    {
+      "title": "Storage is a set of different mechanisms",
+      "text": "Cookies are attached according to browser rules and can carry an opaque session id. localStorage is script-readable persistent origin storage; sessionStorage has a tab-related lifetime. IndexedDB stores structured client data. None should contain server API secrets. An HttpOnly cookie is not available to ordinary page scripts but is still sent by the browser when its rules match. In DevTools, inspect the cookie attributes rather than copying its value into the report. An expired or mis-scoped cookie can explain why a request is unauthenticated. Clearing all storage is a debugging action that can delete your local academy notes, so first inspect the relevant origin and avoid using blanket cleanup as the default fix."
+    },
+    {
+      "title": "Same-origin policy and CORS",
+      "text": "The same-origin policy limits how one origin can read or interact with another. CORS lets a server state which browser origins may read certain responses. It is not authentication and does not constrain a non-browser HTTP client. Some cross-origin requests are sent without a preflight; others trigger an OPTIONS request checking method and header permission. A failed preflight may mean the intended request was never sent, while a blocked response can still follow a server-side side effect. Credentialed CORS needs an explicit permitted origin and appropriate credentials handling; a wildcard origin is not a universal shortcut. Keep an exact allowlist when cross-origin access is actually required, and avoid reflecting any supplied Origin value without checking it."
+    },
+    {
+      "title": "Use the local origin check deliberately",
+      "text": "The lab requires the exact origin http://127.0.0.1:4177 for protected browser mutations. Accessing it through localhost changes the host string and is intentionally rejected rather than silently widening the policy. This is a teaching constraint, not a recommendation to hard-code a development hostname into a production application. A real deployment should derive its trusted configuration from validated deployment settings. The server also rejects a foreign Host and cross-site browser requests to reduce accidental access to its unsafe demonstrations. Those wrapper restrictions protect the lab boundary; they do not make its explicitly unsafe order or SQL handler a secure production feature."
+    },
+    {
+      "title": "Content Security Policy controls interpretation",
+      "text": "CSP tells the browser which sources and execution behaviors a response permits. The lab homepage allows scripts and styles only from its own origin and disallows framing and an injected base URL. Its JavaScript lives in a separate file so the policy does not need unsafe-inline. The intentionally vulnerable XSS demonstration has a narrowly labeled relaxed inline policy to show a harmless marker and blocks external connections. Compare those responses rather than treating one policy as appropriate for every page. In production, third-party scripts, nonces and server rendering require careful integration. A nonce must be unpredictable per response and consistently attached to permitted scripts. A static shared nonce is not a meaningful authorization boundary."
+    },
+    {
+      "title": "Additional headers and realistic validation",
+      "text": "nosniff tells the browser not to substitute a guessed media interpretation in relevant contexts. frame-ancestors in CSP restricts who may embed a page, while X-Frame-Options provides an older related control. HSTS tells a browser to use HTTPS for a host; deploy it only after confirming HTTPS coverage and understanding subdomain and preload consequences. A local HTTP lab should not pretend to demonstrate a production HSTS rollout. Referrer-Policy limits referrer disclosure, and Permissions-Policy can restrict browser capabilities a page does not need. A headers-style review should capture the actual response, explain missing or conflicting directives and retest after configuration changes. A grade from a tool is not proof of correct authentication or payment logic."
+    },
+    {
+      "title": "Troubleshooting without weakening policy",
+      "text": "If a resource is blocked, identify the exact directive and source in the browser message. Do not solve every CSP problem by adding unsafe-inline or an unrestricted wildcard. If an API appears blocked by CORS, first decide whether cross-origin browser access is part of the design. If a cookie does not attach, inspect its attributes and origin context. Record one expected allowed case and one denied case for each policy you change. Darija: CORS كيتحكم فقراءة الجواب من المتصفح، ماشي فصلاحيات المستخدم؛ وCSP كيقيد تنفيذ المحتوى داخل الصفحة. These distinctions prevent a common mistake: using a browser policy as a substitute for a server authorization check."
+    }
+  ],
+  "examples": [
+    {
+      "id": "csp",
+      "filename": "lab-response.txt",
+      "language": "text",
+      "code": "Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'\nX-Content-Type-Options: nosniff\nCache-Control: no-store",
+      "annotations": [
+        {
+          "lines": "1",
+          "label": "Permit only the local homepage’s required resources and prevent framing/base-URL injection."
+        },
+        {
+          "lines": "2-3",
+          "label": "Declare explicit media handling and avoid caching this stateful teaching interface."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "network",
+      "difficulty": 1,
+      "task": "Capture one local order request with its method, path, status and response shape. Redact the session cookie.",
+      "hints": [
+        "Do not export unrelated browsing traffic."
+      ],
+      "solution": "GET /api/order?id=order-a&mode=fixed\nExpected owner result: 200 with id,totalCents,status\nCookie value: REDACTED",
+      "walkthrough": "The evidence retains the relevant behavior without distributing a credential.",
+      "expectedResult": "A minimal redacted request record."
+    },
+    {
+      "id": "policy",
+      "difficulty": 2,
+      "task": "Explain why adding Access-Control-Allow-Origin: * does not repair missing object authorization.",
+      "hints": [
+        "Compare browser response access with server permission."
+      ],
+      "solution": "A non-browser caller can still send the request. The route must validate identity and ownership independently.",
+      "walkthrough": "CORS answers a browser sharing question, not whether the requested object belongs to the caller.",
+      "expectedResult": "A correct boundary explanation."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-07-q1",
+      "question": "Can a HAR contain credentials?",
+      "options": [
+        "Yes; redact and minimize it.",
+        "No; it contains only public filenames."
+      ],
+      "correctIndex": 0,
+      "explanation": "Headers and bodies may contain sensitive values.",
+      "answerExplanations": [
+        "Correct. Headers and bodies may contain sensitive values.",
+        "Not quite. Headers and bodies may contain sensitive values."
+      ]
+    },
+    {
+      "id": "cyber-07-q2",
+      "question": "Does CORS authenticate a user?",
+      "options": [
+        "Yes; any allowed origin is a verified user.",
+        "No; authentication is a separate server decision."
+      ],
+      "correctIndex": 1,
+      "explanation": "An origin and an identity are different concepts.",
+      "answerExplanations": [
+        "Not quite. An origin and an identity are different concepts.",
+        "Correct. An origin and an identity are different concepts."
+      ]
+    },
+    {
+      "id": "cyber-07-q3",
+      "question": "Does every cross-origin request require preflight?",
+      "options": [
+        "No; some requests are sent without it.",
+        "Yes; OPTIONS always precedes every request."
+      ],
+      "correctIndex": 0,
+      "explanation": "Browser request categories affect preflight behavior.",
+      "answerExplanations": [
+        "Correct. Browser request categories affect preflight behavior.",
+        "Not quite. Browser request categories affect preflight behavior."
+      ]
+    },
+    {
+      "id": "cyber-07-q4",
+      "question": "Can a blocked response follow a state change?",
+      "options": [
+        "No; unreadable means unsent.",
+        "Yes; response access and request effects differ."
+      ],
+      "correctIndex": 1,
+      "explanation": "This distinction is central to CSRF reasoning.",
+      "answerExplanations": [
+        "Not quite. This distinction is central to CSRF reasoning.",
+        "Correct. This distinction is central to CSRF reasoning."
+      ]
+    },
+    {
+      "id": "cyber-07-q5",
+      "question": "Should the CSP nonce be constant across every response?",
+      "options": [
+        "No; use an unpredictable per-response value where nonces are used.",
+        "Yes; a memorable nonce is stronger."
+      ],
+      "correctIndex": 0,
+      "explanation": "A reusable known value loses its intended boundary.",
+      "answerExplanations": [
+        "Correct. A reusable known value loses its intended boundary.",
+        "Not quite. A reusable known value loses its intended boundary."
+      ]
+    },
+    {
+      "id": "cyber-07-q6",
+      "question": "What does frame-ancestors control?",
+      "options": [
+        "Which user owns an order.",
+        "Which ancestors may embed the response."
+      ],
+      "correctIndex": 1,
+      "explanation": "Embedding policy is not object authorization.",
+      "answerExplanations": [
+        "Not quite. Embedding policy is not object authorization.",
+        "Correct. Embedding policy is not object authorization."
+      ]
+    },
+    {
+      "id": "cyber-07-q7",
+      "question": "Should the local HTTP lab claim a complete HSTS rollout?",
+      "options": [
+        "No; production HTTPS behavior needs separate verification.",
+        "Yes; a header string proves deployment readiness."
+      ],
+      "correctIndex": 0,
+      "explanation": "The environment must match the claim.",
+      "answerExplanations": [
+        "Correct. The environment must match the claim.",
+        "Not quite. The environment must match the claim."
+      ]
+    },
+    {
+      "id": "cyber-07-q8",
+      "question": "What is a good first response to a CSP block?",
+      "options": [
+        "Remove all restrictions.",
+        "Inspect the violated directive and required source."
+      ],
+      "correctIndex": 1,
+      "explanation": "Diagnose before broadening permissions.",
+      "answerExplanations": [
+        "Not quite. Diagnose before broadening permissions.",
+        "Correct. Diagnose before broadening permissions."
+      ]
+    },
+    {
+      "id": "cyber-07-q9",
+      "question": "Can browser storage hold a server API secret safely?",
+      "options": [
+        "No; the client is not a secret server.",
+        "Yes; minified JavaScript hides it."
+      ],
+      "correctIndex": 0,
+      "explanation": "Client-accessible configuration is recoverable.",
+      "answerExplanations": [
+        "Correct. Client-accessible configuration is recoverable.",
+        "Not quite. Client-accessible configuration is recoverable."
+      ]
+    },
+    {
+      "id": "cyber-07-q10",
+      "question": "Does a high header score prove secure checkout prices?",
+      "options": [
+        "Yes; headers validate every order.",
+        "No; business logic requires its own tests."
+      ],
+      "correctIndex": 1,
+      "explanation": "Headers protect specific browser behaviors.",
+      "answerExplanations": [
+        "Not quite. Headers protect specific browser behaviors.",
+        "Correct. Headers protect specific browser behaviors."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can inspect requests, cookies and storage without exposing secrets.",
+    "I can explain the difference between same-origin policy, CORS and CSRF protection.",
+    "I can design and verify a minimal CSP for a known page."
+  ],
+  "recap": [
+    "Inspect requests, cookies and storage without exposing secrets.",
+    "Explain the difference between same-origin policy, CORS and CSRF protection.",
+    "Design and verify a minimal CSP for a known page."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "MDN CORS",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "MDN CSP",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Why did the browser block it?",
+    "steps": [
+      {
+        "title": "Connection",
+        "detail": "Did a request reach the server at all?"
+      },
+      {
+        "title": "HTTP response",
+        "detail": "What status, content type and headers actually arrived?"
+      },
+      {
+        "title": "Browser policy",
+        "detail": "Check CORS for cross-origin reading and CSP for resource execution."
+      },
+      {
+        "title": "Application rule",
+        "detail": "Server authorization is still required regardless of browser policy."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "CORS",
+      "A browser mechanism for permitted cross-origin response access."
+    ],
+    [
+      "CSP",
+      "A response policy limiting content sources and execution."
+    ],
+    [
+      "Preflight",
+      "An OPTIONS check before certain cross-origin browser requests."
+    ]
+  ],
+  "lab": null
+}

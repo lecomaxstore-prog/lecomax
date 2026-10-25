@@ -1,0 +1,30 @@
+{
+  "id": "seo-final-local-restore-prepared-20261021",
+  "createdAt": "2026-10-21T10:11:03.733Z",
+  "title": "Latest backup application restore and six-migration rehearsal prepared",
+  "summary": "Prepared a fixed loopback TLS restore into a new local database, retaining existing backups and databases. No hosted changes.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO release readiness",
+    "Change History"
+  ],
+  "components": [
+    "Local recovery harness"
+  ],
+  "files": [
+    "scripts/seo-final-local-restore.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Restore latest checksum-verified backup using existing managed-extension exclusions; compare 110 included table hashes before and after six pinned decoupled migrations and preserve existing sequence values."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovery execution",
+      "result": "not-run",
+      "detail": "Pending isolated local execution. October 18 backup and PostgreSQL 18 limitations remain; no full managed-service restore claim."
+    }
+  ]
+}

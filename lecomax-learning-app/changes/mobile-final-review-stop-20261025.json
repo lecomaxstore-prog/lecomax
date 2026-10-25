@@ -1,0 +1,49 @@
+{
+  "id": "mobile-final-review-stop-20261025",
+  "relatedId": "batch4-production-complete-20261025",
+  "createdAt": "2026-10-25T06:31:21.953Z",
+  "title": "Final mobile review: retain Batch 4, no further release",
+  "summary": "Four controlled font-preload diagnostics show an LCP-only gain but later intended-font rendering and more observed long-task work. No convincing overall low-risk improvement established; application and production unchanged.",
+  "status": "successful",
+  "pages": [
+    "Production mobile homepage"
+  ],
+  "components": [
+    "Critical rendering path",
+    "CSS/font request priority",
+    "Performance evidence"
+  ],
+  "files": [
+    "artifacts/mobile-final-review-20261025/REPORT.md",
+    "artifacts/mobile-final-review-20261025/font-probe-final.cjs",
+    "artifacts/mobile-final-review-20261025/metrics-summary.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded read-only final critical-path review and stop/no-release decision. No application additions, modifications or removals; no candidate or deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production/source checkpoint",
+      "result": "passed",
+      "detail": "Batch 4 dpl_5zqUhyi9tycxPeDbADQWkn9u31DY READY and active; all 2055 certified local source hashes remain unchanged."
+    },
+    {
+      "name": "Controlled diagnostic",
+      "result": "passed",
+      "detail": "Four B/A/A/B runs with identical buffered HTML, actual catalogue and blocked mutations. LCP 3.788/3.456s control vs 3.252/3.268s no-font-preload. Fonts finish about 0.82s later overall; long-task excess midpoint 202 -> 367.5ms. CLS 0 -> negligible 0.0000251. Diagnostic trade-off, not an approved improvement."
+    },
+    {
+      "name": "Decision and next evidence",
+      "result": "passed",
+      "detail": "Do not create a release. Preserve production and collect/review real-user mobile p75 LCP, INP, CLS and attribution before more optimization."
+    },
+    {
+      "name": "Build/deployment/field validation",
+      "result": "not-run",
+      "detail": "No application changes, so no build or historical suites rerun. No deployment, field dashboard verification, physical-device tests or preview. Release E remains on hold."
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "seo-application-recovery-staging-20261018",
+  "relatedId": "seo-isolated-restore-verification-20261018",
+  "createdAt": "2026-10-18T18:06:12.129Z",
+  "title": "Application recovery verified; hosted SEO staging prepared",
+  "summary": "Classified all 36 full-restore failures. A filtered local application restore completed without errors and all 110 COPY table contents matched. Synthetic staging and local authorization checks passed; production migration remains NO-GO pending hosted integration.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Engine deployment preparation",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Application recovery",
+    "Synthetic Supabase staging preparation",
+    "Admin authorization validation"
+  ],
+  "files": [
+    "scripts/verify-application-recovery.cjs",
+    "scripts/prepare-seo-staging.cjs",
+    "scripts/verify-seo-staging-package.cjs",
+    "artifacts/restore-test.cjs",
+    "artifacts/seo-staging/synthetic-baseline.sql",
+    "artifacts/seo-staging/package.json",
+    "artifacts/seo-staging/local-validation.json",
+    "artifacts/seo-staging/extension-dependencies.json",
+    "artifacts/seo-staging/application-recovery-validation.json",
+    "docs/seo-restore-error-ledger-20261018.md",
+    "docs/seo-application-recovery-and-staging.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a reproducible local-only application recovery profile with explicit managed-object exclusions, atomic restore and exact COPY content verification."
+    },
+    {
+      "kind": "added",
+      "detail": "Added a synthetic five-table staging baseline and Free Plan setup/acceptance guide; no production data or credentials included."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented each restore failure and identified the cron/Vault/pg_net dependency of scheduled micro-learning."
+    },
+    {
+      "kind": "modified",
+      "detail": "Added a start-only mode for the existing isolated cluster without reinitializing it."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Original backup and recovery",
+      "result": "passed",
+      "detail": "Original SHA-256 unchanged. Filtered restore exit 0; 38 managed archive entries excluded. All 110 COPY tables, including 61 public tables, matched row counts, column lists and sorted row-content SHA-256 hashes using UTC."
+    },
+    {
+      "name": "Non-superuser SEO compatibility",
+      "result": "passed",
+      "detail": "Reviewed migration passed under NOSUPERUSER with ownership privileges and broad defaults; all 34 postflight checks passed."
+    },
+    {
+      "name": "Product and SEO behavior",
+      "result": "passed",
+      "detail": "New product creation/update, real deterministic SEO generation and service-role draft/approve passed locally; behavioral writes rolled back."
+    },
+    {
+      "name": "Synthetic staging and authorization",
+      "result": "passed",
+      "detail": "Five-table baseline executed locally and produced two SEO documents. Ten real session/permission checks passed using synthetic staff tables and a SQL transport adapter."
+    },
+    {
+      "name": "Hosted staging integration",
+      "result": "not-run",
+      "detail": "User confirmed no Supabase staging project exists. Actual REST, middleware, login, cache and hosted service tests remain pending; adapter checks are not HTTP tests."
+    },
+    {
+      "name": "Managed automation recovery",
+      "result": "not-run",
+      "detail": "Scheduled tick_micro_learning requires Vault and pg_net and is not operational locally. No production job, secret or callback was executed."
+    },
+    {
+      "name": "Local cleanup",
+      "result": "passed",
+      "detail": "Isolated server stopped; protected data and logs retained outside Git."
+    }
+  ]
+}

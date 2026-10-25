@@ -1,0 +1,35 @@
+{
+  "id": "expo-related-cards-refinement-20261025",
+  "createdAt": "2026-10-25T13:37:26.635Z",
+  "title": "Recommandations produit plus compactes dans Expo",
+  "summary": "Deux cartes visibles sur téléphone, images contenues et prix hiérarchisés dans Vous aimerez aussi.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductCard related",
+    "Product detail recommendation carousel"
+  ],
+  "files": [
+    "mobile/src/app/product/[slug].tsx",
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Largeur responsive pour deux cartes entières, espacement 12px, cartes arrondies avec fond image doux, titres sur deux lignes et ancien prix sous le prix courant."
+    },
+    {
+      "kind": "added",
+      "detail": "Bouton Voir les détails de 44px sur chaque recommandation, avec libellé accessible et navigation existante."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local validation",
+      "result": "not-run",
+      "detail": "TypeScript et lint en attente ; rendu navigateur non vérifié. Aucun déploiement."
+    }
+  ]
+}

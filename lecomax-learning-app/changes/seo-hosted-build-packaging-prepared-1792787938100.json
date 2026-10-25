@@ -1,0 +1,50 @@
+{
+  "id": "seo-hosted-build-packaging-prepared-1792787938100",
+  "createdAt": "2026-10-23T20:38:58.100Z",
+  "title": "Restore required files to the SEO Preview package",
+  "summary": "Retain the failed 1204-file package and prepare an isolated replacement with six course references and two required build/runtime imports. No deployment authorization reused.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging Preview",
+    "Learning course validation",
+    "Change History"
+  ],
+  "components": [
+    "Filtered deployment package",
+    "Course validator"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/repair-hosted-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/validate-hosted-repair.cjs",
+    ".recovery-seo-preview-isolated/.gitignore",
+    ".recovery-seo-preview-isolated/README.md",
+    ".recovery-seo-preview-isolated/academy-labs/06-javascript/values.js",
+    ".recovery-seo-preview-isolated/academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+    ".recovery-seo-preview-isolated/scripts/run-migrations.mjs",
+    ".recovery-seo-preview-isolated/scripts/setup-chat.mjs",
+    ".recovery-seo-preview-isolated/scripts/source-inspector-loader.cjs",
+    ".recovery-seo-preview-isolated/operations/seo-vercel/lib/environment-target.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Add omitted non-secret repository references to a new payload without editing course content or disabling validation."
+    },
+    {
+      "kind": "added",
+      "detail": "Preserve provider failure logs, original guards and independent manifest; no migration scripts executed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Hosted failure evidence",
+      "result": "passed",
+      "detail": "GET-only provider evidence confirms missing .gitignore in /vercel/path1; original npm ci and npm run build settings retained."
+    },
+    {
+      "name": "Isolated build and regression checks",
+      "result": "not-run",
+      "detail": "Pending; synthetic local data only. Hosted retry requires separate authorization."
+    }
+  ]
+}

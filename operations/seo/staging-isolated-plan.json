@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Offline staging configuration proposal; not a runtime environment or CLI link",
+  "projectRef": "tyltharlnbxrxibuxyye",
+  "productionRef": "yddqwgdgeljkzfsmtein",
+  "runtimeEnvironment": "staging",
+  "executionAllowed": false,
+  "workerEnabled": false,
+  "aiEnabled": false,
+  "editorialEnabled": false,
+  "schedulerEnabled": false,
+  "initialBudgetUsd": 0,
+  "productionRows": 0,
+  "credentials": [],
+  "schedules": [],
+  "cliLinked": false,
+  "cliWorkspacePolicy": "Separate clean directory; no copied .temp, dotenv, credentials or migration tree",
+  "requiredEvidence": ["auth-redirects", "auth-providers", "smtp-sms", "auth-hooks", "external-integrations", "external-workers"],
+  "limitations": ["Existing production handler rejects staging by design", "No hosted acceptance or outbound isolation proven", "No deployment or activation authorization"]
+}

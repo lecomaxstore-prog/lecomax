@@ -1,6 +1,7 @@
-import { ProductBrandMark } from "@/components/product-brand-mark";
+import { productDetailsFromTags } from "@/lib/product-details";
 import { sortProductSizes } from "@/lib/product-sizes";
 import { useQueryClient } from "@tanstack/react-query";
+import { ProductBrandMark } from "@/components/product-brand-mark";
 import { productTranslationOptions } from "@/lib/product-translation-query";
 import { selectedInventory, preorderSnapshot, availableSizesForColor } from "@/lib/purchasability";
 import { PreorderNotice } from "@/components/preorder-notice";
@@ -32,7 +33,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedPressable } from "@/components/animated-pressable";
 import { CartThankYou } from "@/components/cart-thank-you";
 import { useAppViewport } from "@/components/app-viewport";
-import { HorizontalRail } from "@/components/horizontal-rail";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductLoadingScreen } from "@/components/product-loading";
@@ -139,6 +139,7 @@ function Accordion({
     <View style={[styles.accordion, open && styles.accordionOpen]}>
       <AnimatedPressable
         accessibilityLabel={`${open ? msg("scanner.close") : msg("search.open")} ${title}`}
+        accessibilityRole="button"
         accessibilityState={{ expanded: open }}
         onPress={() => setOpen((value) => !value)}
         style={styles.accordionHeader}
@@ -202,9 +203,9 @@ export default function ProductScreen() {
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
   const [sizeOptionsOpen, setSizeOptionsOpen] = useState(false);
   const sizeTriggerRef = useRef<View>(null);
-  const productViewportRef = useRef<View>(null);
   const sizePanelRef = useRef<View>(null);
   const productScrollOffset = useRef(0);
+  const productViewportRef = useRef<View>(null);
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -227,23 +228,35 @@ export default function ProductScreen() {
     });
   }, [slug, scrollReturn]);
 
+
   const revealSizeOptions = useCallback(() => {
-    // Wait for the expanded panel to lay out before measuring its visible bounds.
     requestAnimationFrame(() => {
       productViewportRef.current?.measureInWindow((_x, viewportY, _width, viewportHeight) => {
         sizePanelRef.current?.measureInWindow((_panelX, panelY, _panelWidth, panelHeight) => {
-          const visibleBottom = viewportY + viewportHeight - 112 - insets.bottom;
-          const hiddenHeight = panelY + panelHeight + 16 - visibleBottom;
-          // Keep the selector above its options, even on a short screen.
-          const maximumScroll = Math.max(0, panelY - viewportY - 90);
-          const scrollBy = Math.min(Math.max(0, hiddenHeight), maximumScroll);
-          if (scrollBy > 1) {
-            pageRef.current?.scrollTo({ y: productScrollOffset.current + scrollBy, animated: true });
-          }
+          const hiddenHeight = panelY + panelHeight + 16 - (viewportY + viewportHeight - 112 - insets.bottom);
+          const scrollBy = Math.min(Math.max(0, hiddenHeight), Math.max(0, panelY - viewportY - 90));
+          if (scrollBy > 1) pageRef.current?.scrollTo({ y: productScrollOffset.current + scrollBy, animated: true });
         });
       });
     });
   }, [insets.bottom]);
+
+  useEffect(() => {
+    if (!sizeOptionsOpen) return;
+    const dismiss = () => { setSizeOptionsOpen(false); return true; };
+    if (Platform.OS === "web") {
+      const onKeyDown = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          event.preventDefault(); dismiss();
+          (sizeTriggerRef.current as unknown as HTMLElement)?.focus();
+        }
+      };
+      document.addEventListener("keydown", onKeyDown);
+      return () => document.removeEventListener("keydown", onKeyDown);
+    }
+    const subscription = BackHandler.addEventListener("hardwareBackPress", dismiss);
+    return () => subscription.remove();
+  }, [sizeOptionsOpen]);
 
   const goBack = useCallback(() => {
     if (router.canGoBack()) {
@@ -276,26 +289,6 @@ export default function ProductScreen() {
     return () => cancelAnimationFrame(frame);
   }, [slug]);
 
-  useEffect(() => {
-    if (!sizeOptionsOpen) return;
-    const dismiss = () => {
-      setSizeOptionsOpen(false);
-      return true;
-    };
-    if (Platform.OS === "web") {
-      const onKeyDown = (event: KeyboardEvent) => {
-        if (event.key === "Escape") {
-          event.preventDefault();
-          dismiss();
-          (sizeTriggerRef.current as unknown as HTMLElement)?.focus();
-        }
-      };
-      document.addEventListener("keydown", onKeyDown);
-      return () => document.removeEventListener("keydown", onKeyDown);
-    }
-    const subscription = BackHandler.addEventListener("hardwareBackPress", dismiss);
-    return () => subscription.remove();
-  }, [sizeOptionsOpen]);
 
   useEffect(
     () => () => {
@@ -360,7 +353,10 @@ export default function ProductScreen() {
   const isFavorite = wishlist.includes(product.id);
   const reviewCount = product.review_count ?? reviews.length;
   const description = product.description?.trim() || "";
+  const productDetails = productDetailsFromTags(product.tags);
   const related = realSimilarProducts(product, all, 8);
+  // Leave a glimpse of the next card so the horizontal gesture is discoverable.
+  const relatedCardWidth = Math.min(260, Math.floor((contentWidth - 52) / 2));
   const currency = settingsMap.currency?.trim().toUpperCase() || "MAD";
   const displayPriceParts = moneyParts(selectedPrice, currency);
   const displayAmount = displayPriceParts.filter((part) => part.type !== "currency").map((part) => part.value).join("").trim();
@@ -414,6 +410,7 @@ export default function ProductScreen() {
     setColor(value);
     setSizeOptionsOpen(false);
     setSize(sizesForColor(value)[0]);
+    setSizeOptionsOpen(false);
     setQuantity(1);
     setGalleryImageIndex(imageIndex);
     setGallerySelectionVersion((version) => version + 1);
@@ -527,11 +524,11 @@ export default function ProductScreen() {
             <View style={styles.collectionLabel}>
               {product.brand ? <ProductBrandMark name={product.brand} /> : <Text numberOfLines={1} style={styles.category}>{localizedContent(product.category)}</Text>}
             </View>
-            <View style={[styles.stockBadge, selectionUnavailable && styles.stockBadgeUnavailable]}>
+            <View style={[styles.stockBadge, selectionUnavailable ? styles.stockBadgeUnavailable : preorder.fulfillment_type === "PREORDER" && styles.stockBadgePreorder]}>
               {selectionUnavailable ? (
                 <Ionicons name="remove-circle-outline" size={14} color="#8B5555" accessible={false} />
               ) : (
-                <View style={[styles.stockDot, preorder.fulfillment_type === "PREORDER" && styles.stockDotPreorder]} />
+                <Ionicons name={preorder.fulfillment_type === "PREORDER" ? "time-outline" : "checkmark-circle-outline"} size={16} color={preorder.fulfillment_type === "PREORDER" ? "#866022" : "#54745D"} accessible={false} />
               )}
               <Text style={[styles.stockText, selectionUnavailable ? styles.stockTextUnavailable : preorder.fulfillment_type === "PREORDER" && styles.stockTextPreorder]}>
                 {selectionUnavailable ? msg("wishlistProductCard.unavailable") : preorder.fulfillment_type === "PREORDER" ? msg("preorder.badge") : msg("productCard.inStock")}
@@ -560,8 +557,8 @@ export default function ProductScreen() {
             <View accessible accessibilityLabel={money(selectedPrice, currency)} style={styles.priceRow}>
               <Text style={[styles.price, saving > 0 && styles.promotionalPrice]}>
                 {displayAmount}
+                <Text style={styles.priceCurrency}>{"\u00A0\u00A0"}{displayCurrency}</Text>
               </Text>
-              <Text style={styles.priceCurrency}>{displayCurrency}</Text>
             </View>
             {saving > 0 ? <View style={styles.priceComparisonRow}>
               {selectedOriginalPrice &&
@@ -667,50 +664,31 @@ export default function ProductScreen() {
                   <Text style={styles.guideText}>{msg("shoeSizeGuide.sizeGuide")}</Text>
                 </AnimatedPressable>
               </View>
-              <Pressable
-                ref={sizeTriggerRef}
-                accessibilityRole="button"
+              <Pressable ref={sizeTriggerRef} accessibilityRole="button"
                 accessibilityLabel={msg("shoeSizeGuide.size") + " " + (selectedSize ?? msg("product.chooseOne"))}
                 accessibilityState={{ expanded: sizeOptionsOpen }}
-                onPress={() => setSizeOptionsOpen((open) => !open)}
-                style={({ pressed }) => [styles.sizeTrigger, (sizeOptionsOpen || pressed) && styles.sizeTriggerOpen]}
-              >
-                <View style={styles.sizeTriggerValue}>
-                  {selectedSize ? <View style={styles.sizeValueBadge}><Text style={styles.sizeValueText}>{selectedSize}</Text></View> : null}
-                  <Text style={styles.sizeTriggerText}>{selectedSize ? msg("product.sizeOptionSelected") : msg("product.chooseOne")}</Text>
-                </View>
-                <View style={[styles.sizeChevron, sizeOptionsOpen && styles.sizeChevronOpen]}>
-                  <Ionicons name={sizeOptionsOpen ? "chevron-up" : "chevron-down"} size={16} color="#234735" />
-                </View>
+                onPress={() => setSizeOptionsOpen(open => !open)}
+                style={({ pressed }) => [styles.sizeTrigger, (sizeOptionsOpen || pressed) && styles.sizeTriggerOpen]}>
+                <Text style={styles.sizeTriggerText}>{selectedSize ?? msg("product.chooseOne")}</Text>
+                <Ionicons name={sizeOptionsOpen ? "chevron-up" : "chevron-down"} size={16} color="#58705E" accessible={false} />
               </Pressable>
               {sizeOptionsOpen ? <View ref={sizePanelRef} collapsable={false} onLayout={revealSizeOptions} style={styles.sizePanel}>
-                <View style={styles.sizePanelHeading}>
-                  <Text style={styles.sizePanelTitle}>{msg("product.sizeOptionsTitle")}</Text>
-                  <Text style={styles.sizePanelCount}>{msg("product.sizeOptionsCount", { count: availableSizes.length })}</Text>
-                </View>
                 <ScrollView nestedScrollEnabled style={styles.sizeList} contentContainerStyle={styles.sizeListContent}>
-                  {sortProductSizes(product.sizes ?? []).map((item) => {
-                    const selected = item === selectedSize;
-                    const unavailable = !availableSizes.includes(item);
-                    return <Pressable key={item} accessibilityRole="button"
-                      accessibilityLabel={msg("variants.sizeDescription", { size: item, status: unavailable ? msg("product.soldOutText") : selected ? msg("shoeSizeGuide.selectedText") : "" })}
-                      accessibilityState={{ selected, disabled: unavailable }} disabled={unavailable}
-                      onPress={() => {
-                        setSize(item); setQuantity(1); setSizeOptionsOpen(false);
-                        if (Platform.OS === "web") (sizeTriggerRef.current as unknown as HTMLElement)?.focus();
-                      }}
-                      style={({ pressed }) => [styles.sizeOption, selected && styles.sizeSelected, pressed && !selected && styles.sizeOptionPressed]}>
-                      <Text style={[styles.sizeText, selected && styles.sizeTextSelected, unavailable && styles.sizeTextUnavailable]}>{item}</Text>
-                      <View style={styles.sizeOptionDetail}>
-                        <Text style={[styles.sizeStatus, !unavailable && styles.sizeStatusAvailable, selected && styles.sizeStatusSelected]}>
-                          {unavailable ? msg("product.soldOutText") : selected ? msg("product.sizeOptionSelected") : msg("product.sizeOptionAvailable")}
-                        </Text>
-                        {!unavailable ? <View style={[styles.sizeCheck, selected && styles.sizeCheckSelected]}>
-                          {selected ? <Ionicons name="checkmark" size={12} color="#FFFFFF" /> : null}
-                        </View> : null}
-                      </View>
-                    </Pressable>;
-                  })}
+                {sortProductSizes(product.sizes ?? []).map((item) => {
+                  const selected = item === selectedSize;
+                  const unavailable = !availableSizes.includes(item);
+                  return <Pressable key={item} accessibilityRole="button"
+                    accessibilityLabel={msg("variants.sizeDescription", { size: item, status: unavailable ? msg("product.soldOutText") : selected ? msg("shoeSizeGuide.selectedText") : "" })}
+                    accessibilityState={{ selected, disabled: unavailable }} disabled={unavailable}
+                    onPress={() => {
+                      setSize(item); setQuantity(1); setSizeOptionsOpen(false);
+                      if (Platform.OS === "web") (sizeTriggerRef.current as unknown as HTMLElement)?.focus();
+                    }}
+                    style={({ pressed }) => [styles.sizeOption, selected && styles.sizeOptionSelected, pressed && !unavailable && styles.sizeOptionPressed]}>
+                    <Text style={[styles.sizeOptionText, selected && styles.sizeOptionTextSelected, unavailable && styles.sizeOptionTextUnavailable]}>{item}</Text>
+                    {unavailable ? <Text style={styles.sizeUnavailableText}>{msg("product.soldOutText")}</Text> : selected ? <Ionicons name="checkmark" size={18} color="#345C40" accessible={false} /> : null}
+                  </Pressable>;
+                })}
                 </ScrollView>
               </View> : null}
             </View>
@@ -720,6 +698,7 @@ export default function ProductScreen() {
             <Text style={styles.sectionTitle}>{msg("product.quantity")}</Text>
             <View style={styles.quantity}>
               <Pressable
+                accessibilityRole="button"
                 accessibilityLabel={msg("cart.decreaseQuantity")}
                 disabled={quantity <= 1 || isAdding}
                 onPress={() => setQuantity((value) => Math.max(1, value - 1))}
@@ -738,6 +717,7 @@ export default function ProductScreen() {
                 {quantity}
               </Text>
               <Pressable
+                accessibilityRole="button"
                 accessibilityLabel={msg("cart.increaseQuantity")}
                 disabled={quantity >= maximumQuantity || selectionUnavailable || isAdding}
                 onPress={() => setQuantity((value) => Math.min(maximumQuantity, value + 1))}
@@ -808,30 +788,16 @@ export default function ProductScreen() {
                 <ProductDescription key={product.slug} slug={product.slug} name={product.name} brand={product.brand} description={description} />
               </Accordion>
             ) : null}
-            <Accordion title={msg("product.productDetails")}>
-              <View style={styles.detailLine}>
-                <Text style={styles.detailLabel}>{msg("product.category")}</Text>
-                <Text style={styles.detailValue}>{localizedContent(product.category)}</Text>
-              </View>
-              {product.brand ? (
-                <View style={styles.detailLine}>
-                  <Text style={styles.detailLabel}>{msg("product.brand")}</Text>
-                  <Text style={styles.detailValue}>{product.brand}</Text>
+            {productDetails.length > 0 ? <Accordion title={msg("product.productDetails")}>
+              <View style={styles.detailsTable}>
+              {productDetails.map((detail, index) => (
+                <View key={index} style={[styles.detailLine, index % 2 === 0 && styles.detailLineAlternate]}>
+                  <Text selectable style={styles.detailLabel}>{detail.key}</Text>
+                  <Text selectable style={styles.detailValue}>{detail.value}</Text>
                 </View>
-              ) : null}
-              <View style={styles.detailLine}>
-                <Text style={styles.detailLabel}>{msg("product.reference")}</Text>
-                <Text selectable style={styles.detailValue}>
-                  {product.sku || product.id.slice(0, 12).toUpperCase()}
-                </Text>
+              ))}
               </View>
-              <View style={styles.detailLine}>
-                <Text style={styles.detailLabel}>{msg("topic.availability")}</Text>
-                <Text style={styles.detailValue}>
-                  {availableStock > 0 ? msg("stock.countInStock", { count: availableStock }) : msg("product.soldOutText")}
-                </Text>
-              </View>
-            </Accordion>
+            </Accordion> : null}
             <Accordion title={msg("support.delivery")}>
               <Text style={styles.accordionText}>{deliveryLabel}</Text>
               <Text style={[styles.accordionText, { marginTop: 8 }]}>
@@ -880,23 +846,22 @@ export default function ProductScreen() {
 
         {related.length ? (
           <View style={[styles.related, { width: contentWidth }]}>
-            <Text style={styles.relatedTitle}>{msg("product.youMayAlsoLike")}</Text>
+            <Text accessibilityRole="header" style={styles.relatedTitle}>{msg("product.youMayAlsoLike")}</Text>
             <Text style={styles.relatedSubtitle}>{msg("product.discoverMoreInTheSameStyle")}</Text>
-            <HorizontalRail
-              snapToInterval={254}
-              snapToAlignment="start"
+            <ScrollView
+              key={product.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              snapToInterval={relatedCardWidth + 12}
+              decelerationRate="fast"
               disableIntervalMomentum
-              style={{ marginTop: 18 }}
-              contentContainerStyle={{
-                gap: 14,
-                paddingRight: 30,
-                alignItems: "stretch",
-              }}
+              contentContainerStyle={styles.relatedTrack}
+              style={styles.relatedScroll}
             >
               {related.map((item) => (
-                <ProductCard key={item.id} product={item} wide related />
+                <ProductCard key={item.id} product={item} width={relatedCardWidth} related />
               ))}
-            </HorizontalRail>
+            </ScrollView>
           </View>
         ) : null}
       </ScrollView>
@@ -920,7 +885,9 @@ export default function ProductScreen() {
             minimumFontScale={0.75}
             style={[styles.purchasePriceValue, saving > 0 && styles.promotionalPrice]}
           >
-            {displayAmount}{" "}<Text style={styles.purchasePriceCurrency}>{displayCurrency}</Text>
+            {displayPriceParts.filter((part) => part.type !== "currency").map((part, index) => (
+              <Text key={index} style={part.type === "decimal" || part.type === "fraction" ? styles.purchasePriceFraction : undefined}>{part.value}</Text>
+            ))}{" "}<Text style={styles.purchasePriceCurrency}>{displayCurrency}</Text>
           </Text>
         </View>
         <AnimatedPressable
@@ -1040,8 +1007,6 @@ const styles = StyleSheet.create({
     minHeight: 38,
     gap: 12,
     paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#DDE1DA",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1067,9 +1032,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 7,
-    paddingVertical: 3,
+    paddingVertical: 6,
   },
-  stockDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#467454", flexShrink: 0 },
   stockBadgeUnavailable: {
     paddingHorizontal: 10,
     paddingVertical: 5,
@@ -1077,13 +1041,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F0EF",
     gap: 6,
   },
-  stockDotPreorder: { backgroundColor: "#866022" },
+  stockBadgePreorder: { paddingHorizontal: 10, borderRadius: 6, backgroundColor: "#FAF3E5" },
   stockText: {
     flexShrink: 1,
-    color: "#52644F",
+    color: "#3F5145",
     fontFamily: typography.medium,
     fontSize: 12,
     lineHeight: 18,
+    letterSpacing: 0.15,
   },
   stockTextUnavailable: {
     color: "#8B5555",
@@ -1099,25 +1064,24 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     gap: 7,
-    borderRadius: 22,
-    backgroundColor: "#F4F6F0",
+    borderRadius: 8,
   },
   shareText: {
     color: "#505652",
     fontFamily: typography.semibold,
-    fontSize: 10.5,
+    fontSize: 12,
     letterSpacing: 0.1,
   },
   productName: {
     maxWidth: 680,
-    marginTop: 16,
-    color: "#202A23",
+    marginTop: 10,
+    color: "#202723",
     fontFamily: typography.semibold,
-    fontSize: 22,
-    lineHeight: 28,
-    letterSpacing: -0.5,
+    fontSize: 23,
+    lineHeight: 30,
+    letterSpacing: -0.45,
   },
-  productNameCompact: { fontSize: 20, lineHeight: 26, letterSpacing: -0.4 },
+  productNameCompact: { fontSize: 21, lineHeight: 28, letterSpacing: -0.35 },
   productTitleDetails: {
     maxWidth: 680,
     marginTop: 7,
@@ -1133,8 +1097,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0,0,0,0.07)",
   },
   ratingGroup: { minWidth: 0, flex: 1, flexDirection: "row", alignItems: "center", gap: 7 },
   ratingValue: {
@@ -1150,8 +1112,8 @@ const styles = StyleSheet.create({
   },
   noReviews: {
     color: "#696D69",
-    fontFamily: typography.semibold,
-    fontSize: 10.5,
+    fontFamily: typography.regular,
+    fontSize: 12,
   },
   descriptionBlock: {
     paddingVertical: 16,
@@ -1187,11 +1149,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#EAF6ED",
   },
   priceCard: {
-    marginTop: 22,
+    marginTop: 10,
     marginBottom: 2,
-    paddingBottom: 24,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ECEAE5",
+    paddingBottom: 20,
     backgroundColor: "transparent",
   },
   priceHeader: {
@@ -1213,12 +1173,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.7,
   },
   priceRow: {
-    minHeight: 44,
+    minHeight: 36,
     marginTop: 0,
     flexDirection: "row",
     alignItems: "baseline",
     flexWrap: "wrap",
-    gap: 9,
+    gap: 7,
   },
   priceComparisonRow: {
     flexDirection: "row",
@@ -1229,20 +1189,20 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   price: {
-    color: "#203F2F",
-    fontFamily: typography.bold,
-    fontSize: 34,
-    lineHeight: 44,
-    letterSpacing: -1.1,
+    color: "#254B36",
+    fontFamily: typography.semibold,
+    fontSize: 28,
+    lineHeight: 36,
+    letterSpacing: -0.6,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
   },
   priceCurrency: {
     fontFamily: typography.medium,
-    fontSize: 11,
-    lineHeight: 16,
-    letterSpacing: 0.6,
-    color: "#777A72",
+    fontSize: 13,
+    lineHeight: 18,
+    letterSpacing: 0.3,
+    color: "#66746A",
     includeFontPadding: false,
   },
   promotionalPrice: {
@@ -1373,39 +1333,25 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     textDecorationColor: "#B9BDB3",
   },
-  sizeTrigger: { marginTop: 8, minHeight: 60, paddingHorizontal: 12, paddingVertical: 10, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, borderWidth: 1, borderColor: "#DCE5DC", borderRadius: 16, backgroundColor: "#FFFFFF" },
-  sizeTriggerOpen: { borderColor: "#789B81", backgroundColor: "#FAFCF9" },
-  sizeTriggerValue: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
-  sizeValueBadge: { minWidth: 38, minHeight: 38, paddingHorizontal: 8, borderRadius: 10, alignItems: "center", justifyContent: "center", backgroundColor: "#EAF2E7" },
-  sizeValueText: { color: "#234735", fontFamily: typography.bold, fontSize: 15 },
-  sizeTriggerText: { flexShrink: 1, color: "#405447", fontFamily: typography.medium, fontSize: 13 },
-  sizeChevron: { width: 30, height: 30, borderRadius: 15, alignItems: "center", justifyContent: "center", backgroundColor: "#F3F6F1" },
-  sizeChevronOpen: { backgroundColor: "#EAF2E7" },
-  sizePanel: { marginTop: 8, borderWidth: 1, borderColor: "#E2E6DD", borderRadius: 16, overflow: "hidden", backgroundColor: "#FFFFFF", boxShadow: "0px 8px 24px rgba(35, 71, 53, 0.08)" },
-  sizePanelHeading: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "space-between", gap: 8, paddingHorizontal: 14, paddingTop: 14, paddingBottom: 8 },
-  sizePanelTitle: { color: "#39483D", fontFamily: typography.semibold, fontSize: 11, letterSpacing: 0.2 },
-  sizePanelCount: { color: "#586A5D", fontFamily: typography.medium, fontSize: 10, backgroundColor: "#F1F5EF", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 },
-  sizeList: { maxHeight: 260 },
-  sizeListContent: { padding: 8, gap: 5 },
-  sizeOption: { minHeight: 48, paddingHorizontal: 12, paddingVertical: 10, flexDirection: "row", gap: 12, alignItems: "center", justifyContent: "space-between", borderRadius: 10, borderWidth: 1, borderColor: "transparent" },
-  sizeSelected: { backgroundColor: "#EAF3E7", borderColor: "#C9DDC7" },
-  sizeOptionPressed: { backgroundColor: "#F6F8F3" },
-  sizeText: { color: palette.ink, fontFamily: typography.medium, fontSize: 15, letterSpacing: 0.2 },
-  sizeTextSelected: { color: "#234735", fontFamily: typography.semibold },
-  sizeTextUnavailable: { color: "#9A9D94", textDecorationLine: "line-through" },
-  sizeOptionDetail: { flexShrink: 1, flexDirection: "row", alignItems: "center", gap: 10 },
-  sizeStatus: { flexShrink: 1, color: "#85867E", fontFamily: typography.regular, fontSize: 11, lineHeight: 16 },
-  sizeStatusAvailable: { color: "#61745D" },
-  sizeStatusSelected: { color: "#234735", fontFamily: typography.semibold },
-  sizeCheck: { width: 20, height: 20, borderRadius: 10, borderWidth: 1, borderColor: "#D9DED3", alignItems: "center", justifyContent: "center" },
-  sizeCheckSelected: { borderColor: "#234735", backgroundColor: "#234735" },
+  sizeTrigger: { marginTop: 4, minHeight: 52, paddingHorizontal: 16, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, borderWidth: 1, borderColor: "#D9E1DA", borderRadius: 10, backgroundColor: "#FFFFFF" },
+  sizeTriggerOpen: { borderColor: "#6C8A74" },
+  sizeTriggerText: { flexShrink: 1, color: "#2F4535", fontFamily: typography.semibold, fontSize: 14, lineHeight: 22 },
+  sizePanel: { marginTop: 6, padding: 5, borderWidth: 1, borderColor: "#E2E7E1", borderRadius: 10, backgroundColor: "#FFFFFF", overflow: "hidden", boxShadow: "0px 4px 14px rgba(30,52,36,0.05)" },
+  sizeList: { maxHeight: 240 },
+  sizeListContent: { gap: 3 },
+  sizeOption: { minHeight: 48, paddingHorizontal: 12, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, borderRadius: 6 },
+  sizeOptionSelected: { backgroundColor: "#F0F5EF" },
+  sizeOptionPressed: { backgroundColor: "#F5F7F3" },
+  sizeOptionText: { color: "#47584B", fontFamily: typography.medium, fontSize: 14, lineHeight: 20 },
+  sizeOptionTextSelected: { color: "#2D5036", fontFamily: typography.semibold },
+  sizeOptionTextUnavailable: { color: "#989E96", textDecorationLine: "line-through" },
+  sizeUnavailableText: { color: "#858D82", fontFamily: typography.regular, fontSize: 11, flexShrink: 1 },
   trustRow: {
-    minHeight: 64,
-    marginTop: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 16,
-    backgroundColor: "#F5F7F1",
+    minHeight: 56,
+    marginTop: 8,
+    paddingVertical: 14,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "#E5E9E5",
     flexDirection: "row",
     alignItems: "center",
   },
@@ -1417,7 +1363,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   trustDivider: {
-    width: 1,
+    width: 0,
     height: 24,
     marginHorizontal: 12,
     backgroundColor: "#E1E7DA",
@@ -1431,12 +1377,11 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   quantitySection: {
-    paddingVertical: 20,
+    paddingTop: 20,
+    paddingBottom: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: PRODUCT_BORDER,
   },
   accordions: {
     marginTop: 24,
@@ -1453,7 +1398,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   accordionHeader: {
-    minHeight: 64,
+    minHeight: 60,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -1472,7 +1417,8 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     color: palette.ink,
     fontFamily: typography.semibold,
-    fontSize: 14,
+    fontSize: 15,
+    lineHeight: 22,
   },
   accordionToggle: {
     width: 32,
@@ -1483,9 +1429,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "transparent",
   },
-  accordionToggleOpen: { backgroundColor: "#F2F5ED" },
+  accordionToggleOpen: { backgroundColor: "transparent" },
   accordionBody: {
-    paddingTop: 0,
+    paddingTop: 2,
     paddingBottom: 22,
   },
   accordionText: {
@@ -1494,24 +1440,33 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 23,
   },
+  detailsTable: { borderWidth: 1, borderColor: "#E9EDE7", borderRadius: 10, overflow: "hidden" },
+  detailLineAlternate: { backgroundColor: "#F6F8F4" },
   detailLine: {
-    minHeight: 38,
+    minHeight: 42,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
-    gap: 18,
+    gap: 14,
   },
   detailLabel: {
-    color: "#777A77",
+    flex: 0.85,
+    minWidth: 0,
+    lineHeight: 20,
+    color: "#69746B",
     fontFamily: typography.regular,
-    fontSize: 12,
+    fontSize: 13,
   },
   detailValue: {
-    maxWidth: "64%",
-    color: palette.ink,
-    fontFamily: typography.semibold,
-    fontSize: 12,
-    textAlign: "right",
+    flex: 1.4,
+    minWidth: 0,
+    lineHeight: 20,
+    color: "#293C2F",
+    fontFamily: typography.medium,
+    fontSize: 13,
+    textAlign: "auto",
   },
   reviewError: {
     margin: 20,
@@ -1542,16 +1497,30 @@ const styles = StyleSheet.create({
   },
   related: {
     alignSelf: "center",
-    paddingBottom: 30,
-    paddingLeft: 20,
-    paddingTop: 30,
-    overflow: "hidden",
+    paddingHorizontal: 20,
+    paddingTop: 32,
+    paddingBottom: 36,
+    backgroundColor: "#FFFFFF",
+    borderTopWidth: 1,
+    borderTopColor: "#EAEDE7",
   },
-  relatedSubtitle: { marginTop: 6, color: "#7B8375", fontFamily: typography.regular, fontSize: 12 },
+  relatedScroll: {
+    marginTop: 18,
+    marginHorizontal: -20,
+  },
+  relatedTrack: {
+    paddingHorizontal: 20,
+    paddingBottom: 4,
+    flexDirection: "row",
+    gap: 12,
+    alignItems: "stretch",
+  },
+  relatedSubtitle: { marginTop: 6, paddingRight: 20, color: "#6B776D", fontFamily: typography.regular, fontSize: 13, lineHeight: 20 },
   relatedTitle: {
-    color: palette.ink,
+    color: "#18261E",
     fontFamily: typography.semibold,
     fontSize: 22,
+    lineHeight: 29,
     letterSpacing: -0.6,
   },
   purchaseBar: {
@@ -1561,47 +1530,44 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
     minHeight: 84,
-    paddingHorizontal: 16,
-    paddingTop: 14,
+    paddingHorizontal: 20,
+    paddingTop: 12,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 16,
     borderTopWidth: 1,
     borderTopColor: "#E2E9DF",
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     backgroundColor: "#FFFFFF",
     shadowColor: "#171A18",
     shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 18,
-    elevation: 6,
+    shadowOpacity: 0.035,
+    shadowRadius: 12,
+    elevation: 4,
   },
   quantity: {
-    height: 58,
-    paddingHorizontal: 5,
+    height: 46,
     flexDirection: "row",
     alignItems: "center",
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: "#DDDAD4",
-    borderRadius: 19,
-    backgroundColor: "#F7F6F3",
+    borderColor: "#D9E0DA",
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
   },
   quantityButton: {
-    width: 38,
-    height: 38,
+    width: 44,
+    height: 44,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
-    backgroundColor: palette.white,
   },
   quantityButtonPressed: { backgroundColor: "#E9ECE8", transform: [{ scale: 0.94 }] },
   quantityValue: {
     width: 34,
     color: palette.ink,
-    fontFamily: typography.black,
+    fontFamily: typography.semibold,
     fontSize: 15,
     textAlign: "center",
   },
@@ -1613,23 +1579,23 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   purchasePriceLabel: {
-    color: "#68756B",
+    color: "#7B847D",
     fontFamily: typography.medium,
-    fontSize: 9,
-    lineHeight: 12,
-    letterSpacing: 0.8,
-    textTransform: "uppercase",
+    fontSize: 10,
+    lineHeight: 14,
+    letterSpacing: 0.1,
   },
   purchasePriceValue: {
-    marginTop: 5,
+    marginTop: 2,
     color: "#203F2F",
-    fontFamily: typography.bold,
-    fontSize: 22,
-    lineHeight: 28,
+    fontFamily: typography.semibold,
+    fontSize: 24,
+    lineHeight: 30,
     letterSpacing: -0.6,
     includeFontPadding: false,
     fontVariant: ["tabular-nums"],
   },
+  purchasePriceFraction: { fontFamily: typography.medium, fontSize: 15, letterSpacing: -0.2 },
   purchasePriceCurrency: {
     color: "#68756B",
     fontFamily: typography.medium,
@@ -1640,7 +1606,7 @@ const styles = StyleSheet.create({
   addButton: {
     minWidth: 0,
     maxWidth: 580,
-    minHeight: 56,
+    minHeight: 52,
     paddingVertical: 10,
     paddingHorizontal: 14,
     flex: 1,
@@ -1648,15 +1614,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 10,
-    borderRadius: 16,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: "#31533F",
     backgroundColor: "#203F2F",
     shadowColor: "#173424",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0,
   },
   addButtonCompact: { paddingHorizontal: 10, gap: 7 },
   addButtonDisabled: {
@@ -1666,20 +1632,19 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   addButtonIcon: {
-    width: 30,
-    height: 30,
+    width: 22,
+    height: 24,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 15,
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "transparent",
   },
   addButtonIconCompact: { width: 24, height: 28, borderRadius: 8 },
   addButtonText: {
     color: "#FFFEF8",
     fontFamily: typography.semibold,
-    fontSize: 13,
+    fontSize: 14,
     flexShrink: 1,
-    letterSpacing: 0.1,
+    letterSpacing: -0.1,
   },
   addButtonTextCompact: { fontSize: 11.5 },
 });

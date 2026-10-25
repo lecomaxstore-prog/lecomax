@@ -1,0 +1,48 @@
+{
+  "id": "seo-playwright-direct-node-prepared-20261021",
+  "createdAt": "2026-10-21T11:24:12.751Z",
+  "relatedId": "seo-playwright-new-session-handshake-failed-20261021",
+  "title": "Pinned Playwright MCP direct Node launcher configured",
+  "summary": "Isolated MCP 0.0.83 installation and direct Node launcher replace npx startup; fresh Codex verification pending.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging acceptance",
+    "Change History"
+  ],
+  "components": [
+    "Local Codex Playwright MCP"
+  ],
+  "files": [
+    "C:/Users/Ziko/.codex/config.toml",
+    "C:/Users/Ziko/.codex/tools/playwright-mcp-0.0.83/package.json",
+    "C:/Users/Ziko/.codex/tools/playwright-mcp-0.0.83/package-lock.json",
+    "artifacts/seo-mcp-probe.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Installed isolated exact MCP 0.0.83 with locked dependencies; created bounded diagnostic probe and a private configuration backup."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replaced only Playwright command/args with absolute node.exe and local cli.js. No timeout inflation or application dependency change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Direct package handshake",
+      "result": "passed",
+      "detail": "Pinned installation initializes in 348 ms and lists 25 tools in 353 ms."
+    },
+    {
+      "name": "Original npx launcher",
+      "result": "failed",
+      "detail": "Immediate-stdin probe produced Windows command syntax error and no initialization response within 35 seconds; isolation probes pending."
+    },
+    {
+      "name": "Fresh Codex and staging acceptance",
+      "result": "not-run",
+      "detail": "Pending fresh host session test; no hosted changes."
+    }
+  ]
+}

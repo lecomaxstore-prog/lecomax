@@ -1,0 +1,60 @@
+{
+  "id": "seo-official-launch-gate-blocked-20261021",
+  "relatedId": "seo-encrypted-recovery-verified-20261021",
+  "createdAt": "2026-10-21T17:18:27.423Z",
+  "title": "Authorized production launch blocked by environment gate",
+  "summary": "Executed final release checks on the owner-selected original candidate. Source, migration prerequisites, backup integrity and focused security tests pass; production build policy rejects missing required configuration. No migrations or deployment executed.",
+  "status": "failed",
+  "pages": [
+    "Production launch operations",
+    "Change History"
+  ],
+  "components": [
+    "Release execution gates",
+    "Security test support"
+  ],
+  "files": [
+    "scripts/seo-release-final-gates.cjs",
+    "scripts/seo-release-test-fixture-loader.mjs",
+    "artifacts/seo-release-execution-gates-1792603082125.json",
+    "artifacts/seo-release-security-1792603082125.log",
+    "artifacts/seo-final-database-preflight-1792603011001.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded explicit conditional owner launch authorization for original manifest hash 66b67fa30d17b4f9ed8f2d6340b919af9738dd9a0555476f51e0defb57c4cf60; ran final gates without rewriting historical approval flags or substituting newer candidate."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resolved missing offline test fixture via test-only module loader outside exact candidate. Historical source and manifest unchanged; no remote changes or removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate and database prerequisites",
+      "result": "passed",
+      "detail": "All 2124 files match original manifest; six SQL hashes match; TLS read-only production preflight compatible with no existing SEO objects/ledger conflicts. Four cron pairs preserved; rollback remains READY."
+    },
+    {
+      "name": "Backup release window",
+      "result": "passed",
+      "detail": "Archive checksum matches at 11.55 minutes old; successful application restore evidence retained. Full-platform coverage and owner RPO remain unestablished."
+    },
+    {
+      "name": "Security tests",
+      "result": "passed",
+      "detail": "Focused original-candidate suite exits 0 after test-only fixture resolution. Initial missing-fixture harness failure was corrected, not an application defect."
+    },
+    {
+      "name": "Production build configuration gate",
+      "result": "failed",
+      "detail": "Exact candidate applicationEnvironment rejects absent production selectors with ENVIRONMENT_ISOLATION_REQUIRED. Eight required names missing; no full production compilation attempted after failure. Hosted sensitive bindings and authenticated staging acceptance remain unresolved."
+    },
+    {
+      "name": "Migration/deployment/live release acceptance",
+      "result": "not-run",
+      "detail": "Conditional owner authorization accepted; failed critical gate prevents mutations. Zero migrations, no new deployment and no post-deployment checks. Existing production remains unchanged."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "seo-release2-a-verified-20261022",
+  "relatedId": "seo-release2-a-prepared-20261022",
+  "createdAt": "2026-10-22T12:27:34.283Z",
+  "title": "Official SEO Release 2A: verified",
+  "summary": "Release A deployed and verified: dpl_DfWASww1g3NJcTd5xfSSmLfsSKc7, commit ac1c6fa09c2482648a0d9ed08d8e71a9980a1a50. Cumulative approved improvements retained.",
+  "status": "successful",
+  "pages": [
+    "Sitemap",
+    "Category/CMS",
+    "Product SEO",
+    "Change History"
+  ],
+  "components": [
+    "Sequential production release",
+    "Source and deployment verification"
+  ],
+  "files": [
+    "release\\seo-sitemap-candidate-20261022\\app\\sitemap.xml\\route.ts",
+    "release\\seo-sitemap-candidate-20261022\\app\\sitemaps\\[kind]\\[page]\\route.ts",
+    "release\\seo-sitemap-candidate-20261022\\app\\sitemaps\\static\\route.ts",
+    "release\\seo-sitemap-candidate-20261022\\lib\\sitemap-data.ts",
+    "release\\seo-sitemap-candidate-20261022\\tests\\seo-sitemap.test.ts",
+    "scripts/seo-release2.cjs",
+    "scripts/seo-release2-live.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Release A deployed and verified: dpl_DfWASww1g3NJcTd5xfSSmLfsSKc7, commit ac1c6fa09c2482648a0d9ed08d8e71a9980a1a50. Cumulative approved improvements retained. No database migration, configuration or unrelated feature activation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh preflight",
+      "result": "passed",
+      "detail": "Focused/critical tests, TypeScript, full ESLint and production-mode synthetic build passed; exact source/upload hashes and four crons verified."
+    },
+    {
+      "name": "Live checks",
+      "result": "passed",
+      "detail": "See per-stage live.json: XML sitemap shards, canonical/schema, catalogue, images, variants/cart/checkout entry and anonymous authorization checks."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No order/payment, authenticated admin lifecycle, separate owner DB/TLS, Google indexing or manufactured unknown-stock fixture in production."
+    }
+  ]
+}

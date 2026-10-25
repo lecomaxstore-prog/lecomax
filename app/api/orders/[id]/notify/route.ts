@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { isAdminRequest } from "@/lib/request-auth";
 import { buildOrderLifecycleEmail, ORDER_LIFECYCLE_SUBJECTS } from "@/lib/order-lifecycle-email";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.APP_ENV === "production" && process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
@@ -14,6 +14,7 @@ const supabase = createClient(
 type NotifyType = "confirmed" | "shipped" | "delivered" | "cancelled";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  if (!resend) return NextResponse.json({ error: "EMAIL_DISABLED" }, { status: 503 });
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Accès administrateur requis." }, { status: 401 });
   const { id } = await params;
   const body = await readJsonLimited(req) as {

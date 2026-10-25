@@ -20,16 +20,10 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Site-wide page entrance */
+/* Keep page content visible at first paint; retain the decorative accent. */
 .page-enter {
   position: relative;
   min-height: 100%;
-  /*
-   * Do not retain the animation's final transform/filter. Either property
-   * creates a containing block for fixed descendants, which pushed product
-   * drawers and color modals outside the mobile viewport after page load.
-   */
-  animation: page-enter 480ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .page-enter::before {
@@ -43,19 +37,6 @@ body {
   background: linear-gradient(90deg, transparent 0%, #3ecf4c 35%, #3ecf4c 65%, transparent 100%);
   transform-origin: left;
   animation: page-accent 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-@keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-    filter: blur(2px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
 }
 
 @keyframes page-accent {
@@ -864,6 +845,20 @@ body {
   will-change: transform;
 }
 
+@media (max-width: 767px) {
+  .hero-copy-3d { min-width: 0; width: 100%; }
+  .hero-cinema .hero-headline {
+    font-size: clamp(2.5rem, 13.333vw, 3.25rem);
+    overflow-wrap: anywhere;
+  }
+  .hero-cta { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 374px) {
+  .hero-cta-row { flex-direction: column; }
+  .hero-cta { flex: none; width: 100%; }
+}
+
 @keyframes hero-3d-copy-in {
   from { opacity: 0; transform: translate3d(-36px, 48px, 120px) rotateX(-8deg); filter: blur(9px); }
   to { opacity: 1; transform: translate3d(0, 0, 0) rotateX(0); filter: blur(0); }
@@ -1231,4 +1226,20 @@ body:has([data-size-select-open="true"]) .eco-chat-launcher {
   .eco-chat-launcher:hover .eco-chat-launcher-icon,
   .eco-chat-launcher:hover,
   .eco-chat-launcher:active { transform: none; }
+}
+
+/* Let the Hero paint before laying out distant homepage sections on mobile.
+   Content stays server-rendered, searchable and focusable; auto remembers each
+   section's measured height after it enters the viewport. Desktop and print
+   retain their existing layout. The estimates reserve scroll space only. */
+@media screen and (max-width: 767px) {
+  .hero-cinema ~ :is(section, div) {
+    content-visibility: auto;
+    contain-intrinsic-block-size: auto 44rem;
+  }
+
+  /* The initial mobile catalogue contains up to four rows of product cards. */
+  .hero-cinema ~ #nos-produits {
+    contain-intrinsic-block-size: auto 123rem;
+  }
 }

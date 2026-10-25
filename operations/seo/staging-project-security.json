@@ -1,0 +1,9 @@
+{
+  "ssoProtection": {
+    "deploymentType": "all"
+  },
+  "publicSource": false,
+  "directoryListing": false,
+  "gitForkProtection": true,
+  "skipGitConnectDuringLink": true
+}

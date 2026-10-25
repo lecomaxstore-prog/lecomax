@@ -15,6 +15,6 @@ export function ProductDescription({ slug, name, brand, description }: { slug: s
 }
 
 const styles = StyleSheet.create({
-  description: { color: "#6F7568", fontFamily: typography.regular, fontSize: 13, lineHeight: 23 },
+  description: { color: "#4F5C52", fontFamily: typography.regular, fontSize: 14, lineHeight: 25 },
 });
 

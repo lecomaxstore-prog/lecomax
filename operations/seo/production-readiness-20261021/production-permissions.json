@@ -1,0 +1,841 @@
+{
+  "at": "2026-10-21T13:10:33.570Z",
+  "projectRef": "yddqwgdgeljkzfsmtein",
+  "readOnly": true,
+  "tlsVerified": true,
+  "identity": {
+    "read_only": "on",
+    "version": "17.6"
+  },
+  "tables": [
+    {
+      "relname": "abandoned_carts",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "account_deletion_requests",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "admin_commerce_settings_audit",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "admin_role_permissions",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "admin_roles",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "admin_staff",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "ads",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "ai_learning_conversations",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "ai_learning_messages",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "ai_learning_progress",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "announcements",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "app_release_audit",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "app_releases",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "banners",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "categories",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "chat_feedback",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "chat_knowledge_base",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "chat_messages",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "chat_sessions",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "client_behavioral_events",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "contact_messages",
+      "rls": true,
+      "force_rls": false,
+      "policies": 1
+    },
+    {
+      "relname": "coupons",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "data_collection_consents",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "ecomedia_comments",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "ecomedia_likes",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "ecomedia_posts",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "ecomedia_saved",
+      "rls": true,
+      "force_rls": false,
+      "policies": 1
+    },
+    {
+      "relname": "learning_notification_deliveries",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "learning_notification_history",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "learning_notification_settings",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "learning_tips",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "loyalty_transactions",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "mobile_control_audit",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "mobile_notification_campaigns",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "mobile_notification_preferences",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "mobile_notification_reads",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "mobile_notifications",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "mobile_push_tokens",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "newsletter_subscribers",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "orders",
+      "rls": true,
+      "force_rls": false,
+      "policies": 5
+    },
+    {
+      "relname": "owner_learning_days",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "page_views",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "pages",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "paypal_webhook_events",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "pending_changes",
+      "rls": true,
+      "force_rls": false,
+      "policies": 1
+    },
+    {
+      "relname": "product_intelligence_daily",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "product_translations",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "products",
+      "rls": true,
+      "force_rls": false,
+      "policies": 3
+    },
+    {
+      "relname": "promotions",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "push_notifications_log",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "push_subscriptions",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "returns",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "review_lookup_limits",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "reviews",
+      "rls": true,
+      "force_rls": false,
+      "policies": 5
+    },
+    {
+      "relname": "settings",
+      "rls": true,
+      "force_rls": false,
+      "policies": 3
+    },
+    {
+      "relname": "shipping_zones",
+      "rls": true,
+      "force_rls": false,
+      "policies": 2
+    },
+    {
+      "relname": "support_conversations",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "support_messages",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "user_points",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "whatsapp_conversations",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    },
+    {
+      "relname": "whatsapp_messages",
+      "rls": true,
+      "force_rls": false,
+      "policies": 0
+    }
+  ],
+  "grants": [
+    {
+      "grantee": "anon",
+      "table_name": "admin_role_permissions",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "admin_roles",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "admin_staff",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "ads",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "announcements",
+      "privileges": "{INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "banners",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "categories",
+      "privileges": "{INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "chat_knowledge_base",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "client_behavioral_events",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "contact_messages",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "coupons",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "data_collection_consents",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "ecomedia_comments",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "ecomedia_likes",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "ecomedia_posts",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "ecomedia_saved",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "loyalty_transactions",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "newsletter_subscribers",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "orders",
+      "privileges": "{INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "page_views",
+      "privileges": "{INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "pages",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "pending_changes",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "product_intelligence_daily",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "products",
+      "privileges": "{INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "promotions",
+      "privileges": "{INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "returns",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "settings",
+      "privileges": "{INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "shipping_zones",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "user_points",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "whatsapp_conversations",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "anon",
+      "table_name": "whatsapp_messages",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "admin_role_permissions",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "admin_roles",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "admin_staff",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "ads",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "announcements",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "banners",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "categories",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "chat_knowledge_base",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "client_behavioral_events",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "contact_messages",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "coupons",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "data_collection_consents",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "ecomedia_comments",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "ecomedia_likes",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "ecomedia_posts",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "ecomedia_saved",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "loyalty_transactions",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "newsletter_subscribers",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "orders",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "page_views",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "pages",
+      "privileges": "{REFERENCES,SELECT,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "pending_changes",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "product_intelligence_daily",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "products",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "promotions",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "returns",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "settings",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "shipping_zones",
+      "privileges": "{DELETE,INSERT,REFERENCES,SELECT,TRIGGER,TRUNCATE,UPDATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "user_points",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "whatsapp_conversations",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    },
+    {
+      "grantee": "authenticated",
+      "table_name": "whatsapp_messages",
+      "privileges": "{REFERENCES,TRIGGER,TRUNCATE}"
+    }
+  ],
+  "securityDefinerFunctions": [
+    {
+      "signature": "add_loyalty_points(text,integer,text)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "award_order_loyalty_points(uuid)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "begin_ai_learning_turn(text,uuid,uuid,text,text,text,boolean)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "claim_learning_reminder(text,date)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "claim_micro_learning(text)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "consume_coupon_use(uuid)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "consume_review_lookup(text)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "create_commerce_order(jsonb,jsonb,text[],jsonb,jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "create_order_with_inventory(jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "finish_ai_learning_turn(text,uuid,uuid,text,jsonb,boolean,integer,integer)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "increment_app_release_download(uuid)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "increment_product_intelligence(text,text,text)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "preserve_deleted_order_loyalty()",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "publish_android_release(uuid,text,text)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "reconcile_paypal_webhook(text,text,text,text,timestamp with time zone)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "release_order_inventory(jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "reserve_order_inventory(jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "reserve_order_loyalty_points(uuid)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "reverse_order_loyalty_points(uuid)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "save_micro_learning_settings(text,jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "tick_micro_learning()",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    },
+    {
+      "signature": "update_order_with_inventory(uuid,jsonb)",
+      "security_definer": true,
+      "anon_execute": false,
+      "authenticated_execute": false
+    }
+  ],
+  "schemaCreate": [
+    {
+      "rolname": "authenticated",
+      "can_create": false
+    },
+    {
+      "rolname": "anon",
+      "can_create": false
+    },
+    {
+      "rolname": "service_role",
+      "can_create": false
+    }
+  ],
+  "limitations": [
+    "Metadata inventory does not prove policy predicates safe for every real actor. No customer rows read or exported. Existing grants were not modified."
+  ]
+}

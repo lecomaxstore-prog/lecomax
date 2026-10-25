@@ -1,0 +1,72 @@
+{
+  "id": "seo-staging-runtime-repair-verified-20261021",
+  "relatedId": "seo-staging-runtime-repair-prepared-20261021",
+  "createdAt": "2026-10-20T23:42:03.906Z",
+  "status": "successful",
+  "title": "Staging sitemap and catalogue schema repaired and verified",
+  "summary": "Applied a guarded synthetic staging-only schema repair. Hosted REST and local execution of candidate GET handlers pass; Vercel browser acceptance remains pending.",
+  "pages": [
+    "Sitemap",
+    "Product and category pages",
+    "SEO staging",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Synthetic schema",
+    "Sitemap queries",
+    "Catalogue APIs",
+    "Dependency validation",
+    "Release inventory"
+  ],
+  "files": [
+    "operations/seo/staging-runtime-repair.sql",
+    "scripts/test-seo-staging-runtime.cjs",
+    "scripts/verify-seo-staging-runtime-rest.ps1",
+    "scripts/verify-seo-staging-runtime-handlers.cjs",
+    "scripts/seo-dependency-validation.cjs",
+    "scripts/inventory-seo-staging-rc.cjs",
+    "scripts/prepare-seo-runtime-candidate.cjs",
+    "docs/seo-staging-runtime-acceptance-20261021.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Added missing catalogue fields and six empty supporting tables only in staging tyltharlnbxrxibuxyye; corrected fixture category slug relations. RLS, no anonymous/authenticated grants and service-role SELECT-only access verified."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Restored explicit test-only worker inputs in isolated validation; fixed unordered dependency-map comparison without weakening key/version checks."
+    },
+    {
+      "kind": "added",
+      "detail": "Preserved SQL/REST/security evidence, offline mail tests, read-only handler verification, candidate backups, acceptance handoff and append-only history. No production changes, messages, provider activation, push or deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "161 application, 71 worker, 4 schema/offline mail, 4 email guard and 6 Change History tests passed (246). Candidate and learning-app TypeScript, focused ESLint passed."
+    },
+    {
+      "name": "Build and local HTTP",
+      "result": "passed",
+      "detail": "Isolated Node 24.22.0 Next 15.5.28 build and 8 local HTTP checks passed. First build attempt failed on sandbox-blocked fonts; successful rerun retained application-fetch guard. Existing build warnings remain."
+    },
+    {
+      "name": "Hosted staging database",
+      "result": "passed",
+      "detail": "10 REST reads and 8 anonymous denial checks passed; 5 candidate GET handlers passed locally against hosted staging REST. Eight repaired tables retain RLS/read-only grants; zero outbound extensions, foreign servers, subscriptions and public user triggers; AI budgets remain zero."
+    },
+    {
+      "name": "Protection and dependency candidate",
+      "result": "passed",
+      "detail": "12 external HTTP checks reach Vercel Authentication. Fresh runtime audit zero findings; retained full audit has 9 development-tool findings. Final upload inventory: 2123 files, zero problems."
+    },
+    {
+      "name": "Hosted browser, real-role and release acceptance",
+      "result": "not-run",
+      "detail": "Browser inventory remains empty; user offered to connect a signed-in browser. Password login remains disabled. Hosted page/SSR/cache verification, actual role sessions, clean Linux build and new dependency deployment remain pending. No SMTP delivery or production readiness claim."
+    }
+  ]
+}

@@ -1,5 +1,6 @@
 "use client";
 import { RETURN_POLICY } from "@/lib/return-policy";
+import CartQuoteFeedback from "@/components/CartQuoteFeedback";
 import PreorderNotice from "@/components/PreorderNotice";
 import { preorderCopy } from "@/lib/preorder-copy";
 
@@ -23,7 +24,6 @@ export default function CartPage() {
   const freeShippingMinimum = effectiveFreeShippingMinimum(freeShippingThreshold);
   const hasFreeShippingGoal = freeShippingThreshold > 0;
   const freeShippingRemaining = hasFreeShippingGoal ? Math.max(0, freeShippingMinimum - total) : 0;
-  const freeShippingUnlocked = hasFreeShippingGoal && freeShippingRemaining === 0;
   const freeShippingProgress = hasFreeShippingGoal
     ? Math.min(100, Math.max(0, (total / freeShippingMinimum) * 100))
     : 0;
@@ -45,6 +45,7 @@ export default function CartPage() {
   const [confirmClear, setConfirmClear] = useState(false);
 
   const serverPricing = useCartCalculation({ items: items.map(item => ({ slug: item.slug, quantity: item.quantity, price: item.price, color: item.color, size: item.size })), couponId: promoApplied?.id }, siteSettings);
+  const freeShippingUnlocked = Boolean(serverPricing.quote && serverPricing.quote.shipping === 0);
   const shipping = serverPricing.quote?.shipping ?? 0;
   const discount = serverPricing.quote?.discount ?? 0;
   const grandTotal = serverPricing.quote?.total ?? 0;
@@ -356,7 +357,7 @@ export default function CartPage() {
                       <div className="min-w-0">
                         <p className="text-[10px] font-semibold text-neutral-500">Livraison offerte dès {formatMAD(freeShippingThreshold)}</p>
                         <p className={`mt-0.5 text-[13px] font-black leading-5 sm:text-[14px] ${freeShippingUnlocked ? "text-emerald-700" : "text-neutral-950"}`}>
-                          {freeShippingUnlocked ? "Votre livraison est offerte" : <>Encore {formatMAD(freeShippingRemaining)} pour en profiter</>}
+                          {freeShippingUnlocked ? "Votre livraison est offerte" : <>{freeShippingRemaining > 0 ? <>Encore {formatMAD(freeShippingRemaining)} pour en profiter</> : "Livraison à confirmer par le calcul"}</>}
                         </p>
                       </div>
                     </div>
@@ -543,7 +544,7 @@ export default function CartPage() {
                   <div className="flex justify-between text-[13px] text-neutral-600">
                     <span>Livraison</span>
                     <span className="font-bold">
-                      {shipping === 0
+                      {serverPricing.loading ? "Calcul…" : !serverPricing.quote ? "À confirmer" : shipping === 0
                         ? <span className="text-[#16a34a] flex items-center gap-1">
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 3h15v13H1z"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                             Gratuite
@@ -632,6 +633,8 @@ export default function CartPage() {
                       </div>
                     )}
                   </div>}
+
+                  <CartQuoteFeedback loading={serverPricing.loading} error={serverPricing.error} ready={Boolean(serverPricing.quote)} refresh={serverPricing.refresh} />
 
                   {/* Total */}
                   <div className="flex justify-between items-center pt-3 mt-1 border-t border-neutral-100">

@@ -1,0 +1,50 @@
+{
+  "id": "seo-hosted-acceptance-prepared-20261020",
+  "relatedId": "seo-isolation-recovery-verified-20261020",
+  "createdAt": "2026-10-20T12:02:44.049Z",
+  "title": "Prepare gated staging acceptance and complete hosting scope evidence",
+  "summary": "Add a staging-only read-only acceptance runner and include missing environment identity/binding variables in sanitized hosting evidence.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Hosted staging acceptance",
+    "/change-history"
+  ],
+  "components": [
+    "Hosting evidence",
+    "Staging acceptance tooling"
+  ],
+  "files": [
+    "scripts/seo-hosting-evidence.cjs",
+    "scripts/seo-staging-acceptance.cjs",
+    "tests/seo-hosting-evidence.test.cjs",
+    "tests/seo-staging-acceptance.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Include explicit target, site, owner and worker credential binding variables in scope-only evidence without returning values."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline-default staging acceptance with independently reviewed deployment evidence, full session preflight, fixed GET-only path, redirect rejection, bounded response and sanitized stop-on-failure results. Preserve the historical production-only runner."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovered source integrity",
+      "result": "passed",
+      "detail": "All 51 prior inventory hashes match before changes."
+    },
+    {
+      "name": "Fresh staging read-only discovery",
+      "result": "passed",
+      "detail": "Management identity confirms lecomax-seo-staging in eu-west-1, PostgreSQL 17.11. Explicit read-only transaction: public tables 0, foreign servers/subscriptions 0. Migration ledger and Edge Functions empty; security advisor no lints. Connector database role is postgres, not a read-only grant."
+    },
+    {
+      "name": "Local regressions and hosted app acceptance",
+      "result": "not-run",
+      "detail": "Local tests pending. Hosted app identity/URL, Auth and provider scopes not established; no hosted app test, write, migration, deployment or paid operation performed."
+    }
+  ]
+}

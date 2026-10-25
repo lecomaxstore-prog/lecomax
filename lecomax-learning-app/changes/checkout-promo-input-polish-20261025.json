@@ -1,0 +1,34 @@
+{
+  "id": "checkout-promo-input-polish-20261025",
+  "createdAt": "2026-10-25T19:03:31.386Z",
+  "title": "Clean promotion-code input styling",
+  "summary": "Use a neutral input interior and a soft green outer focus indicator with more readable text.",
+  "status": "needs-testing",
+  "pages": [
+    "Mobile checkout"
+  ],
+  "components": [
+    "CheckoutScreen promotion input"
+  ],
+  "files": [
+    "mobile/src/screens/checkout-screen.tsx",
+    "mobile/src/global.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Suppress the browser inner focus outline and autofill tint on this input; retain visible keyboard focus on the outer field and disable the native Android underline."
+    },
+    {
+      "kind": "modified",
+      "detail": "Increase coupon input text to 14px medium weight and Apply text to 12px semibold."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "TypeScript and focused browser styling check pending. No deployment."
+    }
+  ]
+}

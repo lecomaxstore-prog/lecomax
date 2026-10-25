@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-17",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-17",
+  "title": {
+    "en": "Audit your own projects: a reusable evidence checklist",
+    "ar": "تدقيق مشاريعك: قائمة أدلة قابلة لإعادة الاستخدام",
+    "fr": "Audit your own projects: a reusable evidence checklist"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-16"
+  ],
+  "objectives": [
+    "Create a scoped Next.js/Vercel/e-commerce/mobile audit plan.",
+    "Separate non-invasive production observations from staging tests.",
+    "Write findings, remediation owners and retest evidence without overstating coverage."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "This chapter prepares assessments of lecomax.com, bonneprotection.com and ipordise.com. It does not claim that any of those sites has been tested, scanned or found vulnerable.",
+  "sections": [
+    {
+      "title": "Start with ownership, scope and a clean baseline",
+      "text": "For each named project, identify its actual owner, repository, deployment, domain, APIs, storage and external providers. Obtain the relevant authorization for the proposed work rather than assuming that a related domain or supplier is included. Record a reviewed source revision, environment and date. Keep lecomax.com, bonneprotection.com and ipordise.com as separate entries because one project’s test results do not establish another’s security. This course has not sent assessment traffic to them. The first assignment is a plan and source/configuration review, not an active production test. State who can approve changes and who handles an incident discovered during review."
+    },
+    {
+      "title": "A non-invasive production first pass",
+      "text": "Use ordinary expected page navigation, the browser’s certificate information and the headers of normal responses to observe deployment behavior. Review your own hosting dashboard and repository settings if you have access, without copying secret values. Record HTTPS behavior, intended public pages, deployment revision, expected authentication redirects and whether debug information appears during normal use. Do not deliberately trigger destructive actions, enumerate customer ids, guess credentials, upload hostile files or run an active scanner against production as part of this first pass. Even a harmless-looking repeated check can create load or third-party effects, so define request bounds and stop conditions. Non-invasive observations cannot prove deeper authorization or business-logic safety."
+    },
+    {
+      "title": "Source checklist for Next.js and APIs",
+      "text": "Inventory Route Handlers, Server Actions and background operations. For each, record the session source, runtime input schema, ownership/role/property rule, database query method, response DTO and cache policy. Identify public environment variables and confirm they contain only intended public values. Review server-only imports, upload handling, remote image/URL policies and error serialization. Inspect tests for missing identity, wrong owner, invalid input and unavailable dependencies. A row should have evidence such as a file/line, test name or observed response, plus a status of passed, failed or not assessed. Avoid a checklist whose every box can be ticked merely by finding a helper with a reassuring name."
+    },
+    {
+      "title": "Commerce and mobile checklist",
+      "text": "For checkout, verify trusted prices, quantity boundaries, inventory atomicity, coupon eligibility and idempotency. For webhooks, verify the real provider’s raw-byte signature procedure, event freshness rules, order/amount/currency matching and durable duplicate handling. Review customer and administrator access separately. For Expo clients, review public bundles for privileged secrets, token storage, logout/revocation, callback validation, permissions and release-only behavior. A mobile app’s secure storage does not repair an unprotected API. Keep device tests and server tests linked but separately evidenced. Use fictional customers, sandbox payment credentials and resettable data when exercising these properties in staging."
+    },
+    {
+      "title": "Staging is where deeper tests become controlled",
+      "text": "Create a staging environment with synthetic data and provider sandbox integrations, with access restrictions and its own secrets. Reproduce the relevant version and configuration without copying real customer information unnecessarily. Turn each suspected weakness into a minimal test with a legitimate control, expected denied behavior and rollback/reset instructions. Schedule active tools only inside the approved scope and rate bounds. Record the code revision before and after remediation, then retest the same behavior. A staging success should be followed by a bounded deployment verification that the fixed revision and configuration actually reached production. Do not assume a merged pull request changed the running service."
+    },
+    {
+      "title": "Report results as decisions and evidence",
+      "text": "A professional report includes scope, methodology, tested environments, coverage limits, executive impact, detailed findings, remediation priority, owners and retest status. Each finding needs prerequisites, minimal reproduction, expected/actual behavior and a suggested repair tied to the root cause. Redact tokens and personal information. Keep unanswered questions visible rather than converting not assessed to passed. The templates supplied with the local lab provide an audit matrix and report outline. Darija: كل خانة خاصها دليل أو تبقى ما تفحصاتش؛ وما نقولوش موقع آمن غير حيث الاختبار المحلي نجح. The objective is a repeatable review process that supports engineering decisions, not a certificate claiming unknown systems are secure."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "projects",
+      "difficulty": 1,
+      "task": "Create three separate scope rows for the named projects with current assessment status.",
+      "hints": [
+        "Do not invent results from this course."
+      ],
+      "solution": "lecomax.com: not assessed by this course\nbonneprotection.com: not assessed by this course\nipordise.com: not assessed by this course\nFor each: owner, repository, environment, permitted checks, stop contact, evidence location",
+      "walkthrough": "Separate rows prevent accidental transfer of conclusions between systems.",
+      "expectedResult": "Three honest scope records."
+    },
+    {
+      "id": "finding",
+      "difficulty": 3,
+      "task": "Draft an evidence record for a hypothetical staging IDOR with owner and retest fields.",
+      "hints": [
+        "Label it hypothetical until reproduced."
+      ],
+      "solution": "Status: hypothetical / not yet reproduced\nRule: caller may read only owned order\nPlanned test: synthetic Alice vs Bob\nOwner: assign responsible developer\nFix: owner-constrained data access\nRetest: record revision, date and denied/allowed results",
+      "walkthrough": "The template is actionable while preserving uncertainty.",
+      "expectedResult": "A finding plan without a false production claim."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-17-q1",
+      "question": "Has this course assessed the three named public sites?",
+      "options": [
+        "No; it provides an assessment plan.",
+        "Yes; mentioning their domains proves testing."
+      ],
+      "correctIndex": 0,
+      "explanation": "No production assessment claim is made.",
+      "answerExplanations": [
+        "Correct. No production assessment claim is made.",
+        "Not quite. No production assessment claim is made."
+      ]
+    },
+    {
+      "id": "cyber-17-q2",
+      "question": "Does one project’s passing test establish another’s security?",
+      "options": [
+        "Yes; the same owner means identical controls.",
+        "No; scope and implementation differ."
+      ],
+      "correctIndex": 1,
+      "explanation": "Evidence is system-specific.",
+      "answerExplanations": [
+        "Not quite. Evidence is system-specific.",
+        "Correct. Evidence is system-specific."
+      ]
+    },
+    {
+      "id": "cyber-17-q3",
+      "question": "Where should hostile upload and business-flow tests begin?",
+      "options": [
+        "In authorized staging with synthetic data.",
+        "On public customer workflows without a plan."
+      ],
+      "correctIndex": 0,
+      "explanation": "Active testing needs a controlled environment.",
+      "answerExplanations": [
+        "Correct. Active testing needs a controlled environment.",
+        "Not quite. Active testing needs a controlled environment."
+      ]
+    },
+    {
+      "id": "cyber-17-q4",
+      "question": "What belongs in a checklist evidence cell?",
+      "options": [
+        "Only the word secure.",
+        "A source/configuration observation or actual test result."
+      ],
+      "correctIndex": 1,
+      "explanation": "A status must be supportable.",
+      "answerExplanations": [
+        "Not quite. A status must be supportable.",
+        "Correct. A status must be supportable."
+      ]
+    },
+    {
+      "id": "cyber-17-q5",
+      "question": "Should not assessed be treated as passed?",
+      "options": [
+        "No; preserve the gap.",
+        "Yes; no finding means verified safety."
+      ],
+      "correctIndex": 0,
+      "explanation": "Absence of testing is not assurance.",
+      "answerExplanations": [
+        "Correct. Absence of testing is not assurance.",
+        "Not quite. Absence of testing is not assurance."
+      ]
+    },
+    {
+      "id": "cyber-17-q6",
+      "question": "Does a merged fix prove production remediation?",
+      "options": [
+        "Yes; merge automatically updates every environment.",
+        "No; verify the deployed revision and behavior."
+      ],
+      "correctIndex": 1,
+      "explanation": "Delivery and runtime configuration need evidence.",
+      "answerExplanations": [
+        "Not quite. Delivery and runtime configuration need evidence.",
+        "Correct. Delivery and runtime configuration need evidence."
+      ]
+    },
+    {
+      "id": "cyber-17-q7",
+      "question": "May ordinary page navigation prove deep authorization safety?",
+      "options": [
+        "No; it supports only bounded observations.",
+        "Yes; a normal homepage exercises every role."
+      ],
+      "correctIndex": 0,
+      "explanation": "The test must reach the claimed boundary.",
+      "answerExplanations": [
+        "Correct. The test must reach the claimed boundary.",
+        "Not quite. The test must reach the claimed boundary."
+      ]
+    },
+    {
+      "id": "cyber-17-q8",
+      "question": "What should webhook review use?",
+      "options": [
+        "The fictional lab HMAC headers unchanged.",
+        "The actual provider’s documented verification scheme."
+      ],
+      "correctIndex": 1,
+      "explanation": "Provider protocols differ.",
+      "answerExplanations": [
+        "Not quite. Provider protocols differ.",
+        "Correct. Provider protocols differ."
+      ]
+    },
+    {
+      "id": "cyber-17-q9",
+      "question": "Should reports include full customer records to look convincing?",
+      "options": [
+        "No; minimize and redact evidence.",
+        "Yes; more private data always strengthens the finding."
+      ],
+      "correctIndex": 0,
+      "explanation": "Minimal reproducible evidence is sufficient and safer.",
+      "answerExplanations": [
+        "Correct. Minimal reproducible evidence is sufficient and safer.",
+        "Not quite. Minimal reproducible evidence is sufficient and safer."
+      ]
+    },
+    {
+      "id": "cyber-17-q10",
+      "question": "What ties a retest to a repair?",
+      "options": [
+        "Only a reassuring screenshot title.",
+        "The affected behavior, fixed revision, environment and result."
+      ],
+      "correctIndex": 1,
+      "explanation": "Reproducibility requires context.",
+      "answerExplanations": [
+        "Not quite. Reproducibility requires context.",
+        "Correct. Reproducibility requires context."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can create a scoped Next.js/Vercel/e-commerce/mobile audit plan.",
+    "I can separate non-invasive production observations from staging tests.",
+    "I can write findings, remediation owners and retest evidence without overstating coverage."
+  ],
+  "recap": [
+    "Create a scoped Next.js/Vercel/e-commerce/mobile audit plan.",
+    "Separate non-invasive production observations from staging tests.",
+    "Write findings, remediation owners and retest evidence without overstating coverage."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP ASVS",
+      "url": "https://owasp.org/www-project-application-security-verification-standard/",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP WSTG",
+      "url": "https://owasp.org/www-project-web-security-testing-guide/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "From own-project review to verified repair",
+    "steps": [
+      {
+        "title": "Per-project scope",
+        "detail": "Identify owner, repository, environment and permitted checks."
+      },
+      {
+        "title": "Evidence matrix",
+        "detail": "Link each control to source, configuration or test evidence."
+      },
+      {
+        "title": "Staging reproduction",
+        "detail": "Use synthetic data and bounded active tests."
+      },
+      {
+        "title": "Retest and deployment check",
+        "detail": "Verify the repair and document remaining coverage gaps."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Non-invasive check",
+      "An observation that avoids deliberate exploitation or material state changes under a defined scope."
+    ],
+    [
+      "Staging",
+      "A controlled pre-production environment for testing."
+    ],
+    [
+      "Retest",
+      "Re-execution of the relevant check after a repair."
+    ]
+  ],
+  "lab": null
+}

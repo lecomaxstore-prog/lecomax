@@ -1,0 +1,42 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Target-pinned source deployment runner and read-only domain/source audit."
+    },
+    {
+      "kind": "modified",
+      "detail": "Read-only database audit verifies zero AI budgets and denied public API grants."
+    }
+  ],
+  "summary": "Independently reverified dedicated staging identity, source pins, domains, protection, environment, Auth, RLS and zero budgets. Owner authorized staging-only deployment; hosted acceptance pending.",
+  "id": "seo-first-protected-deployment-start-20261021",
+  "createdAt": "2026-10-20T23:12:19.710Z",
+  "validation": [
+    {
+      "detail": "Dedicated project and team, only staging domain, all-deployment protection, Git disconnected, expected 20 variables, source pins, 18 RLS tables, zero budgets and grants. All 651 prior reports valid.",
+      "result": "passed",
+      "name": "Live predeployment verification"
+    },
+    {
+      "detail": "Pending first source deployment. Password login remains disabled. Two sensitive values are write-only; unchanged metadata and original provenance verified.",
+      "result": "not-run",
+      "name": "Hosted build and acceptance"
+    }
+  ],
+  "files": [
+    "scripts/seo-first-deployment.cjs",
+    "scripts/seo-first-deployment-audit.cjs",
+    "scripts/verify-seo-staging-readonly.cjs"
+  ],
+  "components": [
+    "Staging deployment controls",
+    "Read-only database audit"
+  ],
+  "status": "needs-testing",
+  "title": "First protected staging source deployment started",
+  "pages": [
+    "SEO staging",
+    "Changes Made / Change History"
+  ]
+}

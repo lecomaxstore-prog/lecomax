@@ -1,0 +1,35 @@
+{
+  "id": "batch4-production-authorized-20261025",
+  "relatedId": "batch4-mobile-validated-20261025",
+  "createdAt": "2026-10-25T06:16:59.699Z",
+  "title": "Batch 4: one exact production deployment authorized",
+  "summary": "User authorized one attempt of the certified one-file CSS candidate. Provider preflight and live acceptance will be recorded separately.",
+  "status": "needs-testing",
+  "pages": [
+    "Production storefront"
+  ],
+  "components": [
+    "Mobile offscreen homepage rendering"
+  ],
+  "files": [
+    "artifacts/batch4-mobile-20261025/source/app/globals.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Release previously validated source dfa400bc47921486b14caa1428e79b8fc739d8599b82b22f864356aebb836984 once to lecomax production; no additional application changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Saved validation and source",
+      "result": "passed",
+      "detail": "2055-file source inventory and saved successful build/types/lint/tests match approved candidate; only app/globals.css changes. No rebuild."
+    },
+    {
+      "name": "Production release acceptance",
+      "result": "not-run",
+      "detail": "Awaiting authorized single submission, provider receipt, live acceptance and three production measurements."
+    }
+  ]
+}

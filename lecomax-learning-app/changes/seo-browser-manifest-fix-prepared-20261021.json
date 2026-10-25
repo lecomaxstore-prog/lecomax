@@ -1,0 +1,35 @@
+{
+  "id": "seo-browser-manifest-fix-prepared-20261021",
+  "relatedId": "seo-browser-image-fixes-prepared-20261021",
+  "createdAt": "2026-10-21T11:39:26.736Z",
+  "title": "Protected manifest request fix prepared locally",
+  "summary": "Render one same-origin manifest link with use-credentials so the browser uses its existing authorized session; CSP and Vercel protection stay intact.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront shared layout"
+  ],
+  "components": [
+    "RootLayout manifest link"
+  ],
+  "files": [
+    "app/layout.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace metadata-generated anonymous manifest link with explicit same-origin credentialed link. No credentials copied, automation token created, CSP relaxed or server state changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Controlled-browser diagnostic",
+      "result": "passed",
+      "detail": "Changing only the DOM manifest crossOrigin to use-credentials returned manifest HTTP 200 and zero new console errors."
+    },
+    {
+      "name": "Local source validation",
+      "result": "not-run",
+      "detail": "Layout source checks pending; not deployed."
+    }
+  ]
+}

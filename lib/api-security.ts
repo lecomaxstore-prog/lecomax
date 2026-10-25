@@ -3,6 +3,7 @@ import "server-only";
 import { NextRequest, NextResponse } from "next/server";
 import { isAdminRequest } from "@/lib/request-auth";
 import { sameRequestOrigin } from "./request-origin";
+import { seoWritesAllowed } from "@/operations/seo-vercel/lib/environment-target.mjs";
 
 type Bucket = { count: number; resetAt: number };
 const globalBuckets = globalThis as typeof globalThis & { __lecomaxRateLimits?: Map<string, Bucket> };
@@ -47,6 +48,12 @@ export async function protectAdminMutation(
 ) {
   if (!isSameOrigin(req)) return NextResponse.json({ error: "Origine non autorisée" }, { status: 403 });
   if (!(await isAdminRequest(req))) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  // AI flags do not gate manual SEO saves or publication. Keep hosted test
+  // environments read-only until a separately reviewed test boundary exists.
+  if (options.key.startsWith("seo:") && !seoWritesAllowed(process.env)) {
+    return NextResponse.json({ error: "SEO mutations are disabled in this environment." },
+      { status: 503, headers: { "Cache-Control": "private, no-store" } });
+  }
   return enforceRateLimit(req, options.key, options.limit ?? 30, options.windowMs ?? 60_000);
 }
 

@@ -1,0 +1,84 @@
+{
+  "id": "seo-account5-worker-verified-20261018",
+  "relatedId": "seo-account5-worker-preparation-20261018",
+  "createdAt": "2026-10-18T19:28:34.174Z",
+  "title": "Verify isolated SEO worker and record production hosting blocker",
+  "summary": "Local worker, queue and commerce-isolation checks passed. Current Vercel Hobby plan cannot provide the required five-minute schedule. Production remains on hold.",
+  "status": "successful",
+  "pages": [
+    "SEO rollout operations",
+    "/admin/seo",
+    "/change-history"
+  ],
+  "components": [
+    "Isolated Vercel worker",
+    "SEO queue",
+    "Production rollout plan",
+    "Change History"
+  ],
+  "files": [
+    "operations/seo-vercel/package.json",
+    "operations/seo-vercel/package-lock.json",
+    "operations/seo-vercel/vercel.json",
+    "operations/seo-vercel/api/sync.mjs",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/lib/seo-sync-worker.mjs",
+    "operations/seo-vercel/tests/handler.test.mjs",
+    "operations/seo-vercel/README.md",
+    "docs/seo-account5-readiness-20261018.md",
+    "lecomax-learning-app/changes/seo-account5-worker-preparation-20261018.json",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Verified disabled standalone Vercel worker option, offline authentication/failure/deadline tests and source hash manifest. Existing website candidate, SQL migration and Linux worker preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Account 5 readiness report with ten-stage rollout, exact migration approval scope, external backup freshness gate, hosted acceptance gates and pause/recovery instructions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node 24 local worker",
+      "result": "passed",
+      "detail": "8/8 adapter tests; focused ESLint clean. New package has zero runtime dependencies. Tests use offline HTTP fixtures."
+    },
+    {
+      "name": "Application and SQL regression",
+      "result": "passed",
+      "detail": "46/46 focused tests; trigger-free SQL queue/retry/lease/persistence/RLS suite and commerce SQL with deliberately broken SEO passed."
+    },
+    {
+      "name": "Read-only production verification",
+      "result": "passed",
+      "detail": "Official project, 34 products/4 categories, no SEO collisions or commerce SEO dependencies. Candidate hashes and seven-file operational bundle verified. Live Vercel baseline unchanged."
+    },
+    {
+      "name": "Existing backup integrity",
+      "result": "passed",
+      "detail": "Checksum/full archive traversal, 1233 entries and 1114 matching schema blocks. Backup was 46.8 minutes old: freshness gate FAILED; no unnecessary new backup created. Exact archive not restored."
+    },
+    {
+      "name": "Hosting schedule readiness",
+      "result": "not-run",
+      "detail": "Existing team plan verified Hobby; five-minute cron requires a suitable paid plan or Linux runner. No new project, hosted worker build, activation, billing change or alert delivery configured."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "Six history tests and learning-app TypeScript passed. Preparation append input BOM/timestamp errors corrected before successful append; all previous reports preserved. Final manifest check follows this append."
+    },
+    {
+      "name": "Retained website build evidence",
+      "result": "passed",
+      "detail": "Unchanged candidate hashes verified; prior Node 24 Next build/TypeScript/browser/concurrency evidence retained without an unnecessary rebuild. No new hosted build claimed."
+    },
+    {
+      "name": "Production acceptance and rollout",
+      "result": "not-run",
+      "detail": "No migration, website deployment, scheduler activation or production data mutation. Real owner/staff sessions, hosted SEO PostgREST and approved canary persistence/cache tests remain pending."
+    }
+  ]
+}

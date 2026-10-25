@@ -1,0 +1,21 @@
+# Select this Blueprint path in Render. Creating it starts a PAID service.
+services:
+  - type: web
+    name: lecomax-phone-relay
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    numInstances: 1
+    dockerContext: ./lecomax-learning-app/phone-relay
+    dockerfilePath: ./lecomax-learning-app/phone-relay/Dockerfile
+    healthCheckPath: /health
+    autoDeployTrigger: off
+    domains:
+      - phone.lecomax.com
+    envVars:
+      - key: BIND_HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: '10000'
+      - key: PHONE_RELAY_KEY
+        sync: false

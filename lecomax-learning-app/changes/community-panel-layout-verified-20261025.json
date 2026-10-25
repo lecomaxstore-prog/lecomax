@@ -1,0 +1,53 @@
+{
+  "id": "community-panel-layout-verified-20261025",
+  "createdAt": "2026-10-25T13:09:22.561Z",
+  "title": "Community section layout verified",
+  "summary": "Fix the cramped empty-post panel and improve the mobile community heading.",
+  "status": "successful",
+  "pages": [
+    "Homepage / ? Ecomedia section"
+  ],
+  "components": [
+    "Homepage Ecomedia community section"
+  ],
+  "files": [
+    "app/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace empty dark panel with a light, evenly padded state, removing the top-edge collision, nested borders and excessive shadow."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use fluid mobile heading size and relaxed line height. Add an accessible section heading and anchor scroll clearance. Reduce mobile section whitespace."
+    },
+    {
+      "kind": "removed",
+      "detail": "Hide publication-specific footer text when no publication exists; retain actual published-post rendering."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive section fixtures",
+      "result": "passed",
+      "detail": "Rendered the actual section JSX with generated Tailwind CSS in Chrome at 375, 482 and 1280px for empty and populated fixtures. No horizontal overflow; heading and Ecomedia destination present. Empty-state mobile/desktop screenshots visually inspected."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "No lint errors; two existing next/no-img-element warnings on published-post images."
+    },
+    {
+      "name": "Learning typecheck and history tests",
+      "result": "passed",
+      "detail": "Learning app typecheck and all four change-history tests passed."
+    },
+    {
+      "name": "Full-page live verification",
+      "result": "not-run",
+      "detail": "Section fixture previews do not include the live sticky header, production fonts or database data. No live-header scroll validation or deployment performed."
+    }
+  ],
+  "relatedId": "community-panel-layout-20261025"
+}

@@ -1,0 +1,43 @@
+{
+  "id": "jacket-card-photos-prepared-20261025",
+  "createdAt": "2026-10-25T11:56:48.398Z",
+  "title": "Cleaner jacket product-card photos",
+  "summary": "Prepared matching studio-style card photos for the denim sherpa and rust varsity jackets.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage product cards",
+    "Boutique product cards"
+  ],
+  "components": [
+    "ProductImage",
+    "CollectionProductCard",
+    "ProductCard"
+  ],
+  "files": [
+    "components/ProductImage.tsx",
+    "public/images/products/studio/denim-sherpa-v2.webp",
+    "public/images/products/studio/varsity-rust-v2.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "AI-assisted photo edits with clean light backgrounds, larger consistent framing, and optimized WebP assets."
+    },
+    {
+      "kind": "modified",
+      "detail": "Map only the two exact original jacket image URLs to versioned card assets. Preserve original gallery photos and remote inventory; original image remains fallback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visual generation review",
+      "result": "passed",
+      "detail": "Both edits inspected for framing and overall garment appearance."
+    },
+    {
+      "name": "Local browser and lint",
+      "result": "not-run",
+      "detail": "Pending. AI retouching may alter fine texture or lettering; original photos retained for comparison. No deployment or database update."
+    }
+  ]
+}

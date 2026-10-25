@@ -1,0 +1,98 @@
+{
+  "id": "seo-preview-utf8-correction-verified-20261023",
+  "relatedId": "seo-preview-utf8-build-disk-failure-20261023",
+  "createdAt": "2026-10-23T06:05:22.463Z",
+  "title": "UTF-8 image correction verified; Preview isolation pending",
+  "summary": "Separate corrected commit 8a12abcce38c0dc557a9ef9f86c3ce3dd113e863 passes build, types, lint, 120 tests and image checks. Its tree equals verified live Release D. No deployment performed; staging account access required for Preview isolation verification.",
+  "status": "successful",
+  "pages": [
+    "Product images",
+    "Homepage",
+    "Categories",
+    "Products",
+    "Cart",
+    "Checkout entry",
+    "SEO sitemaps"
+  ],
+  "components": [
+    "Product assets",
+    "SEO structured data",
+    "Release verification"
+  ],
+  "files": [
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'extérieur à poils pour femme/1.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'extérieur à poils pour femme/2.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'extérieur à poils pour femme/3.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'extérieur à poils pour femme/descption iamges/1.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'extérieur à poils pour femme/descption iamges/2.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'extérieur à poils pour femme/descption iamges/3.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'intérieur pour femme/1 blanc.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'intérieur pour femme/1 rose.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'intérieur pour femme/2 blanc.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'intérieur pour femme/2 rose.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'intérieur pour femme/3 blanc.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons d'intérieur pour femme/3 rose.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons à fleurs de rose/1 gris clair.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons à fleurs de rose/1 kaki.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons à fleurs de rose/2 gris clair.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons à fleurs de rose/2 kaki.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons à fleurs de rose/descption images/1.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Chaussons à fleurs de rose/descption images/2.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/GENAI Écouteurs stéréo HD sans fil TWS/1 description.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/GENAI Écouteurs stéréo HD sans fil TWS/1 white.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/GENAI Écouteurs stéréo HD sans fil TWS/2 black.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/GENAI Écouteurs stéréo HD sans fil TWS/2 description.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/1.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/2.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/3.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/4.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/descption/1.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/descption/2.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/descption/3.avif",
+    ".recovery-seo-abcd-corrected/public/images/products/Sac bandoulière/descption/4.avif",
+    "docs/seo-preview-corrected-candidate-20261023.md",
+    "artifacts/seo-preview-resume-20261023/corrected-manifest.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Restored 30 exact UTF-8 product image paths from trustworthy Git paths and matching blobs. No image-content or application-reference changes."
+    },
+    {
+      "kind": "added",
+      "detail": "Added corrected candidate manifest, complete rename mapping, validation evidence and current production comparison. Original recovery and original manifest remain unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source preservation",
+      "result": "passed",
+      "detail": "Original and corrected repositories clean; all 18 original manifest hashes match; corrected 2588-file tree equals live Release D. All 2053 deployed source IDs match retained receipt."
+    },
+    {
+      "name": "Types, lint and production build",
+      "result": "passed",
+      "detail": "TypeScript and lint exit 0; unchanged-source build retry passed with 225 static pages after ENOSPC cache cleanup. Existing warnings remain."
+    },
+    {
+      "name": "SEO and commerce regressions",
+      "result": "passed",
+      "detail": "120 passed, zero failures/skips."
+    },
+    {
+      "name": "Images",
+      "result": "passed",
+      "detail": "30 original blobs decoded; 92 local catalogue references resolve with exact case; 30 local production-build and 30 live HTTP image responses match original bytes."
+    },
+    {
+      "name": "Live read-only acceptance",
+      "result": "passed",
+      "detail": "Sitemap index and all four shards; sampled canonicals and Product JSON-LD; six desktop/mobile cases; cart persistence and checkout entry. No orders/payment mutations. Bounded logs returned zero errors/5xx; IndexNow remains false; four crons retained."
+    },
+    {
+      "name": "Hosted Preview",
+      "result": "not-run",
+      "detail": "No deployment submitted. Staging database credential provenance/permissions not verified; neither connected account lists existing staging project. User connection requested. Unknown-stock/preorder/special-locale live cases absent, covered synthetically only. Release E remains on hold."
+    }
+  ]
+}

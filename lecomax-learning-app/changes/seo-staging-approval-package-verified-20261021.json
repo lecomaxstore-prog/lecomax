@@ -1,0 +1,68 @@
+{
+  "id": "seo-staging-approval-package-verified-20261021",
+  "relatedId": "seo-staging-approval-package-prepared-20261021",
+  "createdAt": "2026-10-20T22:55:26.002Z",
+  "title": "Local staging readiness passed; exact hosted changes await approval",
+  "summary": "Webhook 403 diagnosed as disabled early-access feature access. Exact guarded SQL/Auth/user approval artifacts verified. Fresh build, eight HTTP checks, 242 tests and nine browser scenarios passed. No hosted mutations.",
+  "status": "successful",
+  "pages": [
+    "SEO staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "Approval package",
+    "Auth/webhook audit",
+    "Local validation"
+  ],
+  "files": [
+    "scripts/audit-seo-staging-auth.ps1",
+    "operations/seo/staging-approval-package-20261021/prerequisites.sql.review",
+    "operations/seo/staging-approval-package-20261021/auth-corrections.review.json",
+    "operations/seo/staging-approval-package-20261021/auth-users.request-templates.json",
+    "operations/seo/staging-approval-package-20261021/manifest.json",
+    "docs/seo-staging-approval-ready-20261021.md",
+    "docs/seo-staging-owner-runbook-20261020.md",
+    "docs/seo-staging-configuration-matrix-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Captured sanitized 403 error body: webhooks_access_disabled at both scopes. Matched documented early-access allowlist behavior; no permission expansion or feature activation required. Endpoint contents are not claimed enumerated."
+    },
+    {
+      "kind": "added",
+      "detail": "Review-only guarded SQL for five synthetic prerequisite tables, four user request templates with no real passwords, exact Auth correction payload and hash-pinned manifest referencing six existing migrations."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated latest handoff/runbook/matrix with exact approval sequence, password-login limitation and production path. Runtime application source and production resources unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Complete authorized local rerun",
+      "result": "passed",
+      "detail": "161 application/security, 71 worker, four email side-effect and six Change History tests; nine browser fixtures; full Node 24 npm production build including 635429 course checks; eight local HTTP refusal/noindex checks. Candidate and learning-app TypeScript and focused lint passed with two existing image warnings."
+    },
+    {
+      "name": "Approval artifact verification",
+      "result": "passed",
+      "detail": "All nine artifact/migration hashes matched. SQL fail-stop precedes five CREATE TABLE statements; RLS and restrictive grants checked; four synthetic user templates contain only password placeholders; Auth payload activates no providers. Static checks only; SQL not executed."
+    },
+    {
+      "name": "Hosted identity and staging environment",
+      "result": "passed",
+      "detail": "Read-only checks verify dedicated project/team, Git disconnected, all-deployment protection, zero deployments, 20 exact names/scopes, 18 readable values in both scopes and two sensitive metadata records. Sensitive bytes withheld; provenance/write evidence retained."
+    },
+    {
+      "name": "Webhook diagnosis",
+      "result": "passed",
+      "detail": "Both HTTP 403 responses state webhooks_access_disabled. Official platform docs describe allowlist restriction; this resolves the unexplained access blocker without claiming empty lists."
+    },
+    {
+      "name": "Hosted readiness limitations",
+      "result": "not-run",
+      "detail": "No hosted Auth changes, schema/user provisioning, migrations, messages, deployment or paid activation. SQL/native migration rehearsal not rerun under current no-migrations restriction. Clean Linux install and real hosted authentication/authorization remain untested; conservative Auth payload disables password login until separately approved no-delivery setup."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "premium-category-cards-20261025-verified",
+  "createdAt": "2026-10-25T12:17:03.383Z",
+  "title": "Premium category layout verified locally",
+  "summary": "Responsive component previews passed at four widths; typography and narrow-screen labels were visually reviewed and corrected.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage category section"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "components/CategoryTiles.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Refined typography, spacing, responsive image cards, gradient-backed labels, product-count badges and collection calls to action."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed intersection-observer visibility gating and detached caption dividers; cards remain visible immediately."
+    },
+    {
+      "kind": "added",
+      "detail": "Scoped responsive styles, keyboard focus outlines and reduced-motion handling; existing catalogue links and custom image crops preserved."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected French accent encoding and moved arrows below category titles so long labels fit narrow cards."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser component preview",
+      "result": "passed",
+      "detail": "Rendered the actual component and CSS with fixture category data in headless Chrome at 320, 390, 500 and 1440px. All images loaded, four category link targets were preserved and no horizontal overflow occurred. Screenshots inspected at mobile and desktop sizes; narrow-screen labels corrected and rechecked."
+    },
+    {
+      "name": "Lint and type checks",
+      "result": "passed",
+      "detail": "Focused ESLint passed; storefront TypeScript check and learning-app typecheck exited 0."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All 6 history integrity/interaction tests passed; manifest check passed with 893 reports before this follow-up."
+    },
+    {
+      "name": "Integration limitations",
+      "result": "not-run",
+      "detail": "Isolated component preview with sample counts, not the full live homepage. Live API refresh, custom admin images, physical devices and production deployment were not tested. No deployment performed."
+    }
+  ],
+  "relatedId": "premium-category-cards-20261025"
+}

@@ -1,0 +1,106 @@
+{
+  "id": "seo-staging-security-verified-20261020",
+  "relatedId": "seo-staging-security-prepared-20261020",
+  "createdAt": "2026-10-20T14:08:57.231Z",
+  "title": "Staging security fixes verified locally; deployment remains blocked",
+  "summary": "246 distinct tests, both TypeScript projects, focused ESLint and isolated build passed. Added configuration matrix and continuation handoff. No deployment, hosted database action, paid API or live indexing.",
+  "status": "successful",
+  "pages": [
+    "Storefront product publishing",
+    "Admin authentication",
+    "Staging configuration",
+    "Learning app Change History"
+  ],
+  "components": [
+    "Supabase REST headers",
+    "SEO worker",
+    "IndexNow",
+    "Environment policy",
+    "Auth email and mobile push"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/supabase-headers.mjs",
+    "lib/indexnow.mjs",
+    "lib/product-discovery.ts",
+    "middleware.ts",
+    "lib/admin-access.ts",
+    "lib/supabase-service-headers.ts",
+    "operations/seo-vercel/lib/handler.mjs",
+    "scripts/verify-storefront-release.mjs",
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "lib/mobile-campaigns.ts",
+    "lib/mobile-push-receipts.ts",
+    "app/api/account/password-reset/route.ts",
+    "lib/supabase.ts",
+    "lib/admin-settings-access.ts",
+    "app/api/admin/auth/session/route.ts",
+    "operations/seo/staging-app.env.example",
+    ".env.example",
+    "operations/seo/staging-vercel.json",
+    "tests/admin-access.test.ts",
+    "operations/seo-vercel/tests/environment-isolation.test.mjs",
+    "tests/indexnow-safety.test.ts",
+    "tests/supabase-key-compatibility.test.ts",
+    "tests/environment-clients.test.ts",
+    "app/api/indexnow/route.ts",
+    "scripts/verify-seo-live.mjs",
+    "scripts/verify-seo-hosted-readonly.cjs",
+    "scripts/seo-final-readiness.cjs",
+    "scripts/verify-seo-staging-package.cjs",
+    "scripts/seo-hosting-evidence.cjs",
+    "tests/password-reset-api.test.ts",
+    "tests/staging-outbound.test.ts",
+    "tests/seo-hosting-evidence.test.cjs",
+    "docs/seo-staging-configuration-matrix-20261020.md",
+    "docs/seo-staging-security-handoff-20261020.md",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Shared Supabase API-key headers and guarded IndexNow transport with offline regression tests."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Modern opaque keys no longer become Bearer tokens in direct runtime REST calls. IndexNow requires explicit consistent production identity, opt-in, key and canonical host."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reject inherited staging outbound credentials, cron/manual worker configuration; block browser Auth messaging and Expo delivery outside production; remove implicit production owner-email authorization fallback; disable Git deployment in staging template."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed built-in IndexNow verification-key fallback and password-reset production URL fallback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Admin IndexNow route reports disabled status; SEO REST verification helpers and synthetic test adapter use common key headers; hosting evidence includes additional integrations without values."
+    },
+    {
+      "kind": "added",
+      "detail": "155-variable source configuration matrix, 150-call AST Supabase client inventory, exact staging variables, safe future branch strategy and explicit unresolved hosted/legacy-tooling blockers."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Application and worker regressions",
+      "result": "passed",
+      "detail": "167 application tests plus 71 worker tests; final 27-test focused run adds two IndexNow and six history tests, for 246 distinct passes. Synthetic fixtures and mocked provider/IndexNow transport only."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Root and learning app type checks with incremental writes disabled; focused lint passed on changed runtime/tooling/tests."
+    },
+    {
+      "name": "Isolated production build",
+      "result": "passed",
+      "detail": "Initial public-font EACCES failure retained. Reviewed isolated retry passed at 2026-10-20T14:08:13.793Z; 15 changed runtime files match snapshot. Synthetic credentials, runtime fetch blocked, no deployment. Workspace tracing warning limits package claims."
+    },
+    {
+      "name": "Hosted staging, production and browser acceptance",
+      "result": "not-run",
+      "detail": "No hosted contact, migrations, deployments, paid inference, IndexNow submission, workers, crons or live UI preview. Production and deployment remain NO-GO."
+    }
+  ]
+}

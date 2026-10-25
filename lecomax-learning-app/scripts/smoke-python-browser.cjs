@@ -1,0 +1,85 @@
+// Real Chromium + Pyodide check; no app credentials or production services.
+const { spawn } = require('node:child_process');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const { load } = require('./inspect.cjs');
+const { pythonSandboxDocument } = load('lecomax-learning-app/utils/python-sandbox.ts');
+const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
+async function main() {
+  const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'lecomax-python-smoke-'));
+  const chrome = spawn(process.env.CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe', ['--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check', '--remote-debugging-port=0', `--user-data-dir=${profile}`, 'about:blank'], { windowsHide: true, stdio: 'ignore' });
+  let socket;
+  try {
+    const portFile = path.join(profile, 'DevToolsActivePort');
+    for (let i = 0; i < 150 && !fs.existsSync(portFile); i++) await pause(100);
+    const port = fs.readFileSync(portFile, 'utf8').split('\n')[0];
+    const targets = await (await fetch(`http://127.0.0.1:${port}/json`)).json();
+    socket = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl);
+    await new Promise((resolve, reject) => { socket.addEventListener('open', resolve); socket.addEventListener('error', reject); });
+    let id = 0;
+    const pending = new Map();
+    socket.addEventListener('message', event => { const message = JSON.parse(event.data); if (message.id) { const entry = pending.get(message.id); pending.delete(message.id); if (message.error) entry?.reject(message.error); else entry?.resolve(message.result); } });
+    const send = (method, params) => new Promise((resolve, reject) => { const next = ++id; pending.set(next, { resolve, reject }); socket.send(JSON.stringify({ id: next, method, params })); });
+    const evaluate = async expression => { const value = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }); if (value.exceptionDetails) throw Error(JSON.stringify(value.exceptionDetails)); return value.result.value; };
+    await evaluate(`window.messages = []; window.addEventListener('message', e => { if (e.source === window.frame?.contentWindow) messages.push(e.data); }); window.frame = document.createElement('iframe'); frame.sandbox = 'allow-scripts'; frame.srcdoc = ${JSON.stringify(pythonSandboxDocument)}; document.body.append(frame);`);
+    const wait = async (condition, timeout = 60000) => { const end = Date.now() + timeout; while (Date.now() < end) { const value = await evaluate(condition); if (value) return value; await pause(100); } throw Error('Timed out: ' + condition + ' ' + JSON.stringify(await evaluate('messages'))); };
+    await wait('messages.some(m => m.type === "ready")');
+    const run = async (code, input = '') => {
+      await evaluate(`messages = []; frame.contentWindow.postMessage(${JSON.stringify({ type: 'run', code, input })}, '*');`);
+      const message = await wait('messages.find(m => m.type === "result" || m.type === "failure")');
+      assert.equal(message.type, 'result', JSON.stringify(message)); return message.result;
+    };
+    assert.equal((await run('print(2 + 3)')).stdout, '5\n');
+    assert.equal((await run('print("Hello World")\nprint("مرحبا 🐍")')).stdout, 'Hello World\nمرحبا 🐍\n');
+    assert.equal((await run('class Math:\n    def double(self, n):\n        return n * 2\nfor i in range(3):\n    print(Math().double(i))')).stdout, '0\n2\n4\n');
+    const ordered = await run('import sys\nprint("first")\nprint("warning", file=sys.stderr)\nprint("last")');
+    assert.equal(ordered.output.map(c => c.text).join(''), 'first\nwarning\nlast\n');
+    assert.equal(ordered.stderr, 'warning\n');
+    assert.equal(ordered.exitCode, 0);
+    assert.equal((await run('print(input("Name: "))', 'Ada\n')).stdout, 'Name: Ada\n');
+    await evaluate(`messages = []; frame.contentWindow.postMessage({type:'run',code:'name = input("Name: ")\\ncity = input("City: ")\\nprint(name, city)',input:'',interactive:true}, '*');`);
+    const first = await wait('messages.find(m => m.type === "input" || m.type === "result" || m.type === "failure")');
+    assert.equal(first.type, 'input', JSON.stringify(first));
+    assert.equal(first.prompt, 'Name: ');
+    await evaluate(`frame.contentWindow.postMessage({type:'answer',id:${first.id},value:'Ada'}, '*');`);
+    const second = await wait('messages.find(m => m.type === "input" && m.id === 2)');
+    assert.equal(second.prompt, 'City: ');
+    await evaluate(`frame.contentWindow.postMessage({type:'answer',id:2,value:'Paris'}, '*');`);
+    const live = await wait('messages.find(m => m.type === "result")');
+    assert.equal(live.result.stdout, 'Name: Ada\nCity: Paris\nAda Paris\n');
+    console.log('PASS: two real interactive input() requests in one execution.');
+    await evaluate(`messages = []; frame.contentWindow.postMessage({type:'run',code:'first = float(input("First: "))\\nsecond = float(input("Second: "))\\nprint("Result:", first + second)',input:'',interactive:true}, '*');`);
+    await wait('messages.find(m => m.type === "input" && m.id === 1)');
+    await evaluate(`frame.contentWindow.postMessage({type:'answer',id:1,value:'15'}, '*');`);
+    await wait('messages.find(m => m.type === "input" && m.id === 2)');
+    await evaluate(`frame.contentWindow.postMessage({type:'answer',id:2,value:'25'}, '*');`);
+    assert.equal((await wait('messages.find(m => m.type === "result")')).result.stdout, 'First: 15\nSecond: 25\nResult: 40.0\n');
+    assert.match((await run('print(1/0)')).stderr, /ZeroDivisionError/);
+    assert.match((await run('print(unknown_variable)')).stderr, /NameError/);
+    assert.match((await run('import lecomax_nonexistent_module')).stderr, /ModuleNotFoundError/);
+    assert.match((await run('if True print(1)')).stderr, /SyntaxError/);
+    const bounded = await run('print("x" * 50000)'); assert.equal(bounded.stdout.length, 24000); assert.equal(bounded.truncated, true);
+    const alternating = await run('import sys\nfor i in range(5000):\n    sys.stdout.write("a")\n    sys.stderr.write("b")');
+    assert.equal(alternating.output.length, 2000); assert.equal(alternating.truncated, true);
+    assert.equal((await run('import json\nprint(json.loads(\'{"n": 7}\')["n"])')).stdout, '7\n');
+    await evaluate(`messages = []; frame.contentWindow.postMessage({type:'run',code:'while True: pass',input:''}, '*');`);
+    await wait('messages.some(m => m.type === "running")');
+    await evaluate(`frame.contentWindow.postMessage({type:'stop'}, '*');`);
+    await pause(200);
+    assert.equal((await run('print("after stop")')).stdout, 'after stop\n');
+    assert.equal(await evaluate(`(() => { try { return Boolean(frame.contentWindow.document); } catch { return false; } })()`), false);
+    // Exercise browsers without JSPI: never consume prepared answers silently.
+    await evaluate(`messages=[];frame.srcdoc=${JSON.stringify(pythonSandboxDocument.replace("typeof WebAssembly.Suspending === 'function'", 'false'))};`);
+    await wait('messages.some(m => m.type === "ready")');
+    await evaluate(`messages=[];frame.contentWindow.postMessage({type:'run',code:'print(input("Name: "))',input:'INVENTED\\n',interactive:true},'*');`);
+    const unsupported = await wait('messages.find(m => m.type === "result" || m.type === "failure")');
+    assert.equal(unsupported.type, 'result'); assert.equal(unsupported.result.exitCode, 1);
+    assert.match(unsupported.result.stderr, /Interactive input is unavailable/);
+    assert(!unsupported.result.stdout.includes('INVENTED'));
+    console.log('PASS: unsupported interactive input fails clearly without substituting prepared answers.');
+    console.log('PASS: real browser Python stdout, input, errors, syntax, output limit, JSON, infinite-loop cancellation/recovery, opaque-origin isolation.');
+  } finally { socket?.close(); chrome.kill(); /* Keep temporary profile for diagnostics; no recursive cleanup. */ }
+}
+main().catch(error => { console.error(error); process.exitCode = 1; });

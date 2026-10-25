@@ -1,0 +1,19 @@
+# View-only phone invitations
+
+The My remote phone page now has **Option 3 · Invite by link**, translated into French, English and Arabic. This source change requires a new native Android build on both phones. It has not been deployed or installed by this change.
+
+1. Connect both Android phones to the same Tailscale network. Its access rules must permit TCP 8093 to the viewing phone and TCP 8092 to the sharing phone.
+2. On the viewing phone, create a viewing invitation and use Share link or Copy link. Return to this page and keep it open while waiting.
+3. Use **Send through WhatsApp**, choose the recipient, and send the prepared message. Return to Learn on the viewing phone. On the second phone, open the HTTPS invitation, tap **Open L’ECOMAX Learn**, sign in if needed, review the requesting phone address, choose **Approve view-only sharing**, and approve Android screen capture. Opening the web page alone never grants access.
+4. The device connects automatically inside the main phone's viewer. Use apps on the second phone normally. Remote touches, navigation and typing are disabled on the host, even if Accessibility is already enabled.
+5. Stop from the second phone's page/ongoing Android notification or Disconnect phone in the viewer. Android can also end capture when locking or stopping the app. A new invitation and capture approval are required after a view-only capture session ends.
+
+The invitation listener binds only to the main phone's Tailscale address. A random 256-bit bearer invitation expires in ten minutes, accepts one peer/code, rejects browser-origin requests, and derives the shared phone address from the network peer rather than an arbitrary submitted URL. Successful delivery retries are idempotent. After handoff, the receiver stays available for 30 seconds to let a lost response retry, then closes. Capture is authorized explicitly on the second phone before it issues a two-minute, single-viewer pairing credential. Invitation credentials are not saved in app preferences. Native view-only sessions do not load or persist control-mode pairing credentials.
+
+The WhatsApp link is `https://lecomax.com/phone-invite.html#invite=…`. The invitation credential stays in the URL fragment, outside the HTTP request and referrer. The standalone page has no analytics or network API calls. It uses a user-tapped Android intent restricted to `com.lecomax.learning`, plus a direct app link and clipboard/manual fallback. In-app **Open a received link** accepts only this exact HTTPS address or the legacy app link. Both forms use strict invitation validation. Navigation history excludes invitation routes.
+
+The three public files `public/phone-invite.html`, `public/phone-invite.js`, and `public/phone-invite.css` must be deployed to the existing lecomax.com site before the new HTTPS link can work publicly. They are prepared locally; no website deployment or new APK installation is implied. Install the updated Learn app and sign in on both Android phones before starting. The existing `/download` storefront application is not a substitute for Learn.
+
+This is not a web page that captures an iPhone or an uninstalled app. WhatsApp/in-app-browser launch behavior still requires real-device checks; use **Open in browser** or paste the complete invitation into Learn if launching is blocked. There is no audio. The existing transport sends JPEG screen frames about twice per second; protected screens may be black. No public screen relay is added.
+
+Physical two-phone validation remains required: share-sheet links from messaging apps, capture acceptance/cancellation, mobile-data Tailscale connectivity, approval-to-view handoff, Home/app switching, locking, rotation, notification stop, lost delivery responses, expired/cancelled invitations and no remote input while Accessibility is enabled.

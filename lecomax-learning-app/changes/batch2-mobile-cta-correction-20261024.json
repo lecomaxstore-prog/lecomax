@@ -1,0 +1,35 @@
+{
+  "id": "batch2-mobile-cta-correction-20261024",
+  "relatedId": "batch2-mobile-layout-correction-20261024",
+  "createdAt": "2026-10-24T20:08:43.396Z",
+  "title": "Batch 2: stack hero actions on the narrowest phones",
+  "summary": "Visual review found that two buttons fit at 320px but split French words awkwardly. Stack the two actions below 375px, retaining full labels and at least 48px touch height.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage / at 320px"
+  ],
+  "components": [
+    "Hero CTA row"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/app/globals.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Full-width stacked hero actions below 375px; wider mobile and desktop retain two actions in a row."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visual review",
+      "result": "passed",
+      "detail": "Built candidate screenshot identified awkward word wrapping; layout width itself passed."
+    },
+    {
+      "name": "Updated candidate",
+      "result": "not-run",
+      "detail": "CSS-only correction requires new production build and browser checks. Earlier source manifest and results preserved. New source b500e9a9d90d55e048277e85a13163b35e6987359a25115fb654cfbba2e2af14"
+    }
+  ]
+}

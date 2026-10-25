@@ -1,0 +1,103 @@
+{
+  "id": "seo-native-v3-concurrency-verified-20261019",
+  "createdAt": "2026-10-19T12:42:58.681Z",
+  "relatedId": "seo-native-v3-concurrency-prepared-20261019",
+  "title": "Native v3 concurrency passed; disposable cluster stopped",
+  "summary": "All 10 PostgreSQL 18.6 concurrency checks passed on one fresh loopback cluster. Five migrations validated; old services, releases and backups preserved.",
+  "status": "successful",
+  "pages": [
+    "SEO Engine validation",
+    "Change History"
+  ],
+  "components": [
+    "Native PostgreSQL concurrency"
+  ],
+  "files": [
+    "scripts/test-seo-v3-concurrency.cjs",
+    "docs/seo-native-v3-concurrency-pass-20261019.md",
+    "artifacts/seo-v3-authorized-20261019/cluster-a114be4e-ef1f-4ef3-9176-e29c17de66ef/result.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added full native concurrency harness, retained one synthetic cluster and evidence, and documented results and hosted limitations. No migration or runtime defect required a fix."
+    }
+  ],
+  "validation": [
+    {
+      "name": "fresh isolated cluster",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "five pinned migrations and eleven SEO tables",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "SKIP LOCKED distinct jobs and claim rollback",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "idempotent completion and stale token rejection",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "retry backoff, fresh lease and transaction rollback",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "concurrent workers acquire one durable run",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "row lock timeout and unrelated synthetic stock independence",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "concurrent v3 enqueue deduplicates",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "concurrent reservations enforce budget",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "expired run fenced and uncertain reservation retained",
+      "result": "passed",
+      "detail": "Native PostgreSQL assertion passed; exact execution evidence retained in the linked result.json."
+    },
+    {
+      "name": "Shutdown verification",
+      "result": "passed",
+      "detail": "Exact-cluster pg_ctl status exit 3, no server running, no PID or initialization-password file. Existing Windows PostgreSQL service still running."
+    },
+    {
+      "name": "TypeScript, syntax and focused ESLint",
+      "result": "passed",
+      "detail": "All exit 0."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "Six persistence/interaction tests passed."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "99 release entries, eight saved comparison entries and seven operational bundle entries unchanged."
+    },
+    {
+      "name": "Hosted acceptance and PostgreSQL 17 parity",
+      "result": "not-run",
+      "detail": "Not authorized; no hosted connection, deployment, worker activation or paid call."
+    }
+  ]
+}

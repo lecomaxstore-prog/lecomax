@@ -6,7 +6,7 @@ import { protectAdminMutation } from "@/lib/api-security";
 import { buildNewsletterEmail, type NewsletterCampaign, type NewsletterProduct } from "@/lib/newsletter-email";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.APP_ENV === "production" && process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 function text(value: unknown, max: number) {
   return typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -17,6 +17,7 @@ function color(value: unknown, fallback: string) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!resend) return NextResponse.json({ error: "EMAIL_DISABLED" }, { status: 503 });
   const blocked = await protectAdminMutation(req, { key: "newsletter:send", limit: 5 });
   if (blocked) return blocked;
   const input = await readJsonLimited(req).catch(() => null) as Record<string, unknown> | null;

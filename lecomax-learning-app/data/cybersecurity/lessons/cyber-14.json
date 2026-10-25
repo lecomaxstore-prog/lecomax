@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-14",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-14",
+  "title": {
+    "en": "React Native and Expo: secure a public client",
+    "ar": "أمان React Native وExpo",
+    "fr": "React Native and Expo: secure a public client"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-13"
+  ],
+  "objectives": [
+    "Choose storage according to sensitivity and platform behavior.",
+    "Validate deep links and authentication callbacks without trusting client claims.",
+    "Review Android release permissions, dependencies and API boundaries."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "An installed mobile app is still a client controlled by its user and device environment. Protect local credentials appropriately while enforcing authority at the API.",
+  "sections": [
+    {
+      "title": "The mobile trust boundary",
+      "text": "React Native combines JavaScript and native platform capabilities, but shipping a compiled release does not hide every embedded value or make every request trustworthy. A caller can reproduce API requests outside the app. Never embed a server service-role key, payment verification secret or signing key in an Expo bundle. Public configuration such as an API base URL can be shipped intentionally, while privileged provider calls belong behind a server that authenticates and authorizes the caller. The app can improve user experience and local protection, but it cannot be the only place enforcing price, role, ownership or coupon eligibility."
+    },
+    {
+      "title": "Choose storage for the actual data",
+      "text": "AsyncStorage is suitable for ordinary app preferences and, in this academy, learning progress and notebooks that do not contain credentials. It is not secure credential storage. On supported native platforms, expo-secure-store uses platform-protected storage for small secret values. Handle read, write and delete failures, and do not treat local storage as the authoritative source of whether a session is still valid. SecureStore is not a general backup for irreplaceable data and has no equivalent browser implementation through this API. Platform uninstall, backup and biometric changes can affect availability, so the app must recover by reauthentication rather than crashing or granting access. Avoid putting real tokens in the lesson notebook."
+    },
+    {
+      "title": "Token lifecycle remains a server contract",
+      "text": "Keep access tokens appropriately short-lived, protect refresh credentials and rotate/revoke them according to the authentication design. Logout should delete local credentials and invalidate server-side state as required. An app reopening with a stored token must handle expiry, revoked sessions and offline conditions explicitly. Showing cached public lessons offline is different from allowing an offline privileged purchase or admin operation. Do not trust a locally edited isAdmin flag. The server’s current policy decides sensitive permissions even if the user interface remembers a previous role. Tests should include a token revoked after storage and a device whose secure-storage read fails."
+    },
+    {
+      "title": "Deep links are inputs from outside the app",
+      "text": "A deep link can open a screen or complete an authentication redirect, but its scheme, host, path and parameters are untrusted until validated. Permit only intended routes and parameter shapes; do not turn any supplied URL into an unrestricted WebView destination or privileged action. For OAuth/OIDC, use the maintained SDK flow with PKCE and transaction-binding checks and register exact callbacks. A link containing user=admin is not identity proof. Avoid exposing tokens in ordinary navigation URLs, analytics and screenshots. On Android, verify link behavior in the actual release configuration because development clients and installed releases can have different schemes and intent-filter behavior."
+    },
+    {
+      "title": "Permissions and release configuration",
+      "text": "Ask for camera, files, notifications or location only when a feature needs them, explain the purpose and handle denial gracefully. Removing an unused permission reduces unnecessary access but should be verified in the generated native manifest, not only in a JavaScript comment. Keep debug-only network allowances and test endpoints out of the production release. Use HTTPS for real APIs and do not globally disable certificate checks to make a development proxy work. Review package changes that introduce native permissions, build scripts or external services. A dependency update can alter the native binary, which may require rebuilding rather than only publishing new JavaScript."
+    },
+    {
+      "title": "Verify on a device, not only in a bundle",
+      "text": "Use an emulator or physical Android device to test cold start, secure storage failure/recovery, logout, revoked tokens, denied permissions, deep links and airplane mode. A successful Expo export proves bundling, not these runtime properties. This workspace has an internal APK build profile, but local Hermes execution has previously returned permission denied, and no installed-device security validation is claimed by this chapter. The course content and progress are designed for offline access using the existing app store; the separate computer labs remain separate. Darija: التطبيق فالتلفون ماشي خزنة لأسرار الخادم؛ حتى إلا كان APK، الصلاحيات كتراجع فالـAPI."
+    }
+  ],
+  "examples": [
+    {
+      "id": "storage",
+      "filename": "native-session.ts",
+      "language": "typescript",
+      "code": "import * as SecureStore from 'expo-secure-store';\nimport { Platform } from 'react-native';\nexport async function forgetLocalSession() {\n  if (Platform.OS !== 'web') await SecureStore.deleteItemAsync('session');\n}\n// The caller must also request server-side revocation and handle failures.",
+      "annotations": [
+        {
+          "lines": "1-2",
+          "label": "Import native protected storage and detect the platform instead of assuming a web implementation."
+        },
+        {
+          "lines": "3-6",
+          "label": "Delete the local credential on native platforms; this alone does not revoke an already issued server token."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "storage-map",
+      "difficulty": 1,
+      "task": "Classify theme, lesson notes, refresh token, server signing key and API base URL.",
+      "hints": [
+        "Some secrets must not be on the device at all."
+      ],
+      "solution": "Preferences/notes: ordinary app storage without credentials\nRefresh token: protected native storage under auth lifecycle\nServer signing key: server only\nAPI base URL: public configuration",
+      "walkthrough": "Storage selection follows authority and sensitivity, not a single store for everything.",
+      "expectedResult": "A five-item storage map."
+    },
+    {
+      "id": "device-matrix",
+      "difficulty": 3,
+      "task": "Write the expected behavior for revoked token, storage read failure, denied camera permission and a link with role=admin.",
+      "hints": [
+        "Do not mark these executed until tested on a device."
+      ],
+      "solution": "Revoked token -> reauthenticate or show safe signed-out state\nStorage failure -> recoverable error, no privilege grant\nCamera denied -> explain unavailable feature\nrole=admin link -> no authority change",
+      "walkthrough": "A secure mobile flow preserves server authority and graceful recovery even when the local environment changes.",
+      "expectedResult": "Four expected outcomes with execution status."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-14-q1",
+      "question": "Can an APK safely hide a provider signing key?",
+      "options": [
+        "No; keep privileged secrets on the server.",
+        "Yes; compilation makes extraction impossible."
+      ],
+      "correctIndex": 0,
+      "explanation": "An installed app is a public client.",
+      "answerExplanations": [
+        "Correct. An installed app is a public client.",
+        "Not quite. An installed app is a public client."
+      ]
+    },
+    {
+      "id": "cyber-14-q2",
+      "question": "Is AsyncStorage the right store for refresh credentials?",
+      "options": [
+        "Yes; all app storage has equivalent protection.",
+        "No; use appropriate protected native storage and lifecycle controls."
+      ],
+      "correctIndex": 1,
+      "explanation": "Preference persistence is not credential protection.",
+      "answerExplanations": [
+        "Not quite. Preference persistence is not credential protection.",
+        "Correct. Preference persistence is not credential protection."
+      ]
+    },
+    {
+      "id": "cyber-14-q3",
+      "question": "Does deleting a local token revoke it on the server?",
+      "options": [
+        "Not necessarily; server revocation is a separate action.",
+        "Yes; the server observes every local deletion."
+      ],
+      "correctIndex": 0,
+      "explanation": "Credential lifecycle spans both sides.",
+      "answerExplanations": [
+        "Correct. Credential lifecycle spans both sides.",
+        "Not quite. Credential lifecycle spans both sides."
+      ]
+    },
+    {
+      "id": "cyber-14-q4",
+      "question": "Does SecureStore provide the same API behavior on the web?",
+      "options": [
+        "Yes; every browser uses the native keystore.",
+        "No; design a separate appropriate web strategy."
+      ],
+      "correctIndex": 1,
+      "explanation": "Platform support differs.",
+      "answerExplanations": [
+        "Not quite. Platform support differs.",
+        "Correct. Platform support differs."
+      ]
+    },
+    {
+      "id": "cyber-14-q5",
+      "question": "Should an edited local isAdmin flag authorize an API?",
+      "options": [
+        "No; the server decides current permission.",
+        "Yes; installed apps cannot be modified."
+      ],
+      "correctIndex": 0,
+      "explanation": "Client state is not a trusted role source.",
+      "answerExplanations": [
+        "Correct. Client state is not a trusted role source.",
+        "Not quite. Client state is not a trusted role source."
+      ]
+    },
+    {
+      "id": "cyber-14-q6",
+      "question": "Does a deep-link user parameter prove identity?",
+      "options": [
+        "Yes; registered schemes authenticate every parameter.",
+        "No; verify the authentication flow."
+      ],
+      "correctIndex": 1,
+      "explanation": "Navigation inputs are caller-controlled.",
+      "answerExplanations": [
+        "Not quite. Navigation inputs are caller-controlled.",
+        "Correct. Navigation inputs are caller-controlled."
+      ]
+    },
+    {
+      "id": "cyber-14-q7",
+      "question": "When should a permission be requested?",
+      "options": [
+        "When a feature needs it, with denial handling.",
+        "All permissions at startup regardless of features."
+      ],
+      "correctIndex": 0,
+      "explanation": "Minimization reduces unnecessary access and confusion.",
+      "answerExplanations": [
+        "Correct. Minimization reduces unnecessary access and confusion.",
+        "Not quite. Minimization reduces unnecessary access and confusion."
+      ]
+    },
+    {
+      "id": "cyber-14-q8",
+      "question": "Does Expo export prove Android secure-storage behavior?",
+      "options": [
+        "Yes; bundling executes every native security path.",
+        "No; device runtime tests are still required."
+      ],
+      "correctIndex": 1,
+      "explanation": "Build evidence and runtime evidence differ.",
+      "answerExplanations": [
+        "Not quite. Build evidence and runtime evidence differ.",
+        "Correct. Build evidence and runtime evidence differ."
+      ]
+    },
+    {
+      "id": "cyber-14-q9",
+      "question": "What should happen after secure storage becomes unreadable?",
+      "options": [
+        "Recover safely, often through reauthentication.",
+        "Grant access because a token probably existed."
+      ],
+      "correctIndex": 0,
+      "explanation": "A failed required check cannot create authority.",
+      "answerExplanations": [
+        "Correct. A failed required check cannot create authority.",
+        "Not quite. A failed required check cannot create authority."
+      ]
+    },
+    {
+      "id": "cyber-14-q10",
+      "question": "Should real credentials be pasted into course notes?",
+      "options": [
+        "Yes; notes are a secret-management system.",
+        "No; use synthetic values only."
+      ],
+      "correctIndex": 1,
+      "explanation": "The learning notebook is ordinary persistent app data.",
+      "answerExplanations": [
+        "Not quite. The learning notebook is ordinary persistent app data.",
+        "Correct. The learning notebook is ordinary persistent app data."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can choose storage according to sensitivity and platform behavior.",
+    "I can validate deep links and authentication callbacks without trusting client claims.",
+    "I can review Android release permissions, dependencies and API boundaries."
+  ],
+  "recap": [
+    "Choose storage according to sensitivity and platform behavior.",
+    "Validate deep links and authentication callbacks without trusting client claims.",
+    "Review Android release permissions, dependencies and API boundaries."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "Expo SecureStore",
+      "url": "https://docs.expo.dev/versions/latest/sdk/securestore/",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "Expo authentication",
+      "url": "https://docs.expo.dev/guides/authentication/",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP mobile testing guide",
+      "url": "https://mas.owasp.org/MASTG/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Mobile secrets and authority",
+    "steps": [
+      {
+        "title": "Public app bundle",
+        "detail": "Contains UI and non-secret configuration, not server credentials."
+      },
+      {
+        "title": "Protected local storage",
+        "detail": "Holds bounded native credentials and handles failures."
+      },
+      {
+        "title": "Authenticated API",
+        "detail": "Verifies token lifecycle and current permission."
+      },
+      {
+        "title": "Server-owned data",
+        "detail": "Keeps prices, roles and provider secrets authoritative."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Public client",
+      "A client that cannot confidentially retain an embedded server secret."
+    ],
+    [
+      "Deep link",
+      "An external navigation input opening an app route."
+    ],
+    [
+      "SecureStore",
+      "Expo access to platform-protected native key-value storage."
+    ]
+  ],
+  "lab": null
+}

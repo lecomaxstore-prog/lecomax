@@ -1,0 +1,43 @@
+{
+  "id": "seo-recovery-diagnostics-prepared-20261019",
+  "createdAt": "2026-10-19T21:46:06.036Z",
+  "title": "Worker recovery diagnostics and isolated PG17 rehearsal profile",
+  "summary": "Expose sanitized failure stage and finalization certainty; prepare fixed loopback-only PG17 SQL rehearsal. Reclaimed reproducible webpack cache.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync"
+  ],
+  "components": [
+    "SEO worker",
+    "Local SQL rehearsal"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/logging-recovery.test.mjs",
+    "scripts/seo-local-postgres-profile.cjs",
+    "scripts/test-seo-editorial-concurrency.cjs",
+    "tests/seo-local-postgres-profile.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Sanitized worker failure stage and explicit finalization confirmation state, with regression coverage."
+    },
+    {
+      "kind": "added",
+      "detail": "Fixed PG17 executable and loopback port profile, version and target-override guards."
+    },
+    {
+      "kind": "removed",
+      "detail": "Only root .next/cache/webpack: 131 reproducible files, 1599448265 bytes. Preserved build outputs, source, databases, backups, logs and reports."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Focused tests, regression checks and build pending; PG17 executable availability must be verified. No hosted execution or paid requests."
+    }
+  ]
+}

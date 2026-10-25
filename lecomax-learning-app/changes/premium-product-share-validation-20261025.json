@@ -1,0 +1,73 @@
+{
+  "id": "premium-product-share-validation-20261025",
+  "createdAt": "2026-10-25T13:44:07.846Z",
+  "title": "Premium product share preview verified locally",
+  "summary": "Manchester United preview rendered and visually inspected. Five tests and renderer cache benchmark passed; global TypeScript blocked outside this change.",
+  "status": "needs-testing",
+  "pages": [
+    "/produit/[slug]",
+    "/api/og/product/[slug]"
+  ],
+  "components": [
+    "Product OG renderer",
+    "Social metadata",
+    "PNG cache"
+  ],
+  "files": [
+    "lib/product-og-renderer.tsx",
+    "lib/product-og-cache.ts",
+    "lib/product-share-copy.ts",
+    "app/produit/[slug]/page.tsx",
+    "tests/product-share-copy.test.ts",
+    "tests/product-og-cache.test.ts",
+    "scripts/benchmark-product-og.mjs",
+    "artifacts/render-premium-share.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Image 1200x630, photo contenue sans recadrage, hi?rarchie lisible et appel D?couvrir la pi?ce. Titres et descriptions Open Graph/Twitter raccourcis ; m?tadonn?es SEO conserv?es."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Disponibilit? inconnue et pr?commandes distingu?es dans l?image et son cache. Nouvelle version des caches PNG/photo et URL image."
+    },
+    {
+      "kind": "modified",
+      "detail": "Renderer benchmark updated for intentional new artwork, retaining dimension and cache reuse checks. Vector arrow avoids remote font dependency."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Social copy and PNG cache tests",
+      "result": "passed",
+      "detail": "5 tests passed, including preorder and unknown stock."
+    },
+    {
+      "name": "Actual renderer benchmark",
+      "result": "passed",
+      "detail": "1200x630 PNG generated; photo conversion reused; final PNG cache hit and sold-out invalidation verified."
+    },
+    {
+      "name": "Visual QA",
+      "result": "passed",
+      "detail": "Manchester United artwork generated and inspected locally; corrected accents. Preview artifact: artifacts/premium-product-share-preview.png."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "No errors; Next img advisory applies to the intentional ImageResponse img element."
+    },
+    {
+      "name": "Global TypeScript",
+      "result": "failed",
+      "detail": "Existing components/ProductGallery.tsx:218 TS18047 nullable videoDimensions, outside modified files."
+    },
+    {
+      "name": "Hosted messaging preview",
+      "result": "not-run",
+      "detail": "No deployment or message sent; actual WhatsApp preview not tested."
+    }
+  ],
+  "relatedId": "premium-product-share-20261025"
+}

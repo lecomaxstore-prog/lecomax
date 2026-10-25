@@ -1,0 +1,1 @@
+{"content":"-- Invitation tokens are single-purpose secrets. Active accounts no longer need them.\nupdate public.admin_staff\nset invite_token = null\nwhere status = 'active' and invite_token is not null;\n"}

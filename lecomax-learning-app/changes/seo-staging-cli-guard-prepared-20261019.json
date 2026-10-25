@@ -1,0 +1,37 @@
+{
+  "id": "seo-staging-cli-guard-prepared-20261019",
+  "createdAt": "2026-10-19T20:16:33.561Z",
+  "relatedId": "seo-staging-owner-evidence-validation-20261019",
+  "title": "Staging CLI guard hardening prepared",
+  "summary": "Reject unsupported arguments, malformed or unreadable references and filesystem links; validation pending. No CLI relink or hosted changes.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "Offline CLI target guard"
+  ],
+  "files": [
+    "scripts/check-seo-cli-target.cjs",
+    "tests/seo-cli-target.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Fail closed on unsafe target metadata and refuse execution/target overrides. Unlinked command exits nonzero."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression checks",
+      "result": "not-run",
+      "detail": "Pending offline tests, lint and typecheck."
+    },
+    {
+      "name": "Dedicated MCP",
+      "result": "passed",
+      "detail": "Configured mcp.supabase.com project_ref=tyltharlnbxrxibuxyye read_only=true; SELECT returns supabase_read_only_user and transaction/default read-only on. SQL project_ref setting absent; target binding verified from config."
+    }
+  ]
+}

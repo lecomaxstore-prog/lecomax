@@ -1,0 +1,33 @@
+{
+  "id": "product-video-full-gallery-20261025",
+  "createdAt": "2026-10-25T19:49:00.142Z",
+  "title": "Larger product video viewing area",
+  "summary": "Videos now use the full product gallery height instead of a short landscape-only frame.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail /product/[slug]"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "mobile/src/components/product-gallery.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Removed the forced 16:9 gallery height for videos. Square and portrait videos use the same responsive stage as photos while contain fitting preserves the complete frame."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed media-dependent gallery height changes, avoiding vertical layout jumps when switching between video and photos."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "TypeScript and browser verification pending. No deployment."
+    }
+  ]
+}

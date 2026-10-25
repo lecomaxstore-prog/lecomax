@@ -1,0 +1,582 @@
+{
+  "academyLessons": 192,
+  "byModule": [
+    {
+      "id": "start",
+      "lessons": 10,
+      "quizzes": 10
+    },
+    {
+      "id": "module-00-learning-tools",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-01-internet-web",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-02-git-github",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-03-html-accessibility",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-04-css",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-05-responsive-tailwind",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-06-javascript-foundations",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-07-js-data-problem-solving",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "module-08-dom-forms-storage",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "async-fetch-errors",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "typescript-contracts",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "react-fundamentals",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "react-state-forms-hooks",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "nextjs-app-router",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "nextjs-server-data",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "sql-data-modeling",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "supabase-platform",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "ecommerce-architecture",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "authentication-security-privacy",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "quality-engineering",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "web-quality",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "email-systems",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "paypal-payments",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "notifications",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "openai-integration",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "analytics-growth",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "deployment-operations",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "final-store-capstone",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "design-foundations",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "layout-mastery",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "conversion-ux",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "content-photography",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "merchandising-pricing",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "ecommerce-seo",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "discovery-reputation",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "organic-acquisition",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "paid-acquisition",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "sales-service",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "retention-loyalty",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "business-operations",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "beginner-code-labs",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "next-routing-lab",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "supabase-build-lab",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "ui-build-lab",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "china-sourcing",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "import-quality-logistics",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "seo-client-action-lab",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "zero-to-hero-capstone",
+      "lessons": 4,
+      "quizzes": 12
+    },
+    {
+      "id": "guide-apis",
+      "lessons": 4,
+      "quizzes": 0
+    },
+    {
+      "id": "guide-database",
+      "lessons": 6,
+      "quizzes": 0
+    },
+    {
+      "id": "guide-deploy",
+      "lessons": 5,
+      "quizzes": 0
+    },
+    {
+      "id": "guide-nextjs-start",
+      "lessons": 10,
+      "quizzes": 0
+    },
+    {
+      "id": "guide-python",
+      "lessons": 16,
+      "quizzes": 0
+    },
+    {
+      "id": "daily",
+      "lessons": 14,
+      "quizzes": 42
+    },
+    {
+      "id": "studio",
+      "lessons": 12,
+      "quizzes": 12
+    },
+    {
+      "id": "build",
+      "lessons": 5,
+      "quizzes": 5
+    },
+    {
+      "id": "quest",
+      "lessons": 100,
+      "quizzes": 0
+    },
+    {
+      "id": "micro",
+      "lessons": 102,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-backend-practice-ts-backendPractice",
+      "lessons": 3,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-beginner-practice-ts-STARTER_PRACTICE",
+      "lessons": 10,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-daily-code-ts-DAILY_CODE",
+      "lessons": 14,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-daily-path-ts-DAILY_PATH",
+      "lessons": 102,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-hour-workshop-ts-HOUR_PLAN",
+      "lessons": 5,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-hour-workshop-ts-DAILY_CHALLENGES",
+      "lessons": 14,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-journey-ts-JOURNEY",
+      "lessons": 8,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-click-flows-ts-clickFlows",
+      "lessons": 7,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-coaching-ts-comparisons",
+      "lessons": 4,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-coaching-ts-analogies",
+      "lessons": 12,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-coaching-ts-advancedNotes",
+      "lessons": 12,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-coaching-ts-removalNotes",
+      "lessons": 12,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-practice-ts-labForLesson",
+      "lessons": 8,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-practice-ts-labs",
+      "lessons": 4,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-reading-ts-readings",
+      "lessons": 12,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-reading-ts-predictionIsYes",
+      "lessons": 12,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-resources-ts-roadmap",
+      "lessons": 11,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-resources-ts-glossary",
+      "lessons": 52,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-resources-ts-flows",
+      "lessons": 2,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-resources-ts-errors",
+      "lessons": 8,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-resources-ts-projects",
+      "lessons": 5,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-resources-ts-finalSteps",
+      "lessons": 34,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-PHASES",
+      "lessons": 83,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-PHASE_TR",
+      "lessons": 17,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-STEP_TR",
+      "lessons": 14,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-SITE_PAGES",
+      "lessons": 45,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-TECH",
+      "lessons": 20,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-ENV",
+      "lessons": 15,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-FileIcon_colors",
+      "lessons": 7,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-PagesSection_pages",
+      "lessons": 45,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-LearningResourcesSection_learningPath",
+      "lessons": 7,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-LearningResourcesSection_practicalTracks",
+      "lessons": 8,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-LearningResourcesSection_codingLoop",
+      "lessons": 6,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-LearningResourcesSection_firstComponent",
+      "lessons": 6,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-LearningResourcesSection_checklist",
+      "lessons": 5,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-LearningResourcesSection_palette",
+      "lessons": 8,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-TabIcon_common",
+      "lessons": 5,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-HowItWasBuiltPage_LANG_FLAGS",
+      "lessons": 3,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-GuideSection_items",
+      "lessons": 6,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-DebugSection_issues",
+      "lessons": 7,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-DebugSection_colors",
+      "lessons": 5,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-SupabaseSection_steps",
+      "lessons": 6,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-DeploySection_steps",
+      "lessons": 6,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-CoursSection_modules",
+      "lessons": 31,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-page-tsx-MentorSection_curriculum",
+      "lessons": 14,
+      "quizzes": 14
+    },
+    {
+      "id": "ref-FirstShopLab-tsx-SYMBOLS",
+      "lessons": 48,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-SourceLearningPaths-tsx-paths",
+      "lessons": 6,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-ai-tutor-course-ts-TUTOR_COURSE",
+      "lessons": 55,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-ai-tutor-course-ts-TUTOR_LESSONS",
+      "lessons": 55,
+      "quizzes": 0
+    },
+    {
+      "id": "ref-source-connections-ts-inspectSourceConnections_result",
+      "lessons": 3,
+      "quizzes": 0
+    },
+    {
+      "id": "python-core-lab",
+      "lessons": 4,
+      "quizzes": 4
+    },
+    {
+      "id": "python-professional-lab",
+      "lessons": 4,
+      "quizzes": 4
+    },
+    {
+      "id": "iptv-workshop",
+      "lessons": 10,
+      "quizzes": 10
+    },
+    {
+      "id": "site-elements",
+      "lessons": 7,
+      "quizzes": 0
+    },
+    {
+      "id": "glossary",
+      "lessons": 26,
+      "quizzes": 0
+    }
+  ],
+  "sourceOmissions": [],
+  "sourceVersion": 1,
+  "modules": 114,
+  "lessons": 1414,
+  "quizzes": 677,
+  "projectFiles": 595,
+  "omittedBySourceScanner": 7
+}

@@ -1,0 +1,75 @@
+{
+  "id": "seo-resume-verification-20261018",
+  "relatedId": "seo-resume-category-sitemap-20261018",
+  "createdAt": "2026-10-18T17:04:49.080Z",
+  "title": "SEO continuation verified locally; production migration awaits approval",
+  "summary": "390 HTTP checks across 34 products, 58 regressions, production build and responsive dashboard workflows passed. SEO storage remains absent in production.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/produit/[slug]",
+    "/sitemap.xml",
+    "/sitemaps/categories/0/",
+    "/change-history"
+  ],
+  "components": [
+    "SEO dashboard",
+    "Sitemap route",
+    "Read-only verification",
+    "Change History"
+  ],
+  "files": [
+    "app/admin/seo/page.tsx",
+    "app/sitemaps/[kind]/[page]/route.ts",
+    "scripts/verify-seo-live.mjs",
+    "scripts/smoke-seo-dashboard.mjs",
+    "tests/seo-sitemap.test.ts",
+    "docs/seo-system.md",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Stale editor forms retain their opened version; explicit reload prevents silent overwrites after refresh or bulk generation. Pagination stays within filtered result bounds."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Category sitemap works with the actual legacy schema without updated_at, preserving retryable failure behavior for other errors."
+    },
+    {
+      "kind": "modified",
+      "detail": "Read-only verification supports Node 26, all-product checks, duplicate detection and meaningful failure exit codes; browser regression covers manual drafts and stale refresh."
+    },
+    {
+      "kind": "added",
+      "detail": "Append-only continuation reports and documentation of actual verification, rollout prerequisites and limitations. No existing reports or application features removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production build, TypeScript and ESLint",
+      "result": "passed",
+      "detail": "Full npm build exited 0, application TypeScript exited 0, full ESLint exited 0 with existing image warnings."
+    },
+    {
+      "name": "Automated regressions and SQL",
+      "result": "passed",
+      "detail": "58 SEO, sitemap, product indexing, admin authorization, checkout delivery, cart stock and preorder tests passed. PGlite migration checks and 6 change-history tests passed."
+    },
+    {
+      "name": "Local production HTTP",
+      "result": "passed",
+      "detail": "390/390 checks across all 34 active products, metadata uniqueness, canonical URLs, JSON-LD, prices/stock, category navigation, sitemap, robots, checkout/cart reachability. One stale local page was explicitly revalidated; no pricing code/data changed."
+    },
+    {
+      "name": "Browser and real unauthenticated authorization",
+      "result": "passed",
+      "detail": "Isolated fixtures at 375/768/1440 pixels passed generation, manual draft edits/saving, approval, conflict, reset, bulk and history. Stale refresh preserves text and blocks writes until explicit reload. Real API 401 and dashboard 307 login redirect."
+    },
+    {
+      "name": "Production rollout and external validation",
+      "result": "not-run",
+      "detail": "Read-only Supabase check: products/categories/orders 200; SEO tables 404. Existing migration requires approval and staging verification. No deployment, remote writes, real provider generation, real payment submission, Google Rich Results test or full unrelated repository suite rerun."
+    }
+  ]
+}

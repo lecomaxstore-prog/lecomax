@@ -50,10 +50,10 @@ test("concurrent requests share rendering and invisible changes reuse the final 
 test("visible product changes get distinct artwork", async () => {
   const h = harness();
   const original = await h.png(product);
-  for (const change of [{ price: 89 }, { stock: 0 }, { name: "New name" }, { image: "/new.jpg", imageUrl: "https://example.test/new.jpg" }]) {
+  for (const change of [{ price: 89 }, { stock: 0 }, { stock: undefined }, { stock: 0, preorderEnabled: true }, { name: "New name" }, { image: "/new.jpg", imageUrl: "https://example.test/new.jpg" }]) {
     assert.notDeepEqual(await h.png({ ...product, ...change }), original);
   }
-  assert.equal(h.renders(), 5);
+  assert.equal(h.renders(), 7);
 });
 
 test("a failed render is retried, never retained as an in-flight or successful cache entry", async () => {

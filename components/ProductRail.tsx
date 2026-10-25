@@ -13,12 +13,14 @@ export default function ProductRail({
   cta,
   cardStyle = "default",
   refined = false,
+  promotion = false,
 }: {
   title: string;
   products: CardProduct[];
   cta?: { label: string; href: string };
   cardStyle?: "default" | "collection";
   refined?: boolean;
+  promotion?: boolean;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
@@ -82,7 +84,7 @@ export default function ProductRail({
   }, [maxIndex]);
 
   return (
-    <section data-source-file="components/ProductRail.tsx" ref={sectionRef} className={`${refined ? styles.refined : ""} max-w-7xl mx-auto px-4 md:px-6 py-10`}>
+    <section data-source-file="components/ProductRail.tsx" ref={sectionRef} className={`${refined ? styles.refined : ""} ${promotion ? styles.promotion : ""} max-w-7xl mx-auto px-4 md:px-6 py-10`}>
       {/* Header */}
       <div className="rail-header flex items-center justify-between mb-8">
         <div>

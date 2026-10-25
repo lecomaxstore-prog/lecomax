@@ -1,8 +1,7 @@
 import { msg, useLocale } from "@/i18n";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEvent } from "expo";
+import { ProductVideoPlayer } from "@/components/product-video";
 import { Image } from "expo-image";
-import { VideoView, useVideoPlayer } from "expo-video";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   FlatList,
@@ -41,7 +40,7 @@ type GalleryItem =
   | { id: string; type: "image"; uri?: string }
   | { id: string; type: "video"; uri: string; poster?: string };
 
-function ProductVideo({ active, uri }: { active: boolean; uri: string }) {
+function ProductVideo({ active, uri, poster }: { active: boolean; uri: string; poster?: string }) {
   useLocale();
   if (/youtube\.com|youtu\.be/i.test(uri)) {
     return (
@@ -58,47 +57,7 @@ function ProductVideo({ active, uri }: { active: boolean; uri: string }) {
     );
   }
 
-  return <DirectVideo active={active} uri={uri} />;
-}
-
-function DirectVideo({ active, uri }: { active: boolean; uri: string }) {
-  useLocale();
-  const player = useVideoPlayer({ uri: imageUrl(uri), useCaching: true }, (instance) => {
-    instance.loop = true;
-    instance.muted = true;
-  });
-  const { isPlaying } = useEvent(player, "playingChange", {
-    isPlaying: player.playing,
-  });
-
-  useEffect(() => {
-    if (active) player.play();
-    else player.pause();
-  }, [active, player]);
-
-  return (
-    <View style={styles.video}>
-      <VideoView
-        player={player}
-        nativeControls={false}
-        contentFit="cover"
-        style={styles.video}
-      />
-      <AnimatedPressable
-        accessibilityLabel={
-          isPlaying ? msg("productGallery.pauseVideo") : msg("productGallery.playVideo")
-        }
-        onPress={() => (isPlaying ? player.pause() : player.play())}
-        style={styles.videoTap}
-      >
-        {!isPlaying ? (
-          <View style={styles.playButton}>
-            <Ionicons name="play" size={26} color={palette.white} />
-          </View>
-        ) : null}
-      </AnimatedPressable>
-    </View>
-  );
+  return <ProductVideoPlayer active={active} uri={uri} poster={poster} />;
 }
 
 export const ProductGallery = memo(function ProductGallery({
@@ -118,7 +77,7 @@ export const ProductGallery = memo(function ProductGallery({
   const insets = useSafeAreaInsets();
   const { contentWidth, windowHeight } = useAppViewport();
   const galleryWidth = contentWidth;
-  const galleryHeight = Math.max(
+  const photoHeight = Math.max(
     320,
     Math.min(galleryWidth * 1.12, windowHeight * 0.58, 580),
   );
@@ -144,6 +103,9 @@ export const ProductGallery = memo(function ProductGallery({
   );
   const galleryRef = useRef<FlatList<GalleryItem>>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  // Give square and portrait clips the full gallery stage as well. A fixed
+  // landscape stage made these videos tiny and shifted the page on each swipe.
+  const galleryHeight = photoHeight;
   const skippedInitialImageSelection = useRef(false);
   const [zoomedImage, setZoomedImage] = useState<string>();
   const photos = useMemo(() => images.filter((uri): uri is string => Boolean(uri)), [images]);
@@ -266,7 +228,7 @@ export const ProductGallery = memo(function ProductGallery({
           renderItem={({ item, index }) => (
             <View style={{ width: galleryWidth, height: galleryHeight }}>
               {item.type === "video" ? (
-                <ProductVideo active={index === activeIndex} uri={item.uri} />
+                <ProductVideo active={index === activeIndex} uri={item.uri} poster={item.poster} />
               ) : (
                 <AnimatedPressable
                   accessibilityLabel={msg("product.enlargeImage", { number: index + 1, name: productName })}
@@ -340,12 +302,15 @@ export const ProductGallery = memo(function ProductGallery({
           </>
         ) : null}
 
-        <View pointerEvents="none" style={styles.counter}>
-          <Text style={styles.counterText}>
-            {activeIndex + 1}<Text style={styles.counterDivider}>{" / "}</Text><Text style={styles.counterTotal}>{media.length}</Text>
-          </Text>
-        </View>
       </View>
+        {media.length > 1 && <View pointerEvents="none" style={styles.counter}>
+          <View style={styles.counterTrack} accessible={false}>
+            <View style={[styles.counterProgress, { width: `${((activeIndex + 1) / media.length) * 100}%` }]} />
+          </View>
+          <Text style={styles.counterText}>
+            {String(activeIndex + 1).padStart(2, "0")}<Text style={styles.counterDivider}>{" / "}</Text><Text style={styles.counterTotal}>{String(media.length).padStart(2, "0")}</Text>
+          </Text>
+        </View>}
 
       <Modal
         animationType="fade"
@@ -489,13 +454,6 @@ const styles = StyleSheet.create({
     fontSize: 9,
     letterSpacing: 0.8,
   },
-  video: { width: "100%", height: "100%", backgroundColor: "#171A18" },
-  videoTap: {
-    position: "absolute",
-    inset: 0,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   externalVideo: {
     width: "100%",
     height: "100%",
@@ -520,30 +478,27 @@ const styles = StyleSheet.create({
     letterSpacing: 1.2,
   },
   counter: {
-    position: "absolute",
-    right: 16,
-    bottom: 16,
-    minWidth: 58,
-    minHeight: 32,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    minHeight: 36,
+    paddingHorizontal: 20,
+    paddingVertical: 9,
+    flexDirection: "row",
+    gap: 12,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "rgba(35,71,53,0.12)",
-    backgroundColor: "rgba(255,255,255,0.96)",
-    boxShadow: "0px 2px 8px rgba(17,24,19,0.08)",
+    backgroundColor: "#FFFFFF",
   },
+  counterTrack: { width: 64, height: 2, backgroundColor: "#E7EBE8", borderRadius: 1, overflow: "hidden" },
+  counterProgress: { height: "100%", backgroundColor: "#345740", borderRadius: 1 },
   counterText: {
-    color: "#234735",
-    fontFamily: typography.bold,
-    fontSize: 12,
-    lineHeight: 18,
+    color: "#345740",
+    fontFamily: typography.semibold,
+    fontSize: 10,
+    lineHeight: 16,
+    letterSpacing: 0.7,
     fontVariant: ["tabular-nums"],
   },
-  counterDivider: { color: "#A3ADA5", fontFamily: typography.regular },
-  counterTotal: { color: "#66746A", fontFamily: typography.medium },
+  counterDivider: { color: "#89958D", fontFamily: typography.regular },
+  counterTotal: { color: "#69776D", fontFamily: typography.regular },
   galleryArrow: {
     position: "absolute",
     top: "50%",

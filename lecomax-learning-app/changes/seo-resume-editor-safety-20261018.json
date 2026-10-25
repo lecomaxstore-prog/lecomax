@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Bind editor actions to the version originally opened; preserve old text and require explicit reload when the catalogue version changes."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Clamp displayed pagination when filtered results shrink."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Load CommonJS @next/env through its default export on Node 26."
+    }
+  ],
+  "summary": "Continue the recovered SEO implementation with editor conflict protection, pagination correction and a runnable read-only verifier.",
+  "id": "seo-resume-editor-safety-20261018",
+  "createdAt": "2026-10-18T16:56:44.536Z",
+  "validation": [
+    {
+      "detail": "20 existing SEO/API/sitemap/product indexing tests and isolated PGlite migration checks passed before these changes.",
+      "result": "passed",
+      "name": "Recovered baseline"
+    },
+    {
+      "detail": "Regression tests, browser checks, typecheck and production build pending. No migration or deployment performed.",
+      "result": "not-run",
+      "name": "Changes in this continuation"
+    }
+  ],
+  "files": [
+    "app/admin/seo/page.tsx",
+    "scripts/verify-seo-live.mjs"
+  ],
+  "status": "needs-testing",
+  "components": [
+    "SEO editor",
+    "SEO verification script"
+  ],
+  "relatedId": "seo-system-validation-20261018",
+  "title": "SEO: preserve editor versions during refresh",
+  "pages": [
+    "/admin/seo"
+  ]
+}

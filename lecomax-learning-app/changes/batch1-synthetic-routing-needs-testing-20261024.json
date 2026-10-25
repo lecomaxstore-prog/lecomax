@@ -1,0 +1,44 @@
+{
+  "id": "batch1-synthetic-routing-needs-testing-20261024",
+  "createdAt": "2026-10-24T15:23:34.195Z",
+  "title": "Connect guarded synthetic checkout routing in Batch 1 candidate",
+  "summary": "Local staging-only checkout transport and deny-by-default API boundary added; validation pending. Production and Vercel settings unchanged.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "synthetic checkout",
+    "middleware",
+    "build isolation"
+  ],
+  "files": [
+    "release/batch1-checkout-20261024/lib/checkout-staging-policy.cjs",
+    "release/batch1-checkout-20261024/lib/staging-synthetic.ts",
+    "release/batch1-checkout-20261024/lib/staging-checkout-handler.ts",
+    "release/batch1-checkout-20261024/instrumentation.ts",
+    "release/batch1-checkout-20261024/middleware.ts",
+    "release/batch1-checkout-20261024/next.config.js",
+    "release/batch1-checkout-20261024/app/checkout/page.tsx",
+    "release/batch1-checkout-20261024/tests/staging-integration.test.cjs",
+    "release/batch1-checkout-20261024/scripts/checkout-staging-local.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Server project and Preview identity guard; synthetic quotes, totals and COD/PayPal receipts; default API denial; outbound fetch denial; local credential-free runner."
+    },
+    {
+      "kind": "modified",
+      "detail": "Checkout renders an explicitly labelled local payment simulation without loading the PayPal SDK."
+    }
+  ],
+  "validation": [
+    {
+      "name": "New candidate checks",
+      "result": "not-run",
+      "detail": "Pending focused tests, TypeScript, lint, browser and build. In-memory idempotency is scoped to a process; no hosted validation."
+    }
+  ]
+}

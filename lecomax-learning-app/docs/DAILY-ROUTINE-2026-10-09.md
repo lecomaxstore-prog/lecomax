@@ -1,0 +1,7 @@
+# Daily routine update — 9 October 2026
+
+Home and More now show a dated routine card with actual saved progress and a direct reminder setup button. Wellness offers five selectable sections: morning, movement, food, mind/learning, and evening. The suggestion uses the time of day and unfinished habits. Existing meals, alternatives, guided lessons, check-ins, daily moments and saved history remain available.
+
+Browser reminders are opt-in. In Wellness > Reminders, choose a preset, save the schedule, allow notification permission, then send a test. The tab must remain open; browser sleep may delay delivery. Reminders more than 15 minutes late are skipped to avoid a flood on returning. Delivery is deduplicated per day/category/time using local storage and memory. Nothing is scheduled after the provider unmounts or reminders are disabled. Device settings do not sync across installations. For notifications while the app is closed, use the native app's existing recurring local schedules.
+
+Validation: TypeScript and focused ESLint passed; 20 wellness tests passed. The isolated browser smoke test uses synthetic authentication and notification responses, checks Arabic/English/French at 320/390/768px, persistence after refresh, explicit permission/test flow, and the Home entry point. Screenshots are in artifacts/wellness-routine. Real OS delivery still depends on the user's notification permission and system settings.

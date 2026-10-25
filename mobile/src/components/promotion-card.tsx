@@ -78,7 +78,13 @@ export const PromotionCard = memo(function PromotionCard({
         </AnimatedPressable>
       </View>
       <View style={styles.body}>
-        <View style={{ minHeight: 20, justifyContent: "center" }}>{product.brand ? <ProductBrandMark name={product.brand} compact /> : <Text numberOfLines={1} style={styles.category}>{localizedContent(product.category).toUpperCase()}</Text>}</View>
+        <View style={{ minHeight: 20, justifyContent: "center" }}>
+          {product.brand ? <ProductBrandMark name={product.brand} compact /> : (
+            <Text numberOfLines={1} style={styles.category}>
+              {localizedContent(product.category).toUpperCase()}
+            </Text>
+          )}
+        </View>
         <Text numberOfLines={2} style={styles.name}>
           {product.name}
         </Text>

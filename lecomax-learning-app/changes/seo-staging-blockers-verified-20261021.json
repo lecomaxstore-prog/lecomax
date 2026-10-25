@@ -1,0 +1,79 @@
+{
+  "id": "seo-staging-blockers-verified-20261021",
+  "relatedId": "seo-staging-blockers-prepared-20261021",
+  "createdAt": "2026-10-20T22:48:02.095Z",
+  "title": "Staging build recovered and safe Auth/provisioning proposals ready",
+  "summary": "Fresh full build, eight HTTP checks and 242 tests passed. All 20 variable scopes verified; 18 readable values match. Full Auth audit completed; platform webhook listings return 403. No deployment or hosted writes.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging preparation",
+    "SEO administration",
+    "Change History"
+  ],
+  "components": [
+    "Read-only staging audit tools",
+    "Build recovery",
+    "Auth correction proposal",
+    "Synthetic provisioning plan"
+  ],
+  "files": [
+    "scripts/audit-seo-staging-auth.ps1",
+    "scripts/verify-seo-staging-environment.cjs",
+    "operations/seo/staging-auth-corrections-20261021.json",
+    "operations/seo/staging-synthetic-provisioning-plan-20261021.json",
+    "docs/seo-staging-blockers-handoff-20261021.md",
+    "docs/seo-staging-owner-runbook-20261020.md",
+    "docs/seo-staging-configuration-matrix-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "GET-only full Auth and environment audits; prepared but unapplied Auth corrections and synthetic catalogue/staff/Auth provisioning plan with six verified migration hashes."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Recovered local build using lossless compression, available disk capacity and authorized public font downloads; no file deletion, source change or guard weakening. Corrected environment readback to current installed CLI pull endpoint."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated runbook/matrix with latest evidence. Corrected overbroad Redis blocker: SEO admin-session does not require shared rate limiting; learning routes differ. Preserved all existing reports and historical failures."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh full build and HTTP",
+      "result": "passed",
+      "detail": "Node 24.22.0 npm lifecycle passed with 635429 course checks and Next production build; eight local refusal/noindex checks passed. Synthetic local credentials; runtime fetch blocked; clean Linux install and hosted operation not tested."
+    },
+    {
+      "name": "Fresh regression and static checks",
+      "result": "passed",
+      "detail": "161 application, 71 worker, four email and six history tests passed. Candidate and learning-app TypeScript passed; focused ESLint passed with two existing candidate image warnings. Audit helper lint/syntax and proposal JSON checks passed."
+    },
+    {
+      "name": "Lossless storage recovery",
+      "result": "passed",
+      "detail": "Both compression reports show zero content-hash mismatches and no deletions. 6.85 GB was available on resume; not all recovered space is attributed to compression."
+    },
+    {
+      "name": "Hosted identity and environment",
+      "result": "passed",
+      "detail": "Exact staging Vercel project/team, Supabase project/organization, protection and Git isolation verified. Zero deployments; 20 expected names/scopes, 18 readable values match both scopes. Sensitive values withheld by Vercel; original write provenance retained."
+    },
+    {
+      "name": "Auth/database inspection",
+      "result": "passed",
+      "detail": "Full 243-field Auth config inspected with safe projection. Social/phone providers/hooks disabled, no custom provider/SMTP credentials. Site URL localhost and signup/email enabled remain unapplied correction items. Read-only database counts confirm empty schema/users and no public/Auth user triggers or outbound extensions."
+    },
+    {
+      "name": "Platform webhook enumeration",
+      "result": "failed",
+      "detail": "Project and separate staging-organization list endpoints returned HTTP 403. Contents unknown; owner dashboard evidence or scoped read access required. No bypass attempted."
+    },
+    {
+      "name": "Hosted acceptance and provisioning",
+      "result": "not-run",
+      "detail": "No hosted migrations, user creation, Auth mutation, messages, deployment, paid services or production changes. New staff/Auth provisioning design not executed; first deployment remains NO-GO pending approval and verification."
+    }
+  ]
+}

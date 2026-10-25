@@ -1,0 +1,51 @@
+{
+  "id": "seo-editorial-workflow-prepared-20261019",
+  "createdAt": "2026-10-19T20:43:42.134Z",
+  "title": "Persisted bilingual editorial revisions, guarded publication and rollback",
+  "summary": "Local six-migration workflow with immutable revisions, exact-version review, owner-only publication, rollback snapshots and a bilingual editor. Hosted operations remain blocked.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO dashboard",
+    "Product detail",
+    "Change History"
+  ],
+  "components": [
+    "Editorial workspace",
+    "Editorial API",
+    "SQL workflow",
+    "Published editorial reader"
+  ],
+  "files": [
+    "operations/seo-vercel/supabase/migrations/202610190004_seo_editorial_workflow.sql",
+    "operations/seo-vercel/tests/editorial-workflow-sql.test.mjs",
+    "lib/seo-editorial.ts",
+    "lib/seo-editorial-store.ts",
+    "app/api/admin/seo/editorial/route.ts",
+    "app/admin/seo/EditorialWorkspace.tsx",
+    "app/admin/seo/page.tsx",
+    "app/admin/seo/EditorialReview.tsx",
+    "app/produit/[slug]/page.tsx",
+    "tests/product-indexing.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Separate append-only bilingual draft revisions and decisions, source/version fencing, approval invalidation, guarded publication and snapshot rollback. New API enforces owner publication and explicit confirmation."
+    },
+    {
+      "kind": "added",
+      "detail": "Bilingual editing, evidence fields, explicit AI import, conflict comparison/manual rebase, paginated revision history and French public description reader."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Legacy metadata approval/reset clears editorial publication to prevent mismatched public descriptions. AI completion never writes editorial revisions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local SQL/API/UI/static regression",
+      "result": "not-run",
+      "detail": "Pending. No hosted database write, deployment, paid AI or worker activation."
+    }
+  ]
+}

@@ -1,0 +1,289 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-18",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-18",
+  "title": {
+    "en": "Monitoring and incident response: build an evidence timeline",
+    "ar": "المراقبة والاستجابة للحوادث",
+    "fr": "Monitoring and incident response: build an evidence timeline"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-17"
+  ],
+  "objectives": [
+    "Design structured events with useful context and redaction.",
+    "Triage suspicious sequences without premature attribution.",
+    "Plan containment, recovery and a measurable post-incident review."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Design logs and alerts around decisions you need to make, then rehearse a response using synthetic events. More logs are not automatically better monitoring.",
+  "sections": [
+    {
+      "title": "Choose events that answer operational questions",
+      "text": "A useful event records what happened, when, where, to which relevant actor or resource and with what outcome. For a denied order read, an event name, request id, timestamp, actor identifier, route category and denial reason may be enough. Avoid raw cookies, passwords, reset tokens and full request bodies. Use a documented event schema so fields can be queried consistently across services. A correlation id links events for one request, but should not become a secret credential. Timezone and clock consistency matter when a login service, API and payment handler each produce evidence. A log that cannot be related to a deployment or request may be difficult to interpret during an incident."
+    },
+    {
+      "title": "Separate application logs, audit events and metrics",
+      "text": "Application logs help diagnose execution. Audit events record important actions such as role changes, key creation or administrative refunds. Metrics aggregate counts and durations so operators can detect trends without storing every sensitive detail. Each has different retention and access needs. Protect log integrity and restrict who can read or modify sensitive audit records. Logging can fail, fill storage or create excessive cost, so bound event sizes and handle unavailable sinks without leaking data to callers. Whether a particular critical action should be blocked when audit storage is unavailable is a deliberate business policy, not a universal exception-handling shortcut. Document and test that decision."
+    },
+    {
+      "title": "Alert on a sequence and a threshold with context",
+      "text": "Repeated failed logins followed by success and a new privileged credential can be more informative than isolated failures. Thresholds need a time window, grouping key and response owner. A shared office IP or accessibility tool can create unusual traffic without malicious intent, so include context and a route for human review. Avoid alert fatigue by measuring which alerts lead to useful action and revisiting noisy rules. An alert should say what was observed and why it matters, not assert that a particular person is an attacker. The synthetic exercise below asks you to correlate events while keeping uncertainty visible."
+    },
+    {
+      "title": "Triage and containment are decisions under uncertainty",
+      "text": "Start by confirming the event source and scope, estimating impact and selecting an incident owner. Preserve minimal necessary evidence before changes that would destroy it. Containment might revoke a credential, disable a risky feature, isolate a host or restrict a route; choose the narrowest effective action under the incident plan. Use a known-clean channel when an account or device may be compromised. Record decision time, reason and authorizer. Avoid continuing a security test after it crosses the agreed stop condition simply to obtain a more impressive screenshot. A production incident is not a lab opportunity."
+    },
+    {
+      "title": "Recovery requires verification and communication",
+      "text": "After containing the problem, repair the cause and restore from known-good components or data where appropriate. Validate user access, order consistency, secret rotation and monitoring before returning normal operation. Communicate facts, impact, actions and uncertainty to the appropriate stakeholders without publishing sensitive evidence. Data-breach notification and legal requirements depend on jurisdiction and contracts; involve the responsible organizational/legal role rather than treating a course paragraph as legal advice. Keep an explicit status for systems not yet checked. A quiet dashboard after disabling all logging is not evidence of recovery."
+    },
+    {
+      "title": "Learn from the incident as a system",
+      "text": "A post-incident review should build a timeline, identify contributing conditions, assess which controls worked and assign improvements with owners and deadlines. Include detection delay, containment time, recovery validation and evidence gaps. Add regressions for the actual failure mechanism rather than only a one-off alert matching the exact incident string. Rehearse the updated playbook with synthetic data and measure whether the intended team can follow it. Darija: المراقبة خاصها تعاونك تقرر؛ والإنذار خاصو مسؤول وخطوة واضحة، ماشي غير رسالة حمراء. The assignment produces a timeline and response plan, not a claim that the fictional events represent a real compromise."
+    }
+  ],
+  "examples": [
+    {
+      "id": "event",
+      "filename": "synthetic-event.json",
+      "language": "json",
+      "code": "{\"event\":\"order.read.denied\",\"time\":\"2026-10-08T09:06:00Z\",\"requestId\":\"req-lab-3\",\"actorId\":\"alice\",\"resourceId\":\"order-b\",\"reason\":\"owner_mismatch\"}",
+      "annotations": [
+        {
+          "lines": "1",
+          "label": "A synthetic structured event records the security decision without session cookies, addresses or raw request bodies."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "timeline",
+      "difficulty": 1,
+      "task": "Order these synthetic events and state two hypotheses: login failures at 09:00, success at 09:05, token creation at 09:06.",
+      "hints": [
+        "Include both suspicious and legitimate explanations."
+      ],
+      "solution": "Timeline: failures -> success -> token creation\nHypothesis A: account takeover\nHypothesis B: legitimate user recovered access and created an integration\nNext evidence: trusted user confirmation, role history, token use and context",
+      "walkthrough": "The same sequence can require urgent attention without supporting premature attribution.",
+      "expectedResult": "A timeline with evidence-driven next steps."
+    },
+    {
+      "id": "logging",
+      "difficulty": 2,
+      "task": "Remove secrets from a proposed log containing password, cookie, requestId, status and route category.",
+      "hints": [
+        "Keep correlation without retaining authentication proof."
+      ],
+      "solution": "Keep: requestId, status, route category, timestamp and appropriate actor identifier\nRemove/redact: password and cookie",
+      "walkthrough": "Minimizing secrets reduces the damage if logs are accessed outside their intended audience.",
+      "expectedResult": "A bounded event schema."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-18-q1",
+      "question": "Should logs contain reset tokens for easier debugging?",
+      "options": [
+        "No; redact authentication proof.",
+        "Yes; every secret improves observability."
+      ],
+      "correctIndex": 0,
+      "explanation": "Logs have their own exposure and retention risks.",
+      "answerExplanations": [
+        "Correct. Logs have their own exposure and retention risks.",
+        "Not quite. Logs have their own exposure and retention risks."
+      ]
+    },
+    {
+      "id": "cyber-18-q2",
+      "question": "What does a correlation id help with?",
+      "options": [
+        "Granting administrator access.",
+        "Linking related observations."
+      ],
+      "correctIndex": 1,
+      "explanation": "It is an evidence aid, not a credential.",
+      "answerExplanations": [
+        "Not quite. It is an evidence aid, not a credential.",
+        "Correct. It is an evidence aid, not a credential."
+      ]
+    },
+    {
+      "id": "cyber-18-q3",
+      "question": "Does a noisy threshold prove malicious activity?",
+      "options": [
+        "No; inspect context and patterns.",
+        "Yes; every threshold crossing identifies an attacker."
+      ],
+      "correctIndex": 0,
+      "explanation": "Alerts are candidates for triage.",
+      "answerExplanations": [
+        "Correct. Alerts are candidates for triage.",
+        "Not quite. Alerts are candidates for triage."
+      ]
+    },
+    {
+      "id": "cyber-18-q4",
+      "question": "Should an alert have a response owner?",
+      "options": [
+        "No; storing it is enough.",
+        "Yes; someone must evaluate and act on it."
+      ],
+      "correctIndex": 1,
+      "explanation": "Detection without a response path can fail operationally.",
+      "answerExplanations": [
+        "Not quite. Detection without a response path can fail operationally.",
+        "Correct. Detection without a response path can fail operationally."
+      ]
+    },
+    {
+      "id": "cyber-18-q5",
+      "question": "Can log collection itself need resource limits?",
+      "options": [
+        "Yes; unbounded events can consume storage and processing.",
+        "No; logs are free and harmless."
+      ],
+      "correctIndex": 0,
+      "explanation": "Observability is part of the resource model.",
+      "answerExplanations": [
+        "Correct. Observability is part of the resource model.",
+        "Not quite. Observability is part of the resource model."
+      ]
+    },
+    {
+      "id": "cyber-18-q6",
+      "question": "Does disabling logs and seeing no alerts prove recovery?",
+      "options": [
+        "Yes; silence is proof of safety.",
+        "No; it removes visibility."
+      ],
+      "correctIndex": 1,
+      "explanation": "No signal can reflect missing observation.",
+      "answerExplanations": [
+        "Not quite. No signal can reflect missing observation.",
+        "Correct. No signal can reflect missing observation."
+      ]
+    },
+    {
+      "id": "cyber-18-q7",
+      "question": "What should containment preserve when possible?",
+      "options": [
+        "Necessary evidence and a decision record.",
+        "Only a screenshot of the dashboard color."
+      ],
+      "correctIndex": 0,
+      "explanation": "Recovery and investigation need context.",
+      "answerExplanations": [
+        "Correct. Recovery and investigation need context.",
+        "Not quite. Recovery and investigation need context."
+      ]
+    },
+    {
+      "id": "cyber-18-q8",
+      "question": "Should a post-incident review assign improvements?",
+      "options": [
+        "No; a timeline alone repairs the system.",
+        "Yes; owners and verification make actions concrete."
+      ],
+      "correctIndex": 1,
+      "explanation": "Learning requires implemented follow-up.",
+      "answerExplanations": [
+        "Not quite. Learning requires implemented follow-up.",
+        "Correct. Learning requires implemented follow-up."
+      ]
+    },
+    {
+      "id": "cyber-18-q9",
+      "question": "Can the course determine every legal notification obligation?",
+      "options": [
+        "No; involve responsible legal/organizational expertise.",
+        "Yes; one universal timeline applies everywhere."
+      ],
+      "correctIndex": 0,
+      "explanation": "Requirements depend on context and jurisdiction.",
+      "answerExplanations": [
+        "Correct. Requirements depend on context and jurisdiction.",
+        "Not quite. Requirements depend on context and jurisdiction."
+      ]
+    },
+    {
+      "id": "cyber-18-q10",
+      "question": "What makes a useful rehearsal?",
+      "options": [
+        "Running malware on production to test courage.",
+        "Synthetic evidence, defined decisions and measured execution."
+      ],
+      "correctIndex": 1,
+      "explanation": "Preparedness can be practiced without uncontrolled harm.",
+      "answerExplanations": [
+        "Not quite. Preparedness can be practiced without uncontrolled harm.",
+        "Correct. Preparedness can be practiced without uncontrolled harm."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can design structured events with useful context and redaction.",
+    "I can triage suspicious sequences without premature attribution.",
+    "I can plan containment, recovery and a measurable post-incident review."
+  ],
+  "recap": [
+    "Design structured events with useful context and redaction.",
+    "Triage suspicious sequences without premature attribution.",
+    "Plan containment, recovery and a measurable post-incident review."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP logging",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "NIST incident response",
+      "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Signal to response",
+    "steps": [
+      {
+        "title": "Structured event",
+        "detail": "Capture a bounded redacted decision with time and correlation."
+      },
+      {
+        "title": "Alert and triage",
+        "detail": "Combine signals, assess confidence and assign an owner."
+      },
+      {
+        "title": "Contain and recover",
+        "detail": "Take authorized action while preserving evidence."
+      },
+      {
+        "title": "Review and rehearse",
+        "detail": "Turn gaps into assigned controls and repeatable tests."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Correlation id",
+      "A value connecting related observations."
+    ],
+    [
+      "Alert fatigue",
+      "Reduced effectiveness caused by excessive low-value alerts."
+    ],
+    [
+      "Audit event",
+      "A record of a security- or business-significant action."
+    ]
+  ],
+  "lab": null
+}

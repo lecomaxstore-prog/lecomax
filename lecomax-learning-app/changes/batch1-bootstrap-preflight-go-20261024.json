@@ -1,0 +1,55 @@
+{
+  "id": "batch1-bootstrap-preflight-go-20261024",
+  "createdAt": "2026-10-24T18:43:41.047Z",
+  "relatedId": "batch1-cli-wrapper-correction-pending-20261024",
+  "title": "Bootstrap local and read-only preflight passed",
+  "summary": "31 tests pass; installed CLI returns explicit null with exit zero and empty stderr. Fresh provider checks confirm isolated staging/all/Hobby/19 Preview values and zero deployments. Submission awaits user confirmation.",
+  "status": "successful",
+  "pages": [
+    "Checkout staging preflight",
+    "/change-history"
+  ],
+  "components": [
+    "CLI validation wrapper",
+    "Bootstrap preflight"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/cli-validation-wrapper.cjs",
+    "artifacts/batch1-release-preparation-20261024/cli-validation-wrapper.test.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/wrapper-local-verification.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/wrapper-final-preflight.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/PREFLIGHT-GO.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Strictly validate documented null result and independent process outcome."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression tests, artifact integrity evidence and fresh read-only provider comparisons."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regressions",
+      "result": "passed",
+      "detail": "31/31: 16 HTML, 6 config, 9 wrapper."
+    },
+    {
+      "name": "CLI and integrity",
+      "result": "passed",
+      "detail": "Exit zero, explicit null, no stderr/signal/error; exact artifact inventory/hash, RC2 archive and 169 dirty hashes match."
+    },
+    {
+      "name": "Provider isolation",
+      "result": "passed",
+      "detail": "All protection, Hobby, 19 exact Preview values, zero deployments/aliases/resources; Production and SEO recorded snapshots unchanged."
+    },
+    {
+      "name": "Hosted bootstrap",
+      "result": "not-run",
+      "detail": "Submission prohibited until user confirmation; same unused attempt remains available."
+    }
+  ]
+}

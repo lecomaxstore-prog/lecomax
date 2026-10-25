@@ -1,0 +1,56 @@
+{
+  "id": "category-white-studio-verified-20261025",
+  "createdAt": "2026-10-25T12:25:58.021Z",
+  "title": "White category photos verified at mobile and desktop sizes",
+  "summary": "Checked the current CategoryTiles component with the new white photos in isolated browser rendering at 375, 482 and 1280 pixels.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage /"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "components/CategoryTiles.module.css",
+    "public/images/collection-chaussures-white-v5.webp",
+    "public/images/collection-accessoires-white-v5.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Two optimized WebP photos generated with built-in imagegen: preserve shoes/box and backpack/headphones/earbuds, replace scenery with seamless white studio backgrounds and soft contact shadows."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use new default photos on desktop and mobile, recognizing previous v4 defaults while retaining custom uploads."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remove dark overlay for white photos, use dark green captions and light count badges, contain products above captions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive browser rendering",
+      "result": "passed",
+      "detail": "Actual component rendered with fixture category data in Chrome at 375/482/1280px; both assets load, dark overlays are absent, text is dark green and category link destinations are correct. Mobile and desktop screenshots visually inspected."
+    },
+    {
+      "name": "History validation",
+      "result": "passed",
+      "detail": "Manifest check passed; all four change-history tests passed."
+    },
+    {
+      "name": "Learning app typecheck",
+      "result": "passed",
+      "detail": "npm run typecheck completed successfully."
+    },
+    {
+      "name": "Full live storefront",
+      "result": "not-run",
+      "detail": "No live app or deployment check. next lint was blocked by ENVIRONMENT_ISOLATION_REQUIRED. Browser checks used isolated component rendering with fixture counts, not live API data."
+    }
+  ],
+  "relatedId": "category-white-studio-20261025"
+}

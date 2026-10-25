@@ -1,0 +1,65 @@
+{
+  "id": "batch1-rc2-handoff-verified-20261024",
+  "relatedId": "batch1-release-package-correction-20261024",
+  "createdAt": "2026-10-24T17:19:11.793Z",
+  "title": "Complete RC2 verification and prepare Gate A approval",
+  "summary": "Confirmed the existing clean build and nine extracted checkout browser checks; seven focused checks passed. Archive and all 169 source entries preserved. Read-only Vercel audit confirms empty protected staging project; Gate A awaits approval and Gate B is unauthorized.",
+  "status": "successful",
+  "pages": [
+    "/checkout",
+    "/panier",
+    "/change-history"
+  ],
+  "components": [
+    "RC2 release evidence",
+    "synthetic checkout validation",
+    "Gate A configuration proposal"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/reconcile-rc2.cjs",
+    "artifacts/batch1-release-preparation-20261024/read-provider-handoff.cjs",
+    "artifacts/batch1-release-preparation-20261024/verify-remaining-flows.cjs",
+    "artifacts/batch1-release-preparation-20261024/write-handoff-report.cjs",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/RC2-COMPLETION.md",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/reconciliation-corrected.json",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/provider-verified.json",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/remaining-flows.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Evidence-based RC2 completion, exact 19-variable Gate A review, provider ownership/protection audit and future-account handoff. No application logic, provider settings, deployment or archive change."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Additive correction: baseline text was exported CRLF; all normalized baseline content matches pinned Git blobs. Preserve initial raw-byte mismatch record and corrected verification."
+    }
+  ],
+  "validation": [
+    {
+      "name": "RC2 source and archive",
+      "result": "passed",
+      "detail": "1506 sealed files verified; original and reproduced SHA-256 1ccb315db811881c822d79f274ad11bc7256d96bf4f14698f5a5482b5ad52d1d. 169 worktree entries/hashes unchanged; zero unexplained provenance differences."
+    },
+    {
+      "name": "Existing build and regression evidence",
+      "result": "passed",
+      "detail": "Retained clean build exit 0 in 188.098s; 76 packaged regressions and nine extracted actual-route browser checks passed. Not redundantly rerun."
+    },
+    {
+      "name": "Remaining local flows",
+      "result": "passed",
+      "detail": "Seven focused actual-route checks: cart/reload/checkout/removal, concurrent duplicates/conflict, forbidden live routes. No external browser traffic or page errors."
+    },
+    {
+      "name": "Vercel read-only verification",
+      "result": "passed",
+      "detail": "Correct project/team OWNER on Hobby; zero env/deployments/Git/aliases/resources; Standard protection. Exact hosted manifest passes server isolation policy."
+    },
+    {
+      "name": "Hosted acceptance and Gate A execution",
+      "result": "not-run",
+      "detail": "Both require separate explicit approvals. No Linux/Node24 fresh install, real payment, physical-device/screen-reader or hosted protection check claimed. Process-local duplicate limits are not Production guarantees."
+    }
+  ]
+}

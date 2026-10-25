@@ -1,0 +1,62 @@
+{
+  "id": "batch2-mobile-validated-20261024",
+  "relatedId": "batch2-mobile-fallback-correction-20261024",
+  "createdAt": "2026-10-24T20:16:37.780Z",
+  "title": "Batch 2: three-file mobile candidate validated; deployment awaits approval",
+  "summary": "Parent animation experiment improved median lab LCP 4.448 to 3.904 seconds with CLS zero. Responsive category requests measured 494,302 to 20,801 bytes at 256px. Final build and browser checks passed; production remains unchanged.",
+  "status": "successful",
+  "pages": [
+    "Homepage /",
+    "Boutique /boutique",
+    "Category /homme",
+    "Product detail",
+    "Cart /panier",
+    "Checkout /checkout"
+  ],
+  "components": [
+    "Page entrance CSS",
+    "Hero and community reflow",
+    "Responsive category pictures"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/app/globals.css",
+    "artifacts/batch2-mobile-20261024/source/app/page.tsx",
+    "artifacts/batch2-mobile-20261024/source/components/CategoryTiles.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Only page-wide opacity/blur/transform entrance and its unused keyframes removed; accent and other component animations remain."
+    },
+    {
+      "kind": "modified",
+      "detail": "Category pictures use existing Next image optimizer, viewport sizes, preserved mobile/desktop crop and lazy loading. Originals recover after early or late optimizer failure."
+    },
+    {
+      "kind": "fixed",
+      "detail": "320px hero and Ecomedia overflow corrected. Narrowest hero actions stack with readable French labels and at least 48px touch height."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Performance experiment",
+      "result": "passed",
+      "detail": "Three interleaved samples per arm; baseline 4.348–4.540s, animation-disabled 3.876–4.004s; median gain 544ms (12.2%). CLS zero. Browser-only experiment on live source, not final production field results. Target 2.5s unmet."
+    },
+    {
+      "name": "Final production build, TypeScript, lint",
+      "result": "passed",
+      "detail": "Normal npm run build including prebuild passed. Focused lint has two existing homepage warnings, no errors. Rebuilds were required by visual and image-race corrections."
+    },
+    {
+      "name": "Browser and preservation",
+      "result": "passed",
+      "detail": "33 candidate checks including 320/375/390/1440, reduced motion, category fallback with delayed scripts, navigation and images; 24 checkout checks; 39 focused checkout/security tests; 7 local SEO checks. All 2,051 other source files byte-identical to live."
+    },
+    {
+      "name": "Production and limitations",
+      "result": "not-run",
+      "detail": "No deployment attempted. Exact target and rollback rechecked. No field INP, physical-device or real transaction validation. Candidate-local fixture previews do not represent updated production."
+    }
+  ]
+}

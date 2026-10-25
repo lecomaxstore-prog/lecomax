@@ -209,11 +209,13 @@ export async function getSettings(signal?: AbortSignal): Promise<Setting[]> {
   return Array.isArray(data) ? data.filter((setting) => setting?.key) : [];
 }
 
-export async function getRecommendationSlugs(limit = 12, signal?: AbortSignal): Promise<string[]> {
-  const result = await apiRequest<{ slugs?: unknown }>(
-    `/api/recommendations?limit=${Math.max(4, Math.min(24, limit))}`,
+export async function getRecommendationSlugs(limit = 12, signal?: AbortSignal, mode?: "most-viewed"): Promise<string[]> {
+  const result = await apiRequest<{ slugs?: unknown; strategy?: string }>(
+    `/api/recommendations?limit=${Math.max(4, Math.min(24, limit))}${mode ? `&mode=${mode}` : ""}`,
     { signal },
   );
+  // An older API may ignore the mode and return catalogue recommendations.
+  if (mode && result.strategy !== mode) return [];
   return Array.isArray(result.slugs)
     ? result.slugs.filter(
         (slug): slug is string => typeof slug === "string" && Boolean(slug),

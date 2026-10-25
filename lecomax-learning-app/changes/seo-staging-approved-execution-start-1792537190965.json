@@ -1,0 +1,35 @@
+{
+  "id": "seo-staging-approved-execution-start-1792537190965",
+  "createdAt": "2026-10-20T22:59:50.965Z",
+  "title": "Approved isolated staging provisioning",
+  "summary": "Record recovery plan before applying owner-authorized staging Auth and synthetic schema/users.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging",
+    "/change-history"
+  ],
+  "components": [
+    "Supabase staging configuration"
+  ],
+  "files": [
+    "artifacts/seo-staging-approved-execution/recovery.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Staging identity checks, hash verification and recovery/partial-commit procedure."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Identity and environment",
+      "result": "passed",
+      "detail": "Exact staging identities and 20 variables checked; empty schema/users confirmed."
+    },
+    {
+      "name": "Hosted provisioning",
+      "result": "not-run",
+      "detail": "Pending approved execution."
+    }
+  ]
+}

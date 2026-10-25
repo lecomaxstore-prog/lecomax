@@ -1,0 +1,88 @@
+{
+  "createdAt": "2026-10-23T15:09:46.170Z",
+  "pages": [
+    "Protected SEO Preview",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Deployment packaging",
+    "Course validation",
+    "Retry-free API transport",
+    "Preview terminal restriction"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/prepare-certified-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/finalize-certified-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/validate-certified-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/certified-next.config.js",
+    "artifacts/seo-preview-resume-20261023/preview-terminal-route.ts",
+    "artifacts/seo-preview-resume-20261023/retry-free-api-adapter.mjs",
+    "artifacts/seo-preview-resume-20261023/retry-free-transport.mjs",
+    "artifacts/seo-preview-resume-20261023/test-api-adapter.mjs",
+    "artifacts/seo-preview-resume-20261023/test-guard-boundaries.mjs",
+    "artifacts/seo-preview-resume-20261023/test-retry-free-transport.mjs",
+    "artifacts/seo-preview-resume-20261023/certified-storefront-acceptance.cjs",
+    "artifacts/seo-preview-resume-20261023/run-certified-acceptance.cjs",
+    "artifacts/seo-preview-resume-20261023/certified-payload-v5.json",
+    "artifacts/seo-preview-resume-20261023/certified-request-v5.json"
+  ],
+  "id": "seo-filtered-preview-verified-1792768186171",
+  "relatedId": "seo-filtered-build-blockers-1792768186171",
+  "title": "Filtered protected Preview passed local validation",
+  "summary": "1,208-file package builds 226 pages; TypeScript, 62 security tests, 37 acceptance checks, 30 images and 50 API/guard checks passed. No upload or deployment.",
+  "status": "successful",
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Full local course generation/validation and a 177-file SHA-256 certificate; required webpack loader and pure environment policy included in package."
+    },
+    {
+      "kind": "modified",
+      "detail": "Preview-only configuration uses lifecycle-disabled clean install, verified course content, isolated file tracing and no webpack disk cache."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Preview-only terminal route returns 403 without importing native terminal tooling or initializing timers."
+    },
+    {
+      "kind": "added",
+      "detail": "Native HTTPS adapter has exact host/path allowlist, timeout, sanitized results and no retry/redirect behavior; submission requires protected staging and rejects unexpected target/URL/identity."
+    },
+    {
+      "kind": "removed",
+      "detail": "Only disposable npm and webpack caches created during this run were removed for disk recovery. No source or recovery evidence removed; NTFS compression preserved file bytes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Course correctness",
+      "result": "passed",
+      "detail": "48 modules, 192 lessons, 3 languages, 635429 checks. Generated output matches source after CRLF/LF normalization; 177 original byte hashes pinned."
+    },
+    {
+      "name": "Filtered clean install/build/types",
+      "result": "passed",
+      "detail": "npm ci installed 604 packages with scripts disabled; corrected native probe passed; filtered Next.js build generated 226 pages and explicit TypeScript passed."
+    },
+    {
+      "name": "Security and runtime",
+      "result": "passed",
+      "detail": "62 focused tests on filtered source; 37 runtime/browser checks; all 30 image HTTP/hash checks. 288 output traces contain no outside/missing files and no node-pty references."
+    },
+    {
+      "name": "Regression and transport",
+      "result": "passed",
+      "detail": "120 candidate regressions, 50 API/guard tests and 4 unmodified CLI loopback scenarios passed."
+    },
+    {
+      "name": "Provider and preservation",
+      "result": "passed",
+      "detail": "GET-only audit verified staging identity, protection=all, no exceptions/Git/crons, Preview-only sensitive variable scopes and disabled flags. 2601 baseline hashes match; 137 tracked changes and 15 untracked files preserved."
+    },
+    {
+      "name": "Limits",
+      "result": "not-run",
+      "detail": "No Linux hosted build, live datastore storefront acceptance, upload or deployment. Consumed hosted verifier not rerun. Existing lint warnings remain. Pattern scans are not an exhaustive secret proof."
+    }
+  ]
+}

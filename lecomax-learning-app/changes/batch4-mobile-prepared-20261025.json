@@ -1,0 +1,41 @@
+{
+  "id": "batch4-mobile-prepared-20261025",
+  "relatedId": "batch3-production-complete-20261025",
+  "createdAt": "2026-10-25T05:36:07.691Z",
+  "title": "Batch 4: mobile offscreen layout candidate prepared",
+  "summary": "Prepare a one-file CSS candidate from the verified live Batch 3 source. Trace shows expensive whole-page style/layout; four live diagnostic runs support testing deferred offscreen rendering. Not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage on mobile"
+  ],
+  "components": [
+    "Hero critical rendering path",
+    "Offscreen homepage sections"
+  ],
+  "files": [
+    "artifacts/batch4-mobile-20261025/source/app/globals.css"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Mobile-only content-visibility:auto for homepage sections after the Hero, with remembered intrinsic block sizes. Desktop and print unchanged. All HTML and content preserved; no JS, fonts, payment, SEO or auth changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live baseline",
+      "result": "passed",
+      "detail": "Batch 3 READY and active; 2055 source hashes verified. Rollback dpl_6fiTe8ai9LbZfdVXv9giV1CKDMf2."
+    },
+    {
+      "name": "Diagnostics",
+      "result": "passed",
+      "detail": "Instrumented trace found 494ms style and 722ms layout in a single task. Four non-transactional live runs: baseline 4.788/3.772s; broad rendering probe 3.524/3.576s. Diagnostic, not final candidate certification."
+    },
+    {
+      "name": "Candidate checks",
+      "result": "not-run",
+      "detail": "Build, typecheck, lint, focused browser/scroll checks and final comparable measurements pending."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "White compact card with 16px corners, larger recipient name, aligned location and phone rows, simple Edit action with explicit button role."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the Selected label, large icon tile, tinted Edit background and phone divider to reduce height and visual clutter."
+    }
+  ],
+  "summary": "Refined the delivery card after feedback: stronger name, aligned detail rows and less decoration.",
+  "id": "cart-address-compact-verified-20261025",
+  "createdAt": "2026-10-25T21:04:15.308Z",
+  "validation": [
+    {
+      "detail": "Mobile and learning-app TypeScript checks and focused cart ESLint passed.",
+      "result": "passed",
+      "name": "Static checks"
+    },
+    {
+      "detail": "All six change-history and interaction tests passed.",
+      "result": "passed",
+      "name": "History regression"
+    },
+    {
+      "detail": "Local Edge with mock data: no horizontal overflow at 320, 390, 490 and 768 pixels. Edit opened delivery form. Visually reviewed 390px capture.",
+      "result": "passed",
+      "name": "Browser validation"
+    },
+    {
+      "detail": "Native devices, long-address cases, selection interaction and real backend checkout untested. No deployment. Screenshot is a historical local capture.",
+      "result": "not-run",
+      "name": "Limitations"
+    }
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/cart.tsx"
+  ],
+  "components": [
+    "DeliveryAddress"
+  ],
+  "status": "successful",
+  "title": "Compact delivery address validated",
+  "pages": [
+    "Mobile cart"
+  ],
+  "relatedId": "cart-address-compact-refinement-20261025"
+}

@@ -1,0 +1,48 @@
+{
+  "id": "seo-manual-run-control-20261018",
+  "createdAt": "2026-10-18T19:37:31.973Z",
+  "title": "Add authorized manual SEO sync with shared durable run control",
+  "summary": "Prepare an admin action and persistent worker run state with database fencing; cron remains disabled.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/api/admin/seo/sync",
+    "/change-history"
+  ],
+  "components": [
+    "SEO dashboard",
+    "Vercel worker",
+    "Run lease"
+  ],
+  "files": [
+    "app/admin/seo/SeoSyncControl.tsx",
+    "app/admin/seo/page.tsx",
+    "app/api/admin/seo/sync/route.ts",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/supabase/migrations/20261018193508_seo_worker_run_control.sql",
+    "operations/seo-vercel/tests/handler.test.mjs",
+    "operations/seo-vercel/tests/sql-integration.test.mjs",
+    "tests/seo-manual-sync.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Admin action with same-origin/session/rate guards and product/category edit authorization, durable status polling and server-only worker credentials."
+    },
+    {
+      "kind": "added",
+      "detail": "Local-only SQL run lease with per-step fencing, expiry recovery and persisted counts/errors; legacy unfenced RPC access revoked by prepared migration."
+    },
+    {
+      "kind": "modified",
+      "detail": "Cron and manual invocations use the same bounded worker; no commerce changes or scheduler activation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Local tests, concurrency, TypeScript, lint and production build pending. No production operation."
+    }
+  ]
+}

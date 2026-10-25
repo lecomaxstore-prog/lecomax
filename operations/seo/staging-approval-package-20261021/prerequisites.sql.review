@@ -1,0 +1,48 @@
+-- REVIEW DRAFT ONLY. Not a migration. Do not execute without separate owner approval.
+-- Target: tyltharlnbxrxibuxyye, organization mbhkspintqoxntjbykrm.
+-- External identity verification and exact file-hash approval are mandatory.
+-- This deliberate guard must remain until a separately approved execution package is prepared.
+BEGIN;
+DO $$ BEGIN RAISE EXCEPTION 'REVIEW_DRAFT_NOT_APPROVED'; END $$;
+CREATE TABLE public.products (
+ id text PRIMARY KEY CHECK (id LIKE 'seo-fixture-%'), name text NOT NULL,
+ slug text NOT NULL UNIQUE CHECK (slug LIKE 'seo-fixture-%'), active boolean NOT NULL DEFAULT false,
+ description text, category text, brand text, images jsonb NOT NULL DEFAULT '[]'::jsonb CHECK (jsonb_typeof(images)='array'),
+ stock integer NOT NULL DEFAULT 0 CHECK (stock >= 0)
+);
+CREATE TABLE public.categories (
+ id integer PRIMARY KEY CHECK (id IN (910001,910002)), name text NOT NULL,
+ slug text NOT NULL UNIQUE CHECK (slug LIKE 'seo-fixture-%'), active boolean NOT NULL DEFAULT false, description text, image text
+);
+CREATE TABLE public.admin_roles (id uuid PRIMARY KEY, name text NOT NULL UNIQUE CHECK (name IN ('seo-fixture-editor','seo-fixture-viewer')));
+CREATE TABLE public.admin_staff (
+ id uuid PRIMARY KEY, email text NOT NULL UNIQUE CHECK (email IN ('editor@staging.invalid','viewer@staging.invalid','revoked@staging.invalid')),
+ role_id uuid NOT NULL REFERENCES public.admin_roles(id), status text NOT NULL CHECK (status IN ('active','inactive'))
+);
+CREATE TABLE public.admin_role_permissions (
+ role_id uuid NOT NULL REFERENCES public.admin_roles(id), permission_slug text NOT NULL CHECK (permission_slug IN ('products.view','products.edit')),
+ PRIMARY KEY (role_id,permission_slug)
+);
+ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.products FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT ON TABLE public.products TO service_role;
+INSERT INTO public.products SELECT * FROM jsonb_populate_recordset(NULL::public.products, $fixture$[{"id":"seo-fixture-fr","name":"Casque de test","slug":"seo-fixture-fr","active":true,"description":"Exemple synthétique sans vente réelle.","category":"Audio test","brand":"Fixture","images":[],"stock":2},{"id":"seo-fixture-ar","name":"سماعة تجريبية","slug":"seo-fixture-ar","active":true,"description":"بيانات تجريبية فقط وليست منتجا للبيع.","category":"Audio test","brand":"Fixture","images":[],"stock":3},{"id":"seo-fixture-inactive","name":"Inactive fixture","slug":"seo-fixture-inactive","active":false,"description":null,"category":null,"brand":null,"images":[],"stock":0}]$fixture$::jsonb);
+ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.categories FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT ON TABLE public.categories TO service_role;
+INSERT INTO public.categories SELECT * FROM jsonb_populate_recordset(NULL::public.categories, $fixture$[{"id":910001,"name":"Audio test","slug":"seo-fixture-category-fr","active":true,"description":null,"image":null},{"id":910002,"name":"فئة تجريبية","slug":"seo-fixture-category-ar","active":true,"description":"اختبار محلي","image":null}]$fixture$::jsonb);
+ALTER TABLE public.admin_roles ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.admin_roles FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT ON TABLE public.admin_roles TO service_role;
+INSERT INTO public.admin_roles SELECT * FROM jsonb_populate_recordset(NULL::public.admin_roles, $fixture$[{"id":"91000000-0000-4000-8000-000000000001","name":"seo-fixture-editor"},{"id":"91000000-0000-4000-8000-000000000002","name":"seo-fixture-viewer"}]$fixture$::jsonb);
+ALTER TABLE public.admin_staff ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.admin_staff FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT ON TABLE public.admin_staff TO service_role;
+INSERT INTO public.admin_staff SELECT * FROM jsonb_populate_recordset(NULL::public.admin_staff, $fixture$[{"id":"92000000-0000-4000-8000-000000000001","email":"editor@staging.invalid","role_id":"91000000-0000-4000-8000-000000000001","status":"active"},{"id":"92000000-0000-4000-8000-000000000002","email":"viewer@staging.invalid","role_id":"91000000-0000-4000-8000-000000000002","status":"active"},{"id":"92000000-0000-4000-8000-000000000003","email":"revoked@staging.invalid","role_id":"91000000-0000-4000-8000-000000000002","status":"inactive"}]$fixture$::jsonb);
+ALTER TABLE public.admin_role_permissions ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON TABLE public.admin_role_permissions FROM PUBLIC, anon, authenticated, service_role;
+GRANT SELECT ON TABLE public.admin_role_permissions TO service_role;
+INSERT INTO public.admin_role_permissions SELECT * FROM jsonb_populate_recordset(NULL::public.admin_role_permissions, $fixture$[{"role_id":"91000000-0000-4000-8000-000000000001","permission_slug":"products.view"},{"role_id":"91000000-0000-4000-8000-000000000001","permission_slug":"products.edit"},{"role_id":"91000000-0000-4000-8000-000000000002","permission_slug":"products.view"}]$fixture$::jsonb);
+-- No policies for anon/authenticated; no triggers, extensions, schedules or default-privilege changes.
+-- Apply the separately pinned SIX SEO files only after reviewing their transaction boundaries.
+COMMIT;

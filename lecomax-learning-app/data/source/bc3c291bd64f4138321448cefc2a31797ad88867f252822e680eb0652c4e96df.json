@@ -1,0 +1,1 @@
+{"content":"import type { Metadata } from \"next\";\nimport { privatePageMetadata } from \"@/lib/seo\";\n\nexport const metadata: Metadata = { title: \"Panier\", ...privatePageMetadata };\n\nexport default function CartLayout({ children }: { children: React.ReactNode }) {\n  return children;\n}\n"}

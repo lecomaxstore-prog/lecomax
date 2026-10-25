@@ -1,0 +1,52 @@
+{
+  "id": "seo-resume-category-sitemap-20261018",
+  "relatedId": "seo-resume-editor-safety-20261018",
+  "createdAt": "2026-10-18T16:59:58.343Z",
+  "title": "Category sitemap compatibility with the existing Supabase schema",
+  "summary": "Read-only checks identified a missing optional updated_at column on categories; preserve category indexing without a schema change.",
+  "status": "needs-testing",
+  "pages": [
+    "/sitemaps/categories/0/"
+  ],
+  "components": [
+    "Sitemap shard route",
+    "SEO validation"
+  ],
+  "files": [
+    "app/sitemaps/[kind]/[page]/route.ts",
+    "tests/seo-sitemap.test.ts",
+    "scripts/verify-seo-live.mjs",
+    "scripts/smoke-seo-dashboard.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Retry sitemap reads without updated_at only for the specific missing-column error; omit lastmod rather than invent dates."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for legacy category schemas and stale editor refresh; all-product metadata uniqueness checks and failure exit status."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Verifier accepts crawlable category navigation for products with no similar cards and handles unknown stock."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Read-only discovery",
+      "result": "failed",
+      "detail": "390 local HTTP checks found category sitemap 503 and one price mismatch. Live categories.updated_at query returned PostgreSQL 42703. No database changes."
+    },
+    {
+      "name": "Editor browser regression",
+      "result": "passed",
+      "detail": "Production UI fixtures passed at 375, 768 and 1440 pixels, including stale refresh/reload, generation, approval, reset, bulk and history."
+    },
+    {
+      "name": "Sitemap correction",
+      "result": "not-run",
+      "detail": "Tests and rebuilt HTTP verification pending."
+    }
+  ]
+}

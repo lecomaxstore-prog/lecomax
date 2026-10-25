@@ -1,0 +1,28 @@
+{
+  "status": "prepared-only",
+  "enabled": false,
+  "provider": null,
+  "recipient": null,
+  "deliveryVerifiedAt": null,
+  "source": "External read-only checks plus sanitized worker/platform logs; never poll GET /api/sync",
+  "thresholds": {
+    "staleHeartbeatHours": 27,
+    "oldestPendingJobHours": 27,
+    "terminalFailures": 1,
+    "consecutivePartialRuns": 2,
+    "runLeaseSeconds": 90,
+    "functionDurationLimitSeconds": 60
+  },
+  "alerts": [
+    "Worker HTTP 5xx, platform timeout or deployment-protection interception",
+    "Failed or interrupted durable run",
+    "Missing heartbeat beyond the daily schedule allowance",
+    "Terminal queue failure or oldest pending work beyond threshold",
+    "Two consecutive partial batches requiring backlog review",
+    "Monitoring transport or alert-delivery failure"
+  ],
+  "retention": "Persist sanitized observations externally; the control table stores only the latest run",
+  "messageFields": ["UTC time","project/deployment ID","sanitized state/error code","counts","elapsed duration","dashboard link"],
+  "excludedMessageFields": ["cookies","Authorization headers","service keys","lease tokens","catalogue/customer bodies"],
+  "activationPrerequisites": ["Named provider and confirmed recipient","Approved monitoring configuration","Verified test alert delivery","Database postflight passed","Accepted daily freshness"]
+}

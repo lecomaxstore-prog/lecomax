@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Review-only release gates; not deployment or write authorization",
+  "hostedWritesAuthorized": false,
+  "productionReleaseAuthorized": false,
+  "decisions": { "fullStaging": "NO-GO", "production": "NO-GO" },
+  "verified": {
+    "candidateInventory": "artifacts/seo-final-candidate-integrity-20261021.json",
+    "productionSchemaPreflight": "artifacts/seo-final-database-preflight-1792577337409.json",
+    "stagingIsolation": "artifacts/seo-quality/staging-readonly-1792577238994.json",
+    "publicAvailabilityAndProtection": "artifacts/seo-final-public-http-1792577237648.json",
+    "latestExistingBackupRestore": "artifacts/seo-final-local-restore-1792577467672.json",
+    "fullDependencyAudit": "artifacts/seo-final-audit-20261021.json",
+    "runtimeDependencyAudit": "artifacts/seo-final-runtime-audit-20261021.json",
+    "historicalServerTraceExposure": "artifacts/seo-final-build-exposure-20261021.json",
+    "retainedLocalBrowserAcceptance": "artifacts/seo-editorial-browser/run-2zo3ci/result.json"
+  },
+  "access": {
+    "vercel": "Existing CLI credential returns HTTP 403; current READY state, production revision, rollback availability and environment bindings cannot be freshly certified",
+    "browser": "No connected browser surfaces; local Chrome works but has no authenticated hosted session",
+    "supabaseConnector": "Neither connected account lists staging; existing staging-only TLS SQL connection works",
+    "requiredOwnerAction": "Install/connect Vercel for the LECOMAX team or refresh its CLI login, and connect a signed-in protected staging browser. Do not send credentials in chat."
+  },
+  "stagingWriteApproval": {
+    "status": "NOT_APPROVED",
+    "project": "lecomax-seo-staging",
+    "supabaseRef": "tyltharlnbxrxibuxyye",
+    "vercelProject": "prj_jPniwpH4s81bhISVReUKTQN0GwvD",
+    "onlyProductId": "seo-fixture-fr",
+    "requestedScope": [
+      "Capture current synthetic fixture and SEO state; refuse unexpected existing data",
+      "Seed/synchronize only the reserved product SEO document through a reviewed bounded operation",
+      "Use existing synthetic accounts with a separately reviewed no-delivery session lifecycle",
+      "Exercise owner/editor/viewer/expired/revoked authorization, draft save, stale conflict, review, publish and rollback",
+      "Verify storefront cache invalidation and exact prior publication restoration",
+      "Restore temporarily changed gates, revoke test sessions/automation access, retain editorial/audit history"
+    ],
+    "prohibited": ["Production writes", "Real catalogue changes", "Bulk synchronization", "Paid AI", "IndexNow", "Email/payment/push", "New schedules", "Disabling deployment protection", "Deleting audit history"],
+    "beforeExecution": "Once access is restored, pin the exact baseline and mutation/cleanup commands for review. This scope is not an executable write plan or approval."
+  },
+  "productionChecklist": [
+    { "gate": "Protected hosted browser and editorial acceptance", "status": "blocked-access-and-approval" },
+    { "gate": "Current production alias/revision and exact source delta", "status": "blocked-vercel-403", "historicalBaselineOnly": "d9d1d7a7b274fe3df9f70bb154704ea9e07e78ee" },
+    { "gate": "Production environment names and secret bindings", "status": "blocked-vercel-403", "expectedDatabaseRef": "yddqwgdgeljkzfsmtein", "rule": "Verify in place; never copy staging secrets or replace payment/mail settings" },
+    { "gate": "Six pinned decoupled migrations", "status": "fresh-readonly-preflight-and-local-restore-rehearsal-passed", "plan": "operations/seo/editorial-six-migration-plan.json", "rule": "No superseded trigger migration, synthetic prerequisites, staging runtime repair or blanket migration push" },
+    { "gate": "Fresh recovery point and managed services coverage", "status": "owner-release-window-required", "evidenceLimit": "October 18 backup restored locally on PG18; 38 managed extension/event-trigger entries omitted; production PG17.6 and hosted storage/Vault recovery not certified" },
+    { "gate": "French/Arabic content review", "status": "human-review-required", "rule": "Bilingual editorial does not certify separate Arabic canonical/hreflang routes" },
+    { "gate": "Dependency risk", "status": "runtime-clean-build-risk-assessed", "findings": "7 high and 2 moderate dev findings; two underlying advisories; no runtime trace matches", "rule": "Use trusted repository build inputs; do not process attacker-supplied glob patterns/CSS in build services; reassess on lockfile or build-flow changes" },
+    { "gate": "Rollback", "status": "owner-and-current-target-required", "historicalTargetOnly": "dpl_HkgcNHTedgha5XhnjjX1RED3ZwGx", "procedure": "Verify target still READY and compatible before release. On regression stop newly activated workers/providers, restore reviewed application deployment, inspect migration state read-only. Preserve SEO/audit/budget data; do not drop tables or retry uncertain migrations automatically." },
+    { "gate": "Monitoring", "status": "owner-and-destinations-required", "proposedStopConditions": ["Any cross-environment write or unauthorized mutation", "Any unexpected paid job or outbound message", "Two consecutive sitemap 5xx checks one minute apart", "Repeated new checkout/order failures", "Sustained new 5xx or latency regression relative to release baseline"], "rule": "Use existing hosting/Supabase logs; do not enable a paid monitoring integration. Record release operator, alert recipient, baseline, RPO/RTO and approved latency/error thresholds." },
+    { "gate": "Search Console/indexing", "status": "account-review-required", "rule": "Verify ownership and existing lecomax.com sitemap status, inspect representative active product/category canonicals and inactive 404s after release. Do not submit protected staging URLs. Sitemap submission, IndexNow and live indexing activation require separate authorization." },
+    { "gate": "Release authorization", "status": "NOT_APPROVED", "rule": "Separate approval for exact production migration package, deployment, push/merge, commerce canaries and later activation of external services" }
+  ]
+}

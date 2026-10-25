@@ -1,0 +1,56 @@
+{
+  "id": "batch1-production-validated-20261024",
+  "relatedId": "batch1-production-prepared-20261024",
+  "createdAt": "2026-10-24T19:07:07.864Z",
+  "title": "Batch 1 production candidate: essential checks passed",
+  "summary": "39 focused tests, TypeScript, focused lint, standard Node 24 production build and 24 local browser checks passed. Exact four-file source delta verified; no deployment yet.",
+  "status": "successful",
+  "pages": [
+    "Cart /panier",
+    "Checkout /checkout"
+  ],
+  "components": [
+    "Quote status and retry",
+    "Checkout payment safeguards",
+    "Production source preservation"
+  ],
+  "files": [
+    "artifacts/batch1-production-20261024/source/app/checkout/page.tsx",
+    "artifacts/batch1-production-20261024/source/app/panier/page.tsx",
+    "artifacts/batch1-production-20261024/source/lib/use-cart-calculation.ts",
+    "artifacts/batch1-production-20261024/source/components/CartQuoteFeedback.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified truthful delivery pricing, failed-quote feedback/retry, address/cart invalidation, stale responses and COD/PayPal recovery while preserving real order errors and idempotency."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused security and checkout",
+      "result": "passed",
+      "detail": "39/39. Initial Git safe-directory failure corrected with process-local configuration; no global Git settings changed."
+    },
+    {
+      "name": "Types, lint and production build",
+      "result": "passed",
+      "detail": "Node 24 standard npm run build including normal prebuild passed. Initial font download failed in network sandbox; unchanged source passed with permitted network access. Existing lint warnings remain."
+    },
+    {
+      "name": "Browser regression",
+      "result": "passed",
+      "detail": "24 checks at 320/390/768/1440 widths; all API and external requests mocked/blocked locally. No real customer or payment side effects."
+    },
+    {
+      "name": "Source scope",
+      "result": "passed",
+      "detail": "2,053 live baseline source files preserved except three modified files and one added feedback component. No staging runtime/config/credentials or migrations. SEO and server payment/order/auth code unchanged."
+    },
+    {
+      "name": "Production deployment and physical devices",
+      "result": "not-run",
+      "detail": "Not deployed at report time. No real transaction, screen-reader or physical-device verification."
+    }
+  ]
+}

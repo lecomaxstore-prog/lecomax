@@ -1,0 +1,39 @@
+{
+  "id": "perfume-card-photo-prepared-20261025",
+  "createdAt": "2026-10-25T12:00:28.568Z",
+  "title": "Larger perfume product-card photo",
+  "summary": "Prepared a tightly framed perfume bottle and box on a clean light background.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage and boutique product cards"
+  ],
+  "components": [
+    "ProductImage"
+  ],
+  "files": [
+    "components/ProductImage.tsx",
+    "public/images/products/studio/stronger-with-you-v2.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Versioned AI-assisted perfume photo with reduced empty space and consistent background."
+    },
+    {
+      "kind": "modified",
+      "detail": "Exact source-URL card override; original gallery and remote product data preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visual asset review",
+      "result": "passed",
+      "detail": "Checked full bottle/box framing and main label appearance."
+    },
+    {
+      "name": "Browser and lint",
+      "result": "not-run",
+      "detail": "Pending mobile/desktop verification. AI retouching may alter fine print; original image retained. Local only."
+    }
+  ]
+}

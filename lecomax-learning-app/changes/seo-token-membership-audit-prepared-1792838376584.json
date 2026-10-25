@@ -1,0 +1,42 @@
+{
+  "id": "seo-token-membership-audit-prepared-1792838376584",
+  "createdAt": "2026-10-24T10:39:36.587Z",
+  "title": "Read-only token scope and membership audit prepared",
+  "summary": "Official Vercel docs confirm project-scoped tokens deny team and user resources. Actual token scope remains unconfirmed. Masked GET-only metadata and self-membership audit prepared; policy unchanged.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging Preview",
+    "Change History"
+  ],
+  "components": [
+    "Vercel scope/membership diagnostics"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/audit-token-membership.mjs",
+    "artifacts/seo-preview-resume-20261023/verify-token-membership-readonly.ps1",
+    "artifacts/seo-preview-resume-20261023/test-token-membership.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only current-token metadata, authenticated user and paginated exact-UID membership audit. Persists only sanitized statuses and scope/role checks. No token IDs, prefixes/suffixes, profile data, response bodies or other-member details logged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Official documentation",
+      "result": "passed",
+      "detail": "https://vercel.com/docs/accounts/access-tokens documents project/team/full-account scopes; project scope denies team/user resources. https://vercel.com/docs/rest-api/authentication/get-auth-token-metadata documents current selector. No precise role correction inferred without actual membership evidence."
+    },
+    {
+      "name": "Syntax and synthetic validation",
+      "result": "passed",
+      "detail": "Node and PowerShell syntax; mocked scope/membership success and denial; GET-only and sensitive-output exclusion passed. No live API calls."
+    },
+    {
+      "name": "Live scope and membership",
+      "result": "not-run",
+      "detail": "Same user-held token required at masked prompt. Project-scoped token may deny these audit endpoints; use Dashboard scope and membership inspection then. No deployment, guard reset, payload/source change, token creation or permission change."
+    }
+  ]
+}

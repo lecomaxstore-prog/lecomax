@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabase } from "./supabase";
 import type { CartCalculation, CartRequestItem } from "./commerce-contract";
 
@@ -8,10 +8,14 @@ export async function commerceAuthHeaders(): Promise<Record<string, string>> {
   return data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {};
 }
 
-export function useCartCalculation(input: { items: CartRequestItem[]; city?: string; email?: string; couponId?: string; paymentProvider?: "cod" | "paypal" }, settings: unknown) {
-  const key = JSON.stringify([input, settings]);
-  const [result, setResult] = useState<{ key: string; quote?: CartCalculation; error?: string }>({ key: "" });
+export function useCartCalculation(input: { items: CartRequestItem[]; city?: string; email?: string; couponId?: string; paymentProvider?: "cod" | "paypal" }, settings: unknown, deliveryAddress?: string) {
   const [revision, setRevision] = useState(0);
+  // Include retries and address edits in identity: an older quote is never ready
+  // while its replacement is debouncing, authenticating, or in flight.
+  const key = JSON.stringify([input, settings, deliveryAddress, revision]);
+  // A -> B -> A is a new request too, not a reusable result from the first A.
+  const request = useMemo(() => ({ key }), [key]);
+  const [result, setResult] = useState<{ request?: typeof request; quote?: CartCalculation; error?: string }>({});
   useEffect(() => {
     const refresh = () => setRevision(value => value + 1);
     window.addEventListener("focus", refresh);
@@ -19,14 +23,14 @@ export function useCartCalculation(input: { items: CartRequestItem[]; city?: str
     return () => { window.removeEventListener("focus", refresh); clearInterval(timer); };
   }, []);
   useEffect(() => {
-    const [payload] = JSON.parse(key) as [typeof input];
+    const [payload] = JSON.parse(request.key) as [typeof input];
     if (!payload.items.length) return;
     const controller = new AbortController();
     let deadline: ReturnType<typeof setTimeout> | undefined;
     const timer = setTimeout(async () => {
-      let message = "Le calcul du panier est momentanément indisponible. Réessayez.";
+      const message = "Le calcul du panier est momentanément indisponible. Réessayez.";
       deadline = setTimeout(() => {
-        setResult({ key, error: message });
+        setResult({ request, error: message });
         controller.abort();
       }, 15_000);
       try {
@@ -36,16 +40,22 @@ export function useCartCalculation(input: { items: CartRequestItem[]; city?: str
           headers: { "Content-Type": "application/json", ...(data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {}) }, body: JSON.stringify(payload) });
         const body = await response.json();
         if (!response.ok) {
-          if (typeof body.error === "string") message = body.error;
           throw new Error("Quote unavailable");
         }
-        if (!controller.signal.aborted) setResult({ key, quote: body });
+        // A malformed successful response must never become a free quote.
+        if (!body || !Array.isArray(body.items) || typeof body.currency !== "string" || !body.currency.trim() ||
+            ![body.subtotal, body.shipping, body.discount, body.paymentFee, body.total].every(value =>
+              typeof value === "number" && Number.isFinite(value) && value >= 0)) {
+          throw new Error("Invalid quote");
+        }
+        if (!controller.signal.aborted) setResult({ request, quote: body });
       } catch {
-        if (!controller.signal.aborted) setResult({ key, error: message });
+        if (!controller.signal.aborted) setResult({ request, error: message });
       } finally { clearTimeout(deadline); }
     }, 200);
     return () => { clearTimeout(timer); clearTimeout(deadline); controller.abort(); };
-  }, [key, revision]);
-  return { quote: result.key === key ? result.quote : undefined, error: result.key === key ? result.error : undefined,
-    loading: result.key !== key, refresh: () => setRevision(value => value + 1) };
+  }, [request]);
+  const hasItems = input.items.length > 0;
+  return { quote: hasItems && result.request === request ? result.quote : undefined, error: hasItems && result.request === request ? result.error : undefined,
+    loading: hasItems && result.request !== request, refresh: () => setRevision(value => value + 1) };
 }

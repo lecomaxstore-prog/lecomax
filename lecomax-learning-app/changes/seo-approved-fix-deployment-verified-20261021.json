@@ -1,0 +1,64 @@
+{
+  "id": "seo-approved-fix-deployment-verified-20261021",
+  "createdAt": "2026-10-21T12:36:35.833Z",
+  "title": "Approved staging fixes deployed and browser verified",
+  "summary": "Exact 2,124-file candidate READY on protected staging. Both immutable and stable-alias desktop/mobile matrices pass. Full editorial and production release gates remain open.",
+  "status": "successful",
+  "relatedId": "seo-approved-fix-deployment-prepared-20261021",
+  "pages": [
+    "Protected staging storefront",
+    "FR/AR products and categories",
+    "Change History"
+  ],
+  "components": [
+    "Credentialed manifest",
+    "Category image srcset",
+    "Placeholder image",
+    "Staging deployment"
+  ],
+  "files": [
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png",
+    "scripts/seo-approved-fix-deploy.cjs",
+    "scripts/seo-approved-fix-status.cjs",
+    "docs/seo-approved-hosted-fix-acceptance-20261021.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Deployed exact approved source to dpl_BTTcn1fzEYdVSxbevGo6njShC7UJ; stable staging alias assigned. No dependencies or production changed."
+    },
+    {
+      "kind": "added",
+      "detail": "Guarded operational scripts and hosted source/build/browser evidence; corrected local path guard for approved consecutive-dot filenames."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source and build",
+      "result": "passed",
+      "detail": "2,124 exact uploaded-file matches, no extras/missing; remote npm ci and Next 15.5.28 build completed."
+    },
+    {
+      "name": "Isolation and protection",
+      "result": "passed",
+      "detail": "Fresh staging environment checks passed; protection all, zero crons, anonymous origins redirect to Vercel login. Two sensitive values remain write-only."
+    },
+    {
+      "name": "Hosted desktop/mobile",
+      "result": "passed",
+      "detail": "18 immutable and 18 stable-alias route/viewport checks passed. Manifest Chrome parse, srcset decoding, placeholder, navigation, metadata, JSON-LD, robots and sitemap shards passed."
+    },
+    {
+      "name": "Cache diagnostics",
+      "result": "passed",
+      "detail": "Preserved initial alias 400/404 errors. Clearing only MCP HTTP cache resolved all widths in full alias matrix; affected old sessions may need hard refresh. Preload warnings outside matrix retained."
+    },
+    {
+      "name": "Full SEO-engine and production acceptance",
+      "result": "not-run",
+      "detail": "Editorial writes remain forbidden. App-admin and expired-session acceptance, human review, production package/recovery/release approvals remain open. Category AVIF requests were HIT; cold category transformation not independently certified."
+    }
+  ]
+}

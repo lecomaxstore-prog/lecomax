@@ -1,0 +1,19 @@
+body{margin:0;background:#10211d;color:#f3f7f5;font:16px system-ui}main{max-width:680px;margin:auto;padding:24px}p{line-height:1.6;color:#cadbd4}input,button{box-sizing:border-box;font:inherit;padding:14px;border-radius:10px;border:1px solid #739589}input{display:block;width:100%;margin:8px 0;background:#193c31;color:white}button{background:#c4eedc;color:#10211d;cursor:pointer;margin:4px}button:disabled{opacity:.5;cursor:default}nav{display:flex;flex-wrap:wrap}#screen{display:block;max-width:100%;max-height:70vh;width:auto;height:auto;margin:16px auto;touch-action:none;user-select:none}label{font-weight:600}[hidden]{display:none!important}
+
+/* Direct viewer: the screen owns the available viewport in either orientation. */
+.direct{height:100vh;height:100dvh;overflow:hidden;background:#0b1714;color:#edf6f1}
+.direct main{box-sizing:border-box;max-width:none;height:100%;padding:16px;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.direct .eyebrow{font-size:11px;letter-spacing:.16em;color:#8cc6b0;font-weight:700}
+.direct h1{font-size:26px;margin:10px 0}.direct p{margin:0;font-size:13px;line-height:1.5}
+.direct button{min-height:44px;margin:0;border:1px solid #375d50;background:#193a2f;color:#e1f4eb;border-radius:12px;font-weight:600}
+.direct button:focus-visible,.direct input:focus-visible{outline:3px solid #91dbbc;outline-offset:2px}
+.direct #pair{max-width:520px;width:100%;align-self:center}.direct #connect{width:100%;background:#b4e9ce;color:#10291f}
+.direct .connection-bar{display:flex;align-items:center;gap:12px;flex-shrink:0}.direct #status{flex:1;color:#a6cfbc}
+.direct #stop{font-size:12px;padding:8px 12px;color:#f5c9c3;background:transparent}
+.direct #controls{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+.direct .screen-stage{position:relative;flex:1;min-height:0;overflow:hidden;background:#050b09;border:1px solid #234237;border-radius:16px}
+.direct #screen{position:absolute;inset:0;max-width:100%;max-height:100%;width:auto;height:auto;margin:auto;border-radius:3px}
+.direct nav{display:flex;gap:8px;justify-content:center;flex-shrink:0}.direct nav button{flex:1;max-width:180px;padding:10px}
+.direct.session main{overflow:hidden;padding:10px;gap:8px}.direct.session .pair-heading,.direct.session #pair{display:none}
+.direct.embedded #stop{display:none}
+@media(orientation:landscape) and (max-height:600px){.direct.session main{padding:6px;gap:4px}.direct.session #controls{flex-direction:row}.direct nav{flex-direction:column;width:94px}.direct nav button{flex:0;padding:8px}.direct #status{font-size:11px}.direct .screen-stage{border-radius:10px}}

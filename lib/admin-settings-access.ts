@@ -8,7 +8,7 @@ export async function requireSettingsPermission(request: NextRequest, permission
   const token = request.cookies.get("admin_session")?.value;
   const email = token ? await verifySessionToken(token) : null;
   if (!email) return NextResponse.json({ error: "Non autorisé.", code: "UNAUTHORIZED" }, { status: 401 });
-  if (email.toLowerCase() === (process.env.ADMIN_EMAIL ?? "contact@lecomax.com").toLowerCase()) return null;
+  if (email.toLowerCase() === process.env.ADMIN_EMAIL?.trim().toLowerCase()) return null;
   const db = createServerSupabaseClient();
   const { data: staff, error } = await db.from("admin_staff").select("role_id").eq("email", email.toLowerCase()).eq("status", "active").maybeSingle();
   if (error || !staff?.role_id) return NextResponse.json({ error: "Accès refusé.", code: "FORBIDDEN" }, { status: 403 });

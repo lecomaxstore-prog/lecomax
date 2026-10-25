@@ -1,0 +1,37 @@
+{
+  "id": "mobile-menu-release-authorized-20261025",
+  "relatedId": "mobile-menu-verified-resume-20261025",
+  "createdAt": "2026-10-25T07:24:27.733Z",
+  "title": "Mobile menu production release authorized",
+  "summary": "One exact certified-source deployment authorized; preflight and live verification pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront shared header"
+  ],
+  "components": [
+    "Header",
+    "Mobile navigation drawer"
+  ],
+  "files": [
+    "components/Header.tsx",
+    "artifacts/mobile-menu-20261025/release.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepare one production submission of a4e66c955df0f8c8899bcc1b41a4dd3a7d7c78f403236a3b9caf286bb92eddde; no candidate source edits or local rebuild."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Saved certification",
+      "result": "passed",
+      "detail": "Build/types/lint and 320/375/390px checks previously passed; preflight will recheck source and evidence hashes."
+    },
+    {
+      "name": "Production acceptance",
+      "result": "not-run",
+      "detail": "Pending. No physical-device or human screen-reader verification."
+    }
+  ]
+}

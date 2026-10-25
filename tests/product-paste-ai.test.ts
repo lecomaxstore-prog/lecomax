@@ -25,6 +25,17 @@ function setup(fields: unknown[], warnings: string[] = []) {
   const service = load('lib/product-paste-ai.ts', { openai: MockOpenAI });
   return { ...service, sent: () => sent };
 }
+test('details AI accepts cited facts and rejects invented values', async () => {
+  const previous = process.env.OPENAI_API_KEY; process.env.OPENAI_API_KEY = 'test-only';
+  let details = [{ key: 'Matière', value: 'coton' }];
+  class MockOpenAI { responses = { create: async () => ({ status: 'completed', output_text: JSON.stringify({ details }) }) }; }
+  try {
+    const service = load('lib/product-paste-ai.ts', { openai: MockOpenAI });
+    assert.deepEqual(await service.extractProductDetailsWithAI('Matière : coton'), { details });
+    details = [{ key: 'Matière', value: 'soie' }];
+    await assert.rejects(service.extractProductDetailsWithAI('Matière : coton'), /INVALID_EXTRACTION/);
+  } finally { if (previous === undefined) delete process.env.OPENAI_API_KEY; else process.env.OPENAI_API_KEY = previous; }
+});
 test('uses exactly GPT-6.1 Sol with supported reasoning and strict structured output', async () => {
   const previous=process.env.OPENAI_API_KEY;process.env.OPENAI_API_KEY='test-only';
   try {

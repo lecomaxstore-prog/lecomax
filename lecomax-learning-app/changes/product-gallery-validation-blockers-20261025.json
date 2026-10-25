@@ -1,0 +1,41 @@
+{
+  "id": "product-gallery-validation-blockers-20261025",
+  "relatedId": "product-gallery-prepared-20261025",
+  "createdAt": "2026-10-25T10:57:51.713Z",
+  "title": "Gallery validation environment failures retained",
+  "summary": "First build failed on sandbox-blocked font downloads; external browser harness initially lacked Next runtime configuration. Candidate source unchanged; validation resumed.",
+  "status": "failed",
+  "pages": [
+    "Product image viewer"
+  ],
+  "components": [
+    "ProductGallery validation harness"
+  ],
+  "files": [
+    "artifacts/product-gallery-20261025/harness.cjs",
+    "artifacts/product-gallery-20261025/build-result-1792925595828.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "External harness now uses Next browser process shim and the existing application image configuration. No application source changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "First standard build",
+      "result": "failed",
+      "detail": "Exit 1: EACCES on Google Fonts Inter/Sora network requests. Retry uses normal build with network permission; no font or dependency changes."
+    },
+    {
+      "name": "Initial browser harness",
+      "result": "failed",
+      "detail": "Baseline did not render because standalone Next image runtime configuration was missing. Failed browser evidence retained; corrected harness rerun pending."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Both exit 0 for the unchanged candidate."
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "checkout-payment-refinement-verified-20261025",
+  "relatedId": "checkout-payment-refinement-20261025",
+  "createdAt": "2026-10-25T19:19:22.584Z",
+  "title": "Mobile checkout refinement verified",
+  "summary": "Readable summary and payment cards checked at four viewport widths; compact progress and accessible payment state corrected during verification.",
+  "status": "successful",
+  "pages": [
+    "Storefront checkout /checkout"
+  ],
+  "components": [
+    "CheckoutScreen",
+    "OrderSummary",
+    "PaymentMethodRow",
+    "CheckoutProgress"
+  ],
+  "files": [
+    "mobile/src/screens/checkout-screen.tsx",
+    "mobile/src/components/checkout-progress.tsx",
+    "artifacts/verify-checkout-payment.cjs",
+    "artifacts/checkout-payment-validation.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Reduced compact progress horizontal padding after finding a clipped label at 320px."
+    },
+    {
+      "kind": "added",
+      "detail": "Explicit button roles for summary controls and radio role with checked state for payment options."
+    },
+    {
+      "kind": "modified",
+      "detail": "Verified the compact progress, softer background, reduced summary padding, readable labels, product price below details, and stronger selected payment outline."
+    },
+    {
+      "kind": "removed",
+      "detail": "Duplicate product quantity and unused trailing-price column styles removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck completed after final changes."
+    },
+    {
+      "name": "Responsive browser interaction checks",
+      "result": "passed",
+      "detail": "Headless Edge on localhost:8081 at widths 320, 390, 490, 768: summary expands/collapses, PayPal checked state updates, cash-on-delivery can be reselected, and no document horizontal overflow. Isolated session uses synthetic cart/address and intercepted API responses; no order submitted."
+    },
+    {
+      "name": "Visual review",
+      "result": "passed",
+      "detail": "Inspected collapsed 390px and corrected expanded 320px screenshots; remaining content is scrollable above the persistent confirmation footer. Synthetic product has no image."
+    },
+    {
+      "name": "Initial browser check correction",
+      "result": "passed",
+      "detail": "Initial selection assertion failed because checked state was not exposed; added explicit aria-checked and reran successfully."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "Append command preserved earlier reports; --check passed before this follow-up and is rerun afterward."
+    },
+    {
+      "name": "Unverified limits",
+      "result": "not-run",
+      "detail": "Native iOS/Android, real payment/order submission, live backend behavior and other languages not tested. No deployment."
+    }
+  ]
+}

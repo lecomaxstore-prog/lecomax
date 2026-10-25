@@ -1,0 +1,66 @@
+{
+  "id": "seo-system-implementation-20261018",
+  "createdAt": "2026-10-18T16:30:44.839Z",
+  "title": "Syst?me SEO e-commerce et atelier de validation",
+  "summary": "Ajout du stockage SEO, des brouillons et approbations, du tableau de bord et des sitemaps pagin?s. Migration pr?par?e, non appliqu?e en production.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/produit/[slug]",
+    "/[category]",
+    "/sitemap.xml"
+  ],
+  "components": [
+    "Moteur SEO",
+    "Atelier SEO",
+    "ProductGallery",
+    "Permissions admin",
+    "Sitemaps"
+  ],
+  "files": [
+    "lib/seo-engine.ts",
+    "lib/seo-store.ts",
+    "lib/seo-ai.ts",
+    "lib/sitemap-data.ts",
+    "app/api/admin/seo/route.ts",
+    "app/admin/seo/page.tsx",
+    "app/admin/seo/seo.module.css",
+    "app/admin/layout.tsx",
+    "lib/admin-policy.ts",
+    "middleware.ts",
+    "app/produit/[slug]/page.tsx",
+    "app/[category]/page.tsx",
+    "components/ProductGallery.tsx",
+    "app/sitemap.xml/route.ts",
+    "app/sitemaps/[kind]/[page]/route.ts",
+    "app/sitemaps/static/route.ts",
+    "supabase/migrations/202610180001_seo_engine.sql",
+    "tsconfig.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "M?tadonn?es fran?aises persistantes, g?n?ration d?terministe et IA optionnelle c?t? serveur, versions et historique transactionnel, contr?les et liens recommand?s."
+    },
+    {
+      "kind": "modified",
+      "detail": "M?tadonn?es produit/cat?gorie, textes alternatifs, navigation et autorisations admin, sitemaps fragment?s et exclusion des archives artifacts du compilateur."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Suppression du retour aux produits supprim?s dans le sitemap et de la disponibilit? invent?e pour un stock inconnu."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Premier contr?le TypeScript",
+      "result": "failed",
+      "detail": "Archives pr?existantes artifacts/publication-20261017/conflicts incluses dans tsconfig : marqueurs de fusion. Exclusion corrective ajout?e, nouveau contr?le en attente."
+    },
+    {
+      "name": "Tests et migration",
+      "result": "not-run",
+      "detail": "Tests cibl?s, base isol?e, build et v?rifications navigateur ? effectuer. Aucune migration distante ni publication effectu?e."
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "downloadedAt": "2026-10-13T19:19:37.251Z",
+  "source": "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CarConcept/glTF-Binary/CarConcept.glb",
+  "sha256": "c272098089d78c5cd9fd9f24ff50ee8acf8d932c55f2d55fc10adb6c8998966b",
+  "bytes": 11778688,
+  "license": "CC-BY-4.0",
+  "creator": "Eric Chadwick",
+  "copyright": "2024 Darmstadt Graphics Group GmbH",
+  "upstream": "Unity Fan public-domain concept; optimized and textured by Eric Chadwick / DGG",
+  "modifications": "Source GLB unmodified. Runtime grouping, cameras, lighting and user paint controls."
+}

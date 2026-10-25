@@ -1,0 +1,68 @@
+{
+  "id": "seo-staging-cli-guard-verified-20261019",
+  "createdAt": "2026-10-19T20:18:07.683Z",
+  "relatedId": "seo-staging-cli-guard-prepared-20261019",
+  "title": "Offline staging target guard verified; isolated CLI correction documented",
+  "summary": "Eight offline safety tests, six history tests, focused lint and both TypeScript checks passed. Staging MCP read-only binding confirmed. Hosted readiness remains NO-GO.",
+  "status": "successful",
+  "pages": [
+    "SEO staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "Offline CLI target guard",
+    "Staging correction plan"
+  ],
+  "files": [
+    "scripts/check-seo-cli-target.cjs",
+    "tests/seo-cli-target.test.cjs",
+    "docs/seo-staging-cli-correction-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Target guard rejects malformed/unreadable metadata, junctions, extra arguments and unlinked CLI invocation without network or credential access."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared separate clean staging CLI workspace correction instead of unsafe one-file ref replacement; documented remaining dashboard evidence and deployment gates. Existing link/cache and migrations unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Offline safety tests",
+      "result": "passed",
+      "detail": "8/8 tests covering guard rejection, exact staging observation, migration hashes, synthetic scope and execution refusal."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "Changed guard and regression test lint exited 0 without warnings."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Website tsc --noEmit --incremental false and learning app npm.cmd run typecheck exited 0."
+    },
+    {
+      "name": "History regression",
+      "result": "passed",
+      "detail": "6/6 preservation and interaction tests passed."
+    },
+    {
+      "name": "Actual CLI target",
+      "result": "passed",
+      "detail": "Expected blocked status/exit 1 for production-linked checkout; no CLI or production connection executed."
+    },
+    {
+      "name": "Staging MCP",
+      "result": "passed",
+      "detail": "Existing config host mcp.supabase.com ref tyltharlnbxrxibuxyye read_only=true; fresh SELECT role supabase_read_only_user and transaction/default read-only on. SQL project_ref null; target binding corroborated by config/prior metadata."
+    },
+    {
+      "name": "Mandatory isolation and hosted acceptance",
+      "result": "not-run",
+      "detail": "Auth/SMTP/SMS/hooks/providers/integrations/external workers and later hosted acceptance remain unverified. No migration, write, restore, deploy, worker activation or paid request. No preview claimed."
+    }
+  ]
+}

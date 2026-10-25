@@ -1,0 +1,40 @@
+{
+  "id": "seo-sixth-agent-hosted-harness-20261021",
+  "createdAt": "2026-10-20T23:58:12.615Z",
+  "title": "Protected staging acceptance runner corrected",
+  "summary": "Use a 32-character temporary credential, allow bounded edge propagation, target the immutable deployment and include the homepage. No deployed application code changed.",
+  "status": "needs-testing",
+  "relatedId": "seo-runtime-approved-deployment-start-20261021",
+  "pages": [
+    "SEO staging",
+    "Change History"
+  ],
+  "components": [
+    "Protected HTTP acceptance runner"
+  ],
+  "files": [
+    "scripts/seo-runtime-hosted-acceptance.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected rejected credential length and added a 15-second propagation wait plus bounded GET-only retries for Vercel authentication redirects. Default requests now target the recorded immutable staging deployment."
+    },
+    {
+      "kind": "added",
+      "detail": "Homepage HTTP/noindex check."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Protected HTTP execution",
+      "result": "passed",
+      "detail": "23 checks passed in hosted-acceptance-1792540609696.json; temporary credential revoked; anonymous protection retained. Earlier failures preserved."
+    },
+    {
+      "name": "Focused lint and history validation",
+      "result": "not-run",
+      "detail": "Pending. Real application sessions and mobile/desktop browser rendering not verified."
+    }
+  ]
+}

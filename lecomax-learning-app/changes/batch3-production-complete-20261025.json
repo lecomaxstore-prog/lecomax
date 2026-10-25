@@ -1,0 +1,65 @@
+{
+  "id": "batch3-production-complete-20261025",
+  "relatedId": "batch3-production-authorized-20261024",
+  "createdAt": "2026-10-25T05:23:44.661Z",
+  "title": "Batch 3: existing production release verified complete",
+  "summary": "Existing deployment READY on lecomax.com; 2055 source files verified; live chat/storefront/SEO checks passed. Median mobile LCP 3.964s versus 3.824s; no demonstrated live speed gain.",
+  "status": "successful",
+  "pages": [
+    "Production storefront lecomax.com",
+    "Homepage",
+    "Boutique and product",
+    "Cart and checkout entry"
+  ],
+  "components": [
+    "Deferred chat loading",
+    "Chat launcher",
+    "Mobile layout",
+    "SEO preservation"
+  ],
+  "files": [
+    "artifacts/batch3-mobile-20261024/source/app/layout.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/DeferredChatWidget.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/ChatWidget.tsx",
+    "artifacts/batch3-mobile-20261024/reconcile-resumed.cjs",
+    "artifacts/batch3-mobile-20261024/chat-edge-live.cjs",
+    "artifacts/batch3-mobile-20261024/REPORT-PRODUCTION-COMPLETE.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added sanitized provider reconciliation, live acceptance evidence and three production measurements. No application edits or additional deployment in this continuation."
+    },
+    {
+      "kind": "modified",
+      "detail": "Verified the previously submitted deferred-chat release active in production: two approved files modified, one added, none removed; every other uploaded file preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Provider and source integrity",
+      "result": "passed",
+      "detail": "dpl_6fiTe8ai9LbZfdVXv9giV1CKDMf2 READY, active alias, correct project/team; 2055 certified files; hash fdbf6e7b2d9f35c7517a72520b73a55a0b1a08f04767e9050e7a4aa896fd8c3a; settings/environment versions preserved. Verified rollback dpl_23Ji3SkdLo1nkiN19j9NJsvArde3."
+    },
+    {
+      "name": "Live acceptance",
+      "result": "passed",
+      "detail": "19 storefront/mobile/SEO checks, ordinary/early-scroll chat open/minimize, idle deferral, reload-restored scroll, bounded three-attempt failure and second-attempt recovery passed. No critical page errors. Product indexability verified."
+    },
+    {
+      "name": "Checkout preservation",
+      "result": "passed",
+      "detail": "Uploaded protected sources unchanged; reused 39 passing checkout/security tests and 24 browser checks; live cart/checkout entry passed. No real purchases or live shipping failure transactions tested."
+    },
+    {
+      "name": "Production lab measurement",
+      "result": "passed",
+      "detail": "Exactly three comparable runs: LCP 5.400/2.616/3.964s; CLS all 0; initial JS 256073 B each; long-task excess 242/1172/274ms; chat after load. Median 3.964s, 3.7% above Batch 2. No demonstrated live improvement or field CWV claim."
+    },
+    {
+      "name": "Excluded checks and preview",
+      "result": "not-run",
+      "detail": "Real chat sessions/messages, orders/payments, authenticated purchases, physical devices and field CWV excluded. Learning app history preview not checked or deployed."
+    }
+  ]
+}

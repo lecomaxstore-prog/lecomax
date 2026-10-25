@@ -22,6 +22,9 @@ import { colorSizeStockFromTags } from "@/lib/product-inventory";
 import { catalogAvailability } from "@/mobile/src/lib/catalog-availability";
 import { inferProductBrand, serializeJsonLd } from "@/lib/seo";
 import { getProductShareData } from "@/lib/product-share";
+import { productShareCopy } from "@/lib/product-share-copy";
+import { getSeoContent } from "@/lib/seo-store";
+import { getPublishedEditorial } from "@/lib/seo-editorial-store";
 import { colorImageMapFromTags, legacyColorImageMap, primaryColorImages } from "@/lib/product-color-images";
 
 
@@ -31,20 +34,18 @@ const PRODUCT_SITE_URL = "https://lecomax.com";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const shippingConfig = await getServerShippingConfig();
   const shareProduct = await getProductShareData(slug);
   if (!shareProduct) notFound();
 
   const price = formatMAD(shareProduct.price);
-  const availability = (shareProduct.stock ?? 0) > 0 ? "En stock" : shareProduct.preorderEnabled ? "Précommande" : "Rupture de stock";
+  const availability = typeof shareProduct.stock === "number" && shareProduct.stock > 0 ? "En stock" : shareProduct.preorderEnabled ? "Précommande" : shareProduct.stock === 0 ? "Rupture de stock" : "Disponibilité à consulter";
   const canonicalUrl = `${PRODUCT_SITE_URL}/produit/${encodeURIComponent(slug)}/`;
-  const socialImageUrl = `${PRODUCT_SITE_URL}/api/og/product/${encodeURIComponent(slug)}`;
-  const title = `${shareProduct.name} — ${price} | L'ecomax`;
-  const productSummary = shareProduct.description.trim().replace(/\s+/g, " ").slice(0, 85);
-  const description = `${price} · ${availability} · ${shippingSummary(shippingConfig)} Paiement à la livraison.${productSummary ? ` ${productSummary}` : ""}`.slice(0, 190);
+  const socialImageUrl = `${PRODUCT_SITE_URL}/api/og/product/${encodeURIComponent(slug)}?v=2`;
+  const social = productShareCopy(shareProduct);
+  const { title, description, imageAlt } = await getSeoContent("product", shareProduct);
 
   return {
-    title,
+    title: { absolute: title },
     description,
     keywords: [shareProduct.name, shareProduct.category, "L'ecomax", "acheter Maroc", "livraison Maroc", "paiement à la livraison", `${shareProduct.category} Maroc`],
     alternates: { canonical: canonicalUrl },
@@ -53,20 +54,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       locale: "fr_MA",
       siteName: "L'ecomax",
       url: canonicalUrl,
-      title,
-      description,
-      images: [{ url: socialImageUrl, width: 1200, height: 630, type: "image/png", alt: `${shareProduct.name} — ${price}` }],
+      title: social.title,
+      description: social.description,
+      images: [{ url: socialImageUrl, width: 1200, height: 630, type: "image/png", alt: imageAlt }],
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: social.title,
+      description: social.description,
       images: [socialImageUrl],
     },
     other: {
       "product:price:amount": String(shareProduct.price),
       "product:price:currency": "MAD",
-      "product:availability": (shareProduct.stock ?? 0) > 0 ? "in stock" : shareProduct.preorderEnabled ? "preorder" : "out of stock",
+      ...(shareProduct.preorderEnabled || (typeof shareProduct.stock === "number" && shareProduct.stock >= 0) ? { "product:availability": typeof shareProduct.stock === "number" && shareProduct.stock > 0 ? "in stock" : shareProduct.preorderEnabled ? "preorder" : "out of stock" } : {}),
       "product:condition": "new",
       "product:retailer_item_id": shareProduct.slug,
       "twitter:label1": "Prix",
@@ -130,6 +131,8 @@ export default async function ProductPage({
   // admin. Deleted products must not reappear from the bundled catalogue.
   const dbProd = await getDbProductRaw(slug);
   if (!dbProd || !dbProd.active) notFound();
+  const productSeo = await getSeoContent("product", dbProd);
+  const editorial = await getPublishedEditorial(dbProd);
   let product: Product | null = null;
 
   if (dbProd) {
@@ -156,7 +159,7 @@ export default async function ProductPage({
       image: (dbProd.images ?? [])[0] || "",
       gallery: (dbProd.images ?? []).filter(Boolean).slice(1),
       badge: dbProd.featured && isNewArrivalEligible(dbProd) ? "Nouveau" : undefined,
-      description: dbProd.description ?? "",
+      description: editorial?.fr.productDescription ?? dbProd.description ?? "",
       video: dbProd.video ?? undefined,
       descriptionImages: (dbProd.description_images as string[] | null) ?? undefined,
       // Extract __detail:Key:Value tags as product specs for the accordion
@@ -253,7 +256,7 @@ export default async function ProductPage({
       "price": product.price,
       "priceCurrency": "MAD",
       "itemCondition": "https://schema.org/NewCondition",
-      "availability": (realStock ?? 0) > 0 ? "https://schema.org/InStock" : product.preorder_enabled ? "https://schema.org/PreOrder" : "https://schema.org/OutOfStock",
+      ...(realStock !== null || product.preorder_enabled ? { "availability": realStock !== null && realStock > 0 ? "https://schema.org/InStock" : product.preorder_enabled ? "https://schema.org/PreOrder" : "https://schema.org/OutOfStock" } : {}),
       "url": `${SITE_URL}/produit/${product.slug}/`,
       "seller": { "@type": "Organization", "name": "L'ecomax", "url": SITE_URL },
       "shippingDetails": {
@@ -372,6 +375,7 @@ export default async function ProductPage({
 
         {/* ── Gallery ── */}
         <ProductGallery
+          imageAlt={productSeo.imageAlt}
           images={allImages}
           name={product.name}
           badge={product.badge}
@@ -423,7 +427,7 @@ export default async function ProductPage({
               </>
             )}
           </div>
-          <p className="text-[11px] text-neutral-400 mt-1">
+          <p className="text-[11px] text-neutral-600 mt-1">
             Taxes incluses · Livraison {formatShippingAmount(shippingConfig.cost)} MAD partout au Maroc
           </p>
           <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2">
@@ -439,7 +443,7 @@ export default async function ProductPage({
                 <p className="text-[12px] font-bold leading-4 text-neutral-900">
                   Livraison estimée <span className="font-extrabold text-emerald-700">sous {shippingConfig.estimatedDays}</span>
                 </p>
-                <p className="mt-0.5 text-[10px] leading-4 text-neutral-400">Partout au Maroc · Suivi de commande inclus</p>
+                <p className="mt-0.5 text-[10px] leading-4 text-neutral-600">Partout au Maroc · Suivi de commande inclus</p>
               </div>
             </div>
             <LowStockReveal stock={realStock} />
@@ -466,7 +470,7 @@ export default async function ProductPage({
               </svg>
               <div>
                 <p className="font-black text-[12px] uppercase">Livraison {formatShippingAmount(shippingConfig.cost)} MAD</p>
-                <p className="text-neutral-400 text-[11px] mt-0.5">Partout au Maroc · {shippingConfig.estimatedDays}</p>
+                <p className="text-neutral-600 text-[11px] mt-0.5">Partout au Maroc · {shippingConfig.estimatedDays}</p>
               </div>
             </div>
             <div className="flex items-start gap-2.5 bg-neutral-50 rounded-xl p-3.5">
@@ -475,7 +479,7 @@ export default async function ProductPage({
               </svg>
               <div>
                 <p className="font-black text-[12px] uppercase">Retours {RETURN_POLICY.window}</p>
-                <p className="text-neutral-400 text-[11px] mt-0.5">{RETURN_POLICY.summary}</p>
+                <p className="text-neutral-600 text-[11px] mt-0.5">{RETURN_POLICY.summary}</p>
               </div>
             </div>
           </div>

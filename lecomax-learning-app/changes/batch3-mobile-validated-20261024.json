@@ -1,0 +1,59 @@
+{
+  "id": "batch3-mobile-validated-20261024",
+  "relatedId": "batch3-chat-recovery-correction-20261024",
+  "createdAt": "2026-10-24T20:49:14.135Z",
+  "title": "Batch 3: narrow deferred-chat candidate validated, not deployed",
+  "summary": "Candidate passed build, TypeScript, focused lint, mobile/chat/failure-recovery and SEO checks. Matched local median LCP improves 2.200s to 2.084s; no live sub-2.5s claim. Exact three-file source awaits approval.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage and shared layout",
+    "Cart and checkout entry",
+    "Product and category routes"
+  ],
+  "components": [
+    "Deferred chat loading",
+    "Chat scroll visibility"
+  ],
+  "files": [
+    "artifacts/batch3-mobile-20261024/source/app/layout.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/ChatWidget.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/DeferredChatWidget.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "DeferredChatWidget moves optional chat JS/CSS after page load/idle or loads on early scroll; catches failed chunk downloads with at most three attempts."
+    },
+    {
+      "kind": "modified",
+      "detail": "Root layout uses deferred entry; existing chat checks current scroll position at mount. No font, branding, catalogue, payment, authentication or inventory changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build and focused checks",
+      "result": "passed",
+      "detail": "Final source fdbf6e7b2d9f35c7517a72520b73a55a0b1a08f04767e9050e7a4aa896fd8c3a passed normal production build, standalone TypeScript, focused ESLint. Existing unrelated build warnings remain. 39 checkout/security regressions and 24 checkout browser checks passed before the loader-only recovery correction; business code unchanged."
+    },
+    {
+      "name": "Final browser/SEO",
+      "result": "passed",
+      "detail": "33 mobile/layout/category fallback checks, 8 chat loader/interaction checks, permanent failure isolation and transient recovery scenarios, and 7 SEO checks passed. 320px screenshot inspected."
+    },
+    {
+      "name": "Comparable performance",
+      "result": "passed",
+      "detail": "Three warm-server fresh-browser pairs: baseline LCP 2.172/2.200/2.236s; candidate 2.084/2.084/2.048s. Median 2.200 to 2.084s (5.3%). CLS 0.0000251 both. Median observed long-task excess 363 to 126ms, diagnostic only; INP unavailable."
+    },
+    {
+      "name": "Source and rollback reconciliation",
+      "result": "passed",
+      "detail": "2055 candidate files, 2052 unchanged, 2 modified and 1 added. All 2054 live Batch 2 hashes rechecked; project/configuration unchanged; rollback dpl_23Ji3SkdLo1nkiN19j9NJsvArde3 READY. Dirty worktree preserved."
+    },
+    {
+      "name": "Limitations and approval",
+      "result": "not-run",
+      "detail": "Candidate not deployed. Local fixture timing is not live catalogue performance; no field INP/CWV, physical-device or real payment/order/chat tests. Exact source/scope approval required before one production deployment. Learning history local only."
+    }
+  ]
+}

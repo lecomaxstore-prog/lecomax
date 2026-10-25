@@ -1,0 +1,59 @@
+{
+  "id": "seo-portable-sql-verified-20261020",
+  "createdAt": "2026-10-20T10:12:58.707Z",
+  "title": "Portable worker SQL suites verified from root and worker directories",
+  "summary": "159 distinct regressions, both TypeScript checks, focused ESLint and isolated Node24 build pass. Production remains NO-GO.",
+  "status": "successful",
+  "pages": [
+    "SEO worker validation"
+  ],
+  "components": [
+    "SQL integration tests"
+  ],
+  "files": [
+    "operations/seo-vercel/tests/ai-sql.test.mjs",
+    "operations/seo-vercel/tests/editorial-review-sql.test.mjs",
+    "operations/seo-vercel/tests/editorial-sql.test.mjs",
+    "operations/seo-vercel/tests/editorial-workflow-sql.test.mjs",
+    "operations/seo-vercel/tests/full-chain-schema.test.mjs",
+    "docs/seo-session-recovery-handoff-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Resolve five SQL suites migration fixtures relative to import.meta.url, preserving the default runner and migration contents."
+    },
+    {
+      "kind": "added",
+      "detail": "Checkpoint correction, exact read-access requirements, recovery and FR/AR owner checklist, and next-account handoff."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression tests",
+      "result": "passed",
+      "detail": "60 worker + 99 application/history. Direct worker cwd and root runner pass on Node24; actual npm test and integration pass. Repeated invocations overlap."
+    },
+    {
+      "name": "Types and lint",
+      "result": "passed",
+      "detail": "Root and learning-app TypeScript, incremental disabled; focused ESLint."
+    },
+    {
+      "name": "Isolated Node24 build",
+      "result": "passed",
+      "detail": "Initial public font fetch blocked; reviewed retry exit 0 and BUILD_ID exists. Synthetic credentials and blocked runtime fetch. No deployment."
+    },
+    {
+      "name": "Local backup integrity",
+      "result": "passed",
+      "detail": "SHA256 matches and 1233 archive inventory entries readable. No restore performed."
+    },
+    {
+      "name": "Hosted and human acceptance",
+      "result": "not-run",
+      "detail": "No 403 retries, hosted writes or paid calls. PITR, RPO/RTO, ownership, runtime parity and human FR/AR approval remain unverified. No preview checked."
+    }
+  ],
+  "relatedId": "seo-portable-sql-prepared-20261020"
+}

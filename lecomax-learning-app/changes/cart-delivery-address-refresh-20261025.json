@@ -1,0 +1,33 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added a localized Selected label, larger recipient name, green card outline, clear Edit button and separated phone row. Address text uses full card width to improve wrapping."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed unused address indicator styles and replaced the isolated checkmark with a labelled selected state and navigation chevron."
+    }
+  ],
+  "summary": "Improved the cart delivery address hierarchy, selection indicator and edit action.",
+  "id": "cart-delivery-address-refresh-20261025",
+  "createdAt": "2026-10-25T20:56:46.072Z",
+  "validation": [
+    {
+      "detail": "Typecheck, lint and browser checks pending. No deployment performed.",
+      "result": "not-run",
+      "name": "Validation pending"
+    }
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/cart.tsx"
+  ],
+  "components": [
+    "DeliveryAddress"
+  ],
+  "status": "needs-testing",
+  "title": "Clearer delivery address card",
+  "pages": [
+    "Mobile cart"
+  ]
+}

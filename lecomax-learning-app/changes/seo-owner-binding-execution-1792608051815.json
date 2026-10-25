@@ -1,0 +1,36 @@
+{
+  "id": "seo-owner-binding-execution-1792608051815",
+  "createdAt": "2026-10-21T18:40:51.815Z",
+  "title": "Owner-assisted production binding execution",
+  "summary": "Create-only binding run; consult validation for partial results. No deployment or migration.",
+  "status": "failed",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ],
+  "components": [
+    "Credential bindings"
+  ],
+  "files": [
+    "scripts/complete-production-bindings.cjs",
+    "scripts/complete-production-bindings.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Created binding names: none. Verified names: none."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Execution",
+      "result": "failed",
+      "detail": "OWNER_DATABASE_URL_SSLMODE_VERIFY_FULL_REQUIRED"
+    },
+    {
+      "name": "Production build and runtime",
+      "result": "not-run",
+      "detail": "Full environment remains unavailable locally; admin signer readback withheld. No runtime login, deployment or migration."
+    }
+  ]
+}

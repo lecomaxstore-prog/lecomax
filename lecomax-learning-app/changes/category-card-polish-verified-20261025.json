@@ -1,0 +1,49 @@
+{
+  "id": "category-card-polish-verified-20261025",
+  "createdAt": "2026-10-25T13:01:37.382Z",
+  "title": "Refined collection cards verified",
+  "summary": "Verified continuous borders, separate captions and improved photo framing at mobile and desktop widths.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage /"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace obscured inset borders with real continuous borders. Place captions in normal flow below artwork, avoiding abrupt overlap and uneven spacing."
+    },
+    {
+      "kind": "modified",
+      "detail": "Show complete portrait images with logos and reserve badge clearance. Balance image regions across all cards, soften corner radii and badges, and refine green arrow controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive browser component checks",
+      "result": "passed",
+      "detail": "Actual component rendered with fixture data in Chrome at 375, 482 and 1280px. All images load, white-card text is dark green, overlays are absent, borders are 1px and caption bounds start below image bounds. Screenshots visually inspected at all widths; logos remain visible."
+    },
+    {
+      "name": "Lint and typecheck",
+      "result": "passed",
+      "detail": "Focused CategoryTiles ESLint and learning app npm run typecheck passed."
+    },
+    {
+      "name": "History tests",
+      "result": "passed",
+      "detail": "All four change-history tests passed."
+    },
+    {
+      "name": "Live integration",
+      "result": "not-run",
+      "detail": "Checks use isolated component fixtures, not live API data. No deployment performed."
+    }
+  ],
+  "relatedId": "category-card-polish-20261025"
+}

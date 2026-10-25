@@ -4,6 +4,7 @@ export function adminApiPermission(pathname: string, method: string): string | n
   const read = method === "GET" || method === "HEAD";
   if (path === "/api/admin/staff/permissions" || path === "/api/admin/push-subscribe") return null;
   if (path === "/api/admin/dashboard") return null; // handler filters metrics by permission
+    if (path === "/api/admin/seo" || path === "/api/admin/seo/sync" || path === "/api/admin/seo/ai" || path === "/api/admin/seo/editorial") return null; // handlers enforce read/product/category permissions
   if (path === "/api/admin/auth/verify") return null;
   if (path === "/api/admin/approvals") return null; // handler restricts ownership
   if (path.startsWith("/api/admin/approvals/")) return undefined;

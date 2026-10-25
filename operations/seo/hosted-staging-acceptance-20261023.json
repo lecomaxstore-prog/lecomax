@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "mode": "prepared-not-executed",
+  "authorized": false,
+  "deploymentUrl": null,
+  "vercelProjectId": "prj_jPniwpH4s81bhISVReUKTQN0GwvD",
+  "vercelTeamId": "team_yFLUcpSvgQi8EQuvuorOZW7w",
+  "supabaseOrigin": "https://tyltharlnbxrxibuxyye.supabase.co",
+  "candidate": ".recovery-seo-preview-isolated",
+  "deploymentConfiguration": "artifacts/seo-preview-resume-20261023/resume-preview-config.json",
+  "preconditions": [
+    "Separate explicit authorization for hosted execution; this file grants none.",
+    "Identify protected hosted runtime and its verified project/team/Preview identity through provider metadata, not caller-supplied environment claims.",
+    "Run the existing scripts/verify-seo-preview-runtime.mjs only within that authorized runtime with existing Preview bindings; no environment pull, public endpoint or local emulation.",
+    "Resolve provider-level non-delivery evidence before broader acceptance; never send a test email.",
+    "Verify immutable deployment belongs to exact staging project, uses derived candidate, excludes local fixture build and has deployment protection.",
+    "Select existing approved synthetic staging product/category; abort if data provenance is unverified, absent or contains production/customer data. Do not create test data.",
+    "Refresh safe environment metadata and public-key binding immediately before execution."
+  ],
+  "networkPolicy": {
+    "applicationMethods": ["GET", "HEAD"],
+    "supabaseMethods": ["GET", "HEAD"],
+    "supabasePaths": ["/rest/v1/products", "/rest/v1/categories", "/rest/v1/settings", "/rest/v1/promotions", "/rest/v1/reviews", "/rest/v1/banners", "/rest/v1/announcements", "/rest/v1/ecomedia_posts", "/rest/v1/shipping_zones"],
+    "deny": ["All other database hosts", "All unapproved origins", "Cross-origin redirects", "Auth mutations", "Orders or checkout submission", "Payment SDK/network", "Analytics and tracking writes", "IndexNow", "Email providers", "Admin/cron/worker application routes", "WebSocket connections"],
+    "note": "Browser routing must block side effects before navigation. Inspect any additional read dependency before adding it. The separate verifier has its own single fixed privileged Auth GET and is not covered by this acceptance allowlist."
+  },
+  "checks": [
+    {"page": "homepage", "path": "/", "assertions": ["HTTP 200", "Expected staging catalogue product visible", "No hydration/runtime errors", "Production canonical retained", "No synthetic fixture title"]},
+    {"page": "Boutique", "path": "/boutique/", "assertions": ["HTTP 200", "Settings and promotions reads succeed against staging", "Expected catalogue product visible", "No suppressed loader errors or broad fallback"]},
+    {"page": "category", "pathFrom": "approved staging category slug", "assertions": ["HTTP 200", "Only matching category products", "Canonical and pagination correct"]},
+    {"page": "product", "pathFrom": "approved staging product slug", "assertions": ["HTTP 200", "Name/price/stock match approved staging record", "Image loads", "Product schema and canonical correct", "Unknown product returns 404"]},
+    {"page": "cart", "path": "/panier/", "assertions": ["HTTP 200", "Empty-cart UI works", "Optional local-only add/remove after confirming no server mutation", "No checkout or order submission"]},
+    {"page": "login", "path": "/connexion/", "assertions": ["HTTP 200", "Login form renders without errors", "No login/signup/password-reset/OTP submitted", "Successful authentication remains separately untested"]},
+    {"page": "SEO endpoints", "paths": ["/sitemap.xml", "/sitemaps/static/", "/sitemaps/products/0/", "/sitemaps/categories/0/", "/robots.txt"], "assertions": ["Correct status/content type", "Canonical production URLs", "No staging/private URLs in sitemap content"]},
+    {"page": "repaired images", "manifest": "artifacts/seo-preview-resume-20261023/image-corrections.json", "assertions": ["All 30 return 200", "Response bytes match recorded hashes"]}
+  ],
+  "evidence": ["UTC timestamps", "Provider-attested project/deployment identity", "Candidate source manifest", "Pass/fail and HTTP status per route", "Allowed/blocked network counts without headers or queries", "No secret values, credential fingerprints, account response bodies or session cookies"],
+  "stopConditions": ["Unexpected project, origin or redirect", "Missing protected runtime", "Credential verifier failure", "Unverified staging data provenance", "Any attempted delivery/payment/database mutation", "Unexpected secret in output", "Page error or failed assertion"]
+}

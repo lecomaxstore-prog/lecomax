@@ -1,0 +1,53 @@
+{
+  "id": "batch2-mobile-prepared-20261024",
+  "createdAt": "2026-10-24T20:03:12.845Z",
+  "title": "Batch 2: focused mobile performance candidate in preparation",
+  "summary": "Candidate copied from all 2,054 verified live Batch 1 source files. Remove the measured page-wide fade/blur delay, size category images responsively, and correct reproduced narrow-screen layout. Production unchanged.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage /",
+    "Boutique /boutique",
+    "Category /homme",
+    "Product detail"
+  ],
+  "components": [
+    "Page entrance CSS",
+    "CategoryTiles",
+    "Narrow homepage layout"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/app/globals.css",
+    "artifacts/batch2-mobile-20261024/source/components/CategoryTiles.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Page-wide 480 ms opacity/transform/blur animation and its unused keyframes; decorative accent and component animations retained."
+    },
+    {
+      "kind": "modified",
+      "detail": "Category picture uses existing Next image pipeline with responsive sizes, lazy loading, original URL fallback and preserved custom mobile/desktop crops."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Narrow homepage reflow under investigation; final correction and verification will be recorded in a linked report."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production reconciliation",
+      "result": "passed",
+      "detail": "READY dpl_Aab3E2x5V8iJmxcw9L9B5b4Z7LHk, all 2,054 remote source hashes match Batch 1; no production configuration changes; rollback is this current deployment."
+    },
+    {
+      "name": "Controlled animation experiment",
+      "result": "passed",
+      "detail": "Eight read-only browser samples with entrance disabled put LCP at FCP with CLS zero; interleaved parent-only comparison underway. Not field CWV."
+    },
+    {
+      "name": "Final candidate checks",
+      "result": "not-run",
+      "detail": "TypeScript, lint, normal production build, browser layout/image/fallback checks and focused checkout preservation pending. No deployment or real transactions."
+    }
+  ]
+}

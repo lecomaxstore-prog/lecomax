@@ -1,0 +1,63 @@
+{
+  "id": "seo-playwright-direct-node-verified-20261021",
+  "createdAt": "2026-10-21T11:28:04.184Z",
+  "relatedId": "seo-playwright-direct-node-prepared-20261021",
+  "title": "Pinned Playwright MCP verified in fresh Codex; Vercel login required",
+  "summary": "Fresh CLI and actual IDE hosts expose 25 browser tools. Chrome reaches Vercel login. Original timeout no longer reproduces; its underlying cause remains unproven.",
+  "status": "successful",
+  "pages": [
+    "SEO staging acceptance",
+    "Change History"
+  ],
+  "components": [
+    "Local Codex MCP startup",
+    "Protected browser acceptance"
+  ],
+  "files": [
+    "docs/seo-playwright-direct-node-recovery-20261021.md",
+    "artifacts/seo-mcp-probe.cjs",
+    "artifacts/seo-codex-mcp-fresh.cjs",
+    "artifacts/seo-codex-mcp-ide-fresh-result.json",
+    "artifacts/seo-codex-mcp-ide-legacy-result.json",
+    "artifacts/seo-mcp-probe-staging.json",
+    "C:/Users/Ziko/.codex/config.toml",
+    "C:/Users/Ziko/.codex/tools/playwright-mcp-0.0.83/package-lock.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added reproducible handshake and fresh Codex host probes, evidence and restart/login handoff."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Clarified preparation report: syntax error was a diagnostic wrapper failure; correctly invoked npx and original fresh Codex configuration now pass. No original root-cause claim is supported beyond the recorded host handshake timeout."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh actual IDE host",
+      "result": "passed",
+      "detail": "Repaired Playwright startup ready in 217 ms; 25 tools and toolsError null. Original launcher also succeeds in fresh host."
+    },
+    {
+      "name": "Fresh standalone Codex host",
+      "result": "passed",
+      "detail": "Repaired startup ready in 259 ms; all 25 browser tools exposed."
+    },
+    {
+      "name": "Browser binary and normal staging access",
+      "result": "passed",
+      "detail": "Installed Chrome launches and redirects protected staging to Vercel login; no bypass."
+    },
+    {
+      "name": "Protected desktop/mobile acceptance",
+      "result": "not-run",
+      "detail": "Authorized owner login required. No storefront rendering, hydration, metadata, console/network, product/category, robots or sitemap browser acceptance is claimed."
+    },
+    {
+      "name": "Existing conversation tool exposure",
+      "result": "not-run",
+      "detail": "Current conversation remains stale with no browser tools. Reload VS Code and create a new Codex conversation; separate fresh hosts were verified."
+    }
+  ]
+}

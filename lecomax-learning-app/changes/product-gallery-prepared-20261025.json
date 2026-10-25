@@ -1,0 +1,34 @@
+{
+  "id": "product-gallery-prepared-20261025",
+  "createdAt": "2026-10-25T10:51:29.612Z",
+  "title": "Product gallery modal focus correction prepared locally",
+  "summary": "One-file candidate preserves the live Search Overlay release. Validation pending; no deployment authorized.",
+  "status": "needs-testing",
+  "pages": [
+    "Product image viewer"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "artifacts/product-gallery-20261025/source/components/ProductGallery.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Focus close control on opening, contain Tab/Shift+Tab and background focus, isolate existing/late body siblings, restore original inert/overflow priority and exact opening button including touch. Separate modal lifetime from image navigation shortcuts to retain focus during image changes. Existing labels, media, navigation, zoom/pan/swipe and product logic retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Audit and source scope",
+      "result": "passed",
+      "detail": "Existing audit shows focus remains on background trigger and escapes modal. Only ProductGallery differs from 2055-file Search Overlay baseline."
+    },
+    {
+      "name": "Local validation",
+      "result": "not-run",
+      "detail": "Pending types, lint, one standard build and focused browser checks. No production deployment or physical-device/screen-reader test."
+    }
+  ]
+}

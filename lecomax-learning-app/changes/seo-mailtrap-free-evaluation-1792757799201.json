@@ -1,0 +1,51 @@
+{
+  "id": "seo-mailtrap-free-evaluation-1792757799201",
+  "relatedId": "seo-zero-budget-sink-review-1792757311102",
+  "createdAt": "2026-10-23T12:16:39.196Z",
+  "status": "needs-testing",
+  "title": "Mailtrap Free evaluated: mandatory TLS gate remains unmet",
+  "summary": "Official Sandbox documentation supports capture, authentication and Free-plan forwarding exclusion, but describes TLS as optional. NO-GO for connection under current requirements; no external configuration or email submission.",
+  "pages": [
+    "SEO Recovery Preview",
+    "Email isolation",
+    "Change History"
+  ],
+  "components": [
+    "Mailtrap Free evaluation",
+    "SMTP security boundary",
+    "Application email suppression"
+  ],
+  "files": [
+    "docs/seo-mailtrap-free-evaluation-20261023.md",
+    "artifacts/seo-preview-resume-20261023/record-mailtrap-evaluation.cjs",
+    "artifacts/seo-preview-resume-20261023/continuation-email-1792757660496.log"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded product-specific pricing, TLS support versus enforcement, manual/automatic forwarding limitations, direct Resend bypass paths, synthetic validation instructions and zero-infrastructure scoped SEO alternative."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Official documentation review",
+      "result": "passed",
+      "detail": "Current pricing lists Free $0/50 messages monthly. Both forwarding modes require Basic. Sandbox-specific official guide describes TLS as optional; no cross-product TLS guarantee assumed."
+    },
+    {
+      "name": "Existing email guard tests",
+      "result": "passed",
+      "detail": "All 18 synthetic email safety tests passed; reviewed staff invitation and direct Resend paths. Candidate source/build unchanged."
+    },
+    {
+      "name": "Mandatory TLS and account-effective isolation",
+      "result": "not-run",
+      "detail": "No account accessed or configured; required TLS, actual plan/trial forwarding entitlements and Supabase-client fail-closed behavior not proven. No SMTP messages or hosted verifier executed."
+    },
+    {
+      "name": "Recovery and ownership evidence",
+      "result": "passed",
+      "detail": "Existing authenticated Vercel ownership evidence and recovery build/test/image artifacts preserved. No production, credentials, migration, deployment or Release E changes."
+    }
+  ]
+}

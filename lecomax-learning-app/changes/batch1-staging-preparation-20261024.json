@@ -1,0 +1,55 @@
+{
+  "id": "batch1-staging-preparation-20261024",
+  "relatedId": "batch1-staging-readiness-20261024",
+  "createdAt": "2026-10-24T14:18:07Z",
+  "title": "Batch 1 protected checkout staging preparation",
+  "summary": "Verified the resumed checkpoint, preserved successful build evidence, and locally validated staging isolation policy with synthetic fixtures; no deployment or provider changes were made.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "CheckoutPage",
+    "CartQuoteFeedback",
+    "staging environment policy"
+  ],
+  "files": [
+    "operations/seo/staging-app.env.example",
+    "tests/environment-clients.test.ts",
+    "release/batch1-checkout-20261024/app/checkout/page.tsx",
+    "artifacts/batch1-validation-resume-20261024/build-result.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded the protected staging proposal: isolated staging project, synthetic data, mocked shipping/order/payment/email services, and disabled external delivery integrations."
+    },
+    {
+      "kind": "modified",
+      "detail": "Validated existing staging environment policy fixtures without changing application or provider configuration."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Staging isolation policy",
+      "result": "passed",
+      "detail": "4/4 tests pass: unsafe destinations and bindings rejected, redirects blocked, deadlines preserved, and Auth delivery flows disabled."
+    },
+    {
+      "name": "Batch 1 build and regressions",
+      "result": "passed",
+      "detail": "Existing evidence remains: production-equivalent build exit code 0, 39/39 checkout/security, 27/27 SEO, TypeScript and lint passing."
+    },
+    {
+      "name": "Disk checkpoint",
+      "result": "passed",
+      "detail": "User-verified Windows status reports additional free capacity after game removal; no cleanup performed."
+    },
+    {
+      "name": "Hosted staging deployment",
+      "result": "not-run",
+      "detail": "Requires separate explicit authorization and approved staging credentials; no external resources or provider settings were changed."
+    }
+  ]
+}

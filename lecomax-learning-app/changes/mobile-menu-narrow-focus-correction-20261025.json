@@ -1,0 +1,36 @@
+{
+  "id": "mobile-menu-narrow-focus-correction-20261025",
+  "relatedId": "mobile-menu-build-network-failure-20261025",
+  "createdAt": "2026-10-25T07:08:21.414Z",
+  "title": "Mobile drawer focus visibility correction at narrow widths",
+  "summary": "Keyboard testing exposed pre-existing drawer header overflow at 320px; reused existing storefront responsive header classes inside the drawer.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront mobile navigation"
+  ],
+  "components": [
+    "Header",
+    "Mobile drawer"
+  ],
+  "files": [
+    "components/Header.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Add existing storefront-header-bar, storefront-header-brand and storefront-header-logo classes only to drawer header. Keeps all controls and French content; eliminates horizontal drawer scrolling when focusing clipped actions. No CSS file or dependency changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial candidate checks",
+      "result": "passed",
+      "detail": "Types/lint and network-enabled normal production build passed. Focus, Escape, restoration, touch and desktop/search handoff passed at 320/390. Focused axe passed."
+    },
+    {
+      "name": "Visual correction and limits",
+      "result": "not-run",
+      "detail": "Final corrected source requires new build and repeated focused tests. Initial harness targeted hidden duplicate Aide link, corrected to visible link. Local boutique returns 500 with disconnected loopback database; source-preservation checks will cover unchanged commerce/catalogue logic."
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "seo-quality-offline-verified-20261019",
+  "createdAt": "2026-10-19T10:09:45.903Z",
+  "title": "Offline SEO refinement verified; editorial publication remains blocked",
+  "summary": "68 focused tests, 6 history tests, TypeScript, focused lint, responsive Admin fixture and isolated Node 24 production build passed. No new paid API requests or migrations.",
+  "status": "successful",
+  "relatedId": "seo-quality-build-recovery-20261019",
+  "pages": [
+    "Admin SEO",
+    "Change History"
+  ],
+  "components": [
+    "Editorial v3 prompts",
+    "Offline quality rules",
+    "Admin review checklist",
+    "Versioned queue and append-only review storage"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-editorial-quality.mjs",
+    "operations/seo-vercel/lib/seo-editorial-quality.d.mts",
+    "operations/seo-vercel/lib/seo-editorial-v3.mjs",
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/lib/seo-ai-worker.mjs",
+    "operations/seo-vercel/supabase/migrations/202610190003_seo_editorial_review.sql",
+    "operations/seo-vercel/tests/editorial-quality.test.mjs",
+    "operations/seo-vercel/tests/editorial-quality-fixtures.mjs",
+    "app/admin/seo/EditorialReview.tsx",
+    "app/admin/seo/SeoAiControl.tsx",
+    "app/api/admin/seo/ai/route.ts",
+    "tests/seo-ai-api.test.ts",
+    "scripts/evaluate-seo-quality-offline.mjs",
+    "scripts/prepare-seo-quality-check.cjs",
+    "scripts/build-seo-quality-offline.cjs",
+    "scripts/smoke-seo-ai-ui.mjs",
+    "docs/seo-quality-offline-20261019.md",
+    "scripts/disable-seo-quality-build-cache.cjs",
+    "scripts/verify-seo-quality-preservation.cjs",
+    "artifacts/seo-quality/record-verification.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "French product-focused prompts and natural Arabic policy, explicit brand/model preservation, NFC character checks, hard failures versus review warnings, source/evidence feature and numeric-unit checks, stuffing and duplicate detection."
+    },
+    {
+      "kind": "modified",
+      "detail": "New editorial jobs provisionally use GPT-6.1 Sol. Astra remains optional premium. Old jobs retain v2 prompts/model selection. New source/version cache key and review storage are prepared SQL only."
+    },
+    {
+      "kind": "added",
+      "detail": "Admin source comparison, length indicators, required factual/French/Arabic/duplicate checklist and notes, approve-review or request-corrections actions with immutable decisions. Both UI and server continue blocking editorial publication."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline evaluation records and revised prompt snapshot distinguish saved historical model outputs from three hand-authored product fixtures. Saved French-heading mixing is flagged without modifying any original output."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Recovered local build verification from font-download EACCES and ENOSPC by permitting public font downloads, removing only the new failed-build cache and disabling webpack disk caching only in this task’s isolated build configuration."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regression and history",
+      "result": "passed",
+      "detail": "68 focused Node 24 tests passed (including quality, mocked official SDK, API authorization, review-only decisions, legacy content and worker behavior); 6 history persistence/CLI/interaction tests passed. No SQL suites executed."
+    },
+    {
+      "name": "Types and lint",
+      "result": "passed",
+      "detail": "Root and learning-app TypeScript checks passed. Focused Next ESLint passed for SeoAiControl, EditorialReview and the Admin SEO AI API route."
+    },
+    {
+      "name": "Browser fixture",
+      "result": "passed",
+      "detail": "Local-only real-component fixture at 390 and 1440px verified no horizontal overflow, Arabic RTL, provisional Sol selection, explicit paid authorization cancellation/confirmation, mandatory review checklist/notes, review decision history and no editorial publication call. No live hosted preview claimed."
+    },
+    {
+      "name": "Production-mode build",
+      "result": "passed",
+      "detail": "Isolated build completed with Node 24.22.0, exit 0, at 2026-10-19T10:09:12.720Z. Record: artifacts/seo-quality/build-1792404427213.json. Placeholder credentials; no AI key; all SEO runtime flags disabled. Existing unrelated lint warnings remain. Earlier font and disk failures retained in linked report; disk caching disabled only for the disposable build."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "SHA-256 checks matched all entries in four prior OpenAI/premium website and worker manifests (99 entries) and eight saved comparison/source/usage artifacts. Append-only history passed with 571 reports before this final append; final check follows."
+    },
+    {
+      "name": "Unverified limits and next approval",
+      "result": "not-run",
+      "detail": "Prepared SQL was not executed anywhere. Database privileges, persistence and concurrency require separately approved isolated-database testing. No new model generation, paid token count, ranking test, web-wide duplicate check or native-speaker review. Heuristic factual checks do not prove semantic entailment. Nine-second worker timeout is shorter than prior 17–20 second comparison latencies. Before any activation, reconcile known comparison spend into the deployment ledger. No production writes, deployment, publication, cron or worker activation."
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "seo-premium-editorial-prepared-20261019",
+  "createdAt": "2026-10-19T09:23:38.925Z",
+  "title": "Premium Astra editorial SEO and guarded comparison prepared",
+  "summary": "Preserve legacy Luna/Sol; add editorial model selection, bilingual product copy checks, owner request authorization, USD 5 monthly / USD 50 cumulative guards. Paid comparison disabled.",
+  "status": "needs-testing",
+  "relatedId": "seo-canary-once-result-20261019",
+  "pages": [
+    "Admin SEO",
+    "Product SEO review",
+    "Change History"
+  ],
+  "components": [
+    "Editorial provider",
+    "Durable queue and budget",
+    "Model selection",
+    "Offline comparison"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-editorial.mjs",
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/supabase/migrations/202610190002_seo_editorial.sql",
+    "app/api/admin/seo/ai/route.ts",
+    "app/admin/seo/SeoAiControl.tsx",
+    "scripts/prepare-seo-premium-comparison.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Separate editorial v2 mode for Luna, Sol and premium Astra with natural French/Arabic prompts, product descriptions, evidence, length/language/duplicate checks and human review hold."
+    },
+    {
+      "kind": "added",
+      "detail": "Unapplied SQL for explicit per-request authorization, preserved historical records, monthly/lifetime reservations and disabled defaults."
+    },
+    {
+      "kind": "modified",
+      "detail": "Admin supports model selection and owner-only request approval; maximum monthly cap reduced to USD 5 and Mirai disabled under new policy."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Read-only preflight",
+      "result": "passed",
+      "detail": "Astra and Sol metadata access confirmed. Same source/prompts counted at 569 input tokens per model; combined conservative maximum USD 0.132375. No generating calls."
+    },
+    {
+      "name": "Implementation checks",
+      "result": "not-run",
+      "detail": "Mock, local SQL, types and lint pending. No production migration, deployment or paid comparison."
+    }
+  ]
+}

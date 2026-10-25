@@ -13,10 +13,11 @@ const steps = ["common.cart", "support.delivery", "checkoutProgress.payment"] as
 type StepNumber = 1 | 2 | 3;
 type ProgressProps = {
   currentStep: StepNumber;
+  compact?: boolean;
   onStepPress?: (step: StepNumber) => void;
 };
 
-function ProgressStep({ step, currentStep, onStepPress }: ProgressProps & { step: StepNumber }) {
+function ProgressStep({ step, currentStep, onStepPress, compact }: ProgressProps & { step: StepNumber }) {
   useLocale();
   const complete = step < currentStep;
   const active = step === currentStep;
@@ -76,7 +77,7 @@ function ProgressStep({ step, currentStep, onStepPress }: ProgressProps & { step
   return (
     <View style={styles.step}>
       {step < 3 ? (
-        <View pointerEvents="none" style={styles.connector}>
+        <View pointerEvents="none" style={[styles.connector, compact && styles.compactConnector]}>
           <Animated.View style={[styles.connectorFill, fillStyle]} />
         </View>
       ) : null}
@@ -89,9 +90,9 @@ function ProgressStep({ step, currentStep, onStepPress }: ProgressProps & { step
           haptic={enabled}
           onPress={() => onStepPress?.(step)}
           pressedScale={reduceMotion ? 1 : 0.95}
-          style={styles.stepButton}
+          style={[styles.stepButton, compact && styles.compactStep]}
         >
-          <View style={styles.nodeWrap}>
+          <View style={[styles.nodeWrap, compact && styles.compactNodeWrap]}>
             <Animated.View pointerEvents="none" style={[styles.halo, haloStyle]} />
             <Animated.View style={[styles.node, nodeStyle]}>
               <Animated.Text maxFontSizeMultiplier={1.15} style={[styles.number, numberStyle]}>{step}</Animated.Text>
@@ -100,10 +101,10 @@ function ProgressStep({ step, currentStep, onStepPress }: ProgressProps & { step
               </Animated.View>
             </Animated.View>
           </View>
-          <Text maxFontSizeMultiplier={1.2} style={[styles.label, complete && styles.labelComplete, active && styles.labelActive]}>
+          <Text maxFontSizeMultiplier={1.2} style={[styles.label, compact && styles.compactLabel, complete && styles.labelComplete, active && styles.labelActive]}>
             {msg(steps[step - 1])}
           </Text>
-          <Animated.View style={[styles.activeDot, haloStyle]} />
+          {!compact && <Animated.View style={[styles.activeDot, haloStyle]} />}
         </AnimatedPressable>
       </Animated.View>
     </View>
@@ -113,7 +114,7 @@ function ProgressStep({ step, currentStep, onStepPress }: ProgressProps & { step
 export const CheckoutProgress = memo(function CheckoutProgress(props: ProgressProps) {
   useLocale();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, props.compact && styles.compactContainer]}>
       <View style={styles.track}>
         {steps.map((label, index) => <ProgressStep key={label} {...props} step={(index + 1) as StepNumber} />)}
       </View>
@@ -122,21 +123,26 @@ export const CheckoutProgress = memo(function CheckoutProgress(props: ProgressPr
 });
 
 const styles = StyleSheet.create({
+  compactLabel: { marginTop: 0, flexShrink: 1, fontSize: 10 },
+  compactContainer: { paddingHorizontal: 4, paddingTop: 10, paddingBottom: 10, backgroundColor: "#FFFFFF" },
+  compactStep: { flexDirection: "row", gap: 3, minWidth: 0, maxWidth: "100%", backgroundColor: "#FFFFFF", paddingHorizontal: 2 },
+  compactNodeWrap: { width: 36, height: 36 },
+  compactConnector: { top: 18, marginHorizontal: 40 },
   container: {
-    width: "100%", paddingHorizontal: 18, paddingTop: 16, paddingBottom: 10,
-    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E5E9E0", backgroundColor: "#FFFFFF",
+    width: "100%", paddingHorizontal: 24, paddingTop: 12, paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "#E5E9E0", backgroundColor: "#F7F6F2",
   },
   track: { flexDirection: "row", width: "100%", maxWidth: 520, alignSelf: "center" },
   step: { position: "relative", flex: 1, alignItems: "center" },
   stepButton: { minWidth: 76, alignItems: "center", paddingHorizontal: 4 },
   connector: {
-    position: "absolute", top: 23, left: "50%", right: "-50%", marginHorizontal: 29,
-    height: 2, overflow: "hidden", borderRadius: 2, backgroundColor: "#E8ECE3",
+    position: "absolute", top: 21, left: "50%", right: "-50%", marginHorizontal: 27,
+    height: 1, overflow: "hidden", borderRadius: 2, backgroundColor: "#DDE3D6",
   },
   connectorFill: { height: "100%", backgroundColor: "#87A774", borderRadius: 2 },
-  nodeWrap: { width: 48, height: 48, alignItems: "center", justifyContent: "center" },
-  halo: { position: "absolute", width: 48, height: 48, borderRadius: 24, backgroundColor: "#EDF3E8" },
-  node: { width: 36, height: 36, alignItems: "center", justifyContent: "center", borderWidth: 1, borderRadius: 18 },
+  nodeWrap: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  halo: { position: "absolute", width: 44, height: 44, borderRadius: 22, backgroundColor: "#E9EEE1" },
+  node: { width: 32, height: 32, alignItems: "center", justifyContent: "center", borderWidth: 1, borderRadius: 16 },
   number: { fontFamily: typography.semibold, fontSize: 13 },
   check: { position: "absolute", alignItems: "center", justifyContent: "center" },
   label: { marginTop: 5, color: "#78816F", fontFamily: typography.medium, fontSize: 11 },

@@ -1,0 +1,51 @@
+{
+  "id": "batch1-bootstrap-recovery-blocked-20261024",
+  "createdAt": "2026-10-24T17:53:07.539Z",
+  "relatedId": "batch1-bootstrap-review-20261024",
+  "title": "Static bootstrap recovery stopped before upload",
+  "summary": "Recovered a prior HTML-validator false positive. Vercel still has zero deployments; the single authorized attempt remains unused. RC2 and dirty worktree hashes match.",
+  "status": "failed",
+  "pages": [
+    "/change-history",
+    "Checkout staging placeholder (not created)"
+  ],
+  "components": [
+    "Static bootstrap preparation",
+    "Deployment preflight"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/RECOVERY-REPORT.md",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap/recovery-integrity.json",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/provider-recovery-authorized-read.json",
+    "artifacts/batch1-release-preparation-20261024/gate-a/recovery-values.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Sanitized recovery report and authenticated read-only evidence; no provider or application modification."
+    }
+  ],
+  "validation": [
+    {
+      "name": "RC2 and worktree preservation",
+      "result": "passed",
+      "detail": "Archive matches certification; 1506 sealed files and 169 dirty files match recorded hashes."
+    },
+    {
+      "name": "Provider and exact values",
+      "result": "passed",
+      "detail": "Zero deployments; exact project/team, Hobby, all protection, 19 approved Preview-only values, no aliases/Git/resources."
+    },
+    {
+      "name": "Bootstrap preparation",
+      "result": "failed",
+      "detail": "Prior prepare failed: event-attribute regex falsely matches ontent= in content=. Artifact contains zero files; no upload attempted."
+    },
+    {
+      "name": "Hosted verification",
+      "result": "not-run",
+      "detail": "No deployment exists. Stopped under handoff section 11; correction/resumption authorization required."
+    }
+  ]
+}

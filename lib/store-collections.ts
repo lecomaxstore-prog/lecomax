@@ -1,5 +1,5 @@
 import { isNewArrivalEligible, type CardProduct } from "./products.ts";
-import { isBestsellerEligible, selectBestsellers } from "./bestseller-eligibility.ts";
+import { selectBestsellers } from "./bestseller-eligibility.ts";
 
 /** Preserve the homepage merchandising rules for every collection entry point. */
 export function selectNewArrivals(products: CardProduct[]): CardProduct[] {
@@ -13,7 +13,5 @@ export function selectNewArrivals(products: CardProduct[]): CardProduct[] {
 
 export function selectStoreBestsellers(products: CardProduct[]): CardProduct[] {
   const active = products.filter(p => p.active !== false);
-  const candidates = active.filter(isBestsellerEligible);
-  const preferred = candidates.filter(p => p.badge === "Bestseller");
-  return selectBestsellers(active, preferred.length > 0 ? preferred : candidates);
+  return selectBestsellers(active);
 }

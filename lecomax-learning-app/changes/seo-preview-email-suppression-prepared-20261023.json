@@ -1,0 +1,60 @@
+{
+  "id": "seo-preview-email-suppression-prepared-20261023",
+  "relatedId": "seo-derived-preview-credential-prepared-20261023",
+  "createdAt": "2026-10-23T07:45:01.451Z",
+  "title": "Preview email paths blocked before delivery",
+  "summary": "Added Preview suppression for Resend, SMTP, invitations, password resets and browser Auth mutations. Upstream SMTP/Send Email Hook isolation remains unverified. No deployment or provider configuration changes.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Recovery Preview",
+    "Account authentication",
+    "Admin staff",
+    "Order notifications",
+    "Change History"
+  ],
+  "components": [
+    "Preview email policy",
+    "Browser Supabase transport",
+    "Server email routes"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/lib/seo-preview-email.mjs",
+    ".recovery-seo-preview-isolated/app/api/messages/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/[id]/route.ts",
+    ".recovery-seo-preview-isolated/app/api/auth/signup/route.ts",
+    ".recovery-seo-preview-isolated/app/api/account/password-reset/route.ts",
+    ".recovery-seo-preview-isolated/app/api/admin/staff/resend-invite/route.ts",
+    ".recovery-seo-preview-isolated/app/api/admin/staff/route.ts",
+    ".recovery-seo-preview-isolated/app/api/admin/staff/[id]/route.ts",
+    ".recovery-seo-preview-isolated/app/api/inbox/reply/route.ts",
+    ".recovery-seo-preview-isolated/app/api/newsletter/send/route.ts",
+    ".recovery-seo-preview-isolated/app/api/send-confirmation/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/[id]/notify/route.ts",
+    ".recovery-seo-preview-isolated/app/api/orders/[id]/trustpilot/route.ts",
+    ".recovery-seo-preview-isolated/app/api/cron/review-followups/route.ts",
+    ".recovery-seo-preview-isolated/lib/supabase.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a Preview email policy and browser Auth transport suppression."
+    },
+    {
+      "kind": "modified",
+      "detail": "Disabled optional order/message email clients in Preview; blocked mail-only routes and admin credential mutations before side effects. Production branches retain existing behavior."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local suppression tests and typecheck",
+      "result": "not-run",
+      "detail": "Pending after implementation."
+    },
+    {
+      "name": "Upstream isolation and hosted binding",
+      "result": "not-run",
+      "detail": "No mail sent. SMTP/Hook configuration and hosted credential equality remain unverified."
+    }
+  ]
+}

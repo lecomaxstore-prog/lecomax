@@ -1,0 +1,47 @@
+{
+  "createdAt": "2026-10-23T15:09:46.170Z",
+  "pages": [
+    "Protected SEO Preview",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Deployment packaging",
+    "Course validation",
+    "Retry-free API transport",
+    "Preview terminal restriction"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/prepare-certified-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/finalize-certified-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/validate-certified-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/certified-next.config.js",
+    "artifacts/seo-preview-resume-20261023/preview-terminal-route.ts",
+    "artifacts/seo-preview-resume-20261023/retry-free-api-adapter.mjs",
+    "artifacts/seo-preview-resume-20261023/retry-free-transport.mjs",
+    "artifacts/seo-preview-resume-20261023/test-api-adapter.mjs",
+    "artifacts/seo-preview-resume-20261023/test-guard-boundaries.mjs",
+    "artifacts/seo-preview-resume-20261023/test-retry-free-transport.mjs",
+    "artifacts/seo-preview-resume-20261023/certified-storefront-acceptance.cjs",
+    "artifacts/seo-preview-resume-20261023/run-certified-acceptance.cjs",
+    "artifacts/seo-preview-resume-20261023/certified-payload-v5.json",
+    "artifacts/seo-preview-resume-20261023/certified-request-v5.json"
+  ],
+  "id": "seo-filtered-build-blockers-1792768186171",
+  "relatedId": "seo-certified-payload-prepared-1792766736080",
+  "title": "Filtered build blockers found and retained",
+  "summary": "Recorded omitted build dependencies and local disk exhaustion before the corrected validation passed.",
+  "status": "failed",
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Identified missing webpack loader and environment policy module; rejected unverified course-validation bypass and identified the node-pty Linux install-script dependency."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Earlier filtered attempts",
+      "result": "failed",
+      "detail": "Missing source-inspector-loader.cjs, then environment-target.mjs; later disk exhaustion interrupted manifest/build. Original logs and partial v3 manifest preserved. No deployment attempted."
+    }
+  ]
+}

@@ -131,3 +131,11 @@ lecomax-learning-app/utils/tutor-context.ts
 lecomax-learning-app/utils/web-studio.ts
 lecomax-learning-app/utils/weekly-academy.ts
 lecomax-learning-app/utils/wifi-lab.ts
+
+artifacts/
+.worktrees/
+.playwright-mcp/
+.recovery*/
+.recovery.tar
+recovery.patch
+artifacts-live-*

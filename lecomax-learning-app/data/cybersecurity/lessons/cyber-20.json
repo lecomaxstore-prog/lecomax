@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-20",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-20",
+  "title": {
+    "en": "Capstone: review, repair and report on Cedar Cart",
+    "ar": "المشروع النهائي: تدقيق Cedar Cart وإصلاحه",
+    "fr": "Capstone: review, repair and report on Cedar Cart"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-19"
+  ],
+  "objectives": [
+    "Review a complete fictional purchase flow and its trust boundaries.",
+    "Demonstrate and repair security failures with repeatable tests.",
+    "Produce an evidence-based report and pass the final learning assessment."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Complete an integrated assessment of the fictional local shop. Deliver a report with actual local evidence and explicitly untested production concerns. No real payments or public targets are involved.",
+  "sections": [
+    {
+      "title": "Define the capstone deliverable",
+      "text": "Your deliverable is a small reviewed repository and report, not a collection of exploit screenshots. Start with security-labs/server.cjs, controls.cjs, next-order-route.ts and the regression suite. Record the runtime and dependency versions and confirm the listener is loopback-only. The fictional shop includes product search, synthetic actor selection, order reads, checkout, coupon use, an administrator check, a webhook verifier and a browser rendering demonstration. Some vulnerability topics use clearly labeled policy models rather than real external actions. State those boundaries in the report. Do not substitute one of your public domains for the lab target."
+    },
+    {
+      "title": "Review architecture before changing code",
+      "text": "Draw the browser, HTTP server, session fixture, product catalog, temporary database, order state and webhook boundary. Mark which fields the caller can control and which are authoritative. Identify at least four invariants: a caller reads only permitted orders; price comes from the catalog; stock does not become negative; and only authenticated matching payment evidence can trigger a payment transition once. Add a browser invariant that untrusted names remain text in the corrected rendering path. Write the expected behavior before executing a demonstration. This prevents a test from merely accepting whichever result the current implementation happens to produce."
+    },
+    {
+      "title": "Demonstrate the intentional failures minimally",
+      "text": "Use Alice and Bob to compare unsafe and fixed order lookup. Compare SQL search interpolation with a bound value. Post a price of one and observe the unsafe quote versus the authoritative fixed total. Compare markup interpretation with text-safe output. Record one synthetic example of each failure and its minimal effect. For URL, path and command topics, run the policy-model tests and identify that they do not contact hosts, read real files or spawn commands. Do not expand demonstrations into unrelated effects. The purpose is to prove the broken rule and its repair with the smallest useful evidence."
+    },
+    {
+      "title": "Implement a repair exercise in a disposable copy",
+      "text": "The reference fixed functions are supplied so beginners have working solutions. To practice implementation, make a separate branch or copy of the lab, replace one unsafe call with the corrected boundary and run the relevant tests. Keep the original fixture available for comparison. For order access, pass validated identity and constrain ownership. For query construction, bind values. For checkout, validate quantity and look up price. For rendering, use a text-safe sink. Explain each important change in your report. A code diff that merely deletes every endpoint is not a successful repair because the legitimate feature must still work."
+    },
+    {
+      "title": "Verify business state and limitations",
+      "text": "Run the complete regression suite after focused fixes. Inspect accepted and rejected checkout state, duplicate webhook outcomes, reset-token reuse, rate-limit boundaries and the Next.js factory’s response shape. The suite cannot establish real-provider payment behavior, distributed inventory transactions, full file decoding, independent PostgreSQL connections or native Android runtime security. Keep these as explicit follow-up items with proposed tests. A local test result should name its environment and revision; do not label the public projects secure because a fictional fixture passes. Review the lab wrapper too: a foreign host/origin should be rejected and no arbitrary network fetch should occur."
+    },
+    {
+      "title": "Write a professional final report",
+      "text": "Use the supplied report template: scope and authorization; architecture; assets and roles; methods; findings; remediation; verification; residual risk and next actions. Each finding needs observed versus expected behavior, business impact, root cause, changed code and a regression reference. Include a concise executive summary understandable to a shop owner. Redact tokens even if they are synthetic when practicing report hygiene. Mark a finding fixed only after its relevant retest and legitimate success control pass. The final assessment in the app checks course reasoning, while your saved report and completion checklist record self-reported practical work. Neither is an independent professional certification."
+    },
+    {
+      "title": "Complete the course honestly",
+      "text": "Finish the lesson quizzes and readiness checklists, enter your actual lab observations and report, then take the final assessment. If a computer lab or device check remains unexecuted, keep its limitation visible rather than inventing results. Your next professional step is to adapt the review method to a separately scoped staging environment with real authentication, durable storage and provider sandbox integrations. Darija: المشروع النهائي خاصو يبيّن الطريق كاملة: نفهم، نثبت المشكل، نصلح، نختبر، ونكتب تقرير واضح. A successful learning outcome is the ability to explain why the controls work and where their evidence stops."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "report",
+      "difficulty": 3,
+      "task": "Complete security-labs/REPORT_TEMPLATE.md using your own observations for at least four findings and their repairs.",
+      "hints": [
+        "Include one legitimate success control per fix.",
+        "Separate model evidence from actual HTTP/database execution."
+      ],
+      "solution": "Required sections: scope; architecture; four findings; code changes; test evidence; residual risk; next actions.\nEvery finding: prerequisites, expected/actual result, root cause, fix, retest revision and outcome.",
+      "walkthrough": "The template is a deliverable structure, not a prewritten claim that you ran the tests. Fill the actual observations after execution.",
+      "expectedResult": "A complete locally evidenced report."
+    },
+    {
+      "id": "review",
+      "difficulty": 3,
+      "task": "Ask whether passing local tests proves durable inventory and real-provider payments. Propose the missing integration tests.",
+      "hints": [
+        "Think about multiple workers, restarts and provider-specific verification."
+      ],
+      "solution": "Add concurrent database reservation tests, persistent idempotency/restart tests, provider sandbox signature/event tests and deployment configuration checks.",
+      "walkthrough": "The lab teaches the invariants but does not implement every production subsystem. Professional reporting makes that distinction explicit.",
+      "expectedResult": "A prioritized follow-up validation plan."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-20-q1",
+      "question": "What is the capstone target?",
+      "options": [
+        "The isolated fictional Cedar Cart shop.",
+        "All three public domains without a separate scope."
+      ],
+      "correctIndex": 0,
+      "explanation": "The lab is not authorization for production testing.",
+      "answerExplanations": [
+        "Correct. The lab is not authorization for production testing.",
+        "Not quite. The lab is not authorization for production testing."
+      ]
+    },
+    {
+      "id": "cyber-20-q2",
+      "question": "Should expected behavior be written before running a demonstration?",
+      "options": [
+        "No; whatever the code returns defines correctness.",
+        "Yes; the invariant guides interpretation."
+      ],
+      "correctIndex": 1,
+      "explanation": "Tests need an independent requirement.",
+      "answerExplanations": [
+        "Not quite. Tests need an independent requirement.",
+        "Correct. Tests need an independent requirement."
+      ]
+    },
+    {
+      "id": "cyber-20-q3",
+      "question": "Is deleting every endpoint a complete repair?",
+      "options": [
+        "No; legitimate functionality must remain.",
+        "Yes; a useless application is automatically a successful fix."
+      ],
+      "correctIndex": 0,
+      "explanation": "Security and intended behavior must both be verified.",
+      "answerExplanations": [
+        "Correct. Security and intended behavior must both be verified.",
+        "Not quite. Security and intended behavior must both be verified."
+      ]
+    },
+    {
+      "id": "cyber-20-q4",
+      "question": "What must a finding marked fixed include?",
+      "options": [
+        "Only a proposed code comment.",
+        "Relevant retest and legitimate success evidence."
+      ],
+      "correctIndex": 1,
+      "explanation": "Implementation and verification support the status.",
+      "answerExplanations": [
+        "Not quite. Implementation and verification support the status.",
+        "Correct. Implementation and verification support the status."
+      ]
+    },
+    {
+      "id": "cyber-20-q5",
+      "question": "Does the webhook model prove a real provider integration?",
+      "options": [
+        "No; add provider-specific sandbox tests.",
+        "Yes; all signature protocols are identical."
+      ],
+      "correctIndex": 0,
+      "explanation": "The lab protocol is explicitly fictional.",
+      "answerExplanations": [
+        "Correct. The lab protocol is explicitly fictional.",
+        "Not quite. The lab protocol is explicitly fictional."
+      ]
+    },
+    {
+      "id": "cyber-20-q6",
+      "question": "What does a policy-model result prove?",
+      "options": [
+        "Every production network and filesystem behavior.",
+        "The modeled function’s decision for tested inputs."
+      ],
+      "correctIndex": 1,
+      "explanation": "Claims must match the executed layer.",
+      "answerExplanations": [
+        "Not quite. Claims must match the executed layer.",
+        "Correct. Claims must match the executed layer."
+      ]
+    },
+    {
+      "id": "cyber-20-q7",
+      "question": "How many public production sites were assessed by completing the lab?",
+      "options": [
+        "None.",
+        "All named projects automatically."
+      ],
+      "correctIndex": 0,
+      "explanation": "Local evidence does not transfer to public targets.",
+      "answerExplanations": [
+        "Correct. Local evidence does not transfer to public targets.",
+        "Not quite. Local evidence does not transfer to public targets."
+      ]
+    },
+    {
+      "id": "cyber-20-q8",
+      "question": "What belongs in the executive summary?",
+      "options": [
+        "Unredacted credentials and full database dumps.",
+        "Business impact, verified status and priorities."
+      ],
+      "correctIndex": 1,
+      "explanation": "Decision makers need clear minimized information.",
+      "answerExplanations": [
+        "Not quite. Decision makers need clear minimized information.",
+        "Correct. Decision makers need clear minimized information."
+      ]
+    },
+    {
+      "id": "cyber-20-q9",
+      "question": "What should an unexecuted device check be marked?",
+      "options": [
+        "Pending with a stated limitation.",
+        "Passed because the web bundle compiled."
+      ],
+      "correctIndex": 0,
+      "explanation": "Build and device evidence are distinct.",
+      "answerExplanations": [
+        "Correct. Build and device evidence are distinct.",
+        "Not quite. Build and device evidence are distinct."
+      ]
+    },
+    {
+      "id": "cyber-20-q10",
+      "question": "What is the strongest completion outcome?",
+      "options": [
+        "Memorize vulnerability names only.",
+        "Explain, repair, test and report with honest limits."
+      ],
+      "correctIndex": 1,
+      "explanation": "The course aims at transferable defensive engineering.",
+      "answerExplanations": [
+        "Not quite. The course aims at transferable defensive engineering.",
+        "Correct. The course aims at transferable defensive engineering."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can review a complete fictional purchase flow and its trust boundaries.",
+    "I can demonstrate and repair security failures with repeatable tests.",
+    "I can produce an evidence-based report and pass the final learning assessment."
+  ],
+  "recap": [
+    "Review a complete fictional purchase flow and its trust boundaries.",
+    "Demonstrate and repair security failures with repeatable tests.",
+    "Produce an evidence-based report and pass the final learning assessment."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP WSTG reporting",
+      "url": "https://owasp.org/www-project-web-security-testing-guide/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Capstone evidence chain",
+    "steps": [
+      {
+        "title": "Architecture and invariants",
+        "detail": "State what must remain true across each trust boundary."
+      },
+      {
+        "title": "Minimal local failure",
+        "detail": "Record synthetic expected/actual behavior."
+      },
+      {
+        "title": "Code repair",
+        "detail": "Preserve the legitimate operation while enforcing the rule."
+      },
+      {
+        "title": "Regression and report",
+        "detail": "Attach test evidence and visible residual-risk items."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Invariant",
+      "A property that must remain true through an operation."
+    ],
+    [
+      "Retest evidence",
+      "Recorded results tied to the repaired code and environment."
+    ],
+    [
+      "Executive summary",
+      "A concise statement of impact, status and priorities for decision makers."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Cedar Cart capstone reviewer"
+  }
+}

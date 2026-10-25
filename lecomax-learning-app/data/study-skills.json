@@ -1,0 +1,334 @@
+[
+  {
+    "id": "study-understand",
+    "minutes": 12,
+    "title": [
+      "Comprendre au lieu de recopier",
+      "Understand instead of copying",
+      "افهم بدل أن تنسخ"
+    ],
+    "objective": [
+      "Expliquer une règle, prédire un résultat et adapter un exemple.",
+      "Explain a rule, predict an outcome, and adapt an example.",
+      "اشرح قاعدة وتوقّع نتيجة وعدّل مثالًا بنفسك."
+    ],
+    "sections": [
+      [
+        "Commence par une question",
+        "Start with a question",
+        "ابدأ بسؤال",
+        "Avant de lire, écris ce que tu veux savoir faire : « calculer un total pour une quantité quelconque ». Un objectif observable te permet de vérifier ton progrès. Si un mot te bloque, définis-le avec un exemple avant de continuer.",
+        "Before reading, write what you want to be able to do: “calculate a total for any quantity.” An observable goal gives you something to check. If a word blocks your understanding, define it with an example before continuing.",
+        "قبل القراءة اكتب ما تريد أن تستطيع فعله: «حساب المجموع لأي كمية». الهدف الذي يمكنك تجربته يساعدك على قياس تقدّمك. إذا عطّلك مصطلح، افهمه بمثال قبل المتابعة."
+      ],
+      [
+        "Décompose un exemple",
+        "Break down an example",
+        "فكّك المثال",
+        "Un produit coûte 12 et on en achète 3. Entrées : prix 12, quantité 3. Règle : total = prix × quantité. Sortie : 36. Chaque étape a un rôle. Demande pourquoi on multiplie : on additionne trois fois le même prix. Ajouter 12 + 3 mélange un prix et un nombre d’articles.",
+        "A product costs 12 and you buy 3. Inputs: price 12, quantity 3. Rule: total = price × quantity. Output: 36. Each step has a purpose. Why multiply? You are adding the same price three times. Adding 12 + 3 mixes a price and a count of items.",
+        "ثمن المنتج 12 والكمية 3. المدخلات: السعر 12 والكمية 3. القاعدة: المجموع = السعر × الكمية. النتيجة 36. لماذا الضرب؟ لأننا نجمع السعر نفسه ثلاث مرات. جمع 12 + 3 يخلط ثمنًا مع عدد المنتجات."
+      ],
+      [
+        "Change une chose",
+        "Change one thing",
+        "غيّر شيئًا واحدًا",
+        "Cache le résultat et remplace la quantité par 4. Prédis 48 puis vérifie. Ensuite change le prix en gardant la quantité. Enfin résous un autre problème : 4 paquets de 12 crayons. Tu comprends mieux la règle si tu peux reconnaître la même structure dans un autre contexte. Si tu bloques, reviens à l’étape précise, pas à tout le chapitre.",
+        "Hide the result and change the quantity to 4. Predict 48, then check. Next change the price while keeping the quantity. Finally solve a different problem: 4 packs of 12 pencils. Recognizing the same structure in a new context is useful evidence of understanding. If you get stuck, revisit the specific step rather than the entire chapter.",
+        "أخفِ النتيجة وغيّر الكمية إلى 4. توقّع 48 ثم تحقّق. بعدها غيّر السعر مع إبقاء الكمية. أخيرًا حلّ مسألة أخرى: 4 علب في كل منها 12 قلمًا. اكتشاف القاعدة نفسها في سياق جديد دليل مفيد على الفهم. إذا توقّفت، ارجع إلى الخطوة التي لم تفهمها بدل إعادة الفصل كله."
+      ]
+    ],
+    "task": [
+      "Un article coûte 15, quantité 4. Écris les entrées, la règle et le résultat. Puis invente un exemple sans argent utilisant la même règle.",
+      "An item costs 15, quantity 4. Write the inputs, rule, and result. Then invent a non-money example using the same rule.",
+      "سعر المنتج 15 والكمية 4. اكتب المدخلات والقاعدة والنتيجة، ثم اختر مثالًا لا يتعلق بالمال يستخدم القاعدة نفسها."
+    ],
+    "hint": [
+      "Additionne 15 quatre fois.",
+      "Add 15 four times.",
+      "اجمع 15 أربع مرات."
+    ],
+    "solution": [
+      "15 × 4 = 60. Exemple : 4 boîtes de 15 livres contiennent 60 livres. La règle multiplie une quantité par le nombre de groupes identiques.",
+      "15 × 4 = 60. Example: 4 boxes of 15 books contain 60 books. The rule multiplies an amount per group by the number of identical groups.",
+      "15 × 4 = 60. مثال: 4 صناديق في كل منها 15 كتابًا تعطي 60 كتابًا. نضرب عدد العناصر في المجموعة الواحدة في عدد المجموعات المتساوية."
+    ],
+    "question": [
+      "Quelle preuve montre le mieux ta compréhension ?",
+      "Which is the best evidence of understanding?",
+      "ما الدليل الأفضل على فهمك؟"
+    ],
+    "options": [
+      [
+        "Reconnaître le texte",
+        "Recognizing the text",
+        "أن يبدو النص مألوفًا"
+      ],
+      [
+        "Adapter la règle et expliquer pourquoi elle fonctionne",
+        "Adapting the rule and explaining why it works",
+        "تطبيق القاعدة في مثال جديد وشرح سبب نجاحها"
+      ],
+      [
+        "Copier rapidement",
+        "Copying quickly",
+        "النسخ بسرعة"
+      ]
+    ],
+    "answer": 1,
+    "feedback": [
+      "Reconnaître ou recopier peut se faire sans comprendre. Adapter et expliquer exige de relier les étapes à leur rôle.",
+      "Recognition and copying can happen without understanding. Adapting and explaining require connecting the steps to their purpose.",
+      "يمكن أن تتعرّف على النص أو تنسخه دون فهم. التعديل والشرح يتطلبان ربط الخطوات بوظيفتها."
+    ]
+  },
+  {
+    "id": "study-recall",
+    "minutes": 10,
+    "title": [
+      "Retenir sans relire sans fin",
+      "Remember without endless rereading",
+      "تذكّر دون إعادة القراءة بلا نهاية"
+    ],
+    "objective": [
+      "Rappeler une idée sans notes, vérifier et corriger une erreur.",
+      "Recall an idea without notes, check it, and correct a mistake.",
+      "استرجع فكرة دون ملاحظات، ثم تحقّق وصحّح خطأك."
+    ],
+    "sections": [
+      [
+        "Lire puis fermer",
+        "Read, then close",
+        "اقرأ ثم أغلق",
+        "Lis une petite partie, puis cache-la. Écris l’idée, un exemple et une question. Chercher une réponse en mémoire est différent de reconnaître une phrase. Une première tentative incomplète est normale : commence avec une question ciblée si une page blanche est trop difficile.",
+        "Read a small section, then hide it. Write the idea, an example, and a question. Trying to retrieve an answer differs from recognizing a sentence. An incomplete first attempt is normal: use a specific question if a blank page feels too difficult.",
+        "اقرأ فقرة صغيرة ثم أخفها. اكتب فكرتها ومثالًا وسؤالًا. محاولة استرجاع الإجابة تختلف عن التعرّف على جملة أمامك. من الطبيعي أن تكون محاولتك الأولى ناقصة: ابدأ بسؤال محدد إذا كانت الصفحة الفارغة صعبة."
+      ],
+      [
+        "Compare et corrige",
+        "Compare and correct",
+        "قارن وصحّح",
+        "Exemple : après un cours sur RAM et SSD, tu écris « RAM garde mes fichiers après extinction ». Vérifie : la RAM est une mémoire de travail volatile ; le SSD conserve les données enregistrées. Écris la correction et sa raison. Ne répète pas simplement une réponse fausse sans retour.",
+        "Example: after a lesson on RAM and SSD, you write “RAM keeps my files after shutdown.” Check: RAM is volatile working memory; SSD retains saved data. Write the correction and its reason. Do not keep rehearsing an incorrect answer without feedback.",
+        "مثال: بعد درس عن RAM وSSD تكتب «RAM تحفظ ملفاتي بعد إطفاء الجهاز». تحقّق: RAM ذاكرة عمل مؤقتة، وSSD يحتفظ بالبيانات المحفوظة. اكتب التصحيح وسببه. لا تكرّر إجابة خاطئة دون مراجعة."
+      ],
+      [
+        "Pose une question utile",
+        "Ask a useful question",
+        "اصنع سؤالًا مفيدًا",
+        "« Je connais RAM » est vague. « Pourquoi une note non enregistrée peut-elle disparaître ? » te fait expliquer une conséquence. Alterne définition, exemple et application. Réessaie plus tard sans regarder. Une réponse juste immédiatement après lecture ne garantit pas que tu la retrouveras demain.",
+        "“I know RAM” is vague. “Why can an unsaved note disappear?” asks you to explain a consequence. Use definitions, examples, and application questions. Try again later without looking. A correct answer immediately after reading does not guarantee recall tomorrow.",
+        "«أعرف RAM» عبارة غير دقيقة. «لماذا قد تضيع ملاحظة لم أحفظها؟» يجعلك تشرح نتيجة. استخدم أسئلة عن التعريف والمثال والتطبيق. حاول لاحقًا دون النظر. الإجابة الصحيحة بعد القراءة مباشرة لا تضمن تذكّرها غدًا."
+      ]
+    ],
+    "task": [
+      "Cache ce cours. Explique la différence entre reconnaître et rappeler. Écris une question sur ton dernier cours, réponds sans notes puis corrige.",
+      "Hide this lesson. Explain the difference between recognition and recall. Write one question about your last lesson, answer without notes, then correct it.",
+      "أخفِ الدرس. اشرح الفرق بين التعرّف والاسترجاع. اكتب سؤالًا عن آخر درس، أجب دون ملاحظات ثم صحّح."
+    ],
+    "hint": [
+      "Reconnaître : voir une réponse familière. Rappeler : produire la réponse.",
+      "Recognition: seeing a familiar answer. Recall: producing the answer.",
+      "التعرّف: رؤية إجابة مألوفة. الاسترجاع: إنتاج الإجابة بنفسك."
+    ],
+    "solution": [
+      "Exemple : « Pourquoi sauvegarder ? » Réponse : une donnée en RAM peut disparaître ; sauvegarder écrit dans un stockage persistant. Vérifie le sens, pas seulement les mots identiques au cours.",
+      "Example: “Why save?” Answer: data in RAM can be lost; saving writes to persistent storage. Check meaning, not just whether your wording matches the lesson.",
+      "مثال: «لماذا نحفظ؟» الإجابة: قد تضيع البيانات في RAM؛ الحفظ يكتبها في تخزين دائم. تحقّق من المعنى، لا من تطابق كلماتك مع الدرس."
+    ],
+    "question": [
+      "Tu ne retrouves pas une réponse. Que faire ?",
+      "You cannot recall an answer. What should you do?",
+      "لا تتذكّر الإجابة. ماذا تفعل؟"
+    ],
+    "options": [
+      [
+        "Relire sans jamais réessayer",
+        "Reread without ever trying again",
+        "تعيد القراءة دون محاولة أخرى"
+      ],
+      [
+        "Conclure que tu es incapable",
+        "Decide you cannot learn",
+        "تستنتج أنك لا تستطيع التعلّم"
+      ],
+      [
+        "Consulter un indice, corriger, puis retenter sans notes",
+        "Use a hint, correct, then try again without notes",
+        "تستعمل تلميحًا وتصّحح ثم تعيد المحاولة دون ملاحظات"
+      ]
+    ],
+    "answer": 2,
+    "feedback": [
+      "La difficulté révèle ce qu’il faut retravailler. Un indice et une correction rendent la prochaine tentative plus utile.",
+      "Difficulty reveals what needs more work. A hint and a correction make the next attempt more useful.",
+      "الصعوبة تكشف ما يحتاج إلى تدريب. التلميح والتصحيح يجعلان المحاولة التالية أكثر فائدة."
+    ]
+  },
+  {
+    "id": "study-debug",
+    "minutes": 12,
+    "title": [
+      "Résoudre un problème quand tu bloques",
+      "Solve problems when you get stuck",
+      "حلّ المشكلات عندما تتوقّف"
+    ],
+    "objective": [
+      "Décrire un écart, tester une hypothèse et vérifier la correction.",
+      "Describe a mismatch, test a hypothesis, and verify a fix.",
+      "صف الفرق بين المتوقع والواقع، واختبر فرضية، وتحقّق من الإصلاح."
+    ],
+    "sections": [
+      [
+        "Attendu et observé",
+        "Expected and observed",
+        "المتوقّع وما حدث",
+        "« Ça ne marche pas » ne suffit pas. Note ce que tu fais, l’entrée, le résultat attendu et le résultat réel. Exemple : prix 12, quantité 3, attendu 36, obtenu 15. Tu as maintenant une question précise : quelle opération produit 15 ?",
+        "“It does not work” is not enough. Record the action, input, expected output, and actual output. Example: price 12, quantity 3, expected 36, actual 15. Now you have a precise question: which operation produces 15?",
+        "«لا يعمل» لا يكفي. اكتب ما فعلته والمدخلات والنتيجة المتوقعة والفعلية. مثال: السعر 12 والكمية 3، المتوقع 36 لكن الناتج 15. صار لديك سؤال محدد: ما العملية التي تعطي 15؟"
+      ],
+      [
+        "Une hypothèse à la fois",
+        "One hypothesis at a time",
+        "فرضية واحدة في كل مرة",
+        "Hypothèse : le programme additionne au lieu de multiplier. Inspecte l’expression puis remplace + par × dans le calcul. Reteste les mêmes entrées. Modifier cinq choses à la fois empêche de savoir laquelle a résolu le problème. Si l’hypothèse échoue, note-le puis teste la suivante.",
+        "Hypothesis: the program adds instead of multiplying. Inspect the expression, then replace addition with multiplication in the calculation. Retest the same inputs. Changing five things at once makes it hard to know which fixed the problem. If the hypothesis fails, record that and test the next one.",
+        "الفرضية: البرنامج يجمع بدل الضرب. افحص التعبير ثم غيّر الجمع إلى الضرب. اختبر المدخلات نفسها. تغيير خمسة أشياء معًا يصعّب معرفة ما أصلح المشكلة. إذا فشلت الفرضية، سجّل ذلك واختبر التالية."
+      ],
+      [
+        "Vérifie et demande de l’aide",
+        "Verify and ask for help",
+        "تحقّق واطلب المساعدة بوضوح",
+        "Après 12 × 3 = 36, teste quantité 1 puis 0 : résultats 12 puis 0. Les règles métier peuvent interdire 0, mais le calcul doit être compris. Pour demander de l’aide : « J’attends 36, j’obtiens 15, voici l’expression et ce que j’ai testé. » Après la réponse, refais le problème sans la copier.",
+        "After 12 × 3 = 36, test quantity 1 and then 0: results 12 and 0. Business rules may prohibit zero, but understand the calculation separately. Ask for help with “I expect 36, get 15, here is the expression and what I tried.” After receiving help, redo the problem without copying the answer.",
+        "بعد نجاح 12 × 3 = 36 اختبر الكمية 1 ثم 0: النتيجتان 12 و0. قد تمنع قواعد المتجر كمية صفر، لكن افهم الحساب بشكل مستقل. عند طلب المساعدة قل: «أتوقع 36 وأحصل على 15، هذا التعبير وهذه محاولاتي». بعد المساعدة أعد الحل دون نسخ الإجابة."
+      ]
+    ],
+    "task": [
+      "Prix 8, quantité 5 : un calcul donne 13 au lieu de 40. Écris une hypothèse, la correction et deux tests supplémentaires.",
+      "Price 8, quantity 5: a calculation gives 13 instead of 40. Write a hypothesis, correction, and two additional tests.",
+      "السعر 8 والكمية 5: يعطي الحساب 13 بدل 40. اكتب فرضية وتصحيحًا واختبارين إضافيين."
+    ],
+    "hint": [
+      "Quelle opération donne 8 + 5 ?",
+      "Which operation gives 8 + 5?",
+      "ما العملية التي تعطي 8 + 5؟"
+    ],
+    "solution": [
+      "Hypothèse : addition au lieu de multiplication. Correction : 8 × 5 = 40. Tests : 8 × 1 = 8 et 8 × 2 = 16. Vérifier l’expression permet de confirmer la cause ; le résultat seul ne la prouve pas.",
+      "Hypothesis: addition instead of multiplication. Fix: 8 × 5 = 40. Tests: 8 × 1 = 8 and 8 × 2 = 16. Inspecting the expression confirms the cause; the output alone does not prove it.",
+      "الفرضية: جمع بدل ضرب. التصحيح: 8 × 5 = 40. الاختباران: 8 × 1 = 8 و8 × 2 = 16. فحص التعبير يؤكد السبب؛ النتيجة وحدها لا تثبته."
+    ],
+    "question": [
+      "Pourquoi ne changer qu’une chose à la fois ?",
+      "Why change one thing at a time?",
+      "لماذا تغيّر شيئًا واحدًا في كل مرة؟"
+    ],
+    "options": [
+      [
+        "Pour identifier ce qui explique le résultat",
+        "To identify what explains the result",
+        "لمعرفة ما يفسّر النتيجة"
+      ],
+      [
+        "Parce qu’un programme ne peut avoir qu’un bug",
+        "Because a program can only have one bug",
+        "لأن البرنامج لا يمكن أن يحتوي إلا على خطأ واحد"
+      ],
+      [
+        "Pour éviter de tester",
+        "To avoid testing",
+        "لتجنّب الاختبار"
+      ]
+    ],
+    "answer": 0,
+    "feedback": [
+      "Un test contrôlé donne des informations sur une cause possible. Il peut rester d’autres erreurs : vérifie aussi d’autres entrées.",
+      "A controlled test gives evidence about one possible cause. Other errors may remain, so check other inputs too.",
+      "الاختبار المنضبط يعطي دليلًا على سبب محتمل. قد تبقى أخطاء أخرى، لذلك اختبر مدخلات إضافية."
+    ]
+  },
+  {
+    "id": "study-plan",
+    "minutes": 10,
+    "title": [
+      "Une routine courte qui construit des acquis",
+      "A short routine that builds lasting skills",
+      "روتين قصير يبني مهارات ثابتة"
+    ],
+    "objective": [
+      "Préparer une séance avec un objectif, une pratique et une révision.",
+      "Plan a session with an objective, practice, and a later review.",
+      "خطّط لجلسة فيها هدف وتطبيق ومراجعة لاحقة."
+    ],
+    "sections": [
+      [
+        "Un objectif réalisable",
+        "One manageable goal",
+        "هدف يمكنك إنجازه",
+        "Choisis une petite capacité : « expliquer une boucle et tracer trois tours ». Pour une séance de 20 minutes, essaie 2 minutes de rappel, 6 d’exemple, 8 de pratique et 4 de correction. C’est un point de départ adaptable, pas une durée magique. Réduis la taille de la tâche si tu bloques.",
+        "Choose one small ability: “explain a loop and trace three iterations.” For a 20-minute session, try 2 minutes of recall, 6 of examples, 8 of practice, and 4 of correction. This is an adjustable starting point, not a magic duration. Make the task smaller if you get stuck.",
+        "اختر قدرة صغيرة: «شرح حلقة وتتبع ثلاث دورات». في جلسة 20 دقيقة جرّب دقيقتين للاسترجاع، و6 للمثال، و8 للتطبيق، و4 للتصحيح. هذا اقتراح قابل للتعديل وليس مدة سحرية. صغّر المهمة إذا تعثّرت."
+      ],
+      [
+        "Revenir après un délai",
+        "Return after a delay",
+        "عُد بعد فترة",
+        "Planifie une courte tentative demain, puis quelques jours plus tard. Essaie sans notes avant de relire. Si c’est difficile, rapproche la prochaine révision et simplifie la question ; si tu réussis à expliquer et appliquer, espace davantage. Le rythme dépend du sujet et de tes réponses.",
+        "Plan a short attempt tomorrow, then a few days later. Try without notes before rereading. If it is difficult, review sooner and simplify the question; if you can explain and apply it, leave a longer gap. Timing depends on the topic and your performance.",
+        "خطّط لمحاولة قصيرة غدًا ثم بعد بضعة أيام. حاول دون ملاحظات قبل إعادة القراءة. إذا كان صعبًا قرّب المراجعة وبسّط السؤال، وإذا استطعت الشرح والتطبيق فزد الفاصل. التوقيت يعتمد على الموضوع وإجاباتك."
+      ],
+      [
+        "Mesure ce que tu peux faire",
+        "Measure what you can do",
+        "قِس ما تستطيع فعله",
+        "Note : « je l’ai fait seul », « avec un indice » ou « pas encore », avec une preuve concrète. Une série de jours et un nombre de pages ne mesurent pas à eux seuls la compréhension. Garde un exemple réussi et une erreur corrigée. Apprendre efficacement consiste à choisir le prochain exercice utile, pas à parcourir le plus de contenu possible.",
+        "Record “I did it independently,” “with a hint,” or “not yet,” with concrete evidence. A streak or page count alone does not measure understanding. Keep one successful example and one corrected mistake. Efficient learning means choosing the next useful practice task, not rushing through as much content as possible.",
+        "سجّل «أنجزته وحدي» أو «بمساعدة تلميح» أو «لم أنجح بعد»، مع دليل محدد. عدد الأيام والصفحات وحده لا يقيس الفهم. احتفظ بمثال نجحت فيه وخطأ صحّحته. التعلّم الفعّال يعني اختيار التدريب المفيد التالي، لا المرور على أكبر قدر من المحتوى."
+      ]
+    ],
+    "task": [
+      "Planifie ta prochaine séance : une capacité, un exercice, une preuve de réussite et une date de révision.",
+      "Plan your next session: one ability, one exercise, evidence of success, and a review date.",
+      "خطّط لجلستك القادمة: قدرة واحدة وتمرين ودليل نجاح وموعد مراجعة."
+    ],
+    "hint": [
+      "Commence par « À la fin, je peux… ».",
+      "Start with “By the end, I can…”.",
+      "ابدأ بـ «في النهاية أستطيع أن…»."
+    ],
+    "solution": [
+      "Exemple : expliquer prix × quantité ; résoudre deux nouveaux totaux sans modèle ; justifier les résultats ; réessayer demain sans notes. Si je bloque, revoir un exemple et rapprocher la prochaine tentative.",
+      "Example: explain price × quantity; solve two new totals without a model; justify the results; retry tomorrow without notes. If I get stuck, revisit an example and try again sooner.",
+      "مثال: شرح السعر × الكمية؛ حلّ مجموعين جديدين دون نموذج؛ تبرير النتيجتين؛ المحاولة غدًا دون ملاحظات. إن تعثّرت أراجع مثالًا وأقرّب المحاولة التالية."
+    ],
+    "question": [
+      "Tu réussis seulement en regardant la solution. Quelle suite est utile ?",
+      "You succeed only while looking at the solution. What is useful next?",
+      "تنجح فقط وأنت تنظر إلى الحل. ما الخطوة المفيدة التالية؟"
+    ],
+    "options": [
+      [
+        "Marquer tous les cours comme terminés",
+        "Mark every lesson complete",
+        "اعتبار كل الدروس مكتملة"
+      ],
+      [
+        "Cacher une étape, la compléter puis retenter seul",
+        "Hide one step, complete it, then try independently",
+        "إخفاء خطوة وإكمالها ثم المحاولة باستقلال"
+      ],
+      [
+        "Passer immédiatement à un sujet beaucoup plus difficile",
+        "Immediately move to a much harder topic",
+        "الانتقال فورًا إلى موضوع أصعب بكثير"
+      ]
+    ],
+    "answer": 1,
+    "feedback": [
+      "Retirer progressivement l’aide crée un passage entre suivre un exemple et résoudre seul. Vérifie ensuite avec un exemple différent.",
+      "Gradually removing help bridges following an example and solving independently. Then check with a different example.",
+      "تقليل المساعدة تدريجيًا ينقلك من متابعة المثال إلى الحل المستقل. بعدها تحقّق بمثال مختلف."
+    ]
+  }
+]

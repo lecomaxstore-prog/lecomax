@@ -1,0 +1,78 @@
+{
+  "id": "seo-controlled-production-readiness-20261018",
+  "relatedId": "seo-application-recovery-staging-20261018",
+  "createdAt": "2026-10-18T18:20:40.871Z",
+  "title": "Controlled production SEO rollout prepared; execution awaits approval",
+  "summary": "Backup checksum and all 1,114 production schema blocks match. Fresh read-only preflight and integrity checks passed. Prepared separate migration/deployment gates and locally tested bounded recovery. No production migration or deployment executed.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Engine rollout preparation",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Production read-only inspection",
+    "Migration execution plan",
+    "Integrity and recovery checks",
+    "Next.js release preparation"
+  ],
+  "files": [
+    "scripts/seo-production-readiness.cjs",
+    "supabase/verification/seo-rollout-integrity.sql",
+    "supabase/rollback/20261018_seo_engine_disable_bounded.sql",
+    "docs/seo-controlled-production-readiness-20261018.md",
+    "artifacts/seo-migration/production-readiness-1792347399527.json",
+    "artifacts/seo-migration/production-review-source-manifest.json",
+    "artifacts/seo-migration/bounded-recovery-local-validation.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a read-only schema/backup/preflight runner and current production evidence; original backup and earlier reports preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared bounded recovery SQL and read-only before/after integrity checks."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented controlled migration approval, stopping conditions, canary/post-migration gates and separate Next.js release/environment/rollback requirements, respecting the decision not to create hosted staging."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Backup and schema",
+      "result": "passed",
+      "detail": "1,685,487-byte archive, 1,233 entries, original SHA-256 matches. All 1,114 named production schema blocks match backup."
+    },
+    {
+      "name": "Read-only production preflight",
+      "result": "passed",
+      "detail": "Verified TLS, 17.6 primary, owner privileges and expected role properties; no SEO collisions or ledger entry. Counts 34 products, 4 categories, 6 orders and 8 Auth users; clean catalogue integrity."
+    },
+    {
+      "name": "Prepared integrity SQL",
+      "result": "passed",
+      "detail": "Executed read-only in production; no long transactions over 60 seconds or lock-waiting sessions observed at check time."
+    },
+    {
+      "name": "Bounded recovery rehearsal",
+      "result": "passed",
+      "detail": "Local-only transaction disabled both triggers and revoked service RPC; rollback restored original state. Isolated cluster stopped."
+    },
+    {
+      "name": "Runner syntax",
+      "result": "passed",
+      "detail": "node --check scripts/seo-production-readiness.cjs passed."
+    },
+    {
+      "name": "Production SQL/API/persistence acceptance",
+      "result": "not-run",
+      "detail": "Requires approved migration; any production canary writes require separate explicit approval. No hosted integration success claimed."
+    },
+    {
+      "name": "Next.js deployment readiness",
+      "result": "not-run",
+      "detail": "Exact release artifact, hosted Production environment and prior deployment rollback target are not verified. Dirty workspace not authorized for bulk deployment; historical build evidence is not a fresh release certification."
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "seo-final-auth-preparation-20261018",
+  "createdAt": "2026-10-18T21:41:43.943Z",
+  "relatedId": "seo-account6-readiness-verified-20261018",
+  "title": "Prepare shared Admin authorization correction for manual SEO sync",
+  "summary": "Final hosted-test review found that the shared Admin policy rejects authorized staff before the manual-sync route permission checks. Prepare a narrow correction and isolated candidate.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/api/admin/seo/sync",
+    "/change-history"
+  ],
+  "components": [
+    "Shared Admin policy",
+    "Manual SEO synchronization",
+    "Release acceptance"
+  ],
+  "files": [
+    "lib/admin-policy.ts",
+    "tests/seo-sync-authorization.test.ts",
+    "scripts/seo-final-readiness.cjs",
+    "scripts/verify-seo-final-scope.cjs",
+    "scripts/seo-hosted-acceptance-readonly.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Prepare an exact-path policy entry allowing active administrators to reach existing full-catalogue route permission checks; unrelated endpoints stay unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepare real guard-chain regression coverage, read-only production inspection and hosted acceptance plan. No production changes authorized or executed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Read-only production refresh",
+      "result": "passed",
+      "detail": "Vercel/Supabase identity, pinned hashes, absent migration collisions and existing anonymous/invalid-session denial verified without writes."
+    },
+    {
+      "name": "New authorization correction",
+      "result": "not-run",
+      "detail": "Regression reproduction and corrected-code validation pending; Account 6 successful tests retained rather than treated as coverage for this newly found gap."
+    }
+  ]
+}

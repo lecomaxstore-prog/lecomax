@@ -1,0 +1,26 @@
+{
+  "preparedOnly": true,
+  "name": "lecomax-seo-worker",
+  "teamId": "team_yFLUcpSvgQi8EQuvuorOZW7w",
+  "projectId": null,
+  "localSource": "release/seo-worker-20261018",
+  "framework": null,
+  "nodeVersion": "24.x",
+  "rootDirectory": null,
+  "gitRepository": null,
+  "automaticDeployments": false,
+  "fluid": true,
+  "function": "api/sync.mjs",
+  "maxDuration": 60,
+  "crons": [],
+  "productionEnvironment": {
+    "CRON_SECRET": "SECURE_INPUT_REQUIRED_INDEPENDENT_RANDOM_32_OR_MORE_CHARACTERS",
+    "SEO_SYNC_SUPABASE_URL": "https://yddqwgdgeljkzfsmtein.supabase.co",
+    "SEO_SYNC_SERVICE_ROLE_KEY": "SECURE_INPUT_REQUIRED_SERVER_ONLY",
+    "SEO_SYNC_ENABLED": "false"
+  },
+  "previewAndDevelopmentSecrets": false,
+  "alertRecipient": null,
+  "alertTransport": null,
+  "note": "Review specification, not an API request or deployable environment file. Never upload placeholder secret strings. Record the real project ID after separately approved provisioning."
+}

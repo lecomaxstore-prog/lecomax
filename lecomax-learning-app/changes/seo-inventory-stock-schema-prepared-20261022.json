@@ -1,0 +1,33 @@
+{
+  "id": "seo-inventory-stock-schema-prepared-20261022",
+  "createdAt": "2026-10-22T11:33:39.062Z",
+  "status": "needs-testing",
+  "title": "Isolated unknown-stock SEO correction prepared",
+  "summary": "Extracted three staged availability expressions onto the live commit. Unknown stock no longer claims out-of-stock in metadata or JSON-LD; existing known-stock and preorder behavior retained.",
+  "pages": [
+    "Product metadata",
+    "Product JSON-LD",
+    "Change History"
+  ],
+  "components": [
+    "ProductPage",
+    "generateMetadata"
+  ],
+  "files": [
+    "release/seo-stock-schema-20261022/app/produit/[slug]/page.tsx",
+    "release/seo-stock-schema-20261022/tests/product-indexing.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Prepared the existing staged unknown-stock correction without metadata storage, editorial reads, inventory writes or checkout changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Focused stock/indexing regression tests and static validation pending; no deployment."
+    }
+  ]
+}

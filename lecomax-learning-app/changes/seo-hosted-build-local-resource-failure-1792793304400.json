@@ -1,0 +1,52 @@
+{
+  "id": "seo-hosted-build-local-resource-failure-1792793304400",
+  "createdAt": "2026-10-23T22:08:24.400Z",
+  "title": "Local compilation passed; resource failure retained",
+  "summary": "The isolated build compiled, then exhausted local disk and memory during type checking. Cleared disposable webpack caches and retained the same payload for a local retry.",
+  "status": "failed",
+  "pages": [
+    "SEO staging Preview",
+    "Learning course validation",
+    "Change History"
+  ],
+  "components": [
+    "Filtered deployment package",
+    "Course validator"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/repair-hosted-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/validate-hosted-repair.cjs",
+    ".recovery-seo-preview-isolated/.gitignore",
+    ".recovery-seo-preview-isolated/README.md",
+    ".recovery-seo-preview-isolated/academy-labs/06-javascript/values.js",
+    ".recovery-seo-preview-isolated/academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+    ".recovery-seo-preview-isolated/scripts/run-migrations.mjs",
+    ".recovery-seo-preview-isolated/scripts/setup-chat.mjs",
+    ".recovery-seo-preview-isolated/scripts/source-inspector-loader.cjs",
+    ".recovery-seo-preview-isolated/operations/seo-vercel/lib/environment-target.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Preserved ENOSPC and native memory-allocation failure evidence; no application edits or hosted retry."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Compilation",
+      "result": "passed",
+      "detail": "Next.js compiled successfully in 74 seconds."
+    },
+    {
+      "name": "Full build",
+      "result": "failed",
+      "detail": "Disk ENOSPC warning followed by type-worker Zone Allocation failure, exit 134."
+    },
+    {
+      "name": "Recovery preservation",
+      "result": "passed",
+      "detail": "Only generated caches and redundant validation dependencies removed; source, old manifests, images, reports and deployment guards retained."
+    }
+  ],
+  "relatedId": "seo-hosted-build-packaging-prepared-1792787938100"
+}

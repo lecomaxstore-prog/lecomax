@@ -1,0 +1,67 @@
+{
+  "id": "batch1-staging-readiness-20261024",
+  "relatedId": "batch1-checkout-validation-resume-20261024",
+  "createdAt": "2026-10-24T14:10:53Z",
+  "title": "Batch 1 disk recovery confirmed and staging plan prepared",
+  "summary": "Recorded independent Windows verification of 3.41 GB free space and the absent isolated Next.js output; Batch 1 source remains unchanged since the successful production-equivalent build.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier",
+    "/change-history"
+  ],
+  "components": [
+    "CheckoutPage",
+    "CartQuoteFeedback",
+    "useCartCalculation"
+  ],
+  "files": [
+    "release/batch1-checkout-20261024/app/checkout/page.tsx",
+    "release/batch1-checkout-20261024/app/panier/page.tsx",
+    "release/batch1-checkout-20261024/lib/use-cart-calculation.ts",
+    "artifacts/batch1-validation-resume-20261024/build-result.json",
+    "artifacts/batch1-validation-resume-20261024/production-build.log"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded independent Windows disk verification: 475.81 GB total, 3.41 GB free, and isolated Batch 1 .next absent."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prepared a protected checkout-capable staging validation plan using synthetic shipping and checkout data; no application source was changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Successful build evidence",
+      "result": "passed",
+      "detail": "Preserved build-result.json exit code 0 and production-build.log route summary; no rebuild performed."
+    },
+    {
+      "name": "Regression evidence",
+      "result": "passed",
+      "detail": "39/39 checkout/security and 27/27 SEO preservation checks remain recorded as passing."
+    },
+    {
+      "name": "Source unchanged since build",
+      "result": "passed",
+      "detail": "Batch 1 authored files have local modification times before the build completion (13:57:15Z); no new source edits were made in this review."
+    },
+    {
+      "name": "Git preservation",
+      "result": "passed",
+      "detail": "Isolated branch remains fix/batch1-checkout-20261024 with existing modified/untracked work preserved."
+    },
+    {
+      "name": "Independent disk verification",
+      "result": "passed",
+      "detail": "User-supplied Windows PowerShell verification reports 3.41 GB free on C: and no isolated .next directory."
+    },
+    {
+      "name": "Staging deployment and live integrations",
+      "result": "not-run",
+      "detail": "Requires separate authorization; no production, payment, email, database or migration activity occurred."
+    }
+  ]
+}

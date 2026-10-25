@@ -1,0 +1,45 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added detailed MCP recovery report, scoped-tool inventory, database comparison, CLI discrepancy, exact connector errors and remaining Gate A prerequisites. No runtime changes, removals, hosted writes or deployments."
+    }
+  ],
+  "summary": "Verified read-only scoped MCP connectivity and compared staging database isolation with prior PostgreSQL evidence. Management metadata and Auth/SMTP/external settings remain blocked or unverified.",
+  "id": "seo-staging-mcp-recovery-20261019",
+  "createdAt": "2026-10-19T11:18:38.259Z",
+  "relatedId": "seo-staging-mcp-readiness-20261019",
+  "files": [
+    "docs/seo-staging-mcp-recovery-20261019.md",
+    "artifacts/seo-quality/staging-mcp-recovery-history-report.json",
+    "lecomax-learning-app/changes/seo-staging-mcp-recovery-20261019.json",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "components": [
+    "Staging MCP diagnostics",
+    "Gate A isolation report"
+  ],
+  "status": "needs-testing",
+  "validation": [
+    {
+      "detail": "SELECT returned supabase_read_only_user, PostgreSQL 17.11 and transaction_read_only on; Edge Functions and security lints empty. Aggregate isolation checks match prior evidence.",
+      "result": "passed",
+      "name": "Live staging MCP"
+    },
+    {
+      "detail": "Both separate app connector links returned MCP error -32600: You do not have permission to perform this action. Display name/region/owner not independently verified.",
+      "result": "failed",
+      "name": "Staging management metadata"
+    },
+    {
+      "detail": "Auth/SMTP/hooks and external integration settings unavailable; no restore, migration, application UI/build or preview test. Gate A remains NO-GO.",
+      "result": "not-run",
+      "name": "Platform isolation and Gate A"
+    }
+  ],
+  "title": "Staging MCP recovered; Gate A isolation remains incomplete",
+  "pages": [
+    "Change History",
+    "SEO staging readiness"
+  ]
+}

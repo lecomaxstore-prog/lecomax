@@ -1,0 +1,61 @@
+{
+  "id": "seo-final-hosted-staging-audit-1792754829940",
+  "relatedId": "seo-preview-handoff-resume-verified-1792754006071",
+  "createdAt": "2026-10-23T11:27:09.940Z",
+  "status": "needs-testing",
+  "title": "Staging provider access and Preview scopes verified; hosted execution remains pending",
+  "summary": "Read-only authenticated audits now pass. Both Sensitive Preview credentials exist, staging public binding matches, side-effect flags are disabled, and email controls remain disabled. No deployment or privileged runtime probe.",
+  "pages": [
+    "SEO Recovery Preview",
+    "Storefront acceptance",
+    "Change History"
+  ],
+  "components": [
+    "Vercel staging metadata",
+    "Supabase staging Auth audit",
+    "Hosted acceptance plan"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/hosted-public-key-audit.cjs",
+    "artifacts/seo-preview-resume-20261023/record-hosted-verification.cjs",
+    "operations/seo/hosted-staging-acceptance-20261023.json",
+    "docs/seo-final-hosted-staging-verification-20261023.md",
+    "artifacts/seo-preview-resume-20261023/hosted-verification-evidence-1792754829940.json",
+    "artifacts/seo-preview-resume-20261023/resume-metadata-1792754648002.json",
+    "artifacts/seo-preview-resume-20261023/auth-only-final-1792754634919.json",
+    "artifacts/seo-preview-resume-20261023/hosted-public-key-audit-1792754695768.json",
+    "artifacts/seo-preview-resume-20261023/continuation-preservation-1792754701505.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added public configuration consistency audit, prepared staging-only read-only acceptance plan, and recorded fresh hosted evidence."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Resolved previous audit access failure by using authorized network execution with existing logins; no credentials or provider configuration changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Hosted read-only audits",
+      "result": "passed",
+      "detail": "Exact Vercel project/team and Supabase project confirmed; two Sensitive Preview-only credentials, matching public binding, disabled payments/indexing/worker flags, empty Vercel cron, absent pg_cron and no staging Edge Functions."
+    },
+    {
+      "name": "Email settings audit",
+      "result": "passed",
+      "detail": "Signup/email provider, send-email hook and security notifications remain disabled; custom SMTP absent. This is configuration evidence, not proof of global non-delivery."
+    },
+    {
+      "name": "Preservation and prepared plan",
+      "result": "passed",
+      "detail": "2588 original files and 30 repaired hashes retained. No candidate/build changes. Acceptance JSON validated for staging identity, disabled execution and GET/HEAD methods. Prior build/test checkpoint preserved."
+    },
+    {
+      "name": "Hosted verification and acceptance",
+      "result": "not-run",
+      "detail": "Explicit authorization and genuine protected hosted runtime are pending. No verifier, page acceptance, delivery test or deployment executed. External worker hosts were not inspected."
+    }
+  ]
+}

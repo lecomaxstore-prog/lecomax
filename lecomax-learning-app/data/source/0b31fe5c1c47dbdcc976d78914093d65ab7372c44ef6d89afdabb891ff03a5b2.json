@@ -1,0 +1,1 @@
+{"content":"import { NextResponse } from \"next/server\";\nimport { getServerShippingConfig } from \"@/lib/shipping-config-server\";\n\nexport async function GET() {\n  const config = await getServerShippingConfig();\n  return NextResponse.json(config, {\n    headers: { \"Cache-Control\": \"no-store, max-age=0\" },\n  });\n}\n"}

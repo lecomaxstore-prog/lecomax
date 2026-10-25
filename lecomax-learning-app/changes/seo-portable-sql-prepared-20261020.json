@@ -1,0 +1,38 @@
+{
+  "id": "seo-portable-sql-prepared-20261020",
+  "createdAt": "2026-10-20T10:05:45.022Z",
+  "title": "Make worker SQL regressions independent of the launch directory",
+  "summary": "Direct budget and editorial test runs resolve migration paths from each test module.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO worker validation"
+  ],
+  "components": [
+    "SQL integration tests"
+  ],
+  "files": [
+    "operations/seo-vercel/tests/ai-sql.test.mjs",
+    "operations/seo-vercel/tests/editorial-review-sql.test.mjs",
+    "operations/seo-vercel/tests/editorial-sql.test.mjs",
+    "operations/seo-vercel/tests/editorial-workflow-sql.test.mjs",
+    "operations/seo-vercel/tests/full-chain-schema.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Resolve five SQL suites migration fixtures relative to import.meta.url, preserving the default runner and migration contents."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Budget test from worker directory before fix",
+      "result": "failed",
+      "detail": "ENOENT for repository migration; preserved in artifacts/seo-session-recovery-20261020/budget-worker-before.log"
+    },
+    {
+      "name": "Regression validation",
+      "result": "not-run",
+      "detail": "Pending. Hosted readiness is not established."
+    }
+  ]
+}

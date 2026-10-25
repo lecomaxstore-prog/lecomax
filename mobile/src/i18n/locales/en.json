@@ -532,7 +532,7 @@
   "productReviews.verifiedPurchasesUppercase": "VERIFIED PURCHASES",
   "productReviews.verifiedReview": "verified review",
   "productReviews.noReviews": "No reviews",
-  "productReviews.beTheFirstToShareYourExperience": "Be the first to share your experience.",
+  "productReviews.beTheFirstToShareYourExperience": "Purchased this item? Share your thoughts on its quality and condition to help other shoppers.",
   "productReviews.yourPurchaseIsConfirmed": "Your purchase is confirmed",
   "productReviews.authenticReviewsOnly": "Authentic reviews only",
   "productReviews.checkingYourAccount": "Checking your account…",
@@ -560,7 +560,7 @@
   "productReviews.storeReply": "Store reply",
   "productReviews.readReply": "Read full reply",
   "productReviews.showLess": "Show less",
-  "productReviews.noReviewsYet": "No reviews yet",
+  "productReviews.noReviewsYet": "Be the first to review this product",
   "productReviews.theFirstReviewWillAppearAfterAVerifiedPurchaseAndDelivery": "The first review will appear after a verified purchase and delivery.",
   "rating.new": "New",
   "sectionHeader.viewAllUppercase": "VIEW ALL",
@@ -1190,5 +1190,7 @@
   "auth.confirmSignIn": "Continue to sign in",
   "auth.confirmResend": "Resend confirmation email",
   "auth.confirmResendWait": "Resend in {{seconds}}s",
-  "auth.confirmResent": "A new confirmation email has been requested. Check your inbox."
+  "auth.confirmResent": "A new confirmation email has been requested. Check your inbox.",
+  "productGallery.videoUnavailable": "Unable to play this video.",
+  "productGallery.retryVideo": "Try again"
 }

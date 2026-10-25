@@ -1,0 +1,72 @@
+{
+  "id": "batch1-checkout-validation-resume-20261024",
+  "relatedId": "batch1-checkout-validation-20261024",
+  "createdAt": "2026-10-24T13:58:06Z",
+  "title": "Batch 1 checkout validation resume completed",
+  "summary": "Reconciled the isolated Batch 1 worktree and verified the resumed production-equivalent build completed successfully without deployment or real commerce activity.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "CheckoutPage",
+    "CartQuoteFeedback",
+    "useCartCalculation"
+  ],
+  "files": [
+    "release/batch1-checkout-20261024/app/checkout/page.tsx",
+    "release/batch1-checkout-20261024/app/panier/page.tsx",
+    "release/batch1-checkout-20261024/lib/use-cart-calculation.ts",
+    "release/batch1-checkout-20261024/components/CartQuoteFeedback.tsx",
+    "artifacts/batch1-validation-resume-20261024/build-result.json",
+    "artifacts/batch1-validation-resume-20261024/production-build.log"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified PayPal unresolved-quote handling rejects without persisting the stale order error and preserves minimum-order validation; the focused final suite includes the passing correction."
+    },
+    {
+      "kind": "modified",
+      "detail": "Recorded the completed production-equivalent build evidence and reconciled the isolated fix/batch1-checkout-20261024 worktree."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production-equivalent build",
+      "result": "passed",
+      "detail": "build-result.json records npm run build exit code 0 from 2026-10-24T13:48:49.672Z to 13:57:15.569Z; production-build.log shows course validation 635429 checks, successful compilation, type checking, route generation and final route summary."
+    },
+    {
+      "name": "Focused checkout regressions",
+      "result": "passed",
+      "detail": "39/39 pass in artifacts/batch1-validation-resume-20261024/regressions.txt, including PayPal, quote recovery, stale-response, invalidation, pricing, payment, preorder and security checks."
+    },
+    {
+      "name": "SEO preservation",
+      "result": "passed",
+      "detail": "27/27 pass in artifacts/batch1-validation-resume-20261024/seo-regressions.txt."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Empty diagnostic logs typecheck-final-2.txt and lint-final.txt document successful commands."
+    },
+    {
+      "name": "Real browser acceptance",
+      "result": "passed",
+      "detail": "24 grouped mocked-browser checks pass at 320, 390, 768 and 1440 px; no provider calls, orders, emails, database writes or deployments."
+    },
+    {
+      "name": "Physical device, screen reader and live backend",
+      "result": "not-run",
+      "detail": "Remain outside this local validation scope."
+    },
+    {
+      "name": "Disk capacity",
+      "result": "failed",
+      "detail": "Current read-only C: drive query reports 0 bytes free; no cleanup or rerun was performed."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "academy-agent-sdk-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@openai/agents": "0.20.0",
+    "zod": "4.6.7"
+  }
+}

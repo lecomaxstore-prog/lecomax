@@ -1,0 +1,41 @@
+{
+  "id": "seo-pg17-rest-verified-20261020",
+  "relatedId": "seo-pg17-rest-prepared-20261020",
+  "createdAt": "2026-10-20T09:33:29.563Z",
+  "title": "Native PostgreSQL 17 and PostgREST rehearsal verified",
+  "summary": "Verified six pinned migrations and 13 SEO tables, role permissions, JWT rejection, transaction/migration rollback and synthetic dump restore on loopback.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync",
+    "Local database acceptance"
+  ],
+  "components": [
+    "SEO workers",
+    "Local acceptance and recovery"
+  ],
+  "files": [
+    "scripts/seo-local-postgres-profile.cjs",
+    "scripts/test-seo-editorial-concurrency.cjs",
+    "scripts/seo-local-rest-checks.cjs",
+    "tests/seo-local-postgres-profile.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified six pinned migrations and 13 SEO tables, role permissions, JWT rejection, transaction/migration rollback and synthetic dump restore on loopback."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Executed local verification",
+      "result": "passed",
+      "detail": "13 native checks passed on PG17.11/PostgREST16.5; both servers stopped. Initial sandbox startup failed with token error 87; outside-sandbox retries passed."
+    },
+    {
+      "name": "Production and hosted acceptance",
+      "result": "not-run",
+      "detail": "NO-GO. No hosted writes/deployment/paid calls. Real Auth sessions, platform isolation, protected production recovery and human FR/AR acceptance remain unverified. Local synthetic recovery is not production recovery."
+    }
+  ]
+}

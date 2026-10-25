@@ -1,0 +1,39 @@
+{
+  "at": "2026-10-21T13:13:14.294Z",
+  "readOnly": true,
+  "alias": "lecomax.com",
+  "deployment": {
+    "id": "dpl_HkgcNHTedgha5XhnjjX1RED3ZwGx",
+    "state": "READY",
+    "projectId": "prj_g5xbDC0WX1RSXf6znHsAS7XvhLBb",
+    "revision": "d9d1d7a7b274fe3df9f70bb154704ea9e07e78ee"
+  },
+  "schedules": [
+    {
+      "path": "/api/cron/learning-reminder?slot=summer",
+      "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/cron/learning-reminder?slot=winter",
+      "schedule": "0 20 * * *"
+    },
+    {
+      "path": "/api/cron/mobile-campaigns",
+      "schedule": "5 9 * * *"
+    },
+    {
+      "path": "/api/cron/review-followups",
+      "schedule": "0 9 * * *"
+    }
+  ],
+  "monitoring": {
+    "alertRecipientsVerified": false,
+    "thresholdsVerified": false,
+    "logsAvailableViaVercel": true
+  },
+  "backup": {
+    "latestLocalKnown": "2026-10-18T18:37:25.364Z",
+    "freshProviderBackupOrPitrVerified": false,
+    "restorePerformed": false
+  }
+}

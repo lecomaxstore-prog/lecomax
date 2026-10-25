@@ -9,14 +9,17 @@ test('Cloudinary player pages become H264 video delivery and JPEG poster URLs',(
 test('preserves external, YouTube and signed sources without corrupting credentials',()=>{for(const u of ['https://example.com/video.webm?token=abc','https://youtube.com/watch?v=12345678901','https://res.cloudinary.com/demo/video/upload/s--signature--/shoe.mp4'])assert.equal(productVideoMedia(u,'/fallback.jpg').src,u);assert.equal(productVideoMedia('https://example.com/video.mp4','/fallback.jpg').poster,'/fallback.jpg');});
 test('invalid player links and unsafe protocols fail explicitly',()=>{for(const u of ['https://player.cloudinary.com/embed/?cloud_name=demo','https://player.cloudinary.com/embed/?cloud_name=demo&public_id=../x','javascript:alert(1)'])assert.ok(productVideoMedia(u).error);});
 test('direct versioned Cloudinary video keeps its resource type and version',()=>{const m=productVideoMedia('https://res.cloudinary.com/demo/video/upload/v123/shoe.mp4');assert.equal(m.poster,'https://res.cloudinary.com/demo/video/upload/so_0/v123/shoe.jpg');});
-test('player shows loading, handles failure, retries and retains native inline controls',()=>{
+test('player shows loading, handles failure, retries and plays inline without native controls',()=>{
  const nativeRequire=createRequire(import.meta.url);const states:any[]=[];let cursor=0;
  const react={useState:(initial:any)=>{const id=cursor++;if(!(id in states))states[id]=initial;return [states[id],(v:any)=>{states[id]=typeof v==='function'?v(states[id]):v}];}};
  const code=ts.transpileModule(fs.readFileSync('components/ProductVideo.tsx','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX}}).outputText;
  const mod={exports:{} as any};new Function('require','module','exports',code)((id:string)=>id==='react'?react:id==='@/lib/product-video'?{productVideoMedia}:nativeRequire(id),mod,mod.exports);
  const flatten=(n:any):any[]=>n&&typeof n==='object'?[n,...[n.props?.children].flat(Infinity).flatMap(flatten)]:[];
- const render=()=>{cursor=0;return flatten(mod.exports.default({url:embed,poster:'/fallback.jpg',autoPlay:true}));};
- let nodes=render();let video=nodes.find(n=>n.type==='video');assert.equal(video.props.controls,true);assert.equal(video.props.playsInline,true);assert.equal(video.props.preload,'metadata');assert.match(video.props.src,/video\/upload/);
+ let ratio=0;
+ const render=()=>{cursor=0;return flatten(mod.exports.default({url:embed,poster:'/fallback.jpg',autoPlay:true,onAspectRatio:(value:number)=>{ratio=value;}}));};
+ let nodes=render();let video=nodes.find(n=>n.type==='video');assert.equal(video.props.controls,false);assert.equal(video.props.autoPlay,true);assert.equal(video.props.muted,true);assert.equal(video.props.loop,true);assert.equal(video.props.playsInline,true);assert.equal(video.props.preload,'metadata');assert.match(video.props.src,/video\/upload/);
+ video.props.onLoadedMetadata({currentTarget:{videoWidth:1920,videoHeight:1080}});assert.equal(ratio,16/9);
+ video.props.onLoadedMetadata({currentTarget:{videoWidth:0,videoHeight:0}});assert.equal(ratio,16/9);
  video.props.onLoadStart();assert.ok(render().some(n=>n.props?.role==='status'));
  video.props.onError({currentTarget:{error:{code:4}}});nodes=render();assert.ok(nodes.some(n=>n.props?.role==='alert'));assert.ok(!nodes.some(n=>n.props?.role==='status'));
  const key=nodes.find(n=>n.type==='video').key;nodes.find(n=>n.type==='button').props.onClick();nodes=render();assert.notEqual(nodes.find(n=>n.type==='video').key,key);assert.ok(!nodes.some(n=>n.props?.role==='alert'));
@@ -32,6 +35,10 @@ test('gallery switches images/video, remounts replay, and preserves thumbnail na
  const render=()=>{cursor=0;return flatten(mod.exports.default({images:['/one.jpg','/two.jpg'],name:'Test',video:embed}));};
  let nodes=render();assert.ok(!nodes.some(n=>n.type===Player));assert.equal(nodes.filter(n=>n.props?.['data-gallery-thumb']!==undefined).length,3);
  nodes.find(n=>n.props?.['data-gallery-thumb']==='0').props.onClick();nodes=render();const first=nodes.find(n=>n.type===Player);assert.equal(first.props.url,embed);
+ const frame=()=>render().find(n=>n.props?.['data-main-gallery-img']!==undefined);
+ assert.equal(frame().props.style.aspectRatio,1);
+ first.props.onAspectRatio(16/9);assert.equal(frame().props.style.aspectRatio,1);
+ first.props.onAspectRatio(9/16);assert.equal(frame().props.style.aspectRatio,9/16);
  nodes.find(n=>n.props?.['data-gallery-thumb']==='0').props.onClick();assert.notEqual(render().find(n=>n.type===Player).key,first.key);
- nodes=render();nodes.find(n=>n.props?.['data-gallery-thumb']===2).props.onClick();nodes=render();assert.ok(!nodes.some(n=>n.type===Player));assert.equal(nodes.find(n=>n.props?.['data-gallery-thumb']===2).props['aria-pressed'],true);
+ nodes=render();nodes.find(n=>n.props?.['data-gallery-thumb']===2).props.onClick();nodes=render();assert.ok(!nodes.some(n=>n.type===Player));assert.equal(nodes.find(n=>n.props?.['data-gallery-thumb']===2).props['aria-pressed'],true);assert.equal(frame().props.style.aspectRatio,1);
 });

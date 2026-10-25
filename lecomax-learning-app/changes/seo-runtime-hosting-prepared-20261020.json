@@ -1,0 +1,42 @@
+{
+  "id": "seo-runtime-hosting-prepared-20261020",
+  "createdAt": "2026-10-20T09:51:34.723Z",
+  "title": "Verify Node 24 and close worker test and hosting evidence gaps",
+  "summary": "Default worker tests omitted recovery/budget suites; hosting evidence omitted nonproduction scopes and AI controls.",
+  "status": "needs-testing",
+  "pages": [
+    "Worker /api/sync",
+    "Release acceptance"
+  ],
+  "components": [
+    "Worker test command",
+    "Read-only hosting audit"
+  ],
+  "files": [
+    "operations/seo-vercel/package.json",
+    "scripts/verify-seo-hosting-readonly.cjs",
+    "scripts/seo-hosting-evidence.cjs",
+    "tests/seo-hosting-evidence.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Run every worker test file by default, including SQL, recovery, lease and budget regressions."
+    },
+    {
+      "kind": "modified",
+      "detail": "Allowlist environment scope metadata without values; fail on missing inventories, verify project match and refuse credential-bearing redirects."
+    },
+    {
+      "kind": "added",
+      "detail": "Scope sanitization and fail-closed tests; portable Node24 runtime downloaded using official HTTPS SHA256 (signature not verified), system Node untouched."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node24 and hosting checks",
+      "result": "not-run",
+      "detail": "Pending. No hosted writes, migration, deployment or paid calls authorized."
+    }
+  ]
+}

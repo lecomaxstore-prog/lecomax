@@ -1,9 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 const SAVED_EMAIL_KEY = "admin_saved_email";
+const isCatalogPreview = process.env.NEXT_PUBLIC_APP_ENV === "development"
+  && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "synthetic-anon";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -27,6 +30,7 @@ export default function AdminLoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    if (isCatalogPreview) return;
     setError("");
     // If the honeypot field was filled, this is a bot — fail silently
     if (_hp) { setLoading(false); return; }
@@ -85,6 +89,22 @@ export default function AdminLoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (isCatalogPreview) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f7f8f6] px-6 py-12">
+        <section aria-labelledby="preview-admin-title" className="w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-7 shadow-sm sm:p-9">
+          <p className="text-xs font-bold uppercase tracking-widest text-[#183c30]">L&apos;ecomax · Administration</p>
+          <h1 id="preview-admin-title" className="mt-6 text-2xl font-bold text-neutral-950">Aperçu local du catalogue</h1>
+          <p className="mt-4 text-sm leading-6 text-neutral-600">Cet aperçu permet de consulter la boutique. La connexion administrateur n&apos;est pas disponible dans ce mode.</p>
+          <p className="mt-3 text-sm leading-6 text-neutral-600">Pour gérer les produits et les commandes, connectez-vous à l&apos;administration du site en ligne.</p>
+          <a href="https://lecomax.com/admin/" className="mt-6 flex min-h-12 items-center justify-center rounded-xl bg-[#183c30] px-4 text-center text-sm font-semibold text-white hover:bg-[#245541]">Ouvrir l&apos;administration en ligne</a>
+          <Link href="/" className="mt-4 block py-2 text-center text-sm text-neutral-600 underline underline-offset-4">Retour à l&apos;aperçu de la boutique</Link>
+          <p className="mt-5 text-xs leading-5 text-neutral-500">lecomax.com · Les modifications effectuées en ligne concernent la boutique réelle.</p>
+        </section>
+      </main>
+    );
   }
 
   if (removed) {

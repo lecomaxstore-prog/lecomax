@@ -1,0 +1,45 @@
+{
+  "id": "expo-related-photo-size-verification-20261025",
+  "createdAt": "2026-10-25T13:58:19.756Z",
+  "title": "Expo recommendation photo layout verified in running app",
+  "summary": "Mobile typecheck and lint passed; live product detail confirms full-width 3:4 recommendation panels. Remote photo visual validation remains incomplete.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductCard related"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified the change targets the Expo recommendation cards from the user screenshot. Previous website-only changes did not affect these cards."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript and focused lint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and mobile ESLint src/components/product-card.tsx exited 0."
+    },
+    {
+      "name": "Live Expo browser layout",
+      "result": "passed",
+      "detail": "Opened local Expo on port 8081, navigated from home to Adidas product detail and scrolled to Vous aimerez aussi. Both target jacket photo buttons measured 232x308px at 520px viewport. Evidence: artifacts/expo-card-photo-size-20261025/live-metrics.json and live-related-520.png."
+    },
+    {
+      "name": "History validation",
+      "result": "passed",
+      "detail": "919 reports valid before follow-up; all four history regression tests passed."
+    },
+    {
+      "name": "Photo visual QA and native devices",
+      "result": "not-run",
+      "detail": "Remote photos showed existing IMAGE INDISPONIBLE fallback in isolated browser session, so loaded-photo appearance could not be confirmed. Native devices not tested. No deployment."
+    }
+  ],
+  "relatedId": "expo-related-photo-size-20261025"
+}

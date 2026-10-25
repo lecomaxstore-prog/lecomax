@@ -1,0 +1,56 @@
+{
+  "id": "category-portraits-white-verified-20261025",
+  "createdAt": "2026-10-25T12:39:07.199Z",
+  "title": "White model portraits verified with visible logos",
+  "summary": "Verified the Homme and Femme white-background cards in mobile and desktop component previews.",
+  "status": "successful",
+  "pages": [
+    "Storefront homepage /"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "components/CategoryTiles.module.css",
+    "public/images/collection-homme-white-v5.webp",
+    "public/images/collection-femme-white-v5.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Optimized WebP model portraits edited with built-in imagegen. Prompt: change only concrete scenery to white, preserve the same models, pose, clothing and exact chest logo lettering, colors, underline and placement."
+    },
+    {
+      "kind": "modified",
+      "detail": "Homme/Femme defaults now use white portraits, including old printed-v3 default references. Portrait-specific framing reserves white caption space and uses existing dark-green text treatment. Custom uploads remain supported."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Reserve top space on mobile portraits so article-count badges do not cover model faces."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive browser fixtures",
+      "result": "passed",
+      "detail": "Rendered actual CategoryTiles component in Chrome at 375, 482 and 1280px with fixture categories/counts. All four white assets load, overlays are absent, dark captions and category destinations are correct. Mobile/desktop screenshots inspected; model logos remain visible."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "Direct ESLint check of components/CategoryTiles.tsx passed."
+    },
+    {
+      "name": "Learning app typecheck and history tests",
+      "result": "passed",
+      "detail": "npm run typecheck passed; all four change-history tests passed."
+    },
+    {
+      "name": "Live integration and deployment",
+      "result": "not-run",
+      "detail": "Isolated component verification only, not live API or full storefront validation. No deployment performed."
+    }
+  ],
+  "relatedId": "category-portraits-white-20261025"
+}

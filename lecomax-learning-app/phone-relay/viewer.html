@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ACADEMY · Remote phone</title><link rel="stylesheet" href="/viewer.css"><script src="/viewer.js" defer></script></head>
+<body><main><h1>Remote phone</h1><p>Enter the private code displayed on the Android phone. Its owner must approve before you can view or control it.</p>
+<form id="pair"><label for="code">Pairing code</label><input id="code" required pattern="[a-fA-F0-9]{32}" maxlength="32" autocomplete="off" autocapitalize="none" spellcheck="false"><button id="connect">Connect</button></form>
+<p id="status" role="status">Ready to pair.</p><button id="stop" disabled>Disconnect</button>
+<div id="controls" hidden><p>Tap or drag on the screen to tap or swipe.</p><nav><button data-action="back">Back</button><button data-action="home">Home</button><button data-action="recents">Recents</button></nav><img id="screen" alt="Shared Android screen" draggable="false"></div>
+<p>Use only with the phone owner’s permission. The relay operator can access relayed images; this is not end-to-end encrypted. No audio is shared.</p></main></body></html>

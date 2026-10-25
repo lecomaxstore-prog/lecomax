@@ -1,0 +1,39 @@
+{
+  "id": "seo-tier-guard-prepared-20261020",
+  "createdAt": "2026-10-20T10:51:41.206Z",
+  "title": "Reject invalid AI tiers before provider construction",
+  "summary": "Inherited JavaScript property names and non-string tier values must never select a model or reach the provider.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO worker /api/sync"
+  ],
+  "components": [
+    "AI provider tier validation"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/tests/ai-provider.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Validate a string tier against own properties of both explicit model allowlists before schema or client construction."
+    },
+    {
+      "kind": "added",
+      "detail": "Mock-only regression for inherited names, unknown names and non-string tiers; checks rejection and zero client construction."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pre-fix regression",
+      "result": "failed",
+      "detail": "Expected rejection was missing for inherited tier name. No provider request; only injected mocks."
+    },
+    {
+      "name": "Post-fix checks",
+      "result": "not-run",
+      "detail": "Pending. No hosted operations or paid calls authorized."
+    }
+  ]
+}

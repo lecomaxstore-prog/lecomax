@@ -1,5 +1,6 @@
 import "server-only";
 import { verifySessionToken } from "./admin-session";
+import { supabaseHeaders } from "../operations/seo-vercel/lib/supabase-headers.mjs";
 
 export type AdminAccess = { email: string; owner: boolean; permissions: string[] };
 type SessionRequest = { cookies: { get(name: string): { value: string } | undefined } };
@@ -20,12 +21,12 @@ async function load(request: SessionRequest): Promise<AdminAccess | null> {
     const verified = token ? await verifySessionToken(token) : null;
     if (!verified) return null;
     const email = verified.trim().toLowerCase();
-    if (email === (process.env.ADMIN_EMAIL ?? "contact@lecomax.com").trim().toLowerCase()) return { email, owner: true, permissions: [] };
+    if (email === process.env.ADMIN_EMAIL?.trim().toLowerCase()) return { email, owner: true, permissions: [] };
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const secret = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!url || !secret) return null;
     const read = async (table: string, query: URLSearchParams) => {
-      const response = await fetch(`${url}/rest/v1/${table}?${query}`, { cache: "no-store", headers: { apikey: secret, Authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(5000) });
+      const response = await fetch(`${url}/rest/v1/${table}?${query}`, { cache: "no-store", redirect: "error", headers: supabaseHeaders(secret), signal: AbortSignal.timeout(5000) });
       if (!response.ok) throw new Error("ADMIN_ACCESS_UNAVAILABLE");
       return response.json();
     };

@@ -1,0 +1,65 @@
+{
+  "id": "seo-production-audit-verified-20261019",
+  "createdAt": "2026-10-19T10:26:08.644Z",
+  "title": "SEO production audit completed; rollout remains NO-GO",
+  "summary": "111 local tests, Node 24 build and PostgreSQL concurrency passed. Production read-only checks found no SEO schema. Vercel access, compatible recovery, release packaging and activation gates remain unresolved.",
+  "status": "successful",
+  "relatedId": "seo-quality-offline-verified-20261019",
+  "pages": [
+    "Admin SEO",
+    "Storefront product/category SEO",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Editorial review persistence",
+    "Dedicated worker",
+    "Migration and recovery readiness"
+  ],
+  "files": [
+    "operations/seo-vercel/tests/editorial-review-sql.test.mjs",
+    "scripts/audit-seo-resume-readonly.cjs",
+    "docs/seo-production-audit-20261019.md",
+    "operations/seo-vercel/README.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Synthetic full-chain v3 review SQL coverage for immutable decisions, stale/foreign drafts, revoked legacy worker claims and blocked publication."
+    },
+    {
+      "kind": "added",
+      "detail": "Read-only catalog/configuration/backup inspection and a production GO/NO-GO report with six independent approval gates."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Added current worker documentation notice correcting obsolete comparison and dependency claims while retaining historical guidance."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local regression",
+      "result": "passed",
+      "detail": "73 SEO/worker/provider/API/SQL tests plus 1 new v3 SQL test and 37 admin/commerce/history tests passed on Node 24. New fixture initially omitted asynchronous document synchronization; corrected fixture passed without application SQL changes."
+    },
+    {
+      "name": "Types, lint and build",
+      "result": "passed",
+      "detail": "Root TypeScript and focused ESLint passed. Node 24.22.0 isolated production build passed after allowing Google Fonts downloads. Placeholder credentials; not deployable output."
+    },
+    {
+      "name": "Concurrency",
+      "result": "passed",
+      "detail": "Synthetic loopback PostgreSQL test passed deduplication, budget serialization, crash reservation retention, stale-run fencing and commerce isolation. Initial sandbox startup failure retained."
+    },
+    {
+      "name": "Read-only production and preservation",
+      "result": "passed",
+      "detail": "No SEO tables/functions/migration ledger entries; 34 products and 4 categories with clean aggregate identifier checks. Anonymous APIs 401; page redirect 307. Existing backup SHA-256 matched. 99 package and 8 comparison hashes preserved; 6 build overlay hashes matched."
+    },
+    {
+      "name": "Production readiness limitations",
+      "result": "not-run",
+      "detail": "NO-GO: Vercel GET returned 403; compatible fresh restore, frozen matching v3 packages, hosted roles/RPCs, worker latency, spend reconciliation, editorial edit/publication and monitoring delivery unresolved. Historical restore was partial. No paid calls, production writes, migration, deployment, worker or schedule activation."
+    }
+  ]
+}

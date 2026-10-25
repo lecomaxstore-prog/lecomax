@@ -1,0 +1,16 @@
+{
+  "mode": "Built-in image_gen",
+  "assets": [
+    {
+      "file": "programming-foundations.png",
+      "prompt": "Use case: photorealistic-natural. Generate a single wide 3:2 editorial photograph for a programming foundations academy course card. Realistic close-up of a learner's hands typing on a laptop with softly visible HTML and JavaScript code, open notebook on a warm wooden desk, quiet modern study room, soft window light, muted forest green accents. Authentic photographic textures, believable hands and equipment, refined natural color grade. Camera at desk level, laptop centered in upper two thirds, lower third calm and dark enough for a white title overlay. No added text, titles, logos, watermarks, no illustration, no collage."
+    },
+    {
+      "file": "real-website.png",
+      "prompt": "Use case: photorealistic-natural. Single wide 3:2 editorial photograph for a course about building a real ecommerce website. A real laptop on a tidy wooden studio desk displaying a tasteful online clothing shop grid with product photographs, folded neutral garments and a small parcel beside it. Soft daylight, muted navy accents, authentic tactile materials and believable screen perspective, premium understated photographic style. Laptop centered in upper two thirds, foreground lower third subdued for a white title overlay. No added titles, no logos, no watermark, no collage, no illustration. Screen is supporting detail with no prominent readable text."
+    },
+    {
+      "file": "python.png"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "expo-home-priority-products-verified-20261025",
+  "createdAt": "2026-10-25T13:33:04.297Z",
+  "title": "Ordre des quatre produits Expo vérifié localement",
+  "summary": "Superblast 2, T-shirt Puma Ferrari, veste Manchester United et maillot Bayern placés en premier dans la collection de la page accueil.",
+  "status": "successful",
+  "pages": [
+    "Expo Home /"
+  ],
+  "components": [
+    "HomeScreen catalogProducts"
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/index.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Priorité explicite aux quatre produits demandés, y compris lorsqu’ils figurent dans une autre section. Les autres produits suivent sans doublon dans la collection. Aucun prix, stock ou enregistrement catalogue modifié."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Selection checks against catalogue snapshot",
+      "result": "passed",
+      "detail": "Actual selector returns requested four slugs first, includes reserved products, avoids duplicates, handles empty catalogue and missing priority product."
+    },
+    {
+      "name": "Expo TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Both commands exited 0."
+    },
+    {
+      "name": "Local Expo server",
+      "result": "passed",
+      "detail": "http://localhost:8081 returned HTTP 200."
+    },
+    {
+      "name": "Visual/native QA and deployment",
+      "result": "not-run",
+      "detail": "No visual browser or device validation. No deployment."
+    }
+  ],
+  "relatedId": "expo-home-priority-products-20261025"
+}

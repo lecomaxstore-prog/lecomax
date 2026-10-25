@@ -65,6 +65,7 @@ export default function ChatWidget() {
       window.removeEventListener("scroll", revealAfterScroll);
     };
     window.addEventListener("scroll", revealAfterScroll, { passive: true });
+    revealAfterScroll();
     return () => window.removeEventListener("scroll", revealAfterScroll);
   }, []);
   const [sessionId, setSessionId] = useState<string | null>(null);

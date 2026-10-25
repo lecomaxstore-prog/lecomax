@@ -1,0 +1,281 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-13",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-13",
+  "title": {
+    "en": "Deployment security: identities, secrets and recoverable systems",
+    "ar": "أمان الخوادم والنشر والسحابة",
+    "fr": "Deployment security: identities, secrets and recoverable systems"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-12"
+  ],
+  "objectives": [
+    "Apply least privilege to runtime, repository and deployment identities.",
+    "Separate secrets and configuration across environments.",
+    "Verify deployment, logging and backup recovery rather than assuming them."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "A correct route can still be undermined by a privileged runtime, exposed secret or unrecoverable deployment. Learn a repeatable release and recovery review for Node.js, GitHub and Vercel.",
+  "sections": [
+    {
+      "title": "A deployment has several identities",
+      "text": "A developer, CI job, hosting platform, application process and database connection can each have different authority. Map which identity can read secrets, change code, publish a release and access customer data. A compromised build job should not automatically obtain every production permission. Use dedicated scoped credentials and short-lived federation where the platform supports it. On a self-managed Linux server, run the application as a dedicated non-root identity and grant only required filesystem access. Restrict administrative access and keep a tested recovery path before changing remote access rules. A firewall change that locks out the owner is an availability failure, even if it was intended as hardening."
+    },
+    {
+      "title": "Reduce exposed services and maintain the host",
+      "text": "Inventory listening services and remove or disable what the application does not need through a controlled change process. Apply operating-system and runtime updates with compatibility tests and a rollback or forward-fix plan. Limit inbound traffic to the intended public service and administrative path; restrict outbound access where practical for sensitive workloads. A reverse proxy can terminate TLS and forward requests, but forwarded headers must come from a trusted configuration. Do not assume a container is a complete security boundary or that root inside every deployment is harmless. Resource limits, process isolation, file permissions and patching complement the application’s own validation and authorization."
+    },
+    {
+      "title": "Secrets are a lifecycle, not a file format",
+      "text": "An environment variable can still leak through logs, error pages, client bundling, build output or an overly broad dashboard permission. Keep development, preview and production secrets separate, and avoid real customer credentials in local labs. Do not commit .env files or credential exports. If a secret is exposed, removing the line from the latest commit is insufficient: revoke or rotate it, assess usage and handle repository history according to policy. Record only secret names and ownership in a review, not values. A public client configuration variable cannot safely carry a privileged backend secret, regardless of whether it was set through a hosting dashboard."
+    },
+    {
+      "title": "GitHub and the build pipeline are production inputs",
+      "text": "Protect the default branch with appropriate review and checks, restrict who can modify workflows and review third-party actions and dependency updates. A pull request from an untrusted source should not receive production secrets simply because its tests need configuration. Understand which event runs a workflow and what token permissions it gets. Avoid printing environment dumps to diagnose CI failures. Pin or otherwise control dependencies and actions according to your supply-chain policy, then maintain those references rather than leaving them stale indefinitely. Build artifacts should be traceable to a reviewed commit, dependency graph and configuration, so an incident responder can determine what actually ran."
+    },
+    {
+      "title": "Vercel and managed hosting still require configuration review",
+      "text": "A managed platform handles parts of infrastructure operations, but application authorization, secret scope, deployment access and data policy remain your responsibility. Review project membership, preview access, production domains, environment-specific values and old deployment exposure. Confirm that security headers and server runtime behavior are present in the actual response. Treat preview URLs as potentially sensitive if they expose unpublished features or shared data. Do not assume middleware or platform protection replaces customer-level checks inside the app. Document which guarantees are provided by the platform and which are implemented by your project, especially when another service such as a database or storage provider has its own dashboard permissions."
+    },
+    {
+      "title": "Backups, logs and release verification",
+      "text": "A backup is useful only if the intended data is included, access is controlled and restoration has been tested. Define recovery point and recovery time objectives in practical terms: how much recent data can be lost and how long recovery can take. Keep recovery evidence separate from a screenshot saying backup enabled. Logs should support incident investigation with timestamps, request ids and redacted outcomes; retention and access need explicit limits. After deployment, verify a legitimate request, a denied authorization case, expected headers and the running revision. Test recovery in a separate environment before an emergency. Darija: النسخة الاحتياطية ماشي غير زر شاعل؛ خاصك تجرب ترجع منها وتعرف شحال من وقت وبيانات تقدر تخسر."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "identities",
+      "difficulty": 1,
+      "task": "List developer, CI, runtime and database identities and one permission each should not have by default.",
+      "hints": [
+        "Separate publishing authority from customer-data access."
+      ],
+      "solution": "Developer: no unnecessary production export access\nCI: no unrelated project secrets\nRuntime: no repository administration\nDatabase app role: no schema-owner powers unless required",
+      "walkthrough": "The exact policy depends on the system; the exercise exposes unnecessary coupling between identities.",
+      "expectedResult": "A four-identity privilege review."
+    },
+    {
+      "id": "restore",
+      "difficulty": 3,
+      "task": "Write a restore rehearsal plan for a fictional orders database.",
+      "hints": [
+        "Use an isolated environment and verify record consistency."
+      ],
+      "solution": "Select backup -> restore into isolated database -> verify counts and order/payment relationships -> measure elapsed time -> record recovery point -> destroy only the verified disposable copy under the agreed plan",
+      "walkthrough": "A backup job’s success does not establish usable recovered application state.",
+      "expectedResult": "A measurable recovery test plan."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-13-q1",
+      "question": "Does managed hosting remove application authorization responsibility?",
+      "options": [
+        "No; the application must still enforce its rules.",
+        "Yes; hosting membership authorizes every customer action."
+      ],
+      "correctIndex": 0,
+      "explanation": "Infrastructure and application controls protect different boundaries.",
+      "answerExplanations": [
+        "Correct. Infrastructure and application controls protect different boundaries.",
+        "Not quite. Infrastructure and application controls protect different boundaries."
+      ]
+    },
+    {
+      "id": "cyber-13-q2",
+      "question": "Is deleting a leaked key from the latest commit sufficient?",
+      "options": [
+        "Yes; old copies become unusable automatically.",
+        "No; revoke or rotate and investigate exposure."
+      ],
+      "correctIndex": 1,
+      "explanation": "Credentials remain valid until their authority is changed.",
+      "answerExplanations": [
+        "Not quite. Credentials remain valid until their authority is changed.",
+        "Correct. Credentials remain valid until their authority is changed."
+      ]
+    },
+    {
+      "id": "cyber-13-q3",
+      "question": "Should untrusted pull-request code receive production secrets?",
+      "options": [
+        "No; constrain workflow trust and permissions.",
+        "Yes; all CI code is trusted by definition."
+      ],
+      "correctIndex": 0,
+      "explanation": "Build execution is a security boundary.",
+      "answerExplanations": [
+        "Correct. Build execution is a security boundary.",
+        "Not quite. Build execution is a security boundary."
+      ]
+    },
+    {
+      "id": "cyber-13-q4",
+      "question": "Does an environment variable guarantee secrecy?",
+      "options": [
+        "Yes; the variable mechanism encrypts every use.",
+        "No; it can be exposed through multiple paths."
+      ],
+      "correctIndex": 1,
+      "explanation": "Secrecy depends on access and handling.",
+      "answerExplanations": [
+        "Not quite. Secrecy depends on access and handling.",
+        "Correct. Secrecy depends on access and handling."
+      ]
+    },
+    {
+      "id": "cyber-13-q5",
+      "question": "Why use a non-root runtime identity?",
+      "options": [
+        "To reduce the consequences of application compromise.",
+        "To replace all input validation."
+      ],
+      "correctIndex": 0,
+      "explanation": "Least privilege limits impact but does not repair code flaws.",
+      "answerExplanations": [
+        "Correct. Least privilege limits impact but does not repair code flaws.",
+        "Not quite. Least privilege limits impact but does not repair code flaws."
+      ]
+    },
+    {
+      "id": "cyber-13-q6",
+      "question": "What does a tested restore establish beyond backup enabled?",
+      "options": [
+        "That no incident can ever happen.",
+        "That data can be recovered and checked within measured limits."
+      ],
+      "correctIndex": 1,
+      "explanation": "Recovery evidence is operational, not absolute assurance.",
+      "answerExplanations": [
+        "Not quite. Recovery evidence is operational, not absolute assurance.",
+        "Correct. Recovery evidence is operational, not absolute assurance."
+      ]
+    },
+    {
+      "id": "cyber-13-q7",
+      "question": "Should a firewall change have a recovery path?",
+      "options": [
+        "Yes; prevent accidental administrative lockout.",
+        "No; stricter rules cannot harm availability."
+      ],
+      "correctIndex": 0,
+      "explanation": "Security changes can affect legitimate access.",
+      "answerExplanations": [
+        "Correct. Security changes can affect legitimate access.",
+        "Not quite. Security changes can affect legitimate access."
+      ]
+    },
+    {
+      "id": "cyber-13-q8",
+      "question": "Are preview deployments automatically harmless?",
+      "options": [
+        "Yes; only production URLs matter.",
+        "No; they may expose data, secrets or unfinished features."
+      ],
+      "correctIndex": 1,
+      "explanation": "Reachable previews have their own risk boundaries.",
+      "answerExplanations": [
+        "Not quite. Reachable previews have their own risk boundaries.",
+        "Correct. Reachable previews have their own risk boundaries."
+      ]
+    },
+    {
+      "id": "cyber-13-q9",
+      "question": "What identifies a trustworthy build artifact?",
+      "options": [
+        "Traceability to reviewed source, dependencies and configuration.",
+        "Only a friendly filename."
+      ],
+      "correctIndex": 0,
+      "explanation": "Investigation needs reproducible provenance.",
+      "answerExplanations": [
+        "Correct. Investigation needs reproducible provenance.",
+        "Not quite. Investigation needs reproducible provenance."
+      ]
+    },
+    {
+      "id": "cyber-13-q10",
+      "question": "What is RPO concerned with?",
+      "options": [
+        "The number of CSS files.",
+        "Acceptable data loss relative to the recovery point."
+      ],
+      "correctIndex": 1,
+      "explanation": "Recovery objectives must be measurable business decisions.",
+      "answerExplanations": [
+        "Not quite. Recovery objectives must be measurable business decisions.",
+        "Correct. Recovery objectives must be measurable business decisions."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can apply least privilege to runtime, repository and deployment identities.",
+    "I can separate secrets and configuration across environments.",
+    "I can verify deployment, logging and backup recovery rather than assuming them."
+  ],
+  "recap": [
+    "Apply least privilege to runtime, repository and deployment identities.",
+    "Separate secrets and configuration across environments.",
+    "Verify deployment, logging and backup recovery rather than assuming them."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "GitHub Actions security hardening",
+      "url": "https://docs.github.com/en/actions/security-for-github-actions/security-guides/security-hardening-for-github-actions",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "Vercel security",
+      "url": "https://vercel.com/docs/security",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP secrets management",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Trust through the delivery chain",
+    "steps": [
+      {
+        "title": "Reviewed source",
+        "detail": "A known commit and dependency graph enter the pipeline."
+      },
+      {
+        "title": "Scoped build",
+        "detail": "CI uses only necessary permissions and avoids exposing secrets."
+      },
+      {
+        "title": "Runtime",
+        "detail": "The service runs with constrained identity and environment-specific configuration."
+      },
+      {
+        "title": "Recovery",
+        "detail": "Logs, backups and a rehearsed restore support investigation and continuity."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Least privilege",
+      "Granting only the authority required for a task."
+    ],
+    [
+      "RPO",
+      "The acceptable amount of recent data loss during recovery."
+    ],
+    [
+      "RTO",
+      "The target time to restore service."
+    ]
+  ],
+  "lab": null
+}

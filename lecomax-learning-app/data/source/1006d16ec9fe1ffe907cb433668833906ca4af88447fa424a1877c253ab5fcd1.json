@@ -1,0 +1,1 @@
+{"content":"export const PAYPAL_CURRENCY = \"USD\" as const;\nexport const PAYPAL_MAD_PER_USD = 10;\n\nexport function paypalAmountFromMad(amountMad: number): string {\n  if (!Number.isFinite(amountMad) || amountMad <= 0) throw new Error(\"Invalid MAD amount\");\n  return (amountMad / PAYPAL_MAD_PER_USD).toFixed(2);\n}\n"}

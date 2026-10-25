@@ -1,0 +1,44 @@
+{
+  "id": "seo-write-boundary-prepared-20261021",
+  "relatedId": "seo-final-readiness-write-guard-prepared-20261021",
+  "createdAt": "2026-10-21T13:45:50.205Z",
+  "title": "Fail-closed SEO write boundary completed locally",
+  "summary": "Shared environment policy blocks staging, preview and unknown/conflicting selectors across admin routes and worker. No hosted change.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO admin",
+    "SEO worker",
+    "Change History"
+  ],
+  "components": [
+    "Admin mutation guard",
+    "Environment policy",
+    "Worker handler"
+  ],
+  "files": [
+    "lib/api-security.ts",
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "operations/seo-vercel/lib/handler.mjs",
+    "tests/seo-write-boundary.test.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-ai-api.test.ts",
+    "tests/seo-sync-authorization.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Recovered interrupted guard and replaced APP_ENV-only denylist with centralized fail-closed policy, independent of AI flags; worker GET guarded before RPC."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression matrix for missing/conflicting environments and all legacy, editorial, AI and sync actions. No removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Tests, types, lint and isolated production build pending. Hosted fix not deployed."
+    }
+  ]
+}

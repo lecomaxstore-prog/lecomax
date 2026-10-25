@@ -1,0 +1,1 @@
+{"content":"// Public, crawler-safe alias for Google Merchant Center. The legacy API URL\n// remains available for compatibility, while this path is outside /api/ and\n// therefore not blocked by the site's crawler rules.\nexport { GET, revalidate } from \"@/app/api/feed/products.xml/route\";\n"}

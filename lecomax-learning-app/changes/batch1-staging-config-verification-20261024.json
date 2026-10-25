@@ -1,0 +1,47 @@
+{
+  "id": "batch1-staging-config-verification-20261024",
+  "relatedId": "batch1-staging-project-provisioning-20261024",
+  "createdAt": "2026-10-24T14:47:05Z",
+  "title": "Checkout staging configuration verified locally",
+  "summary": "Verified the dedicated Vercel project protection and local staging isolation guards; hosted Preview remains blocked until staging-only variables and synthetic transports are configured.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "staging environment policy",
+    "Vercel Deployment Protection"
+  ],
+  "files": [
+    "operations/seo/staging-app.env.example",
+    "operations/seo/staging-isolated-plan.json",
+    "operations/seo/staging-project-security.json",
+    "operations/seo/staging-vercel.json",
+    "tests/environment-clients.test.ts",
+    "tests/staging-outbound.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified project prj_lWUlctiYvPY86rXH6fukXEUggXuR protection and local fail-closed staging guards without deploying or adding secrets."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Vercel project identity and protection",
+      "result": "passed",
+      "detail": "Project prj_lWUlctiYvPY86rXH6fukXEUggXuR is owned by the verified team; protection is prod_deployment_urls_and_all_previews and Git fork protection is enabled."
+    },
+    {
+      "name": "Local isolation tests",
+      "result": "passed",
+      "detail": "11/11 tests pass across environment clients, staging outbound guards, isolated plan and hosting evidence checks."
+    },
+    {
+      "name": "Hosted staging configuration",
+      "result": "not-run",
+      "detail": "No environment variables, synthetic transports, domain, Git connection, cron or deployment were configured."
+    }
+  ]
+}

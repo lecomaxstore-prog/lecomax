@@ -26,6 +26,10 @@ export function isPayPalEnabled() {
 }
 
 function apiBase() {
+  if (!["sandbox", "live"].includes(process.env.PAYPAL_ENVIRONMENT ?? "") ||
+      (process.env.PAYPAL_ENVIRONMENT === "live" && process.env.APP_ENV !== "production")) {
+    throw new Error("PAYPAL_ENVIRONMENT_INVALID");
+  }
   return process.env.PAYPAL_ENVIRONMENT === "sandbox"
     ? "https://api-m.sandbox.paypal.com"
     : "https://api-m.paypal.com";

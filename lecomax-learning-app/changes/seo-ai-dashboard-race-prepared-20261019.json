@@ -1,0 +1,35 @@
+{
+  "id": "seo-ai-dashboard-race-prepared-20261019",
+  "createdAt": "2026-10-19T20:32:33.045Z",
+  "title": "Isolate AI dashboard refreshes by document",
+  "summary": "Prevent stale AI status and budget forms from crossing product selections or overwriting newer refresh results.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO dashboard",
+    "Change History"
+  ],
+  "components": [
+    "SeoAiControl"
+  ],
+  "files": [
+    "app/admin/seo/SeoAiControl.tsx",
+    "tests/seo-ai-dashboard.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Remount selection state for entity/kind/version changes; invalidate obsolete and unmounted requests; hide previous data while refreshing."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline component hook regressions for selection identity, reversed completion order, stale failure and unmount."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression and static checks",
+      "result": "not-run",
+      "detail": "Pending. No browser preview or hosted request."
+    }
+  ]
+}

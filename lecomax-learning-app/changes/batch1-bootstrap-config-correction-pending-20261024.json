@@ -1,0 +1,35 @@
+{
+  "id": "batch1-bootstrap-config-correction-pending-20261024",
+  "createdAt": "2026-10-24T18:01:01.546Z",
+  "relatedId": "batch1-bootstrap-attempt-failed-20261024",
+  "title": "Correct prebuilt deployment configuration in a new isolated attempt",
+  "summary": "Omit optional public:false while retaining default private source/logs and all deployment authentication. Preserve first-attempt artifact and receipts unchanged.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout staging placeholder",
+    "/change-history"
+  ],
+  "components": [
+    "Vercel prebuilt CLI configuration"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Separate runner and evidence directory for the explicitly authorized new single attempt; same output, target and protections."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Omit public from local configuration to avoid the observed prebuilt request schema rejection; no --public flag or protection changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "CLI/schema and regression validation",
+      "result": "not-run",
+      "detail": "Pending. public is documented; previous rejection is specific to the deployment request context, not universally invalid JSON configuration."
+    }
+  ]
+}

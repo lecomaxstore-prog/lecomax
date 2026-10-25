@@ -1,0 +1,1 @@
+{"content":"import GoogleAuthReturn from \"@/components/GoogleAuthReturn\";\n\nexport default function GoogleCallbackPage() {\n  return <GoogleAuthReturn callback />;\n}\n"}

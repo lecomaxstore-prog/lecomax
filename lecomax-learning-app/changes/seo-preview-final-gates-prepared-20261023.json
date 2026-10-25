@@ -1,0 +1,50 @@
+{
+  "id": "seo-preview-final-gates-prepared-20261023",
+  "relatedId": "seo-preview-binding-saved-readiness-20261023",
+  "createdAt": "2026-10-23T10:59:33.423Z",
+  "status": "needs-testing",
+  "title": "Hosted-only credential verifier and deterministic storefront acceptance prepared",
+  "summary": "Added a fixed-target read-only credential probe and test-only offline fixtures; expanded email inventory and strict-loader tests. No deployment or provider changes.",
+  "pages": [
+    "SEO Recovery Preview",
+    "Storefront",
+    "Account email safety",
+    "Change History"
+  ],
+  "components": [
+    "Runtime credential verification",
+    "Offline storefront transport",
+    "Email coverage"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/lib/seo-preview-runtime-check.mjs",
+    ".recovery-seo-preview-isolated/scripts/verify-seo-preview-runtime.mjs",
+    ".recovery-seo-preview-isolated/tests/seo-preview-runtime-check.test.mjs",
+    ".recovery-seo-preview-isolated/tests/seo-preview-email.test.mjs",
+    ".recovery-seo-preview-isolated/tests/seo-storefront-error-boundary.test.mjs",
+    "artifacts/seo-preview-resume-20261023/storefront-fixtures.cjs",
+    "artifacts/seo-preview-resume-20261023/offline-storefront-preload.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared hosted-only staging identity and binding checks before a minimal privileged read; generic error output and response-body disposal."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared deterministic synthetic catalogue transport outside candidate source. Preserved genuine loader failures; expanded email sender inventory tests."
+    }
+  ],
+  "validation": [
+    {
+      "name": "New verification and fixture tests",
+      "result": "not-run",
+      "detail": "Pending; all new tests use synthetic credentials, mocked transports or deterministic fixtures."
+    },
+    {
+      "name": "Hosted validation",
+      "result": "not-run",
+      "detail": "Requires separate explicit Preview authorization; no secret metadata comparison will be retried."
+    }
+  ]
+}

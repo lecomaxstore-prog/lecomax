@@ -1,0 +1,43 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Distinguish unreadable literals from mismatches and flag shared scopes; preserve existing credentials and sessions. Added no production variables and performed no database connection or deployment."
+    }
+  ],
+  "summary": "Syntax and synthetic checks pass; read-only Vercel preflight confirms unreadable source secrets and three missing bindings. Owner database input remains pending.",
+  "id": "production-interactive-readonly-verified-20261021",
+  "createdAt": "2026-10-21T19:54:39.943Z",
+  "validation": [
+    {
+      "detail": "Node syntax and PowerShell parser passed. Windows PowerShell launcher self-test passed with process-scoped ExecutionPolicy Bypass; system policy unchanged. Synthetic policy rejects wrong user, port, TLS mode and query override. Hidden real-input interaction remains untested.",
+      "result": "passed",
+      "name": "Syntax and synthetic checks"
+    },
+    {
+      "detail": "Authorized network preflight succeeded after sandbox networking failed. Ten literals passed; Supabase URL and three source credentials unreadable; three bindings missing; admin signer metadata passed without reading its value. Stored URI sslmode UNKNOWN. Evidence artifacts/production-credential-verification-1792612439977-b31593.json. Final scope/report-label refinement syntax and synthetic checks passed; network preflight not repeated.",
+      "result": "passed",
+      "name": "Vercel read-only preflight"
+    },
+    {
+      "detail": "Owner must supply exact saved Production URI in hidden local prompt. No credential retry, database query, TLS handshake, full environment build, or deployment performed. No preview checked.",
+      "result": "not-run",
+      "name": "Database and owner interaction"
+    }
+  ],
+  "files": [
+    "scripts/verify-production-credentials.ps1",
+    "scripts/verify-production-credentials.cjs"
+  ],
+  "status": "needs-testing",
+  "components": [
+    "PowerShell credential verification",
+    "Vercel environment diagnostics"
+  ],
+  "relatedId": "production-interactive-readonly-20261021",
+  "title": "Interactive credential verifier checks and Production preflight",
+  "pages": [
+    "Production operations",
+    "Change History"
+  ]
+}

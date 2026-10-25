@@ -20,6 +20,7 @@ const contentSecurityPolicy = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
   serverExternalPackages: ['node-pty'],
   compress: true,
   poweredByHeader: false,
@@ -215,6 +216,7 @@ const nextConfig = {
       {
         source: "/(.*)",
         headers: [
+          ...(process.env.APP_ENV !== "production" ? [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }] : []),
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "SAMEORIGIN" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -229,6 +231,8 @@ const nextConfig = {
 };
 
 module.exports = async (phase) => {
+  const { applicationEnvironment } = await import("./operations/seo-vercel/lib/environment-target.mjs");
+  await applicationEnvironment(process.env);
   // Vercel may run `next build` directly, bypassing npm's prebuild hook.
   // Generate the private snapshot before tracing the source API functions.
   if (phase === PHASE_PRODUCTION_BUILD) {

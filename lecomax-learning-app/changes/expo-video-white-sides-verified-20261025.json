@@ -1,0 +1,46 @@
+{
+  "id": "expo-video-white-sides-verified-20261025",
+  "createdAt": "2026-10-25T14:06:23.601Z",
+  "title": "Product video background verified in local browser",
+  "summary": "Confirmed white player and frame backgrounds in the running Expo product page; mobile checks passed. Clip playback needs a browser supporting the source format.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductVideoPlayer",
+    "VideoPlayback"
+  ],
+  "files": [
+    "mobile/src/components/product-video.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified the white video surface and surrounding frame replace the previous dark side panels while retaining contain fit and native controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local browser styles",
+      "result": "passed",
+      "detail": "Visited the actual varsity product page on localhost:8081 at 520px width. Computed video and parent backgrounds are rgb(255,255,255); object-fit is contain; controls remain enabled. Evidence: artifacts/product-video-background-20261025/browser-result.json."
+    },
+    {
+      "name": "Mobile TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck and ESLint src/components/product-video.tsx exited 0."
+    },
+    {
+      "name": "History verification",
+      "result": "passed",
+      "detail": "923 reports valid before follow-up; four history regression tests passed. Manifest rechecked after append."
+    },
+    {
+      "name": "Remote clip playback",
+      "result": "failed",
+      "detail": "Headless Edge returned MEDIA_ELEMENT_ERROR: Format error for the Cloudinary clip; readyState 0. Loaded-video appearance and native device rendering remain unverified. No deployment."
+    }
+  ],
+  "relatedId": "expo-video-white-sides-20261025"
+}

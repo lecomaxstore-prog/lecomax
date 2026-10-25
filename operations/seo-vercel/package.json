@@ -1,0 +1,16 @@
+{
+  "name": "lecomax-seo-vercel-worker",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "test": "node run-tests.mjs",
+    "test:integration": "node --test tests/sql-integration.test.mjs"
+  },
+  "dependencies": {
+    "openai": "6.42.0"
+  }
+}

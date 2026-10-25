@@ -51,6 +51,13 @@ export const useRecommendationSlugs = (enabled = true) =>
     enabled,
     ...liveQueryOptions,
   });
+export const useTrendingSlugs = (enabled = true) =>
+  useQuery({
+    queryKey: ["recommendations", "most-viewed"],
+    queryFn: ({ signal }) => getRecommendationSlugs(4, signal, "most-viewed"),
+    enabled,
+    ...liveQueryOptions,
+  });
 export const useBanners = () =>
   useQuery({
     queryKey: ["banners"],

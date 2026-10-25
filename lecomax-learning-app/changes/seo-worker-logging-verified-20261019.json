@@ -1,0 +1,56 @@
+{
+  "id": "seo-worker-logging-verified-20261019",
+  "createdAt": "2026-10-19T20:21:51.273Z",
+  "relatedId": "seo-worker-logging-prepared-20261019",
+  "title": "Worker log-failure recovery and isolated proposal validated offline",
+  "summary": "48 distinct local tests, focused ESLint and both TypeScript checks passed. Auth/integration evidence and hosted acceptance remain unverified; staging and production NO-GO.",
+  "status": "successful",
+  "pages": [
+    "SEO Engine",
+    "Change History"
+  ],
+  "components": [
+    "Worker handler",
+    "Staging configuration",
+    "Offline regression"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/logging-recovery.test.mjs",
+    "operations/seo/staging-isolated-plan.json",
+    "tests/seo-isolated-plan.test.cjs",
+    "docs/seo-local-recovery-staging-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Logger throws, rejections and pending promises no longer alter committed outcome or delay response. No target/auth/lease policy changes."
+    },
+    {
+      "kind": "added",
+      "detail": "Inert staging-only proposal, reproducible regression instructions and explicit remaining local/hosted blockers."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Offline unit/regression/security",
+      "result": "passed",
+      "detail": "25 focused plus 17 additional provider/editorial cases and 6 history cases = 48 distinct cases. Updated recovery case rerun covering pending promises. Only mocked transports; no SQL migrations or live worker activation."
+    },
+    {
+      "name": "ESLint",
+      "result": "passed",
+      "detail": "Focused lint on handler and new tests exited 0; updated recovery test re-linted."
+    },
+    {
+      "name": "TypeScript",
+      "result": "passed",
+      "detail": "Website no-emit/nonincremental and learning app typecheck exited 0."
+    },
+    {
+      "name": "Hosted gates",
+      "result": "not-run",
+      "detail": "Auth/SMTP/SMS/hooks/providers/integrations/workers unverified. Prior read-only evidence retained. No deployment, restore, production connection, paid call or preview."
+    }
+  ]
+}

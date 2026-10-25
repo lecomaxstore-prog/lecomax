@@ -1,0 +1,32 @@
+{
+  "id": "production-database-repair-run-1792613221683",
+  "relatedId": "production-database-repair-prepared-20261021",
+  "createdAt": "2026-10-21T20:07:01.687Z",
+  "title": "Authorized Production database credential repair run",
+  "summary": "STOPPED_DO_NOT_RETRY",
+  "status": "failed",
+  "pages": [
+    "Production operations",
+    "Change History"
+  ],
+  "components": [
+    "Production database credentials"
+  ],
+  "files": [
+    "scripts/repair-production-database.cjs",
+    "scripts/verify-production-credentials.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "URI write: not attempted. Binding write: not attempted. No deployment, migration, SQL write or session signer modification."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Database and provider checks",
+      "result": "failed",
+      "detail": "Database: not verified. Binding: not verified. Failure: DATABASE_IDENTITY_TLS_READONLY_FAILED. Sensitive URI bytes cannot be independently read back; runtime deployment remains untested."
+    }
+  ]
+}

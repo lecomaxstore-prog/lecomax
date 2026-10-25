@@ -1,0 +1,53 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Decorative blurred poster backdrop fills portrait and landscape letterboxing without a second video download."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replace flat side bands with product-related colors; hide failed backdrop images after trying the product photo fallback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Share the resolved poster between the player and backdrop; preserve uncropped video, controls, autoplay, and retry."
+    }
+  ],
+  "summary": "Product video side-space improvement passed focused regression, lint, type and history checks. Browser visual review remains outstanding.",
+  "id": "product-video-soft-background-20261025-verified",
+  "createdAt": "2026-10-25T12:11:24.490Z",
+  "validation": [
+    {
+      "name": "Product video and gallery regression tests",
+      "result": "passed",
+      "detail": "9 tests passed: URL normalization, native controls, loading/errors/retry, poster fallback, replay and image navigation."
+    },
+    {
+      "name": "Focused lint and TypeScript",
+      "result": "passed",
+      "detail": "ESLint components/ProductVideo.tsx; storefront tsc --noEmit --incremental false; learning-app npm run typecheck all exited 0."
+    },
+    {
+      "name": "History integrity and interactions",
+      "result": "passed",
+      "detail": "6 history tests passed; append-only manifest check passed with 891 reports before this follow-up."
+    },
+    {
+      "name": "Visual and release limitations",
+      "result": "not-run",
+      "detail": "No browser visual review, physical-device test, production build or deployment. YouTube embeds and side bars encoded into video files are unchanged."
+    }
+  ],
+  "files": [
+    "components/ProductVideo.tsx"
+  ],
+  "components": [
+    "ProductVideo"
+  ],
+  "status": "successful",
+  "title": "Product video background checks passed",
+  "pages": [
+    "Storefront product detail pages"
+  ],
+  "relatedId": "product-video-soft-background-20261025"
+}

@@ -1,0 +1,38 @@
+{
+  "id": "website-product-video-size-20261025",
+  "createdAt": "2026-10-25T19:56:39.869Z",
+  "title": "Website product videos use the full gallery",
+  "summary": "The storefront now keeps a large square media stage for both videos and photos.",
+  "status": "needs-testing",
+  "pages": [
+    "Website /produit/[slug]"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "tests/product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Use the photo gallery square aspect ratio for video, including before metadata loads, instead of shrinking to a landscape frame."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed metadata-driven gallery resizing and unused dimension state; video content still uses contain fitting."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated existing gallery navigation regression coverage to require stable square sizing."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending validation",
+      "result": "not-run",
+      "detail": "Focused tests and website TypeScript pending. Local source change only; no deployment."
+    }
+  ]
+}

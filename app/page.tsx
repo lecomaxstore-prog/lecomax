@@ -312,6 +312,7 @@ export default async function HomePage() {
 
       <ProductRail
         title="En promotion"
+        promotion
         products={promotionProducts.slice(0, 8).map(p => ({ ...p, rating: reviewStats[p.slug]?.rating, reviewCount: reviewStats[p.slug]?.count }))}
         cta={{ label: "Voir les promos", href: "/promotions" }}
       />
@@ -364,7 +365,7 @@ export default async function HomePage() {
 
       {/* ── Ecomedia Community ─────────────────────────────────── */}
       <ScrollReveal direction="up">
-      <section className="mx-auto max-w-7xl px-5 py-20 sm:px-6 md:py-24">
+      <section id="home-ecomedia" aria-labelledby="home-ecomedia-title" className="mx-auto max-w-7xl scroll-mt-24 px-5 py-14 sm:px-6 md:py-24">
         <div className="mb-9 grid gap-7 border-b border-neutral-200 pb-9 md:grid-cols-[1fr_auto] md:items-end">
           <div className="max-w-3xl">
             <div className="mb-5 flex items-center gap-3">
@@ -378,7 +379,7 @@ export default async function HomePage() {
                 <p className="mt-0.5 text-[10px] font-medium text-neutral-400">Le média social de L&apos;ecomax</p>
               </div>
             </div>
-            <h2 className="h-display text-[2.7rem] leading-[.92] tracking-[-.035em] text-neutral-950 sm:text-5xl md:text-[4.4rem]">
+            <h2 id="home-ecomedia-title" className="h-display text-[clamp(1.75rem,7.5vw,2.7rem)] leading-[1.08] tracking-[-.035em] text-neutral-950 sm:text-5xl md:text-[4.4rem]">
               Plus qu&apos;une boutique.<br/><span className="text-neutral-400">Une communauté.</span>
             </h2>
           </div>
@@ -391,9 +392,11 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[1.75rem] border border-neutral-800 bg-[#080b09] text-white shadow-[0_30px_80px_rgba(0,0,0,.14)]">
+        <div className={latestPost ? "relative overflow-hidden rounded-[1.75rem] border border-neutral-800 bg-[#080b09] text-white shadow-[0_30px_80px_rgba(0,0,0,.14)]" : "relative overflow-hidden rounded-2xl border border-[#dfe7df] bg-[#f7f9f6] text-[#183c30]"}>
+          {latestPost && <>
           <div className="pointer-events-none absolute inset-0 opacity-[.035]" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)", backgroundSize: "48px 48px" }} />
           <div className="pointer-events-none absolute -left-48 top-0 h-[500px] w-[500px] rounded-full bg-[#3ecf4c]/10 blur-[120px]" />
+          </>}
 
           <div className="relative">
             {latestPost ? (
@@ -433,9 +436,11 @@ export default async function HomePage() {
                 </Link>
               </div>
             ) : (
-              <div className="mx-6 mb-6 flex items-start gap-3 rounded-xl border border-white/10 bg-white/[.03] p-4 sm:mx-10 sm:mb-10 lg:mx-14 lg:mb-14">
-                <svg className="mt-0.5 shrink-0 text-[#8cde91]" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 4h16v12H8l-4 4V4Z"/></svg>
-                <div><p className="text-sm font-medium text-white">À découvrir prochainement</p><p className="mt-1 text-xs leading-5 text-[#becbc0]">Les nouvelles publications apparaîtront ici.</p></div>
+              <div className="flex items-start gap-4 p-6 sm:items-center sm:p-8">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#dfe7df] bg-white">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M4 4h16v12H8l-4 4V4Z"/></svg>
+                </span>
+                <div className="min-w-0"><p className="text-sm font-semibold leading-6">À découvrir prochainement</p><p className="mt-1 text-sm leading-6 text-[#617366]">Les nouvelles publications apparaîtront ici.</p></div>
               </div>
             )}
           </div>
@@ -443,7 +448,7 @@ export default async function HomePage() {
 
         <div className="mt-5 flex flex-col gap-3 px-1 text-[10px] font-bold uppercase tracking-[.16em] text-neutral-400 sm:flex-row sm:items-center sm:justify-between">
           <span>Produits · Conseils · Coulisses · Offres privées</span>
-          <span className="normal-case tracking-normal text-neutral-500">Une publication L&apos;ecomax, pensée pour la communauté.</span>
+          {latestPost && <span className="normal-case tracking-normal text-neutral-500">Une publication L&apos;ecomax, pensée pour la communauté.</span>}
         </div>
       </section>
       </ScrollReveal>

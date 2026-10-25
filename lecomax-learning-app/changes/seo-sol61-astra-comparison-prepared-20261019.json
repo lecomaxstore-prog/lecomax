@@ -1,0 +1,44 @@
+{
+  "id": "seo-sol61-astra-comparison-prepared-20261019",
+  "createdAt": "2026-10-19T09:41:14.024Z",
+  "title": "Approved Sol 6.1 and Astra local comparison prepared",
+  "summary": "Verified exact model access and identical saved prompts. Combined maximum USD 0.132375 is below the approved USD 0.15 ceiling. Paid execution pending.",
+  "status": "needs-testing",
+  "relatedId": "seo-premium-editorial-verified-20261019",
+  "pages": [
+    "Admin SEO (comparison evidence only)",
+    "Change History"
+  ],
+  "components": [
+    "Local comparison runner",
+    "Single-use request markers",
+    "Local budget reservation"
+  ],
+  "files": [
+    "scripts/seo-premium-approved-once.mjs",
+    "artifacts/seo-premium/record-approved-comparison.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Local-only single-use comparison runner for exactly gpt-6.1-sol and gpt-6-astra, preserving saved Baasploa source and prompts. Official API only, zero retries, strict schema, 2000 output-token cap, full local responses and durable combined reservation. Existing application model defaults are unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Readiness",
+      "result": "passed",
+      "detail": "Official pricing and model documentation checked. SDK 6.42.0 model access and input counting succeeded: 569 tokens per request plus 256 margin, USD 0.0220625 Sol and USD 0.1103125 Astra maximum. Secure environment key loaded without disclosure; runtime flags disabled. Initial sandbox EACCES blocked read-only preflight; permitted network check passed; no paid calls yet."
+    },
+    {
+      "name": "Syntax and saved evidence",
+      "result": "passed",
+      "detail": "Node syntax check passed; saved source/request SHA-256 checks passed. Prior regression log shows 73/73, lint passed, build record exit 0 on Node 24.22.0. These historical checks were not rerun."
+    },
+    {
+      "name": "Quality and production",
+      "result": "not-run",
+      "detail": "Paid response quality still pending. Shared provider balance/invoice and unrelated account spending unverified. No migrations, deployment, production writes, publishing or scheduler activation."
+    }
+  ]
+}

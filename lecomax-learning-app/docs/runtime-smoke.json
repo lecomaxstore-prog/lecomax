@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "Arabic home rendered offline",
+    "Continue opens a lesson",
+    "Lesson bookmark toggles",
+    "Quiz feedback and completion",
+    "Notes persist through the real UI",
+    "Failed storage write and retry preserve the newest unsaved note",
+    "Language and dark theme switch",
+    "Search returns lessons and project files",
+    "Real project source viewer and import graph",
+    "AI owner sign-in and online requirement state",
+    "Teacher draft persists without a network connection",
+    "Saved notes and completion survive screen remount",
+    "Actual AsyncStorage web adapter persisted completion and bookmark",
+    "Full app restart restores persisted progress, notes and language"
+  ],
+  "errors": []
+}

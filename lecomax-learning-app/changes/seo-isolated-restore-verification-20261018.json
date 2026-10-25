@@ -1,0 +1,62 @@
+{
+  "id": "seo-isolated-restore-verification-20261018",
+  "createdAt": "2026-10-18T17:52:26.380Z",
+  "title": "SEO Engine isolated restore and migration verification",
+  "summary": "The application schema and data restored locally and SEO checks passed. Full Supabase recovery remains unverified because managed extensions and event-trigger ownership could not be reproduced. GO for further staging validation; NO-GO for production deployment.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Engine deployment preparation",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Production backup verification",
+    "Isolated PostgreSQL restore",
+    "SEO migration validation"
+  ],
+  "files": [
+    "artifacts/restore-test.cjs",
+    "docs/seo-restore-verification-20261018.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added a local-only restore harness with loopback/data-directory identity guards, SCRAM authentication and verified TLS."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented actual restore failures, snapshot row counts, object comparisons, isolated SEO results and remaining rollout gates. No production changes or deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Backup integrity",
+      "result": "passed",
+      "detail": "SHA-256 matched the recorded checksum before restoring the 1,685,487-byte backup."
+    },
+    {
+      "name": "Application restore",
+      "result": "passed",
+      "detail": "110 ordinary COPY entries matched archive row counts, including 34 products and 4 categories. All 719 compared schema/table/function/trigger/policy/RLS/index/constraint objects matched; policy role ordering normalized."
+    },
+    {
+      "name": "Full Supabase restore",
+      "result": "failed",
+      "detail": "pg_restore returned exit 1 with 36 errors: unavailable pg_cron, pg_net, supabase_vault and dependencies, plus six event-trigger owner assignments. Three extension-managed COPY entries could not restore."
+    },
+    {
+      "name": "Isolated SEO migration",
+      "result": "passed",
+      "detail": "Reviewed migration hash matched; 34 postflight assertions passed; 38 SEO documents backfilled; all 111 original tables unchanged. Product/category triggers, browser denial and service-role draft/approve/reset passed. Behavioral writes rolled back."
+    },
+    {
+      "name": "Cleanup",
+      "result": "passed",
+      "detail": "Separate local cluster stopped; sensitive data and logs retained inside the restricted backup directory outside Git."
+    },
+    {
+      "name": "Hosted staging and production integration",
+      "result": "not-run",
+      "detail": "No production connection or mutation, website deployment, hosted service recovery, or authenticated application integration tests in this task."
+    }
+  ]
+}

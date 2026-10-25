@@ -1,0 +1,47 @@
+{
+  "id": "seo-runtime-hosting-rechecked-20261020",
+  "relatedId": "seo-runtime-hosting-prepared-20261020",
+  "createdAt": "2026-10-20T10:12:11.702Z",
+  "title": "Recheck interrupted worker-runner and hosting evidence changes",
+  "summary": "Current Node24 worker/application regressions and focused lint pass; previous missing final candidate is not release evidence.",
+  "status": "successful",
+  "pages": [
+    "Worker /api/sync",
+    "Release acceptance"
+  ],
+  "components": [
+    "Worker test command",
+    "Read-only hosting audit"
+  ],
+  "files": [
+    "operations/seo-vercel/package.json",
+    "scripts/verify-seo-hosting-readonly.cjs",
+    "scripts/seo-hosting-evidence.cjs",
+    "tests/seo-hosting-evidence.test.cjs",
+    "operations/seo-vercel/run-tests.mjs",
+    "docs/seo-session-recovery-handoff-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Linked verification of the prior interrupted work, with current test evidence and corrected checkpoint/owner handoff."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node24 regression",
+      "result": "passed",
+      "detail": "60 worker and 99 application/history tests; repeated invocations overlap and are not added to totals."
+    },
+    {
+      "name": "TypeScript and focused ESLint",
+      "result": "passed",
+      "detail": "Root and learning app TypeScript; worker runtime/tests/runner and hosting evidence lint."
+    },
+    {
+      "name": "Hosted acceptance and release candidate parity",
+      "result": "not-run",
+      "detail": "Known 403 not retried. Final-blockers candidate/verification files were absent. Older release-gates candidate remains historical. NO-GO."
+    }
+  ]
+}

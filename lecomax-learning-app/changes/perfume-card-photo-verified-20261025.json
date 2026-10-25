@@ -1,0 +1,45 @@
+{
+  "id": "perfume-card-photo-verified-20261025",
+  "createdAt": "2026-10-25T12:01:21.646Z",
+  "title": "Improved perfume card photo verified",
+  "summary": "Prepared a tightly framed perfume bottle and box on a clean light background.",
+  "status": "successful",
+  "pages": [
+    "Homepage and boutique product cards"
+  ],
+  "components": [
+    "ProductImage"
+  ],
+  "files": [
+    "components/ProductImage.tsx",
+    "public/images/products/studio/stronger-with-you-v2.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Versioned AI-assisted perfume photo with reduced empty space and consistent background."
+    },
+    {
+      "kind": "modified",
+      "detail": "Exact source-URL card override; original gallery and remote product data preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile and desktop card",
+      "result": "passed",
+      "detail": "New asset decoded and displayed at 390px and 1440px; mobile screenshot inspected; no horizontal page overflow."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint components/ProductImage.tsx exit 0."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "AI-assisted imagery may alter fine print; original gallery photo retained. Local preview only, no deployment or inventory changes."
+    }
+  ],
+  "relatedId": "perfume-card-photo-prepared-20261025"
+}

@@ -1,0 +1,47 @@
+{
+  "id": "safe-generated-cache-cleanup-1792609562315",
+  "createdAt": "2026-10-21T19:06:02.315Z",
+  "title": "Recover disk space from obsolete caches and native build output",
+  "summary": "Removed seven explicitly checked regenerable directories. Source, release evidence, databases, credentials, backups and prior Change History retained.",
+  "status": "successful",
+  "pages": [
+    "Local development workspace",
+    "Change History"
+  ],
+  "components": [
+    "Next.js caches",
+    "npm download caches",
+    "Android dependency build output"
+  ],
+  "files": [
+    "lecomax-learning-app/docs/change-history.md"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": ".next-broken-20260711-224159/cache; .next-broken-20260717-115406/cache; .next-broken-20260718-231603/cache; .next-broken-20260722-181534/cache; .npm-cache/_cacache; lecomax-learning-app/.npm-cache/_cacache; lecomax-learning-app/node_modules/react-native-worklets/android/build"
+    }
+  ],
+  "validation": [
+    {
+      "name": "Deletion scope",
+      "result": "passed",
+      "detail": "Exact workspace-contained paths verified; ancestor and descendant reparse points rejected. No matched active install/native build or old-cache process identified. All seven targets now absent."
+    },
+    {
+      "name": "Space",
+      "result": "passed",
+      "detail": "6249307147 logical bytes removed; 4516118528 bytes currently free. Actual allocation may differ."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "Deletion restricted to listed cache/build children. Release folders, npm logs, dependency source, emulator state and all prior history excluded."
+    },
+    {
+      "name": "Application rebuild",
+      "result": "not-run",
+      "detail": "No application code changed. Removed caches/native outputs regenerate when needed. No deployment or migrations."
+    }
+  ]
+}

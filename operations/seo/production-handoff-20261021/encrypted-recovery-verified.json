@@ -1,0 +1,56 @@
+{
+  "id": "seo-encrypted-recovery-verified-20261021",
+  "relatedId": "seo-encrypted-recovery-prepared-20261021",
+  "createdAt": "2026-10-21T17:10:56.536Z",
+  "title": "Fresh encrypted production backup and isolated recovery verified",
+  "summary": "Production read-only backup and encrypted archive integrity passed. Isolated application restore verified 110 table hashes and sequences; local cluster stopped. Official launch remains NO-GO.",
+  "status": "needs-testing",
+  "pages": [
+    "Production recovery operations",
+    "Change History"
+  ],
+  "components": [
+    "Encrypted backup",
+    "Isolated PostgreSQL restore",
+    "Release handoff"
+  ],
+  "files": [
+    "scripts/seo-encrypted-local-restore.cjs",
+    "operations/seo/production-handoff-20261021/RECOVERY-VERIFIED.md",
+    "artifacts/seo-encrypted-backup-1792602387119.json",
+    "artifacts/seo-encrypted-local-restore-1792602495870.json",
+    "artifacts/seo-encrypted-local-restore-1792602598909.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Fixed Windows pg_ctl inherited-pipe stall by redirecting control output to a local file. Preserved the failed attempt and manually stopped only the named test cluster before retry."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded encrypted fresh production backup, independent saved-key decryption, successful isolated restore and explicit remaining production gates. No production writes, migrations, deployment, secret changes or deletions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Encrypted backup integrity",
+      "result": "passed",
+      "detail": "Snapshot 2026-10-21T17:06:27.777Z; AES-256-GCM authentication, ciphertext/plaintext checksums and full archive read passed; 1233 entries. TLS and read-only production identity passed."
+    },
+    {
+      "name": "Isolated recovery",
+      "result": "passed",
+      "detail": "110 included table hashes and sequence values match; 61 public RLS tables; no owner/ACL restore errors; zero foreign servers/subscriptions/outbound managed extensions. Independent DPAPI key recovery passed. Local cluster shutdown passed."
+    },
+    {
+      "name": "Initial local attempt",
+      "result": "failed",
+      "detail": "Windows subprocess I/O stall required manual local-cluster stop; first runner subsequently recorded ECONNREFUSED and redundant-stop failure. Corrected second attempt passed; old evidence retained."
+    },
+    {
+      "name": "Remaining limitations",
+      "result": "not-run",
+      "detail": "38 managed-service/event-trigger entries excluded from local restore; PG18.6 local versus PG17.6 production; 205 Storage object binaries not backed up. Offsite/key disaster recovery, authenticated staging acceptance, production bindings/build and launch authorization remain open. No full-platform recovery claim."
+    }
+  ]
+}

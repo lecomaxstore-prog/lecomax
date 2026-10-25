@@ -1,0 +1,31 @@
+{
+  "id": "seo-inventory-category-canonical-prepared-20261022",
+  "createdAt": "2026-10-22T11:29:45.341Z",
+  "status": "needs-testing",
+  "title": "Isolated category-canonical release candidate prepared",
+  "summary": "Extracted only category/CMS canonical and JSON-LD slug-segment encoding onto the live commit; retained existing metadata copy and excluded the SEO storage dependency.",
+  "pages": [
+    "Category and CMS metadata",
+    "Change History"
+  ],
+  "components": [
+    "Category metadata and structured data"
+  ],
+  "files": [
+    "release/seo-category-canonical-20261022/app/[category]/page.tsx",
+    "release/seo-category-canonical-20261022/tests/seo-category-urls.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Extracted only category/CMS canonical and JSON-LD slug-segment encoding onto the live commit; retained existing metadata copy and excluded the SEO storage dependency. No release, secret update, data migration, order or payment operation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate validation",
+      "result": "not-run",
+      "detail": "Focused tests, types/lint and isolated build pending. Staging tests are historical; extraction requires fresh validation."
+    }
+  ]
+}

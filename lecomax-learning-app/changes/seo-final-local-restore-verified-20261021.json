@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-21T10:13:56.654Z",
+  "status": "successful",
+  "pages": [
+    "SEO release readiness",
+    "Change History"
+  ],
+  "components": [
+    "Read-only release verification",
+    "Recovery rehearsal",
+    "Release gates"
+  ],
+  "id": "seo-final-local-restore-verified-20261021",
+  "relatedId": "seo-final-local-restore-prepared-20261021",
+  "title": "Latest existing backup restored and six SEO migrations rehearsed",
+  "summary": "Restored 110 included tables locally with matching hashes; six pinned migrations preserved existing contents/sequences and created 13 RLS-protected SEO tables. Cluster stopped.",
+  "files": [
+    "scripts/seo-final-local-restore.cjs",
+    "artifacts/seo-final-local-restore-1792577467672.json",
+    "operations/seo/final-release-gates-20261021.json",
+    "docs/seo-resume-browser-acceptance-20261021.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Completed latest-archive application restore plus six-migration compatibility rehearsal; preserved original backups and prior recovery databases."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Application restore and migrations",
+      "result": "passed",
+      "detail": "October 18 archive checksum matches. 110 included table contents match, owners/ACLs retained; all six migrations succeeded with existing contents and sequences preserved; 13 new SEO tables have RLS."
+    },
+    {
+      "name": "Isolation and cleanup",
+      "result": "passed",
+      "detail": "Fixed loopback TLS cluster identity verified, no production connection, no outbound extensions invoked, cluster stopped. Syntax and ESLint passed."
+    },
+    {
+      "name": "Recovery limitations",
+      "result": "not-run",
+      "detail": "Not a fresh production backup or full-platform restore. 38 managed extension/event-trigger entries omitted; local PostgreSQL 18.6 versus production 17.6. No hosted publication or production release."
+    }
+  ]
+}

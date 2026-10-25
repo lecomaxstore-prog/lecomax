@@ -1,0 +1,58 @@
+{
+  "id": "batch4-production-complete-20261025",
+  "relatedId": "batch4-production-authorized-20261025",
+  "createdAt": "2026-10-25T06:24:20.851Z",
+  "title": "Batch 4: one production release complete and verified",
+  "summary": "Certified one-file CSS release READY on lecomax.com. All 2055 uploaded files verified; storefront/mobile/chat/SEO checks pass. Deployed median LCP 3.524s versus 3.856s baseline; CLS zero, with wide sample variability.",
+  "status": "successful",
+  "pages": [
+    "Production homepage",
+    "Boutique and categories",
+    "Product pages",
+    "Cart and checkout entry"
+  ],
+  "components": [
+    "Mobile offscreen rendering",
+    "Hero",
+    "Deferred chat",
+    "SEO and checkout preservation"
+  ],
+  "files": [
+    "artifacts/batch4-mobile-20261025/source/app/globals.css",
+    "artifacts/batch4-mobile-20261025/REPORT-PRODUCTION-COMPLETE.md",
+    "artifacts/batch4-mobile-20261025/receipt.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Deployed only the approved app/globals.css change, source dfa400bc47921486b14caa1428e79b8fc739d8599b82b22f864356aebb836984; 2054 other files unchanged, none added/removed. Exactly one deployment attempt."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Provider and source integrity",
+      "result": "passed",
+      "detail": "dpl_5zqUhyi9tycxPeDbADQWkn9u31DY READY, active lecomax.com alias; 2055 remote file identities verified; configuration metadata preserved. Verified rollback dpl_6fiTe8ai9LbZfdVXv9giV1CKDMf2."
+    },
+    {
+      "name": "Live acceptance",
+      "result": "passed",
+      "detail": "19 storefront/SEO checks and 13 mobile records at 320/375/390px, all sections scrolling, load-more, navigation/restored scroll, chat and print fallback pass. Ordinary/early chat checks pass; deferred chunk after load. No critical browser errors."
+    },
+    {
+      "name": "Checkout and SEO preservation",
+      "result": "passed",
+      "detail": "Canonical, structured data, robots and sitemaps pass. Cart/checkout entry works; shipping error handling, COD, PayPal/auth/inventory and SEO source unchanged. Prior completed checkout regressions reused; no real transactions."
+    },
+    {
+      "name": "Production mobile measurements",
+      "result": "passed",
+      "detail": "Exactly three LCP samples 5.436/1.816/3.524s; median 3.524s versus 3.856s baseline (observed 8.6% lower). CLS all 0. Main CSS completion 4.705/1.184/2.974s. Wide variance; not field CWV or proof of sub-2.5s performance."
+    },
+    {
+      "name": "Excluded validation",
+      "result": "not-run",
+      "detail": "Real purchases/payments/messages, live shipping-error transactions, physical devices and real-user CWV excluded. Learning history preview not checked or deployed; Release E remains on hold."
+    }
+  ]
+}

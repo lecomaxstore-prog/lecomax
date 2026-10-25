@@ -1,0 +1,41 @@
+{
+  "id": "category-portraits-white-20261025",
+  "createdAt": "2026-10-25T12:37:52.600Z",
+  "title": "White backgrounds for Homme and Femme photos",
+  "summary": "Restyle the two existing model photographs on white while retaining their poses, black clothing and visible white-and-green L?ecomax chest logos.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage /"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "components/CategoryTiles.module.css",
+    "public/images/collection-homme-white-v5.webp",
+    "public/images/collection-femme-white-v5.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Optimized WebP model portraits edited with built-in imagegen. Prompt: change only concrete scenery to white, preserve the same models, pose, clothing and exact chest logo lettering, colors, underline and placement."
+    },
+    {
+      "kind": "modified",
+      "detail": "Homme/Femme defaults now use white portraits, including old printed-v3 default references. Portrait-specific framing reserves white caption space and uses existing dark-green text treatment. Custom uploads remain supported."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Generated photo review",
+      "result": "passed",
+      "detail": "Inspected both edited portraits: white backgrounds, same model appearance and pose, visible L?ecomax logos."
+    },
+    {
+      "name": "Responsive and source checks",
+      "result": "not-run",
+      "detail": "Pending browser fixtures, lint, typecheck and history checks. Not deployed."
+    }
+  ]
+}

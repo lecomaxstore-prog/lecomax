@@ -1,0 +1,36 @@
+{
+  "id": "batch1-cli-wrapper-correction-pending-20261024",
+  "createdAt": "2026-10-24T18:42:01.500Z",
+  "relatedId": "batch1-bootstrap-compat-wrapper-blocked-20261024",
+  "title": "Check validator return and process outcome independently",
+  "summary": "Installed validateConfig explicitly returns null on success. New wrapper requires exit zero, no signal/error/stderr and explicit null payload; undefined and empty output fail.",
+  "status": "needs-testing",
+  "pages": [
+    "Checkout staging preflight",
+    "/change-history"
+  ],
+  "components": [
+    "CLI validation wrapper"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/cli-validation-wrapper.cjs",
+    "artifacts/batch1-release-preparation-20261024/cli-validation-wrapper.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace incorrect undefined expectation with the inspected null contract and strict subprocess checks."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression cases for absent output, undefined, rejection, nonzero exit, timeout, signal and stderr."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local checks",
+      "result": "not-run",
+      "detail": "Pending; deployment explicitly excluded from this turn."
+    }
+  ]
+}

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const result = await submitIndexNow(urls);
-    return NextResponse.json(result, { status: result.status === 400 ? 400 : 200 });
+    return NextResponse.json(result, { status: result.ok ? 200 : result.status });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
   }

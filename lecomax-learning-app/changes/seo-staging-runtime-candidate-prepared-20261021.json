@@ -1,0 +1,44 @@
+{
+  "id": "seo-staging-runtime-candidate-prepared-20261021",
+  "createdAt": "2026-10-20T23:39:22.091Z",
+  "status": "needs-testing",
+  "relatedId": "seo-staging-dependency-remediation-prepared-20261021",
+  "title": "Validated dependency candidate prepared for protected staging",
+  "summary": "Promote the two tested dependency manifests into the existing staging worktree. Original manifests preserved; deployment and hosted acceptance remain pending.",
+  "pages": [
+    "SEO staging",
+    "Change History"
+  ],
+  "components": [
+    "Runtime dependencies",
+    "Staging release candidate"
+  ],
+  "files": [
+    "package.json",
+    "package-lock.json",
+    "scripts/prepare-seo-runtime-candidate.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Next 15.5.28 with matching env/ESLint, sanitize-html 2.18.1, sharp 0.35.5 and Nodemailer 10.1.7; compatible transitive resolutions. No shared node_modules changes, push or deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Isolated candidate",
+      "result": "passed",
+      "detail": "161 application and 71 worker tests, TypeScript and production build passed. Every upload source file matched the original inventory except the two dependency manifests."
+    },
+    {
+      "name": "Email compatibility and security",
+      "result": "passed",
+      "detail": "Offline MIME generation passed for original and proposed Nodemailer. Fresh runtime npm audit: zero findings. Nine development-tool findings remain; no force upgrades."
+    },
+    {
+      "name": "Hosted candidate acceptance",
+      "result": "not-run",
+      "detail": "New dependency candidate not deployed. SMTP delivery deliberately not tested; protected browser and real-role acceptance pending."
+    }
+  ]
+}

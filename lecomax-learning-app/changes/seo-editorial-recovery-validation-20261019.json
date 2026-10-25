@@ -1,0 +1,79 @@
+{
+  "id": "seo-editorial-recovery-validation-20261019",
+  "createdAt": "2026-10-19T21:24:27.257Z",
+  "title": "Editorial recovery and permissions validated; isolated build corrections",
+  "summary": "137 automated cases, 8 browser scenarios and 7 native PostgreSQL 18.6 checks pass. Production build remains in progress after correcting snapshot omissions and disk exhaustion.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo"
+  ],
+  "components": [
+    "EditorialWorkspace",
+    "SEO editorial API"
+  ],
+  "files": [
+    "app/admin/seo/EditorialWorkspace.tsx",
+    "app/admin/seo/page.tsx",
+    "app/api/admin/seo/editorial/route.ts",
+    "lib/seo-editorial.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-editorial-workspace.test.ts",
+    "tests/seo-ai-api.test.ts",
+    "operations/seo-vercel/tests/editorial-workflow-sql.test.mjs",
+    "operations/seo/editorial-six-migration-plan.json",
+    "scripts/test-seo-editorial-concurrency.cjs",
+    "scripts/smoke-seo-editorial-workspace.mjs",
+    "scripts/build-seo-editorial-isolated.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only French/Arabic suggestion previews for product editors; private payloads and global budget data excluded. Restricted global AI controls are not mounted for product-only staff."
+    },
+    {
+      "kind": "added",
+      "detail": "Separate hashed six-migration review manifest and fresh loopback-only native concurrency/privilege rehearsal; old five-file plans unchanged."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Isolated build snapshot now includes shared mobile/learning and test-helper dependencies. A disk-space guard and disabled disposable webpack cache address ENOSPC."
+    },
+    {
+      "kind": "removed",
+      "detail": "Only this session?s three disposable .next/cache directories and one superseded generated browser bundle were removed to recover disk space. No source, previous release, report or evidence log was removed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Automated regression",
+      "result": "passed",
+      "detail": "137 passed, zero failures/skips; artifacts/seo-resume-20261019/regression-final.log."
+    },
+    {
+      "name": "Real Chrome synthetic fixture",
+      "result": "passed",
+      "detail": "8 scenarios; 375/768/1440 widths, RTL, tab recovery, conflict merge, storage failure, permission UI and publication controls. Not hosted auth/PostgREST acceptance."
+    },
+    {
+      "name": "Native SQL",
+      "result": "passed",
+      "detail": "7 checks on fresh PostgreSQL 18.6 loopback cluster; concurrent save/publish/rollback, source locking, transaction rollback, actual role grants/RLS. Cluster stopped. Not PostgreSQL 17.11 certification."
+    },
+    {
+      "name": "Types and focused lint",
+      "result": "passed",
+      "detail": "Root and learning TypeScript exit 0; focused ESLint exit 0. Last build-runner adjustment will be linted again."
+    },
+    {
+      "name": "Earlier production-build attempts",
+      "result": "failed",
+      "detail": "First snapshot omitted shared mobile sources and fonts were network-blocked; second omitted a test helper; third exhausted disk during cache writes. Logs retained; corrected cache-disabled retry running."
+    },
+    {
+      "name": "Hosted acceptance",
+      "result": "not-run",
+      "detail": "No hosted access/writes, migrations, deployment, worker activation, paid requests, credentials or CLI link changes."
+    }
+  ],
+  "relatedId": "seo-editorial-recovery-prepared-20261019"
+}

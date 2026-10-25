@@ -1,0 +1,57 @@
+{
+  "id": "seo-second-preview-launcher-verified-1792794205667",
+  "relatedId": "seo-second-preview-launcher-prepared-1792794106364",
+  "createdAt": "2026-10-23T22:23:25.661Z",
+  "title": "Second protected SEO Preview launcher verified and ready for manual use",
+  "summary": "Exact 1212-file payload and 2601 recovery hashes verified. Live staging protection and complete deployment history checked: no second attempt exists. Launcher remains unexecuted.",
+  "status": "successful",
+  "pages": [
+    "SEO staging Preview",
+    "Change History"
+  ],
+  "components": [
+    "Manual staging launcher",
+    "Retry-free transport",
+    "Read-only provider audit"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/second-preview-attempt.mjs",
+    "artifacts/seo-preview-resume-20261023/second-preview-hosted-check.mjs",
+    "artifacts/seo-preview-resume-20261023/run-second-protected-preview.ps1",
+    "artifacts/seo-preview-resume-20261023/test-second-preview-adapter.mjs",
+    "artifacts/seo-preview-resume-20261023/test-second-preview-hosted.mjs",
+    "docs/seo-second-protected-preview-20261024.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Dedicated second-attempt launcher, immutable result evidence, fixed exclusive guards and fresh provider checks; no application/payload or old evidence edits."
+    },
+    {
+      "kind": "fixed",
+      "detail": "New test accepts the reviewed adapter explicit malformed-JSON rejection; original failing test and transport are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local certificate and preservation",
+      "result": "passed",
+      "detail": "1212 file SHA-256/SHA-1/size checks; certificate, manifest and request hashes; 2601 recovery hashes and five consumed guard hashes match."
+    },
+    {
+      "name": "Live read-only staging metadata",
+      "result": "passed",
+      "detail": "Exact project/team, all-deployment protection, no bypass/Git, empty crons/shared environment, Preview-only credentials and disabled flags. Six staging-project deployments listed, none newer than first failed attempt. Staging Supabase URL confirmed via MCP."
+    },
+    {
+      "name": "Launcher and failure guards",
+      "result": "passed",
+      "detail": "PowerShell/Node syntax; 36 adapter checks, 11 hosted gate scenarios, 9 guard-boundary scenarios and 5 retry-free scenarios. No live POST."
+    },
+    {
+      "name": "Hosted build and acceptance",
+      "result": "not-run",
+      "detail": "No launcher execution, uploads, deployment creation, hosted verifier rerun or database writes. Hosted Linux build and real protected browser/HTTP acceptance pending. Existing lint and dependency audit findings and migration-dependent test exclusions retained. Token permissions beyond the staging GET cannot be proven project-limited; code targets only staging and does not access the real Production project. Provider settings can change; manual launcher refreshes gates before submission."
+    }
+  ]
+}

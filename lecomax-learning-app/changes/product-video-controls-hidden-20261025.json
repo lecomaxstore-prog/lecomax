@@ -1,0 +1,40 @@
+{
+  "id": "product-video-controls-hidden-20261025",
+  "createdAt": "2026-10-25T17:57:39.483Z",
+  "title": "Hide product video controls in the app and website",
+  "summary": "Keep product videos playing inline without the playback toolbar.",
+  "status": "needs-testing",
+  "pages": [
+    "Website product details",
+    "Mobile product details"
+  ],
+  "components": [
+    "ProductVideo",
+    "ProductGallery",
+    "ProductVideoPlayer"
+  ],
+  "files": [
+    "components/ProductVideo.tsx",
+    "components/ProductGallery.tsx",
+    "mobile/src/components/product-video.tsx",
+    "tests/product-video.test.ts",
+    "tests/mobile-product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed native video controls and the obsolete mobile controls-menu configuration; disabled the YouTube embedded playback toolbar."
+    },
+    {
+      "kind": "modified",
+      "detail": "Preserved muted looping playback and mobile pause when leaving the video slide. Website video defaults to autoplay so shared previews remain playable without controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused product video tests",
+      "result": "not-run",
+      "detail": "Pending validation. Native device and browser visual checks not yet run. No deployment performed."
+    }
+  ]
+}

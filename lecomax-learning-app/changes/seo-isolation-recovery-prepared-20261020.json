@@ -1,0 +1,53 @@
+{
+  "id": "seo-isolation-recovery-prepared-20261020",
+  "relatedId": "seo-environment-isolation-prepared-20261020",
+  "createdAt": "2026-10-20T11:43:34.541Z",
+  "title": "Close local database URL overrides and early browser target gaps",
+  "summary": "Recover the interrupted isolation work, reject PostgreSQL query overrides and validate browser destinations before SDK initialization.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront",
+    "/admin/seo",
+    "Owner learning",
+    "/change-history"
+  ],
+  "components": [
+    "Environment policy",
+    "Supabase browser client",
+    "Owner database",
+    "Build configuration"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "operations/seo-vercel/tests/environment-isolation.test.mjs",
+    "lib/supabase.ts",
+    "lib/admin-session.ts",
+    "scripts/next-build.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Reject pg connection-string query overrides and duplicate TLS settings before local target approval; reject production labels in custom Vercel targets."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Validate browser URL, key role and binding format synchronously before Supabase SDK initialization, including OAuth and Realtime paths; retain HTTP fingerprint verification."
+    },
+    {
+      "kind": "modified",
+      "detail": "Correct outdated comments describing removed secret/build fallbacks. Preserve all prior reports and unrelated work."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovered baseline",
+      "result": "passed",
+      "detail": "67 Node24 worker tests passed before these corrections; no network/provider execution."
+    },
+    {
+      "name": "New regression tests, types, lint, native concurrency and build",
+      "result": "not-run",
+      "detail": "Pending. Hosted isolation, deployments and paid calls remain unauthorized."
+    }
+  ]
+}

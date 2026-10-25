@@ -1,0 +1,42 @@
+{
+  "id": "seo-release2-c-prepared-20261022",
+  "createdAt": "2026-10-22T17:43:00.504Z",
+  "title": "Official SEO Release 2C: prepared",
+  "summary": "Recovered approved C changes on 471d97a3f13fa4f97287c126ff953f05e12015a1; candidate 9692b1b51778c90a8a3f6fcfcac412771899032d. Fresh release checks and live deployment verification pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Sitemap",
+    "Category/CMS",
+    "Product SEO",
+    "Change History"
+  ],
+  "components": [
+    "Sequential production release",
+    "Source and deployment verification"
+  ],
+  "files": [
+    "release\\seo-official-2-c-20261022\\app\\produit\\[slug]\\page.tsx",
+    "release\\seo-official-2-c-20261022\\tests\\product-indexing.test.ts",
+    "release\\seo-official-2-c-20261022\\tests\\seo-stock-schema.test.ts",
+    "scripts/seo-release2.cjs",
+    "scripts/seo-release2-live.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recovered approved C changes on 471d97a3f13fa4f97287c126ff953f05e12015a1; candidate 9692b1b51778c90a8a3f6fcfcac412771899032d. Fresh release checks and live deployment verification pending. No database migration, configuration or unrelated feature activation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source scope and preservation",
+      "result": "passed",
+      "detail": "Exact approved delta and cumulative candidate hashes; original branches preserved."
+    },
+    {
+      "name": "Release validation",
+      "result": "not-run",
+      "detail": "Fresh tests, types, lint, build and live checks pending."
+    }
+  ]
+}

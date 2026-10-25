@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 import { protectAdminMutation } from "@/lib/api-security";
 import { getServerShippingConfig } from "@/lib/shipping-config-server";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.APP_ENV === "production" && process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com";
 const DEFAULT_EMAIL_LOGO_URL = `${SITE_URL}/images/email%20image/email%20image.png`;
 const EMAIL_LOGO_CONTENT_ID = "lecomax-store-logo";
@@ -43,6 +43,7 @@ function escapeHtml(value: string) {
 }
 
 export async function POST(req: NextRequest) {
+  if (!resend) return NextResponse.json({ error: "EMAIL_DISABLED" }, { status: 503 });
   const blocked = await protectAdminMutation(req, { key: "email:confirmation", limit: 10 });
   if (blocked) return blocked;
   if (!process.env.RESEND_API_KEY) {

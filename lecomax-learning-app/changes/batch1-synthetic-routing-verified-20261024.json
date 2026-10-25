@@ -1,0 +1,102 @@
+{
+  "id": "batch1-synthetic-routing-verified-20261024",
+  "relatedId": "batch1-synthetic-routing-needs-testing-20261024",
+  "createdAt": "2026-10-24T15:37:43.791Z",
+  "title": "Batch 1 synthetic checkout routing validated locally",
+  "summary": "Guarded quote/order routes, COD/PayPal simulation and isolated production-mode build pass. Preview configuration proposal prepared; Vercel unchanged and deployment not authorized.",
+  "status": "successful",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "synthetic checkout",
+    "middleware",
+    "build isolation"
+  ],
+  "files": [
+    "release/batch1-checkout-20261024/lib/checkout-staging-policy.cjs",
+    "release/batch1-checkout-20261024/lib/staging-synthetic.ts",
+    "release/batch1-checkout-20261024/lib/staging-checkout-handler.ts",
+    "release/batch1-checkout-20261024/instrumentation.ts",
+    "release/batch1-checkout-20261024/middleware.ts",
+    "release/batch1-checkout-20261024/next.config.js",
+    "release/batch1-checkout-20261024/app/checkout/page.tsx",
+    "release/batch1-checkout-20261024/tests/staging-integration.test.cjs",
+    "release/batch1-checkout-20261024/scripts/checkout-staging-local.cjs",
+    "release/batch1-checkout-20261024/tests/staging-browser.cjs",
+    "release/batch1-checkout-20261024/operations/checkout-staging/preview.env.example",
+    "release/batch1-checkout-20261024/operations/checkout-staging/vercel.json",
+    "release/batch1-checkout-20261024/docs/checkout-staging-readiness-20261024.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Server project and Preview identity guard; synthetic quotes, totals and COD/PayPal receipts; default API denial; outbound fetch denial; local credential-free runner."
+    },
+    {
+      "kind": "modified",
+      "detail": "Checkout renders an explicitly labelled local payment simulation without loading the PayPal SDK."
+    },
+    {
+      "kind": "added",
+      "detail": "Preview-only variable manifest, no-cron Vercel config, real localhost browser checks and continuation handoff."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Synthetic transport retains route-specific rate limits; browser timeout retry harness no longer races an automatic focus refresh."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Synthetic integration and outbound isolation",
+      "result": "passed",
+      "detail": "10/10 network-denied unit tests, including Production/project rejection, tampering, duplicate/conflicting submits, API denylist, rate limits and fetch denial."
+    },
+    {
+      "name": "Checkout/security regressions",
+      "result": "passed",
+      "detail": "39/39 tests."
+    },
+    {
+      "name": "SEO preservation",
+      "result": "passed",
+      "detail": "27/27 tests."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "tsc --noEmit --incremental false and focused ESLint completed with exit 0. Full build includes existing unrelated lint warnings."
+    },
+    {
+      "name": "Final isolated production-mode build",
+      "result": "passed",
+      "detail": "build-final.log completed 2026-10-24T15:32:50.382Z, exit 0. Earlier sandbox build failed only fetching Google Fonts; network-enabled retry retained all isolation guards."
+    },
+    {
+      "name": "Real local synthetic browser routes",
+      "result": "passed",
+      "detail": "9 checks at 390/1440px; COD/PayPal simulations, timeout/retry, address changes, no SDK and zero observed external requests."
+    },
+    {
+      "name": "Existing mocked browser regressions",
+      "result": "passed",
+      "detail": "24 checks at 320/390/768/1440px; evidence saved separately without overwriting previous reports."
+    },
+    {
+      "name": "Course and history tests",
+      "result": "passed",
+      "detail": "635429 course checks; 6/6 history tests. History append/check preserves previous records."
+    },
+    {
+      "name": "Read-only Vercel verification",
+      "result": "passed",
+      "detail": "Correct project/team; Vercel Authentication prod_deployment_urls_and_all_previews; fork protection true; no Git link, deployments, project variables, linked shared variables or attached marketplace resources; staging default domain only."
+    },
+    {
+      "name": "Hosted/physical-device validation",
+      "result": "not-run",
+      "detail": "No deployment. Cross-instance conflict detection, physical devices and screen readers unverified. OS raw-socket network isolation not claimed."
+    }
+  ]
+}

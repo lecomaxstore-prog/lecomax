@@ -1,0 +1,73 @@
+{
+  "id": "seo-hybrid-verified-20261019",
+  "createdAt": "2026-10-18T22:05:54.555Z",
+  "title": "Hybrid SEO local verification passed",
+  "summary": "50 focused checks, TypeScript, lint and isolated release scope passed. Commercial hosting decision and hosted acceptance remain pending; production unchanged.",
+  "status": "successful",
+  "pages": [
+    "Admin SEO",
+    "Product and category SEO"
+  ],
+  "components": [
+    "SEO generation",
+    "Manual Sync",
+    "Bounded worker"
+  ],
+  "files": [
+    "app/api/admin/seo/route.ts",
+    "app/api/admin/seo/sync/route.ts",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/node-server.mjs",
+    "tests/seo-api.test.ts",
+    "tests/seo-manual-sync.test.ts",
+    "tests/seo-hybrid-store.test.ts",
+    "operations/seo-vercel/tests/handler.test.mjs",
+    "operations/seo-vercel/tests/hybrid.test.mjs",
+    "scripts/prepare-seo-hybrid-candidate.cjs",
+    "docs/seo-hybrid-readiness-20261019.md",
+    "artifacts/seo-hybrid/candidate.json",
+    "artifacts/seo-hybrid/worker-package.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Portable Node host adapter and explicitly pinned HTTPS worker origin; production opt-in preserves Vercel preview denial."
+    },
+    {
+      "kind": "modified",
+      "detail": "Reuse durable current AI/manual drafts instead of regenerating or overwriting them."
+    },
+    {
+      "kind": "added",
+      "detail": "Preserved prior candidates and packaged 37 pinned website overlays plus seven-file portable worker; documented cost model and corrected the Hobby commercial-use recommendation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused hybrid regressions",
+      "result": "passed",
+      "detail": "48 tests: metadata/API/auth/sitemap/preorder/worker; two workload and real loopback HTTP adapter tests. Total 50 passed."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Root tsc --noEmit exit 0; both modified Next routes lint clean. Existing module/deprecation warnings retained."
+    },
+    {
+      "name": "Candidate provenance",
+      "result": "passed",
+      "detail": "2603 candidate vs 2577 baseline source files: 37 pinned overlays, zero unexpected differences or mismatches. Evidence scope-1792361125531/result.json."
+    },
+    {
+      "name": "Performance",
+      "result": "passed",
+      "detail": "Model at 100ms/RPC: 38 jobs in one invocation/80 RPCs; unchanged run 4 RPCs. Not a hosted benchmark."
+    },
+    {
+      "name": "Hosted acceptance",
+      "result": "not-run",
+      "detail": "Commercial hosting choice, real runtime/auth/persistence/timeouts/alerts remain pending. No full rebuild or unchanged SQL rehearsal repeated. No production operations."
+    }
+  ],
+  "relatedId": "seo-hybrid-preparation-20261019"
+}

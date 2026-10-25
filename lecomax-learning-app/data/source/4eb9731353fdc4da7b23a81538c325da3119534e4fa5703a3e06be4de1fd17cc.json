@@ -1,0 +1,1 @@
+{"content":"import { NextResponse } from \"next/server\";\n\nexport function GET() {\n  return NextResponse.redirect(\"lecomax://paypal?status=cancelled\", 302);\n}\n"}

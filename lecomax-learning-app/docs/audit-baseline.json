@@ -1,0 +1,121 @@
+{
+  "stats": {
+    "lessons": 1363,
+    "emptyWhy": 1135,
+    "emptyFailure": 1135,
+    "noCode": 870,
+    "noQuiz": 1116,
+    "invalidTitle": 0,
+    "unlinked": 27
+  },
+  "unavailableLinks": [
+    {
+      "id": "lesson-02-01-snapshot",
+      "file": ".gitignore"
+    },
+    {
+      "id": "lesson-02-02-branches",
+      "file": ".gitignore"
+    },
+    {
+      "id": "lesson-02-03-remotes-pr",
+      "file": ".gitignore"
+    },
+    {
+      "id": "lesson-02-04-safety",
+      "file": ".gitignore"
+    },
+    {
+      "id": "sql-tables-types-keys",
+      "file": "scripts/run-migrations.mjs"
+    },
+    {
+      "id": "sql-relations-normalization",
+      "file": "scripts/run-migrations.mjs"
+    },
+    {
+      "id": "sql-select-joins-aggregates",
+      "file": "scripts/run-migrations.mjs"
+    },
+    {
+      "id": "sql-transactions-indexes",
+      "file": "scripts/run-migrations.mjs"
+    },
+    {
+      "id": "supabase-clients-crud",
+      "file": "scripts/setup-chat.mjs"
+    },
+    {
+      "id": "supabase-auth-sessions",
+      "file": "scripts/setup-chat.mjs"
+    },
+    {
+      "id": "supabase-rls-policies",
+      "file": "scripts/setup-chat.mjs"
+    },
+    {
+      "id": "supabase-storage-realtime",
+      "file": "scripts/setup-chat.mjs"
+    },
+    {
+      "id": "web-push-subscription",
+      "file": "public/sw.js"
+    },
+    {
+      "id": "service-worker-notification",
+      "file": "public/sw.js"
+    },
+    {
+      "id": "whatsapp-webhook",
+      "file": "public/sw.js"
+    },
+    {
+      "id": "notification-orchestration",
+      "file": "public/sw.js"
+    },
+    {
+      "id": "guide-database-0",
+      "file": "scripts/source-library.mjs"
+    },
+    {
+      "id": "daily-style",
+      "file": "app/admin/how-it-was-built/LearningJourney.tsx"
+    },
+    {
+      "id": "daily-whole-shop",
+      "file": "mobile/package.json"
+    },
+    {
+      "id": "build-page",
+      "file": "https://nextjs.org/docs/app/getting-started/layouts-and-pages"
+    },
+    {
+      "id": "build-link",
+      "file": "https://nextjs.org/docs/app/getting-started/linking-and-navigating"
+    },
+    {
+      "id": "build-props",
+      "file": "https://react.dev/learn/passing-props-to-a-component"
+    },
+    {
+      "id": "build-state",
+      "file": "https://nextjs.org/docs/app/getting-started/server-and-client-components"
+    },
+    {
+      "id": "build-server",
+      "file": "https://nextjs.org/docs/app/getting-started/server-and-client-components"
+    },
+    {
+      "id": "micro-91",
+      "file": "scripts/next-build.mjs"
+    },
+    {
+      "id": "micro-92",
+      "file": "scripts/next-build.mjs"
+    },
+    {
+      "id": "micro-93",
+      "file": "scripts/next-build.mjs"
+    }
+  ]
+}

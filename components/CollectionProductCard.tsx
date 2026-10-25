@@ -25,7 +25,7 @@ export default function CollectionProductCard({ product, visibilityClass = "" }:
         className={`${styles.card} product-card group flex flex-col bg-white border border-neutral-100 hover:border-[#3ecf4c]/40 hover:shadow-[0_8px_32px_rgba(62,207,76,0.10)] transition-all duration-300 overflow-hidden h-full`}
       >
         {/* Image */}
-        <div className={`${styles.media} relative aspect-[4/5] bg-neutral-50 overflow-hidden`}>
+        <div className={`${styles.media} relative overflow-hidden`}>
             <ProductImage
               src={product.image}
               alt={product.name}
@@ -59,7 +59,7 @@ export default function CollectionProductCard({ product, visibilityClass = "" }:
 
         {/* Info */}
         <div className={`${styles.info} px-3 pt-3 pb-4 flex flex-col flex-1`}>
-        {product.brand && <div className="mb-2"><ProductBrandMark name={product.brand} compact /></div>}
+          {product.brand && <div className="mb-2"><ProductBrandMark name={product.brand} compact /></div>}
           <h3 className={`${styles.title} min-h-[36px] line-clamp-2 text-[13px] font-semibold leading-[1.4] tracking-[-0.01em] text-neutral-800 transition-colors duration-200 group-hover:text-neutral-600`}>
             {product.name}
           </h3>

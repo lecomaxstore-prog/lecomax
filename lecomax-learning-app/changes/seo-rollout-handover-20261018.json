@@ -1,0 +1,90 @@
+{
+  "id": "seo-rollout-handover-20261018",
+  "relatedId": "seo-recovery-failure-path-preparation-20261018",
+  "createdAt": "2026-10-18T18:34:16.112Z",
+  "title": "SEO rollout candidate and recovery verified locally; production awaits approval",
+  "summary": "Completed lock-timeout recovery validation, reverified backup, identified exact live deployment and rollback baseline, isolated the SEO candidate and passed its build. Hosted acceptance remains pending.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO rollout operations",
+    "/admin/seo",
+    "/produit/[slug]",
+    "/sitemap.xml",
+    "/change-history"
+  ],
+  "components": [
+    "Bounded recovery",
+    "Release candidate",
+    "Production migration checklist",
+    "Persistent change history"
+  ],
+  "files": [
+    "scripts/verify-seo-bounded-recovery.cjs",
+    "scripts/prepare-seo-review-scope.cjs",
+    "scripts/prepare-seo-release-candidate.cjs",
+    "docs/seo-final-rollout-checklist-20261018.md",
+    "artifacts/seo-migration/isolated-release-manifest.json",
+    "artifacts/seo-migration/isolated-candidate-source-hashes.json",
+    "artifacts/seo-migration/deployment-identity-verified.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Local-only second-table lock rehearsal proves recovery timeout after 5031 ms and rollback of the first trigger change; prior successful recovery evidence preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Verified Vercel active deployment dpl_HkgcNHTedgha5XhnjjX1RED3ZwGx and source commit d9d1d7a7b274fe3df9f70bb154704ea9e07e78ee; use this as the pre-SEO rollback baseline after an approved release."
+    },
+    {
+      "kind": "added",
+      "detail": "Isolated candidate release/seo-rollout-20261018 from clean production source with 26 explicit overlays; preserved all unrelated work and historical reports."
+    },
+    {
+      "kind": "added",
+      "detail": "Prepared exact migration, deployment and recovery commands, execution gates, trigger/stock risks and approval scopes in the final checklist."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovery failure path",
+      "result": "passed",
+      "detail": "Exact bounded SQL hit 55P03 at 5031 ms on second catalogue table; rollback restored both enabled triggers and service RPC privilege. Local PostgreSQL 18/TLS only; cluster stopped."
+    },
+    {
+      "name": "Backup and migration integrity",
+      "result": "passed",
+      "detail": "Existing 1685487-byte backup SHA-256 matches 256adfcfcfa6e63ea46a574c016effbbc2f945b0fbef31cd66f593b692d47c91. Migration retains approved review hash 958e8727fb9d5f32df6702b00cd17e1e0a2e71b98674f1523ae29e439af3332f."
+    },
+    {
+      "name": "Vercel read-only identity and configuration names",
+      "result": "passed",
+      "detail": "Direct alias API confirms active deployment; GitHub commit matches clean local release. Required Supabase and ADMIN_EMAIL production variable names exist. Secret values were not retrieved."
+    },
+    {
+      "name": "Isolated candidate tests, typecheck and focused lint",
+      "result": "passed",
+      "detail": "23 focused tests passed, TypeScript noEmit exited 0, focused Next lint exited 0. Production preorder correction separately reported and verified."
+    },
+    {
+      "name": "Initial restricted-network build",
+      "result": "failed",
+      "detail": "Existing Google Fonts downloads failed. Original failure log preserved; no deployment attempted."
+    },
+    {
+      "name": "Network-enabled local build",
+      "result": "passed",
+      "detail": "npm run build exited 0 with placeholder credentials and Node 26.7.0. Existing broader lint and workspace tracing warnings remain. This is not a deployable prebuilt artifact or clean hosted Node 24 validation."
+    },
+    {
+      "name": "Change History",
+      "result": "passed",
+      "detail": "Four history tests passed; append-only manifest checks passed before this report and are rechecked after append. No UI preview claimed."
+    },
+    {
+      "name": "Production acceptance and recovery limitations",
+      "result": "not-run",
+      "detail": "No migration, production record mutation, deployment or rollback. Hosted Auth, real-session middleware, PostgREST, cache, trigger/checkout contention and canary flows pending. Backup does not certify full managed Supabase recovery. Migration/rollout are NO-GO for execution without explicit approval and fresh window checks."
+    }
+  ]
+}

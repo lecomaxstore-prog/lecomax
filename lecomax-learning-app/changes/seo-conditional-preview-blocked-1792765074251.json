@@ -1,0 +1,52 @@
+{
+  "id": "seo-conditional-preview-blocked-1792765074251",
+  "createdAt": "2026-10-23T14:17:54.251Z",
+  "relatedId": "seo-final-preview-preparation-1792764522031",
+  "title": "Stop conditional Preview before upload: CLI retries remain enabled",
+  "summary": "Mandatory no-retry preflight failed. No upload, storefront deployment or hosted verifier execution occurred. Recovery candidate and existing evidence preserved.",
+  "status": "failed",
+  "pages": [
+    "Protected SEO Preview release",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "CLI submission preflight",
+    "Team integration audit"
+  ],
+  "files": [
+    "operations/seo/conditional-preview-preflight-blocked-20261023.md",
+    "artifacts/seo-preview-resume-20261023/conditional-integration-preflight.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added GET-only integration/webhook audit and immutable preflight evidence; recorded why conditional deployment approval could not be exercised."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Corrected the earlier release procedure assumption: a single CLI invocation does not disable its hard-coded upload retries. No application or provider configuration changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate preservation",
+      "result": "passed",
+      "detail": "Correct branch and actual commit 8a12abcce38c0dc557a9ef9f86c3ce3dd113e863; 137 tracked and 15 untracked files; 2601 manifest hashes match."
+    },
+    {
+      "name": "Provider metadata",
+      "result": "passed",
+      "detail": "Expected staging identity, all-deployment protection, zero project exceptions/crons, no Git connection. No team webhooks; only Upstash integration has selected-project access with empty project list. No staging integration association reported."
+    },
+    {
+      "name": "No automatic retries",
+      "result": "failed",
+      "detail": "Installed Vercel CLI 53.4.0 client uploadFiles hard-codes retries: 5 at chunk-LBP7YFBV.js:47983. Approved invocation does not disable it. This does not by itself establish duplicate deployment creation."
+    },
+    {
+      "name": "Deployment and acceptance",
+      "result": "not-run",
+      "detail": "Stopped before upload as instructed. No new URL/ID/build or HTTP/browser/staging catalogue results. Final upload inventory and remaining preflight checks not certified. No rollback needed. Hosted verifier not rerun; storefront authorization unused."
+    }
+  ]
+}

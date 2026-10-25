@@ -1,0 +1,392 @@
+[
+  {
+    "id": "start",
+    "lessons": 10,
+    "minWords": 24,
+    "maxWords": 30
+  },
+  {
+    "id": "module-00-learning-tools",
+    "lessons": 4,
+    "minWords": 260,
+    "maxWords": 276
+  },
+  {
+    "id": "module-01-internet-web",
+    "lessons": 4,
+    "minWords": 257,
+    "maxWords": 275
+  },
+  {
+    "id": "module-02-git-github",
+    "lessons": 4,
+    "minWords": 250,
+    "maxWords": 274
+  },
+  {
+    "id": "module-03-html-accessibility",
+    "lessons": 4,
+    "minWords": 247,
+    "maxWords": 282
+  },
+  {
+    "id": "module-04-css",
+    "lessons": 4,
+    "minWords": 252,
+    "maxWords": 262
+  },
+  {
+    "id": "module-05-responsive-tailwind",
+    "lessons": 4,
+    "minWords": 248,
+    "maxWords": 269
+  },
+  {
+    "id": "module-06-javascript-foundations",
+    "lessons": 4,
+    "minWords": 236,
+    "maxWords": 253
+  },
+  {
+    "id": "module-07-js-data-problem-solving",
+    "lessons": 4,
+    "minWords": 235,
+    "maxWords": 242
+  },
+  {
+    "id": "module-08-dom-forms-storage",
+    "lessons": 4,
+    "minWords": 249,
+    "maxWords": 264
+  },
+  {
+    "id": "async-fetch-errors",
+    "lessons": 4,
+    "minWords": 291,
+    "maxWords": 346
+  },
+  {
+    "id": "typescript-contracts",
+    "lessons": 4,
+    "minWords": 322,
+    "maxWords": 349
+  },
+  {
+    "id": "react-fundamentals",
+    "lessons": 4,
+    "minWords": 300,
+    "maxWords": 346
+  },
+  {
+    "id": "react-state-forms-hooks",
+    "lessons": 4,
+    "minWords": 328,
+    "maxWords": 340
+  },
+  {
+    "id": "nextjs-app-router",
+    "lessons": 4,
+    "minWords": 317,
+    "maxWords": 331
+  },
+  {
+    "id": "nextjs-server-data",
+    "lessons": 4,
+    "minWords": 328,
+    "maxWords": 340
+  },
+  {
+    "id": "sql-data-modeling",
+    "lessons": 4,
+    "minWords": 333,
+    "maxWords": 345
+  },
+  {
+    "id": "supabase-platform",
+    "lessons": 4,
+    "minWords": 324,
+    "maxWords": 333
+  },
+  {
+    "id": "ecommerce-architecture",
+    "lessons": 4,
+    "minWords": 315,
+    "maxWords": 333
+  },
+  {
+    "id": "authentication-security-privacy",
+    "lessons": 4,
+    "minWords": 342,
+    "maxWords": 362
+  },
+  {
+    "id": "quality-engineering",
+    "lessons": 4,
+    "minWords": 497,
+    "maxWords": 546
+  },
+  {
+    "id": "web-quality",
+    "lessons": 4,
+    "minWords": 519,
+    "maxWords": 588
+  },
+  {
+    "id": "email-systems",
+    "lessons": 4,
+    "minWords": 534,
+    "maxWords": 586
+  },
+  {
+    "id": "paypal-payments",
+    "lessons": 4,
+    "minWords": 529,
+    "maxWords": 583
+  },
+  {
+    "id": "notifications",
+    "lessons": 4,
+    "minWords": 542,
+    "maxWords": 561
+  },
+  {
+    "id": "openai-integration",
+    "lessons": 4,
+    "minWords": 567,
+    "maxWords": 637
+  },
+  {
+    "id": "analytics-growth",
+    "lessons": 4,
+    "minWords": 524,
+    "maxWords": 593
+  },
+  {
+    "id": "deployment-operations",
+    "lessons": 4,
+    "minWords": 572,
+    "maxWords": 594
+  },
+  {
+    "id": "final-store-capstone",
+    "lessons": 4,
+    "minWords": 594,
+    "maxWords": 651
+  },
+  {
+    "id": "design-foundations",
+    "lessons": 4,
+    "minWords": 311,
+    "maxWords": 334
+  },
+  {
+    "id": "layout-mastery",
+    "lessons": 4,
+    "minWords": 309,
+    "maxWords": 327
+  },
+  {
+    "id": "conversion-ux",
+    "lessons": 4,
+    "minWords": 319,
+    "maxWords": 325
+  },
+  {
+    "id": "content-photography",
+    "lessons": 4,
+    "minWords": 316,
+    "maxWords": 333
+  },
+  {
+    "id": "merchandising-pricing",
+    "lessons": 4,
+    "minWords": 316,
+    "maxWords": 339
+  },
+  {
+    "id": "ecommerce-seo",
+    "lessons": 4,
+    "minWords": 322,
+    "maxWords": 341
+  },
+  {
+    "id": "discovery-reputation",
+    "lessons": 4,
+    "minWords": 311,
+    "maxWords": 333
+  },
+  {
+    "id": "organic-acquisition",
+    "lessons": 4,
+    "minWords": 324,
+    "maxWords": 338
+  },
+  {
+    "id": "paid-acquisition",
+    "lessons": 4,
+    "minWords": 320,
+    "maxWords": 331
+  },
+  {
+    "id": "sales-service",
+    "lessons": 4,
+    "minWords": 318,
+    "maxWords": 335
+  },
+  {
+    "id": "retention-loyalty",
+    "lessons": 4,
+    "minWords": 313,
+    "maxWords": 333
+  },
+  {
+    "id": "business-operations",
+    "lessons": 4,
+    "minWords": 317,
+    "maxWords": 356
+  },
+  {
+    "id": "beginner-code-labs",
+    "lessons": 4,
+    "minWords": 322,
+    "maxWords": 333
+  },
+  {
+    "id": "next-routing-lab",
+    "lessons": 4,
+    "minWords": 317,
+    "maxWords": 334
+  },
+  {
+    "id": "supabase-build-lab",
+    "lessons": 4,
+    "minWords": 328,
+    "maxWords": 334
+  },
+  {
+    "id": "ui-build-lab",
+    "lessons": 4,
+    "minWords": 318,
+    "maxWords": 336
+  },
+  {
+    "id": "china-sourcing",
+    "lessons": 4,
+    "minWords": 320,
+    "maxWords": 345
+  },
+  {
+    "id": "import-quality-logistics",
+    "lessons": 4,
+    "minWords": 326,
+    "maxWords": 346
+  },
+  {
+    "id": "seo-client-action-lab",
+    "lessons": 4,
+    "minWords": 330,
+    "maxWords": 345
+  },
+  {
+    "id": "zero-to-hero-capstone",
+    "lessons": 4,
+    "minWords": 336,
+    "maxWords": 344
+  },
+  {
+    "id": "guide-apis",
+    "lessons": 4,
+    "minWords": 68,
+    "maxWords": 88
+  },
+  {
+    "id": "guide-database",
+    "lessons": 6,
+    "minWords": 72,
+    "maxWords": 103
+  },
+  {
+    "id": "guide-deploy",
+    "lessons": 5,
+    "minWords": 72,
+    "maxWords": 80
+  },
+  {
+    "id": "guide-nextjs-start",
+    "lessons": 10,
+    "minWords": 22,
+    "maxWords": 38
+  },
+  {
+    "id": "guide-python",
+    "lessons": 16,
+    "minWords": 18,
+    "maxWords": 69
+  },
+  {
+    "id": "daily",
+    "lessons": 14,
+    "minWords": 36,
+    "maxWords": 47
+  },
+  {
+    "id": "studio",
+    "lessons": 12,
+    "minWords": 25,
+    "maxWords": 39
+  },
+  {
+    "id": "build",
+    "lessons": 5,
+    "minWords": 12,
+    "maxWords": 16
+  },
+  {
+    "id": "quest",
+    "lessons": 100,
+    "minWords": 7,
+    "maxWords": 15
+  },
+  {
+    "id": "micro",
+    "lessons": 102,
+    "minWords": 16,
+    "maxWords": 35
+  },
+  {
+    "id": "ref-page-tsx-CoursSection_modules",
+    "lessons": 31,
+    "minWords": 68,
+    "maxWords": 198
+  },
+  {
+    "id": "ref-page-tsx-MentorSection_curriculum",
+    "lessons": 14,
+    "minWords": 237,
+    "maxWords": 378
+  },
+  {
+    "id": "python-core-lab",
+    "lessons": 4,
+    "minWords": 42,
+    "maxWords": 51
+  },
+  {
+    "id": "python-professional-lab",
+    "lessons": 4,
+    "minWords": 46,
+    "maxWords": 68
+  },
+  {
+    "id": "iptv-workshop",
+    "lessons": 10,
+    "minWords": 30,
+    "maxWords": 46
+  },
+  {
+    "id": "site-elements",
+    "lessons": 7,
+    "minWords": 14,
+    "maxWords": 23
+  }
+]

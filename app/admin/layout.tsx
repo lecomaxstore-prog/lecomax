@@ -14,6 +14,11 @@ import AdminMobileViewport from "@/components/admin/AdminMobileViewport";
 
 const nav = [
   {
+    label: "Atelier SEO",
+    href: "/admin/seo",
+    icon: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6M7 10h6M10 7v6"/></svg>,
+  },
+  {
     label: "Ecomedia",
     href: "/admin/ecomedia",
     badge: "ecomedia",
@@ -407,7 +412,7 @@ const nav = [
 const navSections: { title: string; hrefs: string[] }[] = [
   { title: "VENTES",      hrefs: ["/admin/dashboard", "/admin/analytics", "/admin/recordings", "/admin/orders"] },
   { title: "DÉVELOPPEUR", hrefs: ["/admin/how-it-was-built"] },
-  { title: "CATALOGUE",   hrefs: ["/admin/products", "/admin/categories", "/admin/stock", "/admin/pages", "/admin/banners", "/admin/media", "/admin/studio"] },
+  { title: "CATALOGUE",   hrefs: ["/admin/products", "/admin/seo", "/admin/categories", "/admin/stock", "/admin/pages", "/admin/banners", "/admin/media", "/admin/studio"] },
   { title: "CLIENTS",     hrefs: ["/admin/customers", "/admin/client-data", "/admin/loyalty", "/admin/abandoned-carts"] },
   { title: "MARKETING",   hrefs: ["/admin/ecomedia", "/admin/promotions", "/admin/ads", "/admin/push", "/admin/newsletter", "/admin/coupons", "/admin/announcement", "/admin/broadcast"] },
   { title: "SAV",         hrefs: ["/admin/messages", "/admin/support", "/admin/chat-kb", "/admin/reviews", "/admin/trustpilot", "/admin/returns"] },
@@ -428,6 +433,7 @@ const NAV_PERMISSIONS: Record<string, string | null | undefined> = {
   "/admin/analytics":      "analytics.view",
   "/admin/recordings":     "recordings.view",
   "/admin/products":       "products.view",
+  "/admin/seo":            "products.view",
   "/admin/orders":         "orders.view",
   "/admin/customers":      "customers.view",
   "/admin/client-data":    "customers.view",
@@ -468,7 +474,7 @@ const pageLabels: Record<string, string> = {
   "mobile-app": "Application mobile",
   "app-releases": "Versions Android",
   dashboard: "Tableau de bord", analytics: "Analytiques", recordings: "Enregistrements", orders: "Commandes",
-  customers: "Clients", products: "Produits", categories: "Catégories",
+  customers: "Clients", products: "Produits", categories: "Catégories", seo: "Atelier SEO",
   stock: "Stock", promotions: "Promotions", newsletter: "Newsletter",
   coupons: "Codes promo", announcement: "Annonce", messages: "Messages",
   "chat-kb": "Base de connaissance bot",
@@ -547,6 +553,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       "/admin/dashboard":          "Dashboard",
       "/admin/analytics":          "Analytiques",
       "/admin/products":           "Produits",
+      "/admin/seo":                "Atelier SEO",
       "/admin/orders":             "Commandes",
       "/admin/customers":          "Clients",
       "/admin/messages":           "Messages",

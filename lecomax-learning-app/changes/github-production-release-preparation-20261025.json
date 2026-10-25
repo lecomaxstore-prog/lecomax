@@ -1,0 +1,58 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Use the available v3 social JPEG instead of the missing v4 asset; use Next Link for internal admin navigation; update isolated test fixtures for environment policy and current imports."
+    },
+    {
+      "kind": "modified",
+      "detail": "Exclude local artifacts, nested worktrees, recovery archives and learning export output from publication. Preserve all historical change reports and existing source functionality."
+    }
+  ],
+  "summary": "Preserve completed storefront, mobile and learning updates while repairing release checks and excluding local build artifacts.",
+  "id": "github-production-release-preparation-20261025",
+  "createdAt": "2026-10-25T21:18:36.717Z",
+  "validation": [
+    {
+      "detail": "737 tests: 732 passed, five skipped, zero failed; Android back and scroll-return scenarios passed.",
+      "result": "passed",
+      "name": "Root tests"
+    },
+    {
+      "detail": "Candidate content contained no matches for known local secret values; credential-pattern matches reviewed as synthetic examples. Environment files excluded.",
+      "result": "passed",
+      "name": "Secret review"
+    },
+    {
+      "detail": "Final lint/typechecks, remote-main integration, production build, push and live verification pending. Production secrets omitted by Vercel local export; hosted validation required.",
+      "result": "not-run",
+      "name": "Release pending"
+    }
+  ],
+  "files": [
+    ".gitignore",
+    ".vercelignore",
+    "lib/social-image.ts",
+    "app/admin/page.tsx",
+    "tests/helpers/config-environment.ts",
+    "tests/live-admin-preview.test.ts",
+    "tests/source-library-build.test.ts",
+    "tests/product-indexing.test.ts",
+    "tests/product-translation-browser.test.ts",
+    "tests/learning-guided.test.ts"
+  ],
+  "components": [
+    "Release validation",
+    "Social share metadata",
+    "Source library fixtures",
+    "Repository packaging"
+  ],
+  "status": "needs-testing",
+  "title": "Prepare complete GitHub and production synchronization",
+  "pages": [
+    "Storefront",
+    "Admin login",
+    "Learning app",
+    "Mobile cart"
+  ]
+}

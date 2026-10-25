@@ -1,0 +1,45 @@
+{
+  "id": "seo-write-boundary-validation-corrections-20261021",
+  "relatedId": "seo-write-boundary-prepared-20261021",
+  "createdAt": "2026-10-21T13:56:22.156Z",
+  "title": "Initial security-package validation failures retained",
+  "summary": "Initial build/test packaging and outdated worker expectation failed; corrected runs subsequently passed. This records the failed attempts without deleting evidence.",
+  "status": "failed",
+  "pages": [
+    "SEO admin",
+    "SEO worker",
+    "Change History"
+  ],
+  "components": [
+    "Admin mutation guard",
+    "Environment policy",
+    "Worker handler"
+  ],
+  "files": [
+    "lib/api-security.ts",
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "operations/seo-vercel/lib/handler.mjs",
+    "tests/seo-write-boundary.test.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-ai-api.test.ts",
+    "tests/seo-sync-authorization.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected test support-file packaging and worker expectation; reran production build with permitted font downloads. No runtime protection bypass."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Earlier validation attempts",
+      "result": "failed",
+      "detail": "Retained sandbox font-fetch failure, incomplete isolated test fixtures, obsolete worker staging-allow expectation and initial guessed sitemap paths. Harness/expectation corrections followed by passing checks; no application bypass."
+    },
+    {
+      "name": "First verification report append",
+      "result": "failed",
+      "detail": "Schema correctly rejected a successful report containing failed validation entries. No existing history was changed; failed attempts are recorded separately before verification."
+    }
+  ]
+}

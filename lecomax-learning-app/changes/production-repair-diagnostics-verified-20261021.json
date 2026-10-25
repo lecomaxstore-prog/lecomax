@@ -1,0 +1,37 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace combined failure with safe booleans and specific codes. Explicit read-only transaction and rollback. Report URI acknowledgement only if a write was actually acknowledged. Existing receipt retained; no credential retry."
+    }
+  ],
+  "summary": "Nine offline tests and Node syntax pass. Live repair remains paused without another credential attempt.",
+  "id": "production-repair-diagnostics-verified-20261021",
+  "createdAt": "2026-10-21T20:08:23.486Z",
+  "validation": [
+    {
+      "detail": "9/9 tests including explicit read-only transaction, rollback on identity mismatch, TLS rejection before query, no writes on validation failure, no mutation retry and sanitized diagnostics. Node syntax passed.",
+      "result": "passed",
+      "name": "Offline tests"
+    },
+    {
+      "detail": "No new connection, password request, Vercel write or deployment. Previous live failure condition remains undetermined; correction not yet verified against provider.",
+      "result": "not-run",
+      "name": "Live repair"
+    }
+  ],
+  "files": [
+    "scripts/repair-production-database.cjs",
+    "tests/production-database-repair.test.cjs"
+  ],
+  "status": "needs-testing",
+  "components": [
+    "Credential repair diagnostics"
+  ],
+  "relatedId": "production-repair-diagnostics-20261021",
+  "title": "Repair diagnostic correction verified offline",
+  "pages": [
+    "Production operations",
+    "Change History"
+  ]
+}

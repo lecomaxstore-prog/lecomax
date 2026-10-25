@@ -1,0 +1,42 @@
+{
+  "id": "seo-preserve-production-preorder-verified-20261018",
+  "relatedId": "seo-preserve-production-preorder-20261018",
+  "createdAt": "2026-10-18T18:31:18.052Z",
+  "title": "Verify preorder preservation in isolated SEO candidate",
+  "summary": "Production preorder metadata is preserved and unknown stock remains unasserted. Focused regressions, typecheck and lint passed.",
+  "status": "successful",
+  "pages": [
+    "/produit/[slug]"
+  ],
+  "components": [
+    "Product SEO metadata",
+    "Product structured data"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx",
+    "tests/product-indexing.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Retained explicit preorder behavior from verified production source while preserving the local unknown-stock safeguard."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Product indexing",
+      "result": "passed",
+      "detail": "6 tests, including five stock/preorder combinations."
+    },
+    {
+      "name": "Isolated candidate regression and static checks",
+      "result": "passed",
+      "detail": "23 SEO/API/sitemap/product tests, TypeScript noEmit and focused Next lint passed."
+    },
+    {
+      "name": "Hosted rendering and production",
+      "result": "not-run",
+      "detail": "Structured-data expressions reviewed; no authenticated hosted integration, production mutation or deployment."
+    }
+  ]
+}

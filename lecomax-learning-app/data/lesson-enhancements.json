@@ -1,0 +1,206 @@
+[
+  {
+    "id": "guide-python-2",
+    "objective": [
+      "Calculer un total et suivre les valeurs dans l’ordre.",
+      "Calculate a total and trace values in order.",
+      "احسب المجموع وتتبع القيم بالترتيب."
+    ],
+    "walkthrough": [
+      "price_cents = 19900 associe le nom à un entier, puis quantity = 2. La multiplication lit ces deux valeurs et produit 39800. Le résultat est affecté à total_cents. print affiche sans modifier le total. / 100 convertit ici les centimes pour l’affichage : 398.0 MAD. Stocker des centimes entiers évite certaines erreurs d’arrondi pour ces calculs simples.",
+      "price_cents = 19900 binds the name to an integer, then quantity = 2. Multiplication reads those values and produces 39800. That result is assigned to total_cents. print displays it without changing the total. / 100 converts cents for display here: 398.0 MAD. Integer cents avoid some rounding problems in these simple calculations.",
+      "يربط price_cents = 19900 الاسم بعدد صحيح، ثم تصبح quantity = 2. يقرأ الضرب القيمتين وينتج 39800 وتُسند النتيجة إلى total_cents. يعرض print القيمة دون تغيير المجموع. القسمة على 100 هنا لتحويل السنتيمات عند العرض: 398.0 MAD. الأعداد الصحيحة للسنتيمات تتجنب بعض مشاكل التقريب في هذه الحسابات البسيطة."
+    ],
+    "mistake": [
+      "Le nom n’est pas une formule vivante : changer quantity après le calcul ne recalcule pas total_cents. Il faut exécuter de nouveau la multiplication. Autre piège : \"2\" est du texte, 2 est un entier. Vérifie les types avant de calculer.",
+      "A name is not a live spreadsheet formula: changing quantity after the calculation does not recalculate total_cents. Execute the multiplication again. Another trap: \"2\" is text, while 2 is an integer. Check types before calculating.",
+      "المتغيّر ليس صيغة جدول تتحدّث تلقائيًا: تغيير quantity بعد الحساب لا يعيد حساب total_cents. نفّذ عملية الضرب من جديد. وانتبه: \"2\" نص أما 2 فهو عدد صحيح. تحقّق من النوع قبل الحساب."
+    ],
+    "challenge": [
+      "Sans copier : prix 1250 centimes, quantité 4. Prédis, calcule puis affiche le total en MAD. Change ensuite la quantité après le calcul et explique pourquoi le total reste identique tant que tu ne le recalcules pas.",
+      "Without copying: price 1250 cents, quantity 4. Predict, calculate, then display the total in MAD. Next change quantity after the calculation and explain why the total stays unchanged until recalculated.",
+      "دون نسخ: السعر 1250 سنتيمًا والكمية 4. توقّع واحسب واعرض المجموع بالدرهم. ثم غيّر الكمية بعد الحساب واشرح لماذا لا يتغيّر المجموع حتى تعيد حسابه."
+    ],
+    "solution": [
+      "1250 × 4 = 5000 centimes, soit 50 MAD. Une affectation mémorise le résultat calculé à cet instant, pas une relation automatique avec quantity.",
+      "1250 × 4 = 5000 cents, or 50 MAD. Assignment stores the result calculated at that moment, not an automatic relationship with quantity.",
+      "1250 × 4 = 5000 سنتيم أي 50 درهمًا. الإسناد يحفظ النتيجة المحسوبة في تلك اللحظة، وليس علاقة تلقائية مع quantity."
+    ],
+    "question": [
+      "Après total_cents = price_cents * quantity, tu changes seulement quantity. Que devient total_cents ?",
+      "After total_cents = price_cents * quantity, you change only quantity. What happens to total_cents?",
+      "بعد total_cents = price_cents * quantity تغيّر quantity فقط. ماذا يحدث للمجموع؟"
+    ],
+    "options": [
+      [
+        "Il se recalcule seul",
+        "It recalculates automatically",
+        "يُعاد حسابه تلقائيًا"
+      ],
+      [
+        "Il garde sa valeur calculée",
+        "It keeps its calculated value",
+        "يحتفظ بالقيمة المحسوبة"
+      ],
+      [
+        "Il devient toujours zéro",
+        "It always becomes zero",
+        "يصبح صفرًا دائمًا"
+      ]
+    ],
+    "answer": 1
+  },
+  {
+    "id": "guide-python-3",
+    "objective": [
+      "Prédire la branche choisie et tester la limite zéro.",
+      "Predict the chosen branch and test the zero boundary.",
+      "توقّع الفرع المختار واختبر الحد عند الصفر."
+    ],
+    "walkthrough": [
+      "Avec stock = 3, la comparaison 3 > 0 vaut True : seul le premier print s’exécute. Avec stock = 0, 0 > 0 vaut False : le else s’exécute. Les deux points ouvrent un bloc et les espaces indiquent les instructions de ce bloc. Une ligne revenue au niveau initial est en dehors du bloc.",
+      "With stock = 3, the comparison 3 > 0 is True: only the first print runs. With stock = 0, 0 > 0 is False: the else runs. The colon begins a block and indentation identifies the instructions inside it. A line back at the original indentation is outside the block.",
+      "مع stock = 3 تكون المقارنة 3 > 0 صحيحة فيُنفَّذ print الأول فقط. مع stock = 0 تكون 0 > 0 خاطئة فيُنفَّذ else. النقطتان تبدآن كتلة والمسافات تحدد التعليمات داخلها. السطر الذي يعود للمستوى الأصلي خارج الكتلة."
+    ],
+    "mistake": [
+      "> 0 et >= 0 ne disent pas la même chose : >= accepterait un stock nul comme disponible. Une condition décide selon la règle écrite ; elle ne valide pas toutes les données. Un stock négatif passe ici dans else, mais un vrai système doit décider comment refuser ou traiter cette donnée invalide.",
+      "> 0 and >= 0 differ: >= would label zero stock as available. A condition follows the rule you wrote; it does not validate every input. Negative stock reaches else here, but a real system must decide how to reject or handle that invalid value.",
+      "تختلف > 0 عن >= 0: الثانية تعتبر المخزون صفرًا متاحًا. الشرط يتبع القاعدة المكتوبة ولا يتحقق من صحة كل البيانات. المخزون السالب يصل هنا إلى else، لكن النظام الحقيقي يحتاج قرارًا لرفض هذه القيمة أو معالجتها."
+    ],
+    "challenge": [
+      "Avant d’exécuter, fais un tableau pour stock = 1, 0, -1. Note la comparaison et le message. Remplace ensuite > par >= et indique quel cas change.",
+      "Before running, make a table for stock = 1, 0, -1. Write the comparison and message. Then replace > with >= and identify which case changes.",
+      "قبل التشغيل أنشئ جدولًا للقيم 1 و0 و-1 للمخزون. اكتب نتيجة المقارنة والرسالة. ثم استبدل > بـ >= وحدّد الحالة التي تتغيّر."
+    ],
+    "solution": [
+      "Avec > : 1 disponible ; 0 et -1 épuisé. Avec >= : 0 devient disponible. Tester la limite révèle ce changement de règle.",
+      "With >: 1 available; 0 and -1 sold out. With >=: 0 becomes available. Testing the boundary reveals the changed rule.",
+      "مع >: القيمة 1 متاحة و0 و-1 غير متاحتين. مع >= تصبح 0 متاحة. اختبار الحد يكشف تغيّر القاعدة."
+    ],
+    "question": [
+      "Quelle valeur distingue stock > 0 de stock >= 0 ?",
+      "Which value distinguishes stock > 0 from stock >= 0?",
+      "ما القيمة التي تميّز stock > 0 عن stock >= 0؟"
+    ],
+    "options": [
+      [
+        "3",
+        "3",
+        "3"
+      ],
+      [
+        "-1",
+        "-1",
+        "-1"
+      ],
+      [
+        "0",
+        "0",
+        "0"
+      ]
+    ],
+    "answer": 2
+  },
+  {
+    "id": "guide-python-4",
+    "objective": [
+      "Suivre chaque tour de boucle et distinguer liste et dictionnaire.",
+      "Trace each loop iteration and distinguish a list from a dictionary.",
+      "تتبّع كل دورة وميّز القائمة عن القاموس."
+    ],
+    "walkthrough": [
+      "products est une liste de deux dictionnaires. Au premier tour, product désigne la veste ; son stock 3 passe le test et Veste s’affiche. Au second, product désigne le sac ; son stock 0 échoue au test, rien ne s’affiche. La boucle parcourt bien les deux objets, même si elle n’affiche qu’un nom.",
+      "products is a list of two dictionaries. On the first iteration, product refers to the jacket; stock 3 passes the test and Veste is printed. On the second, product refers to the bag; stock 0 fails the test and nothing is printed. The loop visits both objects even though only one name is displayed.",
+      "products قائمة فيها قاموسان. في الدورة الأولى يشير product إلى السترة؛ مخزونها 3 ينجح في الشرط فتظهر Veste. في الثانية يشير إلى الحقيبة؛ مخزونها 0 لا ينجح فلا يُعرض اسمها. تمر الحلقة على العنصرين رغم ظهور اسم واحد فقط."
+    ],
+    "mistake": [
+      "product[\"stock\"] lit une clé du dictionnaire courant ; products[0] lit le premier élément de la liste. Une clé absente provoque KeyError. Une liste vide ne lance aucun tour : ce n’est pas forcément une panne. Une boucle filtre l’affichage ici, elle ne supprime aucun produit de la liste.",
+      "product[\"stock\"] reads a key from the current dictionary; products[0] reads the first list item. A missing key raises KeyError. An empty list runs no iterations, which is not necessarily an error. This loop filters what is displayed; it does not remove products from the list.",
+      "يقرأ product[\"stock\"] مفتاحًا من القاموس الحالي، بينما products[0] يقرأ أول عنصر من القائمة. المفتاح المفقود يسبب KeyError. القائمة الفارغة لا تنفّذ أي دورة وهذا ليس بالضرورة عطلًا. الحلقة هنا ترشّح العرض ولا تحذف منتجات من القائمة."
+    ],
+    "challenge": [
+      "Ajoute Livre avec stock 2, puis change le stock du sac à 1. Trace trois tours. Ensuite essaie une liste vide et prédis la sortie.",
+      "Add Livre with stock 2, then change the bag stock to 1. Trace three iterations. Then try an empty list and predict the output.",
+      "أضف Livre بمخزون 2 ثم غيّر مخزون الحقيبة إلى 1. تتبّع ثلاث دورات. بعدها جرّب قائمة فارغة وتوقّع المخرجات."
+    ],
+    "solution": [
+      "Avec les trois stocks positifs : Veste, Sac, Livre, dans cet ordre. Liste vide : aucun nom. La boucle suit l’ordre de la liste.",
+      "With all three stocks positive: Veste, Sac, Livre, in that order. Empty list: no names. The loop follows list order.",
+      "مع المخزونات الموجبة تظهر Veste ثم Sac ثم Livre. القائمة الفارغة لا تعرض أسماء. الحلقة تتبع ترتيب القائمة."
+    ],
+    "question": [
+      "La liste contient deux produits mais un seul est affiché. La boucle a-t-elle visité les deux ?",
+      "The list contains two products but only one is printed. Did the loop visit both?",
+      "تحتوي القائمة على منتجين لكن يظهر واحد. هل مرّت الحلقة على الاثنين؟"
+    ],
+    "options": [
+      [
+        "Oui, le if peut empêcher un affichage",
+        "Yes, the if can prevent a print",
+        "نعم، الشرط قد يمنع العرض"
+      ],
+      [
+        "Non, elle s’arrête toujours après un print",
+        "No, it always stops after a print",
+        "لا، تتوقّف دائمًا بعد أول عرض"
+      ],
+      [
+        "Le second produit est supprimé",
+        "The second product is deleted",
+        "يُحذف المنتج الثاني"
+      ]
+    ],
+    "answer": 0
+  },
+  {
+    "id": "guide-python-5",
+    "objective": [
+      "Expliquer paramètres, return et tests avec plusieurs entrées.",
+      "Explain parameters, return, and tests with several inputs.",
+      "اشرح المعاملات وreturn والاختبارات بمدخلات متعددة."
+    ],
+    "walkthrough": [
+      "def définit la fonction sans encore la faire travailler. total(19900, 2) lui donne deux arguments : price_cents reçoit 19900, quantity reçoit 2. Le if vérifie les valeurs négatives puis return renvoie 39800 à l’appelant. assert compare cette valeur à 39800. Si la comparaison est vraie, le programme continue.",
+      "def defines the function without running its body yet. total(19900, 2) supplies two arguments: price_cents receives 19900 and quantity receives 2. The if checks negative values, then return sends 39800 back to the caller. assert compares that value with 39800. If the comparison is true, execution continues.",
+      "تعرّف def الدالة دون تشغيل جسمها بعد. يمرر total(19900, 2) قيمتين: يأخذ price_cents القيمة 19900 وquantity القيمة 2. يتحقق if من القيم السالبة ثم يعيد return العدد 39800 للمستدعي. يقارن assert النتيجة بـ39800، وإذا صحّت المقارنة يستمر التنفيذ."
+    ],
+    "mistake": [
+      "print affiche ; return transmet une valeur au code appelant. Une fonction sans return explicite renvoie None. Les annotations : int documentent les types mais ne les imposent pas automatiquement à l’exécution. Les assert servent ici à apprendre les tests, pas à valider des requêtes en production : ils peuvent être désactivés.",
+      "print displays; return passes a value to the calling code. A function without an explicit return returns None. The : int annotations document types but do not enforce them automatically at runtime. These asserts teach testing, not production request validation: assertions can be disabled.",
+      "يعرض print قيمة، بينما يرسل return قيمة إلى الكود المستدعي. الدالة دون return صريح تعيد None. توثّق : int النوع لكنها لا تفرضه تلقائيًا عند التنفيذ. assert هنا لتعلّم الاختبار وليس للتحقق من طلبات الإنتاج، إذ يمكن تعطيله."
+    ],
+    "challenge": [
+      "Prédit total(500, 3), total(500, 0), puis total(500, -1). Ajoute des tests pour les deux premiers et explique pourquoi le dernier lève une erreur plutôt que de renvoyer un total.",
+      "Predict total(500, 3), total(500, 0), then total(500, -1). Add tests for the first two and explain why the last raises an error instead of returning a total.",
+      "توقّع total(500, 3) ثم total(500, 0) ثم total(500, -1). أضف اختبارات للأولين واشرح لماذا يثير الأخير خطأ بدل إعادة مجموع."
+    ],
+    "solution": [
+      "Résultats : 1500, 0, puis ValueError. Exemple : assert total(500, 3) == 1500. Le if refuse la quantité négative avant d’arriver à return.",
+      "Results: 1500, 0, then ValueError. Example: assert total(500, 3) == 1500. The if rejects negative quantity before reaching return.",
+      "النتائج: 1500 ثم 0 ثم ValueError. مثال: assert total(500, 3) == 1500. يرفض if الكمية السالبة قبل الوصول إلى return."
+    ],
+    "question": [
+      "Quel mot transmet un résultat au code qui appelle la fonction ?",
+      "Which keyword passes a result to the code calling the function?",
+      "ما الكلمة التي تعيد النتيجة إلى الكود المستدعي للدالة؟"
+    ],
+    "options": [
+      [
+        "print",
+        "print",
+        "print"
+      ],
+      [
+        "return",
+        "return",
+        "return"
+      ],
+      [
+        "def",
+        "def",
+        "def"
+      ]
+    ],
+    "answer": 1
+  }
+]

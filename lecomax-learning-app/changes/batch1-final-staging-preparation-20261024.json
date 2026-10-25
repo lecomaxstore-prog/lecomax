@@ -1,0 +1,56 @@
+{
+  "id": "batch1-final-staging-preparation-20261024",
+  "relatedId": "batch1-staging-preparation-20261024",
+  "createdAt": "2026-10-24T14:23:27Z",
+  "title": "Batch 1 final protected staging proposal",
+  "summary": "Completed local synthetic checkout validation and reviewed isolation controls; a dedicated checkout-capable staging project is still required and no external infrastructure was changed.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier"
+  ],
+  "components": [
+    "CheckoutPage",
+    "CartQuoteFeedback",
+    "environment isolation policy"
+  ],
+  "files": [
+    "operations/seo/staging-app.env.example",
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "tests/environment-clients.test.ts",
+    "tests/batch1-quote.test.cjs",
+    "tests/batch1-paypal-quote.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared the exact protected deployment proposal and synthetic checkout scenario matrix."
+    },
+    {
+      "kind": "modified",
+      "detail": "Validated local Batch 1 quote and PayPal mock tests without changing application source or provider settings."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local synthetic checkout validation",
+      "result": "passed",
+      "detail": "16/16 focused quote and PayPal tests pass, including free/paid/error/timeout/retry, invalidation, stale responses, duplicate protection and security parity."
+    },
+    {
+      "name": "Staging isolation policy",
+      "result": "passed",
+      "detail": "Previously recorded 4/4 environment-client tests pass; staging Supabase project is tyltharlnbxrxibuxyye and external integrations are disabled by policy."
+    },
+    {
+      "name": "Build evidence",
+      "result": "passed",
+      "detail": "Existing production-equivalent build remains exit code 0; no rebuild repeated."
+    },
+    {
+      "name": "Dedicated checkout staging infrastructure",
+      "result": "not-run",
+      "detail": "The known lecomax-seo-staging project is the historical restrictive SEO Preview and is explicitly excluded; a separate checkout-capable project has not been provisioned."
+    }
+  ]
+}

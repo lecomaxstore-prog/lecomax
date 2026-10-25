@@ -1,0 +1,38 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Separate disabled Vercel worker package using existing orchestration, fixed official project URL, timing-safe cron authentication, production-only activation, 180-second request budget and 240-second platform limit."
+    }
+  ],
+  "summary": "Add a Node 24 HTTP adapter for the existing queue worker, with authentication, project binding and execution limits. Production remains unchanged.",
+  "id": "seo-account5-worker-preparation-20261018",
+  "createdAt": "2026-10-18T19:25:30.605Z",
+  "validation": [
+    {
+      "detail": "Pending offline Node 24 tests. Hosted deployment, secrets, scheduler and PostgREST integration are not validated.",
+      "result": "not-run",
+      "name": "Worker adapter tests"
+    }
+  ],
+  "files": [
+    "operations/seo-vercel/package.json",
+    "operations/seo-vercel/package-lock.json",
+    "operations/seo-vercel/vercel.json",
+    "operations/seo-vercel/api/sync.mjs",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/lib/seo-sync-worker.mjs",
+    "operations/seo-vercel/tests/handler.test.mjs"
+  ],
+  "components": [
+    "Vercel worker",
+    "Durable SEO queue"
+  ],
+  "status": "needs-testing",
+  "title": "Prepare an isolated Vercel SEO worker with scheduling disabled",
+  "pages": [
+    "SEO worker operations",
+    "/admin/seo",
+    "/change-history"
+  ]
+}

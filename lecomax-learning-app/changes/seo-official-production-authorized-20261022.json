@@ -1,0 +1,47 @@
+{
+  "id": "seo-official-production-authorized-20261022",
+  "relatedId": "seo-minimal-production-verified-held-20261022",
+  "createdAt": "2026-10-22T10:36:52.294Z",
+  "status": "needs-testing",
+  "title": "Owner-authorized minimal production release in progress",
+  "summary": "Owner explicitly authorized production deployment and automatic application rollback. Exact three-file candidate committed; no secrets or production database state changed.",
+  "pages": [
+    "Production storefront",
+    "Product and category pages"
+  ],
+  "components": [
+    "RootLayout",
+    "CategoryTiles",
+    "Fallback image",
+    "Vercel production release"
+  ],
+  "files": [
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png",
+    "scripts/seo-official-production.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Created isolated production release commit 1f17d9e8c54f960b8ba873dfe0974075ed8a9e4a with only the approved three-file changes; original working tree preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Integrity and provider preflight",
+      "result": "passed",
+      "detail": "2578 hashes match immutable manifest; production selectors and disabled advanced SEO flags verified; four cron schedules preserved. No secret values requested."
+    },
+    {
+      "name": "Critical regressions",
+      "result": "passed",
+      "detail": "94 regression tests passed again."
+    },
+    {
+      "name": "Final build and live deployment",
+      "result": "not-run",
+      "detail": "Final build in progress; deployment and live smoke follow. Write-only database/admin secret values remain independently unverified; owner explicitly authorized proceeding absent concrete critical failure."
+    }
+  ]
+}

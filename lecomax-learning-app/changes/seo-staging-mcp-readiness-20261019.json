@@ -1,0 +1,52 @@
+{
+  "id": "seo-staging-mcp-readiness-20261019",
+  "createdAt": "2026-10-19T11:06:57.936Z",
+  "relatedId": "seo-staging-readonly-verified-20261019",
+  "title": "Staging MCP permission blocked; direct catalog checks verified",
+  "summary": "Actual MCP project reads returned permission errors. Direct TLS read-only staging checks and 16 local tests passed. Management-plane isolation remains unverified; no hosted changes.",
+  "status": "needs-testing",
+  "pages": [
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Staging MCP verification",
+    "Gate A recovery readiness"
+  ],
+  "files": [
+    "scripts/verify-seo-staging-readonly.cjs",
+    "docs/seo-staging-mcp-readiness-20261019.md",
+    "artifacts/seo-quality/staging-readonly-1792407952310.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded actual MCP availability and permission failures, expanded schema/function inventory, recovery risks and safe next steps."
+    },
+    {
+      "kind": "modified",
+      "detail": "Read-only staging verifier now captures schema counts and function signatures without bodies or sensitive records."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Actual MCP read-only calls",
+      "result": "failed",
+      "detail": "Both available links returned ProtocolError: MCP error -32600: You do not have permission to perform this action; structured error INVALID_ARGUMENT. No callable lecomax-staging namespace exposed."
+    },
+    {
+      "name": "Direct PostgreSQL verification",
+      "result": "passed",
+      "detail": "TLS 1.3 authorized; PostgreSQL 17.11 read-only transaction; expected staging target; 8 non-system schemas and 102 function signatures. Public schema empty."
+    },
+    {
+      "name": "Local verification",
+      "result": "passed",
+      "detail": "JavaScript syntax check and 16 Node 24 worker/review tests passed. SQL tests are disposable PGlite fixtures, no hosted migration."
+    },
+    {
+      "name": "Platform isolation and recovery",
+      "result": "not-run",
+      "detail": "Auth/SMTP/hooks/Edge Functions/external integrations unverified. No production connection, dump, restore, hosted modifications, deployment, activation or paid API calls."
+    }
+  ]
+}

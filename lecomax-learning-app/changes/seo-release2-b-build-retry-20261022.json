@@ -1,0 +1,47 @@
+{
+  "id": "seo-release2-b-build-retry-20261022",
+  "createdAt": "2026-10-22T12:32:43.180Z",
+  "title": "Release 2B build retry after restricted-network font failure",
+  "summary": "Tests, TypeScript and full lint passed. The first cumulative B production build could not fetch Sora from Google Fonts in the restricted sandbox. Same source is being rebuilt with network access; B is not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "Sitemap",
+    "Category/CMS",
+    "Product SEO",
+    "Change History"
+  ],
+  "components": [
+    "Sequential production release",
+    "Source and deployment verification"
+  ],
+  "files": [
+    "release\\seo-official-2-b-20261022\\app\\[category]\\page.tsx",
+    "release\\seo-official-2-b-20261022\\tests\\seo-category-urls.test.ts",
+    "scripts/seo-release2.cjs",
+    "scripts/seo-release2-live.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Preserved failed build log and began a same-source environment-only retry; no application source correction or production change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local regression tests",
+      "result": "passed",
+      "detail": "106 passed, zero failures/skips; TypeScript and full lint also exited zero."
+    },
+    {
+      "name": "First synthetic production build",
+      "result": "failed",
+      "detail": "build-1792672239263.log: Google Fonts Sora fetch failed in sandbox. This is not evidence of an application or live production failure."
+    },
+    {
+      "name": "Network-enabled retry",
+      "result": "not-run",
+      "detail": "In progress; no result claimed yet. Production remains verified Release A."
+    }
+  ],
+  "relatedId": "seo-release2-b-prepared-20261022"
+}

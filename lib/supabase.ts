@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseFetch } from "./supabase-fetch";
+import { supabaseConfiguration, supabaseCredential } from "../operations/seo-vercel/lib/environment-target.mjs";
 
 const configuredUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const configuredKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
@@ -14,8 +15,28 @@ export const isSupabaseConfigured = Boolean(configuredUrl && configuredKey);
 const url = configuredUrl || "https://unconfigured.invalid";
 const key = configuredKey || "unconfigured-anon-key";
 
+if (isSupabaseConfigured) {
+  supabaseConfiguration({ APP_ENV: process.env.NEXT_PUBLIC_APP_ENV }, url, key,
+    process.env.NEXT_PUBLIC_SUPABASE_KEY_BINDING, "anon");
+}
+
 export const supabase = createClient(url, key, {
-  global: { fetch: createSupabaseFetch((input, init) => fetch(input, init)) },
+  global: { fetch: createSupabaseFetch(async (input, init) => {
+    const target = await supabaseCredential(
+      { APP_ENV: process.env.NEXT_PUBLIC_APP_ENV }, url, key,
+      process.env.NEXT_PUBLIC_SUPABASE_KEY_BINDING, "anon");
+    const requestUrl = new URL(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+    if (requestUrl.origin !== target.origin) throw Error("ENVIRONMENT_ISOLATION_REQUIRED");
+    // Hosted Auth can send mail/SMS without application provider credentials.
+    // Staging supports existing fixture login/session reads, not messaging flows.
+    if (target.selected !== "production" && requestUrl.pathname.startsWith("/auth/v1/") &&
+        !["/auth/v1/token", "/auth/v1/logout", "/auth/v1/settings"].includes(requestUrl.pathname) &&
+        !(requestUrl.pathname === "/auth/v1/user" &&
+          (init?.method ?? (input instanceof Request ? input.method : "GET")).toUpperCase() === "GET")) {
+      throw Error("AUTH_DELIVERY_DISABLED");
+    }
+    return fetch(input, { ...init, redirect: "error" });
+  }) },
   auth: {
     persistSession: true,
     autoRefreshToken: true,

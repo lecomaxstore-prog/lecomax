@@ -1,0 +1,58 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const vm = require('node:vm');
+const ts = require('typescript');
+const React = require('react');
+const { JSDOM } = require('jsdom');
+const { createRoot } = require('react-dom/client');
+
+test('real CodeMirror editor supports Python indentation, undo/redo, search, limits and error markers', async () => {
+  const dom = new JSDOM('<div id="root"></div>', { pretendToBeVisual: true });
+  const keys = ['window', 'Window', 'document', 'MutationObserver', 'requestAnimationFrame', 'cancelAnimationFrame', 'IS_REACT_ACT_ENVIRONMENT'];
+  const previous = Object.fromEntries(keys.map(key => [key, global[key]]));
+  Object.assign(global, { window: dom.window, Window: dom.window.Window, document: dom.window.document, MutationObserver: dom.window.MutationObserver, requestAnimationFrame: dom.window.requestAnimationFrame.bind(dom.window), cancelAnimationFrame: dom.window.cancelAnimationFrame.bind(dom.window), IS_REACT_ACT_ENVIRONMENT: true });
+  dom.window.Range.prototype.getClientRects = () => [];
+  dom.window.Range.prototype.getBoundingClientRect = () => ({ top: 0, bottom: 0, left: 0, right: 0, width: 0, height: 0 });
+  const { EditorView } = require('@codemirror/view');
+  const { insertNewlineAndIndent, undo, redo } = require('@codemirror/commands');
+  const { openSearchPanel } = require('@codemirror/search');
+  const { diagnosticCount } = require('@codemirror/lint');
+  const exports = {};
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(require.resolve('../components/PythonEditor.web.tsx'), 'utf8'), { compilerOptions: { esModuleInterop: true, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX } }).outputText, { exports, require, window: dom.window, requestAnimationFrame: global.requestAnimationFrame, cancelAnimationFrame: global.cancelAnimationFrame });
+  const root = createRoot(document.getElementById('root'));
+  let code = 'if True:', runs = 0;
+  const props = { value: code, onChange: value => { code = value; }, onRun: () => { runs++; }, dark: true, fontSize: 18, disabled: false };
+  try {
+    await React.act(async () => root.render(React.createElement(exports.PythonEditor, props)));
+    const editor = EditorView.findFromDOM(document.querySelector('.cm-editor'));
+    assert(document.querySelector('.cm-lineNumbers'));
+    await React.act(async () => { editor.dispatch({ selection: { anchor: 8 } }); insertNewlineAndIndent(editor); });
+    assert.match(code, /if True:\n\s+/);
+    await React.act(async () => undo(editor)); assert.equal(code, 'if True:');
+    await React.act(async () => redo(editor)); assert.match(code, /\n/);
+    await React.act(async () => openSearchPanel(editor)); assert(document.querySelector('.cm-search input'));
+    const before = editor.state.doc.toString();
+    await React.act(async () => editor.dispatch({ changes: { from: 0, insert: 'x'.repeat(64001) } }));
+    assert.equal(editor.state.doc.toString(), before);
+    await React.act(async () => root.render(React.createElement(exports.PythonEditor, { ...props, value: code, errorLine: 1, errorMessage: 'SyntaxError', dark: false, disabled: true })));
+    assert.equal(diagnosticCount(editor.state), 1); assert.equal(editor.state.readOnly, true);
+    assert.equal(editor.contentDOM.getAttribute('contenteditable'), 'false');
+    assert.equal(editor.contentDOM.getAttribute('aria-readonly'), 'true');
+    assert([...document.querySelectorAll('.py-accessory button')].every(button => button.disabled));
+    await React.act(async () => root.render(React.createElement(exports.PythonEditor, { ...props, value: 'print(1)', errorLine: null })));
+    assert.equal(editor.state.doc.toString(), 'print(1)'); assert.equal(diagnosticCount(editor.state), 0);
+    assert.equal(editor.contentDOM.getAttribute('contenteditable'), 'true');
+    await React.act(async () => editor.dispatch({ selection: { anchor: 0, head: 8 } }));
+    await React.act(async () => document.querySelector('[aria-label="Insert ["]').click());
+    assert.equal(editor.state.doc.toString(), '[print(1)]');
+    assert.equal(editor.state.sliceDoc(editor.state.selection.main.from, editor.state.selection.main.to), 'print(1)');
+    assert.equal(document.activeElement, editor.contentDOM);
+    await React.act(async () => document.querySelector('[aria-label="Undo edit"]').click());
+    assert.equal(editor.state.doc.toString(), 'print(1)');
+    await React.act(async () => { dom.window.dispatchEvent(new dom.window.Event('resize')); await new Promise(resolve => setTimeout(resolve, 30)); });
+    assert.equal(document.activeElement, editor.contentDOM);
+    await React.act(async () => editor.contentDOM.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true })));
+    assert.equal(runs, 1);
+  } finally { await React.act(async () => root.unmount()); dom.window.close(); Object.assign(global, previous); }
+});

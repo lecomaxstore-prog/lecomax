@@ -1,0 +1,39 @@
+{
+  "createdAt": "2026-10-20T23:20:40.061Z",
+  "pages": [
+    "SEO staging",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Protected deployment",
+    "Dependency security"
+  ],
+  "files": [
+    "scripts/seo-first-deployment-status.cjs",
+    "scripts/seo-staging-protection-check.cjs",
+    "scripts/seo-staging-dependency-prepare.cjs",
+    "scripts/seo-dependency-validation.cjs"
+  ],
+  "id": "seo-staging-dependency-remediation-prepared-20261021",
+  "status": "needs-testing",
+  "title": "Staging dependency security patches prepared",
+  "summary": "Isolated review upgrades Next 15.5.28, matching env/ESLint, sanitize-html 2.18.1, sharp 0.35.5 and Nodemailer 10.1.7, plus compatible transitive fixes. Runtime audit is clean; build and regression tests pending.",
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepared package manifests only in artifacts/seo-dependency-remediation-20261021; original candidate and shared node_modules remain unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Dependency audit",
+      "result": "passed",
+      "detail": "15 findings reduced to 9 build-tool findings; npm audit --omit=dev reports zero. No forced framework downgrade or Tailwind major migration."
+    },
+    {
+      "name": "Compatibility",
+      "result": "not-run",
+      "detail": "Clean isolated install, typecheck, security tests, sanitization/mail/image checks and production build pending."
+    }
+  ]
+}

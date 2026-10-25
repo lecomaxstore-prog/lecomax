@@ -1,0 +1,52 @@
+{
+  "id": "seo-ai-dashboard-race-verified-20261019",
+  "createdAt": "2026-10-19T20:34:12.085Z",
+  "title": "Isolate AI dashboard refreshes by document — local validation passed",
+  "summary": "88 distinct local tests passed across SEO, worker, editorial SQL, dashboard and history. Static checks passed; hosted isolation and publication remain incomplete.",
+  "status": "successful",
+  "pages": [
+    "SEO dashboard",
+    "Change History"
+  ],
+  "components": [
+    "SeoAiControl"
+  ],
+  "files": [
+    "app/admin/seo/SeoAiControl.tsx",
+    "tests/seo-ai-dashboard.test.ts",
+    "docs/seo-continuation-unicode-dashboard-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Remount selection state for entity/kind/version changes; invalidate obsolete and unmounted requests; hide previous data while refreshing."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline component hook regressions for selection identity, reversed completion order, stale failure and unmount."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused regressions",
+      "result": "passed",
+      "detail": "79 selected SEO/API/indexing/worker/provider/editorial tests including disposable PGlite review chain; 3 dashboard tests; 6 history tests. Mocked provider transport only."
+    },
+    {
+      "name": "TypeScript and ESLint",
+      "result": "passed",
+      "detail": "Root nonincremental no-emit and learning-app typecheck passed. Focused lint passed; initial cleanup warning corrected and rerun clean."
+    },
+    {
+      "name": "History integrity",
+      "result": "passed",
+      "detail": "598 reports validated before these two append-only follow-ups. Final integrity check follows."
+    },
+    {
+      "name": "Hosted and visual acceptance",
+      "result": "not-run",
+      "detail": "No hosted writes, production connection, paid request, worker activation, deployment, new build or browser preview. Staging isolation/PG17 runtime acceptance and editorial publication remain incomplete."
+    }
+  ],
+  "relatedId": "seo-ai-dashboard-race-prepared-20261019"
+}

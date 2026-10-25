@@ -1,0 +1,36 @@
+{
+  "id": "product-video-fit-20261025",
+  "createdAt": "2026-10-25T13:03:47.057Z",
+  "title": "Fit product video frames to their proportions",
+  "summary": "Remove square-frame empty bands around landscape product videos while preserving the complete video picture.",
+  "status": "needs-testing",
+  "pages": [
+    "Product detail /produit/[slug]"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideo"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "components/ProductVideo.tsx",
+    "tests/product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Video slides start at 16:9 and adopt actual video dimensions on metadata load; photo slides remain square. Dimensions are associated with their source URL."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for landscape/portrait metadata, invalid dimensions and restoring square photo layout."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression validation",
+      "result": "not-run",
+      "detail": "Pending focused tests, lint and history checks. No deployment performed."
+    }
+  ]
+}

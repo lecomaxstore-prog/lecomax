@@ -1,0 +1,41 @@
+{
+  "id": "seo-release2-b-prepared-20261022",
+  "createdAt": "2026-10-22T12:28:48.873Z",
+  "title": "Official SEO Release 2B: prepared",
+  "summary": "Recovered approved B changes on ac1c6fa09c2482648a0d9ed08d8e71a9980a1a50; candidate 471d97a3f13fa4f97287c126ff953f05e12015a1. Fresh release checks and live deployment verification pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Sitemap",
+    "Category/CMS",
+    "Product SEO",
+    "Change History"
+  ],
+  "components": [
+    "Sequential production release",
+    "Source and deployment verification"
+  ],
+  "files": [
+    "release\\seo-official-2-b-20261022\\app\\[category]\\page.tsx",
+    "release\\seo-official-2-b-20261022\\tests\\seo-category-urls.test.ts",
+    "scripts/seo-release2.cjs",
+    "scripts/seo-release2-live.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recovered approved B changes on ac1c6fa09c2482648a0d9ed08d8e71a9980a1a50; candidate 471d97a3f13fa4f97287c126ff953f05e12015a1. Fresh release checks and live deployment verification pending. No database migration, configuration or unrelated feature activation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source scope and preservation",
+      "result": "passed",
+      "detail": "Exact approved delta and cumulative candidate hashes; original branches preserved."
+    },
+    {
+      "name": "Release validation",
+      "result": "not-run",
+      "detail": "Fresh tests, types, lint, build and live checks pending."
+    }
+  ]
+}

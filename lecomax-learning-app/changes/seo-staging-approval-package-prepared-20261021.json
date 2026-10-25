@@ -1,0 +1,44 @@
+{
+  "id": "seo-staging-approval-package-prepared-20261021",
+  "createdAt": "2026-10-20T22:51:49.933Z",
+  "title": "Prepare exact staging approval package and diagnose disabled webhook access",
+  "summary": "Review-only guarded SQL, synthetic user templates and Auth payload prepared. HTTP 403 identified as disabled early-access webhook feature. No hosted mutation or migration.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging readiness",
+    "Change History"
+  ],
+  "components": [
+    "Approval package",
+    "Read-only Auth audit"
+  ],
+  "files": [
+    "scripts/audit-seo-staging-auth.ps1",
+    "operations/seo/staging-approval-package-20261021/auth-corrections.review.json",
+    "operations/seo/staging-approval-package-20261021/auth-users.request-templates.json",
+    "operations/seo/staging-approval-package-20261021/prerequisites.sql.review",
+    "operations/seo/staging-approval-package-20261021/manifest.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Read sanitized HTTP error body to distinguish webhooks_access_disabled from missing credentials."
+    },
+    {
+      "kind": "added",
+      "detail": "Guarded prerequisite SQL review draft for five tables, synthetic fixture rows and user request templates, hash-pinned approval manifest. No passwords or production data."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Webhook diagnosis",
+      "result": "passed",
+      "detail": "Both staging scopes return webhooks_access_disabled; official docs describe early-access allowlist restrictions. Not an empty-list claim."
+    },
+    {
+      "name": "Complete rerun",
+      "result": "not-run",
+      "detail": "Build, regression and artifact validation in progress. SQL and hosted Auth/user requests will not be executed."
+    }
+  ]
+}

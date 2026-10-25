@@ -1,0 +1,40 @@
+{
+  "id": "batch1-release-package-prepared-20261024",
+  "createdAt": "2026-10-24T16:12:21.517Z",
+  "relatedId": "batch1-synthetic-routing-verified-20261024",
+  "title": "Prepare isolated Batch 1 release package for review",
+  "summary": "Exported pinned Git baseline with only reviewed Batch 1 overlays and a package-only no-cron Vercel config. Original worktree and provider settings remain unchanged. Clean-package validation pending.",
+  "status": "needs-testing",
+  "pages": [
+    "/panier",
+    "/checkout"
+  ],
+  "components": [
+    "release packaging",
+    "staging configuration"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/prepare-candidate.cjs",
+    "artifacts/batch1-release-preparation-20261024/validate-candidate.cjs",
+    "artifacts/batch1-release-preparation-20261024/source-manifest.json",
+    "artifacts/batch1-release-preparation-20261024/candidate.tar.gz"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Reproducible source manifest and archive exclude unrelated dirty course files, historical SEO configuration, credentials and older learning history. Deployment is not authorized."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checkpoint identity",
+      "result": "passed",
+      "detail": "Recorded runtime hashes match prior checkpoints. 150 unrelated dirty entries excluded; baseline course inputs retained."
+    },
+    {
+      "name": "Clean package build",
+      "result": "not-run",
+      "detail": "Pending fresh extraction and isolated full npm build."
+    }
+  ]
+}

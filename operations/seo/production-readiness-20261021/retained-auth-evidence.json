@@ -1,0 +1,133 @@
+{
+  "at": "2026-10-21T13:12:05.044Z",
+  "files": [
+    {
+      "file": "app/admin/seo/EditorialReview.tsx",
+      "bytes": 3630,
+      "sha256": "a3566831ccfacad332ae4af980bd34744a51a393487f1a15d9c3c2359e555e67"
+    },
+    {
+      "file": "app/admin/seo/EditorialWorkspace.tsx",
+      "bytes": 16817,
+      "sha256": "ff0e7553bc7d847f9c509aa861284fd62a411862a854533e6dc1e4067adbe592"
+    },
+    {
+      "file": "app/admin/seo/SeoAiControl.tsx",
+      "bytes": 9096,
+      "sha256": "b18c7b092f5a659a251368d9704f5aa680bad52bdda88e482bdb69ce2320b811"
+    },
+    {
+      "file": "app/admin/seo/SeoSyncControl.tsx",
+      "bytes": 3370,
+      "sha256": "e8e0f0d9ab1460b67718b47976a3c1270df858f1da5377ed60a226a5e9de514a"
+    },
+    {
+      "file": "app/admin/seo/page.tsx",
+      "bytes": 18150,
+      "sha256": "933c601328b3431df56ba69e53a34214d3e0d4445aafd5150b098466692d5154"
+    },
+    {
+      "file": "app/admin/seo/seo.module.css",
+      "bytes": 3771,
+      "sha256": "e5df104803cd9278970c3d60a54d80d8f89ee35127439b641c81e106347d53d2"
+    },
+    {
+      "file": "app/api/admin/seo/ai/route.ts",
+      "bytes": 7401,
+      "sha256": "6ea914c5820e7a18b8d2a8549a4c91ee4f60dc2b24a81f8443f7af641bbc67e3"
+    },
+    {
+      "file": "app/api/admin/seo/editorial/route.ts",
+      "bytes": 7690,
+      "sha256": "4942543e9a1af6fb00e8bed7cada563497188c7663a040cd7ed9776d0ae86fc2"
+    },
+    {
+      "file": "app/api/admin/seo/route.ts",
+      "bytes": 7006,
+      "sha256": "fd7b495e26b0fb1a3bae044d069d909d36688f8c5b23bc1f28fc2ef8d71ec4a6"
+    },
+    {
+      "file": "app/api/admin/seo/sync/route.ts",
+      "bytes": 3783,
+      "sha256": "82de22c5d11333bd0f2f7c529ca2261168402e1d9d9b909bada36a37574f0537"
+    },
+    {
+      "file": "app/api/admin/auth/session/route.ts",
+      "bytes": 5296,
+      "sha256": "50d74d1bf7e64bde569e41a6ef0350ea44d7bfd6e4860adc6133136ef253daf8"
+    },
+    {
+      "file": "app/api/admin/auth/verify/route.ts",
+      "bytes": 900,
+      "sha256": "ffc66c03aa9a191e4e5b35f54532d5793a4ff245f24f1f275d26bf7a561ce911"
+    },
+    {
+      "file": "lib/admin-access.ts",
+      "bytes": 2293,
+      "sha256": "1c12b106de6efedad2127af0e09428d10fde9740eb3c27c24a348716afa8bbb2"
+    },
+    {
+      "file": "lib/admin-activity.ts",
+      "bytes": 1399,
+      "sha256": "152d27619e1979ebb7ea396423db215e42c17e3d31f92d54854d42721edd3e82"
+    },
+    {
+      "file": "lib/admin-policy.ts",
+      "bytes": 2981,
+      "sha256": "49a6bffd779efec954db28a090117aa780f7223e3efb07b16227c521deb8f0b2"
+    },
+    {
+      "file": "lib/admin-session.ts",
+      "bytes": 5629,
+      "sha256": "df45bce237588fca86e9bfc33202a518ab72c47cce0477beeb851852dd93049a"
+    },
+    {
+      "file": "lib/admin-settings-access.ts",
+      "bytes": 1348,
+      "sha256": "582e8ab969757839c40adfe739792a496caf13da694bc15059417fe714d1ac9b"
+    },
+    {
+      "file": "lib/admin-workspaces.ts",
+      "bytes": 5778,
+      "sha256": "0b8c1232272cd65b16a32cc5ce717a29439636f6652d2c7ac3bdbc4dbfbb4840"
+    },
+    {
+      "file": "lib/api-security.ts",
+      "bytes": 2549,
+      "sha256": "1eeb8b536dd2a01defe21a1e066d063997ff2d39c380e2b3a6345ea860b4bf3e"
+    },
+    {
+      "file": "lib/supabase-fetch.ts",
+      "bytes": 1127,
+      "sha256": "bdb2660a4e131705b506cba60d1a76bd09467182a7a8ec2b6df144b8b88e9581"
+    },
+    {
+      "file": "lib/supabase-server.ts",
+      "bytes": 2276,
+      "sha256": "9f47dd777a6f189d3e35a37e8bbfe02185f9c9b960daad4da6c1daaeb101a476"
+    },
+    {
+      "file": "lib/supabase-service-headers.ts",
+      "bytes": 536,
+      "sha256": "bd788f6a598082681a5bb6e10b92afbf5e246ef0dcda51bba45b9b2c0d6104fb"
+    },
+    {
+      "file": "lib/supabase.ts",
+      "bytes": 4575,
+      "sha256": "8344d2bce2913aa3c9b8a09dd77e694e7dda5c8436ef19950357797b8025e5aa"
+    },
+    {
+      "file": "middleware.ts",
+      "bytes": 14130,
+      "sha256": "67c61acb7409728e23d3cf9aff18efbceff2d5d834e815f4cf61ec8474741d38"
+    }
+  ],
+  "unchangedSinceRealSessionTest": true,
+  "evidence": "artifacts/seo-real-session-acceptance-1792541505297.json",
+  "currentAdminBrowser": "redirects to application login; no app session",
+  "notCertified": [
+    "new deployment authenticated admin UI",
+    "expired genuine hosted session"
+  ],
+  "prohibitedRunner": "scripts/seo-real-session-acceptance.cjs creates protection bypass and sessions; do not execute under current boundary"
+}

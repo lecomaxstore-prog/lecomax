@@ -1,0 +1,276 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-15",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-15",
+  "title": {
+    "en": "Malware and incident awareness: recognize, contain, recover",
+    "ar": "الوعي بالبرمجيات الخبيثة والاستجابة الأولية",
+    "fr": "Malware and incident awareness: recognize, contain, recover"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-14"
+  ],
+  "objectives": [
+    "Distinguish suspicious indicators from confirmed compromise.",
+    "Choose containment steps that preserve useful evidence.",
+    "Plan credential revocation and clean recovery from a known-good source."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Study malware and credential theft defensively through synthetic evidence. No malware, credential collector or ransomware is created or executed in this course.",
+  "sections": [
+    {
+      "title": "Understand the effects without building the threat",
+      "text": "Malware is software used to perform unwanted harmful activity, which may include collecting information, changing systems, disrupting service or maintaining unauthorized access. Ransomware commonly combines data encryption with extortion and may also involve stolen information. Credential theft can occur through phishing, reused passwords, exposed tokens or compromised endpoints. A phishing message manipulates trust and urgency to induce an action, such as entering credentials into an imitation page. This course uses descriptions and synthetic logs rather than executable malicious samples. Understanding the affected trust boundary is more useful to a beginner than running unknown files to see what happens."
+    },
+    {
+      "title": "Indicators are clues, not verdicts",
+      "text": "Unexpected login locations, new API keys, unusual administrative changes, unexplained outbound traffic or files changing in bulk can justify investigation. Each can also have benign explanations, such as a VPN, a planned deployment or backup software. Record the observation, timestamp, source and expected baseline before concluding who caused it. A single failed login is not proof of compromise, while a successful login followed by a new privileged token may deserve urgent review. Correlate independent evidence and distinguish confirmed facts from hypotheses. Avoid accusing a person based only on an IP address or device label."
+    },
+    {
+      "title": "Phishing defense is a workflow",
+      "text": "Inspect the actual destination and account context rather than trusting a logo, sender display name or urgent wording. Reach an important service through a known bookmark or independently typed address instead of a link in an unexpected message. Use phishing-resistant authentication where available and protect account recovery with equal care. Reporting a suspicious message through the organization’s agreed channel can help others without forwarding live credential links widely. Do not enter real credentials into a lesson demonstration. A training exercise can compare text and destinations using fictional domains ending in .invalid, which are not intended as live credential-collection sites."
+    },
+    {
+      "title": "Containment should match the suspected boundary",
+      "text": "If a token is exposed, revoke or rotate that token and investigate its use; changing a local file alone does not remove its authority. If a device appears compromised, follow the owner’s incident procedure to isolate network access while preserving evidence as appropriate. Avoid improvised destructive cleanup before recording essential facts, especially where business, legal or forensic requirements apply. Use a known-clean device and communication channel for recovery actions when the affected endpoint cannot be trusted. Do not assume deleting one suspicious file removes every persistence mechanism or restores credential secrecy. Scope the response to accounts, devices and services that may share the exposed authority."
+    },
+    {
+      "title": "Preserve evidence safely",
+      "text": "Keep original log timestamps and obtain a protected copy when authorized. Record who collected the evidence, when, from which system and how it was stored. A cryptographic hash can help detect later changes to a collected file, but does not prove the file’s original truthfulness. Minimize personal data and secrets in shared reports. Separate a working redacted copy from any necessary restricted original. Document gaps such as missing retention or clocks that were not synchronized. The goal is a reliable timeline, not a folder full of unlabelled screenshots."
+    },
+    {
+      "title": "Recovery is more than making the warning disappear",
+      "text": "Restore or rebuild from a known-good source, patch the underlying weakness, rotate affected credentials and verify that monitoring and backups work. Test important business behavior and access controls before returning full service. Review whether the attacker could have reached additional accounts or data; do not declare recovery solely because a process stopped. After the incident, identify improvements in prevention, detection and response without reducing the review to blame. Darija: الإشارة كتحتاج تحقق؛ والعزل والاسترجاع خاصهم خطة، ماشي مسح عشوائي للملفات. The synthetic assignment below practices these decisions without touching a real compromised system."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "triage",
+      "difficulty": 1,
+      "task": "Synthetic timeline: 09:00 repeated failed logins; 09:05 success from a new context; 09:06 admin token created. Write facts, hypotheses and immediate checks.",
+      "hints": [
+        "Do not identify a person from the IP alone."
+      ],
+      "solution": "Facts: three recorded event types and times\nHypothesis: possible account takeover\nChecks: user confirmation through a trusted channel, token creation audit, session and permission history\nContainment candidate: revoke suspicious token under incident procedure",
+      "walkthrough": "The sequence is more informative than a single failure, but still needs context and a bounded response.",
+      "expectedResult": "A separated fact/hypothesis/action record."
+    },
+    {
+      "id": "recovery",
+      "difficulty": 2,
+      "task": "Explain why deleting a leaked API key from a file is not complete containment.",
+      "hints": [
+        "Consider copies and active authority."
+      ],
+      "solution": "Revoke or rotate the key at its issuer, inspect usage, replace dependent configuration safely and verify the old key is rejected.",
+      "walkthrough": "Removing one copy does not revoke other copies or reverse actions already performed.",
+      "expectedResult": "A credential containment checklist."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-15-q1",
+      "question": "Does one failed login prove compromise?",
+      "options": [
+        "No; investigate context and correlated evidence.",
+        "Yes; every failure is a successful intrusion."
+      ],
+      "correctIndex": 0,
+      "explanation": "Indicators and confirmed outcomes differ.",
+      "answerExplanations": [
+        "Correct. Indicators and confirmed outcomes differ.",
+        "Not quite. Indicators and confirmed outcomes differ."
+      ]
+    },
+    {
+      "id": "cyber-15-q2",
+      "question": "Should this course execute unknown malware to teach effects?",
+      "options": [
+        "Yes; running it on a normal laptop is required.",
+        "No; use synthetic defensive evidence."
+      ],
+      "correctIndex": 1,
+      "explanation": "The learning objective does not require deployable malware.",
+      "answerExplanations": [
+        "Not quite. The learning objective does not require deployable malware.",
+        "Correct. The learning objective does not require deployable malware."
+      ]
+    },
+    {
+      "id": "cyber-15-q3",
+      "question": "Does a familiar logo authenticate a login page?",
+      "options": [
+        "No; verify destination and context.",
+        "Yes; logos cannot be copied."
+      ],
+      "correctIndex": 0,
+      "explanation": "Presentation is not identity proof.",
+      "answerExplanations": [
+        "Correct. Presentation is not identity proof.",
+        "Not quite. Presentation is not identity proof."
+      ]
+    },
+    {
+      "id": "cyber-15-q4",
+      "question": "What does hashing a collected log help detect?",
+      "options": [
+        "Whether every original event is true.",
+        "Later changes to that collected file."
+      ],
+      "correctIndex": 1,
+      "explanation": "Integrity of a copy is not proof of source truth.",
+      "answerExplanations": [
+        "Not quite. Integrity of a copy is not proof of source truth.",
+        "Correct. Integrity of a copy is not proof of source truth."
+      ]
+    },
+    {
+      "id": "cyber-15-q5",
+      "question": "Should destructive cleanup be the first improvised response?",
+      "options": [
+        "No; follow the incident procedure and preserve needed evidence.",
+        "Yes; delete everything suspicious before recording it."
+      ],
+      "correctIndex": 0,
+      "explanation": "Evidence and recovery can be harmed by unplanned changes.",
+      "answerExplanations": [
+        "Correct. Evidence and recovery can be harmed by unplanned changes.",
+        "Not quite. Evidence and recovery can be harmed by unplanned changes."
+      ]
+    },
+    {
+      "id": "cyber-15-q6",
+      "question": "Where should recovery credentials be entered if the endpoint is suspect?",
+      "options": [
+        "Into the same potentially compromised session without review.",
+        "Through a known-clean environment and trusted channel."
+      ],
+      "correctIndex": 1,
+      "explanation": "The recovery path must not reuse the suspected trust failure.",
+      "answerExplanations": [
+        "Not quite. The recovery path must not reuse the suspected trust failure.",
+        "Correct. The recovery path must not reuse the suspected trust failure."
+      ]
+    },
+    {
+      "id": "cyber-15-q7",
+      "question": "Does stopping one process prove full recovery?",
+      "options": [
+        "No; review persistence, credentials and affected scope.",
+        "Yes; all compromise exists in one visible process."
+      ],
+      "correctIndex": 0,
+      "explanation": "The incident can span multiple identities and systems.",
+      "answerExplanations": [
+        "Correct. The incident can span multiple identities and systems.",
+        "Not quite. The incident can span multiple identities and systems."
+      ]
+    },
+    {
+      "id": "cyber-15-q8",
+      "question": "Should incident reports separate hypotheses from facts?",
+      "options": [
+        "No; confident wording improves evidence.",
+        "Yes; uncertainty must remain explicit."
+      ],
+      "correctIndex": 1,
+      "explanation": "Claims must match their support.",
+      "answerExplanations": [
+        "Not quite. Claims must match their support.",
+        "Correct. Claims must match their support."
+      ]
+    },
+    {
+      "id": "cyber-15-q9",
+      "question": "What invalidates a leaked token?",
+      "options": [
+        "Revocation or rotation at its authority source.",
+        "Only removing a local screenshot."
+      ],
+      "correctIndex": 0,
+      "explanation": "Copies remain usable until authority changes.",
+      "answerExplanations": [
+        "Correct. Copies remain usable until authority changes.",
+        "Not quite. Copies remain usable until authority changes."
+      ]
+    },
+    {
+      "id": "cyber-15-q10",
+      "question": "What belongs in a post-incident review?",
+      "options": [
+        "Only a person to blame.",
+        "Prevention, detection, response and verification improvements."
+      ],
+      "correctIndex": 1,
+      "explanation": "The goal is stronger systems and repeatable learning.",
+      "answerExplanations": [
+        "Not quite. The goal is stronger systems and repeatable learning.",
+        "Correct. The goal is stronger systems and repeatable learning."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can distinguish suspicious indicators from confirmed compromise.",
+    "I can choose containment steps that preserve useful evidence.",
+    "I can plan credential revocation and clean recovery from a known-good source."
+  ],
+  "recap": [
+    "Distinguish suspicious indicators from confirmed compromise.",
+    "Choose containment steps that preserve useful evidence.",
+    "Plan credential revocation and clean recovery from a known-good source."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "CISA incident response playbooks",
+      "url": "https://www.cisa.gov/news-events/news/federal-government-cybersecurity-incident-and-vulnerability-response-playbooks",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "NIST incident response",
+      "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Defensive incident awareness",
+    "steps": [
+      {
+        "title": "Observe",
+        "detail": "Record an indicator and its baseline without premature attribution."
+      },
+      {
+        "title": "Triage",
+        "detail": "Assess affected identity, asset, urgency and evidence confidence."
+      },
+      {
+        "title": "Contain",
+        "detail": "Restrict the relevant authority using a clean, authorized process."
+      },
+      {
+        "title": "Recover and learn",
+        "detail": "Restore trusted operation, verify controls and improve the response."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Indicator",
+      "An observation that may suggest suspicious activity."
+    ],
+    [
+      "Containment",
+      "Limiting the spread or impact of a suspected incident."
+    ],
+    [
+      "Known-good source",
+      "A reviewed trustworthy baseline used for recovery."
+    ]
+  ],
+  "lab": null
+}

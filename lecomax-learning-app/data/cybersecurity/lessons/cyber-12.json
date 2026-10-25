@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-12",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-12",
+  "title": {
+    "en": "E-commerce integrity: prices, inventory and payment evidence",
+    "ar": "أمان التجارة الإلكترونية: الثمن والمخزون والأداء",
+    "fr": "E-commerce integrity: prices, inventory and payment evidence"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-11"
+  ],
+  "objectives": [
+    "Calculate totals from trusted prices and validated quantities.",
+    "Verify signed payment events and reject mismatched or repeated effects.",
+    "Explain atomic inventory, coupon eligibility and customer/admin boundaries."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "A secure shop preserves business invariants across requests, retries and external events. Cedar Cart uses fictional money and in-memory stock; it never contacts a payment provider.",
+  "sections": [
+    {
+      "title": "The browser proposes a purchase",
+      "text": "A customer can choose product and quantity, but the server must retrieve the authoritative price and validate currency, availability and eligibility. The unsafe lab quote multiplies posted priceCents by quantity, so changing priceCents to one changes the result. The corrected quote looks up bag in the server catalog and requires a safe positive integer no larger than available stock. Prices are represented in minor units to avoid ordinary floating-point rounding surprises; this does not remove the need for a currency policy or overflow checks. A quantity of -1, 1.5, a string or an enormous number must not silently create a refund, fractional stock or an invalid total."
+    },
+    {
+      "title": "An order is a controlled state machine",
+      "text": "Define allowed transitions such as pending to paid to fulfilled, with cancellation and refund paths specified separately. A customer may read their own order but cannot set its paid status. An administrator’s interface still calls protected server operations with audited permissions. Treat shipping changes, refunds, exports and coupon administration as distinct actions, not one generic logged-in capability. Map customer data into a minimal response and avoid logging addresses, payment tokens or complete provider payloads unless there is a justified controlled need. A status displayed on a browser return page is not evidence that the provider settled a payment."
+    },
+    {
+      "title": "Verify payment messages at two levels",
+      "text": "A webhook receiver must first authenticate the exact raw bytes according to the real provider’s documented signature scheme. Only then should it interpret the event and check that order id, amount, currency, merchant/context and event type match the expected transition. The lab uses its own explicitly fictional HMAC protocol over timestamp plus raw bytes; it is not a PayPal or Stripe verification implementation. It rejects stale timestamps, malformed signatures, modified bytes and mismatched order details. Do not reserialize JSON before verifying a signature over raw bytes, because equivalent JSON objects can have different byte representations. Provider-specific algorithms and key rotation belong in the actual integration."
+    },
+    {
+      "title": "Repeated delivery must not repeat business effects",
+      "text": "Providers can retry a webhook, and a client can retry a checkout after losing a response. Record an event id or idempotency key durably and apply the transition once. The local verifyEvent uses a Set to demonstrate duplicate detection; its state disappears on restart and is not shared between processes. A production design uses a unique constraint and a transaction tying event acceptance to the order transition or outbox record. If you mark an event processed before the order change commits, a failure can permanently skip the change. If you change the order before reserving the event id, concurrent retries can duplicate effects. The ordering must be designed and tested rather than hidden in a helper name."
+    },
+    {
+      "title": "Inventory and coupons require atomic rules",
+      "text": "Checking stock and decrementing it as separate unprotected operations can oversell under concurrency. Use a conditional update or appropriate locking within a database transaction, and require the expected affected-row count before creating the related item. The earlier SQL chapter supplies a concrete transaction exercise. Cedar Cart’s in-memory checkout performs checks and updates without await between them in one process; this is a transparent toy boundary, not proof of multi-instance correctness. The WELCOME coupon is limited to one use per synthetic actor. A production rule also needs durable uniqueness, eligibility dates, order-state policy and concurrency protection. A request rate limit does not enforce coupon eligibility."
+    },
+    {
+      "title": "Verify totals, failures and replay",
+      "text": "The exercise suite compares the vulnerable quote with the authoritative quote, tests quantity boundaries, checks stock after accepted and rejected purchases, and verifies webhook authenticity and duplicate behavior. Record expected state before and after each test. A payment event with a valid signature but wrong amount is still unacceptable. A signature validates the sender/message relationship, not every business fact. Common beginner mistakes include trusting the thank-you page, accepting posted prices, treating a webhook secret as a public API key and assuming one successful purchase proves concurrency safety. Darija: الأداء خاصو دليل من المزود وتطابق مع الطلب؛ والثمن والمخزون كيتحسبو فالخادم، ماشي فالمتصفح."
+    }
+  ],
+  "examples": [
+    {
+      "id": "price-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableCheckout(input) { return Number(input.priceCents) * Number(input.quantity); }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "price-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureCheckout(input) {\n  if (!input || typeof input !== 'object' || Array.isArray(input)) reject('Object required');\n  const product = products[input.productId];\n  if (!product || !Object.hasOwn(products, input.productId)) reject('Unknown product');\n  if (!Number.isSafeInteger(input.quantity) || input.quantity < 1 || input.quantity > product.stock) reject('Quantity unavailable');\n  const totalCents = product.priceCents * input.quantity;\n  if (!Number.isSafeInteger(totalCents)) reject('Total out of range');\n  return { productId: product.id, quantity: input.quantity, totalCents };\n}",
+      "annotations": [
+        {
+          "lines": "1-9",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    },
+    {
+      "id": "webhook",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function verifyEvent(raw, timestamp, signature, secret, seen, now = Date.now()) {\n  if (!Number.isSafeInteger(timestamp) || Math.abs(now - timestamp) > 300000) reject('Expired event', 401);\n  if (typeof signature !== 'string' || !/^[a-f0-9]{64}$/.test(signature)) reject('Invalid signature', 401);\n  const expected = Buffer.from(signEvent(raw, timestamp, secret), 'hex');\n  if (!crypto.timingSafeEqual(expected, Buffer.from(signature,'hex'))) reject('Invalid signature',401);\n  let event;\n  try { event = JSON.parse(raw.toString('utf8')); } catch { reject('Invalid JSON'); }\n  if (typeof event.id !== 'string' || !/^evt_[a-z0-9]{1,40}$/.test(event.id)) reject('Invalid event id');\n  if (seen.has(event.id)) return { duplicate: true };\n  if (event.orderId !== 'order-a' || event.amountCents !== 4990 || event.currency !== 'MAD' || event.type !== 'payment.succeeded') reject('Payment does not match order');\n  seen.add(event.id);\n  return { duplicate: false, orderId: event.orderId, paid: true };\n}",
+      "annotations": [
+        {
+          "lines": "1-13",
+          "label": "Fictional HMAC lab protocol: validate freshness and raw-byte signature, then event identity, order amount/currency/type and duplicate state. Real providers have their own verification specification."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "price",
+      "difficulty": 3,
+      "task": "Post priceCents=1 for one bag in unsafe quote and fixed checkout.",
+      "hints": [
+        "The catalog price is 4990."
+      ],
+      "solution": "Unsafe quote -> 1\nFixed quote -> 4990 before an explicitly eligible coupon",
+      "walkthrough": "The corrected implementation takes price authority from the catalog and quantity intent from the validated request.",
+      "expectedResult": "A price-manipulation regression."
+    },
+    {
+      "id": "webhook",
+      "difficulty": 3,
+      "task": "Test valid event, modified bytes, wrong amount, stale time and repeated id.",
+      "hints": [
+        "Sign fixture bytes with the ephemeral test key; never a real provider key."
+      ],
+      "solution": "Valid -> accepted once\nModified bytes -> signature rejection\nSigned wrong amount -> business rejection\nStale -> freshness rejection\nRepeat -> duplicate, no repeated effect",
+      "walkthrough": "Cryptographic and business checks protect different boundaries. In-memory deduplication is only a lab model of durable idempotency.",
+      "expectedResult": "Five event outcomes with documented storage limits."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-12-q1",
+      "question": "Who chooses the authoritative unit price?",
+      "options": [
+        "The trusted server catalog.",
+        "The posted browser price field."
+      ],
+      "correctIndex": 0,
+      "explanation": "Clients propose purchases but cannot set their price authority.",
+      "answerExplanations": [
+        "Correct. Clients propose purchases but cannot set their price authority.",
+        "Not quite. Clients propose purchases but cannot set their price authority."
+      ]
+    },
+    {
+      "id": "cyber-12-q2",
+      "question": "Does a thank-you page prove payment?",
+      "options": [
+        "Yes; any redirect means settlement.",
+        "No; verify provider evidence."
+      ],
+      "correctIndex": 1,
+      "explanation": "Browser navigation is not a trusted payment event.",
+      "answerExplanations": [
+        "Not quite. Browser navigation is not a trusted payment event.",
+        "Correct. Browser navigation is not a trusted payment event."
+      ]
+    },
+    {
+      "id": "cyber-12-q3",
+      "question": "Can a valid signature accompany the wrong amount?",
+      "options": [
+        "Yes; business facts still need matching.",
+        "No; a signature guarantees every order field is appropriate."
+      ],
+      "correctIndex": 0,
+      "explanation": "Authenticity and business correctness are separate.",
+      "answerExplanations": [
+        "Correct. Authenticity and business correctness are separate.",
+        "Not quite. Authenticity and business correctness are separate."
+      ]
+    },
+    {
+      "id": "cyber-12-q4",
+      "question": "Should raw bytes be reserialized before verification?",
+      "options": [
+        "Yes; any JSON formatting produces the same signature.",
+        "No, when the signature scheme authenticates original bytes."
+      ],
+      "correctIndex": 1,
+      "explanation": "Byte changes can alter the signed representation.",
+      "answerExplanations": [
+        "Not quite. Byte changes can alter the signed representation.",
+        "Correct. Byte changes can alter the signed representation."
+      ]
+    },
+    {
+      "id": "cyber-12-q5",
+      "question": "Is the lab HMAC protocol a real provider integration?",
+      "options": [
+        "No; it is explicitly fictional.",
+        "Yes; every provider uses these exact headers."
+      ],
+      "correctIndex": 0,
+      "explanation": "Production must follow the chosen provider specification.",
+      "answerExplanations": [
+        "Correct. Production must follow the chosen provider specification.",
+        "Not quite. Production must follow the chosen provider specification."
+      ]
+    },
+    {
+      "id": "cyber-12-q6",
+      "question": "Does an in-memory Set survive a restart?",
+      "options": [
+        "Yes; JavaScript retains it forever.",
+        "No; durable deduplication needs persistent state."
+      ],
+      "correctIndex": 1,
+      "explanation": "The lab does not prove production idempotency.",
+      "answerExplanations": [
+        "Not quite. The lab does not prove production idempotency.",
+        "Correct. The lab does not prove production idempotency."
+      ]
+    },
+    {
+      "id": "cyber-12-q7",
+      "question": "Can separate read-then-write stock checks oversell?",
+      "options": [
+        "Yes; concurrent callers can observe stale stock.",
+        "No; each individual query is valid."
+      ],
+      "correctIndex": 0,
+      "explanation": "The relationship needs an atomic rule.",
+      "answerExplanations": [
+        "Correct. The relationship needs an atomic rule.",
+        "Not quite. The relationship needs an atomic rule."
+      ]
+    },
+    {
+      "id": "cyber-12-q8",
+      "question": "Does a requests-per-minute limit enforce one coupon use?",
+      "options": [
+        "Yes; slow repeat purchases are always eligible.",
+        "No; persist the eligibility rule separately."
+      ],
+      "correctIndex": 1,
+      "explanation": "Business-flow limits differ from traffic limits.",
+      "answerExplanations": [
+        "Not quite. Business-flow limits differ from traffic limits.",
+        "Correct. Business-flow limits differ from traffic limits."
+      ]
+    },
+    {
+      "id": "cyber-12-q9",
+      "question": "Should a customer be allowed to post status=paid?",
+      "options": [
+        "No; a verified trusted transition controls it.",
+        "Yes; ownership grants payment authority."
+      ],
+      "correctIndex": 0,
+      "explanation": "Owning an order does not authorize arbitrary state changes.",
+      "answerExplanations": [
+        "Correct. Owning an order does not authorize arbitrary state changes.",
+        "Not quite. Owning an order does not authorize arbitrary state changes."
+      ]
+    },
+    {
+      "id": "cyber-12-q10",
+      "question": "What does a rejected checkout test inspect?",
+      "options": [
+        "Only the button color.",
+        "No unintended stock or order mutation."
+      ],
+      "correctIndex": 1,
+      "explanation": "Business integrity depends on state, not presentation.",
+      "answerExplanations": [
+        "Not quite. Business integrity depends on state, not presentation.",
+        "Correct. Business integrity depends on state, not presentation."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can calculate totals from trusted prices and validated quantities.",
+    "I can verify signed payment events and reject mismatched or repeated effects.",
+    "I can explain atomic inventory, coupon eligibility and customer/admin boundaries."
+  ],
+  "recap": [
+    "Calculate totals from trusted prices and validated quantities.",
+    "Verify signed payment events and reject mismatched or repeated effects.",
+    "Explain atomic inventory, coupon eligibility and customer/admin boundaries."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP transaction authorization",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Transaction_Authorization_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "PostgreSQL transactions",
+      "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "A purchase crosses independent authorities",
+    "steps": [
+      {
+        "title": "Customer intent",
+        "detail": "Product and quantity are proposals."
+      },
+      {
+        "title": "Server order",
+        "detail": "Catalog price, stock and coupon rules define the pending purchase."
+      },
+      {
+        "title": "Provider evidence",
+        "detail": "Verify the authentic event and match its business facts."
+      },
+      {
+        "title": "Durable transition",
+        "detail": "Apply payment and inventory effects once under transactional constraints."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Webhook",
+      "An inbound event notification from another system."
+    ],
+    [
+      "Replay",
+      "Repeating a previously valid message or operation."
+    ],
+    [
+      "State machine",
+      "A defined set of states and permitted transitions."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Commerce integrity defender"
+  }
+}

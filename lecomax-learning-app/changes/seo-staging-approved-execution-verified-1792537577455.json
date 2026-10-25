@@ -1,0 +1,62 @@
+{
+  "id": "seo-staging-approved-execution-verified-1792537577455",
+  "createdAt": "2026-10-20T23:06:17.455Z",
+  "relatedId": "seo-staging-approved-execution-start-1792537190965",
+  "title": "Staging Auth and synthetic database provisioned and verified",
+  "summary": "Approved staging-only configuration completed; protected no-login smoke deployment is ready for separate approval. Production unchanged.",
+  "status": "successful",
+  "pages": [
+    "SEO staging",
+    "/change-history"
+  ],
+  "components": [
+    "Supabase Auth",
+    "Synthetic SEO database",
+    "Staging release documentation"
+  ],
+  "files": [
+    "docs/seo-staging-executed-20261021.md",
+    "docs/seo-staging-owner-runbook-20261020.md",
+    "docs/seo-staging-configuration-matrix-20261020.md",
+    "artifacts/seo-staging-approved-execution/recovery.md",
+    "artifacts/seo-staging-approved-execution/apply-auth-delta.ps1",
+    "artifacts/seo-staging-approved-execution/create-users.ps1",
+    "artifacts/seo-staging-approved-execution/verify-rest.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Applied no-delivery staging Auth settings, seven schema stages and four preconfirmed random-password synthetic users."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Applied only changed Auth fields to avoid HTTP402 for unchanged settings; corrected PowerShell URL interpolation before user creation; zeroed inherited staging AI lifetime limit and seed spend."
+    },
+    {
+      "kind": "added",
+      "detail": "Recovery plan, preserved Auth before-state, encrypted fixture credentials, readback evidence and current release handoff. No source removal or production change."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Hosted isolation and Auth",
+      "result": "passed",
+      "detail": "Exact target identity; all requested Auth fields read back; four confirmed users; zero sessions; disabled password login; service REST reads and anonymous refusal."
+    },
+    {
+      "name": "Database security",
+      "result": "passed",
+      "detail": "18 RLS tables, no anonymous/authenticated grants or function execution, no outbound extensions/triggers; zero budgets. Advisor informational no-policy findings intentional; leaked-password warning retained for future Auth acceptance."
+    },
+    {
+      "name": "Regression",
+      "result": "passed",
+      "detail": "242 tests, nine browser scenarios, 13 native PG17/PostgREST checks including restore, both TypeScript checks, focused ESLint with existing image warnings, full production build and eight HTTP checks."
+    },
+    {
+      "name": "Hosted deployment and real role sessions",
+      "result": "not-run",
+      "detail": "No deployment authorized. Password provider remains disabled; no real role-session acceptance or clean Linux install claimed. Minimal fixtures do not cover full commerce."
+    }
+  ]
+}

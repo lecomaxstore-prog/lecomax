@@ -1,0 +1,35 @@
+{
+  "id": "batch2-mobile-fallback-correction-20261024",
+  "relatedId": "batch2-mobile-prepared-20261024",
+  "createdAt": "2026-10-24T20:12:50.876Z",
+  "title": "Batch 2: recover image errors that occur before hydration",
+  "summary": "Repeated failure injection exposed a timing race: optimized category requests could fail before the React error handler attached. Check completed broken images at hydration and fall back to original artwork.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage / categories"
+  ],
+  "components": [
+    "CategoryTile image fallback"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/components/CategoryTiles.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Hydration effect checks complete/currentSrc/naturalWidth in addition to onError, restoring original source for early image failures."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Failure reproduction",
+      "result": "passed",
+      "detail": "Full browser runs reproduced complete images with naturalWidth zero and optimized currentSrc; a focused run passed, identifying a timing-dependent race. Failed evidence retained."
+    },
+    {
+      "name": "Final corrected candidate",
+      "result": "not-run",
+      "detail": "Build, types/lint and image fallback/browser validation pending; source 79288dad7ed4757c23f1a219bf8d3bfbad9396b99175ed66a3707ace2946b48b. Production unchanged."
+    }
+  ]
+}

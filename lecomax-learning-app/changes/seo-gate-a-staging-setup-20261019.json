@@ -1,0 +1,50 @@
+{
+  "id": "seo-gate-a-staging-setup-20261019",
+  "createdAt": "2026-10-19T10:42:35.819Z",
+  "relatedId": "seo-gate-a-blocked-20261019",
+  "title": "Gate A staging target supplied; secure connection setup required",
+  "summary": "Staging and production references differ. No staging credential configuration or connector access to the designated target is available; backup and restore remain blocked.",
+  "status": "needs-testing",
+  "pages": [
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Gate A staging connection and isolation"
+  ],
+  "files": [
+    "scripts/setup-seo-staging-connection.ps1",
+    "docs/seo-gate-a-staging-setup-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Interactive staging-only setup helper with hidden password input, fixed target checks, protected timestamped environment storage outside Git and no database/network operations."
+    },
+    {
+      "kind": "added",
+      "detail": "Detailed blocked-status report and secure connection/isolation prerequisites. Previous reports and backups retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Reference distinction",
+      "result": "passed",
+      "detail": "Supplied staging tyltharlnbxrxibuxyye differs from expected production yddqwgdgeljkzfsmtein; live staging ownership/name/region not independently verified."
+    },
+    {
+      "name": "PowerShell syntax",
+      "result": "passed",
+      "detail": "Parser found no errors. Interactive helper was not executed and no credential file was created."
+    },
+    {
+      "name": "Staging access and isolation",
+      "result": "not-run",
+      "detail": "No staging/restore/isolated environment configuration found. Neither connected account lists the supplied target. TLS, permissions, extensions and external integrations remain unverified."
+    },
+    {
+      "name": "Backup and restore",
+      "result": "not-run",
+      "detail": "Stopped as requested before database work. No fresh dump, restore, production writes, migrations, deployment, worker/cron activation, publication or paid API calls."
+    }
+  ]
+}

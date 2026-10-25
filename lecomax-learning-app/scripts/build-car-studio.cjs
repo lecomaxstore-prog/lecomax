@@ -1,0 +1,12 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const esbuild = require('esbuild');
+const root = path.resolve(__dirname, '..');
+const result = esbuild.buildSync({ entryPoints: [path.join(root, 'features/car-studio/runtime.ts')], bundle: true, minify: true, format: 'iife', target: ['es2020'], write: false, legalComments: 'inline' });
+const js = result.outputFiles[0].text;
+const css = fs.readFileSync(path.join(root, 'features/car-studio/studio.css'), 'utf8');
+const license = fs.readFileSync(path.join(root, 'node_modules/three/LICENSE'), 'utf8');
+const car = fs.readFileSync(path.join(root, 'assets/car-studio/CarConcept.glb')).toString('base64');
+const html = '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>' + css + '</style></head><body><main id="studio"></main><script>/*STUDIO_BOOT*/window.studioModel="' + car + '";</script><script>/*' + license + '*/\n' + js.replace(/<\/script/gi, '<\\/script') + '</script></body></html>';
+fs.writeFileSync(path.join(root, 'data/car-studio-runtime.json'), JSON.stringify(html));
+console.log('Bundled offline car studio runtime: ' + Buffer.byteLength(html) + ' bytes');

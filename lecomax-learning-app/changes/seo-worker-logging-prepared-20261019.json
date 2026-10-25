@@ -1,0 +1,39 @@
+{
+  "id": "seo-worker-logging-prepared-20261019",
+  "createdAt": "2026-10-19T20:20:31.616Z",
+  "relatedId": "seo-staging-cli-guard-verified-20261019",
+  "title": "Worker logging recovery and inert staging configuration prepared",
+  "summary": "Isolated log-sink errors from durable run outcomes and added disabled staging configuration proposal; offline validation pending.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Engine",
+    "Change History"
+  ],
+  "components": [
+    "Worker handler",
+    "Staging configuration"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/logging-recovery.test.mjs",
+    "operations/seo/staging-isolated-plan.json",
+    "tests/seo-isolated-plan.test.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Synchronous and asynchronous logger failures no longer escape response handling or misreport committed success."
+    },
+    {
+      "kind": "added",
+      "detail": "Non-runtime staging proposal with zero budget, no credentials, no schedules and all execution flags disabled."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Offline regression",
+      "result": "not-run",
+      "detail": "Pending; no hosted operations or paid provider requests authorized."
+    }
+  ]
+}

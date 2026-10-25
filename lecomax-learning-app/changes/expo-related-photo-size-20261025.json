@@ -1,0 +1,29 @@
+{
+  "id": "expo-related-photo-size-20261025",
+  "createdAt": "2026-10-25T13:55:56.846Z",
+  "title": "Larger photos in You may also like",
+  "summary": "Fix the Expo recommendation cards shown in the screenshot, with full-width portrait photography.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductCard related"
+  ],
+  "files": [
+    "mobile/src/components/product-card.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Remove the 36px top, 8px side and 10px bottom image insets in related cards. Use a 3:4 panel so portrait product photos can occupy the full card width while preserving contain fitting and existing wishlist/badge overlays."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Checks pending",
+      "result": "not-run",
+      "detail": "Mobile typecheck, lint and browser verification pending. No deployment."
+    }
+  ]
+}

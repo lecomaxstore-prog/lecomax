@@ -1,0 +1,54 @@
+{
+  "id": "seo-auth-and-editorial-gate-needs-testing-20261021",
+  "createdAt": "2026-10-21T00:13:23.801Z",
+  "title": "Real staging sessions verified; editorial write gate remains isolated",
+  "summary": "Generated no-delivery links for four existing synthetic users, verified normal Auth sessions and role authorization, and prepared a bounded editorial fixture. No app data was written because synchronization is disabled and no SEO documents exist.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO admin",
+    "Editorial workspace",
+    "Product pages",
+    "Change History"
+  ],
+  "components": [
+    "Supabase Auth",
+    "Admin session",
+    "SEO editorial workflow"
+  ],
+  "files": [
+    "scripts/seo-real-session-acceptance.cjs",
+    "operations/seo/staging-editorial-acceptance.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only no-delivery session acceptance harness and synthetic editorial fixture."
+    },
+    {
+      "kind": "modified",
+      "detail": "Corrected the expected editor sync permission to reflect the reviewed product-only role."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Genuine sessions and permissions",
+      "result": "passed",
+      "detail": "seo-real-session-acceptance-1792541505297.json: owner/editor/viewer sessions created through generated links, revoked user denied application session, direct private-table REST denied, sessions/cookies/logouts cleaned, temporary Vercel credential revoked."
+    },
+    {
+      "name": "Editorial fixture validation",
+      "result": "passed",
+      "detail": "Fixture passes offline editorial quality validation with human review warnings."
+    },
+    {
+      "name": "Hosted editorial save/publish/rollback",
+      "result": "not-run",
+      "detail": "No SEO documents exist because synchronization is disabled; creating one would require a staging write or enabling sync, neither authorized for this continuation."
+    },
+    {
+      "name": "Browser/mobile/desktop",
+      "result": "not-run",
+      "detail": "No connected browser surface."
+    }
+  ]
+}

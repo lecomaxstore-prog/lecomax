@@ -1,0 +1,57 @@
+{
+  "id": "production-merge-type-corrections-20261025",
+  "createdAt": "2026-10-25T21:50:06.931Z",
+  "title": "Restore deployed helper components and repair mobile merge types",
+  "summary": "Restore cart feedback and deferred chat helpers, deduplicate mobile brand imports, and retain production web-scroll typing.",
+  "status": "needs-testing",
+  "relatedId": "production-live-fixes-preserved-20261025",
+  "pages": [
+    "Home",
+    "Product gallery",
+    "Bestsellers",
+    "Learning change history"
+  ],
+  "components": [
+    "Production integration",
+    "ProductGallery",
+    "Collection selectors",
+    "SEO test fixtures"
+  ],
+  "files": [
+    "components/CartQuoteFeedback.tsx",
+    "components/DeferredChatWidget.tsx",
+    "mobile/src/app/(tabs)/account.tsx",
+    "mobile/src/components/product-card.tsx",
+    "mobile/src/components/promotion-card.tsx",
+    "mobile/src/components/search-product-card.tsx",
+    "mobile/src/components/wishlist-product-card.tsx",
+    "mobile/src/components/home-promotion-section.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Restore CartQuoteFeedback and DeferredChatWidget from the verified deployed source snapshot."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remove duplicate ProductBrandMark imports in five mobile components and retain the production ViewStyle extension for web overflow."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Node 24 tests",
+      "result": "passed",
+      "detail": "748 tests: 743 passed, five skipped, zero failed; Android back and scroll-return checks passed."
+    },
+    {
+      "name": "Local build",
+      "result": "failed",
+      "detail": "Local build exhausted disk space (ENOSPC). Generated output removed; source and recovery backups retained. Hosted build required before production promotion."
+    },
+    {
+      "name": "Release",
+      "result": "not-run",
+      "detail": "Final type verification, GitHub publication and hosted production verification pending."
+    }
+  ]
+}

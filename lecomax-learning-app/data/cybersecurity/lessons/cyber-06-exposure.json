@@ -1,0 +1,305 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-06-exposure",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-06",
+  "title": {
+    "en": "Uploads, configuration and sensitive information exposure",
+    "ar": "رفع الملفات والإعدادات وتسريب المعلومات",
+    "fr": "Uploads, configuration and sensitive information exposure"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-06-server-inputs"
+  ],
+  "objectives": [
+    "Validate and quarantine uploads without trusting names or MIME claims.",
+    "Separate useful public errors from sensitive internal diagnostics.",
+    "Review configuration with least privilege and explicit evidence."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Treat every uploaded byte, response field and deployment setting as part of a specific trust boundary. A file signature check is only a quarantine gate, not proof that a file is safe.",
+  "sections": [
+    {
+      "title": "An upload is untrusted content plus untrusted metadata",
+      "text": "A browser submits a filename, claimed media type and bytes. All three are caller-controlled. A service that accepts an HTML document named portrait.png and later serves it as active content can create a stored browser attack. A server that places uploads in an executable directory can create an even more serious boundary failure depending on its runtime. Other risks include excessive size, decompression bombs, parser vulnerabilities and unauthorized access to someone else’s upload. Necessary preconditions differ, so describe the actual processing chain: receive, validate, store, decode, transform and serve. File extension checking alone does not establish what the bytes mean."
+    },
+    {
+      "title": "The local upload gate has an intentionally limited claim",
+      "text": "validateUpload accepts a Buffer no larger than one MiB, checks a claimed PNG type and compares the first eight bytes to the PNG signature. It returns a generated quarantine id with status awaiting-decoder. The tests reject oversized input, a false type and HTML bytes disguised as an image. A buffer with only a valid signature can pass this gate, which is why it is explicitly not marked accepted or safe. A real pipeline must decode the entire format under resource limits, re-encode an allowed representation where appropriate, inspect dimensions and enforce storage/serving policy. The generated name avoids using the original filename as a path. No user upload is written to disk in this lab."
+    },
+    {
+      "title": "Design storage and serving as separate decisions",
+      "text": "Keep quarantined content outside the public web root and do not let the application execute it. Use separate storage keys, access checks and size limits. When serving files, choose an intentional Content-Type and Content-Disposition, use nosniff and consider a separate origin for untrusted downloadable content. A signed download URL grants limited access to its holder, so give it a suitable lifetime and avoid leaking it into logs. Validate authorization for reading and deleting a file, not only for uploading it. If a scan or decoder times out, keep the item unavailable rather than treating the error as approval. A negative test should prove this fail-closed transition."
+    },
+    {
+      "title": "Misconfiguration can defeat correct application code",
+      "text": "Debug pages, development credentials, overly broad CORS settings, public storage buckets and unnecessary management endpoints can expose a system without a novel code exploit. The cause is often a mismatch between intended environment and actual deployment. Inventory configuration values by purpose without copying secret values into your report. Ask whether a setting is public build-time data or a server secret, whether preview and production differ, and whether an old deployment remains reachable. Do not label every missing header equally severe: explain the protected browser behavior and whether the response needs that control. A configuration review needs a versioned snapshot or observed response, not a memory of what someone selected months ago."
+    },
+    {
+      "title": "Sensitive exposure often comes from convenience",
+      "text": "Returning a caught Error object or full internal record may reveal paths, queries, customer details or tokens. The local safeError function returns only a stable public message and requestId. The test creates an error containing a fictional secret marker and asserts that the marker is absent from the returned JSON. This proves the mapper omits details; it does not prove every route uses the mapper or that logs are correctly restricted. Use explicit DTOs for successful responses too. Redact authentication headers, cookies, payment details and personal data before emitting logs. Encryption in transit does not protect information that the server willingly includes in its response."
+    },
+    {
+      "title": "Identify, repair and verify the whole chain",
+      "text": "For uploads, compare name, claimed type, signature and decoder result, then verify the item is inaccessible until approved. For error leakage, deliberately trigger a local controlled failure and inspect both status and body. For configuration, compare the intended policy with the running environment and retest after deployment. Common mistakes include trusting the filename, equating a magic-byte match with malware scanning, publishing quarantined files, and exposing detailed stack traces to make support easier. Darija: الامتداد غير اسم؛ الملف خاصو يتفحص ويتعزل قبل ما يتعرض للناس. A secure repair must preserve legitimate uploads and useful internal diagnostics while removing unnecessary public authority and disclosure."
+    }
+  ],
+  "examples": [
+    {
+      "id": "upload",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function validateUpload(bytes, claimedType) {\n  if (!Buffer.isBuffer(bytes) || bytes.length < 8 || bytes.length > 1024 * 1024) reject('Invalid size');\n  const png = Buffer.from([137,80,78,71,13,10,26,10]);\n  if (claimedType !== 'image/png' || !bytes.subarray(0,8).equals(png)) reject('Unexpected file type');\n  return { quarantineId: crypto.randomUUID(), status: 'awaiting-decoder' };\n}",
+      "annotations": [
+        {
+          "lines": "1-6",
+          "label": "Check size and an initial PNG signature, then return a quarantine state. A real decoder and storage policy are still required."
+        }
+      ]
+    },
+    {
+      "id": "error",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function safeError(error, requestId) { return { message: 'Request could not be completed', requestId }; }",
+      "annotations": [
+        {
+          "lines": "1",
+          "label": "Return a generic public message and correlation id rather than serializing internal exception details."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "upload",
+      "difficulty": 2,
+      "task": "Test HTML named picture.png, oversized bytes and a signature-only PNG. Explain the different outcomes.",
+      "hints": [
+        "A passing signature gate is still awaiting-decoder."
+      ],
+      "solution": "HTML -> rejected\nOversized bytes -> rejected\nPNG signature -> quarantine only, not publication",
+      "walkthrough": "The third case intentionally teaches why a cheap initial check cannot establish full format safety.",
+      "expectedResult": "Three outcomes and an explicit quarantine limit."
+    },
+    {
+      "id": "error",
+      "difficulty": 2,
+      "task": "Create an internal Error containing FAKE_SECRET and map it with request id req-lab.",
+      "hints": [
+        "Inspect serialized output rather than only the UI text."
+      ],
+      "solution": "{\"message\":\"Request could not be completed\",\"requestId\":\"req-lab\"}",
+      "walkthrough": "The public response preserves correlation without disclosing the internal message. Controlled logs need their own redaction and access policy.",
+      "expectedResult": "No FAKE_SECRET in public JSON."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-06-exposure-q1",
+      "question": "Does .png prove the uploaded bytes are a PNG?",
+      "options": [
+        "No; the name is untrusted metadata.",
+        "Yes; extensions authenticate formats."
+      ],
+      "correctIndex": 0,
+      "explanation": "The caller controls filenames.",
+      "answerExplanations": [
+        "Correct. The caller controls filenames.",
+        "Not quite. The caller controls filenames."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q2",
+      "question": "What does the local signature check return?",
+      "options": [
+        "A guarantee of malware-free content.",
+        "A quarantine state awaiting a decoder."
+      ],
+      "correctIndex": 1,
+      "explanation": "Magic bytes are only an initial gate.",
+      "answerExplanations": [
+        "Not quite. Magic bytes are only an initial gate.",
+        "Correct. Magic bytes are only an initial gate."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q3",
+      "question": "Should decoder timeout publish the file?",
+      "options": [
+        "No; keep it unavailable.",
+        "Yes; no result means no risk."
+      ],
+      "correctIndex": 0,
+      "explanation": "The required approval check did not succeed.",
+      "answerExplanations": [
+        "Correct. The required approval check did not succeed.",
+        "Not quite. The required approval check did not succeed."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q4",
+      "question": "Why generate a storage id?",
+      "options": [
+        "To replace all content validation.",
+        "To avoid granting path authority to the original filename."
+      ],
+      "correctIndex": 1,
+      "explanation": "Naming and content safety are separate boundaries.",
+      "answerExplanations": [
+        "Not quite. Naming and content safety are separate boundaries.",
+        "Correct. Naming and content safety are separate boundaries."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q5",
+      "question": "Does HTTPS prevent a stack trace being returned to the caller?",
+      "options": [
+        "No; the server can still disclose it.",
+        "Yes; encrypted responses contain no sensitive data."
+      ],
+      "correctIndex": 0,
+      "explanation": "Transport encryption does not change response contents.",
+      "answerExplanations": [
+        "Correct. Transport encryption does not change response contents.",
+        "Not quite. Transport encryption does not change response contents."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q6",
+      "question": "What should a public error preserve?",
+      "options": [
+        "Raw database credentials.",
+        "A safe message and correlation id."
+      ],
+      "correctIndex": 1,
+      "explanation": "Support can correlate without exposing internals.",
+      "answerExplanations": [
+        "Not quite. Support can correlate without exposing internals.",
+        "Correct. Support can correlate without exposing internals."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q7",
+      "question": "Should quarantined content sit in an executable public directory?",
+      "options": [
+        "No; separate it from publication and execution.",
+        "Yes; upload success implies trust."
+      ],
+      "correctIndex": 0,
+      "explanation": "Receiving bytes is not approval.",
+      "answerExplanations": [
+        "Correct. Receiving bytes is not approval.",
+        "Not quite. Receiving bytes is not approval."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q8",
+      "question": "Are all missing security headers equally severe?",
+      "options": [
+        "Yes; every header omission proves the same breach.",
+        "No; explain context and the behavior each protects."
+      ],
+      "correctIndex": 1,
+      "explanation": "Risk depends on response and application context.",
+      "answerExplanations": [
+        "Not quite. Risk depends on response and application context.",
+        "Correct. Risk depends on response and application context."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q9",
+      "question": "Does a safe error helper prove every route uses it?",
+      "options": [
+        "No; route integration needs tests.",
+        "Yes; defining it changes all responses."
+      ],
+      "correctIndex": 0,
+      "explanation": "A helper’s existence is not coverage evidence.",
+      "answerExplanations": [
+        "Correct. A helper’s existence is not coverage evidence.",
+        "Not quite. A helper’s existence is not coverage evidence."
+      ]
+    },
+    {
+      "id": "cyber-06-exposure-q10",
+      "question": "What is a useful upload positive control?",
+      "options": [
+        "Reject every byte sequence permanently.",
+        "A permitted fully decoded file follows the approved pipeline."
+      ],
+      "correctIndex": 1,
+      "explanation": "A repair must preserve intended functionality under explicit checks.",
+      "answerExplanations": [
+        "Not quite. A repair must preserve intended functionality under explicit checks.",
+        "Correct. A repair must preserve intended functionality under explicit checks."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can validate and quarantine uploads without trusting names or MIME claims.",
+    "I can separate useful public errors from sensitive internal diagnostics.",
+    "I can review configuration with least privilege and explicit evidence."
+  ],
+  "recap": [
+    "Validate and quarantine uploads without trusting names or MIME claims.",
+    "Separate useful public errors from sensitive internal diagnostics.",
+    "Review configuration with least privilege and explicit evidence."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP file upload",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/File_Upload_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP error handling",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/Error_Handling_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "An upload is not public until approved",
+    "steps": [
+      {
+        "title": "Receive bounded bytes",
+        "detail": "Apply body-size and per-user limits before expensive processing."
+      },
+      {
+        "title": "Quarantine",
+        "detail": "Assign a generated id; reject obvious type mismatches."
+      },
+      {
+        "title": "Decode and inspect",
+        "detail": "Use resource-limited parsing and explicit allowed outputs."
+      },
+      {
+        "title": "Authorized serving",
+        "detail": "Apply access policy, media type and safe delivery headers."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Quarantine",
+      "A state in which untrusted content is stored or held without being published."
+    ],
+    [
+      "MIME type",
+      "A declared media representation, not proof of file validity."
+    ],
+    [
+      "Fail closed",
+      "Deny or defer a sensitive action when its required check cannot complete."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Exposure prevention defender"
+  }
+}

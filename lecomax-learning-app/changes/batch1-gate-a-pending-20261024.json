@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-24T17:23:43.593Z",
+  "id": "batch1-gate-a-pending-20261024",
+  "createdAt": "2026-10-24T17:23:43.593Z",
+  "relatedId": "batch1-rc2-handoff-verified-20261024",
+  "title": "Apply authorized Gate A staging configuration",
+  "summary": "Approved 19 inert Preview-only values and All Deployments protection for the existing checkout staging project. Authenticated readback pending; no deployment authorized.",
+  "status": "needs-testing",
+  "pages": [
+    "/checkout",
+    "/panier",
+    "/change-history"
+  ],
+  "components": [
+    "Vercel checkout staging configuration"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/gate-a.cjs",
+    "artifacts/batch1-release-preparation-20261024/environment-manifest.json",
+    "artifacts/batch1-release-preparation-20261024/gate-a/preflight.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Guarded Gate A procedure and sanitized preflight evidence; upcoming provider changes restricted to approved Preview variables and all protection."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Preflight",
+      "result": "passed",
+      "detail": "Exact 19 approved values/scopes, RC2 policy, archive hash and fresh empty project boundaries verified."
+    },
+    {
+      "name": "Authenticated post-change verification",
+      "result": "not-run",
+      "detail": "Pending authorized configuration; no deployment or hosted acceptance."
+    }
+  ]
+}

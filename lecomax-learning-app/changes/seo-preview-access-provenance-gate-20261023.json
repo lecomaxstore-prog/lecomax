@@ -1,0 +1,54 @@
+{
+  "id": "seo-preview-access-provenance-gate-20261023",
+  "relatedId": "seo-staging-access-refresh-blocked-20261023",
+  "createdAt": "2026-10-23T06:21:12.693Z",
+  "title": "Staging access works; Preview service-key provenance remains blocked",
+  "summary": "Verified staging MCP read-only access, unchanged live Release D, and all 2588 candidate hashes. Preview deployment withheld because Vercel does not expose the sensitive server credential for provenance verification.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO release readiness",
+    "Change History"
+  ],
+  "components": [
+    "Staging isolation verification",
+    "Vercel provider audit"
+  ],
+  "files": [
+    "docs/seo-preview-access-readiness-20261023.md",
+    "artifacts/seo-preview-resume-20261023/access-audit-current.cjs",
+    "artifacts/seo-preview-resume-20261023/credential-readability.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added sanitized read-only provider diagnostics and a release-readiness report. No application source, database, credentials or deployments changed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Staging MCP",
+      "result": "passed",
+      "detail": "Expected project URL, table metadata and transaction_read_only=on verified. No OAuth refresh failure reproduced."
+    },
+    {
+      "name": "Preserved candidate and production baseline",
+      "result": "passed",
+      "detail": "2588 corrected file hashes and 18 original recovery hashes match; candidate tree equals Release D; fresh Vercel alias still targets the recorded READY deployment."
+    },
+    {
+      "name": "Prior unchanged-source validation",
+      "result": "passed",
+      "detail": "Retained logs show 120 tests, types/lint and successful build retry; prior 30 local/live image HTTP checks passed. These checks were not rerun."
+    },
+    {
+      "name": "Preview isolation and hosted acceptance",
+      "result": "not-run",
+      "detail": "Sensitive server key has no readable value field. Full credential/endpoint separation cannot be certified; no deployment or Preview HTTP/browser validation performed."
+    },
+    {
+      "name": "History integrity before append",
+      "result": "passed",
+      "detail": "759 existing reports validated."
+    }
+  ]
+}

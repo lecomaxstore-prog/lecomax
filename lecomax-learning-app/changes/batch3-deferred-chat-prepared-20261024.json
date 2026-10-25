@@ -1,0 +1,47 @@
+{
+  "id": "batch3-deferred-chat-prepared-20261024",
+  "createdAt": "2026-10-24T20:37:19.293Z",
+  "title": "Batch 3: defer hidden chat code beyond initial loading",
+  "summary": "Candidate separates the hidden chat widget into an asynchronous client chunk, scheduled after load at idle or immediately on scroll. Fonts and storefront styling are unchanged. Validation and paired measurement pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront routes with chat launcher"
+  ],
+  "components": [
+    "Root layout",
+    "DeferredChatWidget",
+    "ChatWidget scroll reveal"
+  ],
+  "files": [
+    "artifacts/batch3-mobile-20261024/source/app/layout.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/ChatWidget.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/DeferredChatWidget.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "DeferredChatWidget loads existing chat on idle after page load (1500ms timeout; timer fallback), or early scroll."
+    },
+    {
+      "kind": "modified",
+      "detail": "Root layout uses deferred entry; chat initializes scroll visibility at mount to support restored/early scroll. Session, messages, credentials, checkout and database behavior untouched."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production source identity",
+      "result": "passed",
+      "detail": "2054 Batch 2 files verified against live deployment dpl_23Ji3SkdLo1nkiN19j9NJsvArde3."
+    },
+    {
+      "name": "Bottleneck diagnostic",
+      "result": "passed",
+      "detail": "Two baseline/no-font/no-JS runs: baseline 4.156/4.092s, no-font 3.940/3.972s, no-JS 2.764/2.832s. Diagnostic only; no-JS is not a release proposal."
+    },
+    {
+      "name": "Candidate validation",
+      "result": "not-run",
+      "detail": "Exact candidate cc32c3d34afdf2799528bc53b37b64f700d592884a5f9b6afaf46d4dc5330c18; types, build, regression, browser and matched performance checks pending. No deployment authorized."
+    }
+  ]
+}

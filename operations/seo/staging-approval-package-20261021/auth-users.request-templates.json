@@ -1,0 +1,39 @@
+{
+  "status": "review-only-not-executable",
+  "target": "https://tyltharlnbxrxibuxyye.supabase.co/auth/v1/admin/users",
+  "method": "POST",
+  "requiresSeparateApproval": true,
+  "users": [
+    {
+      "email": "owner@staging.invalid",
+      "email_confirm": true,
+      "password": "GENERATE_INDEPENDENT_RANDOM_SECRET_AT_APPROVED_EXECUTION"
+    },
+    {
+      "email": "editor@staging.invalid",
+      "email_confirm": true,
+      "password": "GENERATE_INDEPENDENT_RANDOM_SECRET_AT_APPROVED_EXECUTION"
+    },
+    {
+      "email": "viewer@staging.invalid",
+      "email_confirm": true,
+      "password": "GENERATE_INDEPENDENT_RANDOM_SECRET_AT_APPROVED_EXECUTION"
+    },
+    {
+      "email": "revoked@staging.invalid",
+      "email_confirm": true,
+      "password": "GENERATE_INDEPENDENT_RANDOM_SECRET_AT_APPROVED_EXECUTION"
+    }
+  ],
+  "prohibitedMethods": [
+    "inviteUserByEmail",
+    "signUp",
+    "resetPasswordForEmail"
+  ],
+  "notes": [
+    "No real password is generated or stored in this template.",
+    "Create each user only after matching staging project identity and approved no-delivery policy.",
+    "No user_metadata authorization.",
+    "Email/password sign-in remains disabled by the conservative smoke Auth plan."
+  ]
+}

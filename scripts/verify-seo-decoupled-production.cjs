@@ -1,0 +1,58 @@
+// Read-only production audit; no migration, mutation RPC or credential output.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),cp=require('node:child_process');
+const {Client}=require('pg');require('@next/env').loadEnvConfig(process.cwd(),false,{info(){},error(){}});
+const ref='yddqwgdgeljkzfsmtein',api=`https://${ref}.supabase.co`,hash=x=>crypto.createHash('sha256').update(x).digest('hex');
+const file='supabase/alternatives/202610180002_seo_decoupled.sql',expected='1f084348a0702a9ae6f5a2a52a59537c544d8b8aa2dc7e86e6fe38c33a725445';
+const report={at:new Date().toISOString(),productionWrites:false,issues:[]};
+const run=(tool,args,env)=>{const r=cp.spawnSync(`C:/Program Files/PostgreSQL/18/bin/${tool}.exe`,args,{env,encoding:'utf8',windowsHide:true,timeout:120000,maxBuffer:32*1024*1024});if(r.status!==0)throw Error('ARCHIVE_OR_SCHEMA_READ_FAILED');return r.stdout;};
+const blocks=s=>new Map(s.replace(/\r\n/g,'\n').replace(/^\\(?:un)?restrict .*$/gm,'').split(/\n--\n-- Name: /).slice(1).map(b=>[b.split('\n')[0],b.slice(b.indexOf('\n')).replace(/^--.*$/gm,'').trim()]));
+(async()=>{
+  if(hash(fs.readFileSync(file))!==expected)throw Error('MIGRATION_HASH_CHANGED');
+  const sql=fs.readFileSync(file,'utf8').replace(/--[^\n]*/g,'');
+  if(/create\s+trigger|(?:update|insert\s+into|delete\s+from|alter\s+table)\s+public\.(?:products|categories|orders)\b/i.test(sql))throw Error('COMMERCE_COUPLING_FOUND');
+  report.migration={file,sha256:expected,noCommerceWritesOrTriggers:true};
+  const m=JSON.parse(fs.readFileSync('artifacts/seo-decoupled-candidate-final.json'));
+  for(const e of m.files)if(hash(fs.readFileSync(path.join(m.directory,e.file)))!==e.sha256)throw Error('CANDIDATE_CHANGED');
+  if(fs.existsSync(path.join(m.directory,'supabase/migrations/202610180001_seo_engine.sql')))throw Error('UNSAFE_MIGRATION_PACKAGED');
+  report.candidate={directory:m.directory,baseCommit:m.baseCommit,files:m.files.length,hashesVerified:true,unsafeMigrationInPipeline:false};
+  const u=new URL(process.env.OWNER_DATABASE_URL);
+  if(process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/,'')!==api||!(u.hostname===`db.${ref}.supabase.co`||u.hostname.endsWith('.pooler.supabase.com')&&decodeURIComponent(u.username).endsWith('.'+ref))||u.port==='6543')throw Error('TARGET_MISMATCH');
+  const env={...process.env,PGHOST:u.hostname,PGPORT:u.port||'5432',PGUSER:decodeURIComponent(u.username),PGPASSWORD:decodeURIComponent(u.password),PGDATABASE:decodeURIComponent(u.pathname.slice(1)),PGSSLMODE:'verify-full',PGSSLROOTCERT:path.resolve('supabase/prod-ca-2021.crt'),PGOPTIONS:'-c default_transaction_read_only=on -c timezone=UTC',PGCONNECT_TIMEOUT:'15'};delete env.PGHOSTADDR;
+  const c=new Client({host:env.PGHOST,port:Number(env.PGPORT),user:env.PGUSER,password:env.PGPASSWORD,database:env.PGDATABASE,ssl:{rejectUnauthorized:true,ca:fs.readFileSync(env.PGSSLROOTCERT,'utf8')},options:'-c default_transaction_read_only=on',connectionTimeoutMillis:15000});
+  try {
+    await c.connect();await c.query('begin isolation level repeatable read read only');await c.query("set local statement_timeout='20s'");
+    report.identity=(await c.query("select current_database() database,current_user role,current_setting('server_version') version,current_setting('transaction_read_only') read_only,pg_is_in_recovery() replica")).rows[0];
+    if(report.identity.database!=='postgres'||report.identity.read_only!=='on'||report.identity.replica||c.connection.stream.authorized!==true)throw Error('IDENTITY_FAILED');
+    report.identity.projectRef=ref;report.identity.tlsCertificateVerified=true;
+    const names=[...sql.matchAll(/create (?:table|index) public\.(\w+)|create index (\w+)/gi)].map(m=>m[1]||m[2]);names.push('seo_events_id_seq','seo_documents_pkey','seo_events_pkey','seo_sync_queue_pkey','seo_sync_health_pkey');
+    report.collidingRelations=(await c.query("select relname from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and c.relname=any($1)",[names])).rows;
+    const funcs=[...sql.matchAll(/create function public\.(\w+)/gi)].map(m=>m[1]);funcs.push('seo_catalogue_trigger');
+    report.collidingFunctions=(await c.query("select p.oid::regprocedure::text signature from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname=any($1)",[funcs])).rows;
+    report.ledger=(await c.query("select version from supabase_migrations.schema_migrations where version in ('202610180001','202610180002')")).rows;
+    report.roles=(await c.query("select rolname,rolbypassrls,has_schema_privilege(rolname,'public','CREATE') can_create from pg_roles where rolname in (current_user,'anon','authenticated','service_role')")).rows;
+    report.timeouts=(await c.query("select r.rolname,unnest(s.setconfig) setting from pg_db_role_setting s join pg_roles r on r.oid=s.setrole where r.rolname in ('authenticator','service_role','postgres')")).rows.filter(r=>/^(statement_timeout|lock_timeout|transaction_timeout|idle_in_transaction_session_timeout)=/.test(r.setting));
+    report.columns=(await c.query("select table_name,column_name,udt_name,is_nullable from information_schema.columns where table_schema='public' and table_name in ('products','categories') and column_name in ('id','name','slug','active') order by table_name,column_name")).rows;
+    report.catalogue=(await c.query("select 'products' kind,count(*)::int rows,count(*) filter(where id is null or name is null or slug is null or trim(name)='' or trim(slug)='')::int invalid,count(*) filter(where active)-count(distinct slug) filter(where active) duplicate_active_slugs from public.products union all select 'categories',count(*)::int,count(*) filter(where id is null or name is null or slug is null or trim(name)='' or trim(slug)='')::int,count(*) filter(where active)-count(distinct slug) filter(where active) from public.categories")).rows;
+    report.commerceFunctions=(await c.query("select p.oid::regprocedure::text signature,md5(pg_get_functiondef(p.oid)) definition_md5,pg_get_functiondef(p.oid) ~* '(seo_sync|seo_document|seo_queue|claim_seo|reconcile_seo)' references_seo from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.prokind='f' and p.proname ~* '(order|inventory|stock|payment|paypal)' order by 1")).rows;
+    report.commerceTriggers=(await c.query("select c.relname,t.tgname,t.tgenabled,md5(pg_get_triggerdef(t.oid)) definition_md5,p.proname,pg_get_functiondef(p.oid) ~* '(seo_sync|seo_document|seo_queue|claim_seo|reconcile_seo)' references_seo from pg_trigger t join pg_class c on c.oid=t.tgrelid join pg_namespace n on n.oid=c.relnamespace join pg_proc p on p.oid=t.tgfoid where n.nspname='public' and c.relname in ('products','categories','orders') and not t.tgisinternal order by 1,2")).rows;
+    report.activity=(await c.query("select count(*) filter(where xact_start<now()-interval '60 seconds' and pid<>pg_backend_pid())::int long_transactions,count(*) filter(where wait_event_type='Lock')::int lock_waiters from pg_stat_activity where datname=current_database()")).rows[0];
+    const snapshot=(await c.query('select pg_export_snapshot() snapshot')).rows[0].snapshot;
+    const liveSchema=run('pg_dump',['--schema-only','--snapshot',snapshot,'--lock-wait-timeout=5000'],env);
+    const base='C:/Users/Ziko/Backups/LECOMAX',latest=fs.readdirSync(base).filter(f=>/^lecomax-production-.*\.dump$/.test(f)).sort().at(-1);
+    if(!latest)throw Error('NO_BACKUP');const backup=path.join(base,latest),meta=JSON.parse(fs.readFileSync(backup+'.report.json'));
+    if(hash(fs.readFileSync(backup))!==meta.sha256)throw Error('BACKUP_HASH_MISMATCH');
+    const toc=run('pg_restore',['--list',backup],env);run('pg_restore',['--file=NUL',backup],env);
+    const a=blocks(run('pg_restore',['--schema-only','--file=-',backup],env)),b=blocks(liveSchema),diff=[...new Set([...a.keys(),...b.keys()])].filter(k=>a.get(k)!==b.get(k));
+    if(a.size<100||b.size<100)throw Error('SCHEMA_PARSE_INCOMPLETE');
+    report.backup={file:backup,sha256:meta.sha256,startedAt:meta.startedAt,ageMinutes:Math.round((Date.now()-Date.parse(meta.startedAt))/6000)/10,checksumVerified:true,fullArchiveReadPassed:true,archiveEntries:toc.split(/\r?\n/).filter(l=>/^\d+;/.test(l)).length,schemaBlocks:a.size,currentSchemaBlocks:b.size,schemaDifferences:diff,exactArchiveRestored:false};
+    await c.query('rollback');
+    if(report.collidingRelations.length||report.collidingFunctions.length||report.ledger.length)report.issues.push('SEO objects or ledger entries already exist');
+    if(report.catalogue.some(r=>r.invalid||Number(r.duplicate_active_slugs)))report.issues.push('Catalogue integrity failure');
+    if(report.columns.length!==8||report.columns.some(r=>r.column_name==='active'&&r.udt_name!=='bool'))report.issues.push('Required catalogue schema mismatch');
+    if(report.commerceFunctions.some(r=>r.references_seo)||report.commerceTriggers.some(r=>r.references_seo))report.issues.push('Existing commerce dependency on SEO');
+    if(diff.length)report.issues.push('Latest backup schema differs from production');
+    report.environmentPresence=Object.fromEntries(['OWNER_DATABASE_URL','NEXT_PUBLIC_SUPABASE_URL','NEXT_PUBLIC_SUPABASE_ANON_KEY','SUPABASE_SERVICE_ROLE_KEY','ADMIN_EMAIL','ADMIN_SESSION_SECRET','SEO_AI_BASE_URL','SEO_AI_API_KEY','SEO_AI_MODEL','SEO_SYNC_ENABLED','SEO_SYNC_SUPABASE_URL','SEO_SYNC_SERVICE_ROLE_KEY'].map(k=>[k,Boolean(process.env[k])]));
+    const output=`artifacts/seo-migration/decoupled-production-readonly-${Date.now()}.json`;
+    fs.writeFileSync(output,JSON.stringify(report,null,2),{flag:'wx'});console.log(JSON.stringify({file:output,...report},null,2));if(report.issues.length)process.exitCode=1;
+  } finally {await c.end();}
+})().catch(e=>{console.error('Read-only audit failed:',e.code||'CHECK_FAILED');process.exitCode=1;});

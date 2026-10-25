@@ -1,0 +1,38 @@
+{
+  "id": "batch3-production-authorized-20261024",
+  "relatedId": "batch3-mobile-validated-20261024",
+  "createdAt": "2026-10-24T20:53:04.193Z",
+  "title": "Batch 3: exact production candidate authorized",
+  "summary": "One production deployment authorized for the unchanged certified three-file candidate. Live verification pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Production storefront lecomax.com"
+  ],
+  "components": [
+    "Deferred chat loading",
+    "Chat launcher"
+  ],
+  "files": [
+    "artifacts/batch3-mobile-20261024/source/app/layout.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/DeferredChatWidget.tsx",
+    "artifacts/batch3-mobile-20261024/source/components/ChatWidget.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Release certified source fdbf6e7b2d9f35c7517a72520b73a55a0b1a08f04767e9050e7a4aa896fd8c3a once to existing lecomax project. No new application edits."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Final preflight",
+      "result": "passed",
+      "detail": "2055 files; exact approved scope and passing build match. Current Batch 2 READY deployment/configuration unchanged. Correct case-sensitive rollback dpl_23Ji3SkdLo1nkiN19j9NJsvArde3."
+    },
+    {
+      "name": "Live verification",
+      "result": "not-run",
+      "detail": "Submission, provider receipt, storefront/chat and performance checks pending."
+    }
+  ]
+}

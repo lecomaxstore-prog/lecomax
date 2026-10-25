@@ -1,0 +1,38 @@
+{
+  "id": "admin-preview-login-20261025",
+  "createdAt": "2026-10-25T13:14:17.082Z",
+  "title": "Explain admin access in local catalogue preview",
+  "summary": "Replace the unusable login form in the read-only local preview with a clear explanation and live-admin link.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin"
+  ],
+  "components": [
+    "AdminLoginPage"
+  ],
+  "files": [
+    "app/admin/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Detect the development synthetic catalogue mode and suppress unsupported password sign-in. Explain the local mode instead of reporting a misleading connection failure."
+    },
+    {
+      "kind": "added",
+      "detail": "Provide explicit links to live administration and local storefront; clarify live changes affect the real shop. Real Supabase login flow remains unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Root cause",
+      "result": "passed",
+      "detail": "Local auth settings endpoint returned HTTP 503 with explicit catalogue-preview unsupported-service response; launcher confirms authentication is unavailable."
+    },
+    {
+      "name": "UI verification",
+      "result": "not-run",
+      "detail": "Pending live localhost browser verification. No real account sign-in or production changes."
+    }
+  ]
+}

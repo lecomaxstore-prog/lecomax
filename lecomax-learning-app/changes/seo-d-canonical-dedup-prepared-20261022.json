@@ -1,0 +1,37 @@
+{
+  "id": "seo-d-canonical-dedup-prepared-20261022",
+  "relatedId": "seo-advanced-d-resume-verified-20261022",
+  "createdAt": "2026-10-22T18:39:30.394Z",
+  "title": "Release D: canonical URL deduplication",
+  "summary": "Normalize trailing-slash variants before IndexNow batch deduplication. Add no-retry and canonical payload checks; no deployment or flag change.",
+  "status": "needs-testing",
+  "pages": [
+    "Product publication",
+    "IndexNow API",
+    "Release tooling"
+  ],
+  "components": [
+    "IndexNow transport"
+  ],
+  "files": [
+    "release/seo-advanced-d-20261022/lib/indexnow.mjs",
+    "release/seo-advanced-d-20261022/tests/seo-advanced-indexnow.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Collapse slashless and trailing-slash variants into the storefront canonical URL before one batch submission."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression cases verify canonical deduplication and no retry on rejected or uncertain submissions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate validation",
+      "result": "not-run",
+      "detail": "Focused tests, full candidate regression, TypeScript, lint and build pending."
+    }
+  ]
+}

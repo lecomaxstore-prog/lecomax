@@ -1,0 +1,47 @@
+{
+  "id": "seo-staging-readonly-verified-20261019",
+  "createdAt": "2026-10-19T11:00:15.338Z",
+  "relatedId": "seo-gate-a-staging-setup-20261019",
+  "title": "Staging TLS and read-only database checks passed; restore remains gated",
+  "summary": "Verified protected staging configuration, TLS 1.3 and PostgreSQL 17.11 read-only access. Public application schema is empty. Complete platform isolation remains unconfirmed; no backup or restore performed.",
+  "status": "successful",
+  "pages": [
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "Gate A staging verification"
+  ],
+  "files": [
+    "scripts/verify-seo-staging-readonly.cjs",
+    "docs/seo-staging-readonly-verification-20261019.md",
+    "artifacts/seo-quality/staging-readonly-1792407555187.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Fixed-target TLS read-only verification script, sanitized catalog evidence, and detailed staged backup/restore plan with remaining blockers."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Configuration and ACLs",
+      "result": "passed",
+      "detail": "Target matches tyltharlnbxrxibuxyye and differs from production. Directory ACL protected; files inherit restricted access; no unexpected Allow rules or reparse points. No secrets printed."
+    },
+    {
+      "name": "TLS and database reads",
+      "result": "passed",
+      "detail": "TLSv1.3 authorized with CA and hostname verification. PostgreSQL 17.11; explicit read-only transaction. Script syntax and live execution passed."
+    },
+    {
+      "name": "Database inventory",
+      "result": "passed",
+      "detail": "No public tables/functions/triggers, foreign servers or subscriptions; Vault count zero. pg_cron/pg_net/pg_graphql available but not installed."
+    },
+    {
+      "name": "Complete isolation and recovery",
+      "result": "not-run",
+      "detail": "Owning project absent from available connector listings. Auth/SMTP/hooks/Edge Functions/external integrations unverified. No backup, restore, migration, production connection, deployment, activation or paid API calls. Gate A incomplete; Gate B unauthorized."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "seo-quality-build-recovery-20261019",
+  "createdAt": "2026-10-19T10:07:57.775Z",
+  "title": "Offline quality build encountered font access and disk-space failures",
+  "summary": "First build was blocked by font-download access; the next exhausted disk space. Only this task’s failed webpack cache was removed. A cache-disabled isolated retry is pending.",
+  "status": "failed",
+  "relatedId": "seo-quality-offline-prepared-20261019",
+  "pages": [
+    "Local production build",
+    "Change History"
+  ],
+  "components": [
+    "Isolated build verification"
+  ],
+  "files": [
+    "scripts/build-seo-quality-offline.cjs",
+    "scripts/disable-seo-quality-build-cache.cjs",
+    "artifacts/seo-quality/build-1792404121470.json",
+    "artifacts/seo-quality/build-1792404289118.json",
+    "artifacts/seo-quality/build-cache-adjustment.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Disabled webpack disk caching only in the new disposable build-check configuration after ENOSPC. Root application configuration and all older releases/backups are unchanged. Removed only .next/cache inside this task’s explicitly resolved build directory."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Initial build attempts",
+      "result": "failed",
+      "detail": "First exit 1: Google Fonts Inter/Sora downloads blocked with EACCES. Second exit 1: ENOSPC. Logs and build records retained."
+    },
+    {
+      "name": "Unaffected validation",
+      "result": "passed",
+      "detail": "68 focused tests, 6 history tests, both root and learning TypeScript, focused lint and responsive Admin fixture passed. No paid calls or migrations."
+    },
+    {
+      "name": "Build recovery",
+      "result": "not-run",
+      "detail": "New cache-disabled isolated build is pending completion. Placeholder credentials only; public font network access permitted. No deployment."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "id": "seo-staging-config-prepared-20261020",
+  "createdAt": "2026-10-20T17:51:01.121Z",
+  "title": "Prepare isolated staging build and environment configuration",
+  "summary": "Owner-authorized staging-only configuration with exact project guards, direct staging key provenance, disabled effects and no deployment or database writes.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging hosting",
+    "Change History"
+  ],
+  "components": [
+    "Vercel staging configuration",
+    "Environment isolation"
+  ],
+  "files": [
+    "scripts/configure-seo-staging-hosting.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Guarded configuration script sets Next.js/Node 24, standard npm lifecycle and staging-only Production/Preview variables; secrets remain in memory."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Hosted configuration and regression checks",
+      "result": "not-run",
+      "detail": "Pending execution and readback; no production change or deployment authorized."
+    }
+  ]
+}

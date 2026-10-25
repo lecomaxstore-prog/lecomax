@@ -1,0 +1,52 @@
+{
+  "id": "seo-playwright-connectivity-repaired-20261021",
+  "createdAt": "2026-10-21T11:14:13.492Z",
+  "title": "Playwright MCP startup typo repaired; browser acceptance pending",
+  "summary": "Corrected npx.cdm to npx.cmd and verified server version 0.0.83. Current conversation still has no Playwright tools; staging remains NO-GO.",
+  "status": "needs-testing",
+  "relatedId": "seo-owner-continuation-verified-20261021",
+  "pages": [
+    "SEO staging acceptance",
+    "Change History"
+  ],
+  "components": [
+    "Playwright MCP configuration",
+    "Browser acceptance handoff"
+  ],
+  "files": [
+    "C:/Users/Ziko/.codex/config.toml",
+    "docs/seo-playwright-connectivity-20261021.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected only the Playwright launcher typo in user Codex configuration; preserved other settings."
+    },
+    {
+      "kind": "added",
+      "detail": "Documented startup evidence, restricted-context failures and desktop/mobile acceptance steps."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Configured launcher and version",
+      "result": "passed",
+      "detail": "Outside sandbox codex.cmd mcp get playwright confirms enabled STDIO npx.cmd; npx.cmd -y @playwright/mcp@latest --version exits 0, version 0.0.83."
+    },
+    {
+      "name": "Initial restricted probes",
+      "result": "failed",
+      "detail": "Restricted CLI could not see the entry; npm failed EACCES; PowerShell shim blocked by execution policy. Existing cmd launcher and approved outside-sandbox verification succeeded without changing policy."
+    },
+    {
+      "name": "Hosted browser acceptance",
+      "result": "not-run",
+      "detail": "No Playwright browser tools exposed in this conversation. Host reload/new session needed to retry initialization. No protection bypass or hosted writes."
+    },
+    {
+      "name": "Previous history integrity",
+      "result": "passed",
+      "detail": "All 675 existing reports validated before append."
+    }
+  ]
+}

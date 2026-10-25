@@ -2,8 +2,10 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { readFileSync } from "node:fs";
+import { configEnvironment } from './helpers/config-environment.ts';
 const require = createRequire(import.meta.url);
-test("production supports same-origin learning previews and bundles private source", async () => {
+test("production supports same-origin learning previews and bundles private source", async (t) => {
+  t.after(configEnvironment());
   const config = await require("../next.config.js")("phase-production-build");
   const rules = await config.headers();
   const headers = rules.find(rule => rule.source === "/(.*)").headers;

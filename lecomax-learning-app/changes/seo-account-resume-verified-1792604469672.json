@@ -1,0 +1,70 @@
+{
+  "id": "seo-account-resume-verified-1792604469672",
+  "createdAt": "2026-10-21T17:41:09.671Z",
+  "relatedId": "seo-account-resume-verification-prepared-1792604293001",
+  "title": "Production checkpoint verified; secure release gates remain blocked",
+  "summary": "Ten exact Production-only values verified, pinned source/migration hashes and encrypted archive preserved, 132 local tests pass with corrected test support. Secure bindings, signer approval, build and hosted acceptance remain open.",
+  "status": "needs-testing",
+  "pages": [
+    "Production configuration",
+    "SEO administration",
+    "Change History"
+  ],
+  "components": [
+    "Release verifier",
+    "Security regression support",
+    "Recovery evidence"
+  ],
+  "files": [
+    "scripts/verify-seo-production-handoff.cjs",
+    "artifacts/seo-handoff-regression-support.mjs",
+    "operations/seo/production-handoff-20261021/CONFIGURATION-RESUME.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only verification and exact owner actions with actual secure-configuration limitations; no hosting writes."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Verifier now reads crons.definitions. Separate regression support supplies real environment policy to stale test mocks; release source and assertions remain unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production literals and preservation",
+      "result": "passed",
+      "detail": "10/14 exact values; no duplicates; all entries, alias and four crons preserved."
+    },
+    {
+      "name": "Source and SQL pins",
+      "result": "passed",
+      "detail": "Both 2124-file candidates and six migration hashes verified."
+    },
+    {
+      "name": "Production environment/build",
+      "result": "failed",
+      "detail": "Four required names absent; sensitive credential readback unavailable; existing build guard stops before compilation."
+    },
+    {
+      "name": "Local security/SEO regressions",
+      "result": "passed",
+      "detail": "127 selected regressions plus five candidate write-boundary tests pass using documented test support. Earlier failing logs retained."
+    },
+    {
+      "name": "Encrypted backup/recovery",
+      "result": "passed",
+      "detail": "Saved ciphertext checksum matches successful isolated 110-table application restore; 0.56 hours old at verification. Release-window RPO, Storage binaries, same-major/platform and offsite key recovery unverified."
+    },
+    {
+      "name": "Hosted staging acceptance and production release",
+      "result": "not-run",
+      "detail": "Actor/session acceptance, signer approval and final release approval remain required. No deployment, SQL or worker activation."
+    },
+    {
+      "name": "Change history integrity",
+      "result": "passed",
+      "detail": "All 700 reports present before this append; final check follows."
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "product-contrast-release-authorized-20261025",
+  "relatedId": "product-contrast-verified-resumed-20261025",
+  "createdAt": "2026-10-25T06:51:55.158Z",
+  "title": "Product contrast production release authorized",
+  "summary": "User authorized one production attempt of the certified four-colour-substitution candidate; live acceptance pending.",
+  "status": "needs-testing",
+  "pages": [
+    "/produit/[slug]"
+  ],
+  "components": [
+    "Product information paragraphs"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Prepare one exact-source release; no further application edits. Candidate 40d35613f6de1d2df08e434485585f57296227d5c16c2f905d24f8ea8fcfac37."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Saved local build, types, lint and contrast",
+      "result": "passed",
+      "detail": "Certified checks reused; no rebuild."
+    },
+    {
+      "name": "Production release and live acceptance",
+      "result": "not-run",
+      "detail": "Pending fresh preflight and single authorized submission. No real orders or payments."
+    }
+  ]
+}

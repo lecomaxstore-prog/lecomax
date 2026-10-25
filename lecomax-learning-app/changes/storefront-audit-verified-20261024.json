@@ -1,0 +1,62 @@
+{
+  "id": "storefront-audit-verified-20261024",
+  "relatedId": "storefront-audit-evidence-20261024",
+  "createdAt": "2026-10-24T13:15:07.617Z",
+  "title": "Storefront audit complete: measured backlog and first batch proposal",
+  "summary": "Completed Production/source reconciliation, mobile and desktop lab baseline, responsive and keyboard review, isolated cart/checkout failure tests and prioritized implementation plan. No storefront source changes or deployment; implementation awaits explicit approval.",
+  "status": "successful",
+  "pages": [
+    "Storefront /",
+    "/boutique",
+    "/homme",
+    "Product detail",
+    "/panier",
+    "/checkout"
+  ],
+  "components": [
+    "Audit documentation",
+    "Performance and accessibility evidence",
+    "Cart/checkout synthetic validation"
+  ],
+  "files": [
+    "artifacts/storefront-audit-20261024/REPORT.md",
+    "artifacts/storefront-audit-20261024/LIGHTHOUSE.md",
+    "artifacts/storefront-audit-20261024/baseline-summary.json",
+    "artifacts/storefront-audit-20261024/lighthouse-summary.json",
+    "artifacts/storefront-audit-20261024/synthetic-verification-390.json",
+    "artifacts/storefront-audit-20261024/validation.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Structured audit, ten prioritized findings, P0 release-safety gate, P1/P2/P3 backlog, exact quote-state first-batch proposal, regression strategy and next-account handoff. Added browser screenshots, machine-readable evidence and replayable local harnesses. No application implementation additions, fixes, removals or deployment."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production identity and source reconciliation",
+      "result": "passed",
+      "detail": "READY dpl_CxX8Deg6R6T4prqTnHEiJVvqGu6f, commit ddf12f4a916478f80f1ca75a1ca83a193d36ef28, verified by authenticated read-only provider GET. Editor differences and staging restrictions separated."
+    },
+    {
+      "name": "Performance and responsive audit collection",
+      "result": "passed",
+      "detail": "24 repeated Playwright lab samples, eight Lighthouse performance runs, eight baseline axe scans and 30 responsive views collected. Findings include slow mobile rendering, narrow hero overflow, hidden/modal focus and contrast issues; passed means evidence collected, not that UX is defect-free."
+    },
+    {
+      "name": "Synthetic commerce checks",
+      "result": "passed",
+      "detail": "18 existing offline tests passed. Mocked mobile/desktop quantity persistence and quote failures reproduced misleading free-shipping text. Focused check confirmed disabled submit on quote error and stale error after successful recovery. No order/payment submission."
+    },
+    {
+      "name": "Evidence integrity and local history",
+      "result": "passed",
+      "detail": "JSON parsing, referenced local artifacts and scoped Git-status preservation checked by validate.cjs; history check passed with 805 reports before this linked append. Final check recorded separately in artifacts."
+    },
+    {
+      "name": "Untested limitations",
+      "result": "not-run",
+      "detail": "Field CWV/INP unavailable: PSI API 429. No physical-device/Safari/screen-reader certification, full transaction/race/idempotency rehearsal, type/lint/build, new deployment or live history preview. No source changes warranting application build."
+    }
+  ]
+}

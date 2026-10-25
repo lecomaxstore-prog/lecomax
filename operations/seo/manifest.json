@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-18T19:15:55.412Z",
+  "projectRef": "yddqwgdgeljkzfsmtein",
+  "approvalRequired": true,
+  "files": [
+    {
+      "file": "migration.sql",
+      "sha256": "1f084348a0702a9ae6f5a2a52a59537c544d8b8aa2dc7e86e6fe38c33a725445"
+    },
+    {
+      "file": "postflight.sql",
+      "sha256": "c0c3465c98e841a31bea5e4ce31d551a02ff22283e3bc00e721594c592e527d5"
+    },
+    {
+      "file": "apply.psql",
+      "sha256": "5265f47eba0ca7a09939da1a5bf90fd2bfbe600842f7fc8b9c301db965009de9"
+    },
+    {
+      "file": "lecomax-seo.service",
+      "sha256": "f85a9362a079443b563f4e5594529baa8a9648e3c6ec67264636ccdd6a90c6cd"
+    },
+    {
+      "file": "lecomax-seo.timer",
+      "sha256": "02ebf75596deeceb3118290c3588f9ff44cf2bd992be884e0dfee0199a0d5157"
+    },
+    {
+      "file": "worker.env.example",
+      "sha256": "2167e9c728b92006daadc5e441acc96de17f4ed7476d7fc8bbf7d59e2f4d8141"
+    },
+    {
+      "file": "verify-bundle.cjs",
+      "sha256": "1cf5bfeeaeea7ada6ea3195dbecad4317a3d969522a955523f0ee822096a97ae"
+    }
+  ]
+}

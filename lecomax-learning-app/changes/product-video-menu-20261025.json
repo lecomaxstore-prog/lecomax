@@ -1,0 +1,32 @@
+{
+  "id": "product-video-menu-20261025",
+  "createdAt": "2026-10-25T14:07:48.514Z",
+  "title": "Hide product video download and playback-speed options",
+  "summary": "Remove the requested browser video menu options from website and Expo web product players; hide the Android player settings button.",
+  "status": "needs-testing",
+  "pages": [
+    "Website /produit/[slug]",
+    "Expo /product/[slug]"
+  ],
+  "components": [
+    "ProductVideo",
+    "VideoPlayback"
+  ],
+  "files": [
+    "components/ProductVideo.tsx",
+    "mobile/src/components/product-video.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Add nodownload and noplaybackrate controlsList tokens to website video markup and Expo web video elements. Disable Android settings button through Expo buttonOptions. Preserve native play/pause and seek controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending verification",
+      "result": "not-run",
+      "detail": "Typecheck, lint and browser attributes pending. Browser support varies; native iOS settings unchanged. No deployment."
+    }
+  ]
+}

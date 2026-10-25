@@ -16,7 +16,7 @@ import { palette, typography } from "@/constants/theme";
 import { useSettings } from "@/hooks/use-catalog";
 import { triggerSuccessHaptic } from "@/services/haptics";
 import { getFreshProduct } from "@/services/catalog";
-import { discount, money } from "@/lib/format";
+import { discount, money, moneyParts } from "@/lib/format";
 import { useProductImage } from "@/hooks/use-product-image";
 import { productCardWidth } from "@/lib/responsive";
 import { useCartFeedbackStore } from "@/stores/cart-feedback";
@@ -78,6 +78,11 @@ export const ProductCard = memo(function ProductCard({
     );
   const displayName =
     wide || grid ? product.name.split(/\s+[—–]\s+/)[0] : product.name;
+  const relatedTitle = product.name.split(/\s+[\u2013\u2014-]\s+/)[0].trim();
+  const relatedName = relatedTitle;
+  const relatedPriceParts = moneyParts(product.price).filter((part) =>
+    !Number.isInteger(product.price) || (part.type !== "decimal" && part.type !== "fraction"),
+  );
   // Below ~152px the brand and the "EN STOCK" pill cannot both fit without
   // truncating the brand, so the pill keeps only its dot (320pt phones).
   const tightCard = grid && typeof width === "number" && width < 152;
@@ -108,6 +113,7 @@ export const ProductCard = memo(function ProductCard({
         grid && styles.grid,
         grid && (width ? { width } : { width: productCardWidth(columns) }),
         related && styles.relatedCard,
+        related && width ? { width } : undefined,
       ]}
     >
       <View
@@ -137,7 +143,7 @@ export const ProductCard = memo(function ProductCard({
             cachePolicy="memory-disk"
             recyclingKey={product.id}
             onError={onImageError}
-            style={[StyleSheet.absoluteFill, styles.productImage]}
+            style={[StyleSheet.absoluteFill, styles.productImage, related && styles.relatedProductImage]}
           />
         )}
         {saving ? (
@@ -145,7 +151,7 @@ export const ProductCard = memo(function ProductCard({
             {!related && <Ionicons name="flash" size={10} color={palette.white} />}
             <Text style={[styles.discountText, related && styles.relatedDiscountText]}>-{saving}%</Text>
           </View>
-        ) : product.newArrival ? (
+        ) : product.newArrival && !related ? (
           <View style={styles.newBadge}>
             <Text numberOfLines={1} style={styles.newBadgeText}>{msg("productCard.newUppercase")}</Text>
           </View>
@@ -208,7 +214,7 @@ export const ProductCard = memo(function ProductCard({
             related && styles.relatedName,
           ]}
         >
-          {displayName}
+          {related ? relatedName : displayName}
         </Text>
         {(product.review_count ?? product.reviews ?? 0) > 0 ? (
           <View style={styles.ratingRow}>
@@ -221,8 +227,12 @@ export const ProductCard = memo(function ProductCard({
         </AnimatedPressable>
         <View style={[styles.footer, tightCard && styles.tightFooter, related && styles.relatedFooter]}>
           {related ? <View style={styles.relatedPrices}>
-            <Text style={styles.relatedPrice}>{money(product.price)}</Text>
-            {saving > 0 ? <Text style={styles.relatedOldPrice}>{money(product.original_price!)}</Text> : null}
+            <Text accessibilityLabel={money(product.price)} style={styles.relatedPrice}>
+              {relatedPriceParts.map((part, index) => (
+                <Text key={index} style={part.type === "currency" ? styles.relatedCurrency : undefined}>{part.value}</Text>
+              ))}
+            </Text>
+            {saving > 0 && <Text style={styles.relatedOldPrice}>{money(product.original_price!)}</Text>}
           </View> : <Price
             price={product.price}
             oldPrice={product.original_price}
@@ -230,7 +240,7 @@ export const ProductCard = memo(function ProductCard({
             emphasized
             tight={tightCard}
           />}
-          <AnimatedPressable
+          {!related && <AnimatedPressable
             accessibilityRole="button"
             accessibilityLabel={
               requiresOptions ? msg("productCard.chooseOptions") : msg("common.add")
@@ -299,27 +309,40 @@ export const ProductCard = memo(function ProductCard({
             ) : (
               <Ionicons name={requiresOptions ? "arrow-forward" : "add"} size={20} color={palette.white} />
             )}
-          </AnimatedPressable>
+          </AnimatedPressable>}
         </View>
+        {related && <AnimatedPressable
+          accessibilityRole="button"
+          accessibilityLabel={msg("product.viewNamed", { name: product.name })}
+          onPress={openProduct}
+          style={styles.relatedLink}
+        >
+          <Text numberOfLines={1} style={styles.relatedLinkText}>{msg("checkoutScreen.viewDetails")}</Text>
+          <Ionicons name="arrow-forward" size={16} color="#203B2A" />
+        </AnimatedPressable>}
       </View>
     </View>
   );
 });
 
 const styles = StyleSheet.create({
-  relatedCard: { width: 240, padding: 8, borderRadius: 20, borderWidth: 1, borderColor: "#EBEDE7", backgroundColor: "#FFFFFF", overflow: "hidden", shadowOpacity: 0, elevation: 0 },
-  relatedImage: { height: 224, borderRadius: 14, backgroundColor: "#FFFFFF" },
-  relatedBody: { paddingHorizontal: 6, paddingTop: 14, paddingBottom: 5 },
-  relatedBrand: { color: "#77816F", fontSize: 9, letterSpacing: 1 },
-  relatedName: { minHeight: 40, marginTop: 7, fontFamily: typography.semibold, fontSize: 14, lineHeight: 20, letterSpacing: -0.3 },
-  relatedDiscount: { minHeight: 25, paddingHorizontal: 8, borderRadius: 7, backgroundColor: "#EAF2E2" },
+  relatedCard: { flexDirection: "column", padding: 0, borderRadius: 18, borderWidth: 1, borderColor: "#E4EAE5", backgroundColor: "#FFFFFF", overflow: "hidden", shadowOpacity: 0, elevation: 0 },
+  relatedImage: { width: "100%", aspectRatio: 3 / 4, borderRadius: 0, backgroundColor: "#F5F7F4", borderBottomWidth: 1, borderColor: "#EAF0E9" },
+  relatedProductImage: { top: 0, right: 0, bottom: 0, left: 0 },
+  relatedBody: { flex: 1, minWidth: 0, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 0, backgroundColor: "#FFFFFF" },
+  relatedBrand: { color: "#747A70", fontFamily: typography.medium, fontSize: 10, lineHeight: 15, letterSpacing: 1.8 },
+  relatedName: { minHeight: 40, marginTop: 6, fontFamily: typography.semibold, fontSize: 13, lineHeight: 20, letterSpacing: -0.2, color: "#202A22" },
+  relatedDiscount: { minHeight: 25, paddingHorizontal: 8, borderRadius: 6, backgroundColor: "#EAF2E2" },
   relatedDiscountText: { color: "#3B603D", fontFamily: typography.semibold, fontSize: 10 },
-  relatedWishlist: { shadowOpacity: 0, elevation: 0 },
-  relatedFooter: { marginTop: 12, paddingTop: 10, borderTopColor: "#EDF0E8", gap: 8 },
-  relatedPrices: { flex: 1, flexDirection: "row", flexWrap: "wrap", alignItems: "baseline", gap: 5 },
-  relatedPrice: { color: "#183D29", fontFamily: typography.bold, fontSize: 16 },
-  relatedOldPrice: { color: palette.muted, fontFamily: typography.regular, fontSize: 11, textDecorationLine: "line-through" },
-  relatedAdd: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#183D29", shadowOpacity: 0, elevation: 0 },
+  relatedWishlist: { top: 4, right: 4, width: 44, height: 44, borderRadius: 22, borderWidth: 0, backgroundColor: "#FFFFFFE6", shadowOpacity: 0, elevation: 0 },
+  relatedFooter: { minHeight: 30, marginTop: 10, padding: 0, paddingLeft: 0, borderWidth: 0, borderRadius: 0, backgroundColor: "transparent" },
+  relatedCurrency: { fontFamily: typography.medium, fontSize: 11 },
+  relatedPrices: { flex: 1, flexDirection: "column", alignItems: "flex-start", gap: 2, minHeight: 44 },
+  relatedPrice: { color: "#203B2A", fontFamily: typography.semibold, fontSize: 19, lineHeight: 26 },
+  relatedOldPrice: { color: "#687268", fontFamily: typography.regular, fontSize: 11, lineHeight: 16, textDecorationLine: "line-through" },
+  relatedLink: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 4, marginTop: 10, borderTopWidth: 1, borderTopColor: "#EDF0EB" },
+  relatedLinkText: { flexShrink: 1, fontFamily: typography.semibold, fontSize: 11, color: "#203B2A" },
+  relatedAdd: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#203C2E", shadowOpacity: 0, elevation: 0 },
   card: {
     width: "48.4%",
     overflow: "hidden",

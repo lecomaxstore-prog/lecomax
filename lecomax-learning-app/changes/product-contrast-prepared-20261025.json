@@ -1,0 +1,34 @@
+{
+  "id": "product-contrast-prepared-20261025",
+  "createdAt": "2026-10-25T06:40:44.227Z",
+  "title": "Product shipping and returns text contrast candidate",
+  "summary": "Four paragraph colour utilities changed from neutral-400 to neutral-600 in an isolated exact-Production source copy. Not deployed.",
+  "status": "needs-testing",
+  "pages": [
+    "/produit/[slug]"
+  ],
+  "components": [
+    "Product page information"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Darker existing neutral utility for tax/shipping, tracking, delivery and returns text only; wording and business logic unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source preservation",
+      "result": "passed",
+      "detail": "2055 baseline files matched certified SHA256 and deployment receipt SHA1; exactly one application file changed, four colour substitutions."
+    },
+    {
+      "name": "Build and visual contrast",
+      "result": "not-run",
+      "detail": "Pending local validation; no Production deployment authorized."
+    }
+  ]
+}

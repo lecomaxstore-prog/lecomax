@@ -1,0 +1,51 @@
+{
+  "id": "storefront-audit-evidence-20261024",
+  "createdAt": "2026-10-24T13:05:42.788Z",
+  "title": "Storefront audit: Production baseline and isolated UX evidence",
+  "summary": "Read-only audit of the current Production storefront. Evidence collection is complete for repeated Playwright measurements, five responsive widths and mocked cart/checkout checks; Lighthouse and final report review remain in progress. No application source or deployment changes.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront /",
+    "/boutique",
+    "/homme",
+    "/produit/veste-adidas-manchester-united-2019-2020-presentation-jacket-rouge-aon",
+    "/panier",
+    "/checkout"
+  ],
+  "components": [
+    "Audit documentation and evidence",
+    "Production/source reconciliation",
+    "Performance and accessibility assessment"
+  ],
+  "files": [
+    "artifacts/storefront-audit-20261024/production-source.json",
+    "artifacts/storefront-audit-20261024/source-comparison.json",
+    "artifacts/storefront-audit-20261024/baseline-summary.json",
+    "artifacts/storefront-audit-20261024/responsive.json",
+    "artifacts/storefront-audit-20261024/synthetic-390.json",
+    "artifacts/storefront-audit-20261024/synthetic-1440.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "New isolated audit directory containing source reconciliation, 24 cold-cache lab samples, screenshots, axe evidence, keyboard checks and synthetic cart/checkout failure observations. No application source modified, removed or fixed."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Production identity",
+      "result": "passed",
+      "detail": "Authenticated GET confirms READY deployment dpl_CxX8Deg6R6T4prqTnHEiJVvqGu6f and commit ddf12f4a916478f80f1ca75a1ca83a193d36ef28."
+    },
+    {
+      "name": "Selected offline tests",
+      "result": "passed",
+      "detail": "18 existing cart, shipping, gallery and variant tests passed against the Production worktree."
+    },
+    {
+      "name": "Final evidence review",
+      "result": "not-run",
+      "detail": "Supplementary Lighthouse runs and final report review pending. No field INP, real-device, real-account, payment or order certification."
+    }
+  ]
+}

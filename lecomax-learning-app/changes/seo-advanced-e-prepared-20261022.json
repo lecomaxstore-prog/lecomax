@@ -1,0 +1,80 @@
+{
+  "id": "seo-advanced-e-prepared-20261022",
+  "createdAt": "2026-10-22T18:01:17.283Z",
+  "title": "Advanced SEO E: prepared",
+  "summary": "Recovered metadata, editorial dashboard/readers/APIs and worker libraries onto verified A+B+C. No deployment, migration, flag activation or paid call.",
+  "status": "needs-testing",
+  "pages": [
+    "Product",
+    "Category/CMS",
+    "SEO administration",
+    "Change History"
+  ],
+  "components": [
+    "Recovered advanced SEO candidate"
+  ],
+  "files": [
+    "release\\seo-advanced-e-20261022\\app\\[category]\\page.tsx",
+    "release\\seo-advanced-e-20261022\\app\\admin\\layout.tsx",
+    "release\\seo-advanced-e-20261022\\app\\admin\\seo\\EditorialReview.tsx",
+    "release\\seo-advanced-e-20261022\\app\\admin\\seo\\EditorialWorkspace.tsx",
+    "release\\seo-advanced-e-20261022\\app\\admin\\seo\\SeoAiControl.tsx",
+    "release\\seo-advanced-e-20261022\\app\\admin\\seo\\SeoSyncControl.tsx",
+    "release\\seo-advanced-e-20261022\\app\\admin\\seo\\page.tsx",
+    "release\\seo-advanced-e-20261022\\app\\admin\\seo\\seo.module.css",
+    "release\\seo-advanced-e-20261022\\app\\api\\admin\\seo\\ai\\route.ts",
+    "release\\seo-advanced-e-20261022\\app\\api\\admin\\seo\\editorial\\route.ts",
+    "release\\seo-advanced-e-20261022\\app\\api\\admin\\seo\\route.ts",
+    "release\\seo-advanced-e-20261022\\app\\api\\admin\\seo\\sync\\route.ts",
+    "release\\seo-advanced-e-20261022\\app\\produit\\[slug]\\page.tsx",
+    "release\\seo-advanced-e-20261022\\components\\ProductGallery.tsx",
+    "release\\seo-advanced-e-20261022\\lib\\admin-policy.ts",
+    "release\\seo-advanced-e-20261022\\lib\\api-security.ts",
+    "release\\seo-advanced-e-20261022\\lib\\seo-ai.ts",
+    "release\\seo-advanced-e-20261022\\lib\\seo-editorial-store.ts",
+    "release\\seo-advanced-e-20261022\\lib\\seo-editorial.ts",
+    "release\\seo-advanced-e-20261022\\lib\\seo-engine.ts",
+    "release\\seo-advanced-e-20261022\\lib\\seo-store.ts",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\environment-target.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\handler.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\seo-ai-provider.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\seo-ai-worker.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\seo-editorial-quality.d.mts",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\seo-editorial-quality.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\seo-editorial-v3.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\seo-editorial.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\seo-sync-worker.mjs",
+    "release\\seo-advanced-e-20261022\\operations\\seo-vercel\\lib\\supabase-headers.mjs",
+    "release\\seo-advanced-e-20261022\\tests\\product-indexing.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-ai-api.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-ai-dashboard.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-api.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-category-urls.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-editorial-api.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-editorial-store.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-editorial-workspace.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-engine.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-hybrid-store.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-manual-sync.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-sync-authorization.test.ts",
+    "release\\seo-advanced-e-20261022\\tests\\seo-sync.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Recovered metadata, editorial dashboard/readers/APIs and worker libraries onto verified A+B+C. No deployment, migration, flag activation or paid call."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Provenance",
+      "result": "passed",
+      "detail": "Recovered exact pinned staging files; unrelated application/authentication/configuration changes excluded."
+    },
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Integration checks pending; E additionally requires schema and real authenticated workflow acceptance."
+    }
+  ]
+}

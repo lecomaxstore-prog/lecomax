@@ -1,0 +1,45 @@
+{
+  "id": "seo-production-probe-lock-prepared-20261020",
+  "relatedId": "seo-hosted-acceptance-hardening-prepared-20261020",
+  "createdAt": "2026-10-20T12:12:49.768Z",
+  "title": "Disable legacy production acceptance execution",
+  "summary": "Preserve the historical production plan while rejecting execution arguments; document staging owner prerequisites and evidence limits.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Hosted staging acceptance",
+    "/change-history"
+  ],
+  "components": [
+    "Hosting evidence",
+    "Staging acceptance tooling"
+  ],
+  "files": [
+    "scripts/seo-hosted-acceptance-readonly.cjs",
+    "scripts/seo-staging-acceptance.cjs",
+    "tests/seo-acceptance-cli.test.cjs",
+    "operations/seo/staging-acceptance.example.json",
+    "docs/seo-hosted-staging-acceptance-20261020.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Block the legacy production execution flag before network access."
+    },
+    {
+      "kind": "added",
+      "detail": "Offline CLI regression tests, intentionally invalid staging evidence template and exact owner checklist."
+    },
+    {
+      "kind": "modified",
+      "detail": "Distinguish HTTP read-only requests from unverified hosted database transaction mode."
+    }
+  ],
+  "validation": [
+    {
+      "name": "CLI regression and final lint",
+      "result": "not-run",
+      "detail": "Pending; hosted execution remains blocked."
+    }
+  ]
+}

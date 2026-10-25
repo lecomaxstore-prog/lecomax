@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-16",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-16",
+  "title": {
+    "en": "Run the local labs: predict, observe, repair and retest",
+    "ar": "المختبرات المحلية: توقّع وراقب وأصلح واختبر",
+    "fr": "Run the local labs: predict, observe, repair and retest"
+  },
+  "contentLanguage": "en",
+  "difficulty": 3,
+  "prerequisites": [
+    "cyber-15"
+  ],
+  "objectives": [
+    "Start and stop the loopback-only Cedar Cart environment.",
+    "Compare vulnerable and fixed behavior with synthetic identities.",
+    "Record lab evidence and distinguish real execution from policy models."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "This chapter is the practical lab manual. The Expo app displays instructions and saves observations; real terminal commands run on a separate computer in the repository.",
+  "sections": [
+    {
+      "title": "Prepare the environment without exposing it",
+      "text": "Use a computer with the project dependencies already installed and open a terminal at the repository root, the directory containing security-labs. The lab uses Node.js and the project’s local PGlite dependency. Run node security-labs/server.cjs, then open exactly http://127.0.0.1:4177 on the same computer. The startup message names the synthetic in-memory environment. Do not bind it to 0.0.0.0, use a public tunnel or deploy it to Vercel. The server rejects unexpected Host and browser Origin values as additional containment. A phone on Wi-Fi cannot use its own 127.0.0.1 to reach your computer; keep the terminal labs on the computer rather than weakening isolation to make a mobile preview work."
+    },
+    {
+      "title": "Understand the lab architecture",
+      "text": "A Node HTTP server serves one static HTML page and a small JavaScript controller. The page selects synthetic Alice, Bob or Admin identities and compares route behavior. An in-memory PostgreSQL engine holds only Bag and Cup search fixtures. JavaScript memory holds temporary sessions, three stock units, purchases and coupon use. No payment provider is contacted, no real customer information is loaded and no arbitrary filesystem path is opened. The XSS page intentionally changes its content policy only for the local demonstration. Restarting the process resets the data. These facts make the environment reproducible, but also limit what it can prove about durability, concurrency and production identity systems."
+    },
+    {
+      "title": "Lab A: object authorization and query interpretation",
+      "text": "Select Alice and request order-a, then order-b in unsafe mode. Repeat in fixed mode and record the status and returned fields. Alice should see her own order and be denied Bob’s in the fixed path. Next search Bag, then the SQL predicate demonstration from the injection chapter. Compare unsafe interpolation with bound parameters using the same fixture. Write the expected result before pressing the button. If both requests fail before reaching the handler, first fix the local setup; a broken connection is not evidence that authorization works. The required repair is the specific owner constraint or parameter boundary, not simply hiding the unsafe button."
+    },
+    {
+      "title": "Lab B: checkout, coupons and browser rendering",
+      "text": "Post a price of one for a bag. The unsafe quote follows the client price without mutating stock, while fixed checkout uses the catalog and can create a fictional pending purchase. Inspect your state after purchases and attempt a quantity that exceeds remaining stock. Use WELCOME once, then explain the per-actor eligibility rule. For browser rendering, open the bold-text marker in unsafe and safe mode. The optional local execution marker changes only demo-status; it neither collects credentials nor sends external data. Close the demonstration tab after observing it. The repair is safe text handling and business-rule enforcement, not the assumption that an unusual-looking input will never occur."
+    },
+    {
+      "title": "Lab C: pure policy and lifecycle tests",
+      "text": "Run node --test security-labs/lab.test.cjs to exercise the functions and real local routes. URL, path and command examples intentionally return plans or read a virtual object rather than performing arbitrary external actions. Reset-token and rate-limit tests use synthetic state and fixed clocks. Webhook tests sign fictional raw bytes with an ephemeral test key and verify tampering, mismatched amount, expiry and duplicate behavior. The Next.js factory tests use real Request/Response objects with injected test dependencies. Read each test name and assertion so you know whether the evidence concerns a function, a database query or an HTTP route. A green summary is useful only when the assertions match the property you intended to verify."
+    },
+    {
+      "title": "Document the repair and earn the learning badge honestly",
+      "text": "For each lab, record objective, prerequisites, architecture, vulnerable observation, root cause, repair, regression output and remaining limits. The app can save your written evidence and completion checklist. Its badge records learner-completed work and is not a remote attestation that commands ran on your computer. Do not copy a passing log from the chapter as your own result. If dependencies are missing or a command fails, keep the lab incomplete and record the error. Stop the server with Ctrl+C when finished. If port 4177 is occupied, identify its owner rather than terminating unrelated projects. Darija: قراءة الأمر ماشي تنفيذ ديالو؛ كتب النتيجة اللي شفتي فعلا وحدود التجربة."
+    }
+  ],
+  "examples": [
+    {
+      "id": "run",
+      "filename": "lab-commands.txt",
+      "language": "text",
+      "code": "node security-labs/server.cjs\nnode --test security-labs/lab.test.cjs",
+      "annotations": [
+        {
+          "lines": "1",
+          "label": "Start only the local fictional web lab from the repository root; leave this terminal running during browser exercises."
+        },
+        {
+          "lines": "2",
+          "label": "In another terminal, execute the isolated regression suite. Stop the web lab with Ctrl+C afterward."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "evidence",
+      "difficulty": 3,
+      "task": "Complete one lab record with a prediction, actual response, root cause, fixed response and test command output.",
+      "hints": [
+        "Use synthetic values only.",
+        "Mark unexecuted steps pending."
+      ],
+      "solution": "Objective: Alice cannot read Bob’s order\nPrediction: fixed route denies order-b\nObservation: record actual status/body\nRoot cause: unsafe lookup omitted owner\nFix: id plus validated owner\nRegression: record actual test output\nLimit: synthetic identity and in-memory environment",
+      "walkthrough": "The template gives structure without supplying a fabricated observation. Only fill evidence after running the operation.",
+      "expectedResult": "A reproducible record with actual observations."
+    },
+    {
+      "id": "containment",
+      "difficulty": 2,
+      "task": "Explain why exposing the server through a public tunnel would change this exercise’s risk.",
+      "hints": [
+        "Several routes intentionally omit controls."
+      ],
+      "solution": "The unsafe routes would become reachable outside the controlled computer. Loopback and host/origin checks are containment, not permission to publish vulnerable code.",
+      "walkthrough": "A teaching environment must remain separated from production and unrelated users.",
+      "expectedResult": "A correct isolation explanation."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-16-q1",
+      "question": "Where do the terminal commands run?",
+      "options": [
+        "On a separate computer in the repository.",
+        "Inside the Expo text viewer automatically."
+      ],
+      "correctIndex": 0,
+      "explanation": "The app is a learning interface, not a terminal executor.",
+      "answerExplanations": [
+        "Correct. The app is a learning interface, not a terminal executor.",
+        "Not quite. The app is a learning interface, not a terminal executor."
+      ]
+    },
+    {
+      "id": "cyber-16-q2",
+      "question": "Which exact address is intended?",
+      "options": [
+        "A public tunnel to the vulnerable server.",
+        "http://127.0.0.1:4177 on the same computer."
+      ],
+      "correctIndex": 1,
+      "explanation": "The lab is deliberately loopback-only.",
+      "answerExplanations": [
+        "Not quite. The lab is deliberately loopback-only.",
+        "Correct. The lab is deliberately loopback-only."
+      ]
+    },
+    {
+      "id": "cyber-16-q3",
+      "question": "Does choosing Alice prove production authentication?",
+      "options": [
+        "No; it is a synthetic test actor.",
+        "Yes; selecting a name verifies identity."
+      ],
+      "correctIndex": 0,
+      "explanation": "The fixture isolates authorization learning.",
+      "answerExplanations": [
+        "Correct. The fixture isolates authorization learning.",
+        "Not quite. The fixture isolates authorization learning."
+      ]
+    },
+    {
+      "id": "cyber-16-q4",
+      "question": "Does restarting preserve lab purchases?",
+      "options": [
+        "Yes; the lab is a durable commerce database.",
+        "No; they are in memory."
+      ],
+      "correctIndex": 1,
+      "explanation": "Reset behavior is intentional and documented.",
+      "answerExplanations": [
+        "Not quite. Reset behavior is intentional and documented.",
+        "Correct. Reset behavior is intentional and documented."
+      ]
+    },
+    {
+      "id": "cyber-16-q5",
+      "question": "Should a failed connection be recorded as a successful authorization test?",
+      "options": [
+        "No; the handler was not exercised.",
+        "Yes; no data returned means the policy worked."
+      ],
+      "correctIndex": 0,
+      "explanation": "Evidence must reach the intended boundary.",
+      "answerExplanations": [
+        "Correct. Evidence must reach the intended boundary.",
+        "Not quite. Evidence must reach the intended boundary."
+      ]
+    },
+    {
+      "id": "cyber-16-q6",
+      "question": "What does the unsafe checkout button do?",
+      "options": [
+        "Charge a real payment card.",
+        "Calculate an unsafe quote without mutating stock."
+      ],
+      "correctIndex": 1,
+      "explanation": "The lab never contacts a payment provider.",
+      "answerExplanations": [
+        "Not quite. The lab never contacts a payment provider.",
+        "Correct. The lab never contacts a payment provider."
+      ]
+    },
+    {
+      "id": "cyber-16-q7",
+      "question": "Can the policy models read arbitrary real files?",
+      "options": [
+        "No; traversal uses a virtual object.",
+        "Yes; they inspect host secrets."
+      ],
+      "correctIndex": 0,
+      "explanation": "The model’s scope is deliberately limited.",
+      "answerExplanations": [
+        "Correct. The model’s scope is deliberately limited.",
+        "Not quite. The model’s scope is deliberately limited."
+      ]
+    },
+    {
+      "id": "cyber-16-q8",
+      "question": "Does a badge independently prove commands ran?",
+      "options": [
+        "Yes; the phone attests the computer’s execution.",
+        "No; it records learner completion."
+      ],
+      "correctIndex": 1,
+      "explanation": "Self-recorded evidence is not remote attestation.",
+      "answerExplanations": [
+        "Not quite. Self-recorded evidence is not remote attestation.",
+        "Correct. Self-recorded evidence is not remote attestation."
+      ]
+    },
+    {
+      "id": "cyber-16-q9",
+      "question": "What should happen when a prerequisite is missing?",
+      "options": [
+        "Record the error and leave execution pending.",
+        "Paste the expected output as actual evidence."
+      ],
+      "correctIndex": 0,
+      "explanation": "Completion must reflect real work.",
+      "answerExplanations": [
+        "Correct. Completion must reflect real work.",
+        "Not quite. Completion must reflect real work."
+      ]
+    },
+    {
+      "id": "cyber-16-q10",
+      "question": "How do you end the local web session?",
+      "options": [
+        "Deploy it publicly so it keeps running.",
+        "Stop the server with Ctrl+C."
+      ],
+      "correctIndex": 1,
+      "explanation": "Stopping restores the intended limited exposure.",
+      "answerExplanations": [
+        "Not quite. Stopping restores the intended limited exposure.",
+        "Correct. Stopping restores the intended limited exposure."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can start and stop the loopback-only Cedar Cart environment.",
+    "I can compare vulnerable and fixed behavior with synthetic identities.",
+    "I can record lab evidence and distinguish real execution from policy models."
+  ],
+  "recap": [
+    "Start and stop the loopback-only Cedar Cart environment.",
+    "Compare vulnerable and fixed behavior with synthetic identities.",
+    "Record lab evidence and distinguish real execution from policy models."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "Node test runner",
+      "url": "https://nodejs.org/api/test.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "PGlite",
+      "url": "https://pglite.dev/docs/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "The lab stays on one computer",
+    "steps": [
+      {
+        "title": "Browser on the computer",
+        "detail": "Opens exactly 127.0.0.1:4177 and synthetic actor controls."
+      },
+      {
+        "title": "Loopback HTTP server",
+        "detail": "Rejects foreign hosts/origins and bounds request work."
+      },
+      {
+        "title": "Disposable data",
+        "detail": "PGlite fixtures and in-memory orders reset on restart."
+      },
+      {
+        "title": "Test runner",
+        "detail": "Executes assertions separately; the Expo notebook records your evidence."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Fixture",
+      "Controlled synthetic data used to make a test reproducible."
+    ],
+    [
+      "Regression",
+      "A test preserving a property after a repair."
+    ],
+    [
+      "Attestation",
+      "Evidence from a trusted verifier; a self-recorded badge is not one."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "Controlled lab practitioner"
+  }
+}

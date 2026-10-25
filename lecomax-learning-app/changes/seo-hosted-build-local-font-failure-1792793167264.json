@@ -1,0 +1,52 @@
+{
+  "id": "seo-hosted-build-local-font-failure-1792793167264",
+  "createdAt": "2026-10-23T22:06:07.264Z",
+  "title": "Local build blocked by font download restrictions",
+  "summary": "Course validation passed; the first local Next.js compilation failed on sandbox-blocked Google fonts. The unchanged package is being retested outside the parent workspace.",
+  "status": "failed",
+  "pages": [
+    "SEO staging Preview",
+    "Learning course validation",
+    "Change History"
+  ],
+  "components": [
+    "Filtered deployment package",
+    "Course validator"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/repair-hosted-payload.cjs",
+    "artifacts/seo-preview-resume-20261023/validate-hosted-repair.cjs",
+    ".recovery-seo-preview-isolated/.gitignore",
+    ".recovery-seo-preview-isolated/README.md",
+    ".recovery-seo-preview-isolated/academy-labs/06-javascript/values.js",
+    ".recovery-seo-preview-isolated/academy-labs/sql-data-modeling/sql-transactions-indexes.sql",
+    ".recovery-seo-preview-isolated/scripts/run-migrations.mjs",
+    ".recovery-seo-preview-isolated/scripts/setup-chat.mjs",
+    ".recovery-seo-preview-isolated/scripts/source-inspector-loader.cjs",
+    ".recovery-seo-preview-isolated/operations/seo-vercel/lib/environment-target.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Preserved the failed build log and moved only disposable validation files into a dedicated temporary directory to avoid parent lockfile inference."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Course generation and validation",
+      "result": "passed",
+      "detail": "48 modules, 192 lessons, 3 languages and 635429 checks."
+    },
+    {
+      "name": "First local production build",
+      "result": "failed",
+      "detail": "Inter and Sora downloads failed with EACCES. No hosted retry occurred."
+    },
+    {
+      "name": "Change History checks",
+      "result": "passed",
+      "detail": "Manifest check and 6 history tests passed."
+    }
+  ],
+  "relatedId": "seo-hosted-build-packaging-prepared-1792787938100"
+}

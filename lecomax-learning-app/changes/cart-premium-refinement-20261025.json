@@ -1,0 +1,44 @@
+{
+  "id": "cart-premium-refinement-20261025",
+  "createdAt": "2026-10-25T19:21:40.710Z",
+  "title": "Premium cart design refinement",
+  "summary": "Warm ivory surfaces, refined forest-green typography and larger product presentation.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront /cart"
+  ],
+  "components": [
+    "CartItem",
+    "DeliveryAddress",
+    "CartHeader",
+    "CartScreen"
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/cart.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Refined palette, card shapes, typography, address sizing, promotion field and summary. Increased product image area and moved category above product title."
+    },
+    {
+      "kind": "modified",
+      "detail": "Moved favourite and remove controls beneath the image with 44px targets; refined quantity controls."
+    },
+    {
+      "kind": "added",
+      "detail": "Display current cart total in the persistent continue-to-payment button."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed the divider between address and order sections."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pending checks",
+      "result": "not-run",
+      "detail": "TypeScript and synthetic browser checks pending; no deployment or order submission."
+    }
+  ]
+}

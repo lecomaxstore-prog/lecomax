@@ -1,0 +1,60 @@
+{
+  "id": "seo-final-migration-readiness-20261018",
+  "relatedId": "seo-migration-preparation-verified-20261018",
+  "createdAt": "2026-10-18T17:17:35.971Z",
+  "title": "SEO migration readiness: NO-GO until backup and staging evidence",
+  "summary": "Fresh read-only preflight and production-project correlation pass. No recent restorable backup could be verified; no migration or deployment executed.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/change-history"
+  ],
+  "components": [
+    "Migration readiness",
+    "Read-only SQL audit",
+    "Database recovery instructions"
+  ],
+  "files": [
+    "docs/seo-migration-readiness.md",
+    "docs/seo-migration-runbook.md",
+    "scripts/audit-seo-migration.mjs",
+    "scripts/test-seo-sql.mjs",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Final GO/NO-GO assessment, exact production project/database identity, backup evidence requirements, SQL Editor execution sequence, verification and rollback/recovery instructions."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Explicitly protect the audit runner ledger phase with a read-only transaction because pooler startup read-only options were observed not to propagate. Earlier ledger queries were SELECT-only; SQL preflight already used read-only transactions."
+    },
+    {
+      "kind": "added",
+      "detail": "Local migration fixture verifies authentication records remain unchanged. The reviewed migration hash and SQL are unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Fresh live read-only audit",
+      "result": "passed",
+      "detail": "Project yddqwgdgeljkzfsmtein matches public LECOMAX.COM assets and the configured SQL endpoint. PostgreSQL 17.6 primary database postgres. Client TLS certificate verified; explicit transaction read-only confirmed. Internal pooler/database hop reports no TLS; no settings changed."
+    },
+    {
+      "name": "Schema, privileges and dependencies",
+      "result": "passed",
+      "detail": "34 products and 4 categories remain compatible; no SEO objects/ledger version. Required roles, ownership and trigger permissions verified. Local PGlite checks passed including unchanged products/categories/customers/orders/auth fixtures, RLS grants, sequence and RPC isolation."
+    },
+    {
+      "name": "Recent restorable backup",
+      "result": "not-run",
+      "detail": "No available browser session or configured management token; no database backup artifact identified in workspace filename search. Backup existence, timestamp, coverage and restorability cannot be confirmed."
+    },
+    {
+      "name": "Production readiness",
+      "result": "not-run",
+      "detail": "NO-GO until backup evidence and staging integration/restore checks. Production migration, deployment and any production recovery require explicit approval. None executed."
+    }
+  ]
+}

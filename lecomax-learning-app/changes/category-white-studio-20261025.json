@@ -1,0 +1,45 @@
+{
+  "id": "category-white-studio-20261025",
+  "createdAt": "2026-10-25T12:23:58.891Z",
+  "title": "White studio photos for shoes and accessories",
+  "summary": "Replace the two default homepage category photos with bright white studio artwork and matching readable labels.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage /"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "components/CategoryTiles.module.css",
+    "public/images/collection-chaussures-white-v5.webp",
+    "public/images/collection-accessoires-white-v5.webp"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Two optimized WebP photos generated with built-in imagegen: preserve shoes/box and backpack/headphones/earbuds, replace scenery with seamless white studio backgrounds and soft contact shadows."
+    },
+    {
+      "kind": "modified",
+      "detail": "Use new default photos on desktop and mobile, recognizing previous v4 defaults while retaining custom uploads."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Remove dark overlay for white photos, use dark green captions and light count badges, contain products above captions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Visual asset inspection",
+      "result": "passed",
+      "detail": "Both generated photographs inspected for white backgrounds and complete product groups."
+    },
+    {
+      "name": "Integration validation",
+      "result": "not-run",
+      "detail": "Lint, history checks and responsive rendering pending. No deployment performed."
+    }
+  ]
+}

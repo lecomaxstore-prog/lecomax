@@ -44,7 +44,7 @@ export default function ProductCard({ product, recommendation = false }: { produ
       className={`${styles.card} product-card group relative isolate flex h-full flex-col overflow-hidden bg-white focus-within:ring-2 focus-within:ring-emerald-600 focus-within:ring-offset-2`}
     >
       {/* Image */}
-      <div className={`${styles.media} relative aspect-square overflow-hidden`}>
+      <div className={`${styles.media} relative overflow-hidden`}>
         <ProductImage
           src={displayImage}
           alt={product.name}

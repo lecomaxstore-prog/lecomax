@@ -2,6 +2,8 @@
  * Headers for direct Supabase REST/Auth requests made by the server.
  * New `sb_secret_...` keys are API keys, not JWT Bearer tokens.
  */
+import { supabaseHeaders } from "../operations/seo-vercel/lib/supabase-headers.mjs";
+
 export function supabaseServiceHeaders(
   extra: Record<string, string> = {}
 ): Record<string, string> {
@@ -12,8 +14,7 @@ export function supabaseServiceHeaders(
   }
 
   return {
-    apikey: key,
-    ...(key.startsWith("sb_secret_") ? {} : { Authorization: `Bearer ${key}` }),
     ...extra,
+    ...supabaseHeaders(key),
   };
 }

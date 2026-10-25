@@ -1,0 +1,70 @@
+{
+  "content": {
+    "fr": {
+      "title": "Baskets homme Baasploa pour la course et la marche",
+      "description": "Découvrez les baskets Baasploa pour homme, légères et respirantes, destinées à la course, à la marche et au tennis au quotidien.",
+      "keywords": [
+        "baskets Baasploa",
+        "baskets homme",
+        "chaussures de marche",
+        "baskets respirantes",
+        "baskets de running"
+      ],
+      "productDescription": "Le modèle Baskets de running Baasploa pour homme — Respirantes et légères est destiné à la course, à la marche et au tennis au quotidien. Ces baskets pour homme associent une conception légère et respirante à une semelle souple et aérée, dans un style décontracté."
+    },
+    "ar": {
+      "title": "حذاء Baasploa رجالي للجري والمشي",
+      "description": "تعرّف على حذاء Baasploa الرجالي الخفيف وجيد التهوية، المخصص للجري والمشي والتنس في الاستخدام اليومي، مع نعل مرن يسمح بالتهوية.",
+      "keywords": [
+        "حذاء Baasploa",
+        "حذاء رياضي رجالي",
+        "حذاء للجري",
+        "حذاء للمشي",
+        "حذاء جيد التهوية"
+      ],
+      "productDescription": "حذاء Baasploa رياضي رجالي خفيف وجيد التهوية، مخصص للجري والمشي والتنس في الاستخدام اليومي. يتميز بطابع غير رسمي ونعل مرن يسمح بالتهوية. الاسم الأصلي للمنتج في الكتالوج هو: Baskets de running Baasploa pour homme — Respirantes et légères."
+    },
+    "evidence": [
+      {
+        "locale": "fr",
+        "claim": "Baskets de running Baasploa pour homme — Respirantes et légères",
+        "sourceQuote": "Baskets de running Baasploa pour homme — Respirantes et légères"
+      },
+      {
+        "locale": "fr",
+        "claim": "destiné à la course, à la marche et au tennis au quotidien",
+        "sourceQuote": "idéales pour la course, la marche et le tennis au quotidien"
+      },
+      {
+        "locale": "fr",
+        "claim": "une conception légère et respirante",
+        "sourceQuote": "Respirantes et légères"
+      },
+      {
+        "locale": "fr",
+        "claim": "une semelle souple et aérée",
+        "sourceQuote": "Semelle souple et aérée"
+      },
+      {
+        "locale": "fr",
+        "claim": "un style décontracté",
+        "sourceQuote": "Chaussures de marche décontractées"
+      },
+      {
+        "locale": "ar",
+        "claim": "حذاء Baasploa رياضي رجالي خفيف وجيد التهوية",
+        "sourceQuote": "Baskets de running Baasploa pour homme — Respirantes et légères"
+      },
+      {
+        "locale": "ar",
+        "claim": "مخصص للجري والمشي والتنس في الاستخدام اليومي",
+        "sourceQuote": "idéales pour la course, la marche et le tennis au quotidien"
+      },
+      {
+        "locale": "ar",
+        "claim": "بطابع غير رسمي",
+        "sourceQuote": "Chaussures de marche décontractées"
+      }
+    ]
+  }
+}

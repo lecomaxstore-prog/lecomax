@@ -1,0 +1,37 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Decorative blurred poster backdrop fills portrait and landscape letterboxing without a second video download."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Replace flat side bands with product-related colors; hide failed backdrop images after trying the product photo fallback."
+    },
+    {
+      "kind": "modified",
+      "detail": "Share the resolved poster between the player and backdrop; preserve uncropped video, controls, autoplay, and retry."
+    }
+  ],
+  "summary": "Fill unused video gallery space with a soft poster background while preserving the entire product and native controls.",
+  "id": "product-video-soft-background-20261025",
+  "createdAt": "2026-10-25T12:09:00.593Z",
+  "validation": [
+    {
+      "detail": "Pending focused tests, lint, type checks and history checks. YouTube embeds and bars encoded into source videos are unchanged; no deployment performed.",
+      "result": "not-run",
+      "name": "Implementation validation"
+    }
+  ],
+  "files": [
+    "components/ProductVideo.tsx"
+  ],
+  "components": [
+    "ProductVideo"
+  ],
+  "status": "needs-testing",
+  "title": "Improve portrait product video side space",
+  "pages": [
+    "Storefront product detail pages"
+  ]
+}

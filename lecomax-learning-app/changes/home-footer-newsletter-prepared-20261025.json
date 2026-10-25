@@ -1,0 +1,30 @@
+{
+  "id": "home-footer-newsletter-prepared-20261025",
+  "createdAt": "2026-10-25T12:04:46.541Z",
+  "title": "Hide footer newsletter on Accueil only",
+  "summary": "Remove the pictured footer signup block from the homepage while keeping it on other pages.",
+  "status": "needs-testing",
+  "pages": [
+    "Accueil footer",
+    "Other page footers"
+  ],
+  "components": [
+    "Footer"
+  ],
+  "files": [
+    "components/Footer.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use current pathname to omit footer newsletter on / only. Preserve enable_newsletter setting elsewhere and collapse desktop intro to two columns when absent. Other homepage newsletter content untouched."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser navigation and lint",
+      "result": "not-run",
+      "detail": "Pending home/boutique checks, including client-side navigation. No deployment."
+    }
+  ]
+}

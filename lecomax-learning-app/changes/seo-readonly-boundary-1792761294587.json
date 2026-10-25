@@ -1,0 +1,41 @@
+{
+  "id": "seo-readonly-boundary-1792761294587",
+  "createdAt": "2026-10-23T13:14:54.586Z",
+  "title": "Restrict isolated SEO Preview to read-only rendering",
+  "summary": "Add request and fetch allowlists, restrictive browser policy and disabled session restoration in the isolated candidate. No deployment or hosted credential execution.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Preview storefront",
+    "Preview authentication and APIs"
+  ],
+  "components": [
+    "Middleware",
+    "Server instrumentation",
+    "Browser Supabase client",
+    "Root layout"
+  ],
+  "files": [
+    ".recovery-seo-preview-isolated/lib/seo-preview-readonly.mjs",
+    ".recovery-seo-preview-isolated/instrumentation.ts",
+    ".recovery-seo-preview-isolated/middleware.ts",
+    ".recovery-seo-preview-isolated/lib/supabase.ts",
+    ".recovery-seo-preview-isolated/app/layout.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Allow only enumerated SEO GET/HEAD routes and staging REST reads; reject writes, auth, API calls and redirect-based outbound bypasses."
+    },
+    {
+      "kind": "modified",
+      "detail": "Disable Preview browser Supabase transport, session restoration, tracking, chat, push and polling; retain existing email guards."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local security and regression validation",
+      "result": "not-run",
+      "detail": "Pending tests and fixture build. Hosted verifier and real staging acceptance are not authorized or executed."
+    }
+  ]
+}

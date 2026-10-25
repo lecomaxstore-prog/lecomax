@@ -1,0 +1,34 @@
+{
+  "id": "seo-inventory-sitemap-prepared-20261022",
+  "createdAt": "2026-10-22T11:29:43.192Z",
+  "status": "needs-testing",
+  "title": "Isolated sitemap release candidate prepared",
+  "summary": "Extracted the four reviewed sitemap runtime files from current pinned staging onto the live commit, retaining production clients/configuration and no SEO database dependencies.",
+  "pages": [
+    "Sitemap index and shards",
+    "Change History"
+  ],
+  "components": [
+    "Read-only sitemap routes"
+  ],
+  "files": [
+    "release/seo-sitemap-candidate-20261022/app/sitemap.xml/route.ts",
+    "release/seo-sitemap-candidate-20261022/app/sitemaps/[kind]/[page]/route.ts",
+    "release/seo-sitemap-candidate-20261022/app/sitemaps/static/route.ts",
+    "release/seo-sitemap-candidate-20261022/lib/sitemap-data.ts",
+    "release/seo-sitemap-candidate-20261022/tests/seo-sitemap.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Extracted the four reviewed sitemap runtime files from current pinned staging onto the live commit, retaining production clients/configuration and no SEO database dependencies. No release, secret update, data migration, order or payment operation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate validation",
+      "result": "not-run",
+      "detail": "Focused tests, types/lint and isolated build pending. Staging tests are historical; extraction requires fresh validation."
+    }
+  ]
+}

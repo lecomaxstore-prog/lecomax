@@ -1,0 +1,51 @@
+{
+  "id": "seo-openai-preparation-20261019",
+  "createdAt": "2026-10-18T22:14:24.107Z",
+  "title": "OpenAI bilingual SEO and spending controls prepared",
+  "summary": "Local SDK provider, durable AI jobs, monthly reservations and bilingual Admin review. Disabled by default; no paid calls or production changes.",
+  "status": "needs-testing",
+  "pages": [
+    "Admin SEO",
+    "Product metadata"
+  ],
+  "components": [
+    "Bilingual AI queue",
+    "OpenAI SDK",
+    "Budget controls"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-ai-provider.mjs",
+    "operations/seo-vercel/lib/seo-ai-worker.mjs",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/supabase/migrations/202610190001_seo_ai_budget.sql",
+    "operations/seo-vercel/package.json",
+    "operations/seo-vercel/package-lock.json",
+    "app/api/admin/seo/ai/route.ts",
+    "app/api/admin/seo/route.ts",
+    "lib/seo-ai.ts",
+    "lib/admin-policy.ts",
+    "app/admin/seo/SeoAiControl.tsx",
+    "app/admin/seo/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "OpenAI primary with Luna/Sol, strict source-backed French/Arabic candidates and optional Mirai fallback."
+    },
+    {
+      "kind": "added",
+      "detail": "Durable deduplication, fenced worker claims, monthly spending reservations and append-only approvals/budget events."
+    },
+    {
+      "kind": "modified",
+      "detail": "Synchronous AI generation replaced by queue submission; paid calls remain worker-only."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mocked SDK and local SQL validation",
+      "result": "not-run",
+      "detail": "Pending. No production migration or API request authorized."
+    }
+  ]
+}

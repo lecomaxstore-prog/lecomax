@@ -1,0 +1,46 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {PGlite} from '@electric-sql/pglite';
+import {source,bundle} from './editorial-fixture.mjs';
+test('editorial SQL preserves legacy jobs, enforces approval and USD 5/50 reservations, retains content, blocks publication',async()=>{
+ const db=new PGlite();
+ try {
+  await db.exec('create role anon;create role authenticated;create role service_role;create table products(id text primary key,name text,slug text,category text,brand text,description text,active boolean,stock integer);create table categories(id text primary key,name text,slug text,active boolean);');
+  await db.query('insert into products values($1,$2,$3,$4,$5,$6,true,5)',['one',source.name,source.slug,source.category,source.brand,source.description]);
+  for(const file of ['supabase/alternatives/202610180002_seo_decoupled.sql','operations/seo-vercel/supabase/migrations/20261018193508_seo_worker_run_control.sql','operations/seo-vercel/supabase/migrations/202610190001_seo_ai_budget.sql'])await db.exec(readFileSync(new URL('../../../'+file,import.meta.url),'utf8'));
+  const rpc=async(name,args=[]) => (await db.query(`select ${name}(${args.map((_,i)=>'$'+(i+1)).join(',')}) result`,args)).rows[0].result;
+  const legacy=await rpc('seo_ai_enqueue',['product','one','routine','legacy','owner']);
+  await db.exec(readFileSync(new URL('../supabase/migrations/202610190002_seo_editorial.sql',import.meta.url),'utf8'));
+  assert.equal((await rpc('seo_ai_enqueue',['product','one','routine','legacy','owner'])).id,legacy.id);
+  const initial=await rpc('seo_ai_dashboard',['product','one']);assert.equal(initial.enabled,false);assert.equal(initial.monthlyLimit,0);assert.equal(initial.lifetimeLimit,50);
+  for(const [role,fn] of [['anon','seo_ai_authorize(uuid,numeric,text)'],['authenticated','seo_ai_claim(uuid,numeric)'],['service_role','seo_ai_approve_legacy(uuid,integer,text)']])assert.equal((await db.query('select has_function_privilege($1,$2,$3) ok',[role,fn,'EXECUTE'])).rows[0].ok,false);
+  await assert.rejects(rpc('seo_ai_set_budget',[true,5.01,false,'owner']),/BUDGET/);
+  await assert.rejects(rpc('seo_ai_set_budget',[true,5,true,'owner']),/BUDGET/);
+  const premium=await rpc('seo_ai_enqueue',['product','one','premium','Professional bilingual product optimization','owner']);
+  const token=await rpc('begin_seo_run');
+  await rpc('seo_ai_set_budget',[true,5,false,'owner']);
+  assert.equal(await rpc('seo_ai_claim_editorial',[token,0]),null,'pending is not paid approval');
+  await assert.rejects(rpc('seo_ai_authorize',[premium.id,0.01,'owner']),/CEILING/);
+  assert.equal(await rpc('seo_ai_authorize',[premium.id,0.2,'owner']),true);assert.equal(await rpc('seo_ai_claim',[token,0]),null,'legacy runtime cannot consume editorial job');
+  await rpc('seo_ai_set_budget',[true,0.19,false,'owner']);assert.equal(await rpc('seo_ai_claim_editorial',[token,0]),null);
+  await rpc('seo_ai_set_budget',[true,5,false,'owner']);
+  await db.exec('update seo_ai_settings set external_spend=49.9,external_spend_month=\'2020-01-01\'');
+  assert.equal(await rpc('seo_ai_claim_editorial',[token,0]),null,'lifetime bound survives old months');
+  await db.exec('update seo_ai_settings set external_spend=0.000246');
+  const job=await rpc('seo_ai_claim_editorial',[token,0]);assert.equal(job.tier,'premium');assert.equal(job.primary_reserve,0.2);assert.equal(job.paid_authorized,true);
+  assert.equal(await rpc('seo_ai_claim_editorial',[token,0]),null,'no repeat claim');
+  const result={...bundle(),editorialVersion:2,reviewRequired:true};
+  assert.equal(await rpc('seo_ai_finish',[token,job.id,result,'openai',[{provider:'openai',model:'gpt-6-astra',input:1000,output:600,cached:0,usd:0.042500375,uncertain:false}]]),true);
+  const status=await rpc('seo_ai_dashboard',['product','one']);assert.equal(status.jobs.find(j=>j.id===job.id).result.fr.productDescription,result.fr.productDescription);
+  assert.equal(status.estimatedUsd,0.042500375,'fractional microdollars retained');
+  assert.equal((await rpc('seo_ai_enqueue',['product','one','premium','Professional bilingual product optimization','owner'])).reused,true);
+  await assert.rejects(rpc('seo_ai_approve',[job.id,1,'owner']),/HUMAN_REVIEW_REQUIRED/);
+  await db.exec("insert into products select 'two',name,'atlas-two',category,brand,description,active,stock from products where id='one'");
+  const second=await rpc('seo_ai_enqueue',['product','two','premium','Professional bilingual product optimization','owner']);
+  await rpc('seo_ai_authorize',[second.id,0.2,'owner']);const next=await rpc('seo_ai_claim_editorial',[token,0]);
+  assert.equal(next.duplicate_corpus.length,1);
+  await assert.rejects(rpc('seo_ai_finish',[token,next.id,result,'openai',[]]),/DUPLICATE_CONTENT/);
+  assert.equal((await rpc('seo_ai_dashboard',['product','two'])).reservedUsd,0.2,'rejected completion keeps reservation');
+ } finally {await db.close();}
+});

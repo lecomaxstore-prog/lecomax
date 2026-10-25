@@ -1,0 +1,49 @@
+{
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Added a localized Selected label, larger recipient name, green card outline, clear Edit button and separated phone row. Address text uses full card width to improve wrapping."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed unused address indicator styles and replaced the isolated checkmark with a labelled selected state and navigation chevron."
+    }
+  ],
+  "summary": "Verified responsive web layout and the Edit action for the refreshed delivery address card.",
+  "id": "cart-delivery-address-refresh-verified-20261025",
+  "createdAt": "2026-10-25T21:02:11.025Z",
+  "validation": [
+    {
+      "detail": "Mobile and learning-app typechecks passed. Focused ESLint for mobile cart passed. git diff --check passed.",
+      "result": "passed",
+      "name": "TypeScript and lint"
+    },
+    {
+      "detail": "All 6 change-history and interaction tests passed; manifest check passed with 942 reports before this follow-up.",
+      "result": "passed",
+      "name": "History tests"
+    },
+    {
+      "detail": "Local Edge with mocked API and customer data: no horizontal overflow at 320, 390, 490, 768 pixels. Reviewed 390px screenshot. Edit opens delivery details form. Initial navigation timed out during server startup; retry passed.",
+      "result": "passed",
+      "name": "Responsive browser checks"
+    },
+    {
+      "detail": "Native Android/iOS, address selection interaction, long address cases and real backend checkout were not tested. No deployment. Screenshots are historical local test captures, not a live deployed preview.",
+      "result": "not-run",
+      "name": "Limitations"
+    }
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/cart.tsx"
+  ],
+  "components": [
+    "DeliveryAddress"
+  ],
+  "status": "successful",
+  "title": "Delivery address card checks passed",
+  "pages": [
+    "Mobile cart"
+  ],
+  "relatedId": "cart-delivery-address-refresh-20261025"
+}

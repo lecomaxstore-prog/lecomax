@@ -1,0 +1,36 @@
+{
+  "id": "mobile-menu-build-network-failure-20261025",
+  "relatedId": "mobile-menu-prepared-20261025",
+  "createdAt": "2026-10-25T07:03:32.727Z",
+  "title": "Mobile menu build blocked by font download restrictions",
+  "summary": "First standard production build exited 1 because Inter and Sora downloads were blocked. Unchanged build retried with permitted network access.",
+  "status": "failed",
+  "pages": [
+    "Storefront shared header"
+  ],
+  "components": [
+    "Header",
+    "Production build"
+  ],
+  "files": [
+    "components/Header.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "No additional application changes; validation environment network access corrected."
+    }
+  ],
+  "validation": [
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Both exited 0 for candidate 8de1bbe36dc501694f9df1e8664a812a4ad1f2b6e4e0223affb9ccddd1424629."
+    },
+    {
+      "name": "Initial standard build",
+      "result": "failed",
+      "detail": "build-1792911693028.log: next/font could not fetch Inter/Sora; exit 1. No validators disabled. Successful build and browser acceptance remain pending."
+    }
+  ]
+}

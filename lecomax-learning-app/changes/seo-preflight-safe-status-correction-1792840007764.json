@@ -1,0 +1,45 @@
+{
+  "id": "seo-preflight-safe-status-correction-1792840007764",
+  "createdAt": "2026-10-24T11:06:47.764Z",
+  "title": "SEO read-only preflight now reports safe stage codes and HTTP status",
+  "summary": "Team Details GET is denied while project identity passes. Project-scoped tokens cannot satisfy the retained team-level check. Reporting corrected; live team-authorized preflight still pending.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging Preview",
+    "Change History"
+  ],
+  "components": [
+    "Read-only preflight diagnostics"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/diagnose-second-preview-403.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Restrict new diagnostic output and stored results to fixed stage codes and HTTP status. All prior reports, strict checks, launcher, payload and guard files preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Saved live evidence",
+      "result": "passed",
+      "detail": "Project GET 200 and original project verifier 200; team GET 403 with/without slug. Latest metadata/user GETs 404; membership unavailable. Scope and account role not introspectable."
+    },
+    {
+      "name": "Synthetic validation and evidence replay",
+      "result": "passed",
+      "detail": "Existing mocked diagnostic tests pass. Replayed saved result produces TEAM_DETAILS_ACCESS_DENIED/403 and only code/status keys. No live API calls in this correction."
+    },
+    {
+      "name": "Preservation",
+      "result": "passed",
+      "detail": "1212 file certificate, manifest and 2601 recovery hashes match; first guards intact; second guard absent. Zero uploads and deployment creation requests."
+    },
+    {
+      "name": "Live corrected-scope preflight",
+      "result": "not-run",
+      "detail": "Existing user-held token cannot satisfy team resource check. Minimum supported scope for unchanged policy is the exact team with sufficient account permissions; no token/permission changes made. Project scope limitation documented at https://vercel.com/docs/accounts/access-tokens. NO-GO until complete GET-only preflight passes."
+    }
+  ]
+}

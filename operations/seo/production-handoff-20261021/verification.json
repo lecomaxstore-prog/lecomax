@@ -1,0 +1,49 @@
+{
+  "at": "2026-10-21T16:52:39.597Z",
+  "oldManifest": {
+    "sha256": "66b67fa30d17b4f9ed8f2d6340b919af9738dd9a0555476f51e0defb57c4cf60",
+    "count": 2124,
+    "allPinnedBytesLocated": true,
+    "recovered": [
+      {
+        "file": "tests/seo-editorial-api.test.ts",
+        "source": "artifacts/seo-production-review-20261021/source/tests/seo-editorial-api.test.ts"
+      },
+      {
+        "file": "lib/api-security.ts",
+        "source": "artifacts/seo-production-review-20261021/source/lib/api-security.ts"
+      }
+    ]
+  },
+  "candidate": {
+    "manifest": "operations/seo/production-handoff-20261021/source-manifest.json",
+    "sha256": "b9e9f98596a9bc3ea5610ae1861be6c9f6e83c926563f0145b3fd5870aa228b5",
+    "count": 2124,
+    "allHashesVerified": true,
+    "productionDeploymentAuthorized": false,
+    "productionBuildTested": false
+  },
+  "migrations": {
+    "count": 6,
+    "allHashesMatch": true
+  },
+  "existingCronsPreserved": true,
+  "rollback": {
+    "id": "dpl_HkgcNHTedgha5XhnjjX1RED3ZwGx",
+    "url": "lecomax-bf5hgr5bl-lecomaxstore-4321s-projects.vercel.app",
+    "readyState": "READY",
+    "revision": "d9d1d7a7b274fe3df9f70bb154704ea9e07e78ee"
+  },
+  "staging": {
+    "deployment": "dpl_4VCPk44FjpUmadAZKJyNFUKRHMyf",
+    "state": "READY",
+    "protection": "all",
+    "expectedFilesMatched": 2124,
+    "generatedExtraFiles": 586
+  },
+  "limitations": [
+    "Hosted authenticated security behavior remains untested for this deployment.",
+    "Fresh encrypted backup and isolated recovery await database credential.",
+    "Production configuration and exact candidate approval remain required."
+  ]
+}

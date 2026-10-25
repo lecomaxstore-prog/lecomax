@@ -1,0 +1,62 @@
+{
+  "id": "seo-retry-safety-reviewed-1792765537926",
+  "createdAt": "2026-10-23T14:25:37.926Z",
+  "title": "Separate blob retries from deployment creation; prepare API alternative",
+  "summary": "Reviewed unmodified CLI retry paths, tested synthetic failures and prepared a filtered payload draft. No upload, deployment or verifier rerun. Execution remains gated.",
+  "status": "needs-testing",
+  "pages": [
+    "Protected SEO Preview release",
+    "Changes Made / Change History"
+  ],
+  "components": [
+    "CLI retry audit",
+    "Draft upload manifest",
+    "Retry-free submission state machine"
+  ],
+  "files": [
+    "operations/seo/vercel-retry-safety-review-20261023.md",
+    "artifacts/seo-preview-resume-20261023/test-cli-retry-behavior.mjs",
+    "artifacts/seo-preview-resume-20261023/prepare-retry-free-payload.mjs",
+    "artifacts/seo-preview-resume-20261023/retry-free-payload-review.json",
+    "artifacts/seo-preview-resume-20261023/retry-free-deployment-request.json",
+    "artifacts/seo-preview-resume-20261023/retry-free-vercel.json",
+    "artifacts/seo-preview-resume-20261023/retry-free-transport.mjs",
+    "artifacts/seo-preview-resume-20261023/test-retry-free-transport.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Clarified that five retries apply to content-hashed blob uploads, not a creation retry loop. CLI normally probes creation for missing_files then submits after uploads. No universal provider idempotency guarantee found."
+    },
+    {
+      "kind": "added",
+      "detail": "Added four loopback tests of unmodified CLI behavior and five injected-transport fail-closed tests; draft 1204-file payload excludes unrelated files and test artifacts without changing candidate."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded alias limitation, options comparison, durable journal/recovery procedure and required approval changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "CLI local failure cases",
+      "result": "passed",
+      "detail": "Four scenarios: cached success, missing files with one upload retry, lost creation response, creation HTTP 500. Loopback only; no external requests or real credentials."
+    },
+    {
+      "name": "Retry-free state machine",
+      "result": "passed",
+      "detail": "Five scenarios; no retries, at most one creation call, all re-entry blocked. Inert injected transport; no live adapter certified."
+    },
+    {
+      "name": "Candidate and payload",
+      "result": "passed",
+      "detail": "2601 baseline hashes unchanged, 137 tracked and 15 untracked files preserved. Draft includes all nine untracked runtime files, excludes five tests and verifier CLI; zero selected secret-pattern matches. Pattern coverage is not exhaustive."
+    },
+    {
+      "name": "Release readiness",
+      "result": "not-run",
+      "detail": "Filtered package build, live adapter and current provider preflight remain required. Generated Preview aliases cannot be guaranteed absent; explicit approval condition must resolve this. No deployment/acceptance or provider changes."
+    }
+  ]
+}

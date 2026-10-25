@@ -1,0 +1,47 @@
+{
+  "id": "seo-staging-gate-readiness-20261019",
+  "createdAt": "2026-10-19T11:56:03.504Z",
+  "title": "Staging readiness reviewed; recovery gate remains blocked",
+  "summary": "Verified scoped read-only MCP, empty application schema, preserved releases and backup checksums. Prepared conditional recovery plan and recorded remaining isolation, packaging and hosted acceptance blockers.",
+  "status": "needs-testing",
+  "relatedId": "seo-staging-mcp-recovery-20261019",
+  "pages": [
+    "SEO Engine readiness",
+    "Change History"
+  ],
+  "components": [
+    "Staging verification",
+    "Backup and restore planning"
+  ],
+  "files": [
+    "docs/seo-staging-gate-readiness-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Added detailed readiness report with fresh read-only evidence, exact migration hashes, backup integrity, connector diagnosis and conditional restore plan; preserved all previous artifacts."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Read-only staging inventory",
+      "result": "passed",
+      "detail": "PostgreSQL 17.11, read-only role; public schema and migrations empty; no jobs/Edge Functions; security advisors empty."
+    },
+    {
+      "name": "Artifact preservation",
+      "result": "passed",
+      "detail": "99 recorded release entries unchanged; two existing backup SHA-256 values match reports; seven-file operational bundle passed."
+    },
+    {
+      "name": "Recovery and deployment acceptance",
+      "result": "not-run",
+      "detail": "No backup, restore, migration, deployment or paid calls. Platform identity/isolation, hardened harness and hosted acceptance remain unresolved."
+    },
+    {
+      "name": "Separate connector metadata",
+      "result": "failed",
+      "detail": "Staging get_project -32600 in this session; fresh lists show Primary empty and Ax unrelated project only."
+    }
+  ]
+}

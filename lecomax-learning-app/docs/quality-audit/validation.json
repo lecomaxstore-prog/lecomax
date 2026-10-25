@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-08",
+  "tests": {
+    "passed": 98,
+    "failed": 0,
+    "sql": 11
+  },
+  "typecheck": "passed",
+  "courseValidation": "48 modules, 192 lessons, 3 locales passed",
+  "contentParity": "passed; zero missing mappings",
+  "academyIntegrity": "passed; 7 lessons; 0 completed tracks",
+  "webExport": {
+    "status": "passed",
+    "directory": "dist-academy-final-web"
+  },
+  "syntax": "passed",
+  "toolingLint": "CJS ignored by existing ESLint configuration; not counted as validated",
+  "nativeExport": "Previous combined export failed: hermesc.exe permission denied",
+  "visualAndDeviceQA": "not performed; browser providers unavailable",
+  "educationalCompletion": false
+}

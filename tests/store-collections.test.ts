@@ -10,10 +10,10 @@ test('new arrivals preserve homepage ordering, include new publications and excl
  assert.deepEqual(selectNewArrivals([card('old')]).map(p=>p.slug),['old']);
  assert.deepEqual(selectNewArrivals([]),[]);
 });
-test('bestseller collection follows homepage fallback and existing eligibility without inactive products',()=>{
- const rows=[card('one'),card('nike-shoe'),card('ps5'),card('genai'),card('hidden',{active:false})];
- assert.deepEqual(selectStoreBestsellers(rows).map(p=>p.slug),['one','genai']);
- assert.deepEqual(selectStoreBestsellers([{...card('preferred'),badge:'Bestseller'},card('other')]).map(p=>p.slug),['preferred']);
+test('bestseller collection preserves curated order and excludes inactive products without filling gaps',()=>{
+ const rows=[card('one'),card('a-lenovo-lp40-pro-ecouteurs'),card('a-genai-tws-hd'),card('a-sac-banane-pu-polyvalent',{active:false})];
+ assert.deepEqual(selectStoreBestsellers(rows).map(p=>p.slug),['a-genai-tws-hd','a-lenovo-lp40-pro-ecouteurs']);
+ assert.deepEqual(selectStoreBestsellers([{...card('preferred'),badge:'Bestseller'},card('other')]).map(p=>p.slug),[]);
  assert.deepEqual(selectStoreBestsellers([]),[]);
 });
 test('shipping reassurance reflects configured threshold and disabled free delivery',()=>{

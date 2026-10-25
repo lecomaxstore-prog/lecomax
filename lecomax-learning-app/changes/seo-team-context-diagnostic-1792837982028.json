@@ -1,0 +1,48 @@
+{
+  "id": "seo-team-context-diagnostic-1792837982028",
+  "relatedId": "seo-second-preview-403-diagnostic-1792837599127",
+  "createdAt": "2026-10-24T10:33:02.028Z",
+  "title": "Documented Vercel team-context diagnostic prepared",
+  "summary": "Official endpoint documentation lists teamId in the path and optional slug query, not teamId query. Added secure GET-only comparison; same-token live result pending. Strict preflight unchanged.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging Preview",
+    "Change History"
+  ],
+  "components": [
+    "Read-only team-details diagnostic"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/diagnose-team-context.mjs",
+    "artifacts/seo-preview-resume-20261023/verify-team-context-readonly.ps1",
+    "artifacts/seo-preview-resume-20261023/test-team-context.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Compare fixed project GET and exact-team GET with/without documented slug. Validate exact project owner, team ID and slug. Output statuses/booleans only; no credential persistence, failed-body parsing, retries, deployment imports or guard writes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Official endpoint specification",
+      "result": "passed",
+      "detail": "https://vercel.com/docs/rest-api/teams/get-a-team: required teamId path parameter, optional slug query, Bearer authentication. HTTP 403 means denied team access. No documented teamId query for this endpoint."
+    },
+    {
+      "name": "Synthetic and syntax validation",
+      "result": "passed",
+      "detail": "Eight scenarios: context fixes, both denied, both pass, wrong ID, wrong slug, redirect, network failure and project denied. Node/PowerShell syntax passed; no live requests."
+    },
+    {
+      "name": "Payload and recovery preservation",
+      "result": "passed",
+      "detail": "1212 payload files, certificate and 2601 recovery hashes match; first guards intact, second guard absent. Payload SHA-256 e04c877a42ddbad8c5be5a2bddf9919bd072cddefc75aa32e9d6159d49054e6c."
+    },
+    {
+      "name": "Same-token live comparison",
+      "result": "not-run",
+      "detail": "User-held token cleared by previous secure wrapper; manual masked input required. No proof yet that slug fixes denial or a replacement token is needed. Deployment remains NO-GO; no preflight security check removed."
+    }
+  ]
+}

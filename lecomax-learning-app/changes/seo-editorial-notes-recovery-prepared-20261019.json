@@ -1,0 +1,38 @@
+{
+  "id": "seo-editorial-notes-recovery-prepared-20261019",
+  "createdAt": "2026-10-19T21:29:52.639Z",
+  "title": "Protect unsaved editorial notes during server comparison",
+  "summary": "Notes-only edits now require confirmation before loading server text; recovery compares revision as well as version and source.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo"
+  ],
+  "components": [
+    "EditorialWorkspace"
+  ],
+  "files": [
+    "app/admin/seo/EditorialWorkspace.tsx",
+    "tests/seo-editorial-workspace.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Canceling server replacement preserves bilingual notes and the local recovery record."
+    },
+    {
+      "kind": "modified",
+      "detail": "A recovered revision mismatch opens explicit server comparison without upgrading the save guard."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression tests for notes-only cancellation/confirmation and revision-only mismatch."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local validation",
+      "result": "not-run",
+      "detail": "Regression, TypeScript, lint, browser and isolated build pending. No hosted changes or deployment."
+    }
+  ]
+}

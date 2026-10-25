@@ -1,0 +1,52 @@
+{
+  "id": "product-video-fit-verified-20261025",
+  "createdAt": "2026-10-25T13:04:25.094Z",
+  "title": "Product video proportion fix verified",
+  "summary": "Remove square-frame empty bands around landscape product videos while preserving the complete video picture.",
+  "status": "successful",
+  "pages": [
+    "Product detail /produit/[slug]"
+  ],
+  "components": [
+    "ProductGallery",
+    "ProductVideo"
+  ],
+  "files": [
+    "components/ProductGallery.tsx",
+    "components/ProductVideo.tsx",
+    "tests/product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Video slides start at 16:9 and adopt actual video dimensions on metadata load; photo slides remain square. Dimensions are associated with their source URL."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for landscape/portrait metadata, invalid dimensions and restoring square photo layout."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Product video regression tests",
+      "result": "passed",
+      "detail": "All six tests passed, including 16:9 default, 9:16 metadata updates, invalid metadata handling, return to square photos, playback retry and thumbnail navigation."
+    },
+    {
+      "name": "Focused lint",
+      "result": "passed",
+      "detail": "ESLint passed for ProductGallery.tsx and ProductVideo.tsx."
+    },
+    {
+      "name": "Learning typecheck and history",
+      "result": "passed",
+      "detail": "Learning app typecheck, all four change-history tests and manifest validation passed."
+    },
+    {
+      "name": "Live playback and deployment",
+      "result": "not-run",
+      "detail": "No live ASICS video playback or browser visual validation performed. YouTube embeds default to 16:9; native video dimensions are detected from metadata. No deployment performed."
+    }
+  ],
+  "relatedId": "product-video-fit-20261025"
+}

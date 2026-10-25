@@ -1,0 +1,54 @@
+{
+  "id": "cart-layout-refinement-20261025-verified",
+  "createdAt": "2026-10-25T19:01:39.740Z",
+  "title": "Cart refinement verified at three mobile widths",
+  "summary": "Reduce address and stepper height and improve product card hierarchy so order details are visible sooner.",
+  "status": "successful",
+  "pages": [
+    "Mobile cart /cart"
+  ],
+  "components": [
+    "DeliveryAddress",
+    "CartItem",
+    "CheckoutProgress"
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/cart.tsx",
+    "mobile/src/components/checkout-progress.tsx",
+    "artifacts/cart-refinement-20261025/verify.cjs",
+    "artifacts/cart-refinement-20261025/browser-results.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Compact horizontal cart progress, tighter address layout, cleaner white cards on a neutral background, stronger product typography, refined checkout button and summary."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed repeated address eyebrow and selected badge; retained the selection checkmark and all address controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "npm run typecheck --prefix mobile completed with exit code 0 after final changes."
+    },
+    {
+      "name": "Responsive visual review",
+      "result": "passed",
+      "detail": "Reviewed screenshots at 320, 390 and 520 pixels, each 900 pixels tall. No horizontal overflow. Sample product price and quantity controls fit above the fixed checkout footer."
+    },
+    {
+      "name": "Quantity interaction",
+      "result": "passed",
+      "detail": "Browser checks incremented quantity from 1 to 2 at all three widths using isolated fixture data."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Native devices, live checkout/payment, and lint were not tested. Initial browser attempts hit a server timeout and a test locator mismatch; server restart and corrected locator enabled the successful checks. No deployment performed."
+    }
+  ],
+  "relatedId": "cart-layout-refinement-20261025"
+}

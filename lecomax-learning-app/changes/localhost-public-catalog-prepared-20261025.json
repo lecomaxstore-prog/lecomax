@@ -1,0 +1,32 @@
+{
+  "id": "localhost-public-catalog-prepared-20261025",
+  "createdAt": "2026-10-25T11:41:45.605Z",
+  "title": "Restore products in localhost preview",
+  "summary": "Replace disconnected local product reads with a read-only snapshot of the public storefront catalog.",
+  "status": "needs-testing",
+  "pages": [
+    "Local homepage",
+    "Local boutique",
+    "Local product pages"
+  ],
+  "components": [
+    "Local development launcher",
+    "Local catalog adapter"
+  ],
+  "files": [
+    "scripts/dev-public-catalog.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Local-only launcher downloads published products through the public API, serves catalog reads on loopback, rejects writes, and isolates credentials from dotenv. Production application code unchanged."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser acceptance",
+      "result": "not-run",
+      "detail": "Pending startup, homepage/catalog/product rendering, image loading and local write-rejection checks."
+    }
+  ]
+}

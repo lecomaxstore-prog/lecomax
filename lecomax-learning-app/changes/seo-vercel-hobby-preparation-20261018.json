@@ -1,0 +1,39 @@
+{
+  "id": "seo-vercel-hobby-preparation-20261018",
+  "createdAt": "2026-10-18T19:32:02.140Z",
+  "title": "Prepare a daily Vercel Hobby SEO worker",
+  "summary": "Respect daily cron limits with short bounded serverless execution; schedule stays disabled.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO worker operations",
+    "/change-history"
+  ],
+  "components": [
+    "Vercel Cron worker"
+  ],
+  "files": [
+    "operations/seo-vercel/vercel.json",
+    "operations/seo-vercel/schedule.hobby.json",
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/handler.test.mjs",
+    "operations/seo-vercel/tests/sql-integration.test.mjs",
+    "operations/seo-vercel/README.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Use 60-second function limit, 45-second work budget, 10-second RPC limits and no new claims with less than 30 seconds remaining; retain max 100 jobs and durable retries/idempotency."
+    },
+    {
+      "kind": "added",
+      "detail": "Disabled daily Hobby schedule proposal and offline adapter-to-SQL integration tests. Document daily retry/freshness limits and existing admin 15-minute warning."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local validation",
+      "result": "not-run",
+      "detail": "Tests pending; no production deployment, activation or data changes."
+    }
+  ]
+}

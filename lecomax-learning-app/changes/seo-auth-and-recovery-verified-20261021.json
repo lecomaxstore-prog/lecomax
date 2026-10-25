@@ -1,0 +1,61 @@
+{
+  "id": "seo-auth-and-recovery-verified-20261021",
+  "createdAt": "2026-10-21T00:14:53.894Z",
+  "title": "Staging role authorization and recovery evidence verified",
+  "summary": "Completed no-delivery authenticated staging checks and refreshed read-only backup evidence. Editorial writes, browser rendering and production launch remain blocked by explicit safety gates.",
+  "status": "successful",
+  "relatedId": "seo-auth-and-editorial-gate-needs-testing-20261021",
+  "pages": [
+    "SEO admin",
+    "Sitemaps",
+    "Product pages",
+    "Change History"
+  ],
+  "components": [
+    "Supabase Auth",
+    "RLS and permissions",
+    "Recovery evidence"
+  ],
+  "files": [
+    "scripts/seo-real-session-acceptance.cjs",
+    "operations/seo/staging-editorial-acceptance.json",
+    "artifacts/seo-recovery-current-1792541441918.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Corrected the session harness permission expectation for the product-only editor role; final run passed all role checks."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded current latest production backup checksum and pg_restore TOC readability without restoring or modifying data."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Authenticated application roles",
+      "result": "passed",
+      "detail": "Owner/editor/viewer genuine sessions accepted; editor/viewer restrictions and revoked application denial passed; direct private-table REST denied; logout and cookie cleanup passed; no messages or application writes."
+    },
+    {
+      "name": "Staging protection",
+      "result": "passed",
+      "detail": "Existing deployment remains READY with all-deployment protection; temporary automation credential revoked."
+    },
+    {
+      "name": "Backup evidence",
+      "result": "passed",
+      "detail": "Latest dump lecomax-production-2026-10-18T18-37-25-364Z.dump, 1,686,628 bytes, recorded SHA-256 matches, pg_restore list exit 0 with 1,233 entries; no restore performed."
+    },
+    {
+      "name": "Dependency advisories",
+      "result": "not-run",
+      "detail": "Runtime audit remains clean in prior evidence. Nine development-tool findings remain; npm registry audit endpoint was unavailable, and no major Tailwind/ESLint upgrade was applied."
+    },
+    {
+      "name": "Editorial publishing and browser UI",
+      "result": "not-run",
+      "detail": "No SEO documents exist while sync is disabled; no hosted write was authorized. No browser surface is connected."
+    }
+  ]
+}

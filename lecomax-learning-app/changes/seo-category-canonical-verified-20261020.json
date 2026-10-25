@@ -1,0 +1,62 @@
+{
+  "id": "seo-category-canonical-verified-20261020",
+  "relatedId": "seo-category-canonical-prepared-20261020",
+  "createdAt": "2026-10-20T09:44:04.117Z",
+  "title": "Encoded category URLs verified and review candidate packaged",
+  "summary": "Category/CMS metadata and category JSON-LD now match encoded sitemap paths. Production remains NO-GO.",
+  "status": "successful",
+  "pages": [
+    "/[category]",
+    "/change-history"
+  ],
+  "components": [
+    "Category metadata",
+    "CMS metadata",
+    "Category JSON-LD",
+    "Release review package"
+  ],
+  "files": [
+    "app/[category]/page.tsx",
+    "tests/seo-category-urls.test.ts",
+    "docs/seo-release-gates-handoff-20261020.md",
+    "artifacts/seo-release-gates-20261020/package-candidate.cjs",
+    "artifacts/seo-release-gates-20261020/candidate.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Encode slug segments in canonical/Open Graph URLs and breadcrumb/CollectionPage URLs, preserving ASCII URLs and raw French/Arabic and reserved characters."
+    },
+    {
+      "kind": "added",
+      "detail": "Seven behavioral regression cases, detailed gate table/handoff, and hash-verified app/worker/migration review package. Existing unrelated working-tree changes preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused and expanded regressions",
+      "result": "passed",
+      "detail": "21 focused tests; expanded distinct suite 157 passed, zero failed/skipped. Root/learning TypeScript and focused ESLint passed."
+    },
+    {
+      "name": "Isolated production build",
+      "result": "passed",
+      "detail": "Exit 0 at 2026-10-20T09:42:38.850Z. Synthetic credentials, blocked runtime fetches, public font downloads allowed; BUILD_ID and changed source parity verified."
+    },
+    {
+      "name": "Candidate integrity",
+      "result": "passed",
+      "detail": "Verified 3028 app source files and 23 package files; all six migration hashes unchanged; worker cron list empty. No dotenv/hosting links copied. Build snapshot includes pre-existing unrelated work requiring production diff review."
+    },
+    {
+      "name": "Staging read-only security",
+      "result": "passed",
+      "detail": "Zero buckets/public buckets/policies; RLS enabled on eight listed storage tables; anon/authenticated have no public CREATE or BYPASSRLS; service_role BYPASSRLS requires server-only use. Security advisor returned zero lints."
+    },
+    {
+      "name": "Hosted acceptance and historical evidence",
+      "result": "not-run",
+      "detail": "Previous nine browser and 13 native PG17/PostgREST checks not rerun for metadata-only correction. Hosted Auth/isolation, production recovery, Node24 parity, human language review and explicit deployment/activation/paid-call approval remain gates. No deployment or paid calls."
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "seo-decoupled-implementation-20261018",
+  "createdAt": "2026-10-18T18:57:35.230Z",
+  "title": "Decoupled SEO synchronization and commerce isolation",
+  "summary": "Prepared a standalone trigger-free SEO migration, durable reconciliation queue, background worker and admin synchronization status. Local validation pending; no production changes.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/produit/[slug]",
+    "/[category]"
+  ],
+  "components": [
+    "SEO queue",
+    "Scheduled worker",
+    "SEO dashboard",
+    "Storefront metadata"
+  ],
+  "files": [
+    "supabase/alternatives/202610180002_seo_decoupled.sql",
+    "scripts/seo-sync-worker.mjs",
+    "scripts/test-seo-decoupled.mjs",
+    "scripts/test-preorder-sql.mjs",
+    "app/api/admin/seo/route.ts",
+    "app/admin/seo/page.tsx",
+    "lib/seo-store.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Standalone replacement SQL with no commerce triggers, queue leases, idempotent completion, exponential retries, failure status and scheduled worker."
+    },
+    {
+      "kind": "modified",
+      "detail": "Admin dashboard reports synchronization health, pending jobs and sanitized failures; existing AI draft workflow remains separate from commerce."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Storefront falls back to current catalogue facts when stored metadata is stale. Original migration and all prior work preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local checks",
+      "result": "not-run",
+      "detail": "SQL failure injection, existing checkout tests, TypeScript, lint and Node 24 build pending. No hosted migration, deployment or payment test performed."
+    }
+  ]
+}

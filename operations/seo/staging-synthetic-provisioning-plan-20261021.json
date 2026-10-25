@@ -1,0 +1,155 @@
+{
+  "status": "proposal-only-not-applied",
+  "createdAt": "2026-10-20T22:45:44.863Z",
+  "targetRef": "tyltharlnbxrxibuxyye",
+  "forbiddenRef": "yddqwgdgeljkzfsmtein",
+  "executable": false,
+  "hostedWritesAllowed": false,
+  "scope": "Synthetic SEO/admin acceptance only; not complete storefront or production recovery",
+  "preconditions": [
+    "Explicit approval for exact schema and synthetic Auth fixtures",
+    "Auth no-delivery policy approved and applied independently",
+    "Recheck empty public schema, zero Auth users, migrations, schedules and outbound hooks",
+    "Owner-authorized transaction and rollback strategy; refuse replacing existing objects"
+  ],
+  "stages": [
+    {
+      "order": 1,
+      "name": "Synthetic catalogue prerequisites",
+      "source": "operations/seo/staging-catalogue-proposal.json",
+      "tables": [
+        "products",
+        "categories"
+      ],
+      "note": "Three fixture products and two categories. Preserve restrictive checks, RLS and service-role SELECT-only. The old proposal says five migrations; this plan supersedes that count with six."
+    },
+    {
+      "order": 2,
+      "name": "Synthetic staff authorization prerequisites",
+      "tables": {
+        "admin_roles": {
+          "columns": [
+            "id uuid primary key",
+            "name text unique not null"
+          ],
+          "rows": [
+            "seo-fixture-editor",
+            "seo-fixture-viewer"
+          ]
+        },
+        "admin_staff": {
+          "columns": [
+            "id uuid primary key",
+            "email text unique not null",
+            "role_id uuid references admin_roles(id)",
+            "status text not null"
+          ],
+          "rows": [
+            "editor@staging.invalid active editor role",
+            "viewer@staging.invalid active viewer role",
+            "revoked@staging.invalid inactive viewer role"
+          ]
+        },
+        "admin_role_permissions": {
+          "columns": [
+            "role_id uuid references admin_roles(id)",
+            "permission_slug text not null",
+            "primary key(role_id,permission_slug)"
+          ],
+          "rows": [
+            "editor: products.view, products.edit",
+            "viewer: products.view"
+          ]
+        }
+      },
+      "security": [
+        "RLS on all three tables",
+        "Revoke all privileges from PUBLIC, anon, authenticated and service_role before granting only service_role SELECT",
+        "No anonymous/authenticated policies, no public writes, no trigger/webhook",
+        "Fixture owner inserts only; no project-wide default privilege changes",
+        "No settings.edit, categories.edit, staff.manage or roles.manage permissions"
+      ],
+      "note": "Tables satisfy current admin session/access reads, not the entire staff management UI."
+    },
+    {
+      "order": 3,
+      "name": "Six pinned SEO migrations",
+      "migrations": [
+        {
+          "order": 1,
+          "file": "supabase/alternatives/202610180002_seo_decoupled.sql",
+          "sha256": "1f084348a0702a9ae6f5a2a52a59537c544d8b8aa2dc7e86e6fe38c33a725445"
+        },
+        {
+          "order": 2,
+          "file": "operations/seo-vercel/supabase/migrations/20261018193508_seo_worker_run_control.sql",
+          "sha256": "39b1ad24d16124cddbb2d49052fd0d185b67681418e4a6dc0a3dd4ea1f2cf079"
+        },
+        {
+          "order": 3,
+          "file": "operations/seo-vercel/supabase/migrations/202610190001_seo_ai_budget.sql",
+          "sha256": "5087b11fb0b5692ba76b467aa3b6075e1919f59faef1358006e6e3422f426b63"
+        },
+        {
+          "order": 4,
+          "file": "operations/seo-vercel/supabase/migrations/202610190002_seo_editorial.sql",
+          "sha256": "a88e6c5ae6d75805a1f01436a7e7fed77ee9e3a0a4855344504c8ba3712c2004"
+        },
+        {
+          "order": 5,
+          "file": "operations/seo-vercel/supabase/migrations/202610190003_seo_editorial_review.sql",
+          "sha256": "f975fd04b40bf8b5cc4895bbdbe65cdb2640a0ce3549d5b4c69d244ad6d19030"
+        },
+        {
+          "order": 6,
+          "file": "operations/seo-vercel/supabase/migrations/202610190004_seo_editorial_workflow.sql",
+          "sha256": "4f44c9abecc7c9d2e08ba821972c23d2a37d461f330df57c94682dc37aba88e8"
+        }
+      ],
+      "note": "Use decoupled base, never combine with historical synchronous base. Preserve initial disabled AI/budget controls; never start workers."
+    },
+    {
+      "order": 4,
+      "name": "Synthetic preconfirmed Auth users after separate Auth acceptance approval",
+      "users": [
+        "owner@staging.invalid",
+        "editor@staging.invalid",
+        "viewer@staging.invalid",
+        "revoked@staging.invalid"
+      ],
+      "method": "Reviewed Admin createUser with email_confirm true, independent random passwords; no invitations, signup or recovery messages",
+      "security": [
+        "Verify staging endpoint again before each write",
+        "Do not use user_metadata for authorization",
+        "Keep passwords outside repository/logs/chat",
+        "Owner matches the existing ADMIN_EMAIL exactly",
+        "No production users, identities, backups or password hashes"
+      ]
+    },
+    {
+      "order": 5,
+      "name": "Manual fixture-only SEO initialization",
+      "note": "If required, invoke reviewed sync_seo_document only for allowlisted fixture IDs inside provisioning transaction; do not run worker, queue consumer, cron or AI. Verify disabled budgets and empty request authorizations."
+    }
+  ],
+  "acceptance": [
+    "Verify exact created object inventory and migration hashes",
+    "Verify all 13 SEO and five prerequisite tables have RLS and explicit grants",
+    "Anonymous and authenticated roles cannot read staff/private SEO tables or invoke private RPCs",
+    "Owner/editor/viewer/revoked boundaries enforced from real staging sessions only after Auth acceptance approval",
+    "Editor can save, viewer cannot mutate, revoked staff cannot receive admin session; publication and rollback stay owner-only",
+    "All feature flags remain false; mutation activation is a separate approval, not part of provisioning",
+    "Validate zero provider calls, no schedules, no deliveries, no external endpoints",
+    "Do not claim full storefront compatibility: prices/orders/shipping/commerce tables are deliberately absent"
+  ],
+  "rollback": [
+    "On precommit failure roll back the transaction and stop",
+    "After commit retain evidence; do not drop objects or delete users without separate approval",
+    "Do not automatically retry a partly applied migration; compare exact inventory first"
+  ],
+  "limitations": [
+    "Proposal is not SQL and has not been executed",
+    "Prior local six-migration tests used synthetic catalogue tables; this additional staff/Auth plan is not yet an executed rehearsal",
+    "Full public storefront may show unavailable/empty data until broader synthetic schema is separately reviewed"
+  ]
+}

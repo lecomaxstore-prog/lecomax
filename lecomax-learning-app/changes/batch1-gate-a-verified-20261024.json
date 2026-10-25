@@ -1,0 +1,65 @@
+{
+  "id": "batch1-gate-a-verified-20261024",
+  "relatedId": "batch1-gate-a-pending-20261024",
+  "createdAt": "2026-10-24T17:27:26.342Z",
+  "title": "Gate A verified: isolated Preview configuration and all protection",
+  "summary": "Configured and independently verified exactly 19 approved Preview-only variables and All Deployments authentication. Hobby unchanged; no deployments, aliases, Git or resources. Gate B awaits separate approval.",
+  "status": "successful",
+  "pages": [
+    "/checkout",
+    "/panier",
+    "/change-history"
+  ],
+  "components": [
+    "Vercel checkout staging configuration",
+    "RC2 release evidence"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/gate-a/REPORT.md",
+    "artifacts/batch1-release-preparation-20261024/gate-a.cjs",
+    "artifacts/batch1-release-preparation-20261024/complete-gate-a.cjs",
+    "artifacts/batch1-release-preparation-20261024/gate-a/values-readback.json",
+    "artifacts/batch1-release-preparation-20261024/handoff-verification/provider-gate-a-after.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "19 exact approved inert Preview-only values on dedicated staging project; sanitized authenticated evidence and separate Gate B approval request."
+    },
+    {
+      "kind": "modified",
+      "detail": "Strengthened project Vercel Authentication from Standard to all; Hobby plan and other restrictions preserved."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Recovered incomplete bulk variable operation after independent read proved zero additions; individual authorized additions and exact readback succeeded. Initial failure retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Identity and scopes",
+      "result": "passed",
+      "detail": "Correct project/team OWNER, 19/19 exact approved values in Preview only; no unexpected env entries, branch/custom scopes or bindings."
+    },
+    {
+      "name": "Protection and plan",
+      "result": "passed",
+      "detail": "all protection accepted and independently verified; Hobby unchanged, no billing change or security bypass."
+    },
+    {
+      "name": "Isolation and provider boundaries",
+      "result": "passed",
+      "detail": "Readback matches RC2 isolation policy; zero deployments, Git, aliases, shared env or resources; only original staging domain; no hosted cron."
+    },
+    {
+      "name": "RC2 preservation",
+      "result": "passed",
+      "detail": "Archive hash unchanged; all 169 source entries unchanged, zero unexplained provenance differences."
+    },
+    {
+      "name": "Gate B hosted acceptance",
+      "result": "not-run",
+      "detail": "Separate authorization required. No build/deployment, real services or Production modification performed."
+    }
+  ]
+}

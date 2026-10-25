@@ -4,10 +4,12 @@ import { mkdtemp, mkdir, copyFile, writeFile, readFile, rm, symlink, unlink } fr
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import os from 'node:os';
+import { configEnvironment } from './helpers/config-environment.ts';
 
 const require = createRequire(import.meta.url);
 
-test('a clean direct production build creates the private library without npm prebuild', async () => {
+test('a clean direct production build creates the private library without npm prebuild', async (t) => {
+  t.after(configEnvironment());
   const fixture = await mkdtemp(path.join(os.tmpdir(), 'lecomax-library-build-'));
   try {
     await mkdir(path.join(fixture, 'scripts'));
@@ -15,6 +17,8 @@ test('a clean direct production build creates the private library without npm pr
     await mkdir(path.join(fixture, 'node_modules'));
     await symlink(path.dirname(require.resolve('next/package.json')), path.join(fixture, 'node_modules/next'), 'junction');
     await copyFile('next.config.js', path.join(fixture, 'next.config.js'));
+    await mkdir(path.join(fixture, 'operations/seo-vercel/lib'), { recursive: true });
+    await copyFile('operations/seo-vercel/lib/environment-target.mjs', path.join(fixture, 'operations/seo-vercel/lib/environment-target.mjs'));
     await copyFile('scripts/source-library.mjs', path.join(fixture, 'scripts/source-library.mjs'));
     await writeFile(path.join(fixture, 'app/page.tsx'), 'export default function Page() { return <h1>Shop</h1>; }');
     await writeFile(path.join(fixture, '.env.local'), 'PRIVATE_VALUE=do-not-publish');

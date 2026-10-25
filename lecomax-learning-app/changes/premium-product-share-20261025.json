@@ -1,0 +1,39 @@
+{
+  "id": "premium-product-share-20261025",
+  "createdAt": "2026-10-25T13:41:43.481Z",
+  "title": "Aper?u de partage produit premium",
+  "summary": "Refonte de la carte sociale : vert profond, ivoire, photo enti?re et texte plus court.",
+  "status": "needs-testing",
+  "pages": [
+    "/produit/[slug]",
+    "/api/og/product/[slug]"
+  ],
+  "components": [
+    "Product OG renderer",
+    "Social metadata",
+    "PNG cache"
+  ],
+  "files": [
+    "lib/product-og-renderer.tsx",
+    "lib/product-og-cache.ts",
+    "lib/product-share-copy.ts",
+    "app/produit/[slug]/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Image 1200x630, photo contenue sans recadrage, hi?rarchie lisible et appel D?couvrir la pi?ce. Titres et descriptions Open Graph/Twitter raccourcis ; m?tadonn?es SEO conserv?es."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Disponibilit? inconnue et pr?commandes distingu?es dans l?image et son cache. Nouvelle version des caches PNG/photo et URL image."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Rendu local, tests et lint ? ex?cuter. Aucun d?ploiement ni envoi de message."
+    }
+  ]
+}

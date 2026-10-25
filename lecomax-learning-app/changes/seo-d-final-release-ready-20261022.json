@@ -1,0 +1,66 @@
+{
+  "id": "seo-d-final-release-ready-20261022",
+  "relatedId": "seo-d-canonical-dedup-prepared-20261022",
+  "createdAt": "2026-10-22T18:48:25.360Z",
+  "title": "Release D verified and packaged; E production blockers retained",
+  "summary": "D ddf12f4a passes 120 tests, TypeScript, lint and production-mode build; source-only archive and manifest prepared. Deployment remains unauthorized. E unchanged at 86 files and NO-GO.",
+  "status": "successful",
+  "pages": [
+    "Product publication",
+    "IndexNow API",
+    "SEO administration",
+    "Change History"
+  ],
+  "components": [
+    "IndexNow transport",
+    "Release evidence and packaging"
+  ],
+  "files": [
+    "release/seo-advanced-d-20261022/lib/indexnow.mjs",
+    "release/seo-advanced-d-20261022/tests/indexnow-safety.test.ts",
+    "release/seo-advanced-d-20261022/tests/seo-advanced-indexnow.test.ts",
+    "scripts/seo-d-release-package.cjs",
+    "docs/seo-release-d-e-readiness-20261022.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Deduplicate trailing-slash canonical URL variants and reject compte/wishlist private routes."
+    },
+    {
+      "kind": "modified",
+      "detail": "Expanded actual publication-callback coverage for disabled/unset/enabled configuration and zero/one request counts."
+    },
+    {
+      "kind": "added",
+      "detail": "No-retry checks, exact release manifest, source archive, fresh provider receipt and detailed E schema/auth/reader acceptance matrix."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate tests",
+      "result": "passed",
+      "detail": "120/120; zero failures/skips. Synthetic transport only, no IndexNow submissions."
+    },
+    {
+      "name": "TypeScript, ESLint, production-mode build",
+      "result": "passed",
+      "detail": "All exit 0 on final runtime bytes. Existing lint warnings retained; synthetic build completed at 18:44:18.365Z."
+    },
+    {
+      "name": "Source preservation and package",
+      "result": "passed",
+      "detail": "Clean D worktree; exactly eight cumulative files against C; A/B/C, commerce/auth, dependencies and four crons unchanged. Manifest records 2588 worktree file hashes and Git archive digest."
+    },
+    {
+      "name": "E evidence integrity",
+      "result": "passed",
+      "detail": "86 source hashes and six migration hashes verified unchanged; prior 167 application, 71 worker/SQL, 12 browser checks and build retained."
+    },
+    {
+      "name": "Production deployment and E acceptance",
+      "result": "not-run",
+      "detail": "No deployment/push, production SQL, secrets, flag changes or customer/order/payment changes. E hosted schema/recovery, real actors, reader/cache and independent packaging remain blockers."
+    }
+  ]
+}

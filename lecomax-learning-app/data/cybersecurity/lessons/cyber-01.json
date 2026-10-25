@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-01",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-01",
+  "title": {
+    "en": "Ethical hacking: scope, evidence and responsible decisions",
+    "ar": "الاختبار الأخلاقي: النطاق والدليل والمسؤولية",
+    "fr": "Ethical hacking: scope, evidence and responsible decisions"
+  },
+  "contentLanguage": "en",
+  "difficulty": 1,
+  "prerequisites": [],
+  "objectives": [
+    "Distinguish assessment, penetration testing and red/blue team work.",
+    "Write a bounded assessment scope and stop conditions.",
+    "Separate a demonstrated finding from an assumption and communicate it responsibly."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Learn to ask a precise security question, obtain a useful authorization boundary, and turn an observation into an actionable finding. No previous security experience is required.",
+  "sections": [
+    {
+      "title": "Start with something worth protecting",
+      "text": "A fictional shop called Cedar Cart stores customer orders and accepts payment confirmations. Its assets include customer information, money, inventory, staff accounts and service availability. Security asks three different questions: who can read information, who can change it, and whether legitimate users can use the service. These are confidentiality, integrity and availability. A vulnerability is a weakness that can violate one of those properties; a threat is a possible source of harm; risk combines the plausible impact with how likely the harmful situation is. An exposed order number is not automatically a breach. An endpoint returning another customer’s address after changing that number is evidence of an access-control failure. Start with the asset and business rule, not with a favorite scanning tool."
+    },
+    {
+      "title": "Different kinds of security work",
+      "text": "A vulnerability assessment identifies and prioritizes weaknesses across an agreed scope, often combining automated checks and review. A penetration test attempts bounded demonstrations to establish what those weaknesses actually permit. A red-team exercise evaluates detection and response against agreed adversarial objectives; it is not simply permission to test everything. A blue team operates prevention, monitoring, investigation and recovery. Purple-team collaboration lets both sides improve a detection using a shared, controlled exercise. A code review may discover a dangerous query without sending a request to production. A scanner may flag a dependency version without showing whether your application uses the affected feature. Each method answers different questions, and none proves that every unknown weakness has been found."
+    },
+    {
+      "title": "Authorization is an engineering input",
+      "text": "For this course, permission comes from controlling the fictional local lab. For other work, obtain a written scope that identifies the authorizing owner, exact domains or addresses, environments, dates, permitted techniques, test accounts, request-rate bounds and emergency contacts. Ownership of a website does not necessarily authorize testing its hosting provider, payment gateway or another tenant. Treat a redirect outside scope as a boundary to review, not an invitation to follow. Agree how evidence is stored and deleted, what customer data must never be collected, and who can halt the test. If a service becomes unstable or real data unexpectedly appears, stop, preserve minimal evidence and contact the owner. Jurisdiction and contracts differ; the course teaches operational discipline, not a legal determination about a particular engagement."
+    },
+    {
+      "title": "Think in trust boundaries",
+      "text": "A trust boundary is a place where data moves between components with different authority. Your browser can send quantity=2, but the server should decide the product price. A server can receive a webhook, but must verify that the payment provider actually signed the bytes. An administrator’s button can be hidden from customers, but the API must still enforce the administrator role. Draw the components first, label the data crossing each arrow, then ask who can control those values. This turns the vague instruction think like an attacker into a reproducible review method: identify an input, state the trusted decision it influences, and test whether the decision is made from a trustworthy source. Most useful beginner findings come from broken assumptions at ordinary boundaries, not exotic payloads."
+    },
+    {
+      "title": "Follow an assessment lifecycle",
+      "text": "First agree the scope and take a reproducible baseline: software versions, configuration, seeded accounts and expected successful behavior. Next inventory the in-scope routes and roles. Form a hypothesis such as a customer can read an order they do not own. Demonstrate it using two synthetic accounts and one request, then save a redacted request/response pair. Explain the root cause, propose a fix, and add a regression test containing both a denied case and a legitimate success. Retest the exact revision that contains the fix. Finally report what was tested, what was not, and any residual risk. Keep timestamps and version identifiers so another developer can repeat the result. A screenshot without the relevant request or configuration is weak evidence because it can hide how the result occurred."
+    },
+    {
+      "title": "Motivation, impact and responsible disclosure",
+      "text": "Attackers can seek money, influence, disruption, personal information or curiosity-driven access. Motivation helps threat modeling but does not identify who performed an event; a shared IP address or familiar payload is not attribution. Responsible disclosure means reporting a specific weakness through the owner’s stated security channel and coordinating a remediation timeline. Avoid publishing customer data or proving impact by extracting more records than needed. A useful finding states affected component, prerequisites, minimal reproduction, observed versus expected behavior, business impact, remediation and retest status. Severity should account for access required, data sensitivity and blast radius. A dramatic vulnerability name alone is not a severity argument. Your first professional skill is making a small, well-supported claim that someone else can reproduce."
+    },
+    {
+      "title": "Common mistakes and a Darija bridge",
+      "text": "Do not confuse a public page with permission to attack it, a successful HTTP response with authorization, or a clean scanner report with assurance. Do not hide uncertainty: write not tested when a boundary was not evaluated. In Darija: الإذن والنطاق كيجيوا قبل التجربة؛ والدليل الصغير والواضح أحسن من استخراج بيانات الناس. In this course, lab badges show that you recorded a result and completed learning tasks. They are not an independent certification of professional competence. The practice below deliberately asks you to reject one out-of-scope action as part of doing the job correctly."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "scope",
+      "difficulty": 1,
+      "task": "Write a one-page scope for Cedar Cart at http://127.0.0.1:4177. The payment provider and all public websites must remain outside it.",
+      "hints": [
+        "Name the owner and test accounts.",
+        "Include a stop condition and evidence handling."
+      ],
+      "solution": "Target: Cedar Cart on 127.0.0.1:4177\nAccounts: synthetic Alice and Bob\nAllowed: local source review, route checks and lab tests\nExcluded: public domains, provider APIs, denial of service\nStop: any unexpected non-lab data or unstable service\nEvidence: redacted local report, delete after review",
+      "walkthrough": "The host and port define the target. A browser redirect does not expand permission. Synthetic identities let you demonstrate a boundary without collecting customer records.",
+      "expectedResult": "A scope another reviewer can enforce."
+    },
+    {
+      "id": "finding",
+      "difficulty": 2,
+      "task": "A request by Alice returns Bob’s synthetic order. Write a finding without claiming a production breach.",
+      "hints": [
+        "Distinguish observation from suspected root cause."
+      ],
+      "solution": "Observed: local order-b returned to Alice.\nExpected: 404 or equivalent denial.\nImpact: cross-account order disclosure in the lab.\nFix: constrain lookup by authenticated owner.\nRetest: Alice denied order-b; Bob still allowed.",
+      "walkthrough": "The finding links behavior to the owner relationship and includes a positive control. Its environment statement prevents overstating the evidence.",
+      "expectedResult": "A reproducible, scoped finding."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-01-q1",
+      "question": "A public shop is reachable. Does reachability authorize active tests?",
+      "options": [
+        "No; establish an explicit scope.",
+        "Yes; public means authorized."
+      ],
+      "correctIndex": 0,
+      "explanation": "Availability and permission are different facts.",
+      "answerExplanations": [
+        "Correct. Availability and permission are different facts.",
+        "Not quite. Availability and permission are different facts."
+      ]
+    },
+    {
+      "id": "cyber-01-q2",
+      "question": "A scanner flags a library but you did not confirm the affected feature. How should you report it?",
+      "options": [
+        "As a confirmed exploited breach.",
+        "As a candidate requiring applicability review."
+      ],
+      "correctIndex": 1,
+      "explanation": "Version evidence alone does not establish exploitation.",
+      "answerExplanations": [
+        "Not quite. Version evidence alone does not establish exploitation.",
+        "Correct. Version evidence alone does not establish exploitation."
+      ]
+    },
+    {
+      "id": "cyber-01-q3",
+      "question": "Alice can read Bob’s order in a seeded lab. What is the demonstrated property failure?",
+      "options": [
+        "Confidentiality across customer accounts.",
+        "Only a visual design issue."
+      ],
+      "correctIndex": 0,
+      "explanation": "The response crosses an ownership boundary.",
+      "answerExplanations": [
+        "Correct. The response crosses an ownership boundary.",
+        "Not quite. The response crosses an ownership boundary."
+      ]
+    },
+    {
+      "id": "cyber-01-q4",
+      "question": "The owner authorizes a shop domain. Is its external payment gateway automatically included?",
+      "options": [
+        "Yes; every linked system is included.",
+        "No; third-party scope must be explicit."
+      ],
+      "correctIndex": 1,
+      "explanation": "A dependency is not the same as an authorized target.",
+      "answerExplanations": [
+        "Not quite. A dependency is not the same as an authorized target.",
+        "Correct. A dependency is not the same as an authorized target."
+      ]
+    },
+    {
+      "id": "cyber-01-q5",
+      "question": "A test makes the service unstable. What happens next?",
+      "options": [
+        "Stop under the agreed conditions and contact the owner.",
+        "Increase request volume to confirm the outage."
+      ],
+      "correctIndex": 0,
+      "explanation": "Controlled evidence takes precedence over escalating harm.",
+      "answerExplanations": [
+        "Correct. Controlled evidence takes precedence over escalating harm.",
+        "Not quite. Controlled evidence takes precedence over escalating harm."
+      ]
+    },
+    {
+      "id": "cyber-01-q6",
+      "question": "What makes a remediation credible?",
+      "options": [
+        "Removing the screenshot from the report.",
+        "A fixed revision plus a denied-case and allowed-case retest."
+      ],
+      "correctIndex": 1,
+      "explanation": "A repair must enforce the rule without breaking legitimate access.",
+      "answerExplanations": [
+        "Not quite. A repair must enforce the rule without breaking legitimate access.",
+        "Correct. A repair must enforce the rule without breaking legitimate access."
+      ]
+    },
+    {
+      "id": "cyber-01-q7",
+      "question": "Is a red-team exercise just a synonym for any vulnerability scan?",
+      "options": [
+        "No; it evaluates agreed adversarial objectives and response.",
+        "Yes; the tools make them identical."
+      ],
+      "correctIndex": 0,
+      "explanation": "Scope and objectives distinguish the activities.",
+      "answerExplanations": [
+        "Correct. Scope and objectives distinguish the activities.",
+        "Not quite. Scope and objectives distinguish the activities."
+      ]
+    },
+    {
+      "id": "cyber-01-q8",
+      "question": "An IP address resembles an earlier incident. What can you conclude?",
+      "options": [
+        "It proves the same person was responsible.",
+        "It is a correlation to investigate, not actor attribution."
+      ],
+      "correctIndex": 1,
+      "explanation": "Shared infrastructure and intermediaries weaken attribution.",
+      "answerExplanations": [
+        "Not quite. Shared infrastructure and intermediaries weaken attribution.",
+        "Correct. Shared infrastructure and intermediaries weaken attribution."
+      ]
+    },
+    {
+      "id": "cyber-01-q9",
+      "question": "Where should price authority live?",
+      "options": [
+        "At the server’s trusted catalog boundary.",
+        "In the editable browser total."
+      ],
+      "correctIndex": 0,
+      "explanation": "The browser is controlled by the caller.",
+      "answerExplanations": [
+        "Correct. The browser is controlled by the caller.",
+        "Not quite. The browser is controlled by the caller."
+      ]
+    },
+    {
+      "id": "cyber-01-q10",
+      "question": "A report omits an untested mobile API. Is that acceptable coverage?",
+      "options": [
+        "Yes; silence means it was secure.",
+        "Only if the limitation is explicitly documented."
+      ],
+      "correctIndex": 1,
+      "explanation": "Coverage gaps must remain visible.",
+      "answerExplanations": [
+        "Not quite. Coverage gaps must remain visible.",
+        "Correct. Coverage gaps must remain visible."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can distinguish assessment, penetration testing and red/blue team work.",
+    "I can write a bounded assessment scope and stop conditions.",
+    "I can separate a demonstrated finding from an assumption and communicate it responsibly."
+  ],
+  "recap": [
+    "Distinguish assessment, penetration testing and red/blue team work.",
+    "Write a bounded assessment scope and stop conditions.",
+    "Separate a demonstrated finding from an assumption and communicate it responsibly."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP Web Security Testing Guide",
+      "url": "https://owasp.org/www-project-web-security-testing-guide/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "An authorized assessment",
+    "steps": [
+      {
+        "title": "Owner and scope",
+        "detail": "Agree assets, techniques, time and stop conditions."
+      },
+      {
+        "title": "Controlled observation",
+        "detail": "Use synthetic accounts and minimal requests."
+      },
+      {
+        "title": "Evidence and repair",
+        "detail": "Explain the broken rule and add a regression."
+      },
+      {
+        "title": "Retest and disclosure",
+        "detail": "Verify the fixed revision and report limits."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Asset",
+      "Something valuable that must be protected."
+    ],
+    [
+      "Trust boundary",
+      "A change in authority between components."
+    ],
+    [
+      "Scope",
+      "The explicitly permitted boundaries of an assessment."
+    ],
+    [
+      "Finding",
+      "An evidenced weakness with impact and remediation."
+    ]
+  ],
+  "lab": null
+}

@@ -1,0 +1,71 @@
+{
+  "id": "seo-finalization-intent-verified-20261020",
+  "createdAt": "2026-10-20T09:11:06.147Z",
+  "title": "Worker recovery verified and 6.35 GB of caches reclaimed",
+  "summary": "147 regression tests, 9 browser scenarios, both TypeScript checks, lint and isolated production build passed. Production remains NO-GO.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync"
+  ],
+  "components": [
+    "SEO worker recovery"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/handler.mjs",
+    "operations/seo-vercel/tests/finalization-retry.test.mjs",
+    "docs/seo-continuation-handoff-20261020.md",
+    "artifacts/seo-continuation-20261020/compatibility-plan.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Retry original finalization arguments without reclassifying successful or partial work as failed; retain uncertain acknowledgement semantics."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Record budget exhaustion when deadline expires during transport or before the next RPC."
+    },
+    {
+      "kind": "removed",
+      "detail": "Only six verified untracked SEO snapshot webpack caches: 6345243416 bytes. Source, build outputs, backups, databases and reports preserved."
+    },
+    {
+      "kind": "added",
+      "detail": "Detailed handoff, isolated PG17/PostgREST acceptance plan with six migration hashes, and fresh staging read-only evidence."
+    }
+  ],
+  "validation": [
+    {
+      "name": "SEO regression",
+      "result": "passed",
+      "detail": "147 passed, zero failed/skipped; focused 7 overlap."
+    },
+    {
+      "name": "Browser",
+      "result": "passed",
+      "detail": "9 loopback fixture scenarios. Initial sandbox GPU crash before scenarios; unchanged harness passed outside sandbox."
+    },
+    {
+      "name": "Types and lint",
+      "result": "passed",
+      "detail": "Root and learning-app TypeScript, focused ESLint and handler syntax passed."
+    },
+    {
+      "name": "Isolated build",
+      "result": "passed",
+      "detail": "Completed 2026-10-20T09:09:22.273Z; BUILD_ID and runtime parity verified. Initial font download failed; retry passed. Synthetic credentials and blocked runtime fetches; no deployment."
+    },
+    {
+      "name": "Integrity and staging",
+      "result": "passed",
+      "detail": "Six migration hashes unchanged. Read-only staging PG17.11, empty public schema and Edge Functions, no security lints. Not full external isolation acceptance."
+    },
+    {
+      "name": "PG17/PostgREST and production gates",
+      "result": "not-run",
+      "detail": "PG17 binary absent; preflight stopped before cluster creation. PostgREST/Docker absent on PATH. Auth/origin, integration isolation, backup/restore, human FR/AR and real-provider latency/billing remain unverified. Separate rollout authorization required."
+    }
+  ],
+  "relatedId": "seo-finalization-intent-prepared-20261020"
+}

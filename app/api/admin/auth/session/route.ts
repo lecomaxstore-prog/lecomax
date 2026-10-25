@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
         apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       },
       cache: "no-store",
+      redirect: "error",
       signal: AbortSignal.timeout(10_000),
     }
   ).catch(() => null);
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest) {
   }
 
   // ── Access control: only owner or active staff may receive a session ──────
-  const ownerEmail = (process.env.ADMIN_EMAIL ?? "contact@lecomax.com").toLowerCase();
+  const ownerEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const normalizedEmail = user.email.toLowerCase();
   const isOwner = normalizedEmail === ownerEmail;
 

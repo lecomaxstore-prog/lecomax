@@ -1,0 +1,55 @@
+{
+  "id": "product-card-larger-images-verified-20261025",
+  "createdAt": "2026-10-25T13:53:01.423Z",
+  "title": "Larger product card images: responsive checks passed",
+  "summary": "Validated the updated image panels in isolated browser renders at four viewport widths, plus lint, learning app typecheck and history tests.",
+  "status": "successful",
+  "pages": [
+    "Storefront product grids",
+    "Collection product grids"
+  ],
+  "components": [
+    "ProductCard",
+    "CollectionProductCard"
+  ],
+  "files": [
+    "components/ProductCard.tsx",
+    "components/ProductCard.module.css",
+    "components/CollectionProductCard.tsx",
+    "components/CollectionProductCard.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Verified the product and collection card photo layout; no additional application changes in this follow-up."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive CSS render",
+      "result": "passed",
+      "detail": "Headless Edge using actual component CSS and existing local product photos at 320, 390, 768 and 1440px. Images loaded, 4:5 panels and expected padding confirmed, no horizontal overflow. Inspected 390px screenshot. Evidence: artifacts/product-card-refinement-20261025/render-validation.json."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "ProductCard.tsx and CollectionProductCard.tsx: no diagnostics."
+    },
+    {
+      "name": "Learning app typecheck",
+      "result": "passed",
+      "detail": "npm.cmd run typecheck exited 0. Initial npm.ps1 invocation was blocked by shell policy; npm.cmd succeeded."
+    },
+    {
+      "name": "History validation and regression tests",
+      "result": "passed",
+      "detail": "917 reports valid before this follow-up; all four change-history tests passed. Final manifest check run after append."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Isolated CSS rendering only; full storefront runtime, wishlist, navigation, live product sources and physical devices not exercised. No build or deployment. Default Playwright browser absent; installed Edge used successfully."
+    }
+  ],
+  "relatedId": "product-card-larger-images-20261025"
+}

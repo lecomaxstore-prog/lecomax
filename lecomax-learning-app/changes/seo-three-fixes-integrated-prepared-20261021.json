@@ -1,0 +1,44 @@
+{
+  "id": "seo-three-fixes-integrated-prepared-20261021",
+  "createdAt": "2026-10-21T11:57:38.072Z",
+  "title": "Three browser fixes integrated into isolated staging source",
+  "summary": "Only manifest credentials, category srcset escaping and the missing placeholder were integrated. Staging guards, dependencies and unrelated source remain unchanged; validation pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront shared layout",
+    "Category tiles",
+    "Product images"
+  ],
+  "components": [
+    "RootLayout",
+    "CategoryTiles",
+    "Placeholder asset"
+  ],
+  "files": [
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Explicit credentialed manifest link and encoded single-URL srcset."
+    },
+    {
+      "kind": "added",
+      "detail": "Reviewed 640x640 neutral placeholder asset."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Pinned source and bounded transfer",
+      "result": "passed",
+      "detail": "All 2123 baseline hashes matched before integration; only two existing uploaded files changed and one asset was added."
+    },
+    {
+      "name": "Candidate tests/build/browser",
+      "result": "not-run",
+      "detail": "Pending. No hosted deployment or write authorized."
+    }
+  ]
+}

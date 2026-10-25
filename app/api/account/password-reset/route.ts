@@ -3,6 +3,9 @@ import { getCustomerUser } from "@/lib/request-auth";
 import { sensitiveRateLimit } from "@/lib/sensitive-rate-limit";
 
 export async function POST(req: NextRequest) {
+  if (process.env.APP_ENV !== "production") {
+    return NextResponse.json({ error: "EMAIL_DISABLED" }, { status: 503 });
+  }
   const headers = { "Cache-Control": "private, no-store" };
   try {
     const user = await getCustomerUser(req);
@@ -14,7 +17,8 @@ export async function POST(req: NextRequest) {
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!url || !key) return NextResponse.json({ error: "Service de réinitialisation indisponible." }, { status: 503, headers });
     // Never accept an email or redirect from the caller: use the verified account.
-    const redirect = new URL("/mot-de-passe", process.env.NEXT_PUBLIC_SITE_URL || "https://lecomax.com");
+    if (!process.env.NEXT_PUBLIC_SITE_URL) throw new Error("SITE_URL_REQUIRED");
+    const redirect = new URL("/mot-de-passe", process.env.NEXT_PUBLIC_SITE_URL);
     const endpoint = new URL("/auth/v1/recover", url);
     endpoint.searchParams.set("redirect_to", redirect.href);
     const response = await fetch(endpoint, {

@@ -1,0 +1,29 @@
+{
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Require a non-null dimensions object before comparing its URL and reading its ratio."
+    }
+  ],
+  "summary": "Ensure missing video dimensions cannot be dereferenced while calculating the product gallery aspect ratio.",
+  "id": "release-gallery-null-safety-20261025",
+  "createdAt": "2026-10-25T21:20:32.271Z",
+  "validation": [
+    {
+      "detail": "Final rerun in progress after TS18047 exposed this nullable access.",
+      "result": "not-run",
+      "name": "TypeScript"
+    }
+  ],
+  "files": [
+    "components/ProductGallery.tsx"
+  ],
+  "components": [
+    "ProductGallery"
+  ],
+  "status": "needs-testing",
+  "title": "Guard product video dimensions before layout",
+  "pages": [
+    "Product detail"
+  ]
+}

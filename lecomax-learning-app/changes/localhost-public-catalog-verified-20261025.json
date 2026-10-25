@@ -1,0 +1,75 @@
+{
+  "id": "localhost-public-catalog-verified-20261025",
+  "relatedId": "localhost-public-catalog-prepared-20261025",
+  "createdAt": "2026-10-25T11:44:37.242Z",
+  "title": "Localhost products restored and verified",
+  "summary": "Local homepage, boutique, product pages and search now load a read-only snapshot of all 36 published products.",
+  "status": "successful",
+  "pages": [
+    "Local homepage",
+    "Local boutique",
+    "Local product pages",
+    "Local search"
+  ],
+  "components": [
+    "Local catalog preview launcher"
+  ],
+  "files": [
+    "scripts/dev-public-catalog.cjs",
+    "operations/local-catalog-preview.md",
+    "artifacts/local-public-catalog/verify.cjs",
+    "artifacts/local-public-catalog/verification.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replaced disconnected preview process with an isolated loopback public-catalog snapshot service. Production source, secrets and database unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "Reusable launch/refresh command and documentation. Catalog snapshot contains public product fields only."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local public API returns all 36 published products",
+      "result": "passed",
+      "detail": "Verified against localhost with browser mutation requests blocked; zero uncaught page errors."
+    },
+    {
+      "name": "Homepage renders 40 product links",
+      "result": "passed",
+      "detail": "Verified against localhost with browser mutation requests blocked; zero uncaught page errors."
+    },
+    {
+      "name": "Homepage product images loaded",
+      "result": "passed",
+      "detail": "Verified against localhost with browser mutation requests blocked; zero uncaught page errors."
+    },
+    {
+      "name": "Boutique renders products",
+      "result": "passed",
+      "detail": "Verified against localhost with browser mutation requests blocked; zero uncaught page errors."
+    },
+    {
+      "name": "Real product page images and gallery open/close work",
+      "result": "passed",
+      "detail": "Verified against localhost with browser mutation requests blocked; zero uncaught page errors."
+    },
+    {
+      "name": "Local catalog rejects writes and exposes no orders",
+      "result": "passed",
+      "detail": "Verified against localhost with browser mutation requests blocked; zero uncaught page errors."
+    },
+    {
+      "name": "Product search returns results",
+      "result": "passed",
+      "detail": "Verified against localhost with browser mutation requests blocked; zero uncaught page errors."
+    },
+    {
+      "name": "Limitations",
+      "result": "not-run",
+      "detail": "Read-only catalog preview, not full database parity. Snapshot stock/prices require explicit refresh. Authentication, purchasing, customer records and admin editing unavailable; optional public settings/reviews/promotions use local defaults. No production deployment."
+    }
+  ]
+}

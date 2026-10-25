@@ -1,0 +1,1 @@
+{"content":"-- The review API sends image_urls even for reviews without attachments.\n-- Keep legacy rows NULL so clients still fall back to their image_url photo.\nalter table public.reviews add column if not exists image_urls text[];\ngrant select (image_urls) on public.reviews to anon, authenticated;\nnotify pgrst, 'reload schema';\n"}

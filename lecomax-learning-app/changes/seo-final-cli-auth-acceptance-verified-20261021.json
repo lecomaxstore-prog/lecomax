@@ -1,0 +1,86 @@
+{
+  "id": "seo-final-cli-auth-acceptance-verified-20261021",
+  "relatedId": "seo-final-validation-type-race-20261021",
+  "createdAt": "2026-10-21T10:35:36.639Z",
+  "title": "Vercel authentication repaired; protected staging HTTP acceptance verified",
+  "summary": "All active root cached-token readers migrated to CLI-managed authentication. Protected HTTP 23/23, environment 47/47, local regressions 65/65, build, TypeScript and focused lint passed. Full staging and production remain NO-GO for documented browser, write-approval and release gates.",
+  "status": "successful",
+  "pages": [
+    "SEO staging acceptance",
+    "Production release preparation",
+    "Learning Change History"
+  ],
+  "components": [
+    "Vercel CLI API adapter",
+    "Operational verification scripts",
+    "Release readiness package"
+  ],
+  "files": [
+    "scripts/configure-seo-staging-hosting.cjs",
+    "scripts/seo-final-readiness.cjs",
+    "scripts/seo-first-deployment-audit.cjs",
+    "scripts/seo-first-deployment-status.cjs",
+    "scripts/seo-first-upload-receipt.cjs",
+    "scripts/seo-real-session-acceptance.cjs",
+    "scripts/seo-runtime-hosted-acceptance.cjs",
+    "scripts/seo-runtime-hosting.cjs",
+    "scripts/seo-sixth-readonly.cjs",
+    "scripts/vercel-cli-api.cjs",
+    "scripts/verify-seo-hosting-readonly.cjs",
+    "scripts/verify-seo-staging-environment.cjs",
+    "tests/vercel-cli-api.test.cjs",
+    "docs/seo-final-staging-acceptance-20261021.md",
+    "operations/seo/final-staging-acceptance-20261021.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Eleven active root scripts use CLI-managed authentication, with JSON stdin, bounded in-memory output, origin/header guards and sanitized failures. Pinned historical source copies remain unchanged and must not be used as execution entrypoints."
+    },
+    {
+      "kind": "added",
+      "detail": "Five meaningful transport/security regressions; new machine-readable release gate assessment and final acceptance report with source/configuration differences, migrations, backup/restore, rollback, indexing, security and monitoring requirements."
+    },
+    {
+      "kind": "modified",
+      "detail": "Acceptance evidence refreshed. Initial generated-types collision corrected by sequential validation. Temporary staging automation access used only for bounded HTTP acceptance and revoked; protection all retained."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused local regressions",
+      "result": "passed",
+      "detail": "24 operational tests plus 41 editorial/API/component/PGlite SQL/History tests passed. No hosted editorial/database writes. Five adapter tests also passed again after UTF-8 output handling refinement."
+    },
+    {
+      "name": "Syntax and ESLint",
+      "result": "passed",
+      "detail": "All 12 operational scripts passed node --check; focused ESLint for scripts and new test passed."
+    },
+    {
+      "name": "Hosted acceptance and isolation",
+      "result": "passed",
+      "detail": "23 protected HTTP checks and 47 environment checks passed. Team/project/READY staging verified; production alias remains baseline. Two staging secrets are write-only; production secret bytes remain unverified."
+    },
+    {
+      "name": "Production-mode build and TypeScript",
+      "result": "passed",
+      "detail": "Build exit 0 at 2026-10-21T10:32:31.834Z; sequential standalone types exit 0 at 2026-10-21T10:34:21.222Z. Initial TS6053 failure retained in related report. Existing lint warnings remain."
+    },
+    {
+      "name": "Source and migration integrity",
+      "result": "passed",
+      "detail": "All 2123 pinned candidate files and six migration hashes match. Source delta against verified production baseline recorded; not certification of deployed bytes or an approved production upload set."
+    },
+    {
+      "name": "Hosted browser and editorial writes",
+      "result": "not-run",
+      "detail": "No browser surfaces; in-app browser unavailable. Hosted desktop/mobile, hydration, console/network, expired sessions, real editorial publish/rollback and cache invalidation remain unverified. Write approval, human FR/AR review, production bindings and recovery/release ownership still required."
+    },
+    {
+      "name": "Production release",
+      "result": "not-run",
+      "detail": "No deployment, production mutation, migration, push/merge or provider activation. Production and full staging remain NO-GO; HTTP acceptance alone is GO."
+    }
+  ]
+}

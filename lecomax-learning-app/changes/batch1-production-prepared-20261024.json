@@ -1,0 +1,48 @@
+{
+  "id": "batch1-production-prepared-20261024",
+  "createdAt": "2026-10-24T19:01:42.749Z",
+  "title": "Batch 1: real checkout fixes prepared on verified production source",
+  "summary": "Integrated four checkout files onto all 2,053 hash-verified live source files. Removed the RC2 synthetic PayPal branch; preserved production services, configuration, SEO and security code. No deployment yet.",
+  "status": "needs-testing",
+  "pages": [
+    "Cart /panier",
+    "Checkout /checkout"
+  ],
+  "components": [
+    "CartQuoteFeedback",
+    "useCartCalculation",
+    "COD and PayPal checkout"
+  ],
+  "files": [
+    "artifacts/batch1-production-20261024/source/app/checkout/page.tsx",
+    "artifacts/batch1-production-20261024/source/app/panier/page.tsx",
+    "artifacts/batch1-production-20261024/source/lib/use-cart-calculation.ts",
+    "artifacts/batch1-production-20261024/source/components/CartQuoteFeedback.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "French shipping status and retry feedback shared by cart and checkout."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Confirmed free/paid delivery only; unavailable quotes, retry recovery, address/cart invalidation, stale-response rejection, COD and PayPal quote-error recovery."
+    },
+    {
+      "kind": "removed",
+      "detail": "Excluded synthetic checkout branch from the production candidate; no staging handlers, mocks, variables or config introduced."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live source reconciliation",
+      "result": "passed",
+      "detail": "2,053 baseline source hashes match live deployment. Exact application delta is four files; production configuration has not changed since current deployment."
+    },
+    {
+      "name": "Candidate validation",
+      "result": "not-run",
+      "detail": "Focused tests, TypeScript, lint, standard production build and browser verification pending. No real orders, payments or customer messages authorized for testing."
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "seo-migration-preparation-20261018",
+  "relatedId": "seo-resume-verification-20261018",
+  "createdAt": "2026-10-18T17:09:01.695Z",
+  "title": "Prepare SEO migration against the live Supabase schema",
+  "summary": "Read-only PostgreSQL catalogs confirm compatibility and no SEO object collisions. Harden audit sequence and helper privileges before any approved migration.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/change-history"
+  ],
+  "components": [
+    "Supabase SEO migration",
+    "Migration preflight and postflight"
+  ],
+  "files": [
+    "supabase/migrations/202610180001_seo_engine.sql",
+    "scripts/test-seo-sql.mjs",
+    "scripts/audit-seo-migration.mjs",
+    "supabase/verification/seo-preflight.sql"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Read-only schema and collision audit with TLS validation, project matching and database-enforced read-only mode."
+    },
+    {
+      "kind": "modified",
+      "detail": "Prepare explicit audit-sequence and internal-function privilege revocation and bounded lock waits; original migration snapshot preserved locally."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live PostgreSQL read-only preflight",
+      "result": "passed",
+      "detail": "Required uuid/text/boolean/text[] columns present. 34 products and 4 categories, no missing required values or duplicate IDs/active slugs. No SEO relations/functions/triggers/policies exist. No production writes."
+    },
+    {
+      "name": "Hardening and postflight SQL",
+      "result": "not-run",
+      "detail": "Local SQL tests pending. Production migration and deployment explicitly not authorized."
+    }
+  ]
+}

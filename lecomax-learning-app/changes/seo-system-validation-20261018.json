@@ -1,0 +1,104 @@
+{
+  "id": "seo-system-validation-20261018",
+  "relatedId": "seo-system-implementation-20261018",
+  "createdAt": "2026-10-18T16:48:20.312Z",
+  "title": "SEO v?rifi? localement ? migration distante ? appliquer",
+  "summary": "Build production, typage, 20 tests SEO, SQL isol? et navigateur valid?s. Le stockage Supabase reste ? installer ; aucune publication r?alis?e.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/produit/[slug]",
+    "/[category]",
+    "/sitemap.xml"
+  ],
+  "components": [
+    "Moteur SEO",
+    "Atelier SEO",
+    "ProductGallery",
+    "Permissions admin",
+    "Sitemaps"
+  ],
+  "files": [
+    "lib/seo-engine.ts",
+    "lib/seo-store.ts",
+    "lib/seo-ai.ts",
+    "lib/sitemap-data.ts",
+    "app/api/admin/seo/route.ts",
+    "app/admin/seo/page.tsx",
+    "app/admin/seo/seo.module.css",
+    "app/admin/layout.tsx",
+    "lib/admin-policy.ts",
+    "middleware.ts",
+    "app/produit/[slug]/page.tsx",
+    "app/[category]/page.tsx",
+    "components/ProductGallery.tsx",
+    "app/sitemap.xml/route.ts",
+    "app/sitemaps/[kind]/[page]/route.ts",
+    "app/sitemaps/static/route.ts",
+    "supabase/migrations/202610180001_seo_engine.sql",
+    "tsconfig.json",
+    "tests/seo-engine.test.ts",
+    "tests/seo-api.test.ts",
+    "tests/seo-sitemap.test.ts",
+    "tests/product-indexing.test.ts",
+    "scripts/test-seo-sql.mjs",
+    "scripts/smoke-seo-dashboard.mjs",
+    "supabase/rollback/202610180001_seo_engine_disable.sql",
+    "docs/seo-system.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "G?n?ration IA limit?e ? un extrait exact de la description source ; audits de doublons en temps lin?aire ; en-t?te mobile et libell?s de navigation corrig?s."
+    },
+    {
+      "kind": "fixed",
+      "detail": "R?vocation explicite des privil?ges d??criture par d?faut Supabase sur les tables SEO, y compris service_role. Mutations uniquement via fonction transactionnelle et audit?e."
+    },
+    {
+      "kind": "added",
+      "detail": "Tests du moteur, API, sitemaps, migration et interactions navigateur ; sauvegardes sources locales et proc?dure de retour arri?re sans suppression des donn?es."
+    },
+    {
+      "kind": "modified",
+      "detail": "Test d?indexation adapt? au lecteur SEO et v?rification de stock inconnu. Documentation d?installation, limites et r?sultats r?els."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build production final",
+      "result": "passed",
+      "detail": "node scripts/next-build.mjs ex?cut? avec code de sortie 0 ; artefacts de production et journal artifacts/seo-build-verified.log. Avertissements images pr?existants et r?seau sandbox. Une tentative npm pr?c?dente a rencontr? une erreur Windows dans la g?n?ration de cours, sans modification du g?n?rateur."
+    },
+    {
+      "name": "TypeScript et lint",
+      "result": "passed",
+      "detail": "Typage Next.js et learning app sans erreur ; ESLint cibl? sans erreur. Archives artifacts exclues du compilateur, sans modification de leurs conflits."
+    },
+    {
+      "name": "Tests SEO et SQL",
+      "result": "passed",
+      "detail": "20 tests cibl?s r?ussis. PGlite : backfill non destructif, triggers, approbation, concurrence, refus des brouillons p?rim?s, conservation des donn?es et permissions avec privil?ges par d?faut Supabase."
+    },
+    {
+      "name": "Navigateur et s?curit? HTTP",
+      "result": "passed",
+      "detail": "Interface de production test?e avec fixtures isol?es ? 375, 768 et 1440 px : g?n?ration, approbation, conflit, retour automatique, lot et historique. Captures = donn?es de test. API r?elle non authentifi?e 401 ; page redirig?e vers connexion."
+    },
+    {
+      "name": "Historique et Android",
+      "result": "passed",
+      "detail": "6 tests change-history r?ussis ; sc?narios Android back-controller et scroll-return r?ussis. Rapports ant?rieurs conserv?s."
+    },
+    {
+      "name": "Suite globale",
+      "result": "failed",
+      "detail": "Ex?cution initiale : 633 succ?s, 5 ignor?s, 4 ?checs. ?chec SEO corrig? et retest?. Restent deux tests learning-guided (import LessonTeacher) et un test REPL Windows hors p?rim?tre. Suite globale non d?clar?e verte."
+    },
+    {
+      "name": "Supabase distant et IA r?elle",
+      "result": "not-run",
+      "detail": "Contr?le REST lecture seule : produits et cat?gories HTTP 200, seo_documents HTTP 404. Connexion SQL de migration absente ; migration pr?par?e mais non appliqu?e. IA SEO non configur?e ; aucun d?ploiement, Rich Results Test ou mesure Core Web Vitals r?alis?s."
+    }
+  ]
+}

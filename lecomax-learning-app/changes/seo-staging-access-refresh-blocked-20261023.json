@@ -1,0 +1,46 @@
+{
+  "id": "seo-staging-access-refresh-blocked-20261023",
+  "relatedId": "seo-preview-utf8-correction-verified-20261023",
+  "createdAt": "2026-10-23T06:09:19.805Z",
+  "title": "Staging access refresh: project permission denied",
+  "summary": "Both connected Supabase accounts deny direct access to the exact existing staging project. Corrected candidate remains clean and unchanged; Preview remains blocked.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO recovery Preview"
+  ],
+  "components": [
+    "Staging connection",
+    "Release source integrity"
+  ],
+  "files": [
+    "artifacts/seo-preview-resume-20261023/staging-access-refresh.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded refreshed connector authorization evidence and full candidate manifest recheck; no application source changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate integrity",
+      "result": "passed",
+      "detail": "All 2588 hashes match; corrected checkout clean; original recovery manifest unchanged."
+    },
+    {
+      "name": "Production alias",
+      "result": "passed",
+      "detail": "Still dpl_CxX8Deg6R6T4prqTnHEiJVvqGu6f at the recorded UTC check."
+    },
+    {
+      "name": "Staging project access",
+      "result": "failed",
+      "detail": "Both Primary and Ax return MCP -32600 permission denied for tyltharlnbxrxibuxyye. Installed/enabled plugin has no callable reconnect action."
+    },
+    {
+      "name": "Preview isolation and deployment",
+      "result": "not-run",
+      "detail": "Requires user to reconnect an account authorized for the exact staging project. Prior passed build/types/lint/120 tests retained, not rerun or presented as new. No production/customer-data writes."
+    }
+  ]
+}

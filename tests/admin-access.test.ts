@@ -5,13 +5,14 @@ import {readFileSync} from 'node:fs';
 import ts from 'typescript';
 import {adminApiPermission,hasAdminPermission} from '../lib/admin-policy.ts';
 import {validApprovalTarget} from '../lib/approval-target.ts';
+import {supabaseHeaders} from '../operations/seo-vercel/lib/supabase-headers.mjs';
 
 function accessLoader(email:string|null, rows:any[]) {
   let calls=0;
   const exports:any={};
   vm.runInNewContext(ts.transpileModule(readFileSync(new URL('../lib/admin-access.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{
     exports,URLSearchParams,AbortSignal,process:{env:{ADMIN_EMAIL:'owner@example.test',NEXT_PUBLIC_SUPABASE_URL:'https://database.invalid',SUPABASE_SERVICE_ROLE_KEY:'test-server-secret'}},
-    require:(name:string)=>name==='server-only'?{}:{verifySessionToken:async()=>email},
+    require:(name:string)=>name==='server-only'?{}:name.endsWith('/supabase-headers.mjs')?{supabaseHeaders}:{verifySessionToken:async()=>email},
     fetch:async()=>{calls++;return {ok:true,json:async()=>rows.shift()};},
   });
   return {load:exports.getAdminAccess,calls:()=>calls};

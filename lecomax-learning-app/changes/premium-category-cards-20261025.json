@@ -1,0 +1,38 @@
+{
+  "id": "premium-category-cards-20261025",
+  "createdAt": "2026-10-25T12:14:51.450Z",
+  "title": "Refine homepage collections with editorial category cards",
+  "summary": "Elegant serif headings, immersive image cards and restrained forest-green details replace the heavy heading and detached captions.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage category section"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.tsx",
+    "components/CategoryTiles.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Refined typography, spacing, responsive image cards, gradient-backed labels, product-count badges and collection calls to action."
+    },
+    {
+      "kind": "removed",
+      "detail": "Removed intersection-observer visibility gating and detached caption dividers; cards remain visible immediately."
+    },
+    {
+      "kind": "added",
+      "detail": "Scoped responsive styles, keyboard focus outlines and reduced-motion handling; existing catalogue links and custom image crops preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation pending",
+      "result": "not-run",
+      "detail": "Awaiting local visual checks, lint, TypeScript and history verification. No deployment."
+    }
+  ]
+}

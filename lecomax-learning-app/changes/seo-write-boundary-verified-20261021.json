@@ -1,0 +1,72 @@
+{
+  "id": "seo-write-boundary-verified-20261021",
+  "relatedId": "seo-write-boundary-validation-corrections-20261021",
+  "createdAt": "2026-10-21T13:56:23.035Z",
+  "title": "SEO security package verified locally; hosted release remains blocked",
+  "summary": "Three-file staging write guard passes types, lint, production build, 61 candidate tests, 71 worker tests and 18 local browser checks. Not deployed; staging and production remain NO-GO.",
+  "status": "successful",
+  "pages": [
+    "SEO admin",
+    "SEO worker",
+    "Change History"
+  ],
+  "components": [
+    "Admin mutation guard",
+    "Environment policy",
+    "Worker handler"
+  ],
+  "files": [
+    "lib/api-security.ts",
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "operations/seo-vercel/lib/handler.mjs",
+    "tests/seo-write-boundary.test.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-ai-api.test.ts",
+    "tests/seo-sync-authorization.test.ts",
+    "operations/seo-vercel/tests/environment-isolation.test.mjs",
+    "scripts/seo-write-guard-candidate.cjs",
+    "scripts/seo-write-guard-readonly.cjs",
+    "docs/seo-write-guard-release-20261021.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Central fail-closed policy protects all SEO admin mutations and worker run acquisition. Reads and explicit production behavior remain covered. Earlier APP_ENV-only implementation completed without unrelated edits."
+    },
+    {
+      "kind": "modified",
+      "detail": "Updated worker staging expectation to denial; explicit production fixtures preserve positive-path authorization tests."
+    },
+    {
+      "kind": "added",
+      "detail": "Three-file hash-verified archive, exact baseline/release manifests, names/scopes-only hosting review, mutation inventory, release/rollback plan and immutable validation evidence. No removals or hosted changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate checks",
+      "result": "passed",
+      "detail": "61 tests, TypeScript and focused ESLint passed; Next 15.5.28 production-mode build passed with synthetic data and locked dependencies."
+    },
+    {
+      "name": "Worker, IndexNow and history",
+      "result": "passed",
+      "detail": "71 worker tests and 10 IndexNow/Change History tests passed, zero skipped. SQL tests local only."
+    },
+    {
+      "name": "Browser and HTTP",
+      "result": "passed",
+      "detail": "18 local route/viewport checks passed; actual sitemap shards and robots/index 200, anonymous admin reads 401. Synthetic realtime CSP denials retained; no real commerce or hosted integration certification."
+    },
+    {
+      "name": "Packaging and readiness",
+      "result": "passed",
+      "detail": "All 2124 baseline hashes verified; archive extracted and three runtime hashes matched. Current staging deployment identified, four production schedules unchanged, six migration hashes match. Retained 61-table RLS evidence reviewed without repeating database audit."
+    },
+    {
+      "name": "Hosted fix and production release",
+      "result": "not-run",
+      "detail": "No deploy, push, commit, migration or hosted editorial writes. Existing staging security gap remains active. Missing production configuration, real-session acceptance, recovery/monitoring and language review keep both full releases NO-GO."
+    }
+  ]
+}

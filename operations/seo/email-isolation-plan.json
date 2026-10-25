@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "projectRef": "tyltharlnbxrxibuxyye",
+  "executionAllowed": false,
+  "implementation": "mailpit-capture-with-network-denial",
+  "imageDigest": null,
+  "smtpHostname": null,
+  "smtpPort": 587,
+  "environment": {
+    "MP_SMTP_BIND_ADDR": "0.0.0.0:1025",
+    "MP_UI_BIND_ADDR": "127.0.0.1:8025",
+    "MP_SMTP_REQUIRE_STARTTLS": "true",
+    "MP_SMTP_AUTH_ALLOW_INSECURE": "false",
+    "MP_SMTP_AUTH_ACCEPT_ANY": "false",
+    "MP_SMTP_TLS_CERT": "/run/secrets/smtp-cert.pem",
+    "MP_SMTP_TLS_KEY": "/run/secrets/smtp-key.pem",
+    "MP_SMTP_AUTH_FILE": "/run/secrets/smtp-auth",
+    "MP_DISABLE_VERSION_CHECK": "true",
+    "MP_DATABASE": "/data/mailpit.db",
+    "MP_MAX_MESSAGES": "100",
+    "MP_MAX_AGE": "24h"
+  },
+  "runtime": {
+    "denyAllNewOutboundConnections": true,
+    "allowEstablishedInboundRepliesOnly": true,
+    "coverIPv4AndIPv6": true,
+    "networkPolicyExternallyEnforced": true,
+    "capabilitiesDropped": true,
+    "noDockerSocket": true,
+    "readOnlyRoot": true,
+    "privateUiOnly": true
+  },
+  "supabasePreserve": {
+    "disable_signup": true,
+    "external_email_enabled": false,
+    "hook_send_email_enabled": false,
+    "securityNotificationEmailsEnabled": false
+  },
+  "pendingEvidence": [
+    "Approved host, cost and ownership",
+    "Pinned image digest and version-specific flag validation",
+    "TLS certificate and authentication secret mounts",
+    "Actual IPv4/IPv6 egress deny rules and independent negative tests",
+    "No relay/forward flags, environment, configuration mounts or delivery credentials",
+    "SMTP synthetic capture test in isolated network; no real recipients",
+    "Separate approval and readback of staging-only Supabase SMTP configuration"
+  ]
+}

@@ -3,6 +3,8 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import vm from "node:vm";
 import ts from "typescript";
+import { fallbackSeo } from "../lib/seo-engine.ts";
+import { productShareCopy } from "../lib/product-share-copy.ts";
 
 function loadPage(product: unknown, shareProduct: unknown = null) {
   const exports: Record<string, any> = {};
@@ -15,6 +17,9 @@ function loadPage(product: unknown, shareProduct: unknown = null) {
       if (name === "next/navigation") return { notFound() { throw new Error("NEXT_NOT_FOUND"); } };
       if (name === "@/lib/db-server") return { getDbProductRaw: async () => product };
       if (name === "@/lib/product-share") return { getProductShareData: async () => shareProduct };
+      if (name === "@/lib/product-share-copy") return { productShareCopy };
+      if (name === "@/lib/seo-store") return { getSeoContent: async (_kind: string, source: any) => fallbackSeo(source) };
+      if (name === "@/lib/seo-editorial-store") return { getPublishedEditorial: async () => null };
       if (name === "@/lib/shipping-config-server") return { getServerShippingConfig: async () => ({}) };
       if (name === "@/lib/shipping-config") return { shippingSummary: () => "Livraison Maroc." };
       if (name === "@/lib/products") return {
@@ -46,5 +51,25 @@ test("active product metadata retains its own canonical and current price", asyn
   const page = loadPage(product, product);
   const metadata = await page.generateMetadata({ params: Promise.resolve({ slug: product.slug }) });
   assert.equal(metadata.alternates.canonical, "https://lecomax.com/produit/current/");
-  assert.match(metadata.title, /Current product.*99 MAD/);
+  assert.match(metadata.title.absolute, /Current product.*Maroc/);
+  assert.equal(metadata.other["product:price:amount"], "99");
+  assert.equal(metadata.other["product:availability"], "in stock");
+});
+
+test("unknown stock does not assert availability", async () => {
+  const product = { slug: "current", name: "Current product", price: 99, category: "accessoires", description: "Description" };
+  const metadata = await loadPage(product, product).generateMetadata({ params: Promise.resolve({ slug: product.slug }) });
+  assert.equal(metadata.other["product:availability"], undefined);
+});
+
+test("SEO metadata preserves the deployed preorder behavior without claiming unknown stock is available", async () => {
+  for (const [stock, preorderEnabled, expected] of [
+    [0, true, "preorder"], [undefined, true, "preorder"],
+    [2, true, "in stock"], [0, false, "out of stock"], [undefined, false, undefined],
+  ] as const) {
+    const product = { slug: "preorder", name: "Preorder product", price: 99, stock, preorderEnabled };
+    const metadata = await loadPage(product, product).generateMetadata({ params: Promise.resolve({ slug: product.slug }) });
+    assert.equal(metadata.other["product:availability"], expected);
+    if (expected === "preorder") assert.equal(metadata.other["twitter:data2"], "Précommande");
+  }
 });

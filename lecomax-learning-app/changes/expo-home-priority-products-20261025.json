@@ -1,0 +1,29 @@
+{
+  "id": "expo-home-priority-products-20261025",
+  "createdAt": "2026-10-25T13:31:50.821Z",
+  "title": "Quatre produits en tête de Nos produits dans Expo",
+  "summary": "Superblast 2, T-shirt Puma Ferrari, veste Manchester United et maillot Bayern placés en premier dans la collection de la page accueil.",
+  "status": "needs-testing",
+  "pages": [
+    "Expo Home /"
+  ],
+  "components": [
+    "HomeScreen catalogProducts"
+  ],
+  "files": [
+    "mobile/src/app/(tabs)/index.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Priorité explicite aux quatre produits demandés, y compris lorsqu’ils figurent dans une autre section. Les autres produits suivent sans doublon dans la collection. Aucun prix, stock ou enregistrement catalogue modifié."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Local validation",
+      "result": "not-run",
+      "detail": "Contrôles de sélection, lint et TypeScript en attente. Aucun déploiement."
+    }
+  ]
+}

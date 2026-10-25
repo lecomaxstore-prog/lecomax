@@ -1,0 +1,172 @@
+[
+  {
+    "title": [
+      "Vérifie Python",
+      "Check Python",
+      "تأكد من وجود Python"
+    ],
+    "windows": "py --version",
+    "unix": "python3 --version",
+    "purpose": [
+      "Vérifie que ton ordinateur peut lancer Python avant de créer le projet.",
+      "Check that your computer can run Python before setting up the project.",
+      "تأكد أن حاسوبك يستطيع تشغيل Python قبل تجهيز المشروع."
+    ],
+    "terms": [
+      [
+        "py / python3",
+        "Démarre Python installé sur ton ordinateur.",
+        "Starts Python installed on your computer.",
+        "يشغّل Python المثبّت على حاسوبك."
+      ],
+      [
+        "--version",
+        "Affiche le numéro de version, sans lancer ton programme.",
+        "Shows the version number without running your program.",
+        "يعرض رقم الإصدار دون تشغيل برنامجك."
+      ]
+    ],
+    "result": [
+      "Une ligne commençant par Python 3. Le numéro exact peut varier.",
+      "A line beginning with Python 3. The exact version number can vary.",
+      "سطر يبدأ بـ Python 3. قد يختلف رقم الإصدار الكامل."
+    ],
+    "help": [
+      "Si py est introuvable sur Windows, essaie python --version. Si cela affiche Python 3, utilise python au lieu de py pour créer la .venv. Sinon, installe Python depuis python.org puis ferme et rouvre le terminal.",
+      "If py is not found on Windows, try python --version. If that shows Python 3, use python instead of py when creating .venv. Otherwise install Python from python.org, then close and reopen the terminal.",
+      "إذا لم يتعرّف Windows على py فجرّب python --version. إن ظهر Python 3 فاستخدم python بدل py عند إنشاء .venv. وإلا ثبّت Python من python.org ثم أغلق الطرفية وافتحها مجددًا."
+    ]
+  },
+  {
+    "title": [
+      "Crée la boîte à outils du projet",
+      "Create your project toolbox",
+      "أنشئ صندوق أدوات المشروع"
+    ],
+    "windows": "py -m venv .venv",
+    "unix": "python3 -m venv .venv",
+    "purpose": [
+      "Imagine une boîte à outils réservée à ce projet. .venv contient son Python et ses bibliothèques, séparés des autres projets. Ce n’est pas une machine virtuelle complète.",
+      "Think of a toolbox for this project. .venv holds its Python and packages separately from other projects. It is not a whole virtual computer.",
+      "تخيّل صندوق أدوات خاصًا بهذا المشروع. تحتوي .venv على Python ومكتبات المشروع بشكل منفصل عن المشاريع الأخرى. ليست حاسوبًا افتراضيًا كاملًا."
+    ],
+    "terms": [
+      [
+        "-m",
+        "Demande à Python de lancer un de ses modules.",
+        "Asks Python to run a module.",
+        "يطلب من Python تشغيل وحدة."
+      ],
+      [
+        "venv",
+        "L’outil qui crée cet environnement.",
+        "The tool that creates this environment.",
+        "الأداة التي تنشئ هذه البيئة."
+      ],
+      [
+        ".venv",
+        "Le nom du dossier créé dans ton dossier actuel.",
+        "The folder name to create inside your current folder.",
+        "اسم المجلد الذي سيُنشأ داخل مجلدك الحالي."
+      ]
+    ],
+    "result": [
+      "Un dossier .venv apparaît dans python-atelier. Le terminal peut revenir à la ligne sans message : ce n’est pas une erreur. Sur macOS/Linux, les dossiers commençant par un point peuvent être masqués.",
+      "A .venv folder appears inside python-atelier. The terminal may return to the prompt without a message; that is normal. On macOS/Linux, folders beginning with a dot may be hidden.",
+      "يظهر مجلد .venv داخل python-atelier. قد تعود الطرفية إلى سطر الإدخال دون رسالة، وهذا طبيعي. قد تكون المجلدات التي تبدأ بنقطة مخفية على macOS/Linux."
+    ],
+    "help": [
+      "Si Python est introuvable, reviens à l’étape précédente. Si venv/ensurepip manque sur Linux, consulte les instructions Python de ta distribution. Garde tes fichiers .py à côté de .venv, pas dedans.",
+      "If Python is not found, return to the previous step. If Linux reports missing venv/ensurepip, follow your distribution’s Python setup instructions. Keep your .py files beside .venv, not inside it.",
+      "إذا لم يوجد Python فارجع للخطوة السابقة. إذا أبلغ Linux عن غياب venv/ensurepip فاتبع تعليمات Python الخاصة بتوزيعتك. ضع ملفات .py بجانب .venv وليس داخلها."
+    ]
+  },
+  {
+    "title": [
+      "Ajoute FastAPI",
+      "Add FastAPI",
+      "أضف FastAPI"
+    ],
+    "windows": ".\\.venv\\Scripts\\python.exe -m pip install \"fastapi[standard]\"",
+    "unix": ".venv/bin/python -m pip install \"fastapi[standard]\"",
+    "purpose": [
+      "FastAPI est une bibliothèque pour construire une API : un programme qui reçoit des demandes et renvoie des réponses. Ici tu installes l’outil ; tu ne démarres pas encore de serveur. Une connexion Internet est nécessaire pour le téléchargement.",
+      "FastAPI is a library for building an API: a program that receives requests and sends responses. Here you install the tool; you do not start a server yet. Downloading needs an internet connection.",
+      "FastAPI مكتبة لبناء API: برنامج يستقبل طلبات ويرسل ردودًا. هنا تثبّت الأداة فقط، ولا تشغّل خادمًا بعد. تحتاج اتصالًا بالإنترنت للتنزيل."
+    ],
+    "terms": [
+      [
+        ".venv … python",
+        "Utilise Python dans la boîte à outils de ce projet.",
+        "Uses Python inside this project’s toolbox.",
+        "يستخدم Python الموجود داخل صندوق أدوات هذا المشروع."
+      ],
+      [
+        "-m pip install",
+        "Lance pip, l’installateur de bibliothèques, et lui demande d’installer.",
+        "Runs pip, the package installer, and asks it to install.",
+        "يشغّل pip، أداة تثبيت المكتبات، ويطلب منها التثبيت."
+      ],
+      [
+        "\"fastapi[standard]\"",
+        "Le nom du paquet avec ses outils standard. Garde les guillemets et crochets.",
+        "The package name with its standard tools. Keep the quotes and brackets.",
+        "اسم الحزمة مع أدواتها القياسية. احتفظ بعلامتي التنصيص والأقواس."
+      ]
+    ],
+    "result": [
+      "Des lignes de téléchargement, puis souvent Successfully installed. Requirement already satisfied signifie que les paquets sont déjà présents. Attends le retour du curseur avant de continuer.",
+      "Download messages, then usually Successfully installed. Requirement already satisfied means the packages are already present. Wait for the command prompt to return before continuing.",
+      "رسائل تنزيل ثم غالبًا Successfully installed. تعني Requirement already satisfied أن الحزم موجودة بالفعل. انتظر عودة سطر الإدخال قبل المتابعة."
+    ],
+    "help": [
+      "Chemin introuvable ? Vérifie que tu es dans python-atelier et que l’étape précédente a réussi. Erreur réseau ? Vérifie la connexion et relance la même commande. Lis le premier message d’erreur plutôt que de modifier des commandes au hasard.",
+      "Path not found? Check that you are inside python-atelier and the previous step succeeded. Network error? Check your connection and retry the same command. Read the first error rather than changing commands at random.",
+      "المسار غير موجود؟ تأكد أنك داخل python-atelier وأن الخطوة السابقة نجحت. خطأ شبكة؟ افحص الاتصال وأعد الأمر نفسه. اقرأ أول رسالة خطأ بدل تغيير الأوامر عشوائيًا."
+    ]
+  },
+  {
+    "title": [
+      "Prouve que cela fonctionne",
+      "Check that it works",
+      "تحقّق أنه يعمل"
+    ],
+    "windows": ".\\.venv\\Scripts\\python.exe -c \"import fastapi; print('FastAPI OK')\"",
+    "unix": ".venv/bin/python -c \"import fastapi; print('FastAPI OK')\"",
+    "purpose": [
+      "Cette vérification utilise le même Python que l’installation. Elle charge FastAPI puis affiche un message si le chargement réussit.",
+      "This check uses the same Python as the install. It loads FastAPI, then prints a message if loading succeeds.",
+      "يستخدم هذا الفحص Python نفسه الذي استخدمته للتثبيت. يحمّل FastAPI ثم يعرض رسالة إذا نجح التحميل."
+    ],
+    "terms": [
+      [
+        "-c",
+        "Exécute le petit code Python entre guillemets.",
+        "Runs the short Python code inside quotes.",
+        "ينفّذ كود Python القصير داخل علامتي التنصيص."
+      ],
+      [
+        "import fastapi",
+        "Essaie de charger la bibliothèque installée.",
+        "Tries to load the installed library.",
+        "يحاول تحميل المكتبة المثبّتة."
+      ],
+      [
+        "print('FastAPI OK')",
+        "Affiche ce message après le chargement réussi.",
+        "Displays this message after a successful import.",
+        "يعرض هذه الرسالة بعد نجاح التحميل."
+      ]
+    ],
+    "result": [
+      "FastAPI OK. Tu as vérifié que ce Python peut charger la bibliothèque. Tu n’as pas encore créé de route ni lancé le serveur : ce sera la leçon suivante.",
+      "FastAPI OK. You have checked that this Python can load the library. You have not created a route or started a server yet; that comes in the next lesson.",
+      "FastAPI OK. تحقّقت أن Python هذا يستطيع تحميل المكتبة. لم تنشئ مسار API ولم تشغّل الخادم بعد، وهذا في الدرس التالي."
+    ],
+    "help": [
+      "ModuleNotFoundError ? Reprends l’installation avec le même chemin .venv. Vérifie aussi les guillemets copiés. Ne remplace pas le chemin par un autre Python qui n’a pas reçu FastAPI.",
+      "ModuleNotFoundError? Repeat installation using the same .venv path. Also check the copied quotes. Do not switch to another Python that did not receive FastAPI.",
+      "ظهر ModuleNotFoundError؟ أعد التثبيت باستخدام مسار .venv نفسه. تحقّق أيضًا من علامات التنصيص. لا تستبدل المسار بـPython آخر لم تثبّت فيه FastAPI."
+    ]
+  }
+]

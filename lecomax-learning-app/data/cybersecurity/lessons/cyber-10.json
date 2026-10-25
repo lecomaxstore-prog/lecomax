@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-10",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-10",
+  "title": {
+    "en": "API security: contracts, quotas and safe failures",
+    "ar": "أمان API: العقود والصلاحيات والحدود",
+    "fr": "API security: contracts, quotas and safe failures"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-09"
+  ],
+  "objectives": [
+    "Specify validation and authorization at an API boundary.",
+    "Apply bounded request and business-flow limits.",
+    "Verify safe errors, minimal responses and negative cases."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "Build confidence in an API by defining what each caller may request, how much work it may trigger and what the response may disclose.",
+  "sections": [
+    {
+      "title": "An API contract includes security behavior",
+      "text": "A REST-style API exposes resources through HTTP operations, but a path name does not define its permission model. Document method, authentication, allowed roles, input shape, response shape and error behavior. For GET /api/order, the resource id selects a candidate and the session identifies the caller; ownership determines access. For POST /api/checkout, productId and quantity communicate intent while the catalog determines price. An API key may identify an application or integration, but it does not automatically establish a particular customer’s authorization. Treat keys as scoped credentials with rotation and revocation, and never ship a privileged backend key in an Expo app."
+    },
+    {
+      "title": "Validate before expensive work",
+      "text": "Bound the raw body size before buffering it, parse only expected media types, and validate the resulting object. A JSON number can be fractional, negative or far beyond safe integer arithmetic. A quantity must be a safe positive integer within a business limit, not merely typeof number. Reject arrays where an object is expected and avoid copying arbitrary properties into database writes. Validation should occur before costly queries, file parsing or external calls. The lab bounds bodies to 32 KiB and rejects invalid quantities. Production limits depend on each route, and multipart uploads need their own streaming and size policy rather than inheriting a small JSON example unchanged."
+    },
+    {
+      "title": "Authorization must constrain the data operation",
+      "text": "Use authenticated identity at the data-access layer and test object, function and property permissions. A read route should not return fields the caller does not need, even after the object check passes. A write route should permit only explicit state transitions: a customer cannot mark an unpaid order paid by posting a status property. Lists and searches need tenant or owner constraints too; a safe detail route does not repair a broad export. Decide whether 403 or a consistent 404 best fits your disclosure policy, then test the body as well as the status. A stack trace containing a query or token can turn a denied request into a separate information leak."
+    },
+    {
+      "title": "Rate limits and resource limits are complementary",
+      "text": "A request counter constrains frequency. A body-size limit constrains input size. A timeout constrains duration. Pagination and query limits constrain response and database work. A low request rate can still cause excessive cost if one request triggers an unbounded export or recursive operation. Conversely, one coupon per customer is a business eligibility rule, not merely a requests-per-minute rule. The local createLimiter uses an in-memory fixed window and is suitable only for illustrating boundary tests. It does not coordinate multiple servers and should not be copied into a horizontally scaled production service as its only abuse control. Use trusted identity and carefully handled network signals; blindly trusting a posted IP header lets callers choose a new bucket."
+    },
+    {
+      "title": "Errors should preserve the invariant",
+      "text": "If JSON parsing fails, reject before mutation. If a database is unavailable, do not return a fabricated successful order. If an external payment call times out, distinguish unknown outcome from definite failure and reconcile through an idempotent workflow. Return a stable public error shape with a request id, and retain appropriate redacted diagnostics internally. Client retry logic should recognize which operations are safe to retry. A POST can be made retry-safe with a durable idempotency contract; its method name alone does not guarantee that. Document how a repeated key with a different request body is handled, rather than silently combining unrelated operations."
+    },
+    {
+      "title": "Test a matrix rather than one happy path",
+      "text": "For each sensitive API, test missing identity, permitted identity, wrong owner or role, malformed input, boundary quantity, excessive work and a dependency failure. Keep legitimate success assertions so a route that always returns 403 does not pass as secure. The Cedar Cart suite exercises real HTTP routing as well as pure control functions. Record which production properties it does not cover: a multi-instance limiter, durable transactions, a real identity provider and external payment verification. Darija: الـAPI خاصها تراجع شكون طالب، شنو باغي، وشحال من خدمة يقدر يستهلك؛ ماشي غير واش JSON صالح. This matrix becomes the reusable audit checklist in Module 17."
+    }
+  ],
+  "examples": [
+    {
+      "id": "limit",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function createLimiter(max = 5, windowMs = 60000) {\n  const counters = new Map();\n  return (key, now = Date.now()) => {\n    let item = counters.get(key);\n    if (!item || now >= item.until) { item = { count: 0, until: now + windowMs }; counters.set(key,item); }\n    item.count++;\n    return item.count <= max;\n  };\n}",
+      "annotations": [
+        {
+          "lines": "1-9",
+          "label": "A deterministic in-memory teaching limiter. Test fixed-window boundaries; production needs distributed state and a trusted key policy."
+        }
+      ]
+    },
+    {
+      "id": "api-before",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function vulnerableCheckout(input) { return Number(input.priceCents) * Number(input.quantity); }",
+      "annotations": [
+        {
+          "lines": "1-1",
+          "label": "Vulnerable lab excerpt. Run it only through the documented synthetic fixture; imported helpers and data are defined in the full file."
+        }
+      ]
+    },
+    {
+      "id": "api-after",
+      "filename": "security-labs/controls.cjs",
+      "language": "javascript",
+      "code": "function secureCheckout(input) {\n  if (!input || typeof input !== 'object' || Array.isArray(input)) reject('Object required');\n  const product = products[input.productId];\n  if (!product || !Object.hasOwn(products, input.productId)) reject('Unknown product');\n  if (!Number.isSafeInteger(input.quantity) || input.quantity < 1 || input.quantity > product.stock) reject('Quantity unavailable');\n  const totalCents = product.priceCents * input.quantity;\n  if (!Number.isSafeInteger(totalCents)) reject('Total out of range');\n  return { productId: product.id, quantity: input.quantity, totalCents };\n}",
+      "annotations": [
+        {
+          "lines": "1-9",
+          "label": "Corrected lab excerpt. Read the validation and authority checks, then execute its named regression in the complete lab."
+        }
+      ]
+    }
+  ],
+  "exercises": [
+    {
+      "id": "matrix",
+      "difficulty": 2,
+      "task": "Write six test cases for checkout including a normal purchase, unauthenticated request, fractional quantity, negative quantity, posted price and exhausted stock.",
+      "hints": [
+        "Assert trusted total, status and state changes."
+      ],
+      "solution": "Normal -> catalog total\nNo identity -> 401\nFractional/negative -> 400\nPosted price -> ignored for trusted total\nExhausted stock -> 409 without new order",
+      "walkthrough": "Each case challenges a different boundary. Tests should inspect stock and orders, not only response text.",
+      "expectedResult": "Six explicit assertions."
+    },
+    {
+      "id": "window",
+      "difficulty": 2,
+      "task": "With max=2 and windowMs=1000, predict calls at time 0, 1, 2 and 1000 for the same key.",
+      "hints": [
+        "The window expires when now reaches until."
+      ],
+      "solution": "true, true, false, true",
+      "walkthrough": "The deterministic clock makes the boundary reproducible. It does not demonstrate synchronization across multiple servers.",
+      "expectedResult": "Four limiter outcomes."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-10-q1",
+      "question": "Is typeof quantity === number enough for checkout?",
+      "options": [
+        "No; require a safe positive bounded integer.",
+        "Yes; fractions and negatives are valid stock units by default."
+      ],
+      "correctIndex": 0,
+      "explanation": "Type alone does not enforce the business rule.",
+      "answerExplanations": [
+        "Correct. Type alone does not enforce the business rule.",
+        "Not quite. Type alone does not enforce the business rule."
+      ]
+    },
+    {
+      "id": "cyber-10-q2",
+      "question": "Can an API key automatically prove customer ownership?",
+      "options": [
+        "Yes; all keys authorize every customer record.",
+        "No; define what identity and scope it represents."
+      ],
+      "correctIndex": 1,
+      "explanation": "Integration identity and object permission are distinct.",
+      "answerExplanations": [
+        "Not quite. Integration identity and object permission are distinct.",
+        "Correct. Integration identity and object permission are distinct."
+      ]
+    },
+    {
+      "id": "cyber-10-q3",
+      "question": "Why limit body bytes before parsing?",
+      "options": [
+        "To bound memory and processing work early.",
+        "To replace authentication."
+      ],
+      "correctIndex": 0,
+      "explanation": "Resource controls belong before expensive work.",
+      "answerExplanations": [
+        "Correct. Resource controls belong before expensive work.",
+        "Not quite. Resource controls belong before expensive work."
+      ]
+    },
+    {
+      "id": "cyber-10-q4",
+      "question": "Does one request per minute guarantee low resource use?",
+      "options": [
+        "Yes; request count equals cost.",
+        "No; one request can trigger unbounded work."
+      ],
+      "correctIndex": 1,
+      "explanation": "Size, duration and fan-out need separate limits.",
+      "answerExplanations": [
+        "Not quite. Size, duration and fan-out need separate limits.",
+        "Correct. Size, duration and fan-out need separate limits."
+      ]
+    },
+    {
+      "id": "cyber-10-q5",
+      "question": "Is the in-memory limiter distributed?",
+      "options": [
+        "No; each process has its own state.",
+        "Yes; JavaScript Maps synchronize across servers."
+      ],
+      "correctIndex": 0,
+      "explanation": "The model has a single-process scope.",
+      "answerExplanations": [
+        "Correct. The model has a single-process scope.",
+        "Not quite. The model has a single-process scope."
+      ]
+    },
+    {
+      "id": "cyber-10-q6",
+      "question": "Should a client-supplied IP header define the limiter key without review?",
+      "options": [
+        "Yes; headers cannot be modified by callers.",
+        "No; establish a trusted proxy/identity policy."
+      ],
+      "correctIndex": 1,
+      "explanation": "Untrusted keys allow bucket manipulation.",
+      "answerExplanations": [
+        "Not quite. Untrusted keys allow bucket manipulation.",
+        "Correct. Untrusted keys allow bucket manipulation."
+      ]
+    },
+    {
+      "id": "cyber-10-q7",
+      "question": "Does a route returning 403 to everyone prove a good fix?",
+      "options": [
+        "No; a legitimate success must still work.",
+        "Yes; denial alone establishes correct authorization."
+      ],
+      "correctIndex": 0,
+      "explanation": "Positive controls protect intended behavior.",
+      "answerExplanations": [
+        "Correct. Positive controls protect intended behavior.",
+        "Not quite. Positive controls protect intended behavior."
+      ]
+    },
+    {
+      "id": "cyber-10-q8",
+      "question": "A payment timeout means what?",
+      "options": [
+        "The provider definitely did nothing.",
+        "The outcome may be unknown and needs reconciliation."
+      ],
+      "correctIndex": 1,
+      "explanation": "Network failure and remote transaction outcome can differ.",
+      "answerExplanations": [
+        "Not quite. Network failure and remote transaction outcome can differ.",
+        "Correct. Network failure and remote transaction outcome can differ."
+      ]
+    },
+    {
+      "id": "cyber-10-q9",
+      "question": "Can POST be retry-safe?",
+      "options": [
+        "Yes, with an explicit durable idempotency contract.",
+        "No; the method alone forbids all retries."
+      ],
+      "correctIndex": 0,
+      "explanation": "Application semantics establish safe repetition.",
+      "answerExplanations": [
+        "Correct. Application semantics establish safe repetition.",
+        "Not quite. Application semantics establish safe repetition."
+      ]
+    },
+    {
+      "id": "cyber-10-q10",
+      "question": "What should invalid JSON do before order creation?",
+      "options": [
+        "Create an order then return an error.",
+        "Fail before mutation."
+      ],
+      "correctIndex": 1,
+      "explanation": "Rejected input must not partially change protected state.",
+      "answerExplanations": [
+        "Not quite. Rejected input must not partially change protected state.",
+        "Correct. Rejected input must not partially change protected state."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can specify validation and authorization at an API boundary.",
+    "I can apply bounded request and business-flow limits.",
+    "I can verify safe errors, minimal responses and negative cases."
+  ],
+  "recap": [
+    "Specify validation and authorization at an API boundary.",
+    "Apply bounded request and business-flow limits.",
+    "Verify safe errors, minimal responses and negative cases."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP REST security",
+      "url": "https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP API Security 2023",
+      "url": "https://api-security.owasp.org/editions/2023/en/0x00-header/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "A protected API operation",
+    "steps": [
+      {
+        "title": "Bound and parse",
+        "detail": "Limit bytes and validate the request shape."
+      },
+      {
+        "title": "Identify and authorize",
+        "detail": "Use trusted identity and constrain object/function/property access."
+      },
+      {
+        "title": "Bound work",
+        "detail": "Apply request, resource and business-flow limits."
+      },
+      {
+        "title": "Respond safely",
+        "detail": "Return an explicit DTO or safe error without partial unauthorized changes."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "Idempotency",
+      "A contract making repeated equivalent operations avoid repeated effects."
+    ],
+    [
+      "Quota",
+      "A bounded allowance of requests or resources."
+    ],
+    [
+      "Mass assignment",
+      "Copying untrusted properties into privileged state."
+    ]
+  ],
+  "lab": {
+    "kind": "computer",
+    "command": "node --test security-labs/lab.test.cjs",
+    "badge": "API contract defender"
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Import IA et import Markdown/JSON des détails ; annulation avant modification ultérieure."
+    },
+    {
+      "kind": "modified",
+      "detail": "Route IA protégée existante étendue au mode details. Fusion des libellés, conservation des détails absents et validation des valeurs citées."
+    }
+  ],
+  "summary": "Ajout dans le formulaire administrateur du remplissage des détails par IA ou texte structuré, avec fusion et annulation.",
+  "id": "product-details-ai-import-20261025",
+  "createdAt": "2026-10-25T13:21:47.336Z",
+  "validation": [
+    {
+      "detail": "Tests et lint à exécuter. Aucun déploiement ni appel réel OpenAI effectué.",
+      "result": "not-run",
+      "name": "Validation locale"
+    }
+  ],
+  "files": [
+    "components/admin/ProductDetailsImport.tsx",
+    "lib/product-details-import.ts",
+    "lib/product-paste-ai.ts",
+    "app/api/admin/products/parse/route.ts",
+    "app/admin/products/page.tsx",
+    "tests/product-details-import.test.ts",
+    "tests/product-paste-ai.test.ts"
+  ],
+  "components": [
+    "ProductDetailsImport",
+    "Product details AI extraction"
+  ],
+  "status": "needs-testing",
+  "title": "Import des détails produit depuis ChatGPT",
+  "pages": [
+    "/admin/products"
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Reuse Vercel CLI authentication and production policy; request only unavailable values needed for database or existing binding checks. Enforce port 5432, production target and verify-full; sanitize diagnostics and never retry credentials automatically. No removals or production mutations."
+    }
+  ],
+  "summary": "Added hidden PowerShell input and read-only Vercel/database verification without changing existing credentials.",
+  "id": "production-interactive-readonly-20261021",
+  "createdAt": "2026-10-21T19:53:10.266Z",
+  "validation": [
+    {
+      "detail": "Syntax, synthetic policy checks, Vercel preflight and owner interactive database validation pending.",
+      "result": "not-run",
+      "name": "Verification"
+    }
+  ],
+  "files": [
+    "scripts/verify-production-credentials.ps1",
+    "scripts/verify-production-credentials.cjs"
+  ],
+  "components": [
+    "PowerShell credential verification",
+    "Vercel environment diagnostics"
+  ],
+  "status": "needs-testing",
+  "title": "Read-only interactive production credential verification",
+  "pages": [
+    "Production operations",
+    "Change History"
+  ]
+}

@@ -394,6 +394,7 @@ function OrderSummary({
     <View style={styles.orderBlock}>
       <View style={styles.orderMetaRow}>
         <View style={styles.orderMetaTitle}>
+          <Ionicons name="bag-handle-outline" size={18} color="#31553B" />
           <Text style={styles.eyebrow}>{msg("checkoutScreen.yourOrder")}</Text>
         </View>
         <View style={styles.orderCountBadge}>
@@ -415,6 +416,7 @@ function OrderSummary({
           </Text>
         </View>
         <AnimatedPressable
+          accessibilityRole="button"
           accessibilityLabel={
             expanded
               ? msg("checkoutScreen.hideOrderDetails")
@@ -503,17 +505,15 @@ function OrderSummary({
                           : msg("checkoutScreen.verificationInProgressUppercase")}
                     </Text>
                   </View>
-                </View>
-                <View style={styles.orderProductEnd}>
                   <Text style={styles.orderProductPrice}>
                     {money(line.product.price * line.quantity)}
                   </Text>
-                  <Text style={styles.orderQuantity}>{msg("checkoutScreen.qtyUppercase")}{line.quantity}</Text>
                 </View>
               </View>
             );
           })}
           <AnimatedPressable
+            accessibilityRole="button"
             accessibilityLabel={msg("checkoutScreen.editCartItems")}
             onPress={onEdit}
             style={styles.editCart}
@@ -540,8 +540,10 @@ function PaymentMethodRow({
   const paypal = method.provider === "paypal";
   return (
     <AnimatedPressable
+      accessibilityRole="radio"
+      aria-checked={selected}
       accessibilityLabel={`${localizedContent(method.title)}${method.available ? "" : msg("checkoutScreen.currentlyUnavailable")}`}
-      accessibilityState={{ disabled: !method.available, selected }}
+      accessibilityState={{ disabled: !method.available, checked: selected }}
       disabled={!method.available}
       onPress={onSelect}
       pressedScale={0.99}
@@ -840,7 +842,7 @@ function stockProblemFromError(error: unknown, cart: CartLine[]) {
 
 export default function CheckoutScreen() {
   useLocale();
-  const { scrollRef: keyboardScrollRef, onScroll: onKeyboardScroll, reveal: revealKeyboardInput, register: registerKeyboardInput, focus: focusKeyboardInput, blur: blurKeyboardInput } = useFormKeyboardScroll();
+  const keyboardScroll = useFormKeyboardScroll();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const compact = width < 380;
@@ -1368,11 +1370,11 @@ export default function CheckoutScreen() {
       />
 
       <ScrollView
-        ref={keyboardScrollRef}
-        onScroll={onKeyboardScroll}
+        ref={keyboardScroll.scrollRef}
+        onScroll={keyboardScroll.onScroll}
         scrollEventThrottle={16}
-        onLayout={revealKeyboardInput}
-        onContentSizeChange={revealKeyboardInput}
+        onLayout={keyboardScroll.reveal}
+        onContentSizeChange={keyboardScroll.reveal}
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -1390,6 +1392,7 @@ export default function CheckoutScreen() {
       >
         <View style={styles.content}>
           <CheckoutProgress
+            compact
             currentStep={step === 1 ? 2 : 3}
             onStepPress={(target) => {
               if (target === 1) router.replace("/cart");
@@ -1442,7 +1445,7 @@ export default function CheckoutScreen() {
                               color={error ? C.red : "#809078"}
                             />
                             <TextInput
-                              ref={(input) => registerKeyboardInput(item.name, input)}
+                              ref={(input) => keyboardScroll.register(item.name, input)}
                               accessibilityLabel={item.label}
                               autoCapitalize={
                                 item.name === "email" ? "none" : "sentences"
@@ -1464,7 +1467,7 @@ export default function CheckoutScreen() {
                               cursorColor={C.green}
                               keyboardType={item.keyboardType ?? "default"}
                               onBlur={() => {
-                                blurKeyboardInput(item.name);
+                                keyboardScroll.blur(item.name);
                                 onBlur();
                                 setFocusedField(undefined);
                               }}
@@ -1474,7 +1477,7 @@ export default function CheckoutScreen() {
                               }}
                               onFocus={() => {
                                 setFocusedField(item.name);
-                                focusKeyboardInput(item.name);
+                                keyboardScroll.focus(item.name);
                               }}
                               placeholder={item.placeholder}
                               placeholderTextColor="#9B9F9B"
@@ -1598,6 +1601,7 @@ export default function CheckoutScreen() {
                 <View style={styles.couponSection}>
                   <Text style={styles.sectionEyebrow}>{msg("checkoutScreen.haveAPromotionCode")}</Text>
                   <View
+                    nativeID="checkout-promo-field"
                     style={[
                       styles.couponRow,
                       appliedCoupon && styles.couponRowApplied,
@@ -1611,9 +1615,12 @@ export default function CheckoutScreen() {
                       size={18}
                     />
                     <TextInput
-                      ref={(input) => registerKeyboardInput("coupon", input)}
-                      onFocus={() => focusKeyboardInput("coupon")}
-                      onBlur={() => blurKeyboardInput("coupon")}
+                      nativeID="checkout-promo-input"
+                      underlineColorAndroid="transparent"
+                      autoComplete="off"
+                      ref={(input) => keyboardScroll.register("coupon", input)}
+                      onFocus={() => keyboardScroll.focus("coupon")}
+                      onBlur={() => keyboardScroll.blur("coupon")}
                       accessibilityLabel={msg("checkoutScreen.promotionCode")}
                       autoCapitalize="characters"
                       autoCorrect={false}
@@ -1702,7 +1709,7 @@ export default function CheckoutScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, minHeight: 0, backgroundColor: "#FFFFFF" },
+  screen: { flex: 1, minHeight: 0, backgroundColor: "#F8F9F6" },
   scroll: { flex: 1, minHeight: 0 },
   header: {
     paddingBottom: 10,
@@ -1747,7 +1754,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
     color: "#78866F",
     fontFamily: typography.regular,
-    fontSize: 9,
+    fontSize: 11,
   },
   headerShield: {
     width: 44,
@@ -1767,7 +1774,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   deliverySection: { paddingTop: 24 },
-  paymentSection: { paddingTop: 18, gap: 20 },
+  paymentSection: { paddingTop: 16, gap: 16 },
   pageTitle: {
     color: C.ink,
     fontFamily: typography.bold,
@@ -1813,10 +1820,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   orderBlock: {
-    padding: 20,
+    padding: 16,
     borderWidth: 1,
     borderColor: "#E3E7DE",
-    borderRadius: 20,
+    borderRadius: 18,
     backgroundColor: C.white,
   },
   orderMetaRow: {
@@ -1842,7 +1849,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.soft,
   },
   orderTop: {
-    marginTop: 15,
+    marginTop: 10,
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-between",
@@ -1851,13 +1858,13 @@ const styles = StyleSheet.create({
   orderAmountLabel: {
     color: C.muted,
     fontFamily: typography.medium,
-    fontSize: 10,
+    fontSize: 11,
   },
   orderTotal: {
     marginTop: 3,
-    color: C.ink,
+    color: "#183D29",
     fontFamily: typography.bold,
-    fontSize: 30,
+    fontSize: 28,
     letterSpacing: -0.7,
   },
   orderCount: {
@@ -1866,7 +1873,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
   },
   orderToggle: {
-    minHeight: 42,
+    minHeight: 44,
     paddingHorizontal: 13,
     flexDirection: "row",
     alignItems: "center",
@@ -1896,13 +1903,13 @@ const styles = StyleSheet.create({
     marginLeft: 7,
     color: C.muted,
     fontFamily: typography.medium,
-    fontSize: 9,
+    fontSize: 11,
   },
   orderVerificationOk: {
     marginLeft: 7,
-    color: "#6C786C",
+    color: "#49634C",
     fontFamily: typography.regular,
-    fontSize: 9.5,
+    fontSize: 11,
     letterSpacing: 0.05,
   },
   orderDetails: {
@@ -1915,13 +1922,13 @@ const styles = StyleSheet.create({
     minHeight: 78,
     paddingVertical: 11,
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     borderBottomWidth: 1,
     borderBottomColor: "#ECEDEA",
   },
   orderImage: {
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 72,
     borderRadius: 6,
     backgroundColor: C.soft,
   },
@@ -1932,7 +1939,7 @@ const styles = StyleSheet.create({
   },
   orderProductName: {
     color: C.ink,
-    fontFamily: typography.bold,
+    fontFamily: typography.semibold,
     fontSize: 13,
     lineHeight: 18,
   },
@@ -1957,26 +1964,21 @@ const styles = StyleSheet.create({
   availabilityText: {
     marginLeft: 5,
     color: C.greenDark,
-    fontFamily: typography.black,
-    fontSize: 7,
+    fontFamily: typography.medium,
+    fontSize: 9,
+    flexShrink: 1,
     letterSpacing: 0.4,
   },
   availabilityTextError: { color: C.red },
-  orderProductEnd: { alignItems: "flex-end" },
   orderProductPrice: {
     color: C.ink,
-    fontFamily: typography.black,
+    marginTop: 8,
+    fontFamily: typography.semibold,
     fontSize: 13,
-  },
-  orderQuantity: {
-    marginTop: 5,
-    color: C.muted,
-    fontFamily: typography.bold,
-    fontSize: 10,
   },
   editCart: {
     minHeight: 44,
-    marginTop: 8,
+    marginTop: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
@@ -1984,8 +1986,8 @@ const styles = StyleSheet.create({
   },
   editCartText: {
     color: C.ink,
-    fontFamily: typography.black,
-    fontSize: 8,
+    fontFamily: typography.semibold,
+    fontSize: 11,
     textDecorationLine: "underline",
   },
   statusBanner: {
@@ -2156,7 +2158,7 @@ const styles = StyleSheet.create({
   paymentList: { gap: 12 },
   paymentRow: {
     position: "relative",
-    minHeight: 90,
+    minHeight: 88,
     overflow: "hidden",
     paddingHorizontal: 14,
     paddingVertical: 12,
@@ -2164,11 +2166,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: C.border,
-    borderRadius: 18,
+    borderRadius: 16,
     backgroundColor: C.white,
   },
   paymentRowSelected: {
-    borderColor: "#709777",
+    borderColor: "#315D3C",
     borderWidth: 1,
     backgroundColor: "#F0F6EC",
     shadowColor: "#118D35",
@@ -2199,18 +2201,18 @@ const styles = StyleSheet.create({
     minWidth: 0,
     color: C.ink,
     fontFamily: typography.semibold,
-    fontSize: 13.5,
+    fontSize: 14,
     lineHeight: 18,
   },
   paymentTitleUnavailable: { color: C.disabledText },
   recommended: {
     minHeight: 20,
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 3,
     overflow: "hidden",
     color: C.greenDark,
     fontFamily: typography.medium,
-    fontSize: 9,
+    fontSize: 10,
     borderRadius: 10,
     backgroundColor: "#E0EBD8",
   },
@@ -2218,7 +2220,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
     color: C.muted,
     fontFamily: typography.regular,
-    fontSize: 12,
+    fontSize: 13,
     lineHeight: 17,
   },
   unavailable: {
@@ -2266,9 +2268,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 7,
     color: C.ink,
-    fontFamily: typography.black,
-    fontSize: 10,
-    letterSpacing: 0.4,
+    fontFamily: typography.medium,
+    fontSize: 14,
+    letterSpacing: 0,
     borderWidth: 0,
     backgroundColor: "transparent",
   },
@@ -2283,8 +2285,8 @@ const styles = StyleSheet.create({
   couponButtonDisabled: { opacity: 0.55 },
   couponButtonText: {
     color: C.white,
-    fontFamily: typography.black,
-    fontSize: 8,
+    fontFamily: typography.semibold,
+    fontSize: 12,
   },
   couponFeedback: {
     minHeight: 44,
@@ -2494,7 +2496,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: C.muted,
     fontFamily: typography.regular,
-    fontSize: 9,
+    fontSize: 11,
     lineHeight: 14,
   },
   termsLink: {

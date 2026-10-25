@@ -1,0 +1,36 @@
+{
+  "id": "seo-browser-cdp-remediation-prepared-20261021",
+  "createdAt": "2026-10-21T09:52:33.636Z",
+  "title": "Browser smoke harness hardened for Windows GPU/CDP failure",
+  "summary": "Chrome and Edge logs showed GPU process fatal exits before the DevTools socket closed. Added software/in-process GPU flags to the local fixture harness; hosted deployment unchanged.",
+  "status": "needs-testing",
+  "relatedId": "seo-browser-blocker-and-content-review-20261021",
+  "pages": [
+    "SEO editorial workspace",
+    "Change History"
+  ],
+  "components": [
+    "Local CDP smoke harness"
+  ],
+  "files": [
+    "scripts/smoke-seo-editorial-workspace.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Added in-process GPU, software SwiftShader, GPU compositing and software-rasterizer flags to avoid the observed Windows GPU process fatal exit before CDP interaction."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Browser failure diagnosis",
+      "result": "passed",
+      "detail": "Chrome logs showed GPU process unusable/fatal exits and persistent cache lock errors before WebSocket closure."
+    },
+    {
+      "name": "Hardened browser run",
+      "result": "not-run",
+      "detail": "Pending execution after harness flag correction; no hosted result claimed."
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "product-contrast-verified-resumed-20261025",
+  "relatedId": "product-contrast-prepared-20261025",
+  "createdAt": "2026-10-25T06:49:34.200Z",
+  "title": "Product information contrast candidate verified; awaiting deployment approval",
+  "summary": "Recovered successful build and verified the exact four colour substitutions against current READY Batch 4 production. No deployment performed.",
+  "status": "successful",
+  "pages": [
+    "/produit/[slug]"
+  ],
+  "components": [
+    "Product tax, shipping, delivery and returns paragraphs"
+  ],
+  "files": [
+    "app/produit/[slug]/page.tsx"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Exactly four text-neutral-400 to text-neutral-600 substitutions. No wording, layout, size, data, shipping, checkout, SEO or performance source changes. No additions or removals in the 2055-file candidate."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Existing production build, TypeScript and focused lint",
+      "result": "passed",
+      "detail": "All exit 0 for source 40d35613f6de1d2df08e434485585f57296227d5c16c2f905d24f8ea8fcfac37. Build completed 2026-10-25T06:44:14.172Z; reused without rebuild. Normal prebuild generated newline-only changes in 149 course files in validation copy only. Offline loopback database placeholders; no real orders/payments."
+    },
+    {
+      "name": "Rendered contrast and visual verification",
+      "result": "passed",
+      "detail": "White 2.5225:1 to 7.8139:1; neutral-50 2.4167:1 to 7.4862:1. Four paragraphs at 390/1440px; light/dark preference, opacity/filter/inheritance verified. Text, paragraph geometry and image/control DOM/geometry unchanged. Public DOM with browser-local exact class substitution; not a deployed candidate or full candidate runtime against production database."
+    },
+    {
+      "name": "Live baseline and source integrity",
+      "result": "passed",
+      "detail": "Read-only Vercel check: dpl_5zqUhyi9tycxPeDbADQWkn9u31DY READY, alias lecomax.com and all 2055 remote receipt files match. Exact one-file delta; other 2054 files byte-identical. Same deployment is verified rollback for proposed release."
+    },
+    {
+      "name": "Boundaries and limitations",
+      "result": "not-run",
+      "detail": "No production deployment, provider/configuration writes, migrations, secrets changes or real transactions. No physical-device or screen-reader tests. Existing worktrees and unrelated changes preserved; no reset/clean. SEO Release E remains on hold. Learning-app preview not checked."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "batch1-bootstrap-config-validation-blocked-20261024",
+  "createdAt": "2026-10-24T18:02:00.926Z",
+  "relatedId": "batch1-bootstrap-config-correction-pending-20261024",
+  "title": "Bootstrap configuration validation blocked by missing Draft-04 registration",
+  "summary": "Current official schema excludes public despite prose documentation. Corrected config prepared, but new test harness failed before schema tests ran. New single attempt remains unused.",
+  "status": "failed",
+  "pages": [
+    "Checkout staging placeholder (not deployed)",
+    "/change-history"
+  ],
+  "components": [
+    "Bootstrap CLI schema validation"
+  ],
+  "files": [
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-config.test.cjs",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/upload/vercel.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/manifest.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/official-vercel-schema.json",
+    "artifacts/batch1-release-preparation-20261024/static-bootstrap-attempt2/BLOCKED-REPORT.md"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Saved schema evidence and failure report; preserved all earlier attempt evidence."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Prepared config without optional public property in separate isolated artifact; full validation pending."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Existing HTML regressions",
+      "result": "passed",
+      "detail": "16 tests passed."
+    },
+    {
+      "name": "New configuration regressions",
+      "result": "failed",
+      "detail": "Harness cannot resolve Draft-04 meta-schema; three intended cases did not run."
+    },
+    {
+      "name": "Provider/deployment/hosted checks",
+      "result": "not-run",
+      "detail": "Stopped under explicit local-validation failure rule. New attempt unused; no provider mutations."
+    }
+  ]
+}

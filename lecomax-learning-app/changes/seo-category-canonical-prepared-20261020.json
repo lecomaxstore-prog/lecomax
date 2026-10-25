@@ -1,0 +1,36 @@
+{
+  "id": "seo-category-canonical-prepared-20261020",
+  "createdAt": "2026-10-20T09:39:11.597Z",
+  "title": "Align category and CMS canonical URLs with encoded sitemap paths",
+  "summary": "Raw reserved characters in slugs could change canonical and structured-data URL semantics.",
+  "status": "needs-testing",
+  "pages": [
+    "/[category]"
+  ],
+  "components": [
+    "Category metadata",
+    "CMS metadata",
+    "Category JSON-LD"
+  ],
+  "files": [
+    "app/[category]/page.tsx",
+    "tests/seo-category-urls.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Use the existing seoPath encoder for category/CMS canonical and Open Graph URLs and category breadcrumb/CollectionPage identifiers."
+    },
+    {
+      "kind": "added",
+      "detail": "Behavioral metadata and rendered JSON-LD regressions for ASCII, French, Arabic, query/hash/slash and literal percent slugs."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused tests",
+      "result": "not-run",
+      "detail": "Pending local execution; no hosted changes."
+    }
+  ]
+}

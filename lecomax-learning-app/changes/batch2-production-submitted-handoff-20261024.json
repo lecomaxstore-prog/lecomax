@@ -1,0 +1,46 @@
+{
+  "id": "batch2-production-submitted-handoff-20261024",
+  "relatedId": "batch2-production-authorized-20261024",
+  "createdAt": "2026-10-24T20:26:30.876Z",
+  "title": "Batch 2: recovered authorized release submitted once",
+  "summary": "Reconciled the interrupted review and submitted unchanged certified source. Vercel is building the single deployment; live verification is pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Production storefront lecomax.com"
+  ],
+  "components": [
+    "Hero layout",
+    "Category images",
+    "Production release"
+  ],
+  "files": [
+    "artifacts/batch2-mobile-20261024/source/app/globals.css",
+    "artifacts/batch2-mobile-20261024/source/app/page.tsx",
+    "artifacts/batch2-mobile-20261024/source/components/CategoryTiles.tsx",
+    "artifacts/batch2-mobile-20261024/handoff-reconciliation.json",
+    "artifacts/batch2-mobile-20261024/submission-result.json"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Submitted certified source 79288dad7ed4757c23f1a219bf8d3bfbad9396b99175ed66a3707ace2946b48b as deployment dpl_23Ji3SkdLo1nkiN19j9NJsvArde3; no new application edits."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Interrupted attempt reconciliation",
+      "result": "passed",
+      "detail": "Prior reviewer ended with usage_limit_exceeded without a decision; no submission marker or later provider deployment existed. Original attempt unused."
+    },
+    {
+      "name": "Source and production integrity",
+      "result": "passed",
+      "detail": "2054 files match certified inventory; exactly three intended changes; all 2054 live Batch 1 remote source hashes match baseline. Project/team and configuration unchanged; rollback dpl_Aab3E2x5V8iJmxcw9L9B5b4Z7LHk READY."
+    },
+    {
+      "name": "Production verification",
+      "result": "not-run",
+      "detail": "Deployment accepted, BUILDING; live and performance checks pending."
+    }
+  ]
+}

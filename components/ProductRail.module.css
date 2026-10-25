@@ -1,3 +1,8 @@
+.promotion :global(.rail-header) h2,
+.promotion :global(.rail-header) p {
+  color: #b91c1c;
+}
+
 .refined :global(.rail-header) {
   align-items: flex-end;
   gap: 12px;

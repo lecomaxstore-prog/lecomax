@@ -1,0 +1,56 @@
+{
+  "id": "product-video-controls-hidden-20261025-verified",
+  "createdAt": "2026-10-25T18:00:10.762Z",
+  "title": "Product video controls removal: validation results",
+  "summary": "Keep product videos playing inline without the playback toolbar.",
+  "status": "successful",
+  "pages": [
+    "Website product details",
+    "Mobile product details"
+  ],
+  "components": [
+    "ProductVideo",
+    "ProductGallery",
+    "ProductVideoPlayer"
+  ],
+  "files": [
+    "components/ProductVideo.tsx",
+    "components/ProductGallery.tsx",
+    "mobile/src/components/product-video.tsx",
+    "tests/product-video.test.ts",
+    "tests/mobile-product-video.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "removed",
+      "detail": "Removed native video controls and the obsolete mobile controls-menu configuration; disabled the YouTube embedded playback toolbar."
+    },
+    {
+      "kind": "modified",
+      "detail": "Preserved muted looping playback and mobile pause when leaving the video slide. Website video defaults to autoplay so shared previews remain playable without controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Focused product video tests",
+      "result": "passed",
+      "detail": "8 of 8 tests passed, including inline playback without controls, gallery navigation, active-slide playback, off-slide pause and retry."
+    },
+    {
+      "name": "Mobile TypeScript",
+      "result": "passed",
+      "detail": "npm run typecheck in mobile completed with exit code 0."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "not-run",
+      "detail": "Both npx and local ESLint stalled without output and were interrupted; lint completion is unverified."
+    },
+    {
+      "name": "Visual/device verification and deployment",
+      "result": "not-run",
+      "detail": "No browser or physical-device visual check performed. Changes remain local; not deployed."
+    }
+  ],
+  "relatedId": "product-video-controls-hidden-20261025"
+}

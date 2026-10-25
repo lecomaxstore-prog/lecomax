@@ -1,0 +1,53 @@
+{
+  "id": "seo-preview-resume-scope-not-visible-20261023",
+  "relatedId": "seo-preview-binding-runtime-audit-20261023",
+  "createdAt": "2026-10-23T06:50:16.788Z",
+  "title": "Resume audit: branch service override not visible; email isolation pending",
+  "summary": "Fresh staging API reads still show only general service-key scopes. Email provider remains enabled. Candidate hashes pass; deployment stopped.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO Recovery Preview",
+    "Change History"
+  ],
+  "components": [
+    "Isolation gate",
+    "Candidate integrity"
+  ],
+  "files": [
+    "docs/seo-preview-resume-gate-20261023.md",
+    "artifacts/seo-preview-resume-20261023/binding-audit-1792738152923.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Recorded fresh branch scope, Auth settings and preserved candidate evidence; no application or remote changes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Candidate integrity",
+      "result": "passed",
+      "detail": "All 2588 candidate files and 30 repaired image hashes match; clean corrected commit."
+    },
+    {
+      "name": "Public staging configuration and disabled flags",
+      "result": "passed",
+      "detail": "URL/public binding match; no shared variables; payment/indexing/worker flags disabled; Vercel staging crons empty."
+    },
+    {
+      "name": "Service-key isolation",
+      "result": "not-run",
+      "detail": "Reported branch change not visible in two reads; existing secret withheld and fingerprint cannot be compared."
+    },
+    {
+      "name": "Email isolation",
+      "result": "not-run",
+      "detail": "Email provider enabled; signup disabled; delivery destination not verified. No messages sent."
+    },
+    {
+      "name": "Preview release",
+      "result": "not-run",
+      "detail": "NO-GO. No deployment or hosted acceptance."
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "status": "proposal-only-not-applied",
+  "createdAt": "2026-10-20T22:45:44.103Z",
+  "projectRef": "tyltharlnbxrxibuxyye",
+  "organizationId": "mbhkspintqoxntjbykrm",
+  "method": "PATCH",
+  "endpoint": "/v1/projects/tyltharlnbxrxibuxyye/config/auth",
+  "requiresSeparateApproval": true,
+  "payload": {
+    "site_url": "https://lecomax-seo-staging.vercel.app",
+    "uri_allow_list": "",
+    "disable_signup": true,
+    "external_email_enabled": false,
+    "external_phone_enabled": false,
+    "external_anonymous_users_enabled": false,
+    "external_apple_enabled": false,
+    "external_azure_enabled": false,
+    "external_bitbucket_enabled": false,
+    "external_discord_enabled": false,
+    "external_facebook_enabled": false,
+    "external_figma_enabled": false,
+    "external_github_enabled": false,
+    "external_gitlab_enabled": false,
+    "external_google_enabled": false,
+    "external_kakao_enabled": false,
+    "external_keycloak_enabled": false,
+    "external_linkedin_oidc_enabled": false,
+    "external_slack_oidc_enabled": false,
+    "external_notion_enabled": false,
+    "external_slack_enabled": false,
+    "external_spotify_enabled": false,
+    "external_twitch_enabled": false,
+    "external_twitter_enabled": false,
+    "external_x_enabled": false,
+    "external_workos_enabled": false,
+    "external_web3_solana_enabled": false,
+    "external_web3_ethereum_enabled": false,
+    "external_zoom_enabled": false,
+    "hook_custom_access_token_enabled": false,
+    "hook_mfa_verification_attempt_enabled": false,
+    "hook_password_verification_attempt_enabled": false,
+    "hook_send_sms_enabled": false,
+    "hook_send_email_enabled": false,
+    "hook_before_user_created_enabled": false,
+    "hook_after_user_created_enabled": false
+  },
+  "preconditions": [
+    "Reverify exact project and organization identity",
+    "Review project and organization platform webhooks: listing currently returns HTTP 403",
+    "No existing Auth users and no external providers/hooks/SMTP credentials",
+    "No deployment, messages, user creation or migration authorized by this plan"
+  ],
+  "effects": [
+    "Sets staging Site URL",
+    "Disables signup and every external authentication provider, including email/password, for the first no-side-effect smoke phase",
+    "Keeps redirect allowlist empty because no redirect flow is enabled",
+    "Does not modify secrets or enable providers"
+  ],
+  "limitations": [
+    "Password login will intentionally be unavailable until a separately approved no-delivery Auth acceptance configuration exists",
+    "Absence of custom SMTP does not disable the built-in Supabase mail service",
+    "This plan does not deploy a mail hook or provision a mail service"
+  ],
+  "verification": [
+    "Read back every proposed field",
+    "Confirm provider/hook switches remain disabled",
+    "No signup, recovery, invitation or email send as a verification method"
+  ]
+}

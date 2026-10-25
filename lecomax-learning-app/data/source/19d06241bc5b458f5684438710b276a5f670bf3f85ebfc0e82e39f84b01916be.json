@@ -1,0 +1,1 @@
+{"content":"module.exports = {\r\n  plugins: { tailwindcss: {}, autoprefixer: {} },\r\n};\r\n"}

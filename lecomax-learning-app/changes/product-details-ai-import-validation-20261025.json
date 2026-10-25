@@ -1,0 +1,61 @@
+{
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Import IA et import Markdown/JSON des détails ; annulation avant modification ultérieure."
+    },
+    {
+      "kind": "modified",
+      "detail": "Route IA protégée existante étendue au mode details. Fusion des libellés, conservation des détails absents et validation des valeurs citées."
+    }
+  ],
+  "summary": "Tests ciblés et lint réussis. Validation navigateur et appel réel OpenAI non exécutés ; contrôle TypeScript global bloqué dans ProductGallery.",
+  "id": "product-details-ai-import-validation-20261025",
+  "createdAt": "2026-10-25T13:23:07.027Z",
+  "validation": [
+    {
+      "name": "Import regressions",
+      "result": "passed",
+      "detail": "16 tests passed; 1 live OpenAI test skipped. Includes structured details, merging, invalid input and mocked AI grounding."
+    },
+    {
+      "name": "Focused ESLint",
+      "result": "passed",
+      "detail": "All five changed application files passed."
+    },
+    {
+      "name": "Change history regression tests",
+      "result": "passed",
+      "detail": "6 tests passed, including persistence and interaction."
+    },
+    {
+      "name": "Global TypeScript",
+      "result": "failed",
+      "detail": "components/ProductGallery.tsx:218 TS18047 videoDimensions possibly null; outside modified files."
+    },
+    {
+      "name": "Browser and live provider",
+      "result": "not-run",
+      "detail": "No browser preview or real OpenAI request executed. No deployment performed."
+    }
+  ],
+  "files": [
+    "components/admin/ProductDetailsImport.tsx",
+    "lib/product-details-import.ts",
+    "lib/product-paste-ai.ts",
+    "app/api/admin/products/parse/route.ts",
+    "app/admin/products/page.tsx",
+    "tests/product-details-import.test.ts",
+    "tests/product-paste-ai.test.ts"
+  ],
+  "components": [
+    "ProductDetailsImport",
+    "Product details AI extraction"
+  ],
+  "status": "needs-testing",
+  "title": "Vérification locale de l’import des détails produit",
+  "pages": [
+    "/admin/products"
+  ],
+  "relatedId": "product-details-ai-import-20261025"
+}

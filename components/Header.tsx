@@ -2,7 +2,7 @@
 import { useStoreRefresh } from "@/lib/use-store-refresh";
 
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useCart } from "./CartContext";
 import { categories } from "@/lib/products";
 import Logo from "./Logo";
@@ -27,6 +27,9 @@ export default function Header() {
   const { count } = useCart();
   const { count: wishlistCount } = useWishlist();
   const [open, setOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -42,13 +45,76 @@ export default function Header() {
 
   useEffect(() => {
     if (!open) return;
+    const drawer = drawerRef.current;
+    if (!drawer) return;
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    if (desktop.matches) { setOpen(false); return; }
+    const trigger = menuButtonRef.current;
+    const focusable = () => Array.from(drawer.querySelectorAll<HTMLElement>(
+      'a[href], button, input, select, textarea, [tabindex]'
+    )).filter((element) => element.tabIndex >= 0 && !element.matches(":disabled") &&
+      !element.closest("[inert]") && element.getClientRects().length > 0 &&
+      getComputedStyle(element).visibility !== "hidden");
+    const focusFirst = () => (focusable()[0] ?? drawer).focus({ preventScroll: true });
+    focusFirst();
+
+    // Isolate siblings at every ancestor level, including newly mounted portals.
+    const previousInert = new Map<HTMLElement, boolean>();
+    const isolate = () => {
+      let branch: HTMLElement = drawer;
+      while (branch.parentElement) {
+        for (const sibling of Array.from(branch.parentElement.children)) {
+          if (!(sibling instanceof HTMLElement) || sibling === branch || sibling === backdropRef.current) continue;
+          if (!previousInert.has(sibling)) previousInert.set(sibling, sibling.inert);
+          sibling.inert = true;
+        }
+        if (branch.parentElement === document.body) break;
+        branch = branch.parentElement;
+      }
+    };
+    isolate();
+    const observer = new MutationObserver(isolate);
+    observer.observe(document.body, { childList: true, subtree: true });
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        setOpen(false);
+      } else if (event.key === "Tab") {
+        const items = focusable();
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (!first || !drawer.contains(document.activeElement) || document.activeElement === drawer ||
+          (event.shiftKey ? document.activeElement === first : document.activeElement === last)) {
+          event.preventDefault();
+          (event.shiftKey ? last ?? drawer : first ?? drawer).focus();
+        }
+      }
+    };
+    const onFocusIn = (event: FocusEvent) => {
+      if (event.target instanceof Node && !drawer.contains(event.target)) focusFirst();
+    };
+    const onBreakpointChange = () => { if (desktop.matches) setOpen(false); };
+    document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("focusin", onFocusIn);
+    desktop.addEventListener("change", onBreakpointChange);
     const previousBodyOverflow = document.body.style.overflow;
     const previousHtmlOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
     return () => {
+      observer.disconnect();
+      document.removeEventListener("keydown", onKeyDown);
+      document.removeEventListener("focusin", onFocusIn);
+      desktop.removeEventListener("change", onBreakpointChange);
+      previousInert.forEach((value, element) => { element.inert = value; });
       document.body.style.overflow = previousBodyOverflow;
       document.documentElement.style.overflow = previousHtmlOverflow;
+      // Preserve focus if search or route navigation has already moved it.
+      if (document.activeElement === document.body || drawer.contains(document.activeElement)) {
+        const destination = trigger?.getClientRects().length ? trigger :
+          trigger?.closest("header")?.querySelector<HTMLElement>('a[href="/"]');
+        if (destination?.isConnected) destination.focus({ preventScroll: true });
+      }
     };
   }, [open]);
 
@@ -111,6 +177,8 @@ export default function Header() {
           <button
             type="button"
             aria-label="Menu"
+            ref={menuButtonRef}
+            aria-haspopup="dialog"
             aria-expanded={open}
             aria-controls="mobile-navigation-drawer"
             className="-ml-1 flex h-11 w-11 shrink-0 items-center justify-center lg:hidden"
@@ -215,25 +283,34 @@ export default function Header() {
       <div
         className={`fixed inset-0 z-[9998] transition-opacity duration-300 lg:hidden ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
         style={{ background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)" }}
+        ref={backdropRef}
+        aria-hidden="true"
         onClick={() => setOpen(false)}
       />
 
       {/* Slide-in panel */}
       <div
         id="mobile-navigation-drawer"
+        ref={drawerRef}
+        role="dialog"
+        aria-label="Menu"
+        aria-modal={open ? true : undefined}
+        aria-hidden={!open}
+        inert={!open}
+        tabIndex={-1}
         className={`fixed left-0 top-0 z-[9999] flex h-full w-full flex-col overflow-hidden bg-white lg:hidden ${open ? "translate-x-0" : "-translate-x-full"}`}
         style={{ transition: "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" }}
       >
         {/* ── Header ── */}
         <div
-          className={`relative flex h-[60px] shrink-0 items-center justify-between border-b border-[#3ecf4c]/70 px-4 text-white shadow-[0_8px_24px_rgba(0,0,0,.18)] ${open ? "drawer-item" : ""}`}
+          className={`storefront-header-bar relative flex h-[60px] shrink-0 items-center justify-between border-b border-[#3ecf4c]/70 px-4 text-white shadow-[0_8px_24px_rgba(0,0,0,.18)] ${open ? "drawer-item" : ""}`}
           style={{
             animationDelay: "20ms",
             background: "linear-gradient(115deg, #050705 0%, #0b120d 58%, #12351a 100%)",
           }}
         >
           <span aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#3ecf4c] to-transparent" />
-          <div className="flex items-center gap-3">
+          <div className="storefront-header-brand flex items-center gap-3">
             <button
               type="button"
               aria-label="Fermer le menu"
@@ -246,7 +323,7 @@ export default function Header() {
               </span>
             </button>
             <Link href="/" onClick={() => setOpen(false)} aria-label="L'ecomax — Accueil" className="flex items-center gap-3">
-              <Logo showWordmark variant="light" />
+              <Logo showWordmark variant="light" className="storefront-header-logo" />
             </Link>
           </div>
           <div className="flex shrink-0 items-center gap-0">

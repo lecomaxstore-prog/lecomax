@@ -1,0 +1,55 @@
+{
+  "id": "production-integration-resumed-20261025",
+  "createdAt": "2026-10-25T21:30:57.471Z",
+  "title": "Resume production integration and repair release validation",
+  "summary": "Preserve the recovered merge, production collection rendering and local UI updates; repair duplicate imports, gallery null handling and self-contained SEO test fixtures.",
+  "status": "needs-testing",
+  "relatedId": "github-production-release-preparation-20261025",
+  "pages": [
+    "Home",
+    "Product gallery",
+    "Bestsellers",
+    "Learning change history"
+  ],
+  "components": [
+    "Production integration",
+    "ProductGallery",
+    "Collection selectors",
+    "SEO test fixtures"
+  ],
+  "files": [
+    "app/page.tsx",
+    "components/ProductGallery.tsx",
+    "tests/store-collections.test.ts",
+    "operations/seo-vercel/tests/editorial-quality-fixtures.mjs",
+    "operations/seo-vercel/tests/fixtures/editorial-quality/source.json",
+    "operations/seo-vercel/tests/fixtures/editorial-quality/result-0.json",
+    "operations/seo-vercel/tests/fixtures/editorial-quality/result-1.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Remove duplicate homepage imports and preserve the uncommitted gallery null guard in the merge."
+    },
+    {
+      "kind": "modified",
+      "detail": "Align collection regression expectations with the local curated bestseller list while retaining server-side collection selection."
+    },
+    {
+      "kind": "added",
+      "detail": "Bundle only source and content fields required by offline SEO fixtures so tests do not depend on ignored artifacts."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovery",
+      "result": "passed",
+      "detail": "Fetched origin; production remains d9d1d7a7. Saved root/index/worktree patches and 87 conflicted working files before edits."
+    },
+    {
+      "name": "Release checks",
+      "result": "not-run",
+      "detail": "Fresh lint, typechecks, tests, build, security review, GitHub push and production deployment remain pending."
+    }
+  ]
+}

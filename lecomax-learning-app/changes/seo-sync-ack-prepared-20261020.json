@@ -1,0 +1,32 @@
+{
+  "id": "seo-sync-ack-prepared-20261020",
+  "createdAt": "2026-10-20T09:16:55.543Z",
+  "title": "Reject malformed synchronization acknowledgements",
+  "summary": "Null and non-boolean completion responses must not be counted as completed or superseded jobs.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "Worker /api/sync"
+  ],
+  "components": [
+    "SEO synchronization worker"
+  ],
+  "files": [
+    "operations/seo-vercel/lib/seo-sync-worker.mjs",
+    "scripts/seo-sync-worker.mjs",
+    "operations/seo-vercel/tests/sync-acknowledgement.test.mjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Require boolean durable completion acknowledgement in both worker copies; malformed responses use existing fenced failure recovery without replay."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression",
+      "result": "not-run",
+      "detail": "Offline malformed-response cases and existing boolean acknowledgement cases pending."
+    }
+  ]
+}

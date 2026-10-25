@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "id": "cyber-06",
+  "trackId": "cybersecurity",
+  "moduleId": "cyber-module-06",
+  "title": {
+    "en": "OWASP: use a risk map, not a vulnerability checklist",
+    "ar": "OWASP: خريطة للمخاطر وليست ضمانًا للأمان",
+    "fr": "OWASP: use a risk map, not a vulnerability checklist"
+  },
+  "contentLanguage": "en",
+  "difficulty": 2,
+  "prerequisites": [
+    "cyber-05"
+  ],
+  "objectives": [
+    "Use the current OWASP web and API risk categories as a review map.",
+    "Distinguish root causes from symptoms and map controls across categories.",
+    "Plan a vulnerability demonstration with an isolated fixture and a regression test."
+  ],
+  "practiceMinutes": 45,
+  "introduction": "This module uses OWASP Web Top 10 2025 and API Security Top 10 2023. The following vulnerability chapters connect those broad categories to actual local observations and tested repairs.",
+  "sections": [
+    {
+      "title": "What an awareness list can and cannot do",
+      "text": "OWASP publishes community security guidance, including broad risk taxonomies. A Top 10 list is a way to start conversations and organize review, not a complete specification or a certificate that an application is safe. A single bug can fit several categories: a missing ownership check may combine poor design, access-control failure and information disclosure. Conversely, a category such as software supply chain failures contains many different mechanisms. Use the list to ask whether an area has been considered, then use an applicable verification standard and concrete business rules to decide what tests are required. A course quiz about names cannot replace an authorization test against actual application behavior."
+    },
+    {
+      "title": "The web edition used in this course",
+      "text": "The current web edition checked for this course is 2025: A01 Broken Access Control; A02 Security Misconfiguration; A03 Software Supply Chain Failures; A04 Cryptographic Failures; A05 Injection; A06 Insecure Design; A07 Authentication Failures; A08 Software or Data Integrity Failures; A09 Security Logging & Alerting Failures; A10 Mishandling of Exceptional Conditions. These names identify broad families rather than ten particular payloads. For example, exception handling can fail open by granting access after a session-store error, while logging can be present but fail to alert on repeated denied operations. Record the edition with any mapping, because category positions and names change over time."
+    },
+    {
+      "title": "The API edition used in this course",
+      "text": "The API list used here is 2023: API1 Broken Object Level Authorization; API2 Broken Authentication; API3 Broken Object Property Level Authorization; API4 Unrestricted Resource Consumption; API5 Broken Function Level Authorization; API6 Unrestricted Access to Sensitive Business Flows; API7 Server Side Request Forgery; API8 Security Misconfiguration; API9 Improper Inventory Management; API10 Unsafe Consumption of APIs. Notice the difference between choosing a forbidden record, changing a forbidden property and invoking a forbidden function. They need different tests. A limit on requests per minute also differs from a business-flow limit such as one coupon use per eligible customer."
+    },
+    {
+      "title": "Translate categories into a Cedar Cart review",
+      "text": "For order reads, write a rule that Alice cannot retrieve Bob’s order. For checkout, write that quantity must be a positive bounded integer and price comes from the catalog. For a webhook, write that a verified event must match the expected order, amount, currency and transition, and that duplicate delivery must not create duplicate effects. For a dependency, identify its version, how it enters the build and whether the advisory applies to the used code path. For exceptional conditions, disconnect a test dependency or supply malformed input in the lab and verify that access is not granted as a fallback. These concrete statements are the bridge from a category map to engineering work."
+    },
+    {
+      "title": "The repeated structure of the vulnerability chapters",
+      "text": "Each following chapter gives the meaning, preconditions, root cause, impact, a local example, an observation, a correction and a regression. Some examples execute against the lab server and temporary PostgreSQL engine. Others deliberately model a policy without contacting a network destination, running a shell or touching arbitrary files. The lesson labels that difference explicitly. A policy-model test can prove that an identifier is rejected by the function; it cannot establish that a production proxy or filesystem is configured correctly. Preserve these limits in your notebook. Copying an isolated helper into a real project does not automatically supply its surrounding authentication, transaction, decoder or deployment controls."
+    },
+    {
+      "title": "Defense in depth must remain specific",
+      "text": "Layered controls are useful when they protect different failure modes. SQL parameters separate query structure from data; least-privilege database access limits consequences if another defect occurs. Output encoding prevents text from becoming HTML; CSP can constrain some execution if markup is injected elsewhere. Neither layer makes input validation or authorization unnecessary. Avoid the vague conclusion add more security. State which actor controls the input, which interpreter or decision receives it, and which exact rule the fix enforces. Retest a legitimate case alongside the denied case so the control is not simply blocking the entire feature."
+    },
+    {
+      "title": "Study and evidence workflow",
+      "text": "Read the overview once, then work through the vulnerability chapters in order. For each, save a prediction before opening the solution, run the named local test on a computer, and record actual results with the code revision. If you are using only Android, complete the diagram and reasoning activities offline, then leave the executable-lab evidence pending until you use the separate computer environment. The app does not execute terminal commands. Darija: أسماء OWASP كتنظم الأفكار، ولكن الاختبار خاصو يثبت القاعدة فالكود. Completion here means finishing learning tasks; it does not mean your production projects were assessed."
+    }
+  ],
+  "examples": [],
+  "exercises": [
+    {
+      "id": "mapping",
+      "difficulty": 1,
+      "task": "Map cross-account order reading, a customer changing isAdmin and an unsigned payment event to security questions.",
+      "hints": [
+        "Object, property and message integrity are different boundaries."
+      ],
+      "solution": "Order: Is this caller permitted to read this object?\nRole property: Is this caller permitted to change this field?\nEvent: Did the trusted provider authenticate these exact bytes and do they match the order?",
+      "walkthrough": "The questions are more useful than arguing that each bug belongs to only one category.",
+      "expectedResult": "Three precise control questions."
+    },
+    {
+      "id": "limits",
+      "difficulty": 2,
+      "task": "You passed a URL allowlist unit test. List what it does not prove about a deployed URL fetcher.",
+      "hints": [
+        "Think about redirects, resolution and actual network connections."
+      ],
+      "solution": "Not proven: DNS behavior, redirect handling, proxy policy, connection-time destination, timeouts and response-size limits.",
+      "walkthrough": "A pure policy test is useful evidence about one function, not an end-to-end network guarantee.",
+      "expectedResult": "An honest evidence boundary."
+    }
+  ],
+  "quiz": [
+    {
+      "id": "cyber-06-q1",
+      "question": "Which web edition does this course use?",
+      "options": [
+        "OWASP Top 10 2025.",
+        "OWASP Top 10 2021 presented as current."
+      ],
+      "correctIndex": 0,
+      "explanation": "The course records the checked edition explicitly.",
+      "answerExplanations": [
+        "Correct. The course records the checked edition explicitly.",
+        "Not quite. The course records the checked edition explicitly."
+      ]
+    },
+    {
+      "id": "cyber-06-q2",
+      "question": "Which API edition is mapped here?",
+      "options": [
+        "The web list renamed as an API list.",
+        "API Security Top 10 2023."
+      ],
+      "correctIndex": 1,
+      "explanation": "Web and API lists are distinct awareness documents.",
+      "answerExplanations": [
+        "Not quite. Web and API lists are distinct awareness documents.",
+        "Correct. Web and API lists are distinct awareness documents."
+      ]
+    },
+    {
+      "id": "cyber-06-q3",
+      "question": "Does covering ten names prove an application secure?",
+      "options": [
+        "No; concrete requirements and tests are still needed.",
+        "Yes; ten categories cover every possible weakness."
+      ],
+      "correctIndex": 0,
+      "explanation": "An awareness map is not exhaustive verification.",
+      "answerExplanations": [
+        "Correct. An awareness map is not exhaustive verification.",
+        "Not quite. An awareness map is not exhaustive verification."
+      ]
+    },
+    {
+      "id": "cyber-06-q4",
+      "question": "Can one flaw span several categories?",
+      "options": [
+        "No; every bug belongs to exactly one name.",
+        "Yes; symptoms and root causes can overlap."
+      ],
+      "correctIndex": 1,
+      "explanation": "Taxonomies support review rather than restricting causality.",
+      "answerExplanations": [
+        "Not quite. Taxonomies support review rather than restricting causality.",
+        "Correct. Taxonomies support review rather than restricting causality."
+      ]
+    },
+    {
+      "id": "cyber-06-q5",
+      "question": "Changing another customer’s order id primarily tests which relation?",
+      "options": [
+        "Caller-to-object permission.",
+        "Only JSON syntax."
+      ],
+      "correctIndex": 0,
+      "explanation": "BOLA concerns object authorization.",
+      "answerExplanations": [
+        "Correct. BOLA concerns object authorization.",
+        "Not quite. BOLA concerns object authorization."
+      ]
+    },
+    {
+      "id": "cyber-06-q6",
+      "question": "Changing isAdmin in a profile update tests what?",
+      "options": [
+        "Only whether the request uses HTTPS.",
+        "Permission to modify a sensitive property."
+      ],
+      "correctIndex": 1,
+      "explanation": "Field-level authorization differs from transport security.",
+      "answerExplanations": [
+        "Not quite. Field-level authorization differs from transport security.",
+        "Correct. Field-level authorization differs from transport security."
+      ]
+    },
+    {
+      "id": "cyber-06-q7",
+      "question": "An unsigned provider event concerns what boundary?",
+      "options": [
+        "Message authenticity and business-state integrity.",
+        "Only icon rendering."
+      ],
+      "correctIndex": 0,
+      "explanation": "The receiver must verify who authenticated the event and what it means.",
+      "answerExplanations": [
+        "Correct. The receiver must verify who authenticated the event and what it means.",
+        "Not quite. The receiver must verify who authenticated the event and what it means."
+      ]
+    },
+    {
+      "id": "cyber-06-q8",
+      "question": "Does a rate limit automatically prevent coupon abuse?",
+      "options": [
+        "Yes; every slow request is legitimate.",
+        "No; the business-flow eligibility rule also matters."
+      ],
+      "correctIndex": 1,
+      "explanation": "Request volume and business authorization are different controls.",
+      "answerExplanations": [
+        "Not quite. Request volume and business authorization are different controls.",
+        "Correct. Request volume and business authorization are different controls."
+      ]
+    },
+    {
+      "id": "cyber-06-q9",
+      "question": "Can the Android lesson viewer run the computer terminal lab?",
+      "options": [
+        "No; it displays instructions and stores observations.",
+        "Yes; reading a command executes it."
+      ],
+      "correctIndex": 0,
+      "explanation": "The course distinguishes learning UI from real execution.",
+      "answerExplanations": [
+        "Correct. The course distinguishes learning UI from real execution.",
+        "Not quite. The course distinguishes learning UI from real execution."
+      ]
+    },
+    {
+      "id": "cyber-06-q10",
+      "question": "Why test a dependency outage?",
+      "options": [
+        "To mark any exception as successful authentication.",
+        "To verify the operation fails safely rather than granting access."
+      ],
+      "correctIndex": 1,
+      "explanation": "Exceptional conditions must preserve the security invariant.",
+      "answerExplanations": [
+        "Not quite. Exceptional conditions must preserve the security invariant.",
+        "Correct. Exceptional conditions must preserve the security invariant."
+      ]
+    }
+  ],
+  "readiness": [
+    "I can use the current OWASP web and API risk categories as a review map.",
+    "I can distinguish root causes from symptoms and map controls across categories.",
+    "I can plan a vulnerability demonstration with an isolated fixture and a regression test."
+  ],
+  "recap": [
+    "Use the current OWASP web and API risk categories as a review map.",
+    "Distinguish root causes from symptoms and map controls across categories.",
+    "Plan a vulnerability demonstration with an isolated fixture and a regression test."
+  ],
+  "connections": "Use your saved exercise notebook to explain the trust boundary, the evidence you observed and the remaining limitations before opening the next lesson.",
+  "references": [
+    {
+      "title": "OWASP Top 10 2025",
+      "url": "https://top10.owasp.org/2025/0x00_2025-Introduction/",
+      "verifiedOn": "2026-10-08"
+    },
+    {
+      "title": "OWASP API Security 2023",
+      "url": "https://api-security.owasp.org/editions/2023/en/0x00-header/",
+      "verifiedOn": "2026-10-08"
+    }
+  ],
+  "sourceFiles": [],
+  "diagram": {
+    "title": "Map, mechanism, evidence",
+    "steps": [
+      {
+        "title": "Risk category",
+        "detail": "Name the web or API edition and relevant family."
+      },
+      {
+        "title": "Trust-boundary failure",
+        "detail": "Identify the input, interpreter or decision and violated rule."
+      },
+      {
+        "title": "Local demonstration",
+        "detail": "Observe synthetic behavior without contacting production."
+      },
+      {
+        "title": "Regression and limits",
+        "detail": "Test the repair and record what the test cannot establish."
+      }
+    ]
+  },
+  "glossary": [
+    [
+      "OWASP",
+      "A community producing application-security guidance."
+    ],
+    [
+      "BOLA",
+      "Broken Object Level Authorization: a caller reaches an unauthorized record."
+    ],
+    [
+      "Defense in depth",
+      "Specific complementary controls against different failure modes."
+    ]
+  ],
+  "lab": null
+}

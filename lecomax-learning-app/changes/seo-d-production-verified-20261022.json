@@ -1,0 +1,69 @@
+{
+  "id": "seo-d-production-verified-20261022",
+  "relatedId": "seo-d-production-prepared-20261022",
+  "createdAt": "2026-10-22T19:06:04.412Z",
+  "title": "Release D deployed and verified in production",
+  "summary": "Approved eight-file IndexNow release is READY on lecomax.com at ddf12f4a. Storefront acceptance passed; flags and four crons unchanged. E remains on hold.",
+  "status": "successful",
+  "pages": [
+    "Storefront",
+    "Catalogue and categories",
+    "Product pages",
+    "Cart and checkout entry",
+    "Sitemaps",
+    "IndexNow API",
+    "Change History"
+  ],
+  "components": [
+    "IndexNow transport",
+    "Product publication",
+    "Official production release"
+  ],
+  "files": [
+    "app/api/indexnow/route.ts",
+    "lib/indexnow.mjs",
+    "lib/product-discovery.ts",
+    "operations/seo-vercel/lib/environment-target.mjs",
+    "scripts/sitemap-release-urls.mjs",
+    "scripts/verify-storefront-release.mjs",
+    "tests/indexnow-safety.test.ts",
+    "tests/seo-advanced-indexnow.test.ts",
+    "docs/seo-release-d-e-readiness-20261022.md"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Deployed only approved D source to dpl_CxX8Deg6R6T4prqTnHEiJVvqGu6f; no removals, migrations, secret changes or feature activation."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Released disabled-state IndexNow guard, trailing-slash deduplication and private-route exclusions including /compte and /wishlist."
+    },
+    {
+      "kind": "added",
+      "detail": "Recorded provider source/configuration receipt, public/browser smoke, safe disabled guard evidence, sanitized runtime summary and completed handoff."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Preflight and remote source scope",
+      "result": "passed",
+      "detail": "Pinned candidate and upload hashes, exact eight-file source delta, correct project, READY C rollback, unchanged environment metadata, six false SEO flags and four crons."
+    },
+    {
+      "name": "Live production acceptance",
+      "result": "passed",
+      "detail": "30 HTTP checks, six mobile/desktop cases, sitemap index/four shards, canonicals/JSON-LD, images, cart persistence and checkout entry; zero browser errors or 5xx. Runtime queries returned zero error/5xx records in bounded window."
+    },
+    {
+      "name": "IndexNow disabled state",
+      "result": "passed",
+      "detail": "Provider flag false; deployed source hashes verified. Synthetic guard returned 503 with zero fetch calls; retained 120-test/lint/types/build evidence reused."
+    },
+    {
+      "name": "Unverified acceptance and E",
+      "result": "not-run",
+      "detail": "No authenticated admin lifecycle, orders/payments, dedicated owner DB TLS or external IndexNow delivery. Absent inventory/locale cases synthetic-only. E and its schema/recovery/auth/cache/packaging/activation gates remain on hold. Local history has not been separately published."
+    }
+  ]
+}

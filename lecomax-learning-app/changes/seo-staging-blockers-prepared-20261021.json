@@ -1,0 +1,41 @@
+{
+  "id": "seo-staging-blockers-prepared-20261021",
+  "createdAt": "2026-10-20T22:44:11.308Z",
+  "title": "Resolve staging build blockers and prepare isolated Auth and fixture plans",
+  "summary": "Read-only Auth/environment audit tools and lossless disk recovery; preparation only, no hosted mutations or migrations. Build and final validation pending.",
+  "status": "needs-testing",
+  "pages": [
+    "SEO staging preparation",
+    "Change History"
+  ],
+  "components": [
+    "Staging audit tools",
+    "Auth and provisioning plans"
+  ],
+  "files": [
+    "scripts/audit-seo-staging-auth.ps1",
+    "scripts/verify-seo-staging-environment.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "GET-only Auth/provider/webhook audit and exact environment scope/value checks with redacted sensitive values."
+    },
+    {
+      "kind": "modified",
+      "detail": "Lossless compression of task evidence/build files preserved all verified hashes and deleted nothing. Full build resumed with public font downloads permitted and runtime fetch blocked."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Preliminary isolation",
+      "result": "passed",
+      "detail": "20 expected variable names/scopes; 18 readable values match in both scopes, two sensitive values withheld. Auth identity verified; no configured provider/hook credentials."
+    },
+    {
+      "name": "Full build and plans",
+      "result": "not-run",
+      "detail": "Validation underway; no deployment or schema execution."
+    }
+  ]
+}

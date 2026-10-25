@@ -1,0 +1,556 @@
+{
+  "reviews": [
+    {
+      "id": "lesson-06-02-control-flow",
+      "locale": "ar",
+      "status": "needs-expansion",
+      "findings": [
+        "Uses Object.entries, destructuring, for...of, continue and a conditional expression in six lines without teaching their prerequisites.",
+        "No full explanation of loop termination, branch order, break versus continue, or boundary testing."
+      ],
+      "missingFundamentals": [
+        "Boolean conditions",
+        "trace tables",
+        "loop initialization/condition/update",
+        "arrays and iteration prerequisites"
+      ],
+      "missingAdvanced": [
+        "short-circuit evaluation",
+        "nested-loop control",
+        "mutation during iteration"
+      ],
+      "nextAction": "Teach explicit decisions and basic loops first, then explain compact alternatives with traceable examples."
+    },
+    {
+      "id": "sql-transactions-indexes",
+      "locale": "ar",
+      "status": "expanded-advanced-practice-pending",
+      "findings": [
+        "Corrected: the original unconditional INSERT could follow a zero-row UPDATE. ROW_COUNT now raises before insertion.",
+        "Corrected: the lab now creates isolated temporary tables and deterministic fixtures.",
+        "Expanded: transaction state, constraints, PL/pgSQL, conditional concurrency, ACID, index plans, write costs, backfills and expand/contract.",
+        "Corrected: quiz answers now distinguish explicit scenarios and explain every option.",
+        "Corrected: the validation command executes the chapter SQL rather than only checking JSON structure."
+      ],
+      "missingFundamentals": [],
+      "missingAdvanced": [
+        "Savepoint recovery needs an additional executable exercise.",
+        "Independent-connection concurrency and deadlock/retry behavior need tests against full PostgreSQL.",
+        "Multi-product reservations and idempotent checkout need a separate complete implementation.",
+        "Large-table backfill and failed concurrent-index recovery need realistic migration rehearsal."
+      ],
+      "nextAction": "Add the listed advanced practice and independent PostgreSQL concurrency validation; do not mark the whole topic complete.",
+      "contentExpanded": [
+        "16 topic-specific explanatory passages; more than 1500 prose words in this locale.",
+        "Four annotated examples: schema, guarded reservation, index comparison, migration.",
+        "Five exercise tasks and full baseline solution with per-task reasoning.",
+        "Four symptom/cause/repair cases; three revised comprehension questions."
+      ],
+      "examplesAndExercisesAdded": {
+        "examples": 4,
+        "exerciseTasks": 5,
+        "quizQuestions": 3,
+        "executableChecks": 11
+      },
+      "validation": [
+        "11 SQL chapter tests passed with local PGlite.",
+        "48-module/192-lesson/3-locale structural validation passed.",
+        "Canonical, authored and mobile lesson contents match."
+      ],
+      "assessments": {
+        "completeness": {
+          "status": "expanded-not-complete",
+          "evidence": "Foundations repaired; advanced practice explicitly listed."
+        },
+        "educationalDepth": {
+          "status": "substantively-expanded",
+          "evidence": "Progresses from business invariant to transaction machinery and operational limits."
+        },
+        "beginnerAccessibility": {
+          "status": "reviewed-with-prerequisites",
+          "evidence": "Names SQL prerequisites, explains DO/DECLARE/INTO, supplies schema and seed data."
+        },
+        "accuracy": {
+          "status": "defect-fixed-tested-scope",
+          "evidence": "Reservation, rollback, constraints and migration execute; concurrency mechanism checked against PostgreSQL docs, not a two-connection test."
+        },
+        "codeExamples": {
+          "status": "executed",
+          "evidence": "Four examples and complete lab execute in local PGlite; annotations cover each code line."
+        },
+        "missingFundamentals": {
+          "status": "no-additional-fundamental-gap-identified-in-this-review",
+          "items": []
+        },
+        "missingAdvanced": {
+          "status": "remaining",
+          "items": [
+            "savepoints",
+            "multi-connection concurrency",
+            "multi-item/idempotent checkout",
+            "large-table migration rehearsal"
+          ]
+        },
+        "practicalExercises": {
+          "status": "reviewed",
+          "evidence": "Five sequenced tasks, including deliberate bug reproduction and plan interpretation."
+        },
+        "detailedSolutions": {
+          "status": "reviewed-and-baseline-executed",
+          "evidence": "Full SQL plus task-specific reasoning; variable query plans are not represented as fixed results."
+        },
+        "realWorldRelevance": {
+          "status": "reviewed-with-limits",
+          "evidence": "Reservation invariant and migration deployment tradeoffs; one-item schema clearly distinguished from production checkout."
+        },
+        "commonMistakes": {
+          "status": "reviewed",
+          "evidence": "Zero rows, aborted transaction, connection-scoped tables, unfounded index expectations."
+        },
+        "debuggingGuidance": {
+          "status": "reviewed",
+          "evidence": "First-error diagnosis, ROLLBACK recovery, state assertions and EXPLAIN comparison."
+        }
+      }
+    },
+    {
+      "id": "sql-transactions-indexes",
+      "locale": "en",
+      "status": "expanded-advanced-practice-pending",
+      "findings": [
+        "Corrected: the original unconditional INSERT could follow a zero-row UPDATE. ROW_COUNT now raises before insertion.",
+        "Corrected: the lab now creates isolated temporary tables and deterministic fixtures.",
+        "Expanded: transaction state, constraints, PL/pgSQL, conditional concurrency, ACID, index plans, write costs, backfills and expand/contract.",
+        "Corrected: quiz answers now distinguish explicit scenarios and explain every option.",
+        "Corrected: the validation command executes the chapter SQL rather than only checking JSON structure."
+      ],
+      "missingFundamentals": [],
+      "missingAdvanced": [
+        "Savepoint recovery needs an additional executable exercise.",
+        "Independent-connection concurrency and deadlock/retry behavior need tests against full PostgreSQL.",
+        "Multi-product reservations and idempotent checkout need a separate complete implementation.",
+        "Large-table backfill and failed concurrent-index recovery need realistic migration rehearsal."
+      ],
+      "nextAction": "Add the listed advanced practice and independent PostgreSQL concurrency validation; do not mark the whole topic complete.",
+      "contentExpanded": [
+        "16 topic-specific explanatory passages; more than 1500 prose words in this locale.",
+        "Four annotated examples: schema, guarded reservation, index comparison, migration.",
+        "Five exercise tasks and full baseline solution with per-task reasoning.",
+        "Four symptom/cause/repair cases; three revised comprehension questions."
+      ],
+      "examplesAndExercisesAdded": {
+        "examples": 4,
+        "exerciseTasks": 5,
+        "quizQuestions": 3,
+        "executableChecks": 11
+      },
+      "validation": [
+        "11 SQL chapter tests passed with local PGlite.",
+        "48-module/192-lesson/3-locale structural validation passed.",
+        "Canonical, authored and mobile lesson contents match."
+      ],
+      "assessments": {
+        "completeness": {
+          "status": "expanded-not-complete",
+          "evidence": "Foundations repaired; advanced practice explicitly listed."
+        },
+        "educationalDepth": {
+          "status": "substantively-expanded",
+          "evidence": "Progresses from business invariant to transaction machinery and operational limits."
+        },
+        "beginnerAccessibility": {
+          "status": "reviewed-with-prerequisites",
+          "evidence": "Names SQL prerequisites, explains DO/DECLARE/INTO, supplies schema and seed data."
+        },
+        "accuracy": {
+          "status": "defect-fixed-tested-scope",
+          "evidence": "Reservation, rollback, constraints and migration execute; concurrency mechanism checked against PostgreSQL docs, not a two-connection test."
+        },
+        "codeExamples": {
+          "status": "executed",
+          "evidence": "Four examples and complete lab execute in local PGlite; annotations cover each code line."
+        },
+        "missingFundamentals": {
+          "status": "no-additional-fundamental-gap-identified-in-this-review",
+          "items": []
+        },
+        "missingAdvanced": {
+          "status": "remaining",
+          "items": [
+            "savepoints",
+            "multi-connection concurrency",
+            "multi-item/idempotent checkout",
+            "large-table migration rehearsal"
+          ]
+        },
+        "practicalExercises": {
+          "status": "reviewed",
+          "evidence": "Five sequenced tasks, including deliberate bug reproduction and plan interpretation."
+        },
+        "detailedSolutions": {
+          "status": "reviewed-and-baseline-executed",
+          "evidence": "Full SQL plus task-specific reasoning; variable query plans are not represented as fixed results."
+        },
+        "realWorldRelevance": {
+          "status": "reviewed-with-limits",
+          "evidence": "Reservation invariant and migration deployment tradeoffs; one-item schema clearly distinguished from production checkout."
+        },
+        "commonMistakes": {
+          "status": "reviewed",
+          "evidence": "Zero rows, aborted transaction, connection-scoped tables, unfounded index expectations."
+        },
+        "debuggingGuidance": {
+          "status": "reviewed",
+          "evidence": "First-error diagnosis, ROLLBACK recovery, state assertions and EXPLAIN comparison."
+        }
+      }
+    },
+    {
+      "id": "sql-transactions-indexes",
+      "locale": "fr",
+      "status": "expanded-advanced-practice-pending",
+      "findings": [
+        "Corrected: the original unconditional INSERT could follow a zero-row UPDATE. ROW_COUNT now raises before insertion.",
+        "Corrected: the lab now creates isolated temporary tables and deterministic fixtures.",
+        "Expanded: transaction state, constraints, PL/pgSQL, conditional concurrency, ACID, index plans, write costs, backfills and expand/contract.",
+        "Corrected: quiz answers now distinguish explicit scenarios and explain every option.",
+        "Corrected: the validation command executes the chapter SQL rather than only checking JSON structure."
+      ],
+      "missingFundamentals": [],
+      "missingAdvanced": [
+        "Savepoint recovery needs an additional executable exercise.",
+        "Independent-connection concurrency and deadlock/retry behavior need tests against full PostgreSQL.",
+        "Multi-product reservations and idempotent checkout need a separate complete implementation.",
+        "Large-table backfill and failed concurrent-index recovery need realistic migration rehearsal."
+      ],
+      "nextAction": "Add the listed advanced practice and independent PostgreSQL concurrency validation; do not mark the whole topic complete.",
+      "contentExpanded": [
+        "16 topic-specific explanatory passages; more than 1500 prose words in this locale.",
+        "Four annotated examples: schema, guarded reservation, index comparison, migration.",
+        "Five exercise tasks and full baseline solution with per-task reasoning.",
+        "Four symptom/cause/repair cases; three revised comprehension questions."
+      ],
+      "examplesAndExercisesAdded": {
+        "examples": 4,
+        "exerciseTasks": 5,
+        "quizQuestions": 3,
+        "executableChecks": 11
+      },
+      "validation": [
+        "11 SQL chapter tests passed with local PGlite.",
+        "48-module/192-lesson/3-locale structural validation passed.",
+        "Canonical, authored and mobile lesson contents match."
+      ],
+      "assessments": {
+        "completeness": {
+          "status": "expanded-not-complete",
+          "evidence": "Foundations repaired; advanced practice explicitly listed."
+        },
+        "educationalDepth": {
+          "status": "substantively-expanded",
+          "evidence": "Progresses from business invariant to transaction machinery and operational limits."
+        },
+        "beginnerAccessibility": {
+          "status": "reviewed-with-prerequisites",
+          "evidence": "Names SQL prerequisites, explains DO/DECLARE/INTO, supplies schema and seed data."
+        },
+        "accuracy": {
+          "status": "defect-fixed-tested-scope",
+          "evidence": "Reservation, rollback, constraints and migration execute; concurrency mechanism checked against PostgreSQL docs, not a two-connection test."
+        },
+        "codeExamples": {
+          "status": "executed",
+          "evidence": "Four examples and complete lab execute in local PGlite; annotations cover each code line."
+        },
+        "missingFundamentals": {
+          "status": "no-additional-fundamental-gap-identified-in-this-review",
+          "items": []
+        },
+        "missingAdvanced": {
+          "status": "remaining",
+          "items": [
+            "savepoints",
+            "multi-connection concurrency",
+            "multi-item/idempotent checkout",
+            "large-table migration rehearsal"
+          ]
+        },
+        "practicalExercises": {
+          "status": "reviewed",
+          "evidence": "Five sequenced tasks, including deliberate bug reproduction and plan interpretation."
+        },
+        "detailedSolutions": {
+          "status": "reviewed-and-baseline-executed",
+          "evidence": "Full SQL plus task-specific reasoning; variable query plans are not represented as fixed results."
+        },
+        "realWorldRelevance": {
+          "status": "reviewed-with-limits",
+          "evidence": "Reservation invariant and migration deployment tradeoffs; one-item schema clearly distinguished from production checkout."
+        },
+        "commonMistakes": {
+          "status": "reviewed",
+          "evidence": "Zero rows, aborted transaction, connection-scoped tables, unfounded index expectations."
+        },
+        "debuggingGuidance": {
+          "status": "reviewed",
+          "evidence": "First-error diagnosis, ROLLBACK recovery, state assertions and EXPLAIN comparison."
+        }
+      }
+    },
+    {
+      "id": "lesson-06-01-values",
+      "locale": "ar",
+      "status": "expanded-tested-scope",
+      "findings": [
+        "Replaced repeated prose with a sequenced chapter and validated calculator.",
+        "Fixed unchecked exercise inputs, absent local lab and ambiguous diagnosis-versus-correction quiz.",
+        "Explained conversion boundaries, toFixed strings, shared references and safe intermediate precision."
+      ],
+      "missingFundamentals": [],
+      "missingAdvanced": [
+        "Dedicated BigInt/decimal implementation.",
+        "Multi-item, tax and refund rounding policies.",
+        "Authoritative server checkout belongs to later lessons."
+      ],
+      "nextAction": "Expand lesson-06-02-control-flow and continue the JavaScript sequence; this chapter does not complete the track.",
+      "contentExpanded": [
+        "16 explanatory passages exceeding 1500 words in this locale.",
+        "Four annotated examples, five exercise stages, three quizzes and four debugging cases."
+      ],
+      "examplesAndExercisesAdded": {
+        "examples": 4,
+        "exerciseTasks": 5,
+        "quizQuestions": 3,
+        "executableChecks": 8
+      },
+      "validation": [
+        "Eight executed chapter tests passed, including independent integer rounding oracle.",
+        "48-module/192-lesson/3-locale schema checks, TypeScript and web/mobile parity passed."
+      ],
+      "assessments": {
+        "completeness": {
+          "status": "expanded-tested-scope",
+          "evidence": "Values chapter contract implemented; advanced extensions and remaining track documented."
+        },
+        "educationalDepth": {
+          "status": "substantively-expanded",
+          "evidence": "Sixteen sequenced passages move from declarations to conversion, precision and identity."
+        },
+        "beginnerAccessibility": {
+          "status": "reviewed-with-prerequisites",
+          "evidence": "Explains terminal setup, functions, return, guards, regex and property syntax before full solution."
+        },
+        "accuracy": {
+          "status": "executed-contract",
+          "evidence": "Validation and arithmetic cases execute against actual authored code."
+        },
+        "codeExamples": {
+          "status": "executed",
+          "evidence": "Three introductory outputs and complete calculator verified."
+        },
+        "missingFundamentals": {
+          "status": "no-additional-fundamental-gap-identified-in-this-review",
+          "items": []
+        },
+        "missingAdvanced": {
+          "status": "remaining",
+          "items": [
+            "BigInt/decimal implementation",
+            "multi-item/tax/refund policies",
+            "server checkout"
+          ]
+        },
+        "practicalExercises": {
+          "status": "reviewed",
+          "evidence": "Five progressive stages with boundary cases and runnable command."
+        },
+        "detailedSolutions": {
+          "status": "reviewed-and-executed",
+          "evidence": "Complete code and reasoning per stage; source matches lab."
+        },
+        "realWorldRelevance": {
+          "status": "reviewed-with-limits",
+          "evidence": "One-item integer-centime model explicitly separate from production checkout."
+        },
+        "commonMistakes": {
+          "status": "reviewed",
+          "evidence": "Text addition, blank conversion, formatted strings and shallow copies."
+        },
+        "debuggingGuidance": {
+          "status": "reviewed",
+          "evidence": "Operand/type inspection separated from boundary correction and regression."
+        }
+      }
+    },
+    {
+      "id": "lesson-06-01-values",
+      "locale": "en",
+      "status": "expanded-tested-scope",
+      "findings": [
+        "Replaced repeated prose with a sequenced chapter and validated calculator.",
+        "Fixed unchecked exercise inputs, absent local lab and ambiguous diagnosis-versus-correction quiz.",
+        "Explained conversion boundaries, toFixed strings, shared references and safe intermediate precision."
+      ],
+      "missingFundamentals": [],
+      "missingAdvanced": [
+        "Dedicated BigInt/decimal implementation.",
+        "Multi-item, tax and refund rounding policies.",
+        "Authoritative server checkout belongs to later lessons."
+      ],
+      "nextAction": "Expand lesson-06-02-control-flow and continue the JavaScript sequence; this chapter does not complete the track.",
+      "contentExpanded": [
+        "16 explanatory passages exceeding 1500 words in this locale.",
+        "Four annotated examples, five exercise stages, three quizzes and four debugging cases."
+      ],
+      "examplesAndExercisesAdded": {
+        "examples": 4,
+        "exerciseTasks": 5,
+        "quizQuestions": 3,
+        "executableChecks": 8
+      },
+      "validation": [
+        "Eight executed chapter tests passed, including independent integer rounding oracle.",
+        "48-module/192-lesson/3-locale schema checks, TypeScript and web/mobile parity passed."
+      ],
+      "assessments": {
+        "completeness": {
+          "status": "expanded-tested-scope",
+          "evidence": "Values chapter contract implemented; advanced extensions and remaining track documented."
+        },
+        "educationalDepth": {
+          "status": "substantively-expanded",
+          "evidence": "Sixteen sequenced passages move from declarations to conversion, precision and identity."
+        },
+        "beginnerAccessibility": {
+          "status": "reviewed-with-prerequisites",
+          "evidence": "Explains terminal setup, functions, return, guards, regex and property syntax before full solution."
+        },
+        "accuracy": {
+          "status": "executed-contract",
+          "evidence": "Validation and arithmetic cases execute against actual authored code."
+        },
+        "codeExamples": {
+          "status": "executed",
+          "evidence": "Three introductory outputs and complete calculator verified."
+        },
+        "missingFundamentals": {
+          "status": "no-additional-fundamental-gap-identified-in-this-review",
+          "items": []
+        },
+        "missingAdvanced": {
+          "status": "remaining",
+          "items": [
+            "BigInt/decimal implementation",
+            "multi-item/tax/refund policies",
+            "server checkout"
+          ]
+        },
+        "practicalExercises": {
+          "status": "reviewed",
+          "evidence": "Five progressive stages with boundary cases and runnable command."
+        },
+        "detailedSolutions": {
+          "status": "reviewed-and-executed",
+          "evidence": "Complete code and reasoning per stage; source matches lab."
+        },
+        "realWorldRelevance": {
+          "status": "reviewed-with-limits",
+          "evidence": "One-item integer-centime model explicitly separate from production checkout."
+        },
+        "commonMistakes": {
+          "status": "reviewed",
+          "evidence": "Text addition, blank conversion, formatted strings and shallow copies."
+        },
+        "debuggingGuidance": {
+          "status": "reviewed",
+          "evidence": "Operand/type inspection separated from boundary correction and regression."
+        }
+      }
+    },
+    {
+      "id": "lesson-06-01-values",
+      "locale": "fr",
+      "status": "expanded-tested-scope",
+      "findings": [
+        "Replaced repeated prose with a sequenced chapter and validated calculator.",
+        "Fixed unchecked exercise inputs, absent local lab and ambiguous diagnosis-versus-correction quiz.",
+        "Explained conversion boundaries, toFixed strings, shared references and safe intermediate precision."
+      ],
+      "missingFundamentals": [],
+      "missingAdvanced": [
+        "Dedicated BigInt/decimal implementation.",
+        "Multi-item, tax and refund rounding policies.",
+        "Authoritative server checkout belongs to later lessons."
+      ],
+      "nextAction": "Expand lesson-06-02-control-flow and continue the JavaScript sequence; this chapter does not complete the track.",
+      "contentExpanded": [
+        "16 explanatory passages exceeding 1500 words in this locale.",
+        "Four annotated examples, five exercise stages, three quizzes and four debugging cases."
+      ],
+      "examplesAndExercisesAdded": {
+        "examples": 4,
+        "exerciseTasks": 5,
+        "quizQuestions": 3,
+        "executableChecks": 8
+      },
+      "validation": [
+        "Eight executed chapter tests passed, including independent integer rounding oracle.",
+        "48-module/192-lesson/3-locale schema checks, TypeScript and web/mobile parity passed."
+      ],
+      "assessments": {
+        "completeness": {
+          "status": "expanded-tested-scope",
+          "evidence": "Values chapter contract implemented; advanced extensions and remaining track documented."
+        },
+        "educationalDepth": {
+          "status": "substantively-expanded",
+          "evidence": "Sixteen sequenced passages move from declarations to conversion, precision and identity."
+        },
+        "beginnerAccessibility": {
+          "status": "reviewed-with-prerequisites",
+          "evidence": "Explains terminal setup, functions, return, guards, regex and property syntax before full solution."
+        },
+        "accuracy": {
+          "status": "executed-contract",
+          "evidence": "Validation and arithmetic cases execute against actual authored code."
+        },
+        "codeExamples": {
+          "status": "executed",
+          "evidence": "Three introductory outputs and complete calculator verified."
+        },
+        "missingFundamentals": {
+          "status": "no-additional-fundamental-gap-identified-in-this-review",
+          "items": []
+        },
+        "missingAdvanced": {
+          "status": "remaining",
+          "items": [
+            "BigInt/decimal implementation",
+            "multi-item/tax/refund policies",
+            "server checkout"
+          ]
+        },
+        "practicalExercises": {
+          "status": "reviewed",
+          "evidence": "Five progressive stages with boundary cases and runnable command."
+        },
+        "detailedSolutions": {
+          "status": "reviewed-and-executed",
+          "evidence": "Complete code and reasoning per stage; source matches lab."
+        },
+        "realWorldRelevance": {
+          "status": "reviewed-with-limits",
+          "evidence": "One-item integer-centime model explicitly separate from production checkout."
+        },
+        "commonMistakes": {
+          "status": "reviewed",
+          "evidence": "Text addition, blank conversion, formatted strings and shallow copies."
+        },
+        "debuggingGuidance": {
+          "status": "reviewed",
+          "evidence": "Operand/type inspection separated from boundary correction and regression."
+        }
+      }
+    }
+  ]
+}

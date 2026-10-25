@@ -1,0 +1,43 @@
+{
+  "id": "bestsellers-four-20261025",
+  "createdAt": "2026-10-25T13:11:26.444Z",
+  "title": "Bestsellers limited to the four requested products",
+  "summary": "Show GENAI, Lenovo LP40 Pro, Lenovo GM2 Pro and the sac banane in that order on both bestseller surfaces.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage /",
+    "/bestsellers"
+  ],
+  "components": [
+    "Homepage bestseller rail",
+    "BestsellersPage",
+    "selectBestsellers"
+  ],
+  "files": [
+    "lib/bestseller-eligibility.ts",
+    "app/page.tsx",
+    "app/bestsellers/page.tsx",
+    "tests/bestseller-selection.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "modified",
+      "detail": "Replace featured/badge-based selection with an ordered allowlist of the four catalogue slugs."
+    },
+    {
+      "kind": "removed",
+      "detail": "Remove other products and fallback fillers from bestseller collections only. Missing live entries are omitted; no products are deleted from the shop."
+    },
+    {
+      "kind": "added",
+      "detail": "Regression checks for requested order, duplicates, missing products and unrelated exclusions."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Pending selection tests, lint and history checks. No database writes or deployment."
+    }
+  ]
+}

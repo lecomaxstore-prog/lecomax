@@ -1,0 +1,41 @@
+{
+  "id": "search-overlay-backdrop-correction-20261025",
+  "relatedId": "search-overlay-touch-focus-correction-20261025",
+  "createdAt": "2026-10-25T07:49:43.016Z",
+  "title": "Search backdrop close focus diagnosis and correction",
+  "summary": "Failure isolated to desktop backdrop mousedown, not touch close button. Prevent default browser focus movement after closing; final validation pending.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront search"
+  ],
+  "components": [
+    "SearchOverlay"
+  ],
+  "files": [
+    "artifacts/search-overlay-20261025/source/components/SearchOverlay.tsx",
+    "artifacts/search-overlay-20261025/smoke.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Prevent default on backdrop-only mousedown before close. Browser-only diagnostic confirmed browser default action was overriding trigger focus. Earlier body fallback alone did not resolve this backdrop case."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Intermediate candidate",
+      "result": "passed",
+      "detail": "Build/types/lint and 59 core browser checks passed. Supplemental close-button checks passed; desktop backdrop focus assertion failed."
+    },
+    {
+      "name": "Backdrop diagnosis",
+      "result": "passed",
+      "detail": "Browser-only preventDefault diagnostic passed all focus/close assertions. Console review found expected disconnected loopback realtime CSP and absent local Vercel analytics scripts, not search exceptions; page errors zero."
+    },
+    {
+      "name": "Final candidate",
+      "result": "not-run",
+      "detail": "Source correction needs final build and regression checks. No deployment."
+    }
+  ]
+}

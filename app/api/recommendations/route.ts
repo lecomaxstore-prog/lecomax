@@ -87,6 +87,44 @@ export async function GET(request: NextRequest) {
   const since = new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10);
   const supabase = createServerSupabaseClient(2500);
 
+  // Discovery is strictly based on recorded product opens, never catalogue filler.
+  if (searchParams.get("mode") === "most-viewed") {
+    const views = new Map<string, number>();
+    const today = new Date().toISOString().slice(0, 10);
+    const firstDay = new Date(Date.now() - 29 * 86_400_000).toISOString().slice(0, 10);
+    for (let offset = 0; ; offset += 1000) {
+      const { data, error } = await supabase.from("product_intelligence_daily")
+        .select("day,product_id,product_views")
+        .gte("day", firstDay).lte("day", today).gt("product_views", 0)
+        .order("day").order("product_id").range(offset, offset + 999);
+      if (error) return NextResponse.json({ error: "Trending unavailable" }, { status: 503 });
+      const rows = data || [];
+      for (const row of rows) {
+        const count = Number(row.product_views);
+        if (Number.isFinite(count) && count > 0 && row.product_id) {
+          views.set(row.product_id, (views.get(row.product_id) || 0) + count);
+        }
+      }
+      if (rows.length < 1000) break;
+    }
+    const ranked = [...views].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const slugs: string[] = [];
+    const trendingLimit = Math.min(4, limit);
+    for (let offset = 0; offset < ranked.length && slugs.length < trendingLimit; offset += 100) {
+      const batch = ranked.slice(offset, offset + 100).map(([slug]) => slug);
+      const { data, error } = await supabase.from("products")
+        .select("slug,stock").eq("active", true).in("slug", batch);
+      if (error) return NextResponse.json({ error: "Trending unavailable" }, { status: 503 });
+      const available = new Set((data || []).filter(p => p.stock === null || p.stock > 0).map(p => p.slug));
+      for (const slug of batch) {
+        if (available.has(slug) && slugs.length < trendingLimit) slugs.push(slug);
+      }
+    }
+    return NextResponse.json({ slugs, strategy: "most-viewed", generated_at: new Date().toISOString() }, {
+      headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=900" },
+    });
+  }
+
   const [productsResult, metricsResult] = await Promise.all([
     supabase
       .from("products")

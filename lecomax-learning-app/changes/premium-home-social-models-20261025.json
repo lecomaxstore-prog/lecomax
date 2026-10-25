@@ -1,0 +1,38 @@
+{
+  "id": "premium-home-social-models-20261025",
+  "createdAt": "2026-10-25T13:45:23.879Z",
+  "title": "Premium homepage social artwork with man and woman",
+  "summary": "New editorial campaign for the store share link, with L’ecomax branding and shorter social copy.",
+  "status": "needs-testing",
+  "pages": [
+    "Homepage social share",
+    "Global Open Graph and Twitter cards"
+  ],
+  "components": [
+    "Official social image",
+    "Social metadata"
+  ],
+  "files": [
+    "lib/social-image.ts",
+    "scripts/prepare-social-image.mjs",
+    "tests/social-image.test.ts",
+    "public/images/social/lecomax-share-v4.jpg"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Versioned v4 campaign artwork with adult man and woman, deep green background and ivory typography."
+    },
+    {
+      "kind": "modified",
+      "detail": "Homepage social title and description, official image reference and preparation script; built-in v3 upgrades to v4 while merchant custom images remain preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Artwork and integration",
+      "result": "not-run",
+      "detail": "Generation and render checks in progress. No deployment or message sending."
+    }
+  ]
+}

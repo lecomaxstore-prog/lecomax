@@ -1,0 +1,44 @@
+{
+  "id": "seo-editorial-recovery-prepared-20261019",
+  "createdAt": "2026-10-19T21:07:36.419Z",
+  "title": "Recover interrupted editorial fixes and protect local drafts",
+  "summary": "Continue the 113-test checkpoint: scoped suggestion access and per-account, per-product tab recovery retaining the original concurrency base.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo"
+  ],
+  "components": [
+    "EditorialWorkspace",
+    "SEO editorial API"
+  ],
+  "files": [
+    "app/admin/seo/EditorialWorkspace.tsx",
+    "app/admin/seo/page.tsx",
+    "app/api/admin/seo/editorial/route.ts",
+    "lib/seo-editorial.ts",
+    "tests/seo-editorial-api.test.ts",
+    "tests/seo-editorial-workspace.test.ts"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Tab-local recovery of content, notes and original document/source version; scoped to the authenticated account and product."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Preserve interrupted product-only suggestion loading and navigation protection; no category permission or database privilege expansion."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Recovery checkpoint",
+      "result": "passed",
+      "detail": "Read the historical 113-pass log and handoff; identified five subsequent files by modification times. The reported +175/-15 cannot be independently reconstructed from Git because these files predate this session and are untracked."
+    },
+    {
+      "name": "New validation",
+      "result": "not-run",
+      "detail": "Pending tests, browser fixture, types and lint. No hosted writes, migrations, deployment, worker activation or paid requests."
+    }
+  ]
+}

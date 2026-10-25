@@ -1,0 +1,8 @@
+{
+  "plan": "hobby",
+  "enabled": false,
+  "cron": { "path": "/api/sync", "schedule": "0 3 * * *" },
+  "timezone": "UTC",
+  "expectedIntervalHours": 24,
+  "alertAfterHours": 27
+}

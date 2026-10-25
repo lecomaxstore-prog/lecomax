@@ -1,0 +1,84 @@
+{
+  "id": "seo-final-production-preparation-verified-20261018",
+  "createdAt": "2026-10-18T21:47:42.306Z",
+  "relatedId": "seo-final-auth-preparation-20261018",
+  "title": "Verify corrected staff authorization and final SEO release preparation",
+  "summary": "Fixed the shared Admin policy blocker, verified the isolated candidate build and source scope, and prepared hosted acceptance plus separate production approval gates. Production remains unchanged and NO-GO pending hosted setup and acceptance.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "/api/admin/seo/sync",
+    "/change-history"
+  ],
+  "components": [
+    "Shared Admin policy",
+    "SEO manual sync",
+    "Hosted acceptance",
+    "Release scope and recovery"
+  ],
+  "files": [
+    "lib/admin-policy.ts",
+    "tests/seo-sync-authorization.test.ts",
+    "scripts/seo-final-readiness.cjs",
+    "scripts/verify-seo-final-scope.cjs",
+    "scripts/prepare-seo-final-candidate.cjs",
+    "scripts/seo-hosted-acceptance-readonly.cjs",
+    "docs/seo-final-production-preparation-20261018.md",
+    "docs/seo-hosted-acceptance-20261018.md",
+    "artifacts/seo-final-preparation/candidate.json",
+    "release/seo-final-20261018/lib/admin-policy.ts",
+    "release/seo-final-20261018/tests/seo-sync-authorization.test.ts",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Exact /api/admin/seo/sync shared-policy entry now allows active staff to reach unchanged catalogue permission checks; unrelated endpoints retain their policy."
+    },
+    {
+      "kind": "added",
+      "detail": "Added real guard-chain regressions, read-only Vercel/Supabase checks, default-dry-run hosted acceptance runner, full source-scope verification and approval/rollback checklist."
+    },
+    {
+      "kind": "added",
+      "detail": "Created a new 36-file-overlay candidate from the production baseline. Account 6 candidate, old reports and backups retained. No removals, deployments or production writes."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Authorization regression",
+      "result": "passed",
+      "detail": "Three new guard-chain tests reproduced the old failure; all passed after correction. Thirteen focused authorization/API tests passed."
+    },
+    {
+      "name": "Corrected-candidate build",
+      "result": "passed",
+      "detail": "Node 24.22.0 production-mode build exited 0, 228 pages. Initial sandbox font EACCES retained; normal-TLS network retry passed. Placeholder services; not hosted acceptance."
+    },
+    {
+      "name": "TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Root no-emit TypeScript, build type validation and changed-code/script ESLint passed."
+    },
+    {
+      "name": "Release isolation",
+      "result": "passed",
+      "detail": "All 2602 candidate source files compared against 2577 production-baseline files; every source delta pinned. All 36 overlay hashes and eight worker hashes rechecked after build. Unsafe migration absent from executable candidate migration path."
+    },
+    {
+      "name": "Production read-only preparation",
+      "result": "passed",
+      "detail": "Expected READY rollback deployment, Node 24/Hobby/Fluid website configuration, official Supabase project/TLS, no SEO collisions, catalogue and PostgREST discovery verified. Existing backup existence/metadata checked; no new backup created."
+    },
+    {
+      "name": "Hosted acceptance and execution",
+      "result": "not-run",
+      "detail": "No named dedicated worker project/runtime/secrets, migrations, genuine owner/staff hosted matrix, measured RPC timeout, monitoring recipient or daily freshness acceptance. No production-changing approval; production remains NO-GO. Prepare backup immediately before future approved migration."
+    },
+    {
+      "name": "Retained Account 6 evidence",
+      "result": "passed",
+      "detail": "Unchanged worker/SQL/concurrency checks retained, not rerun or represented as new results. No live preview verified."
+    }
+  ]
+}

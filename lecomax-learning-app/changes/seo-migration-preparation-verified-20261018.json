@@ -1,0 +1,63 @@
+{
+  "id": "seo-migration-preparation-verified-20261018",
+  "relatedId": "seo-migration-preparation-20261018",
+  "createdAt": "2026-10-18T17:12:17.947Z",
+  "title": "SEO migration prepared and verified without production writes",
+  "summary": "Live read-only schema, ownership, privileges and migration-ledger checks passed. Migration hardening and verification SQL passed isolated PostgreSQL tests; application still requires approval.",
+  "status": "needs-testing",
+  "pages": [
+    "/admin/seo",
+    "/change-history"
+  ],
+  "components": [
+    "Supabase SEO migration",
+    "Read-only schema inspection",
+    "Migration runbook"
+  ],
+  "files": [
+    "supabase/migrations/202610180001_seo_engine.sql",
+    "supabase/verification/seo-preflight.sql",
+    "supabase/verification/seo-postflight.sql",
+    "scripts/audit-seo-migration.mjs",
+    "scripts/test-seo-sql.mjs",
+    "docs/seo-migration-runbook.md",
+    "docs/seo-system.md",
+    "lecomax-learning-app/data/change-history.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Explicitly revoke audit sequence privileges inherited from live Supabase defaults and internal function execution for service_role. Grant only the save RPC. Add bounded lock and statement timeouts."
+    },
+    {
+      "kind": "added",
+      "detail": "Read-only preflight/postflight SQL and project-matched TLS audit runner; exact migration hash, dependencies, indexes, no-foreign-key rationale, deny-by-default RLS, environment names and application instructions."
+    },
+    {
+      "kind": "modified",
+      "detail": "Extend isolated migration tests for unchanged catalogue/customer/order fixtures, broad default sequence/function privileges, service-role RPC and safe failed reapplication. Preserve original migration snapshot and earlier history."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Live PostgreSQL preflight",
+      "result": "passed",
+      "detail": "Read-only connection confirmed 34 products and 4 categories with compatible columns, clean required data, postgres ownership and trigger rights. No SEO objects or ledger entry for 202610180001. No production data writes."
+    },
+    {
+      "name": "Local PostgreSQL-compatible tests",
+      "result": "passed",
+      "detail": "Migration and both SQL verification files passed in isolated PGlite. Checked non-destructive backfill, triggers, concurrency, retained history, browser denial, service RPC, sequence/function privileges and failed rerun preservation."
+    },
+    {
+      "name": "Audit runner and history",
+      "result": "passed",
+      "detail": "Node syntax check and read-only audit passed. Six history tests passed. Append-only report validation run after append."
+    },
+    {
+      "name": "Staging and production application",
+      "result": "not-run",
+      "detail": "Migration not executed remotely. Staging behavioral verification, approved backup and fresh preflight remain rollout gates. Production migration and deployment require explicit approval; AI and deployed environment values were not inspected."
+    }
+  ]
+}

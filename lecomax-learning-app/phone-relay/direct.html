@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>ACADEMY · Remote phone</title><link rel="stylesheet" href="/viewer.css"><script src="/direct.js" defer></script></head>
+<body class="direct"><main>
+<header class="pair-heading"><span class="eyebrow">ACADEMY</span><h1>Your remote phone</h1><p>Connect once. Return to your phone whenever you need it.</p></header>
+<form id="pair"><label for="code">Pairing code</label><input id="code" required pattern="[a-fA-F0-9]{32}" maxlength="32" autocomplete="off" autocapitalize="none" spellcheck="false"><button id="connect">Connect</button></form>
+<div class="connection-bar"><p id="status" role="status" aria-live="polite">Ready to pair.</p><button id="stop" disabled>Disconnect</button></div>
+<div id="controls" hidden><div class="screen-stage"><img id="screen" alt="Shared Android screen" draggable="false"></div><nav aria-label="Remote phone navigation"><button data-action="back">‹ Back</button><button data-action="home">○ Home</button><button data-action="recents">□ Recents</button></nav></div>
+<footer class="pair-heading"><p>Keep Tailscale connected on both phones. The sharing phone approves access and can disconnect at any time.</p></footer>
+</main></body></html>

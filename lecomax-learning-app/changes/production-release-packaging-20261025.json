@@ -1,0 +1,55 @@
+{
+  "id": "production-release-packaging-20261025",
+  "createdAt": "2026-10-25T21:45:51.912Z",
+  "title": "Bound release tracing and preserve environment setup templates",
+  "summary": "Limit build tracing to the release checkout and exclude generated build/audit files and nested projects while retaining all local recovery data.",
+  "status": "needs-testing",
+  "relatedId": "production-live-fixes-preserved-20261025",
+  "pages": [
+    "Home",
+    "Product gallery",
+    "Bestsellers",
+    "Learning change history"
+  ],
+  "components": [
+    "Production integration",
+    "ProductGallery",
+    "Collection selectors",
+    "SEO test fixtures"
+  ],
+  "files": [
+    "next.config.js",
+    ".gitignore",
+    ".env.example",
+    "operations/seo/staging-app.env.example",
+    "operations/seo/staging-worker.env.example",
+    "operations/seo/worker.env.example",
+    "operations/seo-vercel/ai.env.example"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Set outputFileTracingRoot to the application directory to avoid tracing the parent workspace."
+    },
+    {
+      "kind": "added",
+      "detail": "Include existing credential-free environment templates for explicit environment isolation and disabled-by-default SEO workers."
+    },
+    {
+      "kind": "removed",
+      "detail": "Exclude generated development bundles, nested release worktrees, unrelated project gitlink and audit helper files from publication only; local copies and recovery work are preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Secret and merge scan",
+      "result": "passed",
+      "detail": "Candidate scan found no known secret values, credential-pattern matches or conflict markers."
+    },
+    {
+      "name": "Validation",
+      "result": "not-run",
+      "detail": "Final build, complete Node 24 test run, typechecks and deployment are pending. Build preparation encountered disk exhaustion; only temporary copies created this turn were removed."
+    }
+  ]
+}

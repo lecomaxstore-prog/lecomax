@@ -1,0 +1,49 @@
+{
+  "id": "seo-encrypted-backup-auth-blocked-20261021",
+  "relatedId": "seo-backup-credential-safe-diagnostics-20261021",
+  "createdAt": "2026-10-21T17:04:35.017Z",
+  "title": "Encrypted backup preparation: database login rejected",
+  "summary": "Windows encrypted credential read succeeded; PostgreSQL rejected authentication with SQLSTATE 28P01. No backup, restore, migration or production modification occurred.",
+  "status": "needs-testing",
+  "pages": [
+    "Production recovery operations",
+    "Change History"
+  ],
+  "components": [
+    "Encrypted backup preparation",
+    "Secure credential setup"
+  ],
+  "files": [
+    "scripts/invoke-production-backup.ps1",
+    "scripts/seo-encrypted-production-backup.cjs",
+    "scripts/setup-production-backup-credential.ps1",
+    "artifacts/seo-encrypted-backup-1792602235982.json"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Prepared read-only production identity check and memory-only dump encryption with AES-256-GCM, DPAPI-wrapped random key and archive integrity checks. Backup execution remains untested."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Added hidden password-only replacement mode that reuses the validated connection address, URI-encodes the password automatically, and saves a new DPAPI file without overwriting previous credentials."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Credential/network check",
+      "result": "failed",
+      "detail": "DPAPI decryption reached PostgreSQL; SQLSTATE 28P01 rejected authentication before queries. No secret values printed. No retry with the same credential."
+    },
+    {
+      "name": "Syntax",
+      "result": "passed",
+      "detail": "Node --check and both PowerShell parser checks passed."
+    },
+    {
+      "name": "Encrypted backup and recovery",
+      "result": "not-run",
+      "detail": "Blocked on a valid existing database password. Backup encryption/integrity and isolated recovery not yet executed. Only about 499 MiB disk free at preflight; restore headroom must be verified before execution."
+    }
+  ]
+}

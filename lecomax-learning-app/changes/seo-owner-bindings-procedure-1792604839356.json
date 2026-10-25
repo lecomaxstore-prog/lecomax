@@ -1,0 +1,37 @@
+{
+  "id": "seo-owner-bindings-procedure-1792604839356",
+  "createdAt": "2026-10-21T17:47:19.356Z",
+  "title": "Secure owner-assisted production binding procedure",
+  "summary": "Vercel still withholds all three credentials. Added hidden-input, create-only binding tooling; no production setting changed.",
+  "status": "needs-testing",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ],
+  "components": [
+    "Secure credential input",
+    "Binding contract"
+  ],
+  "files": [
+    "scripts/complete-production-bindings.cjs",
+    "scripts/complete-production-bindings.ps1"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Exact UTF-8 SHA256 derivation using repository policy; owner attestation, hidden prompts, stdin transport, no plaintext persistence, source/literal preflight, create-only writes and preservation reconciliation."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Vercel readback",
+      "result": "passed",
+      "detail": "Three source entries exist as Sensitive and values withheld; all three binding names absent."
+    },
+    {
+      "name": "Local checks",
+      "result": "not-run",
+      "detail": "Syntax and synthetic contract checks pending. Real owner input and remote mutation not performed."
+    }
+  ]
+}

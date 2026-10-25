@@ -1,0 +1,63 @@
+{
+  "id": "mobile-menu-verified-resume-20261025",
+  "relatedId": "mobile-menu-narrow-focus-correction-20261025",
+  "createdAt": "2026-10-25T07:18:33.624Z",
+  "title": "Mobile menu candidate validation completed; awaiting deployment approval",
+  "summary": "Recovered successful build and completed 375px tests. Candidate remains isolated and undeployed; current production and rollback verified READY.",
+  "status": "successful",
+  "pages": [
+    "Storefront shared header",
+    "Learning app Change History"
+  ],
+  "components": [
+    "Header",
+    "Mobile navigation drawer"
+  ],
+  "files": [
+    "artifacts/mobile-menu-20261025/source/components/Header.tsx",
+    "artifacts/mobile-menu-20261025/certification.json",
+    "artifacts/mobile-menu-20261025/resume-checks.cjs",
+    "artifacts/mobile-menu-20261025/browser-375.cjs",
+    "artifacts/mobile-menu-20261025/axe-375.cjs",
+    "artifacts/mobile-menu-20261025/pointer-scroll-375.cjs",
+    "artifacts/mobile-menu-20261025/resume-semantics.cjs",
+    "artifacts/mobile-menu-20261025/resume-routes.cjs",
+    "artifacts/mobile-menu-20261025/certify-resume.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Verified existing candidate: closed drawer inert/hidden, named modal dialog, opening focus, Tab containment, Escape, conditional focus return, background isolation, scroll/inert cleanup and desktop breakpoint behavior. No new application code edits in resumed session."
+    },
+    {
+      "kind": "modified",
+      "detail": "Recovered narrow-screen correction uses storefront-header-bar, storefront-header-brand and storefront-header-logo. All other 2054 production source files unchanged."
+    },
+    {
+      "kind": "added",
+      "detail": "375px validation, semantic review, public route checks, source/build integrity certification and append-only follow-up. No removals."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Build, TypeScript and focused lint",
+      "result": "passed",
+      "detail": "Recovered corrected-source build exit 0, completed 2026-10-25T07:10:36.645Z; types/lint exit 0. Candidate SHA-256 a4e66c955df0f8c8899bcc1b41a4dd3a7d7c78f403236a3b9caf286bb92eddde."
+    },
+    {
+      "name": "Keyboard, focus, pointer and rendering",
+      "result": "passed",
+      "detail": "320/375/390: closed exclusion, modal focus, forward/reverse Tab, Escape and focus return, late portal isolation, search handoff, touch navigation/swipe, no header clipping, previous scroll/inert preserved. Desktop 1440 checked. Focused axe no violations; incomplete manually resolved by DOM/accessibility-tree checks."
+    },
+    {
+      "name": "Production preservation and local database limitation",
+      "result": "passed",
+      "detail": "Verified READY dpl_DVhkLXqsqieeJ5du2vXetyaZCsCL and 2055 source receipt hashes. Live boutique/sitemap/robots 200. Local boutique 500 and sitemap 503 caused by deliberately disconnected database; original failed browser report preserved. SEO, checkout, pricing, shipping, auth, stock, performance assets unchanged."
+    },
+    {
+      "name": "Physical devices, screen readers and deployment",
+      "result": "not-run",
+      "detail": "No physical iOS/Android or human screen-reader testing; no real checkout transactions. No production deployment authorized or performed."
+    }
+  ]
+}

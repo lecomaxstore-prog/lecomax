@@ -1,0 +1,52 @@
+{
+  "id": "seo-approved-fix-deployment-prepared-20261021",
+  "createdAt": "2026-10-21T12:22:09.873Z",
+  "title": "Approved staging fix deployment prepared",
+  "summary": "Pinned 2,124 source files verified; exactly the reviewed manifest, srcset and placeholder fixes. Staging identity and disabled side effects verified; hosted acceptance pending.",
+  "status": "needs-testing",
+  "relatedId": "seo-three-fixes-integrated-verified-20261021",
+  "pages": [
+    "Protected staging storefront",
+    "Change History"
+  ],
+  "components": [
+    "Staging deployment",
+    "Manifest",
+    "CategoryTiles",
+    "Product placeholder"
+  ],
+  "files": [
+    "scripts/seo-approved-fix-deploy.cjs",
+    "app/layout.tsx",
+    "components/CategoryTiles.tsx",
+    "public/images/placeholder.png"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Guarded deployment runner copies only pinned files into a fresh upload directory; rejects unexpected existing deployments."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Source integrity",
+      "result": "passed",
+      "detail": "All 2,124 hashes match snapshot and staging worktree. Manifest and transfer archive match approved SHA-256; exactly three-file delta, no removals."
+    },
+    {
+      "name": "Staging configuration",
+      "result": "passed",
+      "detail": "Fresh authenticated check passed: exact project/team, all-deployment protection, 20 environment names, 18 readable values per scope, isolated Supabase binding; two sensitive values withheld."
+    },
+    {
+      "name": "Duplicate deployment check",
+      "result": "passed",
+      "detail": "Only two historical deployments listed; stable alias remains dpl_9PVLNqN3YRoSmDgi4T5D9o81Svcv."
+    },
+    {
+      "name": "Hosted browser acceptance",
+      "result": "not-run",
+      "detail": "Playwright MCP responds but Chrome profile is already in use. No authentication bypass attempted."
+    }
+  ]
+}

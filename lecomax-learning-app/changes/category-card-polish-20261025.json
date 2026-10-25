@@ -1,0 +1,33 @@
+{
+  "id": "category-card-polish-20261025",
+  "createdAt": "2026-10-25T13:00:51.121Z",
+  "title": "Refined white collection cards",
+  "summary": "Improve photo framing, continuous borders and consistent caption spacing across the four homepage categories.",
+  "status": "needs-testing",
+  "pages": [
+    "Storefront homepage /"
+  ],
+  "components": [
+    "CategoryTiles"
+  ],
+  "files": [
+    "components/CategoryTiles.module.css"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace obscured inset borders with real continuous borders. Place captions in normal flow below artwork, avoiding abrupt overlap and uneven spacing."
+    },
+    {
+      "kind": "modified",
+      "detail": "Show complete portrait images with logos and reserve badge clearance. Balance image regions across all cards, soften corner radii and badges, and refine green arrow controls."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Responsive checks",
+      "result": "not-run",
+      "detail": "Pending isolated component render, lint, typecheck and history checks. Existing photos retained. Not deployed."
+    }
+  ]
+}

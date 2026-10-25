@@ -146,7 +146,7 @@ export default function OurProductsGrid({ products }: { products: CardProduct[] 
   };
 
   return (
-    <section data-source-file="components/OurProductsGrid.tsx" id="nos-produits" className="border-y border-neutral-100 bg-neutral-50/60 pb-10 pt-7 sm:py-10 md:py-12" ref={sectionRef}>
+    <section ref={sectionRef} data-source-file="components/OurProductsGrid.tsx" id="nos-produits" className="border-y border-neutral-100 bg-neutral-50/60 pb-10 pt-7 sm:py-10 md:py-12">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
 
         {/* ── Header ── */}

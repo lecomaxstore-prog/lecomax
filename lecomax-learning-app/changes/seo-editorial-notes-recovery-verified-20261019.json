@@ -1,0 +1,73 @@
+{
+  "id": "seo-editorial-notes-recovery-verified-20261019",
+  "relatedId": "seo-editorial-notes-recovery-prepared-20261019",
+  "createdAt": "2026-10-19T21:34:53.980Z",
+  "title": "Editorial notes recovery verified; isolated production build passed",
+  "summary": "139 regression tests, 9 browser scenarios, 7 native SQL checks, both TypeScript checks, focused ESLint and the isolated build pass. Production untouched; disk capacity and hosted readiness limits remain.",
+  "status": "successful",
+  "pages": [
+    "/admin/seo",
+    "/change-history"
+  ],
+  "components": [
+    "EditorialWorkspace",
+    "Synthetic browser fixture",
+    "Change History"
+  ],
+  "files": [
+    "app/admin/seo/EditorialWorkspace.tsx",
+    "tests/seo-editorial-workspace.test.ts",
+    "scripts/smoke-seo-editorial-workspace.mjs",
+    "docs/seo-session-recovered-20261019.md"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Notes-only server replacement requires confirmation; cancellation preserves bilingual notes and recovery storage."
+    },
+    {
+      "kind": "fixed",
+      "detail": "Recovered revision mismatches show server comparison without silently advancing the save guard."
+    },
+    {
+      "kind": "added",
+      "detail": "Two unit regressions and one actual Chrome scenario; detailed recovered-session handoff."
+    },
+    {
+      "kind": "removed",
+      "detail": "Only 387922 bytes of reproducible cache in the verified previous disposable build directory; source snapshots, databases, logs, reports and releases preserved."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Regression suite",
+      "result": "passed",
+      "detail": "139 passed, 0 failed, 0 skipped; includes editorial, authorization, indexing/sitemap, quality, synthetic SQL and history tests."
+    },
+    {
+      "name": "Real Chrome synthetic fixture",
+      "result": "passed",
+      "detail": "9 scenarios; notes-only cancel/confirm, recovery, product isolation, conflicts, publication/rollback and 375/768/1440 responsiveness. Mobile screenshot visually inspected. No genuine hosted auth."
+    },
+    {
+      "name": "TypeScript and ESLint",
+      "result": "passed",
+      "detail": "Root and learning app TypeScript exit 0; focused SEO ESLint exit 0."
+    },
+    {
+      "name": "Native SQL and inventory",
+      "result": "passed",
+      "detail": "7 checks in fresh PostgreSQL 18.6 loopback cluster; stopped true. Six migration hashes match. Not PG17 hosted acceptance."
+    },
+    {
+      "name": "Isolated build",
+      "result": "passed",
+      "detail": "Exit 0 at 2026-10-19T21:33:15.158Z; build-result-1792445498648.json. Cache disabled, synthetic credentials, application fetches blocked, no deployment. Earlier font EACCES and Chrome sandbox failures retained separately."
+    },
+    {
+      "name": "Capacity and hosted limitations",
+      "result": "not-run",
+      "detail": "No hosted writes, migrations, restores, paid requests, activation, credentials or CLI-link changes. Staging and production remain NO-GO. 987303936 free bytes after checks; future 1GB build preflight may block. Whole unrelated repository suite and real linguistic acceptance not claimed."
+    }
+  ]
+}

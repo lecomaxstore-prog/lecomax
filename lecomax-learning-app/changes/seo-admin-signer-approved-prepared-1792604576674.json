@@ -1,0 +1,35 @@
+{
+  "id": "seo-admin-signer-approved-prepared-1792604576674",
+  "createdAt": "2026-10-21T17:42:56.674Z",
+  "title": "Approved independent production admin signer",
+  "summary": "Owner explicitly approved new admin signer and re-login on next deployment. Prepared create-only sensitive Production configuration.",
+  "status": "needs-testing",
+  "pages": [
+    "Production admin authentication",
+    "Change History"
+  ],
+  "components": [
+    "Vercel production environment"
+  ],
+  "files": [
+    "scripts/create-approved-production-admin-secret.cjs"
+  ],
+  "changes": [
+    {
+      "kind": "added",
+      "detail": "Generate 384 random bits in memory, send via authenticated CLI stdin, reject existing Production secret, verify metadata and preservation. No raw secret logs or files."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Syntax",
+      "result": "passed",
+      "detail": "node --check passed."
+    },
+    {
+      "name": "Creation and preservation",
+      "result": "not-run",
+      "detail": "Pending execution. No deployment or runtime re-login acceptance claimed."
+    }
+  ]
+}

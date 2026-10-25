@@ -1,0 +1,10 @@
+*
+!package.json
+!package-lock.json
+!server.cjs
+!viewer.html
+!viewer.js
+!viewer.css
+!internet.cjs
+!internet-viewer.html
+!internet-viewer.js

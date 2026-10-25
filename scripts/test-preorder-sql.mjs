@@ -12,6 +12,17 @@ insert into products(slug,name,stock,price) values('legacy','Legacy',2,100);
 insert into orders(order_number,items,status) values('LEGACY','[{"slug":"legacy","qty":1}]','pending');
 `);
 for (const migration of ['20260904130000_atomic_color_size_inventory.sql','20260906140000_preorders.sql','20260906160000_preorder_audit.sql']) await db.exec(readFileSync(new URL('../supabase/migrations/'+migration,import.meta.url),'utf8'));
+if (process.argv.includes('--with-seo-failures')) {
+  await db.exec(`alter table products add column description text, add column category text, add column brand text, add column images text[];
+    create table categories(id uuid primary key default gen_random_uuid(),slug text,name text,description text,image text,active boolean);`);
+  await db.exec(readFileSync(new URL('../supabase/alternatives/202610180002_seo_decoupled.sql',import.meta.url),'utf8'));
+  await db.exec(`create or replace function public.sync_seo_document(p_kind text,p_row jsonb) returns void language plpgsql as $$begin raise exception 'INJECTED_SEO_GENERATION_FAILURE';end$$;
+    create function public.test_queue_failure() returns trigger language plpgsql as $$begin raise exception 'INJECTED_QUEUE_FAILURE';end$$;
+    create trigger test_queue_failure before insert or update on seo_sync_queue for each row execute function test_queue_failure();`);
+  await assert.rejects(db.query('select reconcile_seo_queue()'),/INJECTED_QUEUE_FAILURE/);
+  await assert.rejects(db.query("select sync_seo_document('product','{}')"),/INJECTED_SEO_GENERATION_FAILURE/);
+  console.log('SEO queue and generation deliberately broken for the entire commerce regression below.');
+}
 assert.equal((await db.query("select preorder_enabled from products where slug='legacy'")).rows[0].preorder_enabled,false);
 assert.deepEqual((await db.query("select items from orders where order_number='LEGACY'")).rows[0].items,[{slug:'legacy',qty:1}]);
 const product = async (slug,stock,enabled=false,extra={}) => {

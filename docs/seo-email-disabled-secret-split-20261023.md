@@ -1,0 +1,24 @@
+# Saved Email-provider verification and Preview secret replacement
+
+Recorded 2026-10-23T07:18:19.316Z. NO-GO; no deployment or remote mutation.
+
+Fresh evidence: artifacts/seo-preview-resume-20261023/binding-audit-1792739811739.json, checked 2026-10-23T07:16:51.440Z. Supabase staging tyltharlnbxrxibuxyye returns external.email=false and disable_signup=true. All listed providers are disabled. Staging URL/public binding remain correct. No shared variables, external mail/provider/cron/worker credentials were found in effective Preview inventory. Inspected PayPal, IndexNow and SEO feature flags remain false; staging Vercel cron definitions empty.
+
+Email assessment: the saved provider change is confirmed. It is not a global outbound mail kill switch. Candidate app/api/admin/staff/resend-invite/route.ts calls auth.admin.inviteUserByEmail after protected admin authorization; missing RESEND_API_KEY only prevents its separate Resend fallback. Current upstream Supabase routing guards /recover with requireEmailProvider, but /invite with admin credentials only; the invite handler calls sendInvite. This is evidence of a residual possible path, not a live test or a determination of this hosted project's exact Auth version. SMTP and Send Email Hook configuration are not exposed by the public settings response. No email, invitation, recovery or user mutation was executed. Earlier advice implying provider disablement alone could establish universal no-mail isolation was incomplete.
+
+Sources: https://raw.githubusercontent.com/supabase/auth/master/internal/api/api.go and https://raw.githubusercontent.com/supabase/auth/master/internal/api/invite.go ; hook behavior: https://supabase.com/docs/guides/auth/auth-hooks/send-email-hook .
+
+Required email boundary: in staging only, verify SMTP is a non-delivering test sink and that any Send Email Hook is disabled or also routes exclusively to a non-delivering sink. Merely disabling custom SMTP can restore the default sender; do not equate that with disabling mail. Keep provider disabled and avoid all Auth/admin mutations during SEO acceptance. These are proposed manual checks, not changes performed here.
+
+Minimum Vercel replacement steps (no Git needed):
+1. Open lecomax-seo-staging, project prj_jPniwpH4s81bhISVReUKTQN0GwvD, under lecomaxstore-4321s-projects. Do not open/edit real lecomax.
+2. Edit the existing SUPABASE_SERVICE_ROLE_KEY entry's target selection only: remove Preview, retain Production, and preserve the existing secret value. Do not delete/recreate this entry or enter a replacement value. If the UI requires a value to save a scope-only edit, stop; do not guess or overwrite the hidden Production value.
+3. Add a separate entry with the same name, Type Secret, Preview only, All branches/no branch selection. Enter the existing service key directly from Supabase staging tyltharlnbxrxibuxyye via the secure dashboard. Do not paste it in chat, shell arguments, logs or online hashing tools. No key rotation required.
+4. Privately compute SHA-256 of the exact key's UTF-8 bytes, without an added newline. If the existing SUPABASE_SERVICE_KEY_BINDING equals staging-ref:lowercase-hash, leave it untouched. Otherwise retain its old Production value by removing only Preview from that entry, then add a Preview-only binding for the verified key. Do not change the verified URL/public-key/public-binding entries.
+5. Do not deploy during this transition or click Redeploy afterward. Recheck scopes and secure provisioning evidence before proceeding. Saving a secret is provenance evidence only when the exact source/value-entry workflow is established; later equality/read-only authentication checks must not print the secret. Binding existence alone is insufficient, and this candidate does not enforce bindings at runtime.
+
+Impact: future Previews of this staging project receive the new key. Existing deployments keep their captured values. The staging Production-scoped key is retained; the real lecomax project remains untouched. https://vercel.com/docs/environment-variables/managing-environment-variables . No changes were made or implied approved by this audit.
+
+Remaining blockers: (1) general Preview service-secret provenance and binding equality, hence database isolation; (2) all-path email delivery isolation, specifically privileged invitations and unknown SMTP/Auth-hook delivery. Saved Email-provider disablement is now PASSED, not a blocker itself.
+
+Preservation: corrected candidate remains clean; previous 2588-file/30-image verification retained, no source changes and no redundant test run. Git-free preparation remains available. No Preview URL. Changes Made: sanitized saved-state evidence, this report and linked append-only Change History; no Production, Release E, credential, schema or record changes. History route /change-history; no UI preview checked.

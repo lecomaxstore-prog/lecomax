@@ -1,0 +1,57 @@
+{
+  "id": "seo-binding-powershell51-repair-1792605773329",
+  "createdAt": "2026-10-21T18:02:53.329Z",
+  "title": "Fix Windows PowerShell binding launcher before credential transfer",
+  "summary": "Reproduced unsupported StandardInputEncoding in PowerShell 5.1. No binding variables were created; launcher now uses compatible UTF-8 transport and safe diagnostics.",
+  "status": "successful",
+  "pages": [
+    "Production configuration",
+    "Change History"
+  ],
+  "components": [
+    "Hidden-input launcher",
+    "Create-only binding runner"
+  ],
+  "files": [
+    "scripts/complete-production-bindings.ps1",
+    "scripts/complete-production-bindings.cjs",
+    "artifacts/seo-binding-failure-inspection-1792605700801.json"
+  ],
+  "changes": [
+    {
+      "kind": "fixed",
+      "detail": "Replace unsupported ProcessStartInfo.StandardInputEncoding assignment with UTF-8 StreamWriter on stdin BaseStream; preserves exact bytes without BOM."
+    },
+    {
+      "kind": "added",
+      "detail": "Pre-prompt prerequisites and exclusive run lock; sanitized stage-only launcher reports and child stages; no-network synthetic transport self-test. Existing binding preflight/readback preserves create-only resumability without overwrite."
+    }
+  ],
+  "validation": [
+    {
+      "name": "Root cause reproduction",
+      "result": "passed",
+      "detail": "PowerShell 5.1.26100.9711 lacks StandardInputEncoding; assignment reproduces PropertyAssignmentException before Node starts. No numerical owner-execution report exists."
+    },
+    {
+      "name": "Vercel inspection",
+      "result": "passed",
+      "detail": "All three bindings absent; all prior metadata including signer unchanged and entry count unchanged. Read-only inspection evidence saved."
+    },
+    {
+      "name": "Windows PowerShell end-to-end transport",
+      "result": "passed",
+      "detail": "SelfTest passed under Windows PowerShell 5.1 with explicit process-only execution policy; exact non-ASCII UTF-8 fixture received by Node. No credentials or network."
+    },
+    {
+      "name": "Node syntax",
+      "result": "passed",
+      "detail": "node --check passed."
+    },
+    {
+      "name": "Real owner execution",
+      "result": "not-run",
+      "detail": "No credential re-entry requested during diagnosis. Full production binding application, validation/build and runtime remain pending. No migrations/deployment."
+    }
+  ]
+}

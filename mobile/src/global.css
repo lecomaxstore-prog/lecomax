@@ -68,3 +68,20 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+/* Keep coupon focus on the outer field, without a browser-colored inner ring. */
+#checkout-promo-input,
+#checkout-promo-input:focus,
+#checkout-promo-input:focus-visible {
+  outline: none !important;
+  box-shadow: none;
+  caret-color: #193e2d;
+}
+#checkout-promo-field:focus-within {
+  border-color: #315d3c !important;
+  box-shadow: 0 0 0 2px rgba(49, 93, 60, 0.12);
+}
+#checkout-promo-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px #f5f6f4 inset !important;
+  -webkit-text-fill-color: #171c19;
+}
